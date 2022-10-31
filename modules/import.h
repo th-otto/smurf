@@ -33,10 +33,7 @@
 /*#include <multiaes.h>*/
 #include <aes.h>
 #include <vdi.h>
-/* has to be absolute because with relative addressing */
-/* PURE-C would use the start path of the file that */
-/* includes IMPORT.H */
-#include "h:\src\smurf\smurf\src\lib\sym_gem.h"
+#include "../src/lib/sym_gem.h"
 
 #define CNFVERSION  0x04
 

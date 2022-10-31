@@ -77,7 +77,8 @@ long encode_LZW(char *ziel, char *buffer, unsigned long w, unsigned int height, 
 	clear = 1 << data_size;					/* Clearcode bestimmen */
 	end_of_information = clear + 1;			/* end-of-information Code */
 	available = clear + 2;					/* erster freier Tabelleneintrag */
-	pCodeSize = data_size + 1;				/* Bitanzahl der n„chsten Codegr”že */	entries = 1 << pCodeSize;				/* erster Code der n„chsten Codegr”že */
+	pCodeSize = data_size + 1;				/* Bitanzahl der n„chsten Codegr”že */
+	entries = 1 << pCodeSize;				/* erster Code der n„chsten Codegr”že */
 
 	pBitsLeft = 0;
 	pDatum = 0;

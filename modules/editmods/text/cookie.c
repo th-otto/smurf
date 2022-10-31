@@ -67,7 +67,10 @@
 #define FEAT_VM    	2   /* virtual memory manager enabled */
 #define GCJARSIZE 0
 
-#ifndef EINVFN#define EINVFN 	-32#endif
+#ifndef EINVFN
+#define EINVFN 	-32
+#endif
+
 
 /* Erweitert um Ssystem(GETCOOKIE) am 2.5.99 */
 int get_cookie(unsigned long cookie, unsigned long *value)
