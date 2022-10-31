@@ -192,24 +192,24 @@ void roto(void)
 		/* y-achse */
 		mySin = Sin[phi];
 		myCos = Cos[phi];
-		xrot[t] = ( ((long)xpos[t]*myCos)-((long)zpos[t]*mySin) ) >>8;
-		zrot[t] = ( ((long)xpos[t]*mySin)+((long)zpos[t]*myCos) ) >>8;
+		xrot[t] = (int)(( ((long)xpos[t]*myCos)-((long)zpos[t]*mySin) ) >>8);
+		zrot[t] = (int)(( ((long)xpos[t]*mySin)+((long)zpos[t]*myCos) ) >>8);
 
 		pos = zrot[t];
 
 		/* x-achse */
 		mySin = Sin[phi2];
 		myCos = Cos[phi2];
-		zrot[t] = ( ((long)zrot[t]*myCos)-((long)ypos[t]*mySin) ) >>8;
-		yrot[t] = ( ((long)pos*mySin)+((long)ypos[t]*myCos) ) >>8;
+		zrot[t] = (int)(( ((long)zrot[t]*myCos)-((long)ypos[t]*mySin) ) >>8);
+		yrot[t] = (int)(( ((long)pos*mySin)+((long)ypos[t]*myCos) ) >>8);
 
 		pos = xrot[t];
 
 		/* z-achse */
 		mySin = Sin[phi3];
 		myCos = Cos[phi3];
-		xrot[t] = ( ((long)xrot[t]*myCos)-((long)yrot[t]*mySin) ) >>8;
-		yrot[t] = ( ((long)pos*mySin)+((long)yrot[t]*myCos) ) >>8;
+		xrot[t] = (int)(( ((long)xrot[t]*myCos)-((long)yrot[t]*mySin) ) >>8);
+		yrot[t] = (int)(( ((long)pos*mySin)+((long)yrot[t]*myCos) ) >>8);
 
 
 		/* projektion

@@ -149,9 +149,9 @@ int get_dragdrop(WINDOW *window_to_handle, int *messagebuf)
 		/*
 		 * weil bei einem switch ja nur ints verglichen werde, muû man hier etwas aufpassen!
 		 */
-		switch(dd_header.data_type)
+		if (dd_header.data_type == 'ARGS')
 		{
-			case 'ARGS':	/*----------------- Kommandozeile wurde geschickt ----*/
+							/*----------------- Kommandozeile wurde geschickt ----*/
 							data_tag = data;
 							/* Eigenart von MagiXDesk und Jeenie Åbergehen, als */
 							/* erstes Zeichen ein Nullzeichen zu schicken. */
@@ -162,9 +162,9 @@ int get_dragdrop(WINDOW *window_to_handle, int *messagebuf)
 							DraufschmeissBild = ARGS,
 							file_load("", &data_tag, ARGS);
 							SMfree(data);
-							break;
-
-			case '.IMG':	/*----------------- XIMG wurde geschickt ----*/
+		} else if (dd_header.data_type == '.IMG')
+		{
+							/*----------------- XIMG wurde geschickt ----*/
 							graf_mouse(BUSYBEE, dummy_ptr);
 
 							f_len = dd_header.data_length;
@@ -223,8 +223,6 @@ int get_dragdrop(WINDOW *window_to_handle, int *messagebuf)
 							actualize_menu();		/* MenÅeintrÑge ENABLEn / DISABLEn */
 
 							graf_mouse(ARROW, dummy_ptr);
-
-							break;
 		}
 	}
 
@@ -625,7 +623,7 @@ void send_AESMessage(int dest_id, int msg, ...)
 	int ap_buf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 	int var, t;
 
-	va_list *parms;
+	va_list parms;
 
 	va_start(parms, msg);
 

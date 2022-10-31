@@ -117,7 +117,6 @@ int printplug_found=0;
 /* ----------------------------------------------------------------	*/
 void scan_plugins(void)
 {
-	char *dummy=NULL;
 	char *editpath;										/* voller Modulpfad, Original */
 	char *edit_path;									/* voller Modulpfad, editable */
 	char *swapstr, alert[256];
@@ -307,7 +306,7 @@ void scan_plugins(void)
 				 */
 				else
 				{
-/*					Pexec(102, dummy, plugin_bp[anzahl_plugins], ""); */
+/*					Pexec(102, NULL, plugin_bp[anzahl_plugins], ""); */
 					SMfree(plugin_bp[anzahl_plugins]->p_env);
 					SMfree(plugin_bp[anzahl_plugins]);
 					plugin_bp[anzahl_plugins] = NULL;
@@ -603,11 +602,10 @@ void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename)
 	-------------------------------------------------------------------------*/
 void terminate_plugin(int index)
 {
-	char *dummy = NULL;
 
 
 	start_plugin(plugin_bp[index], MTERM, index, plg_data[index]);
-/*	Pexec(102, dummy, plugin_bp[index], ""); */
+/*	Pexec(102, NULL, plugin_bp[index], ""); */
 
 	SMfree(plugin_bp[index]->p_env);
 	SMfree(plugin_bp[index]);

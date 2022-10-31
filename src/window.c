@@ -72,7 +72,7 @@ extern	OBJECT *u_tree;					/* Zeiger auf Radiobutton/Checkbox-Formular	*/
 
 extern	GRECT	screen;					/* globales Screen-GRECT */
 
-extern	int resource_global[100];
+extern	WORD resource_global[100];
 
 extern	SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
 extern	DISPLAY_MODES Display_Opt;
@@ -578,7 +578,7 @@ void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int 
 	for(line = 0; line < line_blocks; line++)
 	{
 		picpart.g_x = ((picbox->g_x - window->wx - window->pic_xpos) * (picture->zoom + 1)) + window->xoffset * (picture->zoom + 1);
-		picpart.g_y = ((long)(picbox->g_y - window->pic_ypos - window->wy) + (long)line * lineblockHeight) * (picture->zoom + 1) + window->yoffset * (picture->zoom + 1);
+		picpart.g_y = (int)(((long)(picbox->g_y - window->pic_ypos - window->wy) + (long)line * lineblockHeight) * (picture->zoom + 1) + window->yoffset * (picture->zoom + 1));
 		picpart.g_w = picbox->g_w * (picture->zoom + 1);
 		picpart.g_h = picbox->g_h * (picture->zoom + 1);
 
@@ -2183,9 +2183,9 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 		/*
 		 * Buttonbreiten berechnen
 		 */
-		alert[ALBUTTON1].ob_width = strlen(alert[ALBUTTON1].ob_spec.free_string) * gl_wchar + gl_wchar;
-		alert[ALBUTTON2].ob_width = strlen(alert[ALBUTTON2].ob_spec.free_string) * gl_wchar + gl_wchar;
-		alert[ALBUTTON3].ob_width = strlen(alert[ALBUTTON3].ob_spec.free_string) * gl_wchar + gl_wchar;
+		alert[ALBUTTON1].ob_width = (int)strlen(alert[ALBUTTON1].ob_spec.free_string) * gl_wchar + gl_wchar;
+		alert[ALBUTTON2].ob_width = (int)strlen(alert[ALBUTTON2].ob_spec.free_string) * gl_wchar + gl_wchar;
+		alert[ALBUTTON3].ob_width = (int)strlen(alert[ALBUTTON3].ob_spec.free_string) * gl_wchar + gl_wchar;
 
 
 		/*

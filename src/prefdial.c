@@ -448,10 +448,10 @@ void f_module_prefs(MOD_INFO *infostruct, int mod_id)
 	{
 		cnfblock = (long *)edit_cnfblock[index];
 		applyConfig(cnfblock);
-		sd1 = cnfblock[0];
-		sd2 = cnfblock[1];
-		sd3 = cnfblock[2];
-		sd4 = cnfblock[3];
+		sd1 = (int)cnfblock[0];
+		sd2 = (int)cnfblock[1];
+		sd3 = (int)cnfblock[2];
+		sd4 = (int)cnfblock[3];
 	}
 
 	/*
@@ -814,7 +814,7 @@ void f_mpref_change(void)
 			cnf_save[11] = editval4;
 			w1 = (long)cnf_save>>16;
 			w2 = (int)cnf_save;
-			module.smStruct[edit_mod_num]->event_par[0] = w1;
+			module.smStruct[edit_mod_num]->event_par[0] = (int)w1;
 			module.smStruct[edit_mod_num]->event_par[1] = w2;
 			module.smStruct[edit_mod_num]->event_par[2] = 12*4;
 			memorize_emodConfig(module.bp[edit_mod_num], module.smStruct[edit_mod_num]);

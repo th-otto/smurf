@@ -316,9 +316,9 @@ WORD  menu_click      _((WORD click, WORD setit));
 
 typedef struct text_edinfo
 {
-  BYTE  FAR *te_ptext;     /* ptr to text (must be 1st)     */
-  BYTE  FAR *te_ptmplt;    /* ptr to template               */
-  BYTE  FAR *te_pvalid;    /* ptr to validation chrs.       */
+  char  FAR *te_ptext;     /* ptr to text (must be 1st)     */
+  char  FAR *te_ptmplt;    /* ptr to template               */
+  char  FAR *te_pvalid;    /* ptr to validation chrs.       */
   WORD  te_font;           /* font                          */
   WORD  te_junk1;          /* junk word                     */
   WORD  te_just;           /* justification- left, right... */
@@ -333,7 +333,7 @@ typedef struct icon_block
 {
   WORD  FAR *ib_pmask;  /* ptr to mask of icon                */
   WORD  FAR *ib_pdata;  /* ptr to data of icon                */
-  BYTE  FAR *ib_ptext;  /* ptr to text of icon                */
+  char  FAR *ib_ptext;  /* ptr to text of icon                */
   UWORD ib_char;        /* character in icon                  */
   WORD  ib_xchar;       /* x-coordinate of ib_char            */
   WORD  ib_ychar;       /* y-coordinate of ib_char            */
@@ -697,7 +697,7 @@ WORD  shel_write      _((WORD doex, WORD isgr, WORD isover, BYTE FAR *pcmd,
                          BYTE FAR *ptail));
 WORD  shel_get        _((BYTE FAR *addr, WORD len));
 WORD  shel_put        _((BYTE FAR *addr, WORD len));
-WORD  shel_find       _((BYTE FAR *ppath));
+WORD  shel_find       _((char FAR *ppath));
 WORD  shel_envrn      _((BYTE FAR * FAR *ppath, BYTE FAR *psrch));
 
 #if GEM & (GEM2 | GEM3)

@@ -868,7 +868,9 @@ int insert_block(WINDOW *picwindow)
 	int	picwid, pichgt, blockwid, blockhgt;
 	int	picdepth, blockdepth;
 	int	endx, endy, begx, begy;
+#if 0
 	int	FULLR, FULLG, FULLB;
+#endif
 	unsigned char *picdata, *blockdata, *currpic, *currblock;
 	int bpp_pic, bpp_block;
 
@@ -992,6 +994,7 @@ int insert_block(WINDOW *picwindow)
 	 */
 	buf = SMalloc((block->pic_width + 32) * 3);
 
+#if 0
 	/*
 	 * Variablen fÅr weiû transparent
 	 */
@@ -1003,6 +1006,7 @@ int insert_block(WINDOW *picwindow)
 			FULLR = FULLB = 31;
 			FULLG = 63;
 		}
+#endif
 
 	/*
 	 * und jetzt einfÅgen. 
@@ -1028,7 +1032,7 @@ int insert_block(WINDOW *picwindow)
 		for(y = begy; y < endy; y++)
 		{
 			if(!(y&63))
-				Dialog.busy.draw(((long)(y - begy) << 7) / (long)(endy - begy));
+				Dialog.busy.draw((int)(((long)(y - begy) << 7) / (long)(endy - begy)));
 
 			for(plane = 0; plane < pic->depth; plane++)
 			{
@@ -1076,7 +1080,7 @@ int insert_block(WINDOW *picwindow)
 			blockLinePic.depth = block->depth;
 
 			if(!(y&15))
-				Dialog.busy.draw(((long)(y - begy) << 7) / (long)(endy - begy));
+				Dialog.busy.draw((int)(((long)(y - begy) << 7) / (long)(endy - begy)));
 
 			if(block->format_type == FORM_PIXELPAK)
 				currblock = blockdata + ((long)y * (long)blockwid * (long)bpp_block) + ((long)begx * (long)bpp_block);
@@ -1211,7 +1215,7 @@ void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned int num,
 							or += ((*b16 & 0xf800)>>11)*opac1 >> 8;
 							og += ((*b16 & 0x7e0)>>6)*opac1 >> 8;
 							ob += (*b16 & 0x1f)*opac1 >> 8;
-							*p16++ = (or<<11)|(og<<6)|ob;
+							*p16++ = (unsigned short)((or<<11)|(og<<6)|ob);
 							b16++;
 							break;
 	
@@ -1250,7 +1254,7 @@ void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int num, lon
 				case 16:	or = ((*p16&0xf800)>>11) + ((*b16&0xf800)>>11);
 							og = ((*p16&0x7e0)>>6) + ((*b16&0x7e0)>>6);
 							ob = (*p16&0x1f) + (*b16&0x1f);
-							*p16++ = (or<<11)|(og<<6)|ob;
+							*p16++ = (unsigned short)((or<<11)|(og<<6)|ob);
 							b16++;
 							break;
 	
@@ -1276,7 +1280,7 @@ void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int num, lon
 							r = (((*p16&0xf800)>>11)*opac1>>8) + (or*opac2>>8);
 							g = (((*p16&0x7e0)>>6)*opac1>>8) + (og*opac2>>8);
 							b = ((*p16&0x1f)*opac1>>8) + (ob*opac2>>8);
-							*p16++ = (r<<11)|(g<<6)|b;
+							*p16++ = (unsigned short)((r<<11)|(g<<6)|b);
 							b16++;
 							break;
 	
@@ -1355,7 +1359,7 @@ void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned int num,
 							r = (((*p16&0xf800)>>11)*opac1>>8) + (or*opac2>>8);
 							g = (((*p16&0x7e0)>>6)*opac1>>8) + (og*opac2>>8);
 							b = ((*p16&0x1f)*opac1>>8) + (ob*opac2>>8);
-							*p16++ = (r<<11) | (g<<6) | b;
+							*p16++ = (unsigned short)((r<<11) | (g<<6) | b);
 							b16++;
 							break;
 	
@@ -1394,7 +1398,7 @@ void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int num, lon
 				case 16:	or = ((*p16&0xf800)>>11) - ((*b16&0xf800)>>11);
 							og = ((*p16&0x7e0)>>6) - ((*b16&0x7e0)>>6);
 							ob = (*p16&0x1f) - (*b16&0x1f);
-							*p16++ = (or<<11)|(og<<6)|ob;
+							*p16++ = (unsigned short)((or<<11)|(og<<6)|ob);
 							b16++;
 							break;
 	
@@ -1420,7 +1424,7 @@ void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int num, lon
 							r = (((*p16&0xf800)>>11)*opac1>>8) + (or*opac2>>8);
 							g = (((*p16&0x7e0)>>6)*opac1>>8) + (og*opac2>>8);
 							b = ((*p16&0x1f)*opac1>>8) + (ob*opac2>>8);
-							*p16++ = (r<<11)|(g<<6)|b;
+							*p16++ = (unsigned short)((r<<11)|(g<<6)|b);
 							b16++;
 							break;
 	
@@ -1499,7 +1503,7 @@ void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned int num,
 							r = (((*p16&0xf800)>>11)*opac1>>8) + (or*opac2>>8);
 							g = (((*p16&0x7e0)>>6)*opac1>>8) + (og*opac2>>8);
 							b = ((*p16&0x1f)*opac1>>8) + (ob*opac2>>8);
-							*p16++ = (r<<11) | (g<<6) | b;
+							*p16++ = (unsigned short)((r<<11) | (g<<6) | b);
 							b16++;
 							break;
 	
@@ -1541,7 +1545,7 @@ void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int num, lo
 							r = ((*b16&0xf800)>>11);
 							g = ((*b16&0x7e0)>>6);
 							b = (*b16&0x1f);
-							*p16++ = (((long)or*(long)r >>8)<<11)|(((long)og*(long)g >>8)<<6)|((long)ob*(long)b >>8);
+							*p16++ = (unsigned short)((((long)or*(long)r >>8)<<11)|(((long)og*(long)g >>8)<<6)|((long)ob*(long)b >>8));
 							b16++;
 							break;
 	
@@ -1567,7 +1571,7 @@ void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int num, lo
 							r = (((*p16&0xf800)>>11)*opac1>>8) + (or*opac2>>8);
 							g = (((*p16&0x7e0)>>6)*opac1>>8) + (og*opac2>>8);
 							b = ((*p16&0x1f)*opac1>>8) + (ob*opac2>>8);
-							*p16++ = (r<<11)|(g<<6)|b;
+							*p16++ = (unsigned short)((r<<11)|(g<<6)|b);
 							b16++;
 							break;
 	
@@ -1690,7 +1694,6 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 {
 	char *dest_pic;
 	char *textseg_begin;
-	char *dummy = NULL;
 	char clipexp_path[256];
 
 	int back = 0;
@@ -1760,7 +1763,7 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 
 
 	/*----------- Modul terminieren ------------------------------*/
-/*	Pexec(102, dummy, clx_bp, ""); */
+/*	Pexec(102, NULL, clx_bp, ""); */
 	SMfree(clx_bp->p_env);
 	SMfree(clx_bp);
 

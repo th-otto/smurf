@@ -117,7 +117,9 @@ void *mconfLoad(MOD_INFO *modinfo, int mod_id, char *name)
 
 	void *block = NULL;
 
-	
+	(void)mod_id;
+	(void)name;
+		
 	modconf_popup[NEW_CONF].ob_state |= DISABLED;
 	back = open_modconf_popup(modinfo);				/* erstmal das Popup auf */
 	modconf_popup[NEW_CONF].ob_state &= ~DISABLED;
@@ -150,6 +152,8 @@ void mconfSave(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *n
 	int back;
 	int x, y, w, h;
 
+	(void)mod_id;
+	(void)name;
 
 	back = open_modconf_popup(modinfo);			/* Erstmal das Popup auf */
 	if(back <= 0)
@@ -577,7 +581,7 @@ void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type)
 		len = *(long *)(mca + back + 4 + 33);					/* und seine L„nge */
 	else
 		len = *(long *)(mca + back + 4);						/* und seine L„nge */
-	*num = len;
+	*num = (int)len;
 	
 	block = SMalloc(len);
 	if(type == 'SEMD')

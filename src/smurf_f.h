@@ -390,6 +390,8 @@ int     get_cookie(unsigned long cookie, unsigned long *value);
 void    BCD2string(char *string, int bcd);
 char    *strrpbrk(char *s1beg, char *s1, char *s2);
 char    *shorten_name(char *string, char newlen);
+int get_path(char *path, char drive);
+int set_path(char *path);
 
 long    get_maxnamelen(char *path);
 

@@ -314,8 +314,8 @@ typedef struct commHandlers
     void (*getAvserv)(void);
     void (*initAVPROTO)(void);
 
-    int (*initbubbleGem)(void);
-    int (*deinitbubbleGem)(void);
+    void (*initbubbleGem)(void);
+    void (*deinitbubbleGem)(void);
     void (*bubbleGem)(int windownum, int xpos, int ypos, int modulemode);
 
 

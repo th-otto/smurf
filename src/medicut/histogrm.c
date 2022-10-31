@@ -131,7 +131,7 @@ long *make_histogram(SMURF_PIC *picture)
 		{
 			while(t--)
 			{
-				if(!(t&32767)) Dialog.busy.draw(20-(t*20L/pixlen));
+				if(!(t&32767)) Dialog.busy.draw((int)(20-(t*20L/pixlen)));
 				red=*(p16)>>11;
 				green=(*(p16)>>6)&31;
 				blue=*(p16++)&31;
@@ -144,7 +144,7 @@ long *make_histogram(SMURF_PIC *picture)
 		{
 			while(t--)
 			{
-				if(!(t&32767)) Dialog.busy.draw(20-(t*20L/pixlen));
+				if(!(t&32767)) Dialog.busy.draw((int)(20-(t*20L/pixlen)));
 				index8=*(pdata++);
 				curr_pal=(picture->palette+index8+index8+index8);
 				red=*(curr_pal++)>>3;
@@ -163,7 +163,7 @@ long *make_histogram(SMURF_PIC *picture)
 
 		for(yc=0; yc<height; yc++)
 		{
-			if(!(yc&63)) Dialog.busy.draw((long)yc*20L/(long)height);
+			if(!(yc&63)) Dialog.busy.draw((int)((long)yc*20L/(long)height));
 			pdata = (char*)(picture->pic_data) + (yc*x);
 			for(xc=0; xc<x; xc++)
 			{
@@ -215,7 +215,7 @@ int *pr, *pg, *pb;
 	 */
 	dest_colors = sysinfo->Max_col+1;
 	if(colnum < dest_colors)
-		dest_colors=colnum;
+		dest_colors=(int)colnum;
 
 	for(t = 0; t < dest_colors+1; t++)
 	{
@@ -735,7 +735,7 @@ int not_in_nct=0, idx=0;
 		if(curr_freq<lowest_freq)
 		{
 			lowest_freq=curr_freq;
-			lowfreq_idx=tt;
+			lowfreq_idx=(unsigned int)tt;
 		}
 	}
 
@@ -775,7 +775,7 @@ int not_in_nct=0, idx=0;
 			nct[tt] = (unsigned char)not_in_nct;
 
 		if(!(tt&8191))
-			Dialog.busy.draw(64+(tt>>9));
+			Dialog.busy.draw((int)(64+(tt>>9)));
 	}
 
 

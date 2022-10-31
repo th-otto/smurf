@@ -66,6 +66,7 @@ void f_showtree(OBJECT *tree, int object)	- Wiederanzeigen eines versteckten Obj
 #include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "portab.h"
 #include "smurf_st.h"
 #include "sym_gem.h"
 #include "..\..\modules\import.h"
@@ -85,9 +86,9 @@ void f_update_listfield(LIST_FIELD *lfstruct, OBJECT *tree);
 /*baldrick prototypes insertion this is the only thing we need from
  * xrsrc.h in this file
  */
-extern short xrsrc_gaddr (short re_gtype, short re_gindex, short *re_gaddr, short *pglobal);
+extern short xrsrc_gaddr (short re_gtype, short re_gindex, void *re_gaddr, WORD *pglobal);
 
-extern int resource_global[20];
+extern WORD resource_global[20];
 
 extern int handle;						/* VDI-Handle */
 extern int klicks;						/* Wieviele Klicks (button_ev) */

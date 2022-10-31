@@ -865,7 +865,7 @@ int tfm_cmy_to_rgb(SMURF_PIC *picture, char mode)
 int tfm_rgb_to_grey(SMURF_PIC *picture, char mode)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *palette, *pal,
-		 *pixbuf, BitsPerPixel, val, out;
+		 *pixbuf, BitsPerPixel, val;
 
 	unsigned int *buffer16,
 				 i, x, y, width, height, val16;

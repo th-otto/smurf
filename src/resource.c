@@ -65,7 +65,7 @@ extern void 	shutdown_smurf(char while_startup);
 
 int add_flags[40];			/* zus„tzliche Fensterelemente */
 
-extern int resource_global[100];
+extern WORD resource_global[100];
 
 extern SYSTEM_INFO Sys_info;
 extern int gl_wchar, gl_hchar, gl_wbox, gl_hbox;

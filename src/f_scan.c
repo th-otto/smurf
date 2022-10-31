@@ -91,7 +91,6 @@ void f_scan_edit(void)
 	char *swapstr, alert[128];
 	char *textseg_begin;
 	char edstring[64], strn[4];
-	char *dummy = NULL;
 	extern void set_startupdial(char *string);
 	long mod_magic;
 
@@ -214,7 +213,7 @@ void f_scan_edit(void)
 				DEBUG_MSG (( "      Autor  : %s\n", module_info->autor ));
 			}
 
-/*			Pexec(102, dummy, edit_baspag, 0L); */
+/*			Pexec(102, NULL, edit_baspag, 0L); */
 			SMfree(edit_baspag->p_env);
 			SMfree(edit_baspag);
 		}
@@ -268,7 +267,6 @@ void f_scan_import(void)
 	char *import_path;									/* voller Modulpfad, editable */
  	char *textseg_begin;
 	char alert[128];
-	char *dummy = NULL;
 	long mod_magic;
 
 	int pathlen, bh, bl, anzahl_extensions, t, tt;
@@ -382,7 +380,7 @@ void f_scan_import(void)
 				DEBUG_MSG (( "      Autor  : %s\n", module_info->autor ));
 			}
 
-/*			Pexec(102, dummy, import_baspag, 0L); */
+/*			Pexec(102, NULL, import_baspag, 0L); */
 			SMfree(import_baspag->p_env);
 			SMfree(import_baspag);
 		}
@@ -669,7 +667,6 @@ void f_scan_export(void)
 	char *ex_path;										/* voller Modulpfad, editable */
 	char *swapstr, alert[128];
 	char *textseg_begin;
-	char *dummy = NULL;
 	char edstring[64], strn[4];
 	extern void set_startupdial(char *string);
 	long mod_magic;
@@ -774,7 +771,7 @@ void f_scan_export(void)
 				DEBUG_MSG (( "      Autor  : %s\n", module_info->autor ));
 			}
 
-/*			Pexec(102, dummy, export_baspag, 0L); */
+/*			Pexec(102, NULL, export_baspag, 0L); */
 			SMfree(export_baspag->p_env);
 			SMfree(export_baspag);
 		}

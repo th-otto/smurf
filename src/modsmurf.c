@@ -96,7 +96,7 @@ extern	void	scan_plugins(void);
 /* ------------------------------------------------------------*/
 unsigned char *mononct;			/* monochrome NCT (32KByte) */
 
-int resource_global[100];
+WORD resource_global[100];
 int nullcoordset, syspalset = 0;
 
 int gl_hchar, gl_wchar, gl_hbox, gl_wbox;
@@ -735,15 +735,12 @@ void f_pic_info(void)
 {
 	char *file;	
 	char dummy[30] = "";
-	char *infoline1, *infoline2, *infoline3, *curr_info, *next_info;
 
-	int curr_edx;
-	int picdepth, my_scancode;
+	int picdepth;
 
 	static SMURF_PIC infoprev;
 	SMURF_PIC *pic;
 	OBJECT *infowindow;
-	DISPLAY_MODES old;
 
 	extern int compute_zoom(SMURF_PIC *picture, int twid, int thgt);
 
@@ -845,9 +842,14 @@ void f_pic_info(void)
 		Window.open(&wind_s[WIND_PICINFO]);
 	else
 	{
-/*		make_singular_display(&old, Sys_info.PreviewDither, CR_SYSPAL); */
+#if 0
+		DISPLAY_MODES old;
+		make_singular_display(&old, Sys_info.PreviewDither, CR_SYSPAL);
+#endif
 		Window.redraw(&wind_s[WIND_PICINFO], NULL, 0, 0);
-/*		restore_display(&old); */
+#if 0
+		restore_display(&old);
+#endif
 	}
 
 	return;
@@ -3132,8 +3134,6 @@ void f_init_bintable(OBJECT *rsc)
 
 void shutdown_smurf(char while_startup)
 {
-	char *dummy = NULL;
-
 	int t, maxcol;
 	int rgb[4];
 
@@ -3196,7 +3196,7 @@ void shutdown_smurf(char while_startup)
 		{
 			start_plugin(plugin_bp[t], MTERM, t, plg_data[t]);
 
-/*			Pexec(102, dummy, plugin_bp[t], ""); */
+/*			Pexec(102, NULL, plugin_bp[t], ""); */
 			SMfree(plugin_bp[t]->p_env);
 			SMfree(plugin_bp[t]);
 			plugin_bp[t] = NULL;

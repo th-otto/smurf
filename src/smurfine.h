@@ -27,10 +27,7 @@
 
 /* HEADERFILE fÅr Modulschnittstelle SCHLUMPFINE V0.2       */
 
-/* has to be absolute because with relative addressing */
-/* PURE-C would use the start path of the file that */
-/* includes SMURFINE.H */
-#include "H:\SRC\SMURF\SMURF\MODULES\DITHER\dit_mod.h"
+#include "..\modules\dither\dit_mod.h"
 
 
 int start_imp_module(char *modpath, SMURF_PIC *imp_pic);

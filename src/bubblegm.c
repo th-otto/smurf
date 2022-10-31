@@ -115,10 +115,12 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 	int klickobj;
 	char helppath[256];
 	char helpname[64];
-	char *helpstring, *HelpString;
-	char *help_file, *search_pos, *end_of_string, *modpath;
+	char *HelpString;
+#if 0
+	char *helpstring;
+#endif
+	char *modpath;
 	int Section, TreeId;
-	int found = 0, end = 0;
 	char num_byte[5];
 	int bubble_id, general_info=0;
 	WINDOW *window;
@@ -280,13 +282,13 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 	memset(num_byte, 0, 5);
 /* printf ("BGH: %s, %i, %i, %i\r\n", helppath, Section, TreeId, klickobj ); */
 
-/*
+#if 0
 	/*-------- Block wenn m”glich als global anfordern? */
 	if(Ssystem(FEATURES, 0L, 0L) != EINVFN || Sys_info.OS&MINT || Sys_info.OS&MATSCHIG)
 		helpstring = (char *)Mxalloc(257, 0x20);
 	else
 		helpstring = (char *)SMalloc(257);
-*/
+#endif
 
 	Help = BGHI_Cookie->Load (helppath, 0 );
 	if(!Help)
@@ -294,8 +296,14 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 	HelpString = BGHI_Cookie->GetHelpString ( Help, Section, TreeId, klickobj );
 	BGHI_Cookie->Free(Help);
 
-/*
-
+#if 0
+	{
+	int found = 0;
+	int end = 0;
+	char *end_of_string;
+	char *search_pos;
+	char *help_file;
+	
 	help_file = fload(helppath, 0);
 	if(help_file == NULL)
 		return;
@@ -380,7 +388,8 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 		memset(helpstring, 0x0, 256);
 		strncpy(helpstring, search_pos, end_of_string - search_pos);
 	}
-*/
+	}
+#endif
 
 	/*------ Message an BubbleGEM schicken -----------*/
 	if((bubble_id = appl_find("BUBBLE  ")) > 0)

@@ -479,7 +479,6 @@ int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *par
 
 char *fix_palette(SMURF_PIC *dest, SYSTEM_INFO *sys_info)
 {
-	char *tmpnct;
 	long *histogram;
 
 	histogram = make_histogram(dest);
@@ -487,7 +486,7 @@ char *fix_palette(SMURF_PIC *dest, SYSTEM_INFO *sys_info)
 	make_tmp_nct(histogram, dest, sys_info->Max_col+1);
 	SMfree(histogram);
 
-	return(tmpnct);
+	return dest->local_nct;
 }
 
 
@@ -630,7 +629,7 @@ void f_align_standard(SMURF_PIC *picture, char *paddr, GRECT *part)
 				Dialog.busy.draw((y<<7) / endhgt);
 
 			memset(linebuf, 0x0, bufwid + 32);
-			getpix_std_line(buffer, linebuf, Planes, planelen, bufwid);
+			getpix_std_line(buffer, linebuf, Planes, planelen, (int)bufwid);
 
 			src = linebuf;
 			dest = linebuf;

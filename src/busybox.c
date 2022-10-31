@@ -131,7 +131,7 @@ int draw_busybox(int lft)
 	box.g_h = busytree[BW_ICON].ob_height;
 	Window.redraw(&wind_s[WIND_BUSY], &box, BW_ICON, 0);
 
-	keys = Kbshift(-1);
+	keys = (int)Kbshift(-1);
 	if(keys == 0x003)
 		return(-1);						/* Abbruch (R+L - Shift)? */
 	else
@@ -215,6 +215,7 @@ void fulldisable_busybox(void)
 	------------------------------------------------------------*/ 
 int empty_bb(int lft)
 {
+	(void)lft;
 	if(clock() - Dialog.busy.resetClock > 200)
 		Dialog.busy.enable();
 		
@@ -227,6 +228,7 @@ int empty_bb(int lft)
 	------------------------------------------------------------*/ 
 int fullempty_bb(int lft)
 {
+	(void)lft;
 	return(0);
 }
 
@@ -236,5 +238,7 @@ int fullempty_bb(int lft)
 	------------------------------------------------------------*/ 
 void empty_rbb(int lft, char *txt)
 {
+	(void)lft;
+	(void)txt;
 	return;
 }

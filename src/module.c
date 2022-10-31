@@ -122,7 +122,6 @@ char stdpal4bit[] = {0xff, 0xff, 0xff,
 int start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 {
 	char *textseg_begin;	
-	char *dummy = NULL;
 	long mod_magic;
 	
 	int (*module_main)(GARGAMEL *smurf_struct);
@@ -178,7 +177,7 @@ int start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 		module_main = (INT_FUNCTION)(textseg_begin + MAIN_FUNCTION_OFFSET);
 		module_return = module_main(&sm_struct);
 	
-/*		Pexec(102, dummy, mod_basepage, 0L);				/* Modul systemkonform tîten */ */
+/*		Pexec(102, NULL, mod_basepage, 0L);				/* Modul systemkonform tîten */ */
 		SMfree(mod_basepage->p_env);
 		SMfree(mod_basepage);								/* Modul-Basepage freigeben */
 	}
@@ -517,7 +516,7 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 
 	
 		case M_MOREOK:
-			if(smurf_struct->event_par[0] != NULL)
+			if(smurf_struct->event_par[0] != 0)
 				memorize_expmodConfig(module.bp[mod_num&0xFF], module.smStruct[mod_num&0xFF], 0);
 
 			window_to_handle = smurf_struct->wind_struct;
@@ -528,7 +527,7 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 		 * Smurf soll anbei Åbermittelte Modulkonfiguration abspeichern
 		 */
 		case M_CONFSAVE:
-			if(smurf_struct->event_par[0] != NULL)
+			if(smurf_struct->event_par[0] != 0)
 				memorize_expmodConfig(module.bp[mod_num&0xFF], module.smStruct[mod_num&0xFF], 1);
 
 			break;
@@ -788,13 +787,12 @@ int give_free_module(void)
 /* --------------------------------------------------------------------------------	*/
 void check_and_terminate(int mode, int module_number)
 {
-	char *dummy = NULL;
 
 
 	/* MTERM: Programmodul-Speicher freigeben */
 	if(module.smStruct[module_number] && (mode == MTERM || module.smStruct[module_number]->module_mode == M_DONEEXIT || module.smStruct[module_number]->module_mode == M_EXIT))
 	{ 
-/*		Pexec(102, dummy, module.bp[module_number], ""); */
+/*		Pexec(102, NULL, module.bp[module_number], ""); */
 		SMfree(module.bp[module_number]->p_env);
 		SMfree(module.bp[module_number]);
 		module.bp[module_number] = NULL;
@@ -1141,7 +1139,7 @@ int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, int module_number)
 
 	extern char *edit_modules[100];		/* Pfade fÅr bis zu 100 Edit-Module */
 
-
+	(void)mod_abs;
 	for(t = 0; t < mod_info->how_many_pix; t++)
 	{
 		current_pic = smurf_picture[module_pics[module_number][t]];

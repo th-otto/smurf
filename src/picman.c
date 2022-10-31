@@ -351,7 +351,6 @@ void insert_to_picman(int pic_to_insert)
 	int scrolled=0, entry_to_select;
 
 	OBJECT *res;
-	SMURF_PIC *pic;
 
 
 	pmentry = 0;
@@ -364,8 +363,10 @@ void insert_to_picman(int pic_to_insert)
 	first = res[Dialog.picMan.pictureList.parent_obj].ob_head;
 	last = res[Dialog.picMan.pictureList.parent_obj].ob_tail;
 
+#if 0
 	pic = picture_windows[pic_to_insert].picture;
-	
+#endif
+
 	/* Bild in den Bildmanager eintragen */
 	picnames[pmentry] = picture_windows[pic_to_insert].wtitle + 12;
 	Dialog.picMan.picmanList[pmentry] = pic_to_insert;

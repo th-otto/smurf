@@ -43,56 +43,56 @@ PCVSTART.O			;STUPARGV.O
 ;
 ;--------------------- Smurf-System --------------------
 ;
-MODSMURF.C     		; Hauptmodul
-FLOAD.C				; Dateiladen
-FILE_SEL.C			; Load&Save mit Fileselector (X-FSEL support)
-DO_PCD.C			; PCD-erkennung und laden
-CONFIG.C			; SMURF.CNF laden, speichern
-KEYBOARD.C			; Keyboardevents, Editfelder
-SHORTC2.C			; Tastatur-Shortcuts
-F_SCAN.C			; Aufbau und Init der Listen
-EXP_FORM.C			; Exportformular - Handling
-EXPORT.C			; Exportformular - Handling
-PICMAN.C			; Bildmanager
-THUMBNAI.C			; Thumbnails - Erzeugen, wegwerfen, etc.
-PREFDIAL.C			; Preferences Dialog
-WINDOW.C			; Window-Funktionen
-PICEVENT.C			; Events in Bildfenstern
-BUSYBOX.C			; Busybox-Routinen
-EDIT.C				; Editmodul-Listfeld + Co.
-OPTIONS.C			; Optionsdialog
-DISPOPTS.C			; Display-Options
-;GDPS.C				; GDPS-Zeug
-UNDO.C				; UNDO-Routinen
-BLOCK.C
-RTPREVS.C
-SMURFOBS.C
+modsmurf.c     		; Hauptmodul
+fload.c				; Dateiladen
+file_sel.c			; Load&Save mit Fileselector (X-FSEL support)
+do_pcd.c			; PCD-erkennung und laden
+config.c			; SMURF.CNF laden, speichern
+keyboard.c			; Keyboardevents, Editfelder
+shortc2.c			; Tastatur-Shortcuts
+f_scan.c			; Aufbau und Init der Listen
+exp_form.c			; Exportformular - Handling
+export.c			; Exportformular - Handling
+picman.c			; Bildmanager
+thumbnai.c			; Thumbnails - Erzeugen, wegwerfen, etc.
+prefdial.c			; Preferences Dialog
+window.c			; Window-Funktionen
+picevent.c			; Events in Bildfenstern
+busybox.c			; Busybox-Routinen
+edit.c				; Editmodul-Listfeld + Co.
+options.c			; Optionsdialog
+dispopts.c			; Display-Options
+;gdps.c				; GDPS-Zeug
+undo.c				; UNDO-Routinen
+block.c
+rtprevs.c
+smurfobs.c
 ;
 ;--------------------- Schlumpfine ---------------------
 ;
-MODULE.C			; Module starten, beenden, Modulfenster
-MODCONF.C			; Funktionen um die Modulkonfigurationen zu sichern
+module.c			; Module starten, beenden, Modulfenster
+modconf.c			; Funktionen um die Modulkonfigurationen zu sichern
 ;------- Plugin-Schnittstelle
-PLUGIN\PLUGIN.C [-Z]
+plugin\plugin.C [-Z]
 ;
 ;----------------- GEM & AES - Handling ----------------
 ;
-XRSRC.C					; XRSRC-Routinen fÅr alle Auflîsungen
-MENU.C					; Menuevents
-OBJCT.C					; AES-Objekt-Funktionen
-RESOURCE.C				; Resource-Initialisierung
-lib\RADIOCHK.C			; Radiobuttons, Checkboxes und andere USERDEFs
-lib\SYM_GEM.C			; GEM-Funktionen - Schieberegler, Listenfelder, etc.
-MESSAGEH.C				; AES-Message-Handler
-COLORCH.C				; Farbauswahl
+xrsrc.c					; XRSRC-Routinen fÅr alle Auflîsungen
+menu.c					; Menuevents
+objct.c					; AES-Objekt-Funktionen
+resource.c				; Resource-Initialisierung
+lib\radiochk.c			; Radiobuttons, Checkboxes und andere USERDEFs
+lib\sym_gem.c			; GEM-Funktionen - Schieberegler, Listenfelder, etc.
+messageh.c				; AES-Message-Handler
+colorch.c				; Farbauswahl
 ;
 ;---------------------- Dithering ----------------------
 ;
-DITHER.C				; Dispatcherroutinen fÅr die Dithermodule
-DIT_SUBD.C				; Subdispatcher fÅrs Dithering
-D2S.C					; Direct-2-Screen-Routinen
-;NVDI5RAS.C
-TRANSFM.C				; Bild wandeln
+dither.c				; Dispatcherroutinen fÅr die Dithermodule
+dit_subd.c				; Subdispatcher fÅrs Dithering
+d2s.c					; Direct-2-Screen-Routinen
+;nvdi5ras.c
+transfm.c				; Bild wandeln
 ;
 ;------------------ Palettenanpassung -------------------
 ;
@@ -102,9 +102,9 @@ seekcol.s
 ;
 ;----------- Format- und Systemkonvertierung ------------
 ;
-CONVERT.C				; von allen Datenformaten/Farbsystemen in alle solchen
-BUBBLEGM.C
-LIB\SLB_BIND.C			; shared library
+convert.c				; von allen Datenformaten/Farbsystemen in alle solchen
+bubblegm.c
+lib\slb_bind.c			; shared library
 ;**********************************
 ;*			Assemblerroutinen
 ;**********************************
@@ -112,30 +112,30 @@ pixelins.s			; Einrechnen Blockpixel->Bildpixel
 ;
 ;-------------------- Ditherroutinen --------------------
 ;
-GETPIX.S		; 16 Pixel ins Standardformat setzen (fÅr C-Dithers)
-DIT_READ.S		; Ausleseroutinen - subrouts 
-DITREADP.S		; Ausleseroutinen - subrouts
+getpix.s		; 16 Pixel ins Standardformat setzen (fÅr C-Dithers)
+dit_read.s		; Ausleseroutinen - subrouts 
+ditreadp.s		; Ausleseroutinen - subrouts
 set_pixl.s		; 16 Pixel schreiben in 8Bit-Standard- und Pixelpacked
 setlines.s		; beliebig viele Pixel ins Standardformat setzen
 getlines.s
-REARR.S			; Standardformat-Zeile umbauen (linker Bitrand vom Ausschneiden)
+rearr.s			; Standardformat-Zeile umbauen (linker Bitrand vom Ausschneiden)
 ;
 ;----------- Format- und Systemkonvertierung ------------
 ;
-BGRTORGB.S		; Farbsystem BGR nach RGB
-TOOLS.C			; allgemeine Tools
-BINDINGS.C		; Bindings fÅr Systemfunktionen, die in keiner Lib vorhanden sind
-COMM.C			; alle fÅr die Kommunikation zustÑndige Protokolle
-DESTRUCT.C		; Destruktoren fÅr diverse Datenstrukturen
-ROTO\ROTO1.C
-OLGA.C
-DEBUG.C
+bgrtorgb.s		; Farbsystem BGR nach RGB
+tools.c			; allgemeine Tools
+bindings.c		; Bindings fÅr Systemfunktionen, die in keiner Lib vorhanden sind
+comm.c			; alle fÅr die Kommunikation zustÑndige Protokolle
+destruct.c		; Destruktoren fÅr diverse Datenstrukturen
+roto\roto1.C
+olga.c
+debug.c
 ;**********************************
 ;*				LIBS
 ;**********************************
-PCTOSLIB.LIB
-PCGEMLIB.LIB
-PCSTDLIB.LIB
-PCEXTLIB.LIB
-PCFLTLIB.LIB
-DEMOLIB.LIB
+pctoslib.lib
+pcgemlib.lib
+pcstdlib.lib
+pcextlib.lib
+pcfltlib.lib
+lib\demolib.lib

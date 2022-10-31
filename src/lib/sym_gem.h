@@ -53,6 +53,22 @@ typedef char**  LISTPTR;
 #define FALSE   0
 #define TRUE    1
 
+#ifndef WF_ICONIFY
+#define WF_ICONIFY			26
+#define WF_UNICONIFY		27
+#define WF_UNICONIFYXYWH	28
+#endif
+
+#ifndef WM_ICONIFY
+#define WM_ICONIFY			34
+#define WM_UNICONIFY		35
+#define WM_ALLICONIFY		36
+#endif
+
+#ifndef SMALLER
+#define SMALLER				0x4000
+#endif
+
 typedef struct
 {
     int number_entries;     /* Anzahl an Eintr„gen          */
