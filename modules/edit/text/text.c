@@ -117,8 +117,8 @@ extern	long vst_arbpt32(int handle, long height, int *char_width, int *char_heig
 extern	int get_cookie(unsigned long cookie, unsigned long *value);
 extern	void v_opnbm(int *work_in, MFDB *bitmap, int *handle, int *work_out);
 extern	void v_clsbm(int handle);
-extern	void vqt_xfntinfo(int handle, int flags, int id, int index, XFNT_INFO *info);
-extern	void vqt_real_extent( int handle, int x, int y, char *string,  int *extent );
+extern	int vqt_xfntinfo(int handle, int flags, int id, int index, XFNT_INFO *info);
+extern	void vqt_real_extent( int handle, int x, int y, const char *string,  int *extent );
 int		call_fontsel(int handle, FONT_INFO *fontinfo);
 int		handle_aesmsg(GARGAMEL *smurf_struct, FONT_INFO *font);
 
@@ -414,7 +414,7 @@ static FONT_INFO font;
 		smurf_struct->module_mode = M_EXIT;
 		return;
 	}
-	else if(SmurfMessage == AES_MESSAGE)
+	else if(SmurfMessage == SMURF_AES_MESSAGE)
 	{
 		if(handle_aesmsg(smurf_struct, &font)>0)
 		{

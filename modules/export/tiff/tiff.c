@@ -87,11 +87,11 @@
 #define II 0x4949
 #define MM 0x4d4d
 
-#define BYTE 1
-#define ASCII 2
-#define SHORT 3
-#define LONG 4
-#define RATIONAL 5
+#define T_BYTE 1
+#define T_ASCII 2
+#define T_SHORT 3
+#define T_LONG 4
+#define T_RATIONAL 5
 
 typedef struct
 {
@@ -482,7 +482,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 /*				printf("f_len: %lu\n", f_len); */
 
-				Mshrink(0, ziel, f_len);
+				_Mshrink(ziel, f_len);
 
 				exp_pic->pic_data = ziel;
 				exp_pic->f_len = f_len;
@@ -796,19 +796,19 @@ unsigned int write_header(char *ziel, SMURF_PIC *smurf_pic, CONFIG *config, char
 	}
 
 	dcount = 30;
-	write_IFDEntry(ziel, &dcount, 0xfe, LONG, 1, 0, &ifds);						/* New Subfile Type */
-	write_IFDEntry(ziel, &dcount, 0x100, SHORT, 1, smurf_pic->pic_width, &ifds);		/* Bildbreite */
-	write_IFDEntry(ziel, &dcount, 0x101, SHORT, 1, smurf_pic->pic_height, &ifds);		/* Bildh”he */
+	write_IFDEntry(ziel, &dcount, 0xfe, T_LONG, 1, 0, &ifds);						/* New Subfile Type */
+	write_IFDEntry(ziel, &dcount, 0x100, T_SHORT, 1, smurf_pic->pic_width, &ifds);		/* Bildbreite */
+	write_IFDEntry(ziel, &dcount, 0x101, T_SHORT, 1, smurf_pic->pic_height, &ifds);		/* Bildh”he */
 	if(BitsPerPixel >= 1 && BitsPerPixel <= 8)
 	{
 		bps = 0;
-		write_IFDEntry(ziel, &dcount, 0x102, SHORT, 1, BitsPerPixel, &ifds);	/* BitsPerSample */
+		write_IFDEntry(ziel, &dcount, 0x102, T_SHORT, 1, BitsPerPixel, &ifds);	/* BitsPerSample */
 	}
 	if(BitsPerPixel == 24)
 	{
 		bps = 6;		
 		help = headsize - bps - pallen;
-		write_IFDEntry(ziel, &dcount, 0x102, SHORT, 3, help, &ifds);			/* BitsPerSample */
+		write_IFDEntry(ziel, &dcount, 0x102, T_SHORT, 3, help, &ifds);			/* BitsPerSample */
 		if(headwrite)			/* nicht bei Pass 1 ausfhren */
 		{
 			*(unsigned int *)(ziel + help) = intborder(0x08);
@@ -817,17 +817,17 @@ unsigned int write_header(char *ziel, SMURF_PIC *smurf_pic, CONFIG *config, char
 		}
 	}
 	
-	write_IFDEntry(ziel, &dcount, 0x103, SHORT, 1, comp, &ifds);				/* Kompression */
+	write_IFDEntry(ziel, &dcount, 0x103, T_SHORT, 1, comp, &ifds);				/* Kompression */
 
 	switch(format)
 	{
-		case BILEVEL:	write_IFDEntry(ziel, &dcount, 0x106, SHORT, 1, 0, &ifds);	/* min is white */
+		case BILEVEL:	write_IFDEntry(ziel, &dcount, 0x106, T_SHORT, 1, 0, &ifds);	/* min is white */
 						break;
-		case GREYSCALE:	write_IFDEntry(ziel, &dcount, 0x106, SHORT, 1, 1, &ifds);	/* min is black */
+		case GREYSCALE:	write_IFDEntry(ziel, &dcount, 0x106, T_SHORT, 1, 1, &ifds);	/* min is black */
 						break;
-		case PALETTE:	write_IFDEntry(ziel, &dcount, 0x106, SHORT, 1, 3, &ifds);	/* palette color image */
+		case PALETTE:	write_IFDEntry(ziel, &dcount, 0x106, T_SHORT, 1, 3, &ifds);	/* palette color image */
 						break;
-		case FULLCOLOR:	write_IFDEntry(ziel, &dcount, 0x106, SHORT, 1, 2, &ifds);	/* RGB full color image */
+		case FULLCOLOR:	write_IFDEntry(ziel, &dcount, 0x106, T_SHORT, 1, 2, &ifds);	/* RGB full color image */
 						break;
 	}
 
@@ -843,42 +843,42 @@ unsigned int write_header(char *ziel, SMURF_PIC *smurf_pic, CONFIG *config, char
 	else
 		StripOffsets = headsize;
 	pStripOffsets = (unsigned long *)(ziel + StripOffsets);
-	write_IFDEntry(ziel, &dcount, 0x111, LONG, StripsPerPic, StripOffsets, &ifds);	/* StripOffsets */
+	write_IFDEntry(ziel, &dcount, 0x111, T_LONG, StripsPerPic, StripOffsets, &ifds);	/* StripOffsets */
 
 	if(BitsPerPixel == 24)
-		write_IFDEntry(ziel, &dcount, 0x115, SHORT, 1, 3, &ifds);				/* SamplesPerPixel */
-	write_IFDEntry(ziel, &dcount, 0x116, SHORT, 1, RowsPerStrip, &ifds);		/* RowsPerStrip */
+		write_IFDEntry(ziel, &dcount, 0x115, T_SHORT, 1, 3, &ifds);				/* SamplesPerPixel */
+	write_IFDEntry(ziel, &dcount, 0x116, T_SHORT, 1, RowsPerStrip, &ifds);		/* RowsPerStrip */
 
 	if(StripsPerPic > 1)
 		StripByteCounts = headsize - StripsPerPic * 4L - bps - pallen;
 	else
 		StripByteCounts = dcount + 8;
 	pStripByteCounts = (unsigned long *)(ziel + StripByteCounts);				/* Adresse merken */
-	write_IFDEntry(ziel, &dcount, 0x117, LONG, StripsPerPic, StripByteCounts, &ifds);	/* StripByteCounts */
+	write_IFDEntry(ziel, &dcount, 0x117, T_LONG, StripsPerPic, StripByteCounts, &ifds);	/* StripByteCounts */
 
 	if(StripsPerPic == 1)
 		help = headsize - 16 - bps - pallen;
 	else
 		help = headsize - 16 - StripsPerPic * 8L - bps - pallen;
-	write_IFDEntry(ziel, &dcount, 0x11a, RATIONAL, 1, help, &ifds);		/* x-resolution */
+	write_IFDEntry(ziel, &dcount, 0x11a, T_RATIONAL, 1, help, &ifds);		/* x-resolution */
 	if(headwrite)
 	{
 		*(unsigned long *)(ziel + help) = longborder(0x48);				/* 72 */
 		*(unsigned long *)(ziel + help + 4) = longborder(0x01);			/* durch 1 */
 	}
-	write_IFDEntry(ziel, &dcount, 0x11b, RATIONAL, 1, help + 8, &ifds);	/* y-resolution */
+	write_IFDEntry(ziel, &dcount, 0x11b, T_RATIONAL, 1, help + 8, &ifds);	/* y-resolution */
 	if(headwrite)
 	{
 		*(unsigned long *)(ziel + help + 8) = longborder(0x48);			/* 72 */
 		*(unsigned long *)(ziel + help + 12) = longborder(0x01);		/* durch 1 */
 	}
-	write_IFDEntry(ziel, &dcount, 0x128, SHORT, 1, 2, &ifds);			/* dpi */
+	write_IFDEntry(ziel, &dcount, 0x128, T_SHORT, 1, 2, &ifds);			/* dpi */
 
 	/* šbertragen der Palette */
 	if(BitsPerPixel > 1 && BitsPerPixel <= 8 && smurf_pic->col_format != GREY)
 	{
 		PalOffset = headsize - pallen;
-		write_IFDEntry(ziel, &dcount, 0x140, SHORT, 3 * cols, PalOffset, &ifds);	/* ColorMap */
+		write_IFDEntry(ziel, &dcount, 0x140, T_SHORT, 3 * cols, PalOffset, &ifds);	/* ColorMap */
 
 		if(headwrite)			/* Nicht bei Pass 1 ausfhren */
 		{
@@ -944,13 +944,13 @@ void write_IFDEntry(char *ziel, int *dcount, unsigned int tag, unsigned int type
 		*(unsigned int *)(ziel + 2) = intborder(type);
 		*(unsigned long *)(ziel + 4) = longborder(count);
 
-		if(type == BYTE)
+		if(type == T_BYTE)
 			*(ziel + 8) = (char)value;
 		else
-			if(type == SHORT && count == 1)
+			if(type == T_SHORT && count == 1)
 				*(unsigned int *)(ziel + 8) = intborder((unsigned int)value);
 			else
-				if(type == LONG || type == RATIONAL || count > 1)
+				if(type == T_LONG || type == T_RATIONAL || count > 1)
 					*(unsigned long *)(ziel + 8) = longborder(value);
 	}
 

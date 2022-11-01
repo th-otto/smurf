@@ -461,7 +461,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 /*			printf("f_len: %lu\n", f_len); */
 
-			Mshrink(0, ziel, f_len);
+			_Mshrink(ziel, f_len);
 			exp_pic->pic_data = ziel;
 			exp_pic->f_len = f_len;
 			smurf_struct->module_mode = M_DONEEXIT;

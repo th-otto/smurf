@@ -129,7 +129,7 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 				if(type == CYCLEBUTTON)
 				{
 					evback = evnt_multi(MU_BUTTON|MU_TIMER, 1,3,0, 0,0,0,0,0,0,0,0,0,0,
-					messagebuf, 300,0, &mouse_xpos, &mouse_ypos, &dummy, &key_at_event, &dummy, &klicks);
+					messagebuf, EVNT_TIME(300), &mouse_xpos, &mouse_ypos, &dummy, &key_at_event, &dummy, &klicks);
 
 					if(evback&MU_TIMER)
 						mode = 1;
@@ -151,7 +151,7 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 			do
 			{
 				evback = evnt_multi(MU_TIMER, 1,3,0, 0,0,0,0,0,0,0,0,0,0,
-				messagebuf, 50,0, &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &dummy, &klicks);
+				messagebuf, EVNT_TIME(50), &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &dummy, &klicks);
 
 				timo = objc_find(ob, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
 			

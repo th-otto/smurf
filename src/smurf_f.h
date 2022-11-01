@@ -297,7 +297,7 @@ int     f_open_module_window(WINDOW *module_window);        /* Modulfenster ”ffn
 int     my_window(int handle);                              /* Fenster identifizieren */
 WINDOW  *my_module_window(int handle);                      /* Modulfenster identif. */
 void    f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags);      /* Fenster Redraw */
-int     rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3);     /* Zum Redraw. */
+int     f_rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3);     /* Zum Redraw. */
 void    f_info(void);
 
 void    f_draw_vectorgraphic(WINDOW *window);
@@ -407,7 +407,9 @@ void restore_display(DISPLAY_MODES *old);
 /* ---------------------- Bindings neuer Funktionen ------------------- */
 /* Denn kein Betriebssystem ist vollkommen.                             */
 /* **********************************************************************/
+#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 int cdecl fsel_boxinput(char *path, char *name, int *button, char *label, void *callback);
+#endif
 int SM_wind_set(int wi_ghandle, int wi_gfield, int wi_gw1,
                 int wi_gw2, int wi_gw3, int wi_gw4);
 int SM_wind_get(int wi_ghandle, int wi_gfield, int *wi_gw1,

@@ -132,9 +132,9 @@ int imp_module_main(GARGAMEL * smurf_struct)
 			data_pos = get_poly_points(dp2, points, pointx, pointy, poly_point_number, poly_defs);
 		}
 
-		Mshrink(0, poly_point_number, number_of_polys * 4L);
-		Mshrink(0, pointx, number_of_points * 4L);
-		Mshrink(0, pointy, number_of_points * 4L);
+		_Mshrink(poly_point_number, number_of_polys * 4L);
+		_Mshrink(pointx, number_of_points * 4L);
+		_Mshrink(pointy, number_of_points * 4L);
 
 		/*
 		   printf("\n\n Polygone gesamt: %li", number_of_polys);

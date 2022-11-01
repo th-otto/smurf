@@ -70,6 +70,8 @@ typedef struct
     int litem;
 } CUTTAB;
 
+#ifndef _DOSVARS
+#define _DOSVARS
 typedef struct
 {
     char    *in_dos;                 /* Adresse der DOS- Semaphore */
@@ -90,8 +92,11 @@ typedef struct
     long    res9;                    /*                            */
     long    res10;                   /*                            */
 } DOSVARS;
+#endif
 
 
+#ifndef _AESVARS
+#define _AESVARS
 typedef struct
 {
     long magic;                   /* muž $87654321 sein         */
@@ -109,14 +114,18 @@ typedef struct
     int version;                 /* Version ($0201 ist V2.1)   */
     int release;                 /* 0=alpha..3=release         */
 } AESVARS;
+#endif
 
 
+#ifndef _MAGX_COOKIE
+#define _MAGX_COOKIE
 typedef struct
 {
     unsigned long config_status;
     DOSVARS *dosvars;
     AESVARS *aesvars;
 } MAGX_COOKIE;
+#endif
 
 typedef struct
 {

@@ -62,6 +62,8 @@ typedef struct
 
 typedef	void *PRN_DIALOG;
 
+#ifndef __EVNT
+#define __EVNT
 typedef struct																/* Ereignisstruktur fÅr EVNT_multi(), Fensterdialoge, etc. */
 {
 	int	mwhich;
@@ -74,6 +76,7 @@ typedef struct																/* Ereignisstruktur fÅr EVNT_multi(), Fensterdialo
 	int	reserved[9];
 	int	msg[16];
 } EVNT;
+#endif
 
 
 PRN_DIALOG *pdlg_create(int dialog_flags);
@@ -87,5 +90,5 @@ int pdlg_free_settings(PRN_SETTINGS *settings);
 int pdlg_evnt(PRN_DIALOG *prn_dialog, PRN_SETTINGS *settings,
 			   EVNT *events, int *button);
 void EVNT_multi(int evtypes, int nclicks, int bmask, int bstate,
-							MOBLK *m1, MOBLK *m2, unsigned long ms,
+							const MOBLK *m1, const MOBLK *m2, unsigned long ms,
 							EVNT *event);

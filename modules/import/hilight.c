@@ -135,13 +135,13 @@ if(depth==16)
       }
    }
 
-   Mshrink(0, picdata, Len16);
+   _Mshrink(picdata, Len16);
 
 }
 else if(depth==24)
 {
    memcpy(picd, picdata, Len24);
-   Mshrink(0, picd, Len24);
+   _Mshrink(picd, Len24);
 }
 
 smurf_struct->smurf_pic->pic_width=width;

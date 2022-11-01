@@ -1371,7 +1371,7 @@ LOCAL WORD CDECL xdraw_cicon (PARMBLK *pb)
 	WORD    *mask, *data, *dark = NULL;
 	char    letter[2];
 	WORD    selected, mindex[2], iindex[2], buf, xy[4];
-	BOOLEAN invert = FALSE;
+	WORD invert = FALSE;
 	
 	selected = pb->pb_currstate & SELECTED;
 	
@@ -1558,7 +1558,7 @@ LOCAL VOID xrect2array (CONST GRECT *rect, WORD *array)
 
 /*****************************************************************************/
 
-GLOBAL BOOLEAN init_xrsrc (WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox)
+GLOBAL WORD init_xrsrc (WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox)
 
 {
 	xvdi_handle = vdi_handle;

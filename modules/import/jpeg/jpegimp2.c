@@ -37,6 +37,10 @@
 #include "..\..\import.h"
 #include "..\..\..\src\smurfine.h"
 
+#undef LOCAL
+#undef GLOBAL
+#undef INLINE
+
 #include "jpeglib.h"
 #include <setjmp.h>
 

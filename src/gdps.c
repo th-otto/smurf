@@ -189,7 +189,7 @@ int send_command(COMSTRUCT *comstruct, int command)
 
 	/* warten bis Kommando vom Treiber wieder auf 0 */
 	while(actual->command)
-		evnt_timer(100, 0);
+		evnt_timer(EVNT_TIME(100));
 
 	return(0);
 } /* send_command */

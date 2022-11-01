@@ -155,7 +155,7 @@ int start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 
 		/* L„nge des gesamten Tochterprozesses ermitteln */
 		ProcLen = get_proclen(mod_basepage);
-		back = Mshrink(0, mod_basepage, ProcLen);			/* Speicherblock verkrzen */
+		back = _Mshrink(mod_basepage, ProcLen);			/* Speicherblock verkrzen */
 		if(back != 0)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -231,7 +231,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, int mode, int mo
 
 			/* L„nge des gesamten Tochterprozesses ermitteln */
 			ProcLen = get_proclen(edit_basepage);
-			back = Mshrink(0, edit_basepage, ProcLen);		/* Speicherblock verkrzen */
+			back = _Mshrink(edit_basepage, ProcLen);		/* Speicherblock verkrzen */
 			if(back != 0)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -258,13 +258,13 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, int mode, int mo
 		sm_struct->services = &global_services;
 
 		/* EVENT im Modulfenster ! */
-		if(mode == MBEVT || mode == MKEVT || mode == AES_MESSAGE)
+		if(mode == MBEVT || mode == MKEVT || mode == SMURF_AES_MESSAGE)
 		{
 			sm_struct->mousex=mouse_xpos;
 			sm_struct->mousey=mouse_ypos;
 			sm_struct->klicks=klicks;
 
-			if(mode != AES_MESSAGE)
+			if(mode != SMURF_AES_MESSAGE)
 				sm_struct->event_par[0] = obj;
 
 			if(mode == MKEVT)
@@ -344,7 +344,7 @@ EXPORT_PIC *start_exp_module(char *modpath, int message, SMURF_PIC *pic_to_expor
 
 			/* L„nge des gesamten Tochterprozesses ermitteln */
 			ProcLen = get_proclen(export_basepage);
-			back = Mshrink(0, export_basepage, ProcLen);	/* Speicherblock verkrzen */
+			back = _Mshrink(export_basepage, ProcLen);	/* Speicherblock verkrzen */
 			if(back != 0)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -368,12 +368,12 @@ EXPORT_PIC *start_exp_module(char *modpath, int message, SMURF_PIC *pic_to_expor
 		/*
 		 * EVENT im Modulfenster!
 		 */
-		if(message == MBEVT || message == MKEVT || message == AES_MESSAGE)
+		if(message == MBEVT || message == MKEVT || message == SMURF_AES_MESSAGE)
 		{
 			sm_struct->mousex = mouse_xpos;
 			sm_struct->mousey = mouse_ypos;
 			sm_struct->klicks = klicks;
-			if(message != AES_MESSAGE)
+			if(message != SMURF_AES_MESSAGE)
 				sm_struct->event_par[0]=obj;
 
 			if(message == MKEVT)
@@ -1321,10 +1321,10 @@ void AESmsg_to_modules(int *msgbuf)
 			memcpy(module.smStruct[t]->event_par, msgbuf, 16);
 
 			if(magic == 'SEMD')
-				module.comm.startEdit(NULL, curr_bp, AES_MESSAGE, 0, module.smStruct[t]);
+				module.comm.startEdit(NULL, curr_bp, SMURF_AES_MESSAGE, 0, module.smStruct[t]);
 			else
 				if(magic == 'SXMD')
-					start_exp_module(NULL, AES_MESSAGE, NULL, curr_bp, module.smStruct[t], 0);
+					start_exp_module(NULL, SMURF_AES_MESSAGE, NULL, curr_bp, module.smStruct[t], 0);
 
 			f_handle_modmessage(module.smStruct[t]);	
 		}
@@ -1345,7 +1345,7 @@ void AESmsg_to_modules(int *msgbuf)
 			if(magic == 'SPLG')
 			{
 				memcpy(plg_data[t]->event_par, msgbuf, 16);
-				start_plugin(curr_bp, AES_MESSAGE, 0, plg_data[t]);
+				start_plugin(curr_bp, SMURF_AES_MESSAGE, 0, plg_data[t]);
 			}
 		}
 	}

@@ -268,7 +268,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 				else
 					f_len += write_Plane(buffer, ziel + Header, w, height, BitsPerPixel);
 
-				Mshrink(0, ziel, f_len);
+				_Mshrink(ziel, f_len);
 				exp_pic->pic_data = ziel;
 				exp_pic->f_len = f_len;
 			} /* Malloc */

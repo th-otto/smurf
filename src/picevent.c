@@ -1985,7 +1985,7 @@ void picwin_keyboard(int key_scancode, int key_at_event, WINDOW *picwin)
 		do
 		{
 			evback = evnt_multi(MU_KEYBD|MU_TIMER, 0,0,0, 0,0,0,0,0,0,0,0,0,0,
-								messagebuf, 0,0, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy);
+								messagebuf, EVNT_TIME(0), &dummy, &dummy, &dummy, &dummy, &dummy, &dummy);
 			amount++;			
 		} while(evback&MU_KEYBD);
 

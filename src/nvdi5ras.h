@@ -1,5 +1,7 @@
 #include <vdi.h>
 
+#if !defined(__GEMLIB__) && !defined(__PORTVDI_H__)
+
 typedef struct
 {
     int red;                                                        /* Rot-Intensit„t in Promille (0-1000) */
@@ -414,3 +416,5 @@ extern int  v_copies(int vdi_handle, int copies);
 extern long vq_prn_scaling(int handle);
 extern int  vq_margins(int handle, int *top_margin, int *bottom_margin, int *left_margin, int *right_margin, int *hdpi, int *vdpi);
 extern int  vs_document_info(int handle, int type, void *s, int wchar);
+
+#endif

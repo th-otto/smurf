@@ -4,6 +4,7 @@
 #include <vdi.h>
 #include "fontsel.h"
 
+#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 AESPB aespb;
 
 
@@ -68,7 +69,7 @@ void v_clsbm(int handle)
 
 /* Binding fÅr die neue VDI-Funktion vqt_xfntinfo(), erweiterte Fontinformation */
 /* VDI 229, 0 */
-void vqt_xfntinfo(int handle, int flags, int id, int index, XFNT_INFO *info)
+int vqt_xfntinfo(int handle, int flags, int id, int index, XFNT_INFO *info)
 {
     VDIPB vdipb;
 
@@ -94,7 +95,7 @@ void vqt_xfntinfo(int handle, int flags, int id, int index, XFNT_INFO *info)
 
     vdi(&vdipb);
 
-    return;
+    return vdipb.intout[0];
 }
 
 
@@ -107,7 +108,7 @@ void vqt_xfntinfo(int handle, int flags, int id, int index, XFNT_INFO *info)
 	Texteffekte, Rotation, SchrÑgstellung, Pair-Kerning, Track-Kerning,
 	ZeichenÅberhÑnge, horizontale und vertikale Ausrichtung berÅcksichtigt.
 */
-void vqt_real_extent( int handle, int x, int y, char *string,  int *extent )
+void vqt_real_extent( int handle, int x, int y, const char *string,  int *extent )
 {
 	/*Aufruf: vqt_real_extent( handle, x, y, string, extent )*/
 
@@ -129,8 +130,8 @@ void vqt_real_extent( int handle, int x, int y, char *string,  int *extent )
 	vdipb.ptsin[1] = y;
 	
 	intin = malloc(strlen(string)*2L);
-	for(t=0; t<strlen(string); t++)
-		intin[t]=string[t];
+	for(t=0; string[t] != '\0'; t++)
+		intin[t]=(unsigned char)string[t];
 	
 	vdipb.intin = intin;
 
@@ -268,4 +269,6 @@ int fnts_do(FNT_DIALOG *fnt_dialog, long id_in, long pt_in,
 	*ratio = ((long)aespb.intout[6]<<16) | aespb.intout[7];
 
 	return(aespb.intout[0]);
-} /* fnts_do */
+}
+
+#endif

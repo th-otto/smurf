@@ -29,9 +29,6 @@
 #include <tos.h>
 #include "..\..\import.h"
 
-#define TRUE	1
-#define FALSE	0
-
 #define MAXBITS	12
 #define HSIZE	5003
 #define HSHIFT	4

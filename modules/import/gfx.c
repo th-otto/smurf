@@ -244,7 +244,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 	}else{
 		smurf_struct->smurf_pic->format_type=FORM_PIXELPAK;
 	}
-	Mshrink(0,bs,(long)w*h/8*fe);
+	_Mshrink(bs,(long)w*h/8*fe);
 	smurf_struct->smurf_pic->pic_data=bs;
 
 	return(M_PICDONE);

@@ -339,7 +339,7 @@ int grey=0;
 		}else{
 			memmove( smurf_struct->smurf_pic->pic_data, bs,(long)(width+15)/16*2* feb* height);
 			bs=smurf_struct->smurf_pic->pic_data;
-			Mshrink(0,bs,(long)(width+15)/16*2* feb* height);
+			_Mshrink(bs,(long)(width+15)/16*2* feb* height);
 		}
 	}
 	
@@ -369,7 +369,7 @@ int grey=0;
 				bs1+=width;
 				bs2+=(width+15)&0xFFF0;
 			}
-			Mshrink(0,bs,(long)width*height);
+			_Mshrink(bs,(long)width*height);
 		}
 	}else{
 		if( (width&0xF)<=8 && (width&0xF)!=0){
@@ -384,7 +384,7 @@ int grey=0;
 					bs2+=(long)(width+15)/16*2;
 				}
 			}
-			Mshrink(0,bs,(long)(width+7)/8* feb* height);
+			_Mshrink(bs,(long)(width+7)/8* feb* height);
 		}
 	}
 	

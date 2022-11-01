@@ -101,11 +101,11 @@ int imp_module_main(GARGAMEL *smurf_struct)
 
 	if( defekt==0){
 		memcpy(smbuffer,smbuffer+10,(long)x*y);
-		Mshrink(0,smbuffer,(long)x*y);
+		_Mshrink(smbuffer,(long)x*y);
 	}else{
 		if( (long)x*y+10<smurf_struct->smurf_pic->file_len){
 			memcpy(smbuffer,smbuffer+10,(long)x*y);
-			Mshrink(0,smbuffer,(long)x*y);
+			_Mshrink(smbuffer,(long)x*y);
 		}else{
 			void *z;
 			z=Malloc((long)x*y);

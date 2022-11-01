@@ -50,8 +50,10 @@ typedef char**  LISTPTR;
 /*#include <multiaes.h>*/
 #include <aes.h>
 
+#ifndef FALSE
 #define FALSE   0
 #define TRUE    1
+#endif
 
 #ifndef WF_ICONIFY
 #define WF_ICONIFY			26

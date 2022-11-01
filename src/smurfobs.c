@@ -111,7 +111,7 @@ void init_GuiObs(void)
 	Window.open = f_open_window;
 	Window.redraw = f_redraw_window;
 	Window.drawIconified = draw_iconified;
-	Window.rcIntersect = rc_intersect;
+	Window.rcIntersect = f_rc_intersect;
 	Window.myWindow = my_window;
 	Window.myModuleWindow = my_module_window;
 	Window.windowToList = window_to_list;

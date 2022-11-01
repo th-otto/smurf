@@ -130,7 +130,7 @@ int button_ev(OBJECT *tree)
 	int scancode;
 
 
-	evnt_multi(MU_BUTTON|MU_MESAG,1,3,1, 0,0,0,0,0,0,0,0,0,0, messagebuf, 0,0, &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &scancode, &klicks);
+	evnt_multi(MU_BUTTON|MU_MESAG,1,3,1, 0,0,0,0,0,0,0,0,0,0, messagebuf, EVNT_TIME(0), &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &scancode, &klicks);
 	ob_number = objc_find(tree, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
 
 	if(ob_number != -1)
@@ -177,7 +177,7 @@ int f_numedit(int obj, OBJECT *tree, int deflt)
 	do
 	{
 		event_type=evnt_multi(MU_BUTTON|MU_KEYBD,0x102,0x3,0x0,	  0,0,0,0,0, 0,0,0,0,0,  messagebuf, 
-					0,0, &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &key_scancode, &klicks);
+					EVNT_TIME(0), &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &key_scancode, &klicks);
 
 		if(event_type&MU_KEYBD)
 		{
@@ -270,7 +270,7 @@ int f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree)
 
 	evnt_multi(MU_TIMER,0,0,0,
 	0, dummy, dummy, dummy, dummy, 0, dummy, dummy, dummy, dummy,
-	pbuf, 20,0, &mouse_xpos, &mouse_ypos, &dummy, &dummy, &dummy, &dummy);
+	pbuf, EVNT_TIME(20), &mouse_xpos, &mouse_ypos, &dummy, &dummy, &dummy, &dummy);
 
 	xpos-=3;
 
@@ -300,7 +300,7 @@ int f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree)
 	popup_form->ob_x = xpos;
 	popup_form->ob_y = ypos;
 	
-	if(button == REDRAW)
+	if(button == F_REDRAW)
 	{
 		strcpy(tree[obj].TextCast, popup_form[popup_struct->item].TextCast);
 		return(popup_struct->item);
@@ -408,7 +408,7 @@ int f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree)
 		{
 			graf_mkstate(&em_x, &em_y, &dummy, &dummy);
 			backval = evnt_multi(MU_BUTTON|MU_M1, 1,1,1, 1,em_x,em_y,1,1, 0,0,0,0,0,
-						mb, 0,0, &mx, &my, &mbutt, &dummy, &dummy, &dummy);
+						mb, EVNT_TIME(0), &mx, &my, &mbutt, &dummy, &dummy, &dummy);
 
 			pop_button=objc_find(popup_form, 0, MAX_DEPTH, mx,my);
 
@@ -638,7 +638,7 @@ int f_rslid(SLIDER *slider_struct)
 		do
 		{
 			oldy = mousey;
-			ev = evnt_multi(MU_BUTTON|MU_M1, 1,1,0, 1,0,mousey,scrwd,1, 0,0,0,0,0, NULL, dummy,dummy, &dummy, &mousey, &mbutt, &dummy, &dummy, &dummy);
+			ev = evnt_multi(MU_BUTTON|MU_M1, 1,1,0, 1,0,mousey,scrwd,1, 0,0,0,0,0, NULL, EVNT_TIME(0), &dummy, &mousey, &mbutt, &dummy, &dummy, &dummy);
 
 			if(oldy != mousey)
 			{
@@ -980,7 +980,7 @@ if(key_scancode!=0)
 				 
 					tree[(entryc-lfstruct->scroll_offset+first_entry)-1].ob_state=SELECTED;
 					
-					klick_obj=REDRAW;
+					klick_obj=F_REDRAW;
 				}
 			}
 
@@ -1038,7 +1038,7 @@ if(klick_obj!=0)
 		do
 		{
 			oldy = mousey;
-			evnt_multi(MU_BUTTON|MU_M1, 1,1,0, 1,0,mouse_ypos,scrwd,1, 0,0,0,0,0, NULL, dummy,dummy, &dummy, &mousey, &mbutt, &dummy, &dummy, &dummy);
+			evnt_multi(MU_BUTTON|MU_M1, 1,1,0, 1,0,mouse_ypos,scrwd,1, 0,0,0,0,0, NULL, EVNT_TIME(0), &dummy, &mousey, &mbutt, &dummy, &dummy, &dummy);
 
 			if(oldy != mousey)
 			{
@@ -1097,7 +1097,7 @@ if(klick_obj!=0)
 
 	/*------------------ Bl„ttern / Redraw ----------------*/
 	else
-	if(klick_obj==sl_parent || klick_obj == REDRAW)
+	if(klick_obj==sl_parent || klick_obj == F_REDRAW)
 	{
 		if(klick_obj==sl_parent)
 		{
@@ -1427,7 +1427,7 @@ int omx, omy, redraw;
 		omy = mousey;
 
 		evnt_multi(MU_TIMER|MU_M1, 1,3,0, 1,mousex,mousey,1,1, 0,0,0,0,0, 
-					mbuff, 50,0, &nmx, &nmy, &mbutton, &keystate, &dummy, &dummy);
+					mbuff, EVNT_TIME(50), &nmx, &nmy, &mbutton, &keystate, &dummy, &dummy);
 					
 		graf_mkstate(&nmx, &nmy, &mbutton, &keystate);
 

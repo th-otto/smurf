@@ -30,6 +30,7 @@
 #include "nvdi5ras.h"
 
 
+#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 void vq_scrninfo(int handle, int *work_out)
 {
 	VDIPB vdipb;
@@ -54,11 +55,8 @@ void vq_scrninfo(int handle, int *work_out)
 } /* vq_scrninfo */
 
 
-/* leicht verÑndertes Binding, file_path und file_name werden nicht durchgereicht */
-int vq_ext_devinfo(int handle, int device, int *dev_exists, char *name)
+int vq_ext_devinfo(int handle, int device, int *dev_exists, char *file_path, char *file_name, char *name)
 {
-	char file_name[33], file_path[257];
-
 	VDIPB vdipb;
 
 
@@ -84,7 +82,7 @@ int vq_ext_devinfo(int handle, int device, int *dev_exists, char *name)
 	*dev_exists = vdipb.intout[0];
 
 	return(vdipb.intout[1]);
-} /* vq_ext_devinfo */
+}
 
 
 /* v_ext_opnwk--------------------------------------------------
@@ -344,78 +342,25 @@ int cdecl fsel_boxinput(char *path, char *name, int *button, char *label, void *
 	*button = aespb.intout[1];
 
 	return(aespb.intout[0]);
-} /* fsel_boxinput */
+}
+#endif
 
 
 int	SM_wind_get(int wi_ghandle, int wi_gfield, int *wi_gw1,
 				int *wi_gw2, int *wi_gw3, int *wi_gw4)
 {
-	AESPB aespb;
-
-
-	aespb.contrl = _GemParBlk.contrl;
-	aespb.global = _GemParBlk.global;
-	aespb.intin = _GemParBlk.intin;
-	aespb.intout = _GemParBlk.intout;
-	aespb.addrin = (int *)_GemParBlk.addrin;
-	aespb.addrout = (int *)_GemParBlk.addrout;
-
-	aespb.contrl[0] = 104;
-	aespb.contrl[1] = 2;
-	aespb.contrl[2] = 5;
-	aespb.contrl[3] = 0;
-	aespb.contrl[4] = 0;
-
-	aespb.intin[0] = wi_ghandle;
-	aespb.intin[1] = wi_gfield;
-
-	_crystal(&aespb);
-
-	if(wi_gw1)
-		*wi_gw1 = aespb.intout[1];
-	if(wi_gw2)
-		*wi_gw2 = aespb.intout[2];
-	if(wi_gw3)
-		*wi_gw3 = aespb.intout[3];
-	if(wi_gw4)
-		*wi_gw4 = aespb.intout[4];
-
-	return(aespb.intout[0]);
+	return wind_get(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
 } /* wind_get */
 
 
 int	SM_wind_set(int wi_ghandle, int wi_gfield, int wi_gw1,
 				int wi_gw2, int wi_gw3, int wi_gw4)
 {
-	AESPB aespb;
-
-
-	aespb.contrl = _GemParBlk.contrl;
-	aespb.global = _GemParBlk.global;
-	aespb.intin = _GemParBlk.intin;
-	aespb.intout = _GemParBlk.intout;
-	aespb.addrin = (int *)_GemParBlk.addrin;
-	aespb.addrout = (int *)_GemParBlk.addrout;
-
-	aespb.contrl[0] = 105;
-	aespb.contrl[1] = 6;
-	aespb.contrl[2] = 1;
-	aespb.contrl[3] = 0;
-	aespb.contrl[4] = 0;
-
-	aespb.intin[0] = wi_ghandle;
-	aespb.intin[1] = wi_gfield;
-	aespb.intin[2] = wi_gw1;
-	aespb.intin[3] = wi_gw2;
-	aespb.intin[4] = wi_gw3;
-	aespb.intin[5] = wi_gw4;
-
-	_crystal(&aespb);
-
-	return(aespb.intout[0]);
+	return wind_set(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
 } /* wind_set */
 
 
+#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 /* Binding fÅr die neue VDI-Funktion v_opnbm(), Offscreen-Bitmap îffnen */
 /* VDI 100, 1 */
 void v_opnbm(int *work_in, MFDB *bitmap, int *handle, int *work_out)
@@ -473,3 +418,4 @@ void v_clsbm(int handle)
 
     return;
 } /* v_clsbm */
+#endif

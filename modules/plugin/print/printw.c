@@ -222,7 +222,7 @@ void plugin_main(PLUGIN_DATA *data)
                             data->message = M_WAITING;
                             break;
 
-        case AES_MESSAGE:   events.mwhich = MU_MESAG;
+        case SMURF_AES_MESSAGE:   events.mwhich = MU_MESAG;
                             memcpy(events.msg, data->event_par, 16);
                             closed = handle_print_dialog(&events);
                             data->message = M_WAITING;

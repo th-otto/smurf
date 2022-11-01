@@ -63,7 +63,7 @@ BASPAG *start_dither_module(int mode, int mod_id, DITHER_DATA *ditherdata);
 #define GETCONFIG       20
 #define CONFIG_TRANSMIT 21
 
-#define AES_MESSAGE     255         /* weitergeleitete AES-Message */
+#define SMURF_AES_MESSAGE     255         /* weitergeleitete AES-Message */
 
 /* Module Return Messages */
 #define M_INVALID       -1      /* Bildformat ist nicht fÅr mich - I   */
@@ -114,5 +114,11 @@ BASPAG *start_dither_module(int mode, int mod_id, DITHER_DATA *ditherdata);
 #define FORM_PIXELPAK   0       /* Pixelpacked-Format */
 #define FORM_STANDARD   1       /* Standard - Format */
 #define FORM_BOTH       2       /* Beide (f. MOD_ABILITY) */
+
+#ifdef _MINT_OSBIND_H
+#define _Mshrink(ptr, size) Mshrink(ptr, size)
+#else
+#define _Mshrink(ptr, size) Mshrink(0, ptr, size)
+#endif
 
 #endif

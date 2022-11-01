@@ -1176,12 +1176,12 @@ void clip_picw2screen(WINDOW *picw)
 } /* clip_picw2screen */
 
 
-/* rc_intersect -------------------------------------------------
+/* f_rc_intersect -------------------------------------------------
 	Berechnet šberschneidungen der Rechtecke r1 und r2, schreibt
 	die Schnittfl„che in r3 und gibt als Returnwert zurck, ob
 	eine Schnittfl„che berhaupt existiert.
 	-------------------------------------------------------------*/
-int rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3)
+int f_rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3)
 {
    register int x, y, w, h;
 
@@ -1197,7 +1197,7 @@ int rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3)
    r3->g_h = h - y;
 
    return(((w > x) && (h > y)));
-} /* rc_intersect */
+}
 
 
 /*--------------------- Durchl„uft die Windowhandleliste ------------------*/
@@ -2220,7 +2220,7 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 			do
 			{
 				back = evnt_multi(MU_BUTTON|MU_KEYBD|MU_MESAG,1,0x1,0x1, 0,0,0,0,0, 1,0,0,0,0,
-								  messagebuf, 0,0, &mouse_xpos, &mouse_ypos, 
+								  messagebuf, EVNT_TIME(0), &mouse_xpos, &mouse_ypos, 
 								  &dummy, &dummy, &key_scancode, &dummy);
 
 				msg = messagebuf[0];

@@ -47,16 +47,20 @@
 #endif
 
 /*----- 3D-Objekt - Flags */
+#ifndef FL3DIND
     #define FL3DIND     0x0200
     #define FL3DBAK     0x0400
     #define FL3DACT     0x0600
+#endif
 
 /*----- Max/Min-Makros - gr”žere oder kleinere aus 2 Variablen */
     #define min(a,b)             ((a) < (b) ? (a) : (b))
     #define max(a,b)             ((a) > (b) ? (a) : (b))
 
 /* Neue AES-Messages (ab 3.2 aufw„rts) */
+#ifndef WM_BOTTOMED
     #define WM_BOTTOMED 33          /* WM_BOTTOMED Message-ID */
+#endif
     #define AP_DRAGDROP 63          /* Drag&Drop   Message-ID */
 
 /* AES 4.0-3D-Flags */
@@ -138,7 +142,7 @@
 #define UNSEL   0
 #define ENABLED 2
 
-#define REDRAW 99
+#define F_REDRAW 99
 
 #define RADIOBUTTON     43
 #define CHECKBOX        44
@@ -250,5 +254,11 @@ extern  int TOOLBAR_HEIGHT;
 #define DD_TRASH      4    /* Ziel ist ein Papierkorb-Icon      */
 #define DD_PRINTER    5    /* Ziel ist ein Drucker-Icon         */
 #define DD_CLIPBOARD  6    /* Ziel ist ein Klemmbrett-Icon      */
+
+#if defined(__GEMLIB__) || defined(__PORTAES_H__)
+#define EVNT_TIME(lo) lo
+#else
+#define EVNT_TIME(lo) lo, 0
+#endif
 
 #endif

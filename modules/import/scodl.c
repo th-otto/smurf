@@ -197,7 +197,7 @@ else if(depth==8)
 {
     /* den Speicherblock verkÅrzen... */
     PlaneLen=(long)width*(long)height;
-    Mshrink(0, decoded_pic, PlaneLen);
+    _Mshrink(decoded_pic, PlaneLen);
 
     Mfree(pic_data);
     pic_data = (unsigned short *)decoded_pic;

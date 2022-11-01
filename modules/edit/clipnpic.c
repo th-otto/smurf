@@ -262,7 +262,7 @@ uende24:
 
 					buffer = obuffer;
 
-					Mshrink(0, buffer, newrealwidth * (long)newheight);
+					_Mshrink(buffer, newrealwidth * (long)newheight);
 
 					did = TRUE;
 				}
@@ -375,7 +375,7 @@ uende8:
 
 					buffer = obuffer;
 
-					Mshrink(0, buffer, (long)newwidth * (long)newheight);
+					_Mshrink(buffer, (long)newwidth * (long)newheight);
 					did = TRUE;
 				}
 			} /* BitsPerPixel == 8 && FORM_PIXELPAK? */
@@ -539,7 +539,7 @@ uendes:
 
 					buffer = obuffer;
 
-					Mshrink(0, buffer, (long)newrealwidth * (long)newheight * (long)p);
+					_Mshrink(buffer, (long)newrealwidth * (long)newheight * (long)p);
 					did = TRUE;
 				}
 
@@ -655,7 +655,7 @@ uende16:
 
 					buffer16 = obuffer16;
 
-					Mshrink(0, buffer16, newrealwidth * (long)newheight);
+					_Mshrink(buffer16, newrealwidth * (long)newheight);
 					did = TRUE;
 				}
 			} /* BitsPerPixel == 16? */

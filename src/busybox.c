@@ -117,7 +117,8 @@ int draw_busybox(int lft)
 	
 	if(!Startup && !Dialog.busy.noEvents)
 	{
-		ev_type = evnt_multi(MU_KEYBD|MU_MESAG|MU_TIMER, 0,0,0, 0,0,0,0,0, 0,0,0,0,0, messagebuf, 1,0, 
+		ev_type = evnt_multi(MU_KEYBD|MU_MESAG|MU_TIMER, 0,0,0, 0,0,0,0,0, 0,0,0,0,0, messagebuf,
+			EVNT_TIME(1), 
 							 &mouse_xpos, &mouse_ypos, &dummy, &keys, &dummy, &dummy);
 		if(ev_type == MU_MESAG && messagebuf[0] != WM_CLOSED)
 			f_handle_message();

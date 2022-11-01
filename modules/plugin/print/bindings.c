@@ -1,9 +1,11 @@
 #include <aes.h>
 #include <vdi.h>
 #include "wdialog.h"
+#include "..\..\..\src\bindings.h"
+
+#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 
 void vq_scrninfo(int handle, int *work_out);
-int vq_ext_devinfo(int handle, int device, int *dev_exists, char *name);
 
 int	objc_sysvar( int ob_smode, int ob_swhich, int ob_sival1,
 				int ob_sival2, int *ob_soval1, int *ob_soval2);
@@ -36,11 +38,8 @@ void vq_scrninfo(int handle, int *work_out)
 } /* vq_scrninfo */
 
 
-/* leicht verÑndertes Binding, file_path und file_name werden nicht durchgereicht */
-int vq_ext_devinfo(int handle, int device, int *dev_exists, char *name)
+int vq_ext_devinfo(int handle, int device, int *dev_exists, char *file_path, char *file_name, char *name)
 {
-	char file_name[33], file_path[257];
-
 	VDIPB vdipb;
 
 
@@ -67,36 +66,6 @@ int vq_ext_devinfo(int handle, int device, int *dev_exists, char *name)
 
 	return(vdipb.intout[1]);
 } /* vq_ext_devinfo */
-
-
-/* v_ext_opnwk--------------------------------------------------
-	Erweiterter v_opnwk, mit dem auch die erweiterten Parameter
-	von NVDI unterstÅtzt werden.
-	-----------------------------------------------------------*/
-void v_ext_opnwk(int *work_in, int *handle, int *work_out)
-{
-	VDIPB vdipb;
-
-	vdipb.contrl = _VDIParBlk.contrl;
-	vdipb.intin = work_in;
-	vdipb.ptsin = _VDIParBlk.ptsin;
-	vdipb.intout = work_out;
-	vdipb.ptsout = work_out+45;
-
-	vdipb.contrl[0] = 1;
-	vdipb.contrl[1] = 0;
-	vdipb.contrl[2] = 6;
-	vdipb.contrl[3] = 16;
-	vdipb.contrl[4] = 45;
-	vdipb.contrl[5] = 0;
-	vdipb.contrl[6] = 0;
-
-	vdi(&vdipb);
-	
-	*handle = vdipb.contrl[6];
-
-	return;
-} /* v_ext_opnwk */
 
 
 int	objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1,
@@ -366,3 +335,36 @@ int pdlg_evnt(PRN_DIALOG *prn_dialog, PRN_SETTINGS *prn_settings,
 
 	return(aespb.intout[0]);
 } /* pdlg_event */
+
+#endif
+
+/* v_ext_opnwk--------------------------------------------------
+	Erweiterter v_opnwk, mit dem auch die erweiterten Parameter
+	von NVDI unterstÅtzt werden.
+	-----------------------------------------------------------*/
+void v_ext_opnwk(int *work_in, int *handle, int *work_out)
+{
+	VDIPB vdipb;
+	int contrl[15];
+	int ptsin[8];
+	
+	vdipb.contrl = contrl;
+	vdipb.intin = work_in;
+	vdipb.ptsin = ptsin;
+	vdipb.intout = work_out;
+	vdipb.ptsout = work_out+45;
+
+	vdipb.contrl[0] = 1;
+	vdipb.contrl[1] = 0;
+	vdipb.contrl[2] = 6;
+	vdipb.contrl[3] = 16;
+	vdipb.contrl[4] = 45;
+	vdipb.contrl[5] = 0;
+	vdipb.contrl[6] = 0;
+
+	vdi(&vdipb);
+	
+	*handle = vdipb.contrl[6];
+
+	return;
+} /* v_ext_opnwk */

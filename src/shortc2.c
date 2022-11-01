@@ -38,9 +38,6 @@
 #define ALT_CHAR	0x07				/* Men-Alternate-Buchstabe */
 #define SHIFT_CHAR	0x01				/* Men-Shifttaste */
 
-#define FALSE		0					/* Function FALSE value */
-#define TRUE		1					/* Function TRUE value */
-
 #define THEBAR		1					/* Objekt-Nummer der Menzeile */
 #define THEACTIVE	2					/* Objekt-Nummer der aktiven Mens */
 #define THEFIRST	3					/* Objekt-Nummer des ersten Mens */
@@ -73,7 +70,7 @@ char set_menu_key(OBJECT *menu)
 	if(menu != 0L)
 	{
 
-		for(t=3; ; t++)	if(menu[t].ob_type==25) break;
+		for(t=3; ; t++)	if(menu[t].ob_type==G_IBOX) break;
 
 		invisible_box=t;
 		
@@ -90,7 +87,12 @@ char set_menu_key(OBJECT *menu)
 				if((menu[j].ob_type & 0xff) == G_STRING)
 				{
 					s = menu[j].ob_spec.free_string;			/* Men */
-					for(i = (int)strlen(s) - 2; i >= 0 && s[i] != ' '; i--)	/* von hinten her nach dem letzten Leerzeichen suchen */
+					i = (int)strlen(s);
+					if (i > 0 && s[i - 1] == ' ')
+						i--;
+					if (i > 0 && s[i - 1] == ' ')
+						i--;
+					for(; i >= 0 && s[i] != ' '; i--)	/* von hinten her nach dem letzten Leerzeichen suchen */
 						;
 
 					if(i >= 2 && (s[i + 1] == SHIFT_CHAR || s[i + 1] == CTRL_CHAR || s[i + 1] == ALT_CHAR))

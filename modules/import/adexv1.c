@@ -32,8 +32,6 @@
 #include "..\import.h"
 #include "..\..\src\smurfine.h"
 
-#define TRUE        1
-#define FALSE       0
 #define DEBUG       0
 #define W_PIX       255
 #define B_PIX       0

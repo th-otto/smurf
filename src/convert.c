@@ -693,7 +693,7 @@ int tfm_24_to_16(SMURF_PIC *picture, char mode)
 	if(mode == NEW)
 		SMfree(buffer);
 	else
-		Mshrink(0, ziel, (long)width * (long)height * 2L);
+		_Mshrink(ziel, (long)width * (long)height * 2L);
 
 	picture->pic_data = (char *)ziel;
 	picture->depth = 16;

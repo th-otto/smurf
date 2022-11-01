@@ -85,8 +85,6 @@
 #include "..\..\src\smurfine.h"
 
 #define NOMEM		(void *)0L
-#define	TRUE		1
-#define	FALSE		0
 #define CF_BITMAP	2
 #define CF_DIB		8
 #define CF_PALETTE	9

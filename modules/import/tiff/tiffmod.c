@@ -61,9 +61,6 @@
 #include <math.h>
 #include "..\..\import.h"
 
-#define FALSE 0
-#define TRUE 1
-
 #define MOTOROLA 1
 #define INTEL 2
 

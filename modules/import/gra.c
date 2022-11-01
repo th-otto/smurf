@@ -83,7 +83,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 	}
 
 	memcpy(smbuffer,smbuffer+8,(long)x*y);
-	Mshrink(0,smbuffer,(long)x*y);
+	_Mshrink(smbuffer,(long)x*y);
 
 	smurf_struct->smurf_pic->pic_width=(int)x;
 	smurf_struct->smurf_pic->pic_height=(int)y;

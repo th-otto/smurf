@@ -573,7 +573,7 @@ void main(int argc, const char *argv[])
 	popups[POPUP_AUTOPAL].item = Sys_info.AutoconvPalmode;
 
 	popups[POPUP_KODAK].item = Sys_info.PCD_Defsize;
-	f_pop(&popups[POPUP_KODAK], 0, REDRAW, NULL);
+	f_pop(&popups[POPUP_KODAK], 0, F_REDRAW, NULL);
 
 	/*
 	 * als ge”ffnet gespeicherte Fenster ”ffnen
@@ -1287,7 +1287,9 @@ void f_event(void)
 		do
 		{
 			back = evnt_multi(ev_flags,0x102,0x3,0x0, 0,mex,mey,mex2,mey2, 1,mex,mey,mex2,mey2,
-							  messagebuf, Sys_info.Event_Timer,0, &mouse_xpos, &mouse_ypos, 
+							  messagebuf,
+							  EVNT_TIME(Sys_info.Event_Timer),
+							  &mouse_xpos, &mouse_ypos, 
 							  &mouse_button, &key_at_event, &key_scancode, &klicks);
 
 			klickhandle = wind_find(mouse_xpos, mouse_ypos);
@@ -1394,7 +1396,7 @@ void f_event(void)
 							if(back&MU_MESAG && (mod_desire == ALL_MSGS || mod_desire == messagebuf[0]))
 							{
 								memcpy(plg_data[mod_index]->event_par, messagebuf, 16);
-								start_plugin(plugin_bp[mod_index], AES_MESSAGE, 0, plg_data[mod_index]);
+								start_plugin(plugin_bp[mod_index], SMURF_AES_MESSAGE, 0, plg_data[mod_index]);
 							}
 							else if (back&MU_BUTTON && mod_desire==MBEVT && modconfs[t]->windhandle==windh)
 									back = do_MBEVT(modconfs[t]->id, NULL, MBEVT);
@@ -2822,11 +2824,11 @@ int f_init_system(void)
 	DEBUG_MSG(("Editmodule, "));
 
 	/* Listfelder Initialisieren	*/
-	f_listfield((long *)&wind_s[WIND_MODULES], REDRAW, 0, &Dialog.emodList.modList);
+	f_listfield((long *)&wind_s[WIND_MODULES], F_REDRAW, 0, &Dialog.emodList.modList);
 	DEBUG_MSG(("Exporter, "));
-	f_listfield((long *)&wind_s[WIND_EXPORT], REDRAW, 0, &Dialog.expmodList.modList);
+	f_listfield((long *)&wind_s[WIND_EXPORT], F_REDRAW, 0, &Dialog.expmodList.modList);
 	DEBUG_MSG(("Bildmanager 2.\n"));
-	f_listfield((long *)&wind_s[WIND_PICMAN], REDRAW, 0, &Dialog.picMan.pictureList);
+	f_listfield((long *)&wind_s[WIND_PICMAN], F_REDRAW, 0, &Dialog.picMan.pictureList);
 
 	DEBUG_MSG(("Statusfenster\n"));
 

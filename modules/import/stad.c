@@ -32,8 +32,6 @@
 #include "..\..\src\smurfine.h"
 
 #define DEBUG           0
-#define TRUE            1
-#define FALSE           0
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Atari Stad-Grafik",

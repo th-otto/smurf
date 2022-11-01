@@ -174,7 +174,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 
 		memcpy(ziel, buffer + DataOffset, len);
 
-		Mshrink(0, ziel, len);
+		_Mshrink(ziel, len);
 
 		smurf_struct->smurf_pic->pic_data = ziel;
 

@@ -11,8 +11,7 @@
 
 /****** GEMparams ************************************************************/
 
-#if GEMDOS
-#if TURBO_C
+#ifdef __PUREC__
 
 typedef struct
 {
@@ -28,22 +27,19 @@ typedef struct
 
 extern GEMPARBLK _GemParBlk;
 
-#endif /* TURBO_C */
-#endif /* GEMDOS */
+#endif /* __PUREC__ */
 
 /****** Application library **************************************************/
 
 WORD  appl_init       _((VOID));
-WORD  appl_read       _((WORD rwid, WORD length, VOID FAR *pbuff));
-WORD  appl_write      _((WORD rwid, WORD length, VOID FAR *pbuff));
-WORD  appl_find       _((BYTE FAR *pname));
-WORD  appl_tplay      _((VOID FAR *tbuffer, WORD tlenght, WORD tscale));
-WORD  appl_trecord    _((VOID FAR *tbuffer, WORD tlength));
+WORD  appl_read       _((WORD rwid, WORD length, VOID *pbuff));
+WORD  appl_write      _((WORD rwid, WORD length, VOID *pbuff));
+WORD  appl_find       _((BYTE *pname));
+WORD  appl_tplay      _((VOID *tbuffer, WORD tlenght, WORD tscale));
+WORD  appl_trecord    _((VOID *tbuffer, WORD tlength));
 
-#if GEM & (GEM2 | GEM3 | XGEM)
 WORD  appl_bvset      _((UWORD bvdisk, UWORD bvhard));
 VOID  appl_yield      _((VOID));
-#endif /* GEM2 | GEM3 | XGEM */
 
 WORD  appl_exit       _((VOID));
 
@@ -51,7 +47,7 @@ WORD  appl_exit       _((VOID));
 
 typedef struct orect
 {
-  struct orect FAR *o_link;
+  struct orect *o_link;
   WORD         o_x;
   WORD         o_y;
   WORD         o_w;
@@ -76,7 +72,7 @@ typedef struct mevent
   GRECT e_m1;
   UWORD e_m2flags;
   GRECT e_m2;
-  WORD FAR *e_mepbuf;
+  WORD *e_mepbuf;
   ULONG e_time;
   WORD  e_mx;       
   WORD  e_my;
@@ -87,7 +83,7 @@ typedef struct mevent
   UWORD e_m3flags;
   GRECT e_m3;
   WORD  e_xtra0;
-  WORD FAR *e_smepbuf;
+  WORD *e_smepbuf;
   ULONG e_xtra1;
   ULONG e_xtra2;
 } MEVENT;
@@ -155,24 +151,22 @@ typedef struct
 
 UWORD evnt_keybd      _((VOID));
 WORD  evnt_button     _((WORD clicks, UWORD mask, UWORD state,
-                         WORD FAR *pmx, WORD FAR *pmy,
-                         WORD FAR *pmb, WORD FAR *pks));
+                         WORD *pmx, WORD *pmy,
+                         WORD *pmb, WORD *pks));
 WORD  evnt_mouse      _((WORD flags, WORD x, WORD y, WORD width, WORD height,
-                         WORD FAR *pmx, WORD FAR *pmy,
-                         WORD FAR *pmb, WORD FAR *pks));
-WORD  evnt_mesag      _((WORD FAR *pbuff));
+                         WORD *pmx, WORD *pmy,
+                         WORD *pmb, WORD *pks));
+WORD  evnt_mesag      _((WORD *pbuff));
 WORD  evnt_timer      _((UWORD locnt, UWORD hicnt));
 WORD  evnt_multi      _((UWORD flags, UWORD bclk, UWORD bmsk, UWORD bst,
                          UWORD m1flags,
                          UWORD m1x, UWORD m1y, UWORD m1w, UWORD m1h,
                          UWORD m2flags,
                          UWORD m2x, UWORD m2y, UWORD m2w, UWORD m2h,
-                         WORD FAR *mepbuff, UWORD tlc, UWORD thc,
-                         WORD FAR *pmx, WORD FAR *pmy, WORD FAR *pmb,
-                         WORD FAR *pks, UWORD FAR *pkr, WORD FAR *pbr));
-#if GEM & (GEM3 | XGEM)
+                         WORD *mepbuff, UWORD tlc, UWORD thc,
+                         WORD *pmx, WORD *pmy, WORD *pmb,
+                         WORD *pks, UWORD *pkr, WORD *pbr));
 WORD  evnt_event      _((MEVENT *pmevent));
-#endif /* GEM3 | XGEM */
 WORD  evnt_dclick     _((WORD rate, WORD setit));
 
 /****** Object structure *****************************************************/
@@ -194,20 +188,16 @@ typedef struct object
 
 /****** Menu library *********************************************************/
 
-WORD  menu_bar        _((OBJECT FAR *tree, WORD showit));
-WORD  menu_icheck     _((OBJECT FAR *tree, WORD itemnum, WORD checkit));
-WORD  menu_ienable    _((OBJECT FAR *tree, WORD itemnum, WORD enableit));
-WORD  menu_tnormal    _((OBJECT FAR *tree, WORD titlenum, WORD normalit));
-WORD  menu_text       _((OBJECT FAR *tree, WORD inum, BYTE FAR *ptext));
-WORD  menu_register   _((WORD pid, BYTE FAR *pstr));
+WORD  menu_bar        _((OBJECT *tree, WORD showit));
+WORD  menu_icheck     _((OBJECT *tree, WORD itemnum, WORD checkit));
+WORD  menu_ienable    _((OBJECT *tree, WORD itemnum, WORD enableit));
+WORD  menu_tnormal    _((OBJECT *tree, WORD titlenum, WORD normalit));
+WORD  menu_text       _((OBJECT *tree, WORD inum, BYTE *ptext));
+WORD  menu_register   _((WORD pid, BYTE *pstr));
 
-#if GEM & (GEM2 | GEM3 | XGEM)
 WORD  menu_unregister _((WORD mid));
-#endif /* GEM2 | GEM3 | XGEM */
 
-#if GEM & (GEM3 | XGEM)
 WORD  menu_click      _((WORD click, WORD setit));
-#endif /* GEM3 | XGEM */
 
 /****** Object library *******************************************************/
 
@@ -316,9 +306,9 @@ WORD  menu_click      _((WORD click, WORD setit));
 
 typedef struct text_edinfo
 {
-  char  FAR *te_ptext;     /* ptr to text (must be 1st)     */
-  char  FAR *te_ptmplt;    /* ptr to template               */
-  char  FAR *te_pvalid;    /* ptr to validation chrs.       */
+  char  *te_ptext;         /* ptr to text (must be 1st)     */
+  char  *te_ptmplt;        /* ptr to template               */
+  char  *te_pvalid;        /* ptr to validation chrs.       */
   WORD  te_font;           /* font                          */
   WORD  te_junk1;          /* junk word                     */
   WORD  te_just;           /* justification- left, right... */
@@ -331,9 +321,9 @@ typedef struct text_edinfo
 
 typedef struct icon_block
 {
-  WORD  FAR *ib_pmask;  /* ptr to mask of icon                */
-  WORD  FAR *ib_pdata;  /* ptr to data of icon                */
-  char  FAR *ib_ptext;  /* ptr to text of icon                */
+  WORD  *ib_pmask;      /* ptr to mask of icon                */
+  WORD  *ib_pdata;      /* ptr to data of icon                */
+  char  *ib_ptext;      /* ptr to text of icon                */
   UWORD ib_char;        /* character in icon                  */
   WORD  ib_xchar;       /* x-coordinate of ib_char            */
   WORD  ib_ychar;       /* y-coordinate of ib_char            */
@@ -350,10 +340,10 @@ typedef struct icon_block
 typedef struct cicon_data
 {
 	WORD num_planes;							/* number of planes in the following data          */
-	WORD FAR *col_data;						/* pointer to color bitmap in standard form        */
-	WORD FAR *col_mask;						/* pointer to single plane mask of col_data        */
-	WORD FAR *sel_data;						/* pointer to color bitmap of selected icon        */
-	WORD FAR *sel_mask;						/* pointer to single plane mask of selected icon   */
+	WORD *col_data;						/* pointer to color bitmap in standard form        */
+	WORD *col_mask;						/* pointer to single plane mask of col_data        */
+	WORD *sel_data;						/* pointer to color bitmap of selected icon        */
+	WORD *sel_mask;						/* pointer to single plane mask of selected icon   */
 	struct cicon_data *next_res;	/* pointer to next icon for a different resolution */
 }	CICON;
 
@@ -365,7 +355,7 @@ typedef struct cicon_blk
 
 typedef struct bit_block
 {
-  WORD FAR *bi_pdata;   /* ptr to bit forms data  */
+  WORD *bi_pdata;   /* ptr to bit forms data  */
   WORD bi_wb;           /* width of form in bytes */
   WORD bi_hl;           /* height in scan lines   */
   WORD bi_x;            /* source x in bit form   */
@@ -375,7 +365,7 @@ typedef struct bit_block
 
 typedef struct parm_blk
 {
-  OBJECT FAR *pb_tree;               /* ptr to obj tree for user defined obj */
+  OBJECT *pb_tree;               /* ptr to obj tree for user defined obj */
   WORD   pb_obj;                     /* index of user defined object         */
   WORD   pb_prevstate;               /* old state to be changed              */
   WORD   pb_currstate;               /* changed (new) state of object        */
@@ -386,44 +376,28 @@ typedef struct parm_blk
 
 typedef struct user_blk
 {
-#if MSDOS
-#if HIGH_C
-  FAR WORD (*ub_code) _((VOID));              /* pointer to drawing function */
-#else
-  WORD (FAR *ub_code) _((VOID));              /* pointer to drawing function */
-#endif
-#else
-  WORD CDECL (FAR *ub_code) _((PARMBLK *pb)); /* pointer to drawing function */
-#endif
+  WORD CDECL (*ub_code) _((PARMBLK *pb)); /* pointer to drawing function */
   LONG ub_parm;                               /* parm for drawing function   */
 } USERBLK;
 
 typedef struct appl_blk /* for compatibility */
 {
-#if MSDOS
-#if HIGH_C
-  FAR WORD (*ab_code) _((VOID));              /* pointer to drawing function */
-#else
-  WORD (FAR *ab_code) _((VOID));              /* pointer to drawing function */
-#endif
-#else
-  WORD CDECL (FAR *ab_code) _((PARMBLK *pb)); /* pointer to drawing function */
-#endif
+  WORD CDECL (*ab_code) _((PARMBLK *pb)); /* pointer to drawing function */
   LONG ab_parm;                               /* parm for drawing function   */
 } APPLBLK;
 
-WORD  objc_add        _((OBJECT FAR *tree, WORD parent, WORD child));
-WORD  objc_delete     _((OBJECT FAR *tree, WORD delob));
-WORD  objc_draw       _((OBJECT FAR *tree, WORD drawob, WORD depth,
+WORD  objc_add        _((OBJECT *tree, WORD parent, WORD child));
+WORD  objc_delete     _((OBJECT *tree, WORD delob));
+WORD  objc_draw       _((OBJECT *tree, WORD drawob, WORD depth,
                          WORD xc, WORD yc, WORD wc, WORD hc));
-WORD  objc_find       _((OBJECT FAR *tree, WORD startob, WORD depth,
+WORD  objc_find       _((OBJECT *tree, WORD startob, WORD depth,
                          WORD mx, WORD my));
-WORD  objc_offset     _((OBJECT FAR *tree, WORD obj, WORD FAR *poffx,
-                         WORD FAR *poffy));
-WORD  objc_order      _((OBJECT FAR *tree, WORD mov_obj, WORD newpos));
-WORD  objc_edit       _((OBJECT FAR *tree, WORD obj, WORD inchar,
-                         WORD FAR *idx, WORD kind));
-WORD  objc_change     _((OBJECT FAR *tree, WORD drawob, WORD depth,
+WORD  objc_offset     _((OBJECT *tree, WORD obj, WORD *poffx,
+                         WORD *poffy));
+WORD  objc_order      _((OBJECT *tree, WORD mov_obj, WORD newpos));
+WORD  objc_edit       _((OBJECT *tree, WORD obj, WORD inchar,
+                         WORD *idx, WORD kind));
+WORD  objc_change     _((OBJECT *tree, WORD drawob, WORD depth,
                          WORD xc, WORD yc, WORD wc, WORD hc,
                          WORD nestate, WORD redraw));
 
@@ -438,17 +412,17 @@ WORD  objc_change     _((OBJECT FAR *tree, WORD drawob, WORD depth,
 #define FMD_ASTART       4
 #define FMD_AFINISH      5
 
-WORD  form_do         _((OBJECT FAR *form, WORD start));
+WORD  form_do         _((OBJECT *form, WORD start));
 WORD  form_dial       _((WORD dtype, WORD ix, WORD iy, WORD iw, WORD ih,
                          WORD x, WORD y, WORD w, WORD h));
-WORD  form_alert      _((WORD defbut, BYTE FAR *astring));
+WORD  form_alert      _((WORD defbut, BYTE *astring));
 WORD  form_error      _((WORD errnum));
-WORD  form_center     _((OBJECT FAR *tree, WORD FAR *pcx, WORD FAR *pcy,
-                         WORD FAR *pcw, WORD FAR *pch));
-WORD  form_keybd      _((OBJECT FAR *form, WORD obj, WORD nxt_obj,
-                         UWORD thechar, WORD FAR *pnxt_obj, UWORD FAR *pchar));
-WORD  form_button     _((OBJECT FAR *form, WORD obj, WORD clks, 
-                         WORD FAR *pnxt_obj));
+WORD  form_center     _((OBJECT *tree, WORD *pcx, WORD *pcy,
+                         WORD *pcw, WORD *pch));
+WORD  form_keybd      _((OBJECT *form, WORD obj, WORD nxt_obj,
+                         UWORD thechar, WORD *pnxt_obj, UWORD *pchar));
+WORD  form_button     _((OBJECT *form, WORD obj, WORD clks, 
+                         WORD *pnxt_obj));
 
 /****** Graphics library ******************************************************/
 
@@ -484,24 +458,24 @@ typedef struct mfstr
 } MFORM;
 
 WORD  graf_rubbox     _((WORD xorigin, WORD yorigin, WORD wmin, WORD hmin,
-                         WORD FAR *pwend, WORD FAR *phend));
+                         WORD *pwend, WORD *phend));
 WORD  graf_dragbox    _((WORD w, WORD h, WORD sx, WORD sy, WORD xc, WORD yc,
-                         WORD wc, WORD hc, WORD FAR *pdx, WORD FAR *pdy));
+                         WORD wc, WORD hc, WORD *pdx, WORD *pdy));
 WORD  graf_mbox       _((WORD w, WORD h, WORD srcx, WORD srcy,
                          WORD dstx, WORD dsty));
 VOID  graf_growbox    _((WORD stx, WORD sty, WORD stw, WORD sth,
                          WORD finx, WORD finy, WORD finw, WORD finh));
 VOID  graf_shrinkbox  _((WORD finx, WORD finy, WORD finw, WORD finh,
                          WORD stx, WORD sty, WORD stw, WORD sth));
-WORD  graf_watchbox   _((OBJECT FAR *tree, WORD obj, WORD instate,
+WORD  graf_watchbox   _((OBJECT *tree, WORD obj, WORD instate,
                          WORD outstate));
-WORD  graf_slidebox   _((OBJECT FAR *tree, WORD parent, WORD obj,
+WORD  graf_slidebox   _((OBJECT *tree, WORD parent, WORD obj,
                          WORD isvert));
-WORD  graf_handle     _((WORD FAR *pwchar, WORD FAR *phchar,
-                         WORD FAR *pwbox, WORD FAR *phbox));
-WORD  graf_mouse      _((WORD m_number, MFORM FAR *m_addr));
-VOID  graf_mkstate    _((WORD FAR *pmx, WORD FAR *gpmy,
-                         WORD FAR *pmstate, WORD FAR *pkstate));
+WORD  graf_handle     _((WORD *pwchar, WORD *phchar,
+                         WORD *pwbox, WORD *phbox));
+WORD  graf_mouse      _((WORD m_number, MFORM *m_addr));
+VOID  graf_mkstate    _((WORD *pmx, WORD *gpmy,
+                         WORD *pmstate, WORD *pkstate));
 
 /****** Scrap library ********************************************************/
 
@@ -512,22 +486,18 @@ VOID  graf_mkstate    _((WORD FAR *pmx, WORD FAR *gpmy,
 #define SCRAP_DCA   0x0010
 #define SCRAP_USR   0x8000
 
-WORD  scrp_read       _((BYTE FAR *pscrap));
-WORD  scrp_write      _((BYTE FAR *pscrap));
+WORD  scrp_read       _((BYTE *pscrap));
+WORD  scrp_write      _((BYTE *pscrap));
 
-#if GEM & (GEM2 | GEM3 | XGEM)
 WORD  scrp_clear      _((VOID));
-#endif /* GEM2 | GEM3 | XGEM*/
 
 /****** File selector library ************************************************/
 
-WORD  fsel_input      _((BYTE FAR *pipath, BYTE FAR *pisel,
-                         WORD FAR *pbutton));
+WORD  fsel_input      _((BYTE *pipath, BYTE *pisel,
+                         WORD *pbutton));
 
-#if GEM & GEM1
-WORD  fsel_exinput    _((BYTE FAR *pipath, BYTE FAR *pisel, WORD FAR *pbutton,
+WORD  fsel_exinput    _((BYTE *pipath, BYTE *pisel, WORD *pbutton,
                          BYTE *plabel));
-#endif /* GEM1 */
 
 /****** Window library *******************************************************/
 
@@ -611,26 +581,16 @@ WORD  wind_create     _((UWORD kind, WORD wx, WORD wy, WORD ww, WORD wh));
 WORD  wind_open       _((WORD handle, WORD wx, WORD wy, WORD ww, WORD wh));
 WORD  wind_close      _((WORD handle));
 WORD  wind_delete     _((WORD handle));
-#if GEMDOS
 WORD  wind_get        _((WORD w_handle, WORD wfield, ...));
 WORD  wind_set        _((WORD w_handle, WORD wfield, ...));
-#else
-WORD  wind_get        _((WORD w_handle, WORD wfield,
-                         WORD FAR *pw1, WORD FAR *pw2,
-                         WORD FAR *pw3, WORD FAR *pw4));
-WORD  wind_set        _((WORD w_handle, WORD wfield,
-                         WORD w1, WORD w2, WORD w3, WORD w4));
-#endif
 WORD  wind_find       _((WORD mx, WORD my));
 WORD  wind_update     _((WORD beg_update));
 WORD  wind_calc       _((WORD wctype, UWORD kind,
                          WORD x, WORD y, WORD w, WORD h,
-                         WORD FAR *px, WORD FAR *py,
-                         WORD FAR *pw, WORD FAR *ph));
+                         WORD *px, WORD *py,
+                         WORD *pw, WORD *ph));
 
-#if GEM & GEM1
 VOID  wind_new        _((VOID));
-#endif /* GEM1 */
 
 #if GEM & XGEM
 WORD  wind_apfind     _((WORD mx, WORD my));
@@ -684,36 +644,32 @@ typedef struct rshdr
 
 #define F_ATTR 0           /* file attr for dos_create  */
 
-WORD  rsrc_load       _((BYTE FAR *rsname));
+WORD  rsrc_load       _((BYTE *rsname));
 WORD  rsrc_free       _((VOID));
-WORD  rsrc_gaddr      _((WORD rstype, WORD rsid, VOID FAR *paddr));
-WORD  rsrc_saddr      _((WORD rstype, WORD rsid, VOID FAR *lngval));
-WORD  rsrc_obfix      _((OBJECT FAR *tree, WORD obj));
+WORD  rsrc_gaddr      _((WORD rstype, WORD rsid, VOID *paddr));
+WORD  rsrc_saddr      _((WORD rstype, WORD rsid, VOID *lngval));
+WORD  rsrc_obfix      _((OBJECT *tree, WORD obj));
 
 /****** Shell library ********************************************************/
 
-WORD  shel_read       _((BYTE FAR *pcmd, BYTE FAR *ptail));
-WORD  shel_write      _((WORD doex, WORD isgr, WORD isover, BYTE FAR *pcmd,
-                         BYTE FAR *ptail));
-WORD  shel_get        _((BYTE FAR *addr, WORD len));
-WORD  shel_put        _((BYTE FAR *addr, WORD len));
-WORD  shel_find       _((char FAR *ppath));
-WORD  shel_envrn      _((BYTE FAR * FAR *ppath, BYTE FAR *psrch));
+WORD  shel_read       _((BYTE *pcmd, BYTE *ptail));
+WORD  shel_write      _((WORD doex, WORD isgr, WORD isover, BYTE *pcmd,
+                         BYTE *ptail));
+WORD  shel_get        _((BYTE *addr, WORD len));
+WORD  shel_put        _((BYTE *addr, WORD len));
+WORD  shel_find       _((char *ppath));
+WORD  shel_envrn      _((BYTE * *ppath, BYTE *psrch));
 
-#if GEM & (GEM2 | GEM3)
-WORD  shel_rdef       _((BYTE FAR *lpcmd, BYTE FAR *lpdir));
-WORD  shel_wdef       _((BYTE FAR *lpcmd, BYTE FAR *lpdir));
-#endif /* GEM2 | GEM3 */
+WORD  shel_rdef       _((BYTE *lpcmd, BYTE *lpdir));
+WORD  shel_wdef       _((BYTE *lpcmd, BYTE *lpdir));
 
 /****** Extended graphics library ********************************************/
 
-#if GEM & (GEM2 | GEM3 | XGEM)
 WORD  xgrf_stepcalc   _((WORD orgw, WORD orgh, WORD xc, WORD yc,
-                         WORD w, WORD h, WORD FAR *pcx, WORD FAR *pcy,
-                         WORD FAR *pcnt, WORD FAR *pxstep, WORD FAR *pystep));
+                         WORD w, WORD h, WORD *pcx, WORD *pcy,
+                         WORD *pcnt, WORD *pxstep, WORD *pystep));
 WORD  xgrf_2box       _((WORD xc, WORD yc, WORD w, WORD h, WORD corners,
                          WORD cnt, WORD xstep, WORD ystep, WORD doubled));
-#endif /* GEM2 | GEM3 | XGEM */
 
 /*****************************************************************************/
 

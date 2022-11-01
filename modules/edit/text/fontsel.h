@@ -27,6 +27,8 @@ typedef struct
 	int	xfsl_info;				/* Info-Aufruf */
 } xFSL;
 
+#ifndef __XFNT_INFO
+#define __XFNT_INFO
 typedef struct
 {
 	long size;					/* LÑnge der Struktur, muû vor vqt_xfntinfo() gesetzt werden */
@@ -42,6 +44,7 @@ typedef struct
 	int pt_cnt;					/* Anzahl der Punkthîhen fÅr vst_point(), z.B. 10 */
 	int pt_sizes[64];			/* verfÅgbare Punkthîhen,*/
 } XFNT_INFO;
+#endif
 
 
 /* Strukturen, Funktionen und Deklarationen */

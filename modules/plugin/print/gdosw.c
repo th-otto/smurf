@@ -52,7 +52,6 @@
 	#include "englisch.rsc\print.h" /* missing french resource */
 #endif
 
-extern int vq_ext_devinfo(int handle, int device, int *dev_exists, char *name);
 extern void v_ext_opnwk(int *work_in, int *handle, int *work_out);
 extern void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
 
@@ -445,9 +444,6 @@ int actualize_DevParam(int gdos_dev, DevParamS *DevParam)
     return(0);
 } /* actualize_DevParam */
 
-
-#define FALSE   0
-#define TRUE    1
 
 /* Funktion um Cookie auf Anwesenheit zu testen */
 /* Christian Eyrich irgendwann im 20. Jahrhundert */

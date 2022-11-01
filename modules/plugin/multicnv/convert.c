@@ -516,7 +516,11 @@ struct DIRENTRY *build_up_filelist(char *path, char *wildcard, int pathlen)
                     strcat(checkpath, _buf);
 
                     Fxattr(0, checkpath, &attrib);
+#ifdef _MINT_MINTBIND_H
+                    if(attrib.st_attr != FA_SUBDIR)                        /* Unterverzeichnisse nicht mitnehmen! */
+#else
                     if(attrib.attr != FA_SUBDIR)                        /* Unterverzeichnisse nicht mitnehmen! */
+#endif
                     {
                         /*
                          * wird nicht zwischen Grož- und Kleinschreibung unterschieden?

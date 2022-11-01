@@ -48,7 +48,7 @@ GLOBAL WORD    xrsrc_gaddr _((WORD re_gtype, WORD re_gindex, VOID *re_gaddr, WOR
 GLOBAL WORD    xrsrc_saddr _((WORD re_stype, WORD re_sindex, VOID *re_saddr, WORD *pglobal));
 GLOBAL WORD    xrsrc_obfix _((OBJECT *re_otree, WORD re_oobject));
 
-GLOBAL BOOLEAN init_xrsrc  _((WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox));
+GLOBAL WORD init_xrsrc  _((WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox));
 GLOBAL VOID    term_xrsrc  _((VOID));
 #endif
 
@@ -58,7 +58,7 @@ WORD    xrsrc_gaddr (WORD re_gtype, WORD re_gindex, VOID *re_gaddr, WORD *pgloba
 WORD    xrsrc_saddr (WORD re_stype, WORD re_sindex, VOID *re_saddr, WORD *pglobal);
 WORD    xrsrc_obfix (OBJECT *re_otree, WORD re_oobject);
 
-BOOLEAN init_xrsrc  (WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox);
+WORD init_xrsrc  (WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox);
 VOID    term_xrsrc 	(VOID);
 
 #endif /* __XRSRC__ */

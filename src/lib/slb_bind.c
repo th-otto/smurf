@@ -25,6 +25,7 @@
 *
 *****************************************************************/
 
+#ifndef _MINT_SLB_H
 LONG Slbopen( char *name, char *path, LONG min_ver,
                     SHARED_LIB *sl, SLB_EXEC *fn )
 
@@ -47,3 +48,4 @@ LONG Slbclose( SHARED_LIB *sl )
 {
      return(gemdos(0x17, sl));
 }
+#endif

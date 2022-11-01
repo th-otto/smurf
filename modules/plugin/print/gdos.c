@@ -41,6 +41,7 @@
 #include "..\..\..\src\smurfine.h"
 #include "..\..\..\src\plugin\plugin.h"
 #include "..\..\..\src\smurfobs.h"
+#include "..\..\..\src\bindings.h"
 #include "gdos.h"
 
 #include "country.h"
@@ -55,7 +56,6 @@
 #include "wdialog.h"
 
 
-extern int vq_ext_devinfo(int handle, int device, int *dev_exists, char *name);
 extern void v_ext_opnwk(int *work_in, int *handle, int *work_out);
 extern void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
 extern PLUGIN_FUNCTIONS *smurf_functions;
@@ -288,7 +288,9 @@ int scan_devs(void)
 int get_DevInfo(char devID, DevInfoS *DevInfo)
 {
     char name[128];
-
+	char file_path[33];
+	char file_name[33];
+	
     int work_in[] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2};
     int gdos_handle = 0, devExist = 0;
 
@@ -304,11 +306,15 @@ int get_DevInfo(char devID, DevInfoS *DevInfo)
     get_cookie('NVDI', &(unsigned long)nvdi_str);
 
     if(nvdi_str && nvdi_str->nvdi_version >= 0x0300)
-        vq_ext_devinfo(gdos_handle, devID, &devExist, name);
+        vq_ext_devinfo(gdos_handle, devID, &devExist, file_path, file_name, name);
     else
     {
         memset(name, 0x0, 128);                     /* die Strings von vqt_devinfo() sind nicht nullterminiert */
+#if defined(__GEMLIB__) || defined(__PORTAES_H__)
+        vqt_devinfo(gdos_handle, devID, &devExist, name, name + 64);
+#else
         vqt_devinfo(gdos_handle, devID, &devExist, name);
+#endif
     }
 
     if(devExist)                                    /* nicht nur > 0, denn kann auch -1 sein */
@@ -570,9 +576,6 @@ int actualize_DevParam(int gdos_dev, DevParamS *DevParam)
     return(0);
 } /* actualize_DevParam */
 
-
-#define FALSE   0
-#define TRUE    1
 
 /* Funktion um Cookie auf Anwesenheit zu testen */
 /* Christian Eyrich irgendwann im 20. Jahrhundert */

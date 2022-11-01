@@ -151,7 +151,7 @@ void plugin_main(PLUGIN_DATA *data)
     active_pic = smurf_vars->active_pic;
     exp_conf = smurf_vars->exp_conf;
 
-    if(data->message == AES_MESSAGE)
+    if(data->message == SMURF_AES_MESSAGE)
     {
         data->message = handle_aesmsg(data->event_par);
         return;

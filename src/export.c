@@ -694,7 +694,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 					while(Dialog.picMan.picmanList[t] != active_pic)
 						t++;
 					picnames[t] = saved_window->wtitle + 12;
-					f_listfield((long *)Dialog.picMan.window, REDRAW, 0, &Dialog.picMan.pictureList);
+					f_listfield((long *)Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
 				}
 
 			if(saved_window->wtitle[11] == '*')

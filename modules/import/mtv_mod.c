@@ -32,8 +32,6 @@
 #include "..\import.h"
 #include "..\..\src\smurfine.h"
 
-#define TRUE    1
-#define FALSE   0
 #define DEBUGMODE   0
 
 /* Infostruktur fÅr Hauptmodul */

@@ -172,7 +172,7 @@ void f_scan_edit(void)
 				 * L„nge des gesamten Tochterprozesses ermitteln
 				 */
 				ProcLen = get_proclen(edit_baspag);
-				Mshrink(0, edit_baspag, ProcLen);		/* Speicherblock verkrzen */
+				_Mshrink(edit_baspag, ProcLen);		/* Speicherblock verkrzen */
 				edit_baspag->p_hitpa = (void *)((long)edit_baspag + ProcLen);
 
 				lback = Pexec(4, 0L, (char *)edit_baspag, 0L);
@@ -347,7 +347,7 @@ void f_scan_import(void)
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(import_baspag);
-				Mshrink(0, import_baspag, ProcLen);			/* Speicherblock verkrzen */
+				_Mshrink(import_baspag, ProcLen);			/* Speicherblock verkrzen */
 				import_baspag->p_hitpa = (void *)((long)import_baspag + ProcLen);		
 
 				lback = Pexec(4, 0L, (char *)import_baspag, 0L);
@@ -733,7 +733,7 @@ void f_scan_export(void)
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(export_baspag);
-				Mshrink(0, export_baspag, ProcLen);				/* Speicherblock verkrzen */
+				_Mshrink(export_baspag, ProcLen);				/* Speicherblock verkrzen */
 				export_baspag->p_hitpa = (void *)((long)export_baspag + ProcLen);
 
 				lback = Pexec(4, 0L, (char *)export_baspag, 0L);
@@ -891,7 +891,7 @@ void f_scan_dither(void)
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(dit_baspag);
-				Mshrink(0, dit_baspag, ProcLen);			/* Speicherblock verkrzen */
+				_Mshrink(dit_baspag, ProcLen);			/* Speicherblock verkrzen */
 				dit_baspag->p_hitpa = (void *)((long)dit_baspag + ProcLen);
 
 				lback = Pexec(4, 0L, (char *)dit_baspag, 0L);

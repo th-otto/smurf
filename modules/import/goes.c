@@ -159,7 +159,7 @@ for(t=0; t<256; t++)
 }
 
 
-Mshrink(0, pic_data, PicLen);
+_Mshrink(pic_data, PicLen);
 
 strncpy(picture->format_name, "GOES Satellite Image", 21);
 picture->pic_data=pic_data;

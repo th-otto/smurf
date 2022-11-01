@@ -197,7 +197,7 @@ void scan_plugins(void)
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(plugin_bp[anzahl_plugins]);
-				Mshrink(0, plugin_bp[anzahl_plugins], ProcLen);		/* Speicherblock verkrzen */
+				_Mshrink(plugin_bp[anzahl_plugins], ProcLen);		/* Speicherblock verkrzen */
 				plugin_bp[anzahl_plugins]->p_hitpa = (void *)((long)plugin_bp[anzahl_plugins] + ProcLen);
 
 				lback = Pexec(4, 0L, (char *)plugin_bp[anzahl_plugins], 0L);
@@ -459,7 +459,7 @@ void call_plugin(int menuentry)
 				msgbuf[1] = Sys_info.app_id;
 				msgbuf[3] = modconfs[plugin_number]->windhandle;
 				memcpy(plg_data[plugin_number]->event_par, msgbuf, 16);
-				start_plugin(plugin_bp[plugin_number], AES_MESSAGE, plugin_number|0x200, plg_data[plugin_number]);
+				start_plugin(plugin_bp[plugin_number], SMURF_AES_MESSAGE, plugin_number|0x200, plg_data[plugin_number]);
 			}
 
 			return;
@@ -519,7 +519,7 @@ int load_plugin(int plugin_number)
 
 		/*---- L„nge des gesamten Tochterprozesses ermitteln */
 		ProcLen = get_proclen(plugin_bp[plugin_number]);
-		Mshrink(0, plugin_bp[plugin_number], ProcLen);		/* Speicherblock verkrzen */
+		_Mshrink(plugin_bp[plugin_number], ProcLen);		/* Speicherblock verkrzen */
 		plugin_bp[plugin_number]->p_hitpa = (void *)((long)plugin_bp[plugin_number] + ProcLen);
 
 		lback = Pexec(4, 0L, (char *)plugin_bp[plugin_number], 0L);

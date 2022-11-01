@@ -79,7 +79,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 	strcpy(smurf_struct->smurf_pic->format_name, "Truepaint Format");
 
 	memcpy(smbuffer,smbuffer+8,(long)x*y*2);
-	Mshrink(0,smbuffer,(long)x*y*2);
+	_Mshrink(smbuffer,(long)x*y*2);
 
 	smurf_struct->smurf_pic->pic_width=x;
 	smurf_struct->smurf_pic->pic_height=y;

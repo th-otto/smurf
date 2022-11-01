@@ -235,7 +235,7 @@ void f_picman(void)
 							swapstr = picnames[endobnum];
 							picnames[endobnum] = picnames[buttonnum];
 							picnames[buttonnum] = swapstr;
-							f_listfield((long *)Dialog.picMan.window, REDRAW, 0, &Dialog.picMan.pictureList);
+							f_listfield((long *)Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
 							Window.redraw(Dialog.picMan.window, NULL, 0, 0);
 						}
 					}
@@ -379,7 +379,7 @@ void insert_to_picman(int pic_to_insert)
 		scrolled = 1;
 	}
 	else
-		action = REDRAW;
+		action = F_REDRAW;
 
 	/* Bild im BM aktivieren */
 	for(t = first; t < last; t++)
@@ -582,7 +582,7 @@ void make_picman_thumbnail(int picture_num)
 				 
 	ob[(t - Dialog.picMan.pictureList.scroll_offset + PM_PIC1)].ob_state = SELECTED;
 
-	f_listfield((long *)Dialog.picMan.window, REDRAW, 0, &Dialog.picMan.pictureList);
+	f_listfield((long *)Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
 
 	pic = smurf_picture[picture_num];
 

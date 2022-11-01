@@ -1,7 +1,7 @@
 /* Funktionsprototypen */
 
 void vq_scrninfo(int handle, int *work_out);
-int vq_ext_devinfo(int handle, int device, int *dev_exists, char *name);
+int vq_ext_devinfo(int handle, int device, int *dev_exists, char *file_path, char *file_name, char *name);
 
 int objc_sysvar( int ob_smode, int ob_swhich, int ob_sival1,
                 int ob_sival2, int *ob_soval1, int *ob_soval2);

@@ -36,8 +36,6 @@
 #include "..\..\src\smurfine.h"
 
 #define NOMEM   (void*)0L
-#define TRUE            1
-#define FALSE           0
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"TRP Graphix-Importer v0.1",

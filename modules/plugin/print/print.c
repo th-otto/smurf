@@ -144,7 +144,7 @@ void plugin_main(PLUGIN_DATA *data)
 
     redraw_window = services->redraw_window;                        /* Redrawfunktion */
 
-    if(data->message==AES_MESSAGE)
+    if(data->message==SMURF_AES_MESSAGE)
     {
         data->message = handle_aesmsg(data->event_par);
         return;
@@ -226,7 +226,7 @@ void plugin_main(PLUGIN_DATA *data)
                                 strcat(print_window.wtitle, shorten_name(picname, 41 - (char)strlen(print_window.wtitle)));
 /*                              strcat(print_window.wtitle, picname); */
 /*                              strcat(print_window.wtitle, "\""); */
-                                SM_wind_set(print_window.whandlem, WF_NAME, LONG2_2INT((long)print_window.wtitle), 0,0);
+                                wind_set(print_window.whandlem, WF_NAME, LONG2_2INT((long)print_window.wtitle), 0,0);
 
                                 if(services->f_module_window(&print_window) < 0)
                                 {
@@ -280,7 +280,7 @@ void plugin_main(PLUGIN_DATA *data)
                                 strcpy(print_window.wtitle, "Drucken: \"");
                                 strcat(print_window.wtitle, picname);
                                 strcat(print_window.wtitle, "\"");
-                                SM_wind_set(print_window.whandlem, WF_NAME, LONG2_2INT((long)print_window.wtitle), 0,0);
+                                wind_set(print_window.whandlem, WF_NAME, LONG2_2INT((long)print_window.wtitle), 0,0);
                                 data->message = M_WAITING;
                             }
                             break;
