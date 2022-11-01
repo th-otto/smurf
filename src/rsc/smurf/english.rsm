@@ -1,10 +1,7 @@
-ResourceMaster v3.65   
+ResourceMaster v3.65 (ORCS 2.18)
 #C 36@0@0@3@
-#N 99@0@AZAazA___  _@AZAazA090___  _@@_@
-#FoC-Header@rsm2out@C-Header@h@@@[C-Header@0@
-#FoBGH@rsm2out@BGH@bgh@@@[BubbleGEM HELP-File@1@
-#R 0@0@2@1@2@1@
-#M 00013100@0@7728@729@
+#R 0@0@1@1@1@1@
+#M 20210100@0@7728@500@
 #T 0@2@DEPTH_POPUP@@7@@
 #O 1@22@DEPTH1@@
 #O 2@22@DEPTH2@@
@@ -170,8 +167,8 @@ ResourceMaster v3.65
 #O 18@22@X_COORD@@
 #O 19@22@Y_COORD@@
 #O 20@25@BWH_REDRAW@@
-#O 22@22@PW_HGT@@
-#O 21@22@PW_WID@@
+#O 21@22@PW_HGT@@
+#O 22@22@PW_WID@@
 #T 16@2@IMAGE_INFO@@22@@
 #O 1@21@INFO_FILESIZE@@
 #O 2@21@INFO_DEPTH@@
@@ -601,4 +598,4 @@ ResourceMaster v3.65
 #BE10@20@'x' und 'y' zeigen die Mausposition an, 'w' und 'h' die Breite und H”he des Blockes im aktiven Bild.@
 #BE11@21@Hier wird die Breite des Blocks im Bild angezeigt sofern einer aufgezogen ist.@
 #BE12@22@Hier wird die H”he des Blocks im Bild angezeigt sofern einer aufgezogen ist.@
-#c 11154@
+#c 25620@
