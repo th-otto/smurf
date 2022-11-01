@@ -24,7 +24,7 @@
 ;			Project File for SMURF Graphics Converter
 ;
 ;************************************************************
-..\SMURF.PRG
+..\dist\smurf.prg
 
 ; Symbol: DEBUG : If you add this, there will be writen some infos in
 ;                 file smurf.log
@@ -32,9 +32,9 @@
 .C[-DDEBUG]
 
 .C [-C -K -M -P]
-.C [-I..\..\purec\include\]
 .C [-I.\rsc]
 .C [-I.\lib]
+.C [-I..\modules\dither]
 ; 12K stack is necessary, 8K were to small, this was also
 ; the reason that FDFast and NC often crashed Smurf.
 .L [-S=16384]

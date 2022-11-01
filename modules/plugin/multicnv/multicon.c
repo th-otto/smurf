@@ -40,10 +40,10 @@
 #include <tos.h>
 #include <ext.h>
 #include <math.h>
-#include "..\..\..\sym_gem.h"
+#include "sym_gem.h"
 #include "..\..\import.h"
 #include "..\..\..\src\smurf_st.h"
-#include "..\..\..\src\smurf.h"
+#include "..\..\..\src\rsc\smurf.h"
 #include "..\..\..\src\smurfine.h"
 #include "..\..\..\src\globdefs.h"
 #include "..\..\..\src\plugin\plugin.h"
@@ -52,14 +52,19 @@
 
 #include "multi.h"
 
-#define ENGLISCH 0
+#include "country.h"
 
-#if ENGLISCH
-    #include "englisch.rsc\multi.rsh"
-    #include "englisch.rsc\multi.rh"
-#else
+#if COUNTRY==1
     #include "deutsch.rsc\multi.rsh"
     #include "deutsch.rsc\multi.rh"
+#elif COUNTRY==0
+    #include "englisch.rsc\multi.rsh"
+    #include "englisch.rsc\multi.rh"
+#elif COUNTRY==2
+    #include "englisch.rsc\multi.rsh" /* missing french resource */
+    #include "englisch.rsc\multi.rh"
+#else
+#error "Keine Sprache!"
 #endif
 
 #define TextCast ob_spec.tedinfo->te_ptext

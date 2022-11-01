@@ -52,7 +52,7 @@
 *
 
 
-INCLUDE "H:\SRC\SMURF\SMURF\SRC\DITMACRO.S"
+INCLUDE "..\..\..\src\ditmacro.s"
 
 IMPORT  draw_busybox
 IMPORT  fdd_24bit, fdd_16bit, fdd_8bit

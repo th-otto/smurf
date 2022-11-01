@@ -1,0 +1,47 @@
+; ***** BEGIN LICENSE BLOCK *****
+;
+; The contents of this file are subject to the GNU General Public License
+; Version 2 (the "License"); you may not use this file except in compliance
+; with the GPL. You may obtain a copy of the License at
+; http://www.gnu.org/copyleft/gpl.html or the file GPL.TXT from the program
+; or source code package.
+;
+; Software distributed under the License is distributed on an "AS IS" basis,
+; WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+; the specific language governing rights and limitations under the GPL.
+;
+; The Original Code is Therapy Seriouz Software code.
+;
+; The Initial Developer of the Original Code are
+; Olaf Piesche, Christian Eyrich, Dale Russell and J”rg Dittmer
+;
+; Contributor(s):
+;
+;
+; ***** END LICENSE BLOCK *****
+
+..\..\dist\modules\import\xbm.sim
+.C [-C -K -M -P-]
+.C [-I..\..\src\lib]
+.C [-I..\dither]
+.C [-I..\..\..\purec\include\]
+.L [-S=2048]
+=                  	; list of modules follows...
+impstart.s         	; startup code
+
+xbm.c
+
+;..\getint08.s   	; get_IBPLine8
+;..\getinter.s		; get_IBPLine
+
+
+;..\..\src\setp16.s          ; setpix and getpix for standard format
+
+;..\..\src\setlines.s    ; setpix_std_line
+
+
+pcfltlib.lib       ; floating point library
+pcstdlib.lib       ; standard library
+pcextlib.lib       ; extended library
+pctoslib.lib       ; TOS library
+pcgemlib.lib       ; AES and VDI library

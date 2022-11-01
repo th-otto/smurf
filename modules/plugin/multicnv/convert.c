@@ -29,10 +29,10 @@
 #include <stdio.h>
 #include <errno.h>
 #include <screen.h>
-#include "..\..\..\sym_gem.h"
+#include "sym_gem.h"
 #include "..\..\import.h"
 #include "..\..\..\src\smurf_st.h"
-#include "..\..\..\src\smurf.h"
+#include "..\..\..\src\rsc\smurf.h"
 #include "..\..\..\src\smurfine.h"
 #include "..\..\..\src\globdefs.h"
 #include "..\..\..\src\plugin\plugin.h"

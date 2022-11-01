@@ -27,7 +27,7 @@
 
 /* HEADERFILE fÅr Modulschnittstelle SCHLUMPFINE V0.2       */
 
-#include "..\modules\dither\dit_mod.h"
+#include "dit_mod.h"
 
 
 int start_imp_module(char *modpath, SMURF_PIC *imp_pic);

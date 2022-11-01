@@ -34,17 +34,22 @@
 #include <tos.h>
 #include <ext.h>
 #include <math.h>
-#include "..\..\..\sym_gem.h"
+#include "sym_gem.h"
 #include "..\..\import.h"
 #include "..\..\..\src\smurf_st.h"
 #include "..\..\..\src\globdefs.h"
 #include "..\..\..\src\smurfine.h"
 #include "..\..\..\src\plugin\plugin.h"
 #include "gdos.h"
-#ifdef ENGLISCH
-	#include "englisch.rsc\print.h"
-#else
+
+#include "country.h"
+
+#if COUNTRY==1
 	#include "deutsch.rsc\print.h"
+#elif COUNTRY==0
+	#include "englisch.rsc\print.h"
+#elif COUNTRY==2
+	#include "englisch.rsc\print.h" /* missing french resource */
 #endif
 #include "wdialog.h"
 

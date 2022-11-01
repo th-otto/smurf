@@ -20,12 +20,11 @@
 ;
 ; ***** END LICENSE BLOCK *****
 
-;>>>>>>> DEFAULT.PRJ for use with single module programs <<<<<<<<
-
-
-..\..\..\modules\plugins\printwd.plg     ; name of executable program is topmost window
-;..\..\..\modules\plugins\englisch\printwd.plg       ; name of executable program is topmost window
-.C [-C -K -M -P -S]
+; disabled by default (extension plx)
+..\..\..\dist\modules\plugin\printwd.plx
+.C [-C -K -M -P-]
+.C [-I..\..\..\src\lib]
+.C [-I..\..\dither]
 .C [-I..\..\..\..\purec\include\]
 .L [-S=7168]
 =                                       ; list of modules follows...
@@ -36,9 +35,8 @@ gdosw.c
 bindings.c
 ..\..\..\src\getlines.s                     ; getpix for standard format
 
-PCFLTLIB.LIB        ; floating point library
-PCSTDLIB.LIB        ; standard library
-PCEXTLIB.LIB        ; extended library
-PCTOSLIB.LIB        ; TOS library
-PCGEMLIB.LIB        ; AES and VDI library
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+pcfltlib.lib        ; floating point library
+pcstdlib.lib        ; standard library
+pcextlib.lib        ; extended library
+pctoslib.lib        ; TOS library
+pcgemlib.lib        ; AES and VDI library

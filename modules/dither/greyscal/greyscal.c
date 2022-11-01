@@ -22,21 +22,19 @@
  * ***** END LICENSE BLOCK *****
  */
 
-#ifdef GERMAN
+#include "country.h"
+
+#if COUNTRY==1
 #define TEXT1 "Graustufen"
 #define TEXT2 "Graustufen..."
-#else
-#ifdef ENGLISH
+#elif COUNTRY==0
 #define TEXT1 "Greyscale"
 #define TEXT2 "Greyscale..."
-#else
-#ifdef FRENCH
+#elif COUNTRY==2
 #define TEXT1 "Greyscale"
 #define TEXT2 "Greyscale..."
 #else
 #error "Keine Sprache!"
-#endif
-#endif
 #endif
 
 #include <tos.h>

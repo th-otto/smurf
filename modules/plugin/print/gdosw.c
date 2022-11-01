@@ -34,7 +34,7 @@
 #include <tos.h>
 #include <ext.h>
 #include <math.h>
-#include "..\..\..\sym_gem.h"
+#include "sym_gem.h"
 #include "..\..\import.h"
 #include "..\..\..\src\smurf_st.h"
 #include "..\..\..\src\globdefs.h"
@@ -42,10 +42,14 @@
 #include "gdos.h"
 #include "wdialog.h"
 
-#ifdef ENGLISCH
-	#include "englisch.rsc\print.h"
-#else
+#include "country.h"
+
+#if COUNTRY==1
 	#include "deutsch.rsc\print.h"
+#elif COUNTRY==0
+	#include "englisch.rsc\print.h"
+#elif COUNTRY==2
+	#include "englisch.rsc\print.h" /* missing french resource */
 #endif
 
 extern int vq_ext_devinfo(int handle, int device, int *dev_exists, char *name);

@@ -23,9 +23,10 @@
 ;>>>>>>> Project file for building the Print plugins <<<<<<<<
 
 
-..\..\..\modules\plugins\print.plg       ; name of executable program is topmost window
-;..\..\..\modules\plugins\englisch\print.plg     ; name of executable program is topmost window
-.C [-C -K -M -P -S]
+..\..\..\dist\modules\plugin\print.plg       ; name of executable program is topmost window
+.C [-C -K -M -P-]
+.C [-I..\..\..\src\lib]
+.C [-I..\..\dither]
 .C [-I..\..\..\..\purec\include\]
 .L [-S=7168]
 =                                       ; list of modules follows...
@@ -36,9 +37,8 @@ gdos.c
 bindings.c
 ..\..\..\src\getlines.s                     ; getpix for standard format
 
-PCFLTLIB.LIB        ; floating point library
-PCSTDLIB.LIB        ; standard library
-PCEXTLIB.LIB        ; extended library
-PCTOSLIB.LIB        ; TOS library
-PCGEMLIB.LIB        ; AES and VDI library
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+pcfltlib.lib        ; floating point library
+pcstdlib.lib        ; standard library
+pcextlib.lib        ; extended library
+pctoslib.lib        ; TOS library
+pcgemlib.lib        ; AES and VDI library

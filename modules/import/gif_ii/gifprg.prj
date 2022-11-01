@@ -1,0 +1,21 @@
+;>>>>>>> DEFAULT.PRJ for use with single module programs <<<<<<<<
+
+
+gif2_imp.prg                  ; name of executable program is topmost window
+=                  ; list of modules follows...
+PCSTART.O
+
+gif_2.c
+gif_2lzw.c
+;giflzw.s
+
+f:\daleman\smurf\setpix.s							; setpix for standard format
+
+
+pcfltlib.lib       ; floating point library
+pcstdlib.lib       ; standard library
+pcextlib.lib       ; extended library
+pctoslib.lib       ; TOS library
+pcgemlib.lib       ; AES and VDI library
+DEMOLIB.LIB       ; AES and VDI library
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

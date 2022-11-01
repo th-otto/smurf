@@ -33,7 +33,7 @@
 /*#include <multiaes.h>*/
 #include <aes.h>
 #include <vdi.h>
-#include "../src/lib/sym_gem.h"
+#include "sym_gem.h"
 
 #define CNFVERSION  0x04
 

@@ -30,24 +30,38 @@
 #include <ext.h>
 #include <math.h>
 #include <screen.h>
-#include "..\..\..\sym_gem.h"
+#include "sym_gem.h"
 #include "..\..\import.h"
 #include "..\..\..\src\smurf_st.h"
 #include "..\..\..\src\globdefs.h"
 #include "..\..\..\src\smurfine.h"
 #include "..\..\..\src\plugin\plugin.h"
-#include "..\..\..\src\smurf.h"
+#include "..\..\..\src\rsc\smurf.h"
+#undef COL8 /* conflicts with smurf.h */
+#undef ALERT_STRINGS /* conflicts with smurf.h */
 #include "gdos.h"
 
 #include "..\..\..\src\smurfobs.h"
 
+#include "country.h"
 
-#ifdef ENGLISCH
-    #include "englisch.rsc\print.rsh"
-    #include "englisch.rsc\print.rh"
-#else
+#if COUNTRY==1
     #include "deutsch.rsc\print.rsh"
     #include "deutsch.rsc\print.rh"
+#define TEXT1 "Drucken..."
+#define TEXT2 "Drucken: \""
+#elif COUNTRY==0
+    #include "englisch.rsc\print.rsh"
+    #include "englisch.rsc\print.rh"
+#define TEXT1 "Print..."
+#define TEXT2 "Print: \""
+#elif COUNTRY==2
+    #include "englisch.rsc\print.rsh" /* missing french resource */
+    #include "englisch.rsc\print.rh"
+#define TEXT1 "Print..."
+#define TEXT2 "Print: \""
+#else
+#error "Keine Sprache!"
 #endif
 
 void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
@@ -142,11 +156,7 @@ void plugin_main(PLUGIN_DATA *data)
          * Startup des Plugins: Meneintrag anfordern 
          */
         case MSTART:    my_id = data->id;
-#if ENGLISCH
-                        strcpy(data->plugin_name, "Print...");
-#else
-                        strcpy(data->plugin_name, "Drucken...");
-#endif
+                        strcpy(data->plugin_name, TEXT1);
                         init_rsh();
                         init_windstruct();
                         data->wind_struct = &print_window;
@@ -212,11 +222,7 @@ void plugin_main(PLUGIN_DATA *data)
                                     picname++;
                                 else
                                     picname = pic_active->filename;
-#if ENGLISCH
-                                strcpy(print_window.wtitle, "Print: \"");
-#else
-                                strcpy(print_window.wtitle, "Drucken: \"");
-#endif
+                                strcpy(print_window.wtitle, TEXT2);
                                 strcat(print_window.wtitle, shorten_name(picname, 41 - (char)strlen(print_window.wtitle)));
 /*                              strcat(print_window.wtitle, picname); */
 /*                              strcat(print_window.wtitle, "\""); */

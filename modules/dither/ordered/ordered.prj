@@ -25,8 +25,10 @@
 ; Schlumpfine Modulschnittstelle V0.6, 28.12.1995 Olaf Piesche
 ; fr Smurf
 
-..\..\..\modules\dither\ordered.sdm     ; name of executable program is topmost window
-.C [-C -K  -Z -M -P -S]
+..\..\..\dist\modules\dither\ordered.sdm     ; name of executable program is topmost window
+.C [-C -K -M -P-]
+.C [-I..\..\..\src\lib]
+.C [-I..]
 .C [-I..\..\..\..\purec\include\]
 .L [-S=1024]
 =                                       ; list of modules follows...
@@ -38,10 +40,9 @@ ordered.c
 ..\..\..\src\getlines.s                 ; n Pixel aus dem Standardformat lesen (fr C-Dithers)
 
 
-PCFLTLIB.LIB        ; floating point library
-PCSTDLIB.LIB        ; standard library
-PCEXTLIB.LIB        ; extended library
-PCTOSLIB.LIB        ; TOS library
-PCGEMLIB.LIB        ; AES and VDI library
-DEMOLIB.LIB         ; Demolib - Zeitmessung
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+pcfltlib.lib        ; floating point library
+pcstdlib.lib        ; standard library
+pcextlib.lib        ; extended library
+pctoslib.lib        ; TOS library
+pcgemlib.lib        ; AES and VDI library
+..\..\..\src\lib\demolib.lib         ; Demolib - Zeitmessung
