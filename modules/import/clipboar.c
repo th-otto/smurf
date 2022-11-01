@@ -65,26 +65,33 @@ MOD_INFO    module_info={"WinClip-Importer",
 int imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer;
+#if 0
 unsigned int v1,v2;
-unsigned long v3, DatenOffset;
+unsigned long v3;
+#endif
+unsigned long DatenOffset;
 
 buffer=smurf_struct->smurf_pic->pic_data;
 if (*(buffer)!=0x50 || *(buffer+1)!=0xc3)
         return(M_INVALID);
         
 else {
+#if 0
     v1=*(buffer+2)+(*(buffer+3)<<8);
-        /*printf("  Anzahl Datenbereiche...%u\n",v1);*/
+    printf("  Anzahl Datenbereiche...%u\n",v1);
     v1=*(buffer+4)+(*(buffer+5)<<8);
-        /*printf("  1.Formaterkennung...%u\n",v1);*/
+    printf("  1.Formaterkennung...%u\n",v1);
     v3=*(buffer+6)+(*(buffer+7)<<8)+(*(buffer+8)<<16)
                     +(*(buffer+9)<<24);
-    /*printf("  L„nge des Bereiches...%lu\n",v3);*/
+    printf("  L„nge des Bereiches...%lu\n",v3);
+#endif
     DatenOffset=*(buffer+10)+(*(buffer+11)<<8)+(*(buffer+12)<<16)
                     +(*(buffer+13)<<24);
-    /*printf("  Offset zum n„chsten Bereiches...%lu\n",DatenOffset);
-    getch();*/
-    
+#if 0
+    printf("  Offset zum n„chsten Bereiches...%lu\n",DatenOffset);
+    getch();
+#endif
+
     strncpy(smurf_struct->smurf_pic->format_name, "Windows Clipboard CLP", 21);
     smurf_struct->smurf_pic->pic_width=/*width*/320;
     smurf_struct->smurf_pic->pic_height=/*height*/200;

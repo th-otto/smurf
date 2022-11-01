@@ -114,7 +114,7 @@ MOD_INFO module_info = {"SGI-Format",
 int imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel,
-		 comp, Planes, BitsPerPixel, ColorMap, Bpc, Dim;
+		 comp, Planes, BitsPerPixel, ColorMap, Bpc;
 	char dummy[3], impmessag[21];
 	
 	unsigned int width, height;
@@ -136,8 +136,10 @@ int imp_module_main(GARGAMEL *smurf_struct)
 
 		Bpc = *(buffer + 0x03);
 
+#if 0
 		/* unwichtig */
 		Dim = (char)*(unsigned int *)(buffer + 0x04);
+#endif
 
 		width = *(unsigned int *)(buffer + 0x06); 
 		height = *(unsigned int *)(buffer + 0x08);
@@ -261,7 +263,7 @@ void decode_1bpc(char *ziel, char *buffer, unsigned int width, unsigned int heig
 				else
 				{
 					v1 = *buffer++;
-					if(!(n = v1 & 0x7f))
+					if((n = v1 & 0x7f) == 0)
 						return;
 
 					if(v1 & 0x80)
@@ -336,7 +338,7 @@ void decode_2bpc(char *ziel, unsigned int *buffer, unsigned int width, unsigned 
 				else
 				{
 					v1 = (char)*buffer++;
-					if(!(n = v1 & 0x7f))
+					if((n = v1 & 0x7f) == 0)
 						return;
 					if(v1 & 0x80)
 					{

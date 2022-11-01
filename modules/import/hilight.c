@@ -93,14 +93,15 @@ int width=0, height=0, depth=0;
 char *picdata;
 int *pd, *picd;
 long Len24, Len16, filelen;
-int t, p15, p16;
+int p15;
 int x,y, red, green, blue;
 
 
 if(smurf_struct->module_mode==MTERM) return(M_EXIT);
 
 
-pd=picdata=smurf_struct->smurf_pic->pic_data;
+picdata=smurf_struct->smurf_pic->pic_data;
+pd = (int *)picdata;
 filelen=smurf_struct->smurf_pic->file_len;
 
 width=*(pd);

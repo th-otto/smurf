@@ -155,9 +155,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 /* wie schnell sind wir? */
 /*	init_timer(); */
 
-			rweight = smurf_struct->slide1;
-			gweight = smurf_struct->slide2;
-			bweight = smurf_struct->slide3;
+			rweight = (int)smurf_struct->slide1;
+			gweight = (int)smurf_struct->slide2;
+			bweight = (int)smurf_struct->slide3;
 
 			BitsPerPixel = smurf_struct->smurf_pic->depth;
 

@@ -60,7 +60,7 @@ long    planelen, src_planelen;
 int     width, height;
 int     destwid, desthgt;
 int     src_depth, bplanes, t;
-long    SkipBytes, linelen;
+long    SkipBytes;
 char    *plantab, *where_to;
 int     cliptable[100]=
         {

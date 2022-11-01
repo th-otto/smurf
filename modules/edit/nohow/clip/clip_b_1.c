@@ -155,7 +155,7 @@ int do_it(GARGAMEL *smurf_struct)
     SMURF_PIC *picture;
     int width, height;
     char *pic, *n_pic, *offset_a, *offset_b;
-    long bpl_a, bpl_b;
+    long bpl_a;
     char bkgrd_r, bkgrd_g, bkgrd_b; 
     int bd_left, bd_right, bd_up, bd_down;
     int n_width, n_height, x_pos, y_pos;
@@ -253,7 +253,6 @@ int do_it(GARGAMEL *smurf_struct)
      
     n_width = bd_right - bd_left +1; 
     n_height = bd_down - bd_up +1; 
-    bpl_b = (long)n_width*3L; 
     
     x_pos = bd_left;
     y_pos = bd_up;
@@ -288,7 +287,7 @@ int do_it(GARGAMEL *smurf_struct)
     for (y=0; y<n_height; y++)
     {
         busycount++;
-        if(!(busycount & busycall)) smurf_struct->services->busybox((busycount<<10) / busymax);
+        if(!(busycount & busycall)) smurf_struct->services->busybox((int)((busycount<<10) / busymax));
             
         offset_a = pic + ((long)y+y_pos)* bpl_a + (long)x_pos*3L; 
         for(x=0; x<n_width; x++)

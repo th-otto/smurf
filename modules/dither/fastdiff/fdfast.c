@@ -57,7 +57,9 @@ int     rgbtab[2048];
 long    par[23];
 long    planelen, src_planelen;
 int     width, height;
+#if 0
 int     endwid, endhgt;
+#endif
 int     src_depth, bplanes, t, idx;
 char    *plantab, *where_to;
 int     cliptable[100]=
@@ -110,8 +112,10 @@ int destwid, desthgt;
     if(pix==NULL) 
         return(M_MEMORY);
     
+#if 0
     endwid = width/(dither->zoom+1);
     endhgt = height/(dither->zoom+1);
+#endif
     pic = picture->pic_data;
     planelen=dither->dest_planelength;
 

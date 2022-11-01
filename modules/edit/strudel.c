@@ -118,13 +118,13 @@ char *picdata, *pdat;
 char *destpic, *dest;
 
 int width, height, xmax, ymax;
-long x,y, phi, xsrc, ysrc, clpdiv;
+long x,y, phi, xsrc, ysrc;
 long xmitte, ymitte;
 long xb, yb;
 long offset, srcoffset;
 long bytewidth;
 long cosval, sinval;
-float bog, abs2;
+float bog;
 /*float abstand, divi;*/
 long abstand, divi;
 SMURF_PIC *picture;
@@ -133,13 +133,11 @@ char red, green, blue;
 long tr, tg, tb;
 
 long yoffset=0;
-long ym_qu, xm_qu, dist_fak, calc_dist;
+long ym_qu, xm_qu, dist_fak;
 int tunnel;
 
 static long Cos[370];
 static long Sin[370];
-
-static long Xpos[370], Ypos[370];
 
 SmurfMessage=smurf_struct->module_mode;
 
@@ -213,7 +211,7 @@ else if(SmurfMessage==MEXEC)
 
 	for(y=0; y<height; y++)
 	{
-		if(!(y&7)) smurf_struct->services->busybox( ((long)y<<7L) / (long)height );
+		if(!(y&7)) smurf_struct->services->busybox( (int)(((long)y<<7L) / (long)height));
 
 		
 		for(x=0; x<width; x++)
@@ -309,5 +307,6 @@ else if(SmurfMessage==MTERM)
 
 BITBLK *prev(GARGAMEL *prev_struct)
 {
+	(void)prev_struct;
 	return(0);
 }

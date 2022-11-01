@@ -36,6 +36,8 @@
 MOD_INFO    module_info={".RAW Modul",
                         0x0010,
                         "Dale Russell",
+						{ "", "", "", "", "",
+						  "", "", "", "", "" },
                         "Slider 1",
                         "Slider 2",
                         "Slider 3",

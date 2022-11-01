@@ -200,7 +200,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			if(my_tree[INTERPOL].ob_state&SELECTED) interpol=1;
 			if(my_tree[SPEICHER].ob_state&SELECTED) sparen=1;
 			/*
-				 intepol 
+				 interpol 
 				 	alles in TC
 				 
 				 !interpol && sparen
@@ -220,12 +220,15 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					smurf_struct->event_par[1]=FORM_PIXELPAK;
 					smurf_struct->event_par[2]=RGB;
 
-/*					if( interpol){
+					(void)sparen;
+					(void)interpol;
+#if 0
+					if( interpol){
 						smurf_struct->event_par[0]=24;
 						smurf_struct->event_par[1]=FORM_PIXELPAK;
 						smurf_struct->event_par[2]=RGB;
 					}else{
-/*						if( !sparen && <=8){
+						if( !sparen && <=8){
 							smurf_struct->event_par[0]=8;
 							smurf_struct->event_par[1]=FORM_PIXELPAK;
 							smurf_struct->event_par[2]=RGB;
@@ -235,8 +238,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 								smurf_struct->event_par[1]=FORM_PIXELPAK;
 								smurf_struct->event_par[2]=RGB;						
 							}
-						}*/
-					}*/
+						}
+					}
+#endif
 					smurf_struct->module_mode=M_PICTURE;
 					break;
 				case DEEP_PIC:
@@ -319,19 +323,22 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				}
 			}
 
-/*			if(interpol){
+#if 0
+			if(interpol){
 				if(berechne_inter(sposch,ART,SPALTE,picture,text_pic,deep_pic)){
 					smurf_struct->module_mode = M_MEMORY;	
 				}else{
 					smurf_struct->module_mode = M_PICDONE;
 				}
-			}else{*/
+			}else
+#endif			
+			{
 				if(berechne_no_inter(sposch,ART,SPALTE,picture,text_pic,deep_pic)){
 					smurf_struct->module_mode = M_MEMORY;	
 				}else{
 					smurf_struct->module_mode = M_PICDONE;
 				}
-/*			}*/
+			}
 		} break;
 			
 		case MTERM:
@@ -350,6 +357,4 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			break;
 
 	}
-
-	return;
 }

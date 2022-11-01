@@ -91,7 +91,6 @@ void f_scan_edit(void)
 	char *swapstr, alert[128];
 	char *textseg_begin;
 	char edstring[64], strn[4];
-	extern void set_startupdial(char *string);
 	long mod_magic;
 
 	int t, tt, biggest, pathlen;

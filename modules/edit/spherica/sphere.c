@@ -280,7 +280,7 @@ double nx,ny,nz;
 float lx,ly,lz, lx0,ly0,lz0;
 float nlx,nly,nlz;
 double l_abs, n_abs;
-float xst, yst, zst;
+float xst;
 float l_fak;
 
 float xb, yb;
@@ -291,13 +291,13 @@ int rk, bk, gk;
 int x,y;
 long bmp_xoff, bmp_yoff;
 long bmp_width, bmp_height;
-long pic_xoff, pic_yoff;
 long bmpxmin, bmpymin, bmpxmax, bmpymax;
 float bxs, bys, bump_fak, radq, zq, xq, yq, pointx, pointy;
-char *bumpmap, *picdata;
-int startx, starty, endx, endy;
-float p1,p2,p3;
-double frx,fry,frz;
+char *bumpmap;
+#if 0
+long pic_xoff, pic_yoff;
+char *picdata;
+#endif
 
 long xoff, yoff, linelen;
 
@@ -338,7 +338,9 @@ long xoff, yoff, linelen;
     lz0=lz/l_abs;
 
     linelen=(long)wid*3L;
+#if 0
     picdata = ((char*)addr)+ ((long)(wid/2L)*3L) + ((long)(hgt/2)*linelen);
+#endif
 
     yoff=0;
 
@@ -384,9 +386,9 @@ long xoff, yoff, linelen;
                 */
                 
                 /*--------------------------- Ambiente Helligkeit (0-255) */
-                rk = R_AMB; 
-                gk = G_AMB; 
-                bk = B_AMB; 
+                rk = (int)R_AMB; 
+                gk = (int)G_AMB; 
+                bk = (int)B_AMB; 
 
                 /*--------------------------- Roughness */
                 if(maintree[ROUGH_CHECK].ob_state&SELECTED)
@@ -459,7 +461,7 @@ long xoff, yoff, linelen;
                     bk+=spr;
                 }
 
-                /*
+#if 0
                 /*--------------------------- Textur einrechnen */
                 if(maintree[TEXT_CHECK].ob_state&SELECTED)
                 {
@@ -483,12 +485,12 @@ long xoff, yoff, linelen;
                     gk = ( (long)gk* (long)*(texture+tex_xoff+tex_yoff+1) ) >>8;
                     bk = ( (long)bk* (long)*(texture+tex_xoff+tex_yoff+2) ) >>8;
                 }
-                */
+#endif
 
+#if 0
                 /*
-                /*
-                *   Transparenz 
-                */
+                 *   Transparenz 
+                 */
                 /*if(trans_strn)*/
                 {
                     nz = -nz;
@@ -504,13 +506,13 @@ long xoff, yoff, linelen;
                     gy/=n_abs;
                     gz/=n_abs;
                     
-                    /*  
+#if 0
                     if(!(x&15)) 
                     {
                         printf("\n n: %.3f | %.3f | %.3f", nx,ny,nz);
                         printf("\n g: %.3f | %.3f | %.3f", gx,gy,gz);
                     }
-                    */
+#endif
 
                     /* 2 2dimensionale Winkel (n->g) ausrechnen */
                     frx = acos((gx*nx) * (gz*nz));
@@ -531,7 +533,7 @@ long xoff, yoff, linelen;
                     gk = *(picdata+pic_xoff+pic_yoff+1);
                     bk = *(picdata+pic_xoff+pic_yoff+2);
                 }
-                */
+#endif
 
                 /*--- Farbe Clippen ---*/
                 if (rk<0) rk=0;
@@ -726,7 +728,6 @@ int handle_bevt(GARGAMEL *smurf_struct)
     switch(button)
     {
         case LOS:   return(M_STARTED);
-                    break;
 
         case KR_F:
         case KR_R:  R_KUGEL=(long)(service->slider(&krsl));

@@ -116,15 +116,19 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	SMURF_PIC *picture;
 	long sliderval/*, str*/;
 	int red, green, blue;
-	int strcounter, divide, divide2;
+	int strcounter, divide;
 	int count_orig;
-	long yoffset=0, xoffset=0, bytewidth, offset;
-	long maxoffset;
+	long yoffset=0, bytewidth, offset;
 	int angle;
+#if 0
+	long maxoffset;
 	int ox1, ox2;
+#endif
 	int x1, y1, x2, y2, dx, dy, xcalc, dxabs, dyabs;
-	long incx, incy, xpos, ypos, yinc10;
+	long incx, incy, xpos, ypos;
+#if 0
 	long maxx, maxy;
+#endif
 	float dist;
 	float bog;
 	long *offset_buffer, *current_offset;
@@ -178,10 +182,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	    incx = (dx*1024L)/dist;
 	    incy = (dy*1024L)/dist;
 	
+#if 0
 	    ox1=x1;
 	    ox2=x2;
 	
 	    maxoffset = (long)(height-1)*bytewidth;
+#endif
 	
 	    dest_data=dest=Malloc((long)width*(long)height*3L);
 	
@@ -190,8 +196,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	    dxabs=abs(dx);
 	    dyabs=abs(dy);
 	
+#if 0
 	    maxx=(width-1)*1024L;
 	    maxy=(height-1)*1024L;
+#endif
 	
 	
 	    /*--------------------- Counter vorbestimmen -----------*/
@@ -212,7 +220,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	    for(strcounter=0; strcounter<count_orig; strcounter++)          
 	    {
 	        yoffset=(ypos>>10)*bytewidth;
-	        xcalc=xpos>>10L;
+	        xcalc=(int)(xpos>>10L);
 	
 	        offset=yoffset+xcalc+xcalc+xcalc;
 	        
@@ -229,7 +237,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	
 	    for(y=0; y<height; y++)
 	    {
-	        if(!(y&7)) smurf_struct->services->busybox( ((long)y<<7L) / (long)height );
+	        if(!(y&7)) smurf_struct->services->busybox((int)( ((long)y<<7L) / (long)height));
 	
 	        for(x=0; x<width; x++)
 	        {

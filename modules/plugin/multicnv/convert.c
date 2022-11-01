@@ -37,7 +37,11 @@
 #include "..\..\..\src\globdefs.h"
 #include "..\..\..\src\plugin\plugin.h"
 #include "..\..\..\src\popdefin.h"
+#include "..\..\..\src\smurfobs.h"
 
+#undef INFOICON /* conflicts with smurf.h */
+#undef DITHER_CB /* conflicts with smurf.h */
+#undef ALERT_STRINGS /* conflicts with smurf.h */
 #include "multi.h"
 
 
@@ -239,14 +243,15 @@ void start_conversion(void)
                     saveback = f_save_pic(&expmabs, current_pic);
                 else
                     saveback = f_save_pic(&user_modabs, current_pic);
-
+				(void)saveback;
+				
                 smurf_functions->destroy_smurfpic(current_pic);
             }
 
             file = file->next;
             
             files_converted++;
-            dialog[PROC_BAR].ob_width = ((long)files_converted*(long)dialog[PROC_BACK].ob_width / files_read)/num_of_wildcards*(wcard+1);
+            dialog[PROC_BAR].ob_width = (int)(((long)files_converted*(long)dialog[PROC_BACK].ob_width / files_read)/num_of_wildcards*(wcard+1));
             itoa(files_converted, num, 10);
             strcpy(wildcard_string, num);
             strcat(wildcard_string, " Dateien konvertiert...");
@@ -280,7 +285,7 @@ struct DIRENTRY *make_filelist(char *path, char *wildcard)
     struct DIRENTRY *first_file;
 
 
-    first_file = build_up_filelist(path, wildcard, strlen(path) + 64);
+    first_file = build_up_filelist(path, wildcard, (int)strlen(path) + 64);
 
     return(first_file);
 }
@@ -490,8 +495,10 @@ struct DIRENTRY *build_up_filelist(char *path, char *wildcard, int pathlen)
      */
     if((back = Dopendir(path, 0)) != EINVFN)        /* Verzeichnis im Normalmodus ”ffnen */
     {                                               /* und Test ob Dopendir() existiert */
-/*      printf("Dopendir()/Dreaddir()\n\n");
-        getch(); */
+#if 0
+        printf("Dopendir()/Dreaddir()\n\n");
+        getch();
+#endif
 
         Element.next = NULL;                        /* Initial auf "keine Dateien enthalten" setzen */
 
@@ -605,16 +612,20 @@ int f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
 
     char savepath[257], *save_ext, *expext;
     char module_name[30], *txtbeg;
-    char desk_name[9];
     char *picture;
 
     int max_expdepth, dest_format;
     int ext_number;
     int dest_colsys;
     int old_picdepth, filehandle;
+#if 0
+    char desk_name[9];
     int out1, out2, out3, out4;
-    int mbuf[8], desk_id, drive;
+    int mbuf[8];
+	int desk_id;
+	int drive;
     int attrib;
+#endif
 
     long len, back;
 
@@ -814,7 +825,7 @@ int f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
             
             Fclose(filehandle);
 
-/*          appl_id ist dem Plugin leider nicht bekannt
+#if 0 /*          appl_id ist dem Plugin leider nicht bekannt */
 
             /*------- "Laufwerksinhalt ver„ndert" ans Desktop -------*/
             /* Erst mal appl_getinfo() fragen, weil das TOS sonst "falscher */
@@ -822,7 +833,7 @@ int f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
             if(smurf_vars->Sys_info->OSFeatures&GETINFO && appl_getinfo(4, &out1, &out2, &out3, &out4) && out3 == 1)
                 if(appl_search(2, desk_name, &attrib, &desk_id) == 1)
                 {
-                    mbuf[0] = 72;                   /* SH_WDRAW */
+                    mbuf[0] = SH_WDRAW;
                     mbuf[1] = appl_id;
                     mbuf[2] = 0;
                     drive = *savepath;
@@ -836,7 +847,8 @@ int f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
                     mbuf[3] = drive;
                     appl_write(desk_id, 16, mbuf);
                 }
-*/
+#endif
+
         }
 
 

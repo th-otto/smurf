@@ -63,7 +63,7 @@
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);
 
-int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, char defbt);
+int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, int defbt);
 
 static char *fileext(char *filename);
 

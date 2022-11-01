@@ -151,7 +151,9 @@ if(SmurfMessage ==MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }
 
 
@@ -161,13 +163,13 @@ int do_it(GARGAMEL *smurf_struct)
 {
     SMURF_PIC *picture;
     int width, height;
-    char *pic, *offset;
+    char *pic;
     int strength;
     char *oben,*unten,*links,*rechts,*mitte;
     char *buf_eins, *buf_zwei, *buffer_eins, *buffer_zwei;
     long r,g,b;
     int xmax, ymax,x,y;
-    long yoffset,bpl,gesamt;
+    long yoffset,bpl;
     long *faktor_1, *faktor_2;
     long *mul5;
     long busycount, busymax, busycall;  
@@ -228,10 +230,10 @@ int do_it(GARGAMEL *smurf_struct)
         buffer_eins=buf_eins;
         mitte = pic + yoffset + 3;  /* +3 weil erst ab 2.Pixel! */
 
-/*      oben = mitte-bpl;
+        oben = mitte-bpl;
         unten = mitte+bpl;
         links = mitte-3;
-        rechts = mitte+3; */
+        rechts = mitte+3;
 
         rechts = mitte - 3 - bpl;
         links = mitte + 3 + bpl;
@@ -250,14 +252,16 @@ int do_it(GARGAMEL *smurf_struct)
                 g -= links[1];
                 b -= links[2];
                 
-                /* r -= oben[0];
+#if 0
+                r -= oben[0];
                 g -= oben[1];
                 b -= oben[2];
                 
                 r -= unten[0];
                 g -= unten[1];
-                b -= unten[2]; */
-                
+                b -= unten[2]
+#endif
+
                 if (r<0) r=0;
                 else if (r>255) r=255;
                 if (g<0) g=0;

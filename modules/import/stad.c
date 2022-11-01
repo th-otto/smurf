@@ -76,7 +76,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer;
 int width=0, height=0, ID_Byte, Pack_Byte, Special_Byte;
-int xc,yc, x,y,c,n;
+int xc,yc, x,c,n;
 char *buf, *out, *oout;
 int VertMode=FALSE, HorzMode=FALSE, ypos;
 int ytab[401];

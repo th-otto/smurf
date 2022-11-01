@@ -111,7 +111,6 @@ MOD_ABILITY  module_ability = {
 /*-----------------------  FUNCTION MAIN --------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-SMURF_PIC *picture;
 int SmurfMessage;
 static int module_id;
 
@@ -138,7 +137,7 @@ if(SmurfMessage == MEXEC)
 if(SmurfMessage==MTERM)
 {
     smurf_struct->module_mode=M_EXIT;
-    return; 
+    return;
 }
 
 } /*ende*/
@@ -156,7 +155,9 @@ if(SmurfMessage==MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }
 
 
@@ -173,7 +174,6 @@ int do_it(GARGAMEL *smurf_struct)
     int x_start, x_end, y_start, y_end;
     int mw, mh;
     long shadowfak, shadowcount;
-    long color;
     char grey, mred, mgreen, mblue;
     
     int radius;

@@ -108,18 +108,21 @@ int imp_module_main(GARGAMEL *smurf_struct)
 		return(M_INVALID);
 	else
 	{
-		switch(smurf_struct->smurf_pic->file_len)
+		if (smurf_struct->smurf_pic->file_len == 128000L)
 		{
-			case 128000L: width = 320;
+			width = 320;
 						  height = 200;
-						  break;
-			case 153600L: width = 320;
+		} else if (smurf_struct->smurf_pic->file_len == 153600L)
+		{
+			width = 320;
 						  height = 240;
-						  break;
-			case 196608L: width = 384;
+		} else if (smurf_struct->smurf_pic->file_len == 196608L)
+		{
+			width = 384;
 						  height = 256;
-						  break;
-			default:	i = strlen(fname) - 1 - 4;	/* - 4 um den Extender zu Åbergehen, hier */
+		} else
+		{
+				i = strlen(fname) - 1 - 4;	/* - 4 um den Extender zu Åbergehen, hier */
 													/* kînnen wir ja sicher sein, daû es ".XGA" ist */
 
 						if(fname[i] < '0' || fname[i] > '9')
@@ -131,8 +134,6 @@ int imp_module_main(GARGAMEL *smurf_struct)
 
 						width = atoi(fname + i);
 						height = (unsigned int)((smurf_struct->smurf_pic->file_len >> 1) / width);
-
-						break;
 		}
 
 		strncpy(smurf_struct->smurf_pic->format_name, "XGA Image .XGA", 21);

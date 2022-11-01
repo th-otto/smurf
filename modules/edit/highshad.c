@@ -138,13 +138,13 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			i = 0;
 			do 
 			{
-				val = i + i * hval / 100;
+				val = (int)(i + i * hval / 100);
 				if(val > 255)
 					val = 255;
 				highlighttab[i] = val;
 
 				sval = (bereich - (i - slidvals)) * 100 / (bereich + 10);
-				val = i - i * sval / 100;
+				val = (int)(i - i * sval / 100);
 				if(val < 0)
 					val = 0;
 				shadowtab[i] = val;

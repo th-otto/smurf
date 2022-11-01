@@ -80,7 +80,7 @@ long    len, piclen;
 buffer=smurf_struct->smurf_pic->pic_data;
 len=smurf_struct->smurf_pic->file_len;
 
-if(strncmp(buffer, "Indy", 4)!=0) return(M_INVALID);
+if(strncmp((char *)buffer, "Indy", 4)!=0) return(M_INVALID);
 
 strncpy(smurf_struct->smurf_pic->format_name, "Indypaint I - .TRU   ", 21);
 if (len<130000L)      { width=320; height=200; }

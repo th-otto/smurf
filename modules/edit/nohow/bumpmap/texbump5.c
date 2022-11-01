@@ -135,7 +135,7 @@ SLIDER  red_slider,
 
 
 
-void (*set_slider)(SLIDER *sliderstruct, int value);  /* Funktion deklarieren */ 
+void (*set_slider)(SLIDER *sliderstruct, long value);  /* Funktion deklarieren */ 
 
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
@@ -145,9 +145,11 @@ int (*slider)(SLIDER *slider_struct);       /* Funktion deklarieren */
 static int module_id;
 int SmurfMessage;
 int t;
-int next_edit;
 
-int object, mousex, mousey;
+int object;
+#if 0
+int mousex, mousey;
+#endif
 
 SmurfMessage=smurf_struct->module_mode;
 
@@ -184,14 +186,15 @@ if(SmurfMessage == MSTART)
 if(SmurfMessage == MBEVT)
 {
     object=smurf_struct->event_par[0];
+#if 0
     mousex=smurf_struct->mousex;
     mousey=smurf_struct->mousey;
+#endif
 
     switch(object)
     {
     case DO_IT:         smurf_struct->module_mode = M_STARTED;
                                     return;
-                                    break;
 
     case M_RED_SLIDE:       if(Obj_Selected(M_RADIO_DIFFUSE)) 
                                                                     red=slider(&red_slider);
@@ -294,17 +297,15 @@ int do_it(GARGAMEL *smurf_struct)
     
     char *greypic;
     char *coltab,*glanztab;
-    char *wurztab;
     
     char *c_offset, *offset, *noffset,
-             *y_offset, *y_goffset, *g_offset,
+             *y_goffset, *g_offset,
              *t_offset;
     
     int grey;
     int x,y;
     char red2, green2, blue2;
     char gred2, ggreen2, gblue2;
-    int nred, ngreen, nblue;
     unsigned int tred,tgreen,tblue;
     long n, t, bpl, gbpl, tbpl;
     
@@ -313,7 +314,7 @@ int do_it(GARGAMEL *smurf_struct)
     signed long glanz_x, glanz_y;
     long bump_fakt;
 
-    signed int x_vekt, y_vekt, vekt; 
+    signed int x_vekt, y_vekt; 
     char o_height; 
     signed long x_dif, y_dif;
     long abstand;
@@ -454,9 +455,9 @@ int do_it(GARGAMEL *smurf_struct)
     /*---Bump Mapping--------------------------------------------*/
     for (y=0; y<height; y++)
     {
-        if(! (y%20)) smurf_struct->services->busybox(((long)y<<7L)/(long)height);
+        if(! (y%20)) smurf_struct->services->busybox((int)(((long)y<<7L)/(long)height));
     
-        offset = y_offset = mainpic + y*bpl;
+        offset = mainpic + y*bpl;
         y_goffset = greypic + y*gbpl;
         
         tex_y = y % (theight-1);
@@ -482,8 +483,8 @@ int do_it(GARGAMEL *smurf_struct)
                 y_vekt -= o_height - *(g_offset - gbpl);
             
                         
-            x_vekt = ((signed long)x_vekt * bump_fakt) >>10;
-            y_vekt = ((signed long)y_vekt * bump_fakt) >>10;
+            x_vekt = (int)(((signed long)x_vekt * bump_fakt) >>10);
+            y_vekt = (int)(((signed long)y_vekt * bump_fakt) >>10);
             
             if(Obj_Selected(BM_PARALEL))
             {
@@ -651,6 +652,8 @@ void f_default_sliders(void)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+   /* Ich mach' noch nix. */
+   (void)smurfpic;
+   (void)preview;
 }
 

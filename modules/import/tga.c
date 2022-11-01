@@ -94,7 +94,7 @@
 
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);
-int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, char defbt);
+int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, int defbt);
 
 char *fileext(char *filename);
 void read_1Bit(char *buffer, char *ziel, unsigned int w, unsigned int height);
@@ -152,7 +152,7 @@ MOD_INFO module_info = {"TGA Bitmap Importer",
 int imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *pal, *ppal, *fname,
-		 IDLength, ImageType, ColorMap, CMapDepth, Descriptor,
+		 IDLength, ImageType, Descriptor,
 		 comp, BitsPerPixel, topdown;
 	char dummy[3], impmessag[21];
 
@@ -196,14 +196,22 @@ int imp_module_main(GARGAMEL *smurf_struct)
 			else
 				return(M_PICERR);
 
+#if 0
 		ColorMap = *(buffer + 0x01);
+#endif
 		/* kein swap_word() da es hier auf ungerade Adressen angesetzt*/
 		/* werden mÅûte und deshalb auf'm ST zum Absturz fÅhrt */
-/*		CMapStart = swap_word(*(unsigned int *)(buffer + 0x03)); */
+#if 0
+		CMapStart = swap_word(*(unsigned int *)(buffer + 0x03));
+#endif
 		CMapStart = (unsigned int)*(buffer + 0x03) | ((unsigned int)*(buffer + 0x04) << 8);
-/*		CMapLength = swap_word(*(unsigned int *)(buffer + 0x05)); */
+#if 0
+		CMapLength = swap_word(*(unsigned int *)(buffer + 0x05));
+#endif
 		CMapLength = (unsigned int)*(buffer + 0x05) | ((unsigned int)*(buffer + 0x06) << 8);
+#if 0
 		CMapDepth = *(buffer + 0x07);
+#endif
 
 		BitsPerPixel = *(buffer + 0x10);
 		if(BitsPerPixel != 1 && BitsPerPixel != 8 &&

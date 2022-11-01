@@ -96,7 +96,6 @@ SMURF_PIC *picture[3];
 void edit_module_main(GARGAMEL *smurf_struct)
 {
 int my_id;
-int width, height;
 /* int x,y; */
 long slidval=0;
 /* int r,g,b; */
@@ -137,7 +136,7 @@ else if(smurf_struct->module_mode == MPICTURE)
 else if(smurf_struct->module_mode == MEXEC)
 {
     slidval=smurf_struct->slide1;       /* Slider holen */
-
+	(void)slidval;
 }
 
 
@@ -166,5 +165,7 @@ else if(smurf_struct->module_mode == MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }

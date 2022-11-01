@@ -196,7 +196,7 @@ struct ct_entry {
 struct opdef
 {
 	int len;
-	void (*impl)();
+	void (*impl)(void);
 };
 
 struct Rect picFrame;
@@ -585,7 +585,7 @@ char *decode(unsigned int width, unsigned int height, char BitsPerPixel, char Ct
 	char *ziel, *oziel,
 		 v, v1, v2;
 
-	unsigned int x, y, spaketlength, dpaketlength;
+	unsigned int x, y, dpaketlength;
 
 	unsigned long w, memwidth;
 
@@ -621,10 +621,9 @@ char *decode(unsigned int width, unsigned int height, char BitsPerPixel, char Ct
 			x = 0;
 			do
 			{
-				spaketlength = dpaketlength = 0;
+				dpaketlength = 0;
 
 				v1 = *buffer++;
-/*				spaketlength++; */
 
 				if(v1 > 0x7f)							/* Encoded Run */
 				{ 	
@@ -635,7 +634,6 @@ char *decode(unsigned int width, unsigned int height, char BitsPerPixel, char Ct
 					x += v1;
 
 					v2 = *buffer++;
-/*					spaketlength++; */
 
 					align += 2;							/* die beiden buffer++ */
 
@@ -660,7 +658,6 @@ char *decode(unsigned int width, unsigned int height, char BitsPerPixel, char Ct
 					{
 						*ziel++ = *buffer++;
 						dpaketlength++;
-/*						spaketlength++; */
 					}
 /*					printf("literal - dpaketlength: %u\n", dpaketlength); */
 				}
@@ -1322,14 +1319,12 @@ void do_pixmap(int is_region)
 	return;
 }
 
-void read_color_table()
+void read_color_table(void)
 {
-	unsigned int i, ctFlags, ctSize;
+	unsigned int i, ctSize;
 
-	unsigned long ctSeed;
-
-	ctSeed = read_long();
-	ctFlags = read_word();
+	/* ctSeed = */ read_long();
+	/* ctFlags = */ read_word();
 	ctSize = read_word();
 
 	pal = giveitme->smurf_pic->palette;

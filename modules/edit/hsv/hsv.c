@@ -494,29 +494,29 @@ printf("h: %d, k: %d, s: %lu, v: %u\n\n", h, (int)k, s, (unsigned int)v);
 			    switch(k)
 			    {
 					case 6:
-					case 0:	r = v;
-							g = (v * (1048576L - (s * (1024 - h)))) >> 20;
-							b = (v * (1024 - s)) >> 10;
+					case 0:	r = (int)v;
+							g = (int)((v * (1048576L - (s * (1024 - h)))) >> 20);
+							b = (int)((v * (1024 - s)) >> 10);
 			                break;
-					case 1: r = (v * (1048576L - (s * h))) >> 20;
-							g = v;
-							b = (v * (1024 - s)) >> 10;
+					case 1: r = (int)((v * (1048576L - (s * h))) >> 20);
+							g = (int)v;
+							b = (int)((v * (1024 - s)) >> 10);
 			                break;
-					case 2: r = (v * (1024 - s)) >> 10;
-							g = v;
-			                b = (v * (1048576L - (s * (1024 - h)))) >> 20;
+					case 2: r = (int)((v * (1024 - s)) >> 10);
+							g = (int)v;
+			                b = (int)((v * (1048576L - (s * (1024 - h)))) >> 20);
 			                break;
-					case 3: r = (v * (1024 - s)) >> 10;
-			                g = (v * (1048576L - (s * h))) >> 20;
-			                b = v;
+					case 3: r = (int)((v * (1024 - s)) >> 10);
+			                g = (int)((v * (1048576L - (s * h))) >> 20);
+			                b = (int)v;
 			                break;
-					case 4:	r = (v * (1048576L - (s * (1024 - h)))) >> 20;
-							g = (v * (1024 - s)) >> 10;
-			                b = v;
+					case 4:	r = (int)((v * (1048576L - (s * (1024 - h)))) >> 20);
+							g = (int)((v * (1024 - s)) >> 10);
+			                b = (int)v;
 			                break;
-					case 5:	r = v;
-							g = (v * (1024 - s)) >> 10;
-			                b = (v * (1048576L - (s * h))) >> 20;
+					case 5:	r = (int)v;
+							g = (int)((v * (1024 - s)) >> 10);
+			                b = (int)((v * (1048576L - (s * h))) >> 20);
 			                break;
 			    }
 
@@ -684,7 +684,7 @@ printf("h: %ld, l: %ld, s: %ld\n", h, l, s);
 
 				/* HLS -> RGB */
 				if(s == 0)
-					r = g = b = l >> 2;
+					r = g = b = (int)(l >> 2);
 				else
 				{
 					m2 = (l <= 510) ? (l * (1024 + s)) : (((l + s) << 10) - l * s);
@@ -698,41 +698,41 @@ printf("m1: %ld, m2: %ld\n", m1, m2);
 					if(hue > 368640L)
 						hue -= 368640L;
 					if(hue < 61440L)
-						r = (m1 + (m2 - m1) / 61440L * hue + 500) >> 12;
+						r = (int)((m1 + (m2 - m1) / 61440L * hue + 500) >> 12);
 					else
 						if(hue < 184320L)
-							r = m2 >> 12;
+							r = (int)(m2 >> 12);
 						else
 							if(hue < 245760L)
-								r = (m1 + (m2 - m1) / 61440L * (245760L - hue) + 500) >> 12;
+								r = (int)((m1 + (m2 - m1) / 61440L * (245760L - hue) + 500) >> 12);
 							else
-								r = m1 >> 12;
+								r = (int)(m1 >> 12);
 
 					hue = h;
 					if(hue < 61440L)
-						g = (m1 + (m2 - m1) / 61440L * hue + 500) >> 12;
+						g = (int)((m1 + (m2 - m1) / 61440L * hue + 500) >> 12);
 					else
 						if(hue < 184320L)
-							g = m2 >> 12;
+							g = (int)(m2 >> 12);
 						else
 							if(hue < 245760L)
-								g = (m1 + (m2 - m1) / 61440L * (245760L - hue) + 500) >> 12;
+								g = (int)((m1 + (m2 - m1) / 61440L * (245760L - hue) + 500) >> 12);
 							else
-								g = m1 >> 12;
+								g = (int)(m1 >> 12);
 
 					hue = h - 122880L;
 					if(hue < 0)
 						hue += 368640L;
 					if(hue < 61440L)
-						b = (m1 + (m2 - m1) / 61440L * hue + 500) >> 12;
+						b = (int)((m1 + (m2 - m1) / 61440L * hue + 500) >> 12);
 					else
 						if(hue < 184320L)
-							b = m2 >> 12;
+							b = (int)(m2 >> 12);
 						else
 							if(hue < 245760L)
-								b = (m1 + (m2 - m1) / 61440L * (245760L - hue) + 500) >> 12;
+								b = (int)((m1 + (m2 - m1) / 61440L * (245760L - hue) + 500) >> 12);
 							else
-								b = m1 >> 12;
+								b = (int)(m1 >> 12);
 				}
 								
 
@@ -850,7 +850,7 @@ int handle_bevt(unsigned int Button)
 							redraw_window(&window, NULL, COMPONENT2, 0);
 							redraw_window(&window, NULL, COMPONENT3, 0);
 
-							temp = slidsat;
+							temp = (int)slidsat;
 							slidsat = slidbright;
 							slidbright = temp;
 

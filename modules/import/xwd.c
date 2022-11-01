@@ -101,8 +101,8 @@ MOD_INFO module_info = {"X Window Dump-Format",
 int imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *pixbuf, *opixbuf, *pal, *ppal, *fname,
-		 BitsPerPixel, version, PixmapFormat, ByteOrder,
-		 BitOrder, PadBytes, colent, translate[256], PalentrySize,
+		 BitsPerPixel, version, ByteOrder,
+		 BitOrder, colent, translate[256], PalentrySize,
 		 Palpad, val, map;
 	char dummy[3], impmessag[21];
 
@@ -132,12 +132,16 @@ int imp_module_main(GARGAMEL *smurf_struct)
 		{
 			BitsPerPixel = (char)*(unsigned long *)(buffer + 0x0c);
 			/* 0 = monochrom, 2 = pseudo color */
+#if 0
 			PixmapFormat = (char)*(unsigned long *)(buffer + 0x10);
+#endif
 			width = (unsigned int)*(unsigned long *)(buffer + 0x14);
 			height = (unsigned int)*(unsigned long *)(buffer + 0x18);
 			ByteOrder = 0;
 			BitOrder = 0;
+#if 0
 			PadBytes = 0;
+#endif
 			colent = 8;
 			PalentrySize = 2;
 			Palpad = 0;
@@ -146,7 +150,9 @@ int imp_module_main(GARGAMEL *smurf_struct)
 		else
 		{
 			/* 0 = monochrom, 1 = single planes, 2 = pseudo color */
+#if 0
 			PixmapFormat = (char)*(unsigned long *)(buffer + 0x08);
+#endif
 			BitsPerPixel = (char)*(unsigned long *)(buffer + 0x0c);
 			width = (unsigned int)*(unsigned long *)(buffer + 0x10);
 			height = (unsigned int)*(unsigned long *)(buffer + 0x14);
@@ -154,7 +160,9 @@ int imp_module_main(GARGAMEL *smurf_struct)
 			ByteOrder = (char)*(unsigned long *)(buffer + 0x1c);
 		/* 0 = LSB, 1 = MSB */
 			BitOrder = (char)*(unsigned long *)(buffer + 0x24);
+#if 0
 			PadBytes = ((char)*(unsigned long *)(buffer + 0x28)) >> 3;
+#endif
 			colent = 12;
 			PalentrySize = 4;
 			Palpad = 2;

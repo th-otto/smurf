@@ -94,18 +94,11 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
     EXPORT_PIC *exp_pic;
     char *palette;
     char *buffer, *ziel;
-    int *intbuf;
-    long f_len;
-    int width, height, depth;
-    long headsize;
-    int plane, x,y, pix;
-    int pixel[16], onepixel, xpix;
-    int andval;
+    int width, height;
     
     buffer  =   smurf_struct->smurf_pic->pic_data;
     width   =   smurf_struct->smurf_pic->pic_width;
     height  =   smurf_struct->smurf_pic->pic_height;
-    depth   =   smurf_struct->smurf_pic->depth;
     palette =   smurf_struct->smurf_pic->palette;
     
     exp_pic=Malloc(sizeof(EXPORT_PIC));

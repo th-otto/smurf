@@ -230,7 +230,7 @@ char *read_JPEG_file(char *inpic)
   jpeg_create_decompress(&cinfo);
 
   /* Step 2: specify data source (eg, a file) */
-  jpeg_stdio_src(&cinfo, inpic); /* WTF */
+  jpeg_stdio_src(&cinfo, (FILE *)inpic); /* WTF */
 
   /* Step 3: read file parameters with jpeg_read_header() */
   (void)jpeg_read_header(&cinfo, TRUE);
@@ -324,20 +324,30 @@ char *read_JPEG_file(char *inpic)
 
 int is_jpeg(char *buffer)
 {
+#if 0
 	long x = 0;
+#endif
 
 
-/*	printf("Steht Marker 0xffd8 und anschliežendes 0xff am Fileanfang?\n"); */
+#if 0
+	printf("Steht Marker 0xffd8 und anschliežendes 0xff am Fileanfang?\n");
+#endif
 
-	if(*(unsigned int *)buffer != 0xffd8 || *(buffer + 2) != 0xff)
+	if(*(unsigned short *)buffer != 0xffd8 || *(buffer + 2) != 0xff)
 	{
-/*		printf("Kombination steht nicht am Fileanfang\n"); */
+#if 0
+		printf("Kombination steht nicht am Fileanfang\n");
+#endif
 		return(-1);
 	}
 	else
-/*		printf("Kombination steht am Fileanfang\n"); */
-		return(0);
-/*
+	{
+#if 0
+		printf("Kombination steht am Fileanfang\n");
+#endif
+	}
+
+#if 0
 	printf("Suche jetzt bis zum Fileende nach 0xffe0\n");
 
 	while(x < (f_len_global - 8) && !(*(unsigned int *)buffer == 0xffe0))
@@ -356,5 +366,7 @@ int is_jpeg(char *buffer)
 		printf("0xffe0 gefunden\n");
 		return(0);
 	}
-*/
+#endif
+
+	return(0);
 } /* is_jpeg */

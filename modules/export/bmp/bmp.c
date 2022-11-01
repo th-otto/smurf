@@ -292,7 +292,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			{
 				/* Konfig bergeben */
 				*(long *)&smurf_struct->event_par[0] = (long)&config;
-				smurf_struct->event_par[2] = sizeof(CONFIG);
+				smurf_struct->event_par[2] = (int)sizeof(CONFIG);
 
 				smurf_struct->module_mode = M_MOREOK;
 			}
@@ -346,7 +346,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			{
 				/* Konfig bergeben */
 				*(long *)&smurf_struct->event_par[0] = (long)&config;
-				smurf_struct->event_par[2] = sizeof(CONFIG);
+				smurf_struct->event_par[2] = (int)sizeof(CONFIG);
 
 				smurf_struct->module_mode = M_MOREOK;
 			}

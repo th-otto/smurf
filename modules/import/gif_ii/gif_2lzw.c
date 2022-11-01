@@ -311,17 +311,22 @@ int decode_lzw_fast(char *buffer, char *ziel)
 {
 	char *firstcodes, *ofirstcodes;
 	int *srclen;
-	char *out, *dst;
 	char data_size;
 
-	int code, oldcode, clear, end_of_information, entries, available;
+	int code, clear, end_of_information, entries, available;
 /*	int i finished, codelen, oldcodelen; */
 
 	long *src;
 
 	char *pData;
-	unsigned int pBitsLeft, pCodeMask, pCodeSize, pCount;
+	unsigned int pCodeMask, pCodeSize;
+#if !ASSEMBLER
+	char *out, *dst;
+	int oldcode;
+	unsigned int pCount;
+	unsigned int pBitsLeft;
 	unsigned long pDatum;
+#endif
 
 	int par1[20];
 	long par2[20];
@@ -368,9 +373,6 @@ int decode_lzw_fast(char *buffer, char *ziel)
 		firstcodes++;
 	}
 
-	pBitsLeft = 0;
-	pDatum = 0;
-	pCount = 0;
 	pData = buffer;
 
 #if ASSEMBLER
@@ -396,6 +398,11 @@ int decode_lzw_fast(char *buffer, char *ziel)
 #endif
 
 #else
+
+	pBitsLeft = 0;
+	pDatum = 0;
+	pCount = 0;
+
 	finished = FALSE;
 	while(!finished)
 	{
@@ -526,4 +533,4 @@ int decode_lzw_fast(char *buffer, char *ziel)
 	free(srclen);
 
 	return(0);
-} /* decode_lzw_fast */
+}

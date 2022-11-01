@@ -2679,7 +2679,6 @@ int f_init_system(void)
 {
 	extern GEMPARBLK _GemParBlk;
 
-	extern void set_startupdial(char *string);
 	extern int sx,sy,sw,sh;
 	extern int startuprsc_global[10];
 	OBJECT *tree;

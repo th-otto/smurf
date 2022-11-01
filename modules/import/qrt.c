@@ -72,9 +72,9 @@ int imp_module_main(GARGAMEL *smurf_struct)
 {
 char *extend, ext[4], *retbuf;
 char    *buffer;
-int width=0, height=0, BitsPerPixel, v1;
+int width=0, height=0;
 long filelen=smurf_struct->smurf_pic->file_len;
-long vergleich, len;
+long len;
 
 extend=smurf_struct->smurf_pic->filename;
 strncpy(ext, extend+(strlen(extend)-3), 3);

@@ -143,7 +143,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	char t, pixval;
 	char wt[] = "Chanelmixer";
 
-	unsigned int sx, sy, dsx, dx, ddx, dy, Button, bh, bl, deckung;
+	unsigned int sx, sy, dsx, ddx, Button, bh, bl, deckung;
 	static unsigned int swidth, sheight, dwidth, dheight;
 
 	CONFIG *config;

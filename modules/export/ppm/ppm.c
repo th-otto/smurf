@@ -340,7 +340,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 				{
 					/* 4 Werte passen in eine Zeile zu 70 Stellen */
 					/* ret Returnzeichen zus„tzlich werden ben”tigt */
-					ret = ((w + 3) / 4) * 2;
+					ret = (int)(((w + 3) / 4) * 2);
 					zeichen = 2;
 	
 					f_len = ((long)zeichen * width + ret) * (long)height;
@@ -349,7 +349,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 				{
 					/* 17 Werte passen in eine Zeile zu 70 Stellen */
 					/* ret Returnzeichen zus„tzlich werden ben”tigt */
-					ret = ((w + 16) / 17) * 2;
+					ret = (int)(((w + 16) / 17) * 2);
 					zeichen = 4;
 	
 					f_len = ((long)zeichen * w + ret) * (long)height;

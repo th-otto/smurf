@@ -169,8 +169,7 @@ int (*slider)(SLIDER *slider_struct);       /* Funktion deklarieren */
 static int module_id;
 int SmurfMessage;
 int t;
-int next_edit;
-int object, mousex, mousey;
+int object;
 
 DAS_FILTER  *WF5_filter;
 
@@ -357,8 +356,8 @@ int do_it(GARGAMEL *smurf_struct)
     /*---Slider umrechnen----------------------*/
     
     
-    fak_o = 256L * (255-strength) / 255;
-    fak_f = 256L * strength / 255;
+    fak_o = (int)(256L * (255-strength) / 255);
+    fak_f = (int)(256L * strength / 255);
 
 
     /*---Einstellungen auslesen---------------------*/
@@ -862,7 +861,9 @@ void f_default_sliders(void)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }
 
 

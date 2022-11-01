@@ -32,8 +32,6 @@
 #include "..\..\src\smurfine.h"
 
 #define DEBUG           0
-#define TRUE            1
-#define FALSE           !TRUE
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Doodle-Importer",

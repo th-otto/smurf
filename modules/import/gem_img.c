@@ -390,17 +390,17 @@ int decode_GVW_TC(char *ziel, char *buffer, unsigned int height, char PattLength
 /* decodiert 24 Bit IMGs im Pixart-Format (Standardformat mit 24 Planes) */
 int decode_PA_TC(char *ziel, char *buffer, unsigned int height, char PattLength, long w, long srcw)
 {
-	char *oziel, *ooziel, *pixbuf,
+	char *ooziel, *pixbuf,
 		 j, p, vrc, v1, v2, v3;
 
 	unsigned int i, x, y;
 
-	unsigned long pla, plh, plo;
+	unsigned long pla;
 
 
 	pixbuf = (char *)SMalloc(w * 24L + 32);	/* Puffer fÅr Standarddaten */
 
-	ooziel = oziel = ziel;
+	ooziel = ziel;
 /*
 	printf("PattLength: %d, srcw: %ld\n", (int)PattLength, srcw);
 	getch();
@@ -412,8 +412,6 @@ int decode_PA_TC(char *ziel, char *buffer, unsigned int height, char PattLength,
 		pla = y * 24L * srcw;		/* Abstand dieser Plane vom Bildanfang */
 		for(p = 0; p < 24; p++) 	/* Planes */
 		{
-			oziel = ziel;
-
 			v1 = *buffer++;
 			v2 = *buffer++;
 			v3 = *buffer++;
@@ -455,16 +453,18 @@ int decode_PA_TC(char *ziel, char *buffer, unsigned int height, char PattLength,
 						break;
 				} /* case */
 			} while(x < w);
-/*			if(x != w)
+#if 0
+			if(x != w)
 			{
 				printf("y: %u, p: %u\n", y, (unsigned int)p);
 				printf("x: %u, w: %lu\n", x, w);
 				getch();
-			} */
-/*
+			}
+#endif
+#if 0
 			for(i = 1; i < vrc; i++) /* vrc, aber nicht auf sich selbst */
 				memcpy(oziel + i * srcw, oziel, srcw);
-*/
+#endif
 		}
 		y += vrc;
 	} while(y < height);

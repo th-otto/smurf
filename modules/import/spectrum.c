@@ -81,32 +81,27 @@ MOD_INFO module_info=
 
 
 
-unsigned int *palettes[200];
+unsigned short *palettes[200];
 
 
 
 int FindIndex(int x, int c);
 void *decompress_SPC(char *picdata, char *dest_data, long decompressed_bytes);
 void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
-void decode_palettes(unsigned int *picdata);
+void decode_palettes(unsigned short *picdata);
 
 int imp_module_main(GARGAMEL *smurf_struct)
 {
 char *picdata, *pdcopy;
 char *dest_data, *DecodedPic, *EndPic;
 int *dest_zerbastel;
-int *pal;
-int *CurrentPalette;
-char *CompressedPalette, *DecompPalette;
-long DatenOffset, PalOffset, PlaneLen, Offset;
-int format, t;
-int plane;
-signed char pix;
+unsigned short *CurrentPalette;
+char *CompressedPalette;
+int t;
 unsigned int palpix;
 char pixel[17];
-long EinePalette=48;
 unsigned int C, x,y;
-unsigned int Col16, red,green,blue;
+unsigned int red,green,blue;
 long planelen;
 
 void (*reset_busybox)(int lft, char *txt);
@@ -116,8 +111,8 @@ void (*reset_busybox)(int lft, char *txt);
     pdcopy=picdata=smurf_struct->smurf_pic->pic_data;
 
 /* Kennung prÅfen */
-    if( strncmp(picdata, "SP\0\0", 4) == 0 )
-        format=2;
+    if( memcmp(picdata, "SP\0\0", 4) == 0 )
+        ;
     else return(M_INVALID);   /* Kenn ich nicht */
 
     reset_busybox(0, "Spectrum 512 C");
@@ -143,7 +138,7 @@ void (*reset_busybox)(int lft, char *txt);
     CompressedPalette=picdata;
 
     reset_busybox(0, "Paletten decodieren");
-    decode_palettes(CompressedPalette);
+    decode_palettes((unsigned short *)CompressedPalette);
 
     Mfree(pdcopy);          /* Ur-Bilddaten freigeben */
     
@@ -152,7 +147,7 @@ void (*reset_busybox)(int lft, char *txt);
 
     picdata=DecodedPic;                             /* fÅrs Zerbasteln auf dekomprimiertes Bild legen */
     EndPic=Malloc(320L*199L*2L);        /* und Speicher fÅrs Zerbasteln anfordern */
-    dest_zerbastel=EndPic;
+    dest_zerbastel = (int *)EndPic;
     
     planelen=(320L*199L)/8L;
 
@@ -169,10 +164,10 @@ void (*reset_busybox)(int lft, char *txt);
                 
                 for(t=0; t<16; t++)
                 {
-                    /*
+#if 0
                     pal=CurrentPalette+ ( EinePalette * FindIndex(x+t, C) );
                     palpix=*(pal+pixel[t]);
-                    */
+#endif
 
                     C=(unsigned int)pixel[t];
                     CurrentPalette=palettes[y];
@@ -274,11 +269,11 @@ int C, t;
 
 
 
-void decode_palettes(unsigned int *picdata)
+void decode_palettes(unsigned short *picdata)
 {
 int t, bit, palette_number;
 unsigned int header_word, counter;
-unsigned int *Cpal;
+unsigned short *Cpal;
 
     for(t=0; t<199; t++)
     {

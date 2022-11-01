@@ -90,7 +90,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 {
 SMURF_PIC *picture;
 char *cpic;
-int *pic_data;
+short *pic_data;
 long width, height;
 int depth;
 int pictype;
@@ -99,8 +99,9 @@ char *smurf_palette;
 long dcount=0, PicLen, t;
 
 picture=smurf_struct->smurf_pic;
-pic_data=cpic=picture->pic_data;
-lpic=cpic=pic_data;
+pic_data=picture->pic_data;
+lpic=(long *)pic_data;
+cpic=(char *)pic_data;
 
 smurf_palette=picture->palette;
 
@@ -136,7 +137,7 @@ if(pictype==MCIDAS)
 }
 else if(pictype==GARS)
 {
-    cpic=pic_data+0x3c48;
+    cpic=(char *)(pic_data+0x3c48);
 
     do
     {
@@ -163,8 +164,8 @@ Mshrink(0, pic_data, PicLen);
 strncpy(picture->format_name, "GOES Satellite Image", 21);
 picture->pic_data=pic_data;
 picture->depth=depth;
-picture->pic_width=width;
-picture->pic_height=height;
+picture->pic_width=(int)width;
+picture->pic_height=(int)height;
 picture->col_format=RGB;
 
 return(M_PICDONE);

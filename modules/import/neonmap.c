@@ -85,11 +85,12 @@ int width, height, t;
 
 if(smurf_struct->module_mode==MSTART)       /* geht's los, geht's los? */
 {
-    pd=picdata=smurf_struct->smurf_pic->pic_data;
+    pd=smurf_struct->smurf_pic->pic_data;
+    picdata = (int *)pd;
     pal=smurf_struct->smurf_pic->palette;
 
      /* Kennung prÅfen */
-    if(strncmp(picdata, "Rip-Mapfile:", 12)!=0) return(M_INVALID);
+    if(strncmp(pd, "Rip-Mapfile:", 12)!=0) return(M_INVALID);
         
     width=*(pd+18);
     height=*(pd+20);

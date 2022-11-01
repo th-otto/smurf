@@ -121,16 +121,13 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
         case MEXTEND:   smurf_struct->event_par[0]=1;
                         smurf_struct->module_mode=M_EXTEND;
                         return(NULL);
-                        break;
 
         case MCOLSYS:   smurf_struct->event_par[0]=RGB;
                         smurf_struct->module_mode=M_COLSYS;     
                         return(NULL);
-                        break;
 
         case MSTART:    smurf_struct->module_mode=M_WAITING;
                         return(NULL);
-                        break;
 
 
         case MEXEC:
@@ -154,8 +151,6 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
                         smurf_struct->module_mode=M_DONEEXIT;
                         return(exp_pic);
                     
-                        break;
-    
         case MTERM:     smurf_struct->module_mode=M_EXIT;
                         break;
     

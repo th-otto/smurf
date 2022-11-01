@@ -152,6 +152,7 @@ void    *SMalloc(long amount);
 int     SMfree(void *ptr);
 
 void    actualize_menu(void);       /* MenÅzeile aktualisieren */
+void set_startupdial(char *string);
 
 int     handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object);
 

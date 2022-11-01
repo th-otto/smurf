@@ -82,7 +82,7 @@ char *buffer=smurf_struct->smurf_pic->pic_data;
 char *retbuf, *getbuf;
 long len;
 int BitsPerPixel=0, width=0, height=0, Mode=0;
-int bperz,xc,ColCount=0;
+int xc,ColCount=0;
 char *output, *palbuf;
 /*****************************************************/
 /*          MAGIC Code ÅberprÅfen                    */

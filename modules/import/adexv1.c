@@ -78,7 +78,11 @@ MOD_INFO module_info = {"Adex ChromaGraph Bitmap",
 int imp_module_main(GARGAMEL *smurf_struct)
 {
 char *buffer=smurf_struct->smurf_pic->pic_data;
-int BitsPerPixel=0, Planes=0, Colors=0, width=0, height=0, CodeFlag=0;
+int BitsPerPixel=0, width=0, height=0, CodeFlag=0;
+#if DEBUG>0
+int Planes = 0;
+int Colors;
+#endif
 char *retbuf, *output, *buf2, *paldat;
 int bperz,n,c,xc,yc, ColCount;
 char dummy[3], impmessag[17];
@@ -95,7 +99,9 @@ CodeFlag=(int)*(buffer+4);
 BitsPerPixel=(int)*(buffer+5);
 width=*(buffer+6)+(*(buffer+7)<<8);
 height=*(buffer+8)+(*(buffer+9)<<8);
+#if DEBUG>0
 Colors=*(buffer+10)+(*(buffer+11)<<8);
+#endif
 
 strcpy(impmessag, "ChromaGraph ");
 strcat(impmessag, itoa(BitsPerPixel, dummy, 10));

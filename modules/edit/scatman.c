@@ -200,8 +200,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	
 			length = (unsigned long)width * (unsigned long)height;
 
-			if((bh = length / 20) == 0)		/* busy-height */
-				bh = length;
+			if((bh = (int)(length / 20)) == 0)		/* busy-height */
+				bh = (int)length;
 			bl = 0;							/* busy-length */
 
 			i = 0;

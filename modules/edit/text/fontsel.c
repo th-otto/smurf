@@ -70,7 +70,7 @@ int call_xfsl(int handle, FONT_INFO *fontinfo, xFSL *fontsel_struct)
     int cdecl(*xfsl_input)(int vdihandle, unsigned int fontflags,
                     	const char *headline, int *id, int *size);
 
-
+	(void)handle;
 	new_id = fontinfo->ID;
 	new_size = fontinfo->size;
 
@@ -100,6 +100,7 @@ int call_magic_fsl(int handle, FONT_INFO *fontinfo)
 	FNT_DIALOG *fnt_dialog;
 
 
+	(void)handle;
 	new_id = fontinfo->ID;
 	new_size = (long)fontinfo->size << 16;
 	ratio = 1L << 16;

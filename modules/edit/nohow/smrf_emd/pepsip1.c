@@ -172,5 +172,7 @@ else if(smurf_struct->module_mode==MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }

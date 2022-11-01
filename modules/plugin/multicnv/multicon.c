@@ -50,6 +50,9 @@
 #include "..\..\..\src\popdefin.h"
 #include "..\..\..\src\smurfobs.h"
 
+#undef INFOICON /* conflicts with smurf.h */
+#undef DITHER_CB /* conflicts with smurf.h */
+#undef ALERT_STRINGS /* conflicts with smurf.h */
 #include "multi.h"
 
 #include "country.h"
@@ -443,6 +446,7 @@ void handle_dialog(PLUGIN_DATA *data)
     ----------------------------------------------------------*/
 int handle_aesmsg(int *msgbuf)
 {
+    (void)msgbuf;
     return(M_WAITING);
 }
 

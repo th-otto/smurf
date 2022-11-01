@@ -96,14 +96,12 @@ MOD_ABILITY  module_ability = {
 void edit_module_main(GARGAMEL *smurf_struct)
 {
 SMURF_PIC *picture;
-int module_id;
 int width, height, n_width, n_height;
 int x,y;
 char *pic,*n_pic,*offset,*noffset;
 unsigned int red, green, blue;
 long bpl, nbpl;
 
-module_id=smurf_struct->module_number;
 
 /* Wenn das Modul aufgerufen wurde, */
 if(smurf_struct->module_mode == MSTART)
@@ -114,8 +112,8 @@ if(smurf_struct->module_mode == MSTART)
     height=picture->pic_height;
     bpl = (long)width*3L;
     
-    n_width = width*2L - 1;
-    n_height = height*2L - 1;
+    n_width = (int)(width*2L - 1);
+    n_height = (int)(height*2L - 1);
     nbpl = (long)n_width * 3L;
     
     if((n_pic = Malloc((long)n_width*(long)n_height*3L)) == NULL) 
@@ -219,5 +217,7 @@ if(smurf_struct->module_mode==MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }

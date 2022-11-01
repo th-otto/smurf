@@ -123,8 +123,8 @@ if(smurf_struct->module_mode == MEXEC)
     width=picture->pic_width;
     height=picture->pic_height;
 
-    x_fak = smurf_struct->slide1;
-    y_fak = smurf_struct->slide2;
+    x_fak = (int)smurf_struct->slide1;
+    y_fak = (int)smurf_struct->slide2;
     
     if(x_fak == 1 && y_fak == 1)  /* Keine Scalierung (->beenden) */
     {
@@ -145,7 +145,7 @@ if(smurf_struct->module_mode == MEXEC)
     
     for(y=0; y<height; y+=y_fak)
     {
-    if(! (y%20)) smurf_struct->services->busybox(((long)y<<7L)/(long)height);
+    if(! (y%20)) smurf_struct->services->busybox((int)(((long)y<<7L)/(long)height));
         for(x=0; x<width; x+=x_fak)
         {
             xmax = x+y_fak;
@@ -209,5 +209,7 @@ if(smurf_struct->module_mode==MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }

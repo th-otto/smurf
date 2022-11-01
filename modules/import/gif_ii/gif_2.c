@@ -182,7 +182,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 	if((current_file = read_tbase_image(current_file)) == NULL)
 		return(M_PICERR);										/* kein Image Descriptor */
 	else
-		if(current_file == M_MEMORY)
+		if(current_file == (char *)M_MEMORY)
 			return(M_MEMORY);									/* nicht genug Speicher */
 
 #if DEBUG
@@ -418,7 +418,7 @@ char *read_tbase_image(char *file)
 	/* (nachgewiesenermažen in den Bildern, nicht im Smurf) abzufangen. */
 	/* Sonst wrde durch einen zu langen Code am Schluž bers Ende geschrieben. */
 	if((dest = (char *)SMalloc((((long)memwidth * (long)image_descriptor.image_height * coltab.depth) >> 3) + 256)) == NULL)
-		return(M_MEMORY);
+		return((char *)M_MEMORY);
 	memset(dest, 0x0, (((long)memwidth * (long)image_descriptor.image_height * coltab.depth) >> 3) + 256);
 
 	strcpy(impmessag, "GIF ");

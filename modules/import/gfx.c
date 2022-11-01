@@ -83,7 +83,7 @@ Die Aufl”sungsinformationen:
 18 .w  | $FFFF8264.w     | H-Scroll
 */
 
-void convertiere_bild(unsigned int *sc1,unsigned int *sc2,unsigned int x,unsigned int y,unsigned int e)
+void convertiere_bild(unsigned short *sc1,unsigned short *sc2,unsigned int x,unsigned int y,unsigned int e)
 {
 	long i;
 	switch(e){
@@ -93,7 +93,7 @@ void convertiere_bild(unsigned int *sc1,unsigned int *sc2,unsigned int x,unsigne
 			}
 		} break;
 		case 2 :{
-			unsigned int *s1, *s2;
+			unsigned short *s1, *s2;
 			s1=sc2;
 			s2=s1+(x+15)/16*y;
 			for( i=0; i<(x+15)/16*y; i++ ){
@@ -102,7 +102,7 @@ void convertiere_bild(unsigned int *sc1,unsigned int *sc2,unsigned int x,unsigne
 			}
 		} break;
 		case 4 :{
-			unsigned int *s1, *s2, *s3, *s4;
+			unsigned short *s1, *s2, *s3, *s4;
 			s1=sc2;
 			s2=s1+(x+15)/16*y;
 			s3=s2+(x+15)/16*y;
@@ -115,7 +115,7 @@ void convertiere_bild(unsigned int *sc1,unsigned int *sc2,unsigned int x,unsigne
 			}
 		} break;
 		case 8 :{
-			unsigned int *s1, *s2, *s3, *s4, *s5, *s6, *s7, *s8;
+			unsigned short *s1, *s2, *s3, *s4, *s5, *s6, *s7, *s8;
 			s1=sc2;
 			s2=s1+(x+15)/16*y;
 			s3=s2+(x+15)/16*y;
@@ -226,11 +226,11 @@ int imp_module_main(GARGAMEL *smurf_struct)
 		}
 	}
 	memcpy(head,bs,(long)w*h/8*fe);
-	bs=head;
+	bs = (char *)head;
 	if( fe<=8 && fe>1){
 		locbuffer=Malloc((long)w*h/8*fe);
 		if( locbuffer==0) return(M_MEMORY);
-		convertiere_bild( bs, locbuffer, w, h, fe);
+		convertiere_bild( (unsigned short *)bs, (unsigned short *)locbuffer, w, h, fe);
 		Mfree( bs);
 		bs=locbuffer;
 	}

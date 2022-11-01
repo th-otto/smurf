@@ -176,11 +176,14 @@ int imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer;
 	char *Palette24, *NewBuf, *help;
-	char invertTIC, ExtraSamples;
+	char invertTIC;
 
 	int format;
 	int cnt,shl1, shl2, shl3, shl4, ahl1, ahl2;
-	int BYTE, WORD, LONG, Depth, meth, maxR, W1, W2;
+#if DEBUG
+	int is_WORD;
+#endif
+	int is_LONG, Depth, meth, maxR, W1, W2;
 	int DirEntrys,TagId, TagFormat, PaletteColors, errcode, Difference;
 
 	long HeaderOffset, MapOffset, DataOffset, TagOff, Compression,TagCount;
@@ -251,7 +254,10 @@ int imp_module_main(GARGAMEL *smurf_struct)
 	TagOff=HeaderOffset+2;
 	for (cnt=0; cnt<DirEntrys; cnt++)
 	{
-		WORD=LONG=FALSE;
+#if DEBUG
+		is_WORD = FALSE;
+#endif
+		is_LONG=FALSE;
 		TagId=(int)buffer[TagOff+0]<<ahl2;
 		TagId+=(int)buffer[TagOff+1]<<ahl1;
 		TagFormat=(int)buffer[TagOff+2]<<ahl2;
@@ -259,11 +265,14 @@ int imp_module_main(GARGAMEL *smurf_struct)
 	
 		switch(TagFormat)
 		{
-			case 1: BYTE=TRUE;
-					break;
-			case 3: WORD=TRUE;
-					break;
-			case 4: LONG=TRUE;
+			case 1:
+				break;
+			case 3:
+#if DEBUG
+				is_WORD=TRUE;
+#endif
+				break;
+			case 4: is_LONG=TRUE;
 					break;
 			default:
 #if DEBUG
@@ -279,7 +288,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 
 		switch(TagId)
 		{
-			case 0x0100:if(LONG)				/*	Width */
+			case 0x0100:if(is_LONG)				/*	Width */
 						{
 							Width=(long)buffer[TagOff+8]<<shl4;
 							Width+=(long)buffer[TagOff+9]<<shl3;
@@ -292,7 +301,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 							Width+=(long)buffer[TagOff+9]<<ahl1;
 						}	
 						break;
-			case 0x0101:if(LONG)				/*	Height */
+			case 0x0101:if(is_LONG)				/*	Height */
 						{
 							Height=(long)buffer[TagOff+8]<<shl4;
 							Height+=(long)buffer[TagOff+9]<<shl3;
@@ -315,7 +324,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 							BakOffset+=(long)buffer[TagOff+11]<<shl1;
 						}
 
-						if(LONG)				/* BitsPerSample */
+						if(is_LONG)				/* BitsPerSample */
 						{
 							BitsPerSample=(long)buffer[BakOffset]<<shl4;
 							BitsPerSample+=(long)buffer[BakOffset+1]<<shl3;
@@ -329,7 +338,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 						}
 
 						break;
-			case 0x0111:if(LONG)				/* Strip Offsets */
+			case 0x0111:if(is_LONG)				/* Strip Offsets */
 						{
 							DataOffset=(long)buffer[TagOff+8]<<shl4;
 							DataOffset+=(long)buffer[TagOff+9]<<shl3;
@@ -357,7 +366,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 
 							for(tc=0; tc<TagCount; tc++)
 							{
-								if(LONG)
+								if(is_LONG)
 								{
 									DataOffset=(long)buffer[BakOffset+0]<<shl4;
 									DataOffset+=(long)buffer[BakOffset+1]<<shl3;
@@ -382,7 +391,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 						break;
 	
 			case 0x0117:break;					/* Strip Counts, not necessary for decoding... */
-			case 0x0106:if(LONG)				/* Photometric Interpretation */
+			case 0x0106:if(is_LONG)				/* Photometric Interpretation */
 						{
 							Photo=(long)buffer[TagOff+8]<<shl4;
 							Photo+=(long)buffer[TagOff+9]<<shl3;
@@ -397,7 +406,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 						break;
 			case 0x0140:						/* Colormap Offset */
 #if DEBUG
-					  	printf("\nColormap-Tag found (Counter:%li) Word=%i Long=%i", TagCount, WORD, LONG);
+					  	printf("\nColormap-Tag found (Counter:%li) Word=%i Long=%i", TagCount, is_WORD, is_LONG);
 #endif
 						PaletteColors=(int)TagCount / 3;
 						MapOffset=(long)buffer[TagOff+8]<<shl4;
@@ -405,9 +414,12 @@ int imp_module_main(GARGAMEL *smurf_struct)
 						MapOffset+=(long)buffer[TagOff+10]<<shl2;
 						MapOffset+=(long)buffer[TagOff+11]<<shl1;
 						break;
-			case 0x0152:ExtraSamples = buffer[TagOff+8];
-						break;
-			case 0x0115:if(LONG)				/* SamplePerPixel */
+			case 0x0152:
+#if 0
+				ExtraSamples = buffer[TagOff+8];
+#endif
+				break;
+			case 0x0115:if(is_LONG)				/* SamplePerPixel */
 						{
 							SamplePerPixel=(long)buffer[TagOff+8]<<shl4;
 							SamplePerPixel+=(long)buffer[TagOff+9]<<shl3;
@@ -428,7 +440,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 						FillOrder=(long)buffer[TagOff+8]<<ahl2;
 						FillOrder+=(long)buffer[TagOff+9]<<ahl1;
 						break;
-			case 0x0103:if(LONG)				/* Compression */
+			case 0x0103:if(is_LONG)				/* Compression */
 						{
 							Compression=(long)buffer[TagOff+8]<<shl4;
 							Compression+=(long)buffer[TagOff+9]<<shl3;
@@ -441,7 +453,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 							Compression+=(long)buffer[TagOff+9]<<ahl1;
 						}
 						break;
-			case 0x0116:if(LONG)				/* Rows per Strip */
+			case 0x0116:if(is_LONG)				/* Rows per Strip */
 						{
 							RowsPerStrip=(long)buffer[TagOff+8]<<shl4;
 							RowsPerStrip+=(long)buffer[TagOff+9]<<shl3;
@@ -630,7 +642,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 
 	switch((int)Compression)
 	{
-		case 0x01:	meth = 0;				/* No compression or pixelpacked: BYTE */
+		case 0x01:	meth = 0;				/* No compression or pixelpacked: is_BYTE */
 					break;
 		case 0x02:	meth = 1;				/* CCITT Group 3: 1-dimensional Huffman */
 					break;
@@ -644,7 +656,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 					break;
 		case 32773L:meth = 6;				/* RLE: 32773 Packbits Compression */
 					break;
-		case 32771L:meth = 0;				/* No compression or pixelpacked: WORD */
+		case 32771L:meth = 0;				/* No compression or pixelpacked: is_WORD */
 					break;
 		default:	form_alert(1,"[1][Unknown | compression algorithm][ What? ]");
 					SMfree(Palette24);
@@ -916,7 +928,7 @@ void main(void)
 		return;
 
 	len = Fseek(0L, filehandle, 2);
-	Fseek(0L, filehandle, 0L);
+	Fseek(0L, filehandle, 0);
 	
 	file = Malloc(len);
 

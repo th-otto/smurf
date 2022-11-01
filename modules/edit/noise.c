@@ -139,7 +139,7 @@ MOD_ABILITY module_ability = {
 void edit_module_main(GARGAMEL *smurf_struct)
 {
 	char *data,
-		 BitsPerPixel, mode;
+		 mode;
 	
 	int module_id, amountgrey, amountr, amountg, amountb;
 	unsigned int width, height;
@@ -176,7 +176,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			/* Zufallsgenerator zuf„llig initialisieren */
 			srand((unsigned int)time(NULL));
 
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
+			/* BitsPerPixel = smurf_struct->smurf_pic->depth; */
 	
 			data = smurf_struct->smurf_pic->pic_data;
 			width = smurf_struct->smurf_pic->pic_width;

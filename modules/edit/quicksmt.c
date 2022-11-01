@@ -111,10 +111,10 @@ SMURF_PIC *picture;
 int module_id;
 int width, height;
 int x,y;
-char *data, *datacopy, *dest_data, *dest, *read;
+char *data, *datacopy, *dest_data, *dest;
 /* long red, green, blue; */
 long linelen;
-long *offset_table, *current_offset;
+long *offset_table;
 long counter, curr_counter, offset, old_offset;
 int matw, math;
 int ypos, xpos;
@@ -150,8 +150,8 @@ if(smurf_struct->module_mode == MEXEC)
 
     /*-------------------- Offset-Table vorbereiten --------------  */
     /*--------------------- Delta-Table (schnell!)  --------------- */
-    matw=smurf_struct->slide1;
-    math=smurf_struct->slide2;
+    matw=(int)smurf_struct->slide1;
+    math=(int)smurf_struct->slide2;
 
     counter=(long)matw*(long)math;  
 
@@ -182,13 +182,13 @@ if(smurf_struct->module_mode == MEXEC)
 
 
     par[0]=counter;
-    par[1]=datacopy;
-    par[2]=dest;
-    par[3]=offset_table;
+    par[1]=(long)datacopy;
+    par[2]=(long)dest;
+    par[3]=(long)offset_table;
 
     for(y=0; y<height; y++)
     {
-        if(!(y&15)) smurf_struct->services->busybox(((long)y<<7L)/(long)height);
+        if(!(y&15)) smurf_struct->services->busybox((int)(((long)y<<7L)/(long)height));
 
         for(x=0; x<width; x++)
         {

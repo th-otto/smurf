@@ -40,6 +40,7 @@
 #include "..\..\..\src\globdefs.h"
 #include "..\..\..\src\smurfine.h"
 #include "..\..\..\src\plugin\plugin.h"
+#include "..\..\..\src\smurfobs.h"
 #include "gdos.h"
 
 #include "country.h"
@@ -94,7 +95,8 @@ int print_with_GDOS(void)
     int gdos_handle = 0, pxy[8], clip[4], colindex[2] = {1, 0}, SCALE;
     unsigned int height, stripoffset, stripheight, bh, bl;
 
-    unsigned long mem, w, dy;
+    long mem;
+    unsigned long w, dy;
 
     MFDB srcform, dstform;
 
@@ -146,7 +148,7 @@ int print_with_GDOS(void)
     clip[1] = pxy[5];                       /* linke obere Ecke des Clipping-Rechtecks */
     clip[2] = pxy[6];                       /* rechte untere Ecke des Clipping-Rechtecks */
 
-    if((mem = Malloc(-1)) < 128000L)
+    if((mem = (long)Malloc(-1)) < 128000L)
     {
 /*      form_alert(1, "[1][Es steht nicht genug Speicher|zum Drucken zur Verfgung!][ Oh ]"); */
         services->f_alert(alerts[NO_PRT_MEM].TextCast, NULL, NULL, NULL, 1);
@@ -340,8 +342,6 @@ int f_d_dither(SMURF_PIC *smurf_pic, char *ziel, unsigned int stripoffset, unsig
 
     unsigned long planelength;
 
-    SMURF_PIC pic;
-    SYSTEM_INFO sys_info;
 
 
     buffer16 = (unsigned int *)buffer = smurf_pic->pic_data;
@@ -382,8 +382,12 @@ int f_d_dither(SMURF_PIC *smurf_pic, char *ziel, unsigned int stripoffset, unsig
                 ziel += v;
             } while(++y < stripheight);
         }
-/*      else
+        else
         {
+#if 0
+		    SMURF_PIC pic;
+		    SYSTEM_INFO sys_info;
+
             memcpy(&pic, smurf_pic, sizeof(SMURF_PIC));
             pic.pic_data = buffer;
             pic.pic_height = stripheight;
@@ -397,7 +401,9 @@ int f_d_dither(SMURF_PIC *smurf_pic, char *ziel, unsigned int stripoffset, unsig
                 return(-2);
 
             memcpy(ziel, (char *)pic.screen_pic->fd_addr, (long)sw * (long)stripheight);
-        } */
+#endif
+        }
+  
     }
     else
     if(dest_depth == 32)

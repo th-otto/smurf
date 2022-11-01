@@ -184,7 +184,7 @@ void do_tachyon(char *data, unsigned int width, unsigned int height)
 	int r2, g2, b2;
 	unsigned int x, y, bh, bl;
 
-	long l, w;
+	long l;
 
 
 #if DEBUG
@@ -198,7 +198,7 @@ void do_tachyon(char *data, unsigned int width, unsigned int height)
 		bh = height;
 	bl = 0;							/* busy-length */
 
-	w = width * 3;
+	/* w = width * 3; */
 
 	/* Cliptable aufbauen */
 	cliptab = (char *)Malloc(127 + 256 + 127);

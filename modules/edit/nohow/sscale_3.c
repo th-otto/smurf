@@ -155,7 +155,9 @@ if(SmurfMessage ==MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }
 
 
@@ -166,7 +168,7 @@ int do_it(GARGAMEL *smurf_struct)
     SMURF_PIC *picture;
     int x_fak, y_fak, x_res, y_res;
     int width, height, n_width, n_height;
-    char *pic, *n_pic, *offset, *n_offset;
+    char *pic, *n_pic;
     long bpl, n_bpl;
     
 
@@ -283,11 +285,11 @@ int do_it(GARGAMEL *smurf_struct)
 void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, int height, int nwidth, GARGAMEL *smurf_struct)
 {
     char *o_offset, *n_offset;
-    unsigned int rest, basestep, coldiv;
+    unsigned int basestep, coldiv;
     unsigned long count, lastcount, lcount, step;
     long red,green,blue;
     long sred,sgreen,sblue, ered,egreen,eblue;
-    unsigned int x, y, i, p;
+    unsigned int x, y, i;
     
     if(nwidth < owidth)
     {               /* -Extrapolieren */
@@ -295,7 +297,7 @@ void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, int heigh
         basestep = (unsigned int)(step>>16);
         step -= ((long)basestep<<16);
         basestep -=1;
-        coldiv = (((long)nwidth)<<16) / (owidth); 
+        coldiv = (int)((((long)nwidth)<<16) / (owidth));
             
         if(step != 0)
         {     
@@ -436,11 +438,11 @@ void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, int heigh
 void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int oheight, int nheight, GARGAMEL *smurf_struct)
 {
     char *o_offset, *n_offset;
-    unsigned int rest, basestep, coldiv;
+    unsigned int basestep, coldiv;
     unsigned long count, lastcount, lcount, step;
     long red,green,blue;
     long sred,sgreen,sblue, ered,egreen,eblue;
-    unsigned int x, y, i, p;    
+    unsigned int x, y, i;
     
     if(nheight < oheight)
     {               /* -Extrapolieren */
@@ -448,7 +450,7 @@ void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int oheigh
         basestep = (unsigned int)(step>>16);
         step -= ((long)basestep<<16);
         basestep -=1;
-        coldiv = (((long)nheight)<<16) / (oheight); 
+        coldiv = (int)((((long)nheight)<<16) / (oheight));
         
         if(step != 0)
         {     
@@ -557,7 +559,7 @@ void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int oheigh
             o_offset = opic + (long)(oheight-2)*obpl + (long)x*3L;
             count = 0;
             busycount++;
-            if(!(busycount & busycall)) smurf_struct->services->busybox((busycount<<10) / busymax);
+            if(!(busycount & busycall)) smurf_struct->services->busybox((int)((busycount<<10) / busymax));
             
             ered   = *(o_offset++);
             egreen = *(o_offset++);

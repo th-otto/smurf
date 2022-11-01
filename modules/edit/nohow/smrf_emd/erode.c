@@ -151,7 +151,9 @@ if(SmurfMessage ==MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }
 
 
@@ -161,20 +163,19 @@ int do_it(GARGAMEL *smurf_struct)
 {
     SMURF_PIC *picture;
     int width, height;
-    char *pic, *offset;
+    char *pic;
     int strength;
-    char *oben,*unten,*links,*rechts,*mitte;
+    char *links,*rechts,*mitte;
     char *buf_eins, *buf_zwei, *buffer_eins, *buffer_zwei;
     long r,g,b;
     int xmax, ymax,x,y;
-    long yoffset,bpl,gesamt;
+    long yoffset,bpl;
     long *faktor_1, *faktor_2;
     long *mul5;
     long busycount, busymax, busycall;  
-    int bias,div;
-    
-    bias = 128;
-    div = 1;
+#if 0
+    int bias = 128;
+#endif
         
     /*--- Slider auslesen ---------------------- */
     
@@ -238,25 +239,24 @@ int do_it(GARGAMEL *smurf_struct)
         links = mitte-bpl-3;
         rechts = mitte+bpl+3; 
     
-    /*  unten = mitte+bpl+bpl+6;
-    */
+#if 0
+  unten = mitte+bpl+bpl+6;
+#endif
         
         for (x=1; x<xmax; x++)
         {
-        /*
+#if 0
                 r = mul5[mitte[0]];
                 g = mul5[mitte[1]];
                 b = mul5[mitte[2]];
-        */      
+#endif
                 r = rechts[0];
                 g = rechts[1];
                 b = rechts[2];
-        /*      
+#if 0
                 r -= links[0];
                 g -= links[1];
                 b -= links[2];
-        */
-        /*      
                 r -= oben[0];
                 g -= oben[1];
                 b -= oben[2];
@@ -264,18 +264,20 @@ int do_it(GARGAMEL *smurf_struct)
                 r -= unten[0];
                 g -= unten[1];
                 b -= unten[2]; 
-        */      
+#endif
         
         /*-- Invert -------------------*/
-    /*          r = -r;
+#if 0
+	          r = -r;
                 g = -g;
                 b = -b;
-    */
+#endif
         /*--- Bias ------------------------*/
-    /*          r += bias;
+#if 0
+          r += bias;
                 g += bias;
                 b += bias;
-    */  
+#endif
         /*--- Clip ------------------------*/
                 if (r<0) r=0;
                 else if (r>255) r=255;
@@ -312,51 +314,53 @@ int do_it(GARGAMEL *smurf_struct)
         buffer_zwei=buf_zwei;
         mitte = pic + yoffset + 3;  /* +3 weil erst ab 2.Pixel! */
     
-    /*  oben = mitte-bpl-bpl-6;
-    */
+#if 0
+     oben = mitte-bpl-bpl-6;
+#endif
     
         links = mitte-bpl-3;
         rechts = mitte+bpl+3; 
     
-    /*  unten = mitte+bpl+bpl+6;
-    */  
+#if 0
+    unten = mitte+bpl+bpl+6;
+#endif
             
         for (x=1; x<xmax; x++)
         {
-        /*
+#if 0
                 r = mul5[mitte[0]];
                 g = mul5[mitte[1]];
                 b = mul5[mitte[2]];
-        */  
+#endif
                 r = rechts[0];
                 g = rechts[1];
                 b = rechts[2];
-        /*  
+#if 0
                 r -= links[0];
                 g -= links[1];
                 b -= links[2];
-        */
-        /*
                 r -= oben[0];
                 g -= oben[1];
                 b -= oben[2];
                 r -= unten[0];
                 g -= unten[1];
                 b -= unten[2];
-        */  
+#endif
             
         
         /*-- Invert -------------------*/
-        /*      r = -r;
+#if 0
+                r = -r;
                 g = -g;
                 b = -b;
-        */
+#endif
         
         /*--- Bias ------------------------*/
-        /*      r += bias;
+#if 0
+                r += bias;
                 g += bias;
                 b += bias;
-        */
+#endif
         /*--- Clip ------------------------*/           
                 if (r<0) r=0;
                 else if (r>255) r=255;
@@ -392,4 +396,3 @@ int do_it(GARGAMEL *smurf_struct)
     /* Mfree(pic); */
     return(M_PICDONE);
 }
-

@@ -73,7 +73,7 @@ int floyd_steinberg68000(SMURF_PIC *picture, DITHER_DATA *dither, char *output)
     register int *fru_acc;
     signed char *fehlerline1, *fehlerline2;
     signed char *f1,*f2;
-    register signed char *read_f1, *read_f2;
+    register signed char *read_f1;
     register int *write_f1;
 
     register signed char rot_rechts, grn_rechts, blu_rechts;

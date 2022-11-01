@@ -471,7 +471,7 @@ void tiff4_to_stf(GARGAMEL *smurf_struct, char *source, char *dest, long Width, 
 			pixbuf[x++] = v >> 4;
 			pixbuf[x++] = v & 0x0f;
 		} while(x < Width);
-		dest += setpix_std_line(pixbuf, dest, 4, planelength, Width);
+		dest += setpix_std_line(pixbuf, dest, 4, planelength, (int)Width);
 	} while(++y < Height);
 
 	SMfree(pixbuf);
@@ -521,7 +521,7 @@ void tiff2_to_stf(GARGAMEL *smurf_struct, char *source, char *dest, long Width, 
 			pixbuf[x++] = (v & 0x0c) >> 2;
 			pixbuf[x++] = (v & 0x03);
 		} while(x < Width);
-		dest += setpix_std_line(pixbuf, dest, 2, planelength, Width);
+		dest += setpix_std_line(pixbuf, dest, 2, planelength, (int)Width);
 	} while(++y < Height);
 
 	SMfree(pixbuf);
@@ -540,7 +540,7 @@ int tiffCCITT3_depack(GARGAMEL *smurf_struct,char *source, char *dest, long Widt
 
 	long bitcount,bytepos,codeok, codeleft,linec,offset,ymax,l;
 
-
+	(void)Depth;
 	bitcount=0;
 	codelength=0;
 	B_W=0;

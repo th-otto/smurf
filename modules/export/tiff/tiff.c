@@ -903,7 +903,7 @@ unsigned int write_header(char *ziel, SMURF_PIC *smurf_pic, CONFIG *config, char
 	if(StripsPerPic == 1)
 		return(dcount + 4 + bps + 16 + pallen);
 	else
-		return(dcount + 4 + bps + 16 + StripsPerPic * 8L + pallen);
+		return((unsigned int)(dcount + 4 + bps + 16 + StripsPerPic * 8L + pallen));
 } /* write_header */
 
 

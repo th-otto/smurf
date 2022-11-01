@@ -98,7 +98,7 @@ long encode_LZW(char *ziel, char *buffer, unsigned long w, unsigned int height, 
 	y = 0; 
 	do
 	{
-	x = w;
+	x = (unsigned int)w;
 	if(y == 0)
 		x--;		/* die erste Zeile hat ein Byte weniger weil oben schon weggenommen */
 	while(x)

@@ -737,7 +737,7 @@ void write_header(char *ziel, unsigned int width, unsigned int height, long w, c
 			if(BitsPerPixel == 24)
 				*ziel++ = 3;
 
-	*((unsigned int *)ziel)++ = swap_word(w);			/* Bytes per Line */
+	*((unsigned int *)ziel)++ = swap_word((int)w);			/* Bytes per Line */
 
 	*((unsigned int *)ziel)++ = swap_word(1);			/* Palette Type */
 		

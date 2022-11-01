@@ -118,12 +118,12 @@ MOD_INFO module_info = {"Pictor PC Paint",
 int imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *pal, *ppal, *temp,
-		 BitsPerPixel, Planes, palflag, VideoMode,
+		 BitsPerPixel, Planes, palflag,
 		 RunMarker, v1, v2;
 	char dummy[3], impmessag[21];
 
 	unsigned int width, height,
-				 Offset, PalType, PalSize, Blocks, x, z, osize, BlockSize, n;
+				 Offset, PalType, PalSize, Blocks, x, z, osize, n;
 
 	unsigned long w;
 
@@ -180,7 +180,9 @@ int imp_module_main(GARGAMEL *smurf_struct)
 
 		palflag = *(buffer + 0x0b);
 
+#if 0
 		VideoMode = *(buffer + 0x0c);
+#endif
 
 		if(palflag != 0xff)								/* Version < 2.0 */
 			Offset = 0x0c;
@@ -229,8 +231,8 @@ int imp_module_main(GARGAMEL *smurf_struct)
 			z = 0;
 			do
 			{
-				BlockSize = swap_word(*((unsigned int *)buffer)++);	/* Blockgr”že inkl. Header */
-				osize = swap_word(*((unsigned int *)buffer)++);		/* Gr”že der Originaldaten */
+				/* BlockSize = */ swap_word(*((unsigned short *)buffer)++);	/* Blockgr”že inkl. Header */
+				osize = swap_word(*((unsigned short *)buffer)++);		/* Gr”že der Originaldaten */
 				RunMarker = *buffer++;								/* Marker fr Bytefolgen */
 
 				x = 0;

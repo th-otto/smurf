@@ -153,7 +153,9 @@ if(SmurfMessage == MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }
 
 
@@ -167,9 +169,9 @@ int do_it(GARGAMEL *smurf_struct)
     char *pic, *offset_a, *offset_b;
     long red_a,green_a,blue_a, red_b,green_b,blue_b;
     long bpl;
-    unsigned int step, fak_a, fak_b;
-    unsigned int fak_a1,fak_a2,fak_b1,fak_b2;
-    int x, y, i;
+    unsigned int step, fak_a;
+    unsigned int fak_a1,fak_a2;
+    int x, y;
 
     /*--- Slider auslesen ---------------------- */
     
@@ -222,12 +224,12 @@ int do_it(GARGAMEL *smurf_struct)
         fak_a = 0x8000 + (step>>1);
             
         fak_a1 = fak_a;
-        fak_a2 = 0x10000L - fak_a;
+        fak_a2 = (int)(0x10000L - fak_a);
         
         for (x=0; x<blend_x; x++)
         {
             busycount++;
-            if(!(busycount & busycall)) smurf_struct->services->busybox((busycount<<10) / busymax);
+            if(!(busycount & busycall)) smurf_struct->services->busybox((int)((busycount<<10) / busymax));
                 
             offset_a = pic + x+x+x;
             offset_b = pic + (long)(width-1-x)*3L;
@@ -265,12 +267,12 @@ int do_it(GARGAMEL *smurf_struct)
         fak_a = 0x8000 + (step>>1);
             
         fak_a1 = fak_a;
-        fak_a2 = 0x10000L - fak_a;
+        fak_a2 = (int)(0x10000L - fak_a);
         
         for (y=0; y<blend_y; y++)
         {
             busycount++;
-            if(!(busycount & busycall)) smurf_struct->services->busybox((busycount<<10) / busymax);
+            if(!(busycount & busycall)) smurf_struct->services->busybox((int)((busycount<<10) / busymax));
             
             offset_a = pic + y*bpl;
             offset_b = pic + (long)(height-1-y)*bpl;

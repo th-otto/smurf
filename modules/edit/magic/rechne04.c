@@ -75,7 +75,7 @@ long busystart, busyfak;
 void update(void)
 {
 	busystart+=busyfak;
-	busybox(busystart>>8);
+	busybox((int)(busystart>>8));
 }
 
 /*
@@ -203,7 +203,7 @@ int berechne_no_inter(int sposch,int ART,int SPALTE,
 
 	if( busyfak==0) busyfak=1;
 	busystart=0;
-	reset_busybox(busystart,"magisch aktiv...");
+	reset_busybox((int)busystart,"magisch aktiv...");
 
 /*	{
 		FILE *fh;

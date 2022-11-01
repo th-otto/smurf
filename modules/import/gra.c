@@ -85,8 +85,8 @@ int imp_module_main(GARGAMEL *smurf_struct)
 	memcpy(smbuffer,smbuffer+8,(long)x*y);
 	Mshrink(0,smbuffer,(long)x*y);
 
-	smurf_struct->smurf_pic->pic_width=x;
-	smurf_struct->smurf_pic->pic_height=y;
+	smurf_struct->smurf_pic->pic_width=(int)x;
+	smurf_struct->smurf_pic->pic_height=(int)y;
 	smurf_struct->smurf_pic->depth=8;
 	smurf_struct->smurf_pic->col_format=GREY;
 	smurf_struct->smurf_pic->format_type=FORM_PIXELPAK;

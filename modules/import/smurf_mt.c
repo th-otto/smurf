@@ -59,8 +59,7 @@ MOD_INFO    module_info={"Speichertestmodul",
                         0,10
                         };
 #define DEBUG           0
-#define TRUE            1
-#define FALSE           !TRUE
+
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 /*      Modul zum Testen der Speicherverwaltung     */
@@ -72,6 +71,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 char *buffer;
 long free_mem;
 
+(void)smurf_struct;
 Goto_pos(0,0);
 free_mem=(long)Mxalloc(-1, 2);
 printf("\n-   Mod gestartet: %li Bytes.", free_mem);

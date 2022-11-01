@@ -157,7 +157,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	char *data, *pal, *palette, *line, *pixbuf,
 		 BitsPerPixel, val, r, g, b,
 		 grenze, grenzen[256], stepwidth,
-		 smooth, i, j, l, lower, upper, areawidth;
+		 smooth, i, j, l;
 	
 	int module_id;
 	unsigned int *data16,
@@ -373,7 +373,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			}
 }
 
-/*
+#if 0
 	upper = 230;
 	lower = 50;
 	areawidth = upper - lower + 1;
@@ -406,4 +406,5 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				{
 					grenzen[k++] = upper;
 				} while(k < 256);
-*/
+#endif
+

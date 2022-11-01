@@ -89,7 +89,8 @@ int print_with_GDOS(PRN_SETTINGS *prn_settings)
     int gdos_handle = 0, pxy[8], clip[4], colindex[2] = {1, 0}, SCALE;
     unsigned int height, stripoffset, stripheight, bh, bl;
 
-    unsigned long mem, w, dy;
+    long mem;
+    unsigned long w, dy;
 
     MFDB srcform, dstform;
 
@@ -142,7 +143,7 @@ int print_with_GDOS(PRN_SETTINGS *prn_settings)
     clip[1] = pxy[5];                       /* linke obere Ecke des Clipping-Rechtecks */
     clip[2] = pxy[6];                       /* rechte untere Ecke des Clipping-Rechtecks */
 
-    if((mem = Malloc(-1)) < 128000L)
+    if((mem = (long)Malloc(-1)) < 128000L)
     {
         form_alert(1, "[1][Es steht nicht genug Speicher|zum Drucken zur Verfgung!][ Oh ]");
         services->f_alert(alerts[NO_PRT_MEM].TextCast, NULL, NULL, NULL, 1);

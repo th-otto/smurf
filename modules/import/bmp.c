@@ -945,7 +945,7 @@ char *decodeRLE8(char *buffer, unsigned int width, unsigned int height, unsigned
 
 	unsigned int x, y;
 
-
+	(void)width;
 	if((ziel = SMalloc(w * (unsigned long)height)) == 0)
 		return(NOMEM);
 

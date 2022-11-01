@@ -114,12 +114,17 @@ MOD_INFO module_info = {"PCX/SCR-Importer",
 int imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel, *pal, *ppal, *back,
-		 v, v0, v1, ImageType, version, comp, BitsPerPixel, Planes;
+		 v, v0, v1, comp, BitsPerPixel, Planes;
 	char dummy[3], impmessag[21];
 
 	unsigned int width, height, i,
-				 HRes, VRes, BytesPerLine, cols, w;
-
+				 BytesPerLine, cols, w;
+#if 0
+	char version;
+	char ImageType;
+	unsigned int HRes, VRes;
+#endif
+	
 	long f_len, memwidth, pos;
 
 
@@ -135,6 +140,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 	if(v0 != 0x0a && v0 != 0xcd || (v1 != 0 && v1 != 2 && v1 != 3 && v1 != 5) || (*(buffer + 2) >= 2))
 		return(M_INVALID);
 	{
+#if 0
 		if(v0 == 0x0a)
 			ImageType = PCX;
 		else
@@ -142,6 +148,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 				ImageType = SCR;
 
 		version = *(buffer + 0x01);
+#endif
 		comp = *(buffer + 0x02);
 		BitsPerPixel = *(buffer + 0x03);
 
@@ -149,8 +156,10 @@ int imp_module_main(GARGAMEL *smurf_struct)
 		width = swap_word(*(unsigned int *)(buffer + 0x08)) - swap_word(*(unsigned int *)(buffer + 0x04)) + 1;
 		/* YEnd - YStart */
 		height = swap_word(*(unsigned int *)(buffer + 0x0a)) - swap_word(*(unsigned int *)(buffer + 0x06)) + 1;
+#if 0
 		HRes = swap_word(*(unsigned int *)(buffer + 0x0c));
 		VRes = swap_word(*(unsigned int *)(buffer + 0x0e));
+#endif
 		ppal = buffer + 0x10;
 		Planes = *(buffer + 0x41);
 		BitsPerPixel *= Planes;
@@ -293,9 +302,11 @@ int imp_module_main(GARGAMEL *smurf_struct)
 		} /* Malloc */
 	} /* Erkennung */
 
-/* wie schnell waren wir? */
-/*	printf("%lu", get_timer());
-	getch(); */
+#if 0
+	/* wie schnell waren wir? */
+	printf("%lu", get_timer());
+	getch();
+#endif
 
 	SMfree(buffer);
 	

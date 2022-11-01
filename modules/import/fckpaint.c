@@ -47,10 +47,10 @@ MOD_INFO	module_info={
 0,0,0,0,0,0,0,0,0,0,0,0,
 };
 
-void convertiere_bild(unsigned int *sc1,unsigned int *sc2)
+static void convertiere_bild(unsigned short *sc1,unsigned short *sc2)
 {
 	int i;
-	unsigned int *s1, *s2, *s3, *s4, *s5, *s6, *s7, *s8;
+	unsigned short *s1, *s2, *s3, *s4, *s5, *s6, *s7, *s8;
 
 	s1=sc2;
 	s2=s1+4800;
@@ -100,7 +100,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 
 	buf=Malloc(76800L);
 	if(buf==0) return(M_MEMORY);
-	convertiere_bild(smbuffer,buf);
+	convertiere_bild((unsigned short *)smbuffer,(unsigned short *)buf);
 	Mfree(smurf_struct->smurf_pic->pic_data);
 
 	smurf_struct->smurf_pic->pic_width=320;

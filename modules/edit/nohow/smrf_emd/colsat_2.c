@@ -153,7 +153,9 @@ if(SmurfMessage == MTERM)
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
 
-    return;     /* Ich mach' noch nix. */
+    /* Ich mach' noch nix. */
+    (void)smurfpic;
+    (void)preview;
 }
 
 
@@ -165,7 +167,7 @@ int do_it(GARGAMEL *smurf_struct)
     int width, height, colsat;
     char *pic, *cs_tab, *offset, *cs_offset;
     signed int *div_tab, *div_offset;
-    long bpl, div;
+    long div;
     float cs_fak;
     signed int x, y;
     long red,green,blue,grey;

@@ -87,34 +87,36 @@ int imp_module_main(GARGAMEL *smurf_struct)
 {
 SMURF_PIC *picture;
 char *cpic, *bitmap_data, *decoded_pic, *decpic_copy, PicByte;
-int *pic_data;
+unsigned short *pic_data;
 char *redpal, *greenpal, *bluepal;
 int width, height, depth;
-int pictype, pal_offs, memtype;
+unsigned short pictype;
+int pal_offs;
 long decode, PicLen, DecodeLen=0, t, dect, PlaneLen;
 char red, green, blue;
 char *smurf_palette, *smurf_palcopy;
 
 
 picture=smurf_struct->smurf_pic;
-pic_data=cpic=picture->pic_data;
+pic_data=picture->pic_data;
+cpic = (char *)pic_data;
 smurf_palette=picture->palette;
 smurf_palcopy=smurf_palette;
 
 
 /* Dateikennung prÅfen */
-if( *(pic_data) != 0xe001L ) return(M_INVALID);
+if( *(pic_data) != 0xe001U ) return(M_INVALID);
 
 
 
 pictype= *(pic_data+1);     /* Bildtype */
 
-if(pictype==0xf800L) 
+if(pictype==0xf800U) 
     {
     depth=8;        /* 8Bit Palettenbild,     */
     pal_offs=3*256;
     }
-else if(pictype==0xdc00L) 
+else if(pictype==0xdc00U) 
     {
     depth=24;   /* 24Bit TC-Bild,         */
     pal_offs=0;
@@ -128,7 +130,9 @@ redpal=cpic+0x04;       /* Palettenwerte ROT ab Byte 4 */
 greenpal=cpic+0x104;        /* Palettenwerte GRöN */
 bluepal=cpic+0x204;     /* Palettenwerte BLAU */
 
+#if 0
 memtype=*(cpic+pal_offs);   /* Scaleable - Non Scaleable (???) */
+#endif
 
 width= (int) *(cpic+pal_offs+1);
 height= (int) *(cpic+pal_offs+3);
@@ -141,7 +145,7 @@ PicLen=(long)width*(long)height*3L;
 decoded_pic=Malloc(PicLen);
 decpic_copy=decoded_pic;
 
-bitmap_data=*(cpic+0x0d+pal_offs);
+bitmap_data = cpic+0x0d+pal_offs;
 
 
 
@@ -171,7 +175,7 @@ if(depth==24)
 
     Mfree(pic_data);
     pic_data=Malloc(PicLen);
-    cpic=pic_data;
+    cpic = (char *)pic_data;
 
     /* Format-Decode */
     for(t=0; t<PlaneLen; t++)
@@ -196,7 +200,7 @@ else if(depth==8)
     Mshrink(0, decoded_pic, PlaneLen);
 
     Mfree(pic_data);
-    pic_data=decoded_pic;
+    pic_data = (unsigned short *)decoded_pic;
 
 
     /* Palette eintragen */
@@ -211,7 +215,7 @@ else if(depth==8)
 
 
 strncpy(picture->format_name, "Agfa SCODL-File (.SCD)", 21);
-picture->pic_data=pic_data;
+picture->pic_data = pic_data;
 picture->depth=depth;
 picture->pic_width=width;
 picture->pic_height=height;
