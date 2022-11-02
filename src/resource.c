@@ -268,6 +268,7 @@ void init_smurfrsc(char *rscpath)
 	desk.g_w = Sys_info.screen_width;
 	desk.g_h = Sys_info.screen_height;
 	init_xrsrc(Sys_info.vdi_handle, &desk, gl_wchar, gl_hchar);
+	xrsrc_mustexist = TRUE;
 	back = xrsrc_load(rscpath, resource_global);
 	if(back == FALSE)
 	{

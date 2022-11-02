@@ -39,18 +39,9 @@ typedef struct
 
 /****** VARIABLES ************************************************************/
 
+extern WORD xrsrc_mustexist;
+
 /****** FUNCTIONS ************************************************************/
-#if 0
-
-GLOBAL WORD    xrsrc_load  _((CONST char *re_lpfname, WORD *pglobal));
-GLOBAL WORD    xrsrc_free  _((WORD *pglobal));
-GLOBAL WORD    xrsrc_gaddr _((WORD re_gtype, WORD re_gindex, VOID *re_gaddr, WORD *pglobal));
-GLOBAL WORD    xrsrc_saddr _((WORD re_stype, WORD re_sindex, VOID *re_saddr, WORD *pglobal));
-GLOBAL WORD    xrsrc_obfix _((OBJECT *re_otree, WORD re_oobject));
-
-GLOBAL WORD init_xrsrc  _((WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox));
-GLOBAL VOID    term_xrsrc  _((VOID));
-#endif
 
 WORD	xrsrc_load  (const char *re_lpfname, WORD *pglobal);
 WORD    xrsrc_free  (WORD *pglobal);

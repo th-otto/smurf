@@ -302,6 +302,7 @@ void main(int argc, const char *argv[])
 	rsc_path = malloc(257);
 	strcpy(rsc_path, "startup.rsc");
 	init_xrsrc(Sys_info.vdi_handle, &desk, gl_wchar, gl_hchar);
+	xrsrc_mustexist = FALSE;
 	back = xrsrc_load(rsc_path, startuprsc_global);
 	if(back == TRUE)
 		startupdial_exist = 1;
