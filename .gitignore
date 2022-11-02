@@ -1,0 +1,12 @@
+*.o
+*.prg
+*.pdb
+*.app
+*.lib
+*.a
+*.sim
+*.plg
+*.plx
+*.sxm
+*.sem
+*.sdm
