@@ -1,0 +1,647 @@
+@if VERSION >= 6
+@os Atari
+@charset atarist
+@inputenc atarist
+@lang en
+@endif
+@database "Smurf"
+@options "+g -i -s +x +y +z -t4 -d12"
+@author "Therapy Seriouz Software"
+@$VER: 1.0 (19/8/1998)
+@subject "Documentation"
+@width 75
+@remark ST-Guide flags: $0000
+
+
+@node "Main" "Smurf"
+@symbol ar "Smurf"
+@{U}Smurf                                                         Smurf@{u}
+
+
+
+@remark 321x201x16
+@limage "img35.bmp" 0
+                         Version 1.0, 4th April 1998
+                        (C) Therapy Seriouz Software
+                               @{B}Online Help@{b}
+
+
+
+This hypertext is only meant as online help for the program, and 
+can only be used sensibly from within it. For further information 
+please consult the manual.
+                    Therapy Seriouz Software
+                    Verdistr. 28
+                    90455 NÅrnberg
+@endnode
+
+
+@node "Smurf Info"
+@{U}Smurf Info                                                    Smurf@{u}
+
+
+As it should for every GEM program, the left-most entry of the menu 
+bar hides, besides the desk accessories (which do not belong to the 
+program) only one entry for calling up the Info dialog. That is the 
+case here too.
+
+In the Info dialog you will find in any case details by whom, with 
+what and when Smurf was written and which version you have before 
+you. Unfortunately it has not become more interesting - except, of 
+course, if you find the hiddden feature...
+
+@endnode
+
+
+@node "New pic" "New image"
+@symbol ar "New image"
+@{U}New image                                                     Smurf@{u}
+
+    Shortcut CTRL-N
+
+
+With this dialog you can create a new picture.
+
+Two editable fields for selecting the size and a popup to choose the 
+colour depth is all that you need for this. In addition, you can 
+select in the popup that initially contains "Pixel" a different unit 
+of measurement in case you don't have a calculator to hand and want 
+to create an image of say 3.57 x 1.49 inch at 123 dpi. The dpi (dots 
+per inch) resolution can also be freely chosen, of course. 
+
+A click on "Generate" does exactly what it says.
+
+@endnode
+
+
+@node "Smurf export format"
+@{U}Export modules                                                Smurf@{u}
+
+    Shortcut CTRL-M
+
+
+In this listbox you can select the export format. A double-click on 
+the desired format or normal selection with the keyboard or mouse 
+and confirmation with "Start" ([Return]) starts the export process. 
+During this an attempt is made to retain the colour depth of the 
+picture, or to at least convert it in such a way that no loss of 
+quality results. If this is not possible because the Exporter 
+supports only a lower colour depth than that of the picture, then 
+the image will be converted automatically at the highest possible 
+quality (Floyd-Steinberg and Median cut) and then exported.
+
+If you hold down the [Alternate] key while starting the export, then 
+the Export dialog appears.
+
+@endnode
+
+
+@node "Export dialog"
+@{U}Export dialog                                                 Smurf@{u}
+
+    No shortcut
+
+
+You have started an export while holding down the [Alternate] key, 
+and can now undertake further settings.
+
+The export colour depth can be chosen in the upper popup. Here only 
+those colour depth are offered that the Exporter actually supports. 
+Should the export colour depth be lower than that of the picture to 
+be exported, then you can use the popups "Reduction" and "Palette" 
+to select the rastering and palette search method with which the 
+picture is to be reduced to the destination colour depth.
+
+With the 3-line editable field "Info" we offer you the option, 
+provided it is supported by the destination format, to save a 
+description, a comment or even a short poem with the picture. 
+If you do not wish to make use of this, simply clear the fields 
+with [Esc].
+
+If the selected format supports further specific settings, such as 
+various formats or compressions, then you can reach the relevant 
+dialog for this with the "More..." button; this makes the export module 
+open a dialog in which the corresponding settings can be made. Here 
+too, closing the window = Cancel. The settings made in this dialog 
+are retained for this Exporter until the program is re-started.
+
+After making the settings, you can start the export process with the 
+"Export" button. With most Exporters you can follow the progress of 
+the export process in the Status box. At the end a file selector box 
+will open where you can select the path and name under which the file 
+is to be saved. The program preselects the correct file extension to 
+go with the original filename, though of course you can change this 
+if you wish.
+
+@endnode
+
+
+@node "Smurf picinfo" "Picture information"
+@symbol ar "Picture information"
+@{U}Picture information                                           Smurf@{u}
+
+The picture information dialog (more of a monologue...)
+
+    Shortcut CTRL-I
+
+
+You can obtain information about the currently active picture with 
+this dialog. It will show the filename as well as information about 
+the memory that the picture is currently using, the colour depth etc.
+
+@endnode
+
+
+@node "PicMan"
+@{U}The Picture manager                                           Smurf@{u}
+
+    Shortcut ALT+M
+
+
+@{B}We are happy!@{b}
+And namely not for you, but for us, having our own manager.
+
+The Picture manager is small, narrow and important. So important 
+and narrow that you should always have it on your screen. The narrow, 
+small and important dialog namely allows you not just to maintain an 
+overview, but it is even essential for some operations.
+
+
+@{B}What the Picture manager can do@{b}
+
+First of all the Picture manager shows all loaded pictures in the 
+list field. Because the Picture manager is so narrow, the complete 
+filenames are probably not fully visible (only the first 12 charac-
+ters), but this should suffice to keep an overview. Like all others, 
+the list field is operated with the keyboard and mouse but does not 
+offer an autolocator.
+
+
+@{B}What else the Picture manager can do@{b}
+
+If you have lost sight of a picture (maybe you have to iconify or 
+shade windows from time to time), then a double-click on the entry 
+in the manager makes it appear on screen once more.
+
+And then there is the rectangle in the top part of the Picture 
+manager - the preview window. If you have forgotten what the picture 
+named "YVONNE.GIF" or "MURMEL.TGA" looks like, the window is too 
+small or in the backround - perhaps even iconified or shaded? A 
+click on the name and Smurf will rush to generate a thumbnail of the 
+picture as quickly as possible. Even for such users as myself, who 
+simply number images sequentially for various steps of the edit or 
+creation process, the preview window offers a simple way of 
+maintaining an overview. The dimensions and colour depth of the 
+active picture are always visible in the field below, again 
+reducing disorientation. 
+
+Although the Picture manager always displays the whole picture as a 
+reduced-size preview, it does not necessarily have to be completely 
+visible in the @{"main" LINK "Main"} picture window. To make orientation easier, a 
+dashed frame in the preview always shows the currently visible 
+portion of the picture. And you can also use it for navigation - 
+just click on it and drag it to the desired part of the picture.
+
+@{B}Still not enough?@{b}
+You don't like the order of the loaded pictures (e.g. by cycling 
+through them with [Control]+[W], or while creating a film [oops, 
+that's only in later Smurf versions])? Then simply click on the 
+name and drag it to the desired position in the list.
+
+Furthermore the Picture manager is not only important but essential 
+for the operation of modules that require several pictures for their 
+work (e.g. Bump it up or Spherical Image). The objects to be passed 
+to the module's settings dialog are only available from the Picture 
+manager. For the detailed description of the process please consult 
+the manual. Another use is for all Drag&Drop operations between 
+Smurf and other programs.
+
+Two further features can be reached together with [Alternate] and 
+[Control]: A [Control]+double-click on an entry in the picture list 
+passes its filename to the AV-Server, i.e. normally the desktop, and 
+invites it to display the picture with a viewer that is installed 
+there for the filetype. So if you are working with a Falcon, say, 
+and have registered a HiColor viewer for TGAs, you can display these 
+from within Smurf quite simply with two small clicks.
+
+[Alternate]+double-click invites the AV-Server to open a file window 
+with the image file.
+
+@endnode
+
+
+@node "Smurf status"
+@{U}The Status window                                             Smurf@{u}
+
+    Shortcut ALT+F
+
+
+Normally this window always shows when Smurf or one of its modules 
+is doing something. Be it dithering, softening, saving or whatever, 
+the text area of the Status window shows you what is happening at 
+the time.
+
+Furthermore, the horizontal bar (whose appearance may be changed 
+with a left-click, by the way) shows how far Smurf or the module 
+has progressed with the operation at any instant. 
+Far right = "finished". 
+
+Below the bar you can see the amount of memory free at the time.
+
+@endnode
+
+
+@node "Bildfenster" "Picture window"
+@symbol ar "Picture window"
+@{U}The Smurf picture windows                                     Smurf@{u}
+
+    No shortcut
+
+
+All picture window have a toolbar at the top with various display 
+and operating elements.
+
+
+@remark 14x28x2
+@image "img34.bmp" 1
+
+
+Opens the picture info dialog for the image.
+
+
+@remark 53x31x16
+@image "img33.bmp" 1
+
+
+Shows the currently set display magnification of the picture. This 
+can be altered by a left-click in a popup.
+
+
+@remark 88x25x2
+@image "img32.bmp" 1
+
+
+Here the X- and Y-coordinates of the mouse pointer in the picture 
+are displayed.
+
+@{B}'W'@{b} and @{B}'H'@{b} show the size of the block frame which may have been 
+drawn out in the picture. When you move a block frame, then @{B}'X'@{b} 
+and @{B}'Y'@{b} show the coordinates of the top left corner of the frame.
+
+
+@remark 200x30x16
+@image "img31.bmp" 1
+
+
+This shows the three colour components of the pixel in the picture 
+over which the mouse pointer lies. @{B}'I'@{b} is only valid for palette 
+images (<=256 colours) and shows the palette index under the mouse 
+pointer (while you are moving a block frame, the displays are 
+switched off).
+
+
+A right-click within a picture opens a popup offering several 
+options for selection:
+
+@{B}"Export..."@{b}
+Opens the list window with the Export modules (Shortcut CTRL+M)
+
+@{B}"Modules..."@{b}
+Opens the list window with the edit modules (Shortcut CTRL+B)
+
+@{B}"Duplicate"@{b}
+Copies the image to a new window. Note that any block markings present 
+will not be copied.
+
+@{B}"Redither"@{b}
+Recalculates the screen display with the parameters set in the 
+Smurf display options (Display/Configuration...) dialog (CTRL+K).
+
+@{B}"Reload"@{b}
+Loads the last saved version of the picture.
+
+@{B}"Block..."@{b}
+Opens the block popup.
+
+The block popup can also be reached by a right-click in a drawn out 
+block frame. If a block has been drawn out, then the following 
+options are available here:
+
+@{B}"Crop"@{b}
+Adopts only the area of the block into the picture window, the rest 
+of the picture is discarded.
+
+@{B}"Copy"@{b}
+Copies the currently marked area of the image or the block possibly 
+inserted into the frame with a double-click to the GEM clipboard.
+
+@{B}"Cut"@{b}
+As "copy", but the marked area or inserted block is removed from the 
+picture.
+
+@{B}"Paste"@{b}
+Takes over a graphic block (IMG or X-IMG) in the clipboard into a 
+block frame.
+
+@{B}"Numeric..."@{b}
+Opens a dialog in which you can input the size and position of the 
+block frame in the active picture from the keyboard.
+
+@{B}"Release"@{b}
+Removes the block marking or the inserted block.
+
+@{B}"Mode..."@{b}
+Opens a dialog in which you can set the mode used for calculating 
+the insertion of blocks into a picture (with a double-clickk in a 
+block frame that contains an inserted or pasted block).
+
+@endnode
+
+
+@node "Smurf options"
+@{U}The Options dialog                                            Smurf@{u}
+
+    Shortcut ALT+O
+
+The Options dialog contains four tabbed index cards for setting 
+various parameters. You can switch between them by clicking on 
+the relevant tab.
+
+@remark 86x32x16
+@limage "img30.bmp" 1
+@{B}Here you can set options that influence the general behaviour 
+of Smurf.@{b}
+
+@remark 157x23x16
+@limage "img29.bmp" 1
+When active, this ensures that all dialogs open at the centre of 
+the screen.
+
+@remark 136x22x16
+@limage "img28.bmp" 1
+When active, this makes most alert boxes appear within Smurf's own 
+windows and so does not hinder other programs' screen output.
+
+@remark 168x23x16
+@limage "img27.bmp" 1
+When active, this ensures that before automatic image conversions 
+(e.g. if an edit module requires a different colour depth from the 
+one being used by the picture) no warnings are output beforehand.
+
+@remark 127x37x16
+@limage "img26.bmp" 1
+With this popup you can set in which size Photo-CD pictures are to 
+be loaded. PCD images are contained in their file in several sizes: 
+The Base size is 768*512 pixel, Base/2 then 384*256, Base/4 192*128.
+
+@remark 202x26x16
+@limage "img25.bmp" 1
+A click on this button generates an Import list (the one that Smurf 
+requested at its launch). This enters all Import modules in a list 
+which Smurf then uses when loading pictures. This list speeds up 
+the loading of images by several factors.
+
+
+
+@remark 86x30x16
+@limage "img24.bmp" 1
+@{B}Here you can set the appearance of Smurf.@{b}
+
+@remark 94x71x16
+@limage "img23.bmp" 1
+With these three radio buttons you can alter Smurf's appearance. The 
+three modes are to be understood as improvements from top to bottom. ;-)
+
+@remark 190x66x16
+@limage "img22.bmp" 1
+Here you can set how multiple keyboard events are to be handled in 
+picture windows. To prevent scrolling run-on when scrolling with the 
+cursor keys, keyboard events can be either collected up (the size 
+of the scrolling step increases with the number of key presses), or 
+deleted (unprocessed key presses are ignored).
+
+@remark 149x46x16
+@limage "img21.bmp" 1
+Here you can determine the colour to be used for the area of picture 
+windows that lies outside the actual picture.
+
+
+
+@remark 86x30x16
+@limage "img20.bmp" 1
+@{B}Here you can set the display and calculation of the preview images.@{b}
+
+@remark 323x27x16
+@limage "img19.bmp" 1
+When active, this ensures that previews of modules in the standard 
+Module dialog, thumbnails in the Picture manager and similar are 
+recalculated automatically immediately after an alteration of the 
+associated picture, and not only after a click on them.
+
+@remark 171x101x16
+@limage "img18.bmp" 1
+Here you can select the dither method with which the previews and 
+thumbnails are to be dithered. However, you can only select those
+dither method where dithering to the system pallette is possible, 
+since previews are always dithered to this.
+"when moving previews" sets the dither method with which the 
+previews are to be dithered when they are moved (e.g. in the 
+internal module dialog). As of Smurf V1.04b the previews are 
+dithered in real time when being moved to obviate problems with 
+different scaling of the preview and the picture. We recommend 
+the Nearest Color algorithm.
+
+@remark 164x44x16
+@limage "img17.bmp" 1
+At "Pic manager" you set the dither method for the Picture manager. 
+The Picture manager thumbnail is basically recreated at the 
+activation of a picture. The recommended setting is "Nearest Color".
+
+
+
+@remark 96x30x16
+@limage "img16.bmp" 1
+@{B} The newly added "Conversion" tabbed dialog allows setting of the@{b}
+@{B}automatic conversion parameters. @{b}
+
+@remark 170x82x16
+@limage "img15.bmp" 1
+In the right half of the dialog you can set the dither method and 
+palette to be used during the automatic conversion process.
+
+The left-hand side of the dialog is not yet in use, and is reserved 
+for a planned future extension of Smurf offering CMYK colour space 
+and UCR (under colour removal).
+
+@endnode
+
+
+@node "transform pic"
+@{U}Transform image                                               Smurf@{u}
+
+    Shortcut CTRL+D
+
+
+With the aid of this dialog you can transform the colour depth of 
+images. In the upper part of the dialog the name and colour depth 
+of the original picture (always the active image) is shown, in the 
+lower part you can set parameters for the conversion (destination 
+colour depth, "Reduction mode" dither method and palette mode). 
+If you have chosen the "Fix palette" option in the "Palette mode" 
+popup, you can use the "Load palette" button to load any available 
+palette in *.PAL format (e.g. a CMYK palette or a Netscape palette) 
+to which the picture is to be dithered. Naturally this only works 
+with dither algorithms that accommodate various palettes, i.e. not 
+with "Ordered dither" or "Greyscale".
+
+@endnode
+
+
+@node "Smurf display options"
+@{U}Smurf display options configuration                           Smurf@{u}
+
+    Shortcut CTRL+K
+
+
+This dialog serves for setting the dither methods that are used to 
+display loaded pictures on the screen. Here Smurf follows a somewhat 
+different line to most other programs, because the dither method can 
+be chosen for three different ranges of colour depths that the 
+pictures possess.
+This has the following background: If you are working in a 16-colour 
+screen mode, a qualitative good display of TrueColor pictures will 
+likely require an error-diffusion algorithm, at least Fast Diffusion 
+say to system palette. For many 8-bit pictures, on the other hand, 
+an Ordered Dither or Nearest Color may suffice, while for 16-colour 
+pictures the fastest way is to simply take the picture and adapt the 
+system palette to the image palette.
+That is the reason for the three radio buttons on the left-hand 
+side of the dialog. Here you can choose for which colour-depth range 
+(2-4 bit [for monochrome images no dithering should be necessary],
+5-8 bit and 9-24 bit) you want to set the dither method. With the 
+two popups to the right of the radio buttons you can select the 
+dither algorithm and the palette mode (for a more detailed 
+description of the process please consult the manual).
+
+In the right part of the dialog you can also decide how to proceed 
+when a picture with an adapted palette is to be displayed (e.g. with 
+the Median cut algorithm). "Mouse pos." means that the corresponding 
+display palette of the image is activated only when the mouse pointer 
+lies over the picture area; if the mouse pointer leaves the picture 
+area then the system palette will be switched to again (just load in 
+a picture, let it be dithered with Median cut and try it out). This 
+mode is set by default. "Top window" means that the palette relevant 
+for the top window is always set, so that if a picture window is 
+topped the display palette of the image will be used while with a 
+dialog it is the system palette. And then there is the "System" 
+palette mode, in which basically only the system palette is active.
+
+In the editable field below this you can set the global Smurf Timer. 
+This applies to timer-controlled events. You may have noticed that on 
+loading a picture the busy-box changes from a time display to "OK". 
+Is that too fast for you? Then increase the "Timer" setting from 50 
+to 100 ms, and it will take twice as long. This is just an example - 
+there are many other things controlled by this timer, e.g. the delay 
+in switching the palette to mouse position, or the search for the 
+on-line Help system (ST-Guide). On slow systems it may be useful 
+to set the timer a bit faster, so that work can flow more fluidly; 
+on fast systems the timer may easily be set slower, to leave a bit 
+more performance for the rest of the system. We recommend a setting 
+between 40 and 100 ms.
+
+@endnode
+
+
+@node "Multiconverter"
+@{U}Multiconverter                                                Smurf@{u}
+
+@{B}Information:@{b}
+    Non-resident plugin
+    Menu entry "Multiconvert", Menu "File"
+
+
+This plugin serves for the conversion of several images or complete 
+folders.
+
+
+@{B}Source path@{b}
+This specifies the path from which files are to be loaded, and
+
+@{B}Destination Path@{b}
+the path in which the converted files are to be stored in the 
+destination format.
+A click on the buttons opens a file selector in which each path can 
+be specified.
+
+Under @{B}Wildcards@{b} one can specify up to 64 different wildcards for 
+the files to be loaded. The wildcards have to be separated by commas 
+(without following spaces) and may contain any number of the joker 
+characters @{B}*@{b} and @{B}?@{b}, where (as usual) "*" represents any number of 
+characters (even none) and "?" just one character. The wildcards 
+are case sensitive, so capitals and lower case will be respected. 
+Note that files on data carriers with extended filesystems do not 
+have to contain a point. Therefore "*.*" presupposes that the 
+filename contains a point!
+
+@{B}Example:@{b} B*.TGA,a?c.*,image*.*ga
+
+
+In the list field @{B}Save as@{b} you have to select the format in which 
+the files are to be saved.
+
+@{B}Options@{b} opens the options dialog of the relevant exporter, 
+familiar from the Export dialog in the normal saving of files.
+
+@{B}Dest. color depth@{b} specifies the colour depth to which the loaded 
+images are to be converted before saving. Only those colour depth 
+that  are supported by the selected exporter are selectable. 
+@{B}equal i.p.@{b} here means that the colour depth of the loaded images 
+should be retained if possible (i.e. if supported by the exporter).
+
+With @{B}Dither if necessary@{b} one can set the dither algorithm and the 
+palette mode to be used if the loaded files are to be be converted 
+to a (possibly lower) destination colour depth before saving.
+
+If the @{B}Name+color depth@{b} checkbox is activated, then the destination
+colour depth is appended to the name under which the image is saved 
+- useful if one wants to convert many files with differing colour 
+depths.
+
+If the @{B}Subdirectories@{b} checkbox is activated then the subdirectories 
+of the source path will be included in the destination directory.
+
+If the @{B}GEMScript@{b} checkbox is active, then "Save" will save the 
+parameters in GEMScript format.
+
+@endnode
+
+
+@node "Print"
+@{U}Print                                                         Smurf@{u}
+
+@{B}Information:@{b}
+    Non-resident plugin
+    Menu entry "Print", Menu "File"
+
+
+This plugin serves for printing out images via GDOS.
+On selecting the menu entry, the plugin initialises all installed 
+device drivers. This may take a few seconds.
+
+With @{B}Driver@{b} you can select the desired printer driver.
+
+With the @{B}Paper@{b} popup you can select the paper format on which 
+the output is to be printed.
+
+
+@{B}Position@{b} shows a preview of the printout. The white area represents 
+the paper, the red frame the area that the selected printer can print 
+on it. The grey (or black) area represents the image to be printed. 
+It can be moved around the paper and enlarged/reduced with the mouse 
+(click and drag the lower right corner of the box; holding down the 
+[Control] key during this retains the original aspect ratio.)
+
+Size and position may also be set with the edit fields and arrows in 
+the right half of the dialog. 
+
+@endnode

@@ -1,19 +1,28 @@
+@if VERSION >= 6
+@os Atari
+@charset atarist
+@inputenc atarist
+@lang de
+@endif
 @database "Smurf"
-@options "+g -i -s +h+zz -t4 -d12"
+@options "+g -i -s +z -t2"
 @author "Therapy Seriouz Software"
 @$VER: 1.0 (19/8/1998)
 @subject "Dokumentation"
+@width 75
+@remark ST-Guide flags: $0000
 
 
 @node "Main" "Smurf"
-@{0U}Smurf                                                         Smurf@{0}
+@{U}Smurf                                                         Smurf@{u}
 
 
 
-@LImage "IMG32.IFF" 0 
+@remark 272x185x16
+@limage "img32.iff" 0
                          Version 1.0, 4. April 1998
                         (C) Therapy Seriouz Software
-                            @{0B}Online-Hilfe@{0}
+                            @{B}Online-Hilfe@{b}
 
 
 
@@ -27,7 +36,7 @@ konsultieren Sie bitte das Handbuch.
 
 
 @node "Smurf Info"
-@{0U}Smurf Info                                                    Smurf@{0}
+@{U}Smurf Info                                                    Smurf@{u}
 
 
 Wie es in jedem GEM-Programm sein sollte, versteckt sich unter dem linken 
@@ -42,9 +51,9 @@ finden das versteckte Feature...
 
 
 @node "Neues Bild"
-@{0U}Neues Bild                                                    Smurf@{0}
+@{U}Neues Bild                                                    Smurf@{u}
 
-@{0B}"Redo from Start"@{0}
+@{B}"Redo from Start"@{b}
     ?
 
     Shortcut CTRL-N
@@ -62,7 +71,7 @@ wÑhlbar. Klick auf "Erzeugen" tut genau das.
 
 
 @node "Smurf Exportformat"
-@{0U}Exportmodule                                                  Smurf@{0}
+@{U}Exportmodule                                                  Smurf@{u}
 
     Shortcut CTRL-M
 
@@ -84,7 +93,7 @@ Exportdialog.
 
 
 @node "Exportdialog"
-@{0U}Exportdialog                                                  Smurf@{0}
+@{U}Exportdialog                                                  Smurf@{u}
 
     kein Shortcut
 
@@ -95,11 +104,11 @@ kînnen nun weitere Einstellungen vornehmen.
 Die Exportfarbtiefe kann im oberen Popup gewÑhlt werden. Hier sind nun nur 
 die Farbtiefen anwÑhlbar, die der Exporter auch unterstÅtzt. Sollte die 
 Exportfarbtiefe geringer als die des zu exportierenden Bildes sein, so 
-kînnen sie mit den beiden Popups @{0U}Reduktion@{0} und @{0U}Palette@{0} die 
+kînnen sie mit den beiden Popups @{U}Reduktion@{u} und @{U}Palette@{u} die 
 Raster- und Palettensuchmethode wÑhlen, mit der das Bild auf die 
 Zielfarbtiefe reduziert werden soll.
 
-Mit dem dreizeiligen Editfeld @{0U}Info@{0} bieten wir Ihnen, ebenfalls nur 
+Mit dem dreizeiligen Editfeld @{U}Info@{u} bieten wir Ihnen, ebenfalls nur 
 sofern vom Zielformat unterstÅtzt, die Mîglichkeit, eine Beschreibung, 
 einen Kommentar oder auch ein kurzes Gedicht mit im Bild abzuspeichern. 
 Mîchten Sie die Mîglichkeit nicht wahrnehmen, lîschen Sie die Felder 
@@ -107,14 +116,14 @@ einfach mit Escape.
 
 Falls das ausgewÑhlte Format weitergehende spezifische Einstellungen, wie 
 verschiedene Formate oder Kompressionen unterstÅtzt, ist ein hierfÅr 
-zustÑndiger Dialog Åber den Button @{0U}Mehr@{0} erreichbar. Daraufhin 
+zustÑndiger Dialog Åber den Button @{U}Mehr@{u} erreichbar. Daraufhin 
 îffnet das Exportmodul einen Dialog, in dem entsprechende Einstellungen 
 vorgenommen werden kînnen - auch hier gilt: Fenster schlieûen = Abbruch.
 Die dort gemachten Einstellungen bleiben fÅr diesen Exporter bis zum 
 Neustart erhalten.
 
 Das Exportieren kînnen Sie, nachdem Sie Ihre Einstellungen vorgenommen 
-haben, mit dem Button @{0U}Export@{0} starten.
+haben, mit dem Button @{U}Export@{u} starten.
 Das Voranschreiten des Exportvorganges kînnen Sie bei den meisten 
 Exportern in der Busybox verfolgen. Am Ende îffnet sich immer eine 
 Fileselektorbox, in welcher Sie Pfad und Namen der zu speichernden Datei 
@@ -124,7 +133,7 @@ auswÑhlen kînnen.
 
 
 @node "Bildinfo"
-@{0U}Bildinformation                                               Smurf@{0}
+@{U}Bildinformation                                               Smurf@{u}
 
 der Bildinformations-Dialog (wohl eher ein Monolog...)
 
@@ -138,12 +147,12 @@ das Bild momentan verbraucht, Farbtiefe usw. angegeben.
 
 
 @node "PicMan"
-@{0U}Der Bildmanager                                               Smurf@{0}
+@{U}Der Bildmanager                                               Smurf@{u}
 
     Shortcut ALT+M
 
 
-@{0B}Wir freuen uns.@{0}
+@{B}Wir freuen uns.@{b}
 Und zwar nicht fÅr Sie, sondern fÅr uns, einen eigenen Manager zu haben.
 
 Der Bildmanager ist klein, schmal und wichtig. So wichtig, klein und 
@@ -153,7 +162,7 @@ kleine und wichtige Dialog ermîglicht es Ihnen nÑmlich, nicht nur die
 Operationen.
 
 
-@{0B}was der Bildmanager kann@{0}
+@{B}was der Bildmanager kann@{b}
 
 Zuerst mal sind im Bildmanager alle geladenen  Bilder im Listfeld 
 eingetragen. Da der Bildmanager so schmal ist, sind die Dateinamen 
@@ -162,7 +171,7 @@ um die öbersicht zu bewahren sollte es reichen. Das Listfeld bedient sich
 wie alle anderen, mit Tastatur und Maus, bietet aber keinen Autolocator.
 
 
-@{0B}was der Bildmanager sonst noch kann@{0}
+@{B}was der Bildmanager sonst noch kann@{b}
 
 Sollten Sie ein Bild aus dem Blick verloren haben (Sie mÅssen 
 vielleicht von Zeit zu Zeit Fenster Iconifizieren oder shaden), so genÅgt 
@@ -186,7 +195,7 @@ gestrichelter Rahmen im Preview immer den momentan sichtbaren Ausschnitt
 des Bildes an. Und zum Navigieren kînnen Sie ihn ebenfalls verwenden, 
 einfach anklicken und an die gewÅnschte Stelle im Bild ziehen.
 
-@{0B}Immer noch nicht genug?@{0}
+@{B}Immer noch nicht genug?@{b}
 Ihnen gefÑllt die Reihenfolge der geladenen Bilder nicht (z.B. beim 
 Durchcyclen mit CTRL-W, oder beim Erstellen eines Filmes [ups, das 
 gibt's ja erst in spÑteren Smurfversionen])?
@@ -215,7 +224,7 @@ Bilddatei zu îffnen.
 
 
 @node "Smurf Status"
-@{0U}Das Statusfenster                                             Smurf@{0}
+@{U}Das Statusfenster                                             Smurf@{u}
 
     Shortcut ALT+F
 
@@ -234,7 +243,7 @@ Speicher angezeigt.
 
 
 @node "Bildfenster"
-@{0U}Die Smurf-Bildfenster                                         Smurf@{0}
+@{U}Die Smurf-Bildfenster                                         Smurf@{u}
 
     kein Shortcut
 
@@ -243,34 +252,38 @@ Alle Bildfenster haben oben eine Toolbar mit verschiedenen Anzeige- und
 Bedienelementen.
 
 
-@Image "IMG31.IFF" 1 
+@remark 14x28x2
+@image "img31.iff" 1
 
 
 ôffnet den Bildinfo-Dialog zum Bild.
 
 
-@Image "IMG30.IFF" 1 
+@remark 48x23x16
+@image "img30.iff" 1
 
 
 Zeigt die momentan eingestellte Darstellungsgrîûe des Bildes. Diese kann 
 durch Linksklick in einem Popup umgestellt werden.
 
 
-@Image "IMG29.IFF" 1 
+@remark 90x24x16
+@image "img29.iff" 1
 
 
 Hier werden die X- und Y-Koordinaten des Mauszeigers im Bild angezeigt. 
-@{0B}'W'@{0} und @{0B}'H'@{0} zeigen die Grîûe des Blockrahmens, der evtl. 
+@{B}'W'@{b} und @{B}'H'@{b} zeigen die Grîûe des Blockrahmens, der evtl. 
 im Bild aufgezogen ist. Wenn Sie einen Blockrahmen verschieben, werden bei 
-@{0B}'X'@{0} und @{0B}'Y'@{0} die Koordinaten der linken oberen Ecke des 
+@{B}'X'@{b} und @{B}'Y'@{b} die Koordinaten der linken oberen Ecke des 
 Rahmens angezeigt.
 
 
-@Image "IMG28.IFF" 1 
+@remark 192x22x16
+@image "img28.iff" 1
 
 
 Zeigen die drei Farbkomponenten des Pixels im Bild, Åber dem sich der 
-Mauszeiger befindet. @{0B}'I'@{0} ist nur bei Palettenbildern (<=256 
+Mauszeiger befindet. @{B}'I'@{b} ist nur bei Palettenbildern (<=256 
 Farben) gÅltig und zeigt den unter dem Mauszeiger befindlichen 
 Palettenindex an (wenn Sie einen Blockrahmen verschieben, werden die 
 Anzeigen abgeschaltet).
@@ -279,50 +292,50 @@ Anzeigen abgeschaltet).
 Klick mit der rechten Maustaste in ein Bild îffnet ein Popup, in dem Ihnen 
 verschiedene Mîglichkeiten zur Auswahl stehen:
 
-@{0B}"export..."@{0}
+@{B}"export..."@{b}
 ôffnet das Listenfenster mit den Exportmodulen (Shortcut CTRL+M)
 
-@{0B}"bearbeiten..."@{0}
+@{B}"bearbeiten..."@{b}
 ôffnet das Listfenster mit den Bearbeitungsmodulen (Shortcut CTRL+B)
 
-@{0B}"ReDither"@{0}
+@{B}"ReDither"@{b}
 Berechnet die Bildschirmdarstellung mit den in der 
 Darstellungskonfiguration eingestellten Parametern (CTRL+K) neu.
 
-@{0B}"ReLoad"@{0}
+@{B}"ReLoad"@{b}
 LÑdt die letzte abgespeicherte Fassung des Bildes.
 
-@{0B}"Block..."@{0}
+@{B}"Block..."@{b}
 ôffnet das Blockpopup.
 
 Das Blockpopup ist auch durch Rechtsklick in einen aufgezogenen 
 Blockrahmen zu erreichen. Hier stehen, sofern ein Block aufgezogen ist, 
 folgende Mîglichkeiten zur VerfÅgung:
 
-@{0B}"freistellen"@{0}
+@{B}"freistellen"@{b}
 öbernimmt nur den Bereich des Blocks ins Bildfenster, der Rest des Bildes 
 wird verworfen.
 
-@{0B}"kopieren"@{0}
+@{B}"kopieren"@{b}
 Kopiert den aktuell markierten Bereich des Bildes oder den evtl. mit 
 Doppelklick in den Rahmen aufgenommenen Block ins GEM-Clipboard.
 
-@{0B}"ausschneiden"@{0}
+@{B}"ausschneiden"@{b}
 Wie "kopieren", nur wird der markierte Bereich oder aufgenommene Block aus 
 dem Bild entfernt.
 
-@{0B}"einfÅgen"@{0}
+@{B}"einfÅgen"@{b}
 öbernimmt einen im Clipboard befindlichen Grafikblock (IMG bzw. X-IMG) in 
 einen Blockrahmen.
 
-@{0B}"eingeben..."@{0}
+@{B}"eingeben..."@{b}
 ôffnet einen Dialog, in dem Sie die Abmessungen und Position des 
 Blockrahmens im aktiven Bild per Tastatur eingeben kînnen.
 
-@{0B}"aufheben..."@{0}
+@{B}"aufheben..."@{b}
 Entfernt die Blockmarkierung oder den aufgenommenen Block.
 
-@{0B}"Modus..."@{0}
+@{B}"Modus..."@{b}
 ôffnet einen Dialog, in dem Sie den Modus einstellen kînnen, der beim 
 Einrechnen von Blîcken in ein Bild (per Doppelklick in einen Blockrahmen, 
 der einen aufgenommenen oder eingefÅgten Block enthÑlt).
@@ -332,34 +345,40 @@ der einen aufgenommenen oder eingefÅgten Block enthÑlt).
 
 
 @node "Smurf Optionen"
-@{0U}Der Optionsdialog                                             Smurf@{0}
+@{U}Der Optionsdialog                                             Smurf@{u}
 
     Shortcut ALT+O
 
 Der Optionsdialog enthÑlt drei Registerkarten:
 
-@LImage "IMG27.IFF" 1 
-@{0B}Hier kînnen Sie Optionen einstellen, die das allgemeine
-@{0B}@{0B}@{0B}Verhalten von Smurf beeinflussen.@{0}
+@remark 98x34x16
+@limage "img27.iff" 1
+@{B}Hier kînnen Sie Optionen einstellen, die das allgemeine
+Verhalten von Smurf beeinflussen.@{b}
 
-@LImage "IMG26.IFF" 1 
+@remark 177x18x16
+@limage "img26.iff" 1
 bewirkt, daû alle Dialoge beim ôffnen in der Bildschirmmitte erscheinen.
 
-@LImage "IMG25.IFF" 1 
+@remark 139x18x16
+@limage "img25.iff" 1
 bewirkt, daû die meisten Alertboxen in Smurf-eigenen Fenstern erscheinen 
 und somit den Bildschirmaufbau anderer Programme nicht behindern.
 
-@LImage "IMG24.IFF" 1 
+@remark 118x18x16
+@limage "img24.iff" 1
 bewirkt, daû vor automatischen Bildwandlungen (z.B. wenn ein Editmodul 
 eine andere Farbtiefe braucht als die, in der das Bild vorliegt) keine 
 Warnungen mehr ausgegeben werden.
 
-@LImage "IMG23.IFF" 1 
+@remark 130x40x16
+@limage "img23.iff" 1
 Mit diesem Popup kann eingestellt werden, in welcher Grîûe Photo-CD-Bilder 
 geladen werden sollen. PCD-Bilder liegen in einer Datei in mehreren Grîûen 
 vor. Die Base-Grîûe ist 768*512 Pixel, Base/2 dann 384*256, Base/4 192*128.
 
-@LImage "IMG22.IFF" 1 
+@remark 214x26x16
+@limage "img22.iff" 1
 Durch Klick auf diesen Button wird eine Importerliste generiert (die, nach 
 der Smurf sie beim ersten Start gefragt hat). Hierbei werden alle 
 Importmodule in eine Liste eingetragen, die Smurf dann beim Laden von 
@@ -368,15 +387,18 @@ Faktoren.
 
 
 
-@LImage "IMG21.IFF" 1 
-@{0B}Hier kînnen Sie das Erscheinungsbild von Smurf einstellen.@{0}
+@remark 95x34x16
+@limage "img21.iff" 1
+@{B}Hier kînnen Sie das Erscheinungsbild von Smurf einstellen.@{b}
 
-@LImage "IMG20.IFF" 1 
+@remark 120x76x16
+@limage "img20.iff" 1
 Mit diesen drei Radiobuttons kînnen Sie das Erscheinungsbild von Smurf 
 Ñndern. Die drei Modi sind von oben nach unten als Steigerung zu 
 verstehen. ;-)
 
-@LImage "IMG19.IFF" 1 
+@remark 183x69x16
+@limage "img19.iff" 1
 Hier kînnen Sie einstellen, wie mehrfache Tastaturevents in Bildfenstern
 behandelt werden. Um ein Nachlaufen des Scrollings zu vermeiden, wenn mit
 den Cursortasten gescrollt wird, kînnen die Tastaturevents entweder zusammen-
@@ -384,21 +406,25 @@ gefaût (die Schrittweite des Scrollings erhîht sich je nach Anzahl der Tasten-
 drÅcke) oder gelîscht (augenblicklich unbearbeitbare TastendrÅcke werden
 ignoriert) werden.
 
-@LImage "IMG18.IFF" 1 
+@remark 125x46x16
+@limage "img18.iff" 1
 Hier kînnen Sie einstellen, mit welcher Farbe der Bereich von Bildfenstern 
 gezeichnet werden soll, der sich auûerhalb des eigentlichen Bildes 
 befindet.
 
-@LImage "IMG17.IFF" 1 
-@{0B}Hier kînnen Sie die Darstellung und Berechnung der Preview-@{0}
-@{0B}Bilder einstellen.@{0}
+@remark 97x35x16
+@limage "img17.iff" 1
+@{B}Hier kînnen Sie die Darstellung und Berechnung der Preview-@{b}
+@{B}Bilder einstellen.@{b}
 
-@LImage "IMG16.IFF" 1 
+@remark 314x23x16
+@limage "img16.iff" 1
 bewirkt, daû Previews von Modulen im Standard-Moduldialog, Thumbnails im 
 Bildmanager und Ñhnliches nach einer énderung des zugehîrigen Bildes 
 automatisch neu berechnet werden, nicht erst nach einem Klick auf sie.
 
-@LImage "IMG15.IFF" 1 
+@remark 166x84x16
+@limage "img15.iff" 1
 Hier kînnen Sie die Dithermethode wÑhlen, mit der Previews und Thumbnails 
 gedithert werden sollen. Hier kînnen Sie allerdings nur die Dithermethode 
 auswÑhlen, mit denen ein Dithering auf Systempalette mîglich ist, da 
@@ -409,7 +435,8 @@ Ab Smurf V1.04b werden die Previews beim Verschieben in Echtzeit gedithert,
 um Problemen mit unterschiedlichen Skalierungen von Preview und Bild aus dem
 Weg zu gehen. Wir empfehlen den Nearest-Color-Algorithmus.
 
-@LImage "IMG14.IFF" 1 
+@remark 165x49x16
+@limage "img14.iff" 1
 Bei "Bildmanager" stellen Sie die Dithermethode fÅr den Bildmanager ein.
 Das Bildmanager-Thumbnail wird grundsÑtzlich bei Aktivierung eines Bildes
 neu erzeugt. Empfohlene Einstellung ist "Nearest Color".
@@ -422,7 +449,7 @@ neu erzeugt. Empfohlene Einstellung ist "Nearest Color".
 
 
 @node "Bild wandeln"
-@{0U}Bild wandeln                                                  Smurf@{0}
+@{U}Bild wandeln                                                  Smurf@{u}
 
     Shortcut CTRL+D
 
@@ -442,7 +469,7 @@ oder Graustufen.
 
 
 @node "Smurf Darstellung"
-@{0U}Darstellungskonfiguration                                     Smurf@{0}
+@{U}Darstellungskonfiguration                                     Smurf@{u}
 
     Shortcut CTRL+K
 
@@ -498,9 +525,9 @@ den Rest des Systems. Wir empfehlen eine Einstellung zwischen 40 und 100ms.
 
 
 @node "Multikonverter"
-@{0U}Multikonverter                                                Smurf@{0}
+@{U}Multikonverter                                                Smurf@{u}
 
-@{0B}Information:@{0}
+@{B}Information:@{b}
     nichtresidentes Plugin
     MenÅeintrag "Multikonvert", MenÅ "Datei"
 
@@ -508,44 +535,44 @@ den Rest des Systems. Wir empfehlen eine Einstellung zwischen 40 und 100ms.
 Dieses Plugin dient zum konvertieren mehrerer Bilder oder ganzer Ordner.
 
 
-@{0B}Quellpfad@{0}
+@{B}Quellpfad@{b}
 gibt den Pfad an, aus dem die Dateien geladen werden sollen, 
 
-@{0B}Zielpfad@{0}
+@{B}Zielpfad@{b}
 den, in dem die konvertierten Dateien im Zielformat abgelegt werden sollen. 
 Klick auf die Buttons îffnet einen Fileselector, in dem der Pfad angegeben 
 werden kann.
 
-Unter @{0B}Wildcards@{0} kînnen bis zu 64 verschiedene Wildcards fÅr die zu 
+Unter @{B}Wildcards@{b} kînnen bis zu 64 verschiedene Wildcards fÅr die zu 
 ladenden Dateien angegeben werden. Die Wildcards mÅssen durch Kommata 
 (ohne folgendes Leerzeichen) getrennt werden und dÅrfen beliebig viele der 
-Jokerzeichen @{0B}*@{0} und @{0B}?@{0} enthalten. Die Wildcards sind 
+Jokerzeichen @{B}*@{b} und @{B}?@{b} enthalten. Die Wildcards sind 
 Casesensitiv, auf Groû- und Kleinschreibung wird also geachtet. Beachten 
 Sie, daû Dateien auf DatentrÑgern mit erweiterten Dateisystemen keinen 
 Punkt enthalten mÅssen. *.* setzt also voraus, daû ein Punkt im Dateinamen 
 enthalten ist!
 
-@{0B}Beispiel:@{0} B*.TGA,a?c.*,bild*.*ga
+@{B}Beispiel:@{b} B*.TGA,a?c.*,bild*.*ga
 
 
-Im Listfeld @{0B}sichern als@{0} muû das Format ausgewÑhlt werden, in dem 
+Im Listfeld @{B}sichern als@{b} muû das Format ausgewÑhlt werden, in dem 
 die Dateien gespeichert werden sollen.
 
-@{0B}Optionen@{0} îffnet den Optionsdialog des jeweiligen Exporters, wie 
+@{B}Optionen@{b} îffnet den Optionsdialog des jeweiligen Exporters, wie 
 aus dem Exportdialog beim normalen Speichern von Dateien
 bekannt.
 
-@{0B}In Farbtiefe@{0} gibt die Farbtiefe an, auf die die geladenen Bilder
+@{B}In Farbtiefe@{b} gibt die Farbtiefe an, auf die die geladenen Bilder
 vor dem Speichern gewandelt werden sollen. Hier sind nur die Farbtiefen 
-anwÑhlbar, die vom angewÑhlten Exporter auch unterstÅtzt werden. @{0B}W.m. 
-@{0B}@{0B}gleich@{0} bedeutet hierbei, daû die Farbtiefe der geladenen Bilder wenn 
+anwÑhlbar, die vom angewÑhlten Exporter auch unterstÅtzt werden. @{B}W.m. 
+gleich@{b} bedeutet hierbei, daû die Farbtiefe der geladenen Bilder wenn 
 mîglich (also wenn vom Exporter unterstÅtzt) beibehalten werden soll.
 
-Bei @{0B}Ggfs. Rastern mit@{0} kînnen Ditheralgorithmus und Palettenmodus 
+Bei @{B}Ggfs. Rastern mit@{b} kînnen Ditheralgorithmus und Palettenmodus 
 eingestellt werden, mit denen die geladenen Dateien vor dem speichern auf 
 die (evtl. niedrigere) Zielfarbtiefe gebracht werden sollen.
 
-@{0B}Name+Farbtiefe@{0} bewirkt, daû beim Speichern die Zielfarbtiefe des Bildes 
+@{B}Name+Farbtiefe@{b} bewirkt, daû beim Speichern die Zielfarbtiefe des Bildes 
 mit an den Speichernamen angehÑngt wird - nÅtzlich, wenn man viele Dateien in 
 unter-schiedliche Farbtiefen konvertieren will.
 
@@ -553,9 +580,10 @@ unter-schiedliche Farbtiefen konvertieren will.
 
 
 @node "Drucken"
-@{0U}Drucken                                                       Smurf@{0}
+@next "Drucken"
+@{U}Drucken                                                       Smurf@{u}
 
-@{0B}Information:@{0}
+@{B}Information:@{b}
     nichtresidentes Plugin
     MenÅeintrag "Drucken", MenÅ "Bearbeiten"
 
@@ -564,13 +592,13 @@ Dieses Plugin dient zum Drucken von Bildern per GDOS.
 Beim AnwÑhlen des MenÅpunktes initialisiert das Plugin alle installierten 
 GreÑtetreiber. Dies kann einige Sekunden dauern.
 
-Bei @{0B}Treiber@{0} kînnen Sie den gewÅnschten Druckertreiber auswÑhlen.
+Bei @{B}Treiber@{b} kînnen Sie den gewÅnschten Druckertreiber auswÑhlen.
 
-Mit dem Popup bei @{0B}Papier@{0} kînnen Sie das Papierformat einstellen, 
+Mit dem Popup bei @{B}Papier@{b} kînnen Sie das Papierformat einstellen, 
 auf dem der Ausdruck erfolgen soll.
 
 
-@{0B}Position@{0} zeigt eine Vorschau auf das Druckergebnis. Die weiûe 
+@{B}Position@{b} zeigt eine Vorschau auf das Druckergebnis. Die weiûe 
 FlÑche stellt das Papier dar, der rote Rahmen den darauf vom gewÑhlten 
 Drucker bedruckbaren Bereich. Die graue FlÑche stellt das 
 auszudruckende Bild dar, sie kann mit der Maus verschoben und 
@@ -578,21 +606,3 @@ vergrîûert/verkleinert werden (klick in die rechte untere Ecke der Box).
 Grîûe und Position kînnen auûerdem mit den Editfeldern und Pfeiltasten in 
 der rechten DialoghÑlfte eingestellt werden.
 @endnode
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
