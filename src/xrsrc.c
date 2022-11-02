@@ -411,7 +411,7 @@ LOCAL WORD rs_read (WORD *global, CONST char *fname)
 
 	if (!shel_find (tmpnam))
 	{
-		form_error (-33);
+		form_error (-(-33) - 31);
 		return (FALSE);
 	}
 
@@ -449,7 +449,7 @@ LOCAL WORD rs_read (WORD *global, CONST char *fname)
 		}
 		else
 		{
-			form_error (-39);
+			form_error (-(-39) - 31);
 			ret = FALSE;
 		}
 		
@@ -819,7 +819,7 @@ LOCAL WORD xadd_cicon (CICONBLK *cicnblk, OBJECT *obj, WORD nub)
 	/* Platz fr das ger„teabh„ngige Format allozieren */
 	if ((color_icn->col_data = malloc (len * color_icn->num_planes)) == NULL)
 	{
-		form_error (-39);
+		form_error (-(-39) - 31);
 		return (FALSE);
 	}
 	if (color_icn->sel_data)
@@ -827,7 +827,7 @@ LOCAL WORD xadd_cicon (CICONBLK *cicnblk, OBJECT *obj, WORD nub)
 		if ((color_icn->sel_data = malloc (len * color_icn->num_planes)) == NULL)
 		{
 			free (color_icn->col_data);
-			form_error (-39);
+			form_error (-(-39) - 31);
 			return (FALSE);
 		}
 	}
@@ -842,7 +842,7 @@ LOCAL WORD xadd_cicon (CICONBLK *cicnblk, OBJECT *obj, WORD nub)
 				free (color_icn->col_data);
 				if (color_icn->sel_data)
 					free (color_icn->sel_data);
-				form_error (-39);
+				form_error (-(-39) - 31);
 				return (FALSE);
 			}
 	
@@ -1297,7 +1297,7 @@ MFDB  *s;
 	{
 		if ((col_data = malloc (len * 2 * s->fd_nplanes)) == NULL)
 		{
-			form_error (-39);
+			form_error (-(-39) - 31);
 			return;
 		}
 		memcpy (col_data, s->fd_addr, len * 2 * s->fd_nplanes);
@@ -1571,8 +1571,7 @@ GLOBAL WORD init_xrsrc (WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox
 
 /*****************************************************************************/
 
-GLOBAL VOID term_xrsrc ()
-
+void term_xrsrc (void)
 {
 }
 

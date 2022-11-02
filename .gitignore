@@ -10,3 +10,6 @@
 *.sxm
 *.sem
 *.sdm
+dist/smurf.rsc
+dist/smurf.log
+dist/startup.rsc
