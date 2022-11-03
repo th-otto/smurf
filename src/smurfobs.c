@@ -31,6 +31,7 @@
 #include "globdefs.h"
 
 #include "smurfobs.h"
+#include "olgagems.h"
 #include "ext_rsc.h"
 
 
@@ -220,17 +221,6 @@ void init_GuiObs(void)
 
 void init_MiscObs(void)
 {
-	extern int init_OLGA(void);
-	extern int deinit_OLGA(void);
-	extern int rename_OLGA(char *oldname, char *newname);
-	extern int update_OLGA(char *filename);
-	extern int dd_getheader(DD_HEADER *dd_header, int pipe_handle);
-	extern int dd_sendheader(int pipe_handle, long ext, long size, char *data_name, char *file_name);
-	extern void bubble_init(void);
-	extern void bubble_exit(void);
-	extern void bubble_gem(int windownum, int xpos, int ypos, int modulemode);
-	
-
 	/*
 	 * Kommunikationsklasse
 	 */
@@ -254,6 +244,4 @@ void init_MiscObs(void)
 	Comm.initAVPROTO = init_AVPROTO;
 
 	Comm.sendAESMsg = send_AESMessage;
-	
-	return;
-} /* init_MiscObs */
+}

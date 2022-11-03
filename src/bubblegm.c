@@ -116,7 +116,6 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 #if 0
 	char *helpstring;
 #endif
-	char *modpath;
 	int Section;
 	int TreeId;
 	char num_byte[5];
@@ -178,11 +177,10 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 		mod_index = klickobj - MODULE1 + Dialog.emodList.modList.scroll_offset;
 		strcpy(helpname, strrchr(edit_modules[mod_index], '\\'));
 		cmp_string = strrchr(helpname, '.');
-		*cmp_string = 0;
-		strcat(helpname, ".hlp");
+		strcpy(cmp_string, ".hlp");
 		Section = BGH_DIAL;
 		TreeId = 0;
-		klickobj = 0;
+		klickobj = -1;
 	} else
 	{
 		/*
@@ -223,12 +221,13 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 			}
 
 			strcpy(helpname, "\\smurf.bgh");
-		}
-		/*
-		 * Modulfenster
-		 */
-		else
+		} else
 		{
+			/*
+			 * Modulfenster
+			 */
+			char *modpath;
+
 			mod_index = window->module & 0xff;
 			strcpy(helpname, "\\");
 
@@ -263,13 +262,17 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 				textseg_begin = plugin_bp[mod_index]->p_tbase;
 
 				modpath = plugin_paths[mod_index];
+			} else
+			{
+				return;
 			}
 
 			/*---- Modulpfad kopieren, Name isolieren und .hlp dranh„ngen. */
 			strcat(helpname, strrchr(modpath, '\\') + 1);
 			cmp_string = strrchr(helpname, '.');
-			*cmp_string = 0;
-			strcat(helpname, ".hlp");
+			strcpy(cmp_string, ".hlp");
+			Section = BGH_DIAL;
+			TreeId = 0;
 		}
 	}
 
@@ -281,7 +284,7 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 
 #if 0
 	/*-------- Block wenn m”glich als global anfordern? */
-	if (Ssystem(FEATURES, 0L, 0L) != EINVFN || Sys_info.OS & MINT || Sys_info.OS & MATSCHIG)
+	if (Ssystem(FEATURES, 0L, 0L) != EINVFN || (Sys_info.OS & MINT) || (Sys_info.OS & MATSCHIG))
 		helpstring = (char *) Mxalloc(257, 0x20);
 	else
 		helpstring = (char *) SMalloc(257);
@@ -379,16 +382,16 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 			memset(helpstring, 0x0, 256);
 			strncpy(helpstring, search_pos, end_of_string - search_pos);
 		}
+	
+		/* auf keinen Fall hier schon helpstring freigeben! */
+		/* das wird nach Antwort von Bubble-GEM durch BUBBLEGEM_ACK gemacht */
+		SMfree(help_file);
 	}
 #endif
 
 	/*------ Message an BubbleGEM schicken -----------*/
 	if ((bubble_id = appl_find("BUBBLE  ")) > 0)
 		Comm.sendAESMsg(bubble_id, BUBBLEGEM_SHOW, xpos, ypos, LONG2_2INT(HelpString), -1);
-
-	/* auf keinen Fall hier schon helpstring freigeben! */
-	/* das wird nach Antwort von Bubble-GEM durch BUBBLEGEM_ACK gemacht */
-/*	SMfree(help_file); */
 }
 
 
@@ -436,11 +439,11 @@ void call_stguide(int topwin_handle)
 			strcat(hypname, "Exportdialog");
 		else
 			strcat(hypname, wtitle);
-		Comm.sendAESMsg(STG_id, VA_START, (int) ((long) hypname >> 16), (int) hypname, -1);
+		Comm.sendAESMsg(STG_id, VA_START, LONG2_2INT(hypname), -1);
 	} else if (wnum < 0)				/* Bildfenster! */
 	{
 		strcat(hypname, "Bildfenster");
-		Comm.sendAESMsg(STG_id, VA_START, (int) ((long) hypname >> 16), (int) hypname, -1);
+		Comm.sendAESMsg(STG_id, VA_START, LONG2_2INT(hypname), -1);
 	}
 
 	/*

@@ -200,9 +200,6 @@ void    check_and_terminate(int mode, int module_number);
 
 void    get_module_structures(char* *textseg_begin, MOD_INFO* *mod_info, MOD_ABILITY* *mod_abs, long *mod_magic, int mod_num);
 
-void    init_AVPROTO(void);
-void    get_avserv(void);
-
 void    close_alert(void);
 
 int     init_dialog(int DialogNumber, int DialogOK);
@@ -258,8 +255,16 @@ void gdps_main(void);
 /* **********************************************************************/
 int get_dragdrop(WINDOW *window_to_handle, int *messagebuf);
 int send_dragdrop(SMURF_PIC *picture, int dest_whandle, int mx, int my);
+int dd_getheader(DD_HEADER *dd_header, int pipe_handle);
+int dd_sendheader(int pipe_handle, long ext, long size, char *data_name, char *file_name);
 void send_AESMessage(int dest_id, int msg, ...);                /* AES-Message an anderen Prozess schicken */
 void update_dhst(char *path);
+void bubble_init(void);
+void bubble_exit(void);
+void bubble_gem(int windownum, int xpos, int ypos, int modulemode);
+void init_AVPROTO(void);
+void get_avserv(void);
+
 
 
 /* **********************************************************************/
