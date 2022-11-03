@@ -49,10 +49,8 @@
 #include "debug.h"
 
 extern int openmode;				/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
-extern SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
 extern DISPLAY_MODES Display_Opt;
 
-extern WINDOW wind_s[25];
 extern POP_UP	popups[25];
 extern DITHER_MOD_INFO *ditmod_info[10];
 

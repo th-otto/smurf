@@ -44,17 +44,10 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-/*----- Smurf-Systemspezifisches ----*/
-extern	SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
-extern	DISPLAY_MODES Display_Opt;
-extern	int	obj;						/* Objekt beim loslassen des Buttons */
-extern	int active_pic;
 
 /*-------- GUI-Spezifisches -------*/
 extern	OBJECT	*menu_tree;
 extern	SMURF_PIC *smurf_picture[MAX_PIC];
-extern	WINDOW picture_windows[MAX_PIC];
-extern	WINDOW wind_s[25];
 extern	int picthere;
 extern	int klicks;						/* Anzahl Mausklicks beim letzten Buttonevent */
 extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */

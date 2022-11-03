@@ -81,8 +81,6 @@ extern	OBJECT	*menu_tree;
 extern	SERVICE_FUNCTIONS global_services;
 extern	long Name_Max;
 
-extern	WINDOW wind_s[25];
-extern	WINDOW picture_windows[MAX_PIC];
 extern	SMURF_PIC *smurf_picture[MAX_PIC];
 
 extern	char loadpath[257];				/* voller Pfad der zuletzt geladenen Datei */
@@ -652,7 +650,6 @@ void init_structs(void)
 {
 	extern	POP_UP	popups[25];	
 
-	extern	char *edit_modules[100];		/* Pfade fÅr bis zu 100 Edit-Module */
 	extern	char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
 
 	extern	char *export_cnfblock[50];		/* Konfigurationsblîcke fÅr die Exporter */

@@ -78,12 +78,10 @@ extern int obj;
 extern int active_pic;
 extern int key_scancode, key_ascii;
 
-extern SYSTEM_INFO Sys_info;
 extern SERVICE_FUNCTIONS global_services;
 
 extern	BASPAG *Dithermod_Basepage[10];
 
-extern	WINDOW wind_s[25];
 extern	MFORM *dummy_ptr;				/* Dummymouse fÅr Maus-Form */
 
 extern char *export_cnfblock[50];
@@ -295,7 +293,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, int mode, int mo
 	}
 
 	return(edit_basepage);
-} /* start_edit_module */
+}
 
 
 /*-----------------------------------------------------------------	*/
@@ -479,7 +477,6 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 
 	extern DISPLAY_MODES Display_Opt;
 	extern CROSSHAIR position_markers[20];		/* Positionsmarker fÅr die Editmodule */
-	extern WINDOW picture_windows[MAX_PIC];
 	extern EXPORT_CONFIG exp_conf;
 
 
@@ -1136,8 +1133,6 @@ int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, int module_number)
 
 	MOD_ABILITY new_mod;
 	SMURF_PIC *current_pic;
-
-	extern char *edit_modules[100];		/* Pfade fÅr bis zu 100 Edit-Module */
 
 	(void)mod_abs;
 	for(t = 0; t < mod_info->how_many_pix; t++)

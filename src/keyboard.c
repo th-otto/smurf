@@ -41,7 +41,6 @@ void cursor_off(WINDOW *window);
 void cursor_on(WINDOW *window);
 
 extern int key_at_event;
-extern SYSTEM_INFO Sys_info;
 
 int handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object)
 {

@@ -57,7 +57,6 @@
 extern OBJECT	*export_form;				/* Export-Formular	*/
 extern OBJECT 	*col_pop;					/* Zeiger auf Resource-DITHERPOPUP	*/
 extern OBJECT	*colred_popup;
-extern	WINDOW	wind_s[25];
 extern	POP_UP	popups[25];
 extern	int	openmode;				/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
 extern	int	obj;					/* Objekt beim loslassen des Buttons */

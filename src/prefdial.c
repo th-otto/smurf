@@ -49,7 +49,6 @@ void applyConfig(long *loadcnf);
 
 extern	CROSSHAIR	position_markers[20];		/* Positionsmarker fÅr die Editmodule */
 
-extern	SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
 extern	SERVICE_FUNCTIONS global_services;
 extern	DISPLAY_MODES Display_Opt;
 
@@ -58,8 +57,6 @@ extern	int edit_mod_num;				/* Modul-ID des Moduls, das das Einstellformular ben
 extern	int	obj;						/* Objekt beim loslassen des Buttons */
 extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
 extern	int key_ascii;
-
-extern	char *edit_modules[100];		/* Pfade fÅr bis zu 100 Edit-Module */
 
 extern	SMURF_PIC *smurf_picture[MAX_PIC];
 extern	int active_pic;
@@ -71,8 +68,6 @@ extern	long sn1, sn2, sn3, sn4;		/* Minima */
 extern	int	sy1,sy2,sy3,sy4;			/* eingestellte Sliderwerte */
 	
 /*----- Window-Variablen --------*/
-extern	WINDOW wind_s[25];
-extern	WINDOW picture_windows[MAX_PIC];
 extern	POP_UP	popups[25];
 extern	SLIDER sliders[15];
 extern	char module_pics[21][7];

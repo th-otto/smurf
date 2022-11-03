@@ -67,12 +67,10 @@ int add_flags[40];			/* zus„tzliche Fensterelemente */
 
 extern WORD resource_global[100];
 
-extern SYSTEM_INFO Sys_info;
 extern int gl_wchar, gl_hchar, gl_wbox, gl_hbox;
 
 extern POP_UP popups[25];
 extern SLIDER sliders[15];
-extern WINDOW wind_s[25];
 
 extern	MFORM	lr_arrow, ud_arrow, lrud_arrow;
 

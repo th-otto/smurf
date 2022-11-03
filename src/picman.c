@@ -46,15 +46,11 @@
 #include "ext_obs.h"
 
 
-extern SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
-
 extern	OBJECT *picorder_popup;
 extern	OBJECT *u_tree;					/* Zeiger auf Radiobutton/Checkbox-Formular*/
 extern	char module_pics[21][7];
 
 extern	POP_UP popups[25];
-extern	WINDOW wind_s[25];
-extern	WINDOW picture_windows[MAX_PIC];
 extern	char *picnames[100];			/* Namen fÅr bis zu 100 Edit-Module */
 
 extern	int	mouse_button, key_at_event;

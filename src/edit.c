@@ -43,13 +43,8 @@
 
 
 extern	SMURF_PIC *smurf_picture[MAX_PIC];
-extern	WINDOW picture_windows[MAX_PIC];
-extern	WINDOW	wind_s[25];
 extern	int active_pic;
 
-extern	char *edit_modules[100];		/* Pfade fÅr bis zu 100 Edit-Module */
-
-extern	SYSTEM_INFO	Sys_info;			/* Systemkonfiguration */
 extern	int	openmode;					/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
 extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
 extern	int	klicks;						/* Anzahl Mausklicks beim letzten Buttonevent */

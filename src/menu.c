@@ -45,9 +45,6 @@ extern void	call_plugin(int menuentry);
 
 extern OBJECT *menu_tree;
 extern SMURF_PIC *smurf_picture[25];
-extern WINDOW wind_s[25];
-extern WINDOW picture_windows[25];
-extern SYSTEM_INFO Sys_info;
 extern int openmode;
 extern void blockfunctions_off(void);
 extern void blockfunctions_on(void);

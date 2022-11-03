@@ -51,9 +51,7 @@ extern	void f_display_bwh(WINDOW *pic_window);
 
 extern	SMURF_PIC *smurf_picture[25];
 extern	int active_pic;
-extern	WINDOW picture_windows[25];
 
-extern	SYSTEM_INFO	Sys_info;			/* Systemkonfiguration */
 extern	DISPLAY_MODES Display_Opt;
 extern	int	mouse_xpos, mouse_ypos;		/* Mausposition */
 extern	int	openmode;					/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
@@ -62,8 +60,6 @@ extern	OBJECT	*blockpopup;
 
 extern	int	mouse_button, key_at_event;
 extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
-
-extern	WINDOW	wind_s[25];
 
 extern	int	obj;
 

@@ -61,9 +61,6 @@ extern int add_flags[40];
 
 extern	SERVICE_FUNCTIONS global_services;
 
-extern	WINDOW wind_s[25];
-extern	WINDOW picture_windows[MAX_PIC];
-
 extern	int openmode;					/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
 extern int active_pic;
 
@@ -74,7 +71,6 @@ extern	GRECT	screen;					/* globales Screen-GRECT */
 
 extern	WORD resource_global[100];
 
-extern	SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
 extern	DISPLAY_MODES Display_Opt;
 
 extern char Startup;					/* hochfahren des ganzen Monster-Systems */

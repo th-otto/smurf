@@ -25,6 +25,19 @@
  * ***** END LICENSE BLOCK *****
  */
 
+#define MAX_PIC 25
+
+/*----- Window-Variablen --------*/
+extern WINDOW wind_s[25];
+extern WINDOW picture_windows[MAX_PIC];
+
+/*----- Smurf-Systemspezifisches ----*/
+extern SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
+extern DISPLAY_MODES Display_Opt;
+extern int obj;							/* Objekt beim loslassen des Buttons */
+extern int active_pic;
+extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
+
 /* **********************************************************************/
 /* ----------------------- Fileroutinen ------------------------------- */
 /* Alles, was mit Dateizugriffen, Bild laden, etc zu tun hat            */

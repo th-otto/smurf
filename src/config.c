@@ -65,13 +65,10 @@ int getploadinfo(char *cmdlin, char *fname);
 
 extern MFORM *dummy_ptr;				/* Dummymouse fÅr Maus-Form */
 
-extern SYSTEM_INFO Sys_info;
 extern DISPLAY_MODES Display_Opt;
 extern SERVICE_FUNCTIONS global_services;
 
 extern char *stpath;
-
-extern WINDOW wind_s[25];
 
 int objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1,
 				int ob_sival2, int *ob_soval1, int *ob_soval2);

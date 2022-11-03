@@ -56,8 +56,6 @@
 
 extern int picwindthere, dialwindthere, picthere;
 
-extern WINDOW wind_s[25];
-extern WINDOW picture_windows[MAX_PIC];
 extern SMURF_PIC *smurf_picture[MAX_PIC];
 
 extern int	obj;					/* Objekt beim loslassen des Buttons */
@@ -68,8 +66,6 @@ extern DISPLAY_MODES Display_Opt;
 extern int *messagebuf;
 
 extern char Smurf_locked;
-
-extern SYSTEM_INFO Sys_info;
 
 extern	OBJECT	*menu_tree;
 

@@ -59,7 +59,6 @@ extern SYSTEM_INFO Sys_info;
 extern IMPORT_LIST Import_list;
 
 extern char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
-extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
 
 extern int anzahl_importmods;			/* Anzahl an Import-Modulen */
 extern int anzahl_dithermods;			/* Anzahl an Dither-Modulen */

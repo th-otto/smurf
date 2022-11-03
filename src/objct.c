@@ -38,7 +38,6 @@
 #include "debug.h"
 
 
-extern WINDOW wind_s[25];
 extern int klicks;
 extern int key_at_event, key_scancode, mouse_xpos, mouse_ypos, mouse_button;
 extern int *messagebuf;

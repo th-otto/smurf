@@ -37,6 +37,17 @@
 #include "..\..\..\src\smurfine.h"
 #include "..\..\..\src\plugin\plugin.h"
 #include "..\..\..\src\rsc\smurf.h"
+#undef NUM_STRINGS
+#undef NUM_FRSTR
+#undef NUM_UD
+#undef NUM_IMAGES
+#undef NUM_BB
+#undef NUM_FRIMG
+#undef NUM_IB
+#undef NUM_CIB
+#undef NUM_TI
+#undef NUM_OBS
+#undef NUM_TREE
 #undef COL8 /* conflicts with smurf.h */
 #undef ALERT_STRINGS /* conflicts with smurf.h */
 #include "gdos.h"

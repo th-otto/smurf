@@ -46,32 +46,33 @@ void rotozoom(int *img, int *padr, int xstep, int xystep, int pos);
 void roto(void);
 
 
-extern SYSTEM_INFO Sys_info;
-extern WINDOW wind_s[25];
 extern MFORM	*dummy_ptr;				/* Dummymouse fÅr Maus-Form */
 
-int *Sin, *Cos;
+static int *Sin;
+static int *Cos;
 char *image;
 
-int old_timer;
-SMURF_PIC rotoimage;
-int phi, phi2, phi3;
+static int old_timer;
+static SMURF_PIC rotoimage;
+static int phi, phi2, phi3;
 
-int xpos[] = {-100, -100,  100,  100, -100, -100, 100,  100};
-int ypos[] = {-100,  100,  100, -100, -100,  100, 100, -100};
-int zpos[] = {-100, -100, -100, -100,  100,  100, 100,  100};
+static int xpos[] = {-100, -100,  100,  100, -100, -100, 100,  100};
+static int ypos[] = {-100,  100,  100, -100, -100,  100, 100, -100};
+static int zpos[] = {-100, -100, -100, -100,  100,  100, 100,  100};
 
 
-int x2d[100];
-int y2d[100];
+static int x2d[100];
+static int y2d[100];
 
-int pointNum = 8;
-int polyNum = 6;
+static int pointNum = 8;
+static int polyNum = 6;
 
-int polyPointNum[50] = {4, 4, 4, 4, 4, 4};
-int polyPoints[50][4];
+static int polyPointNum[50] = {4, 4, 4, 4, 4, 4};
+static int polyPoints[50][4];
 
-int offscreenHandle = -1, rotowork_in[40], rotowork_out[40];
+static int offscreenHandle = -1;
+static int rotowork_in[40];
+static int rotowork_out[40];
 
 int init_roto(void)
 {

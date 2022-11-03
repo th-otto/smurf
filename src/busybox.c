@@ -45,7 +45,6 @@ int empty_bb(int lft);
 void empty_rbb(int lft, char *txt);
 int fullempty_bb(int lft);
 
-extern	WINDOW wind_s[25];
 extern	SERVICE_FUNCTIONS global_services;
 
 

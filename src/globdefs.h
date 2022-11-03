@@ -183,8 +183,6 @@
 
 extern  int TOOLBAR_HEIGHT;
 
-#define MAX_PIC 25
-
 #define MAIN_FUNCTION_OFFSET    4   /* war garnicht */
 #define MAGIC_OFFSET    8           /* war 4 */
 #define MOD_INFO_OFFSET 12          /* war 8 */

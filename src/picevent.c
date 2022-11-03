@@ -48,14 +48,11 @@
 #define MOVE	16
 
 extern	MFORM *dummy_ptr;					/* Dummymouse fÅr Mausform */
-extern	SYSTEM_INFO Sys_info;				/* Systemkonfiguration */
 extern	int mouse_xpos, mouse_ypos;			/* Mausposition */
 extern	int klicks;
 extern	int openmode;						/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
 extern	POP_UP popups[25];
 extern	int mouse_button, key_at_event;
-extern	WINDOW wind_s[25];
-extern	WINDOW picture_windows[MAX_PIC];
 extern	int	obj;
 extern	MFORM lr_arrow, ud_arrow, lrud_arrow;
 extern	CROSSHAIR position_markers[20];		/* Positionsmarker fÅr die Editmodule */

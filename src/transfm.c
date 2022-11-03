@@ -63,9 +63,6 @@
 
 /*------------ externer Kram ----------------------*/
 	extern	DISPLAY_MODES Display_Opt;
-	extern 	SYSTEM_INFO Sys_info;
-	extern	WINDOW wind_s[25];
-	extern	WINDOW picture_windows[MAX_PIC];
 	extern	SMURF_PIC *smurf_picture[MAX_PIC];
 	extern	DITHER_MOD_INFO *ditmod_info[10];
 	extern	int klicks;

@@ -69,8 +69,6 @@
 /*	mÅûte ;-)														*/
 /*-----------------------------------------------------------------	*/
 
-#define MAX_PIC	25
-
 #define PLG_INFO_OFFSET 12		/* Abstand der Plugin-Infostruktur vom Textsegementanfang */
 
 
