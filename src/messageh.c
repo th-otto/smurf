@@ -705,7 +705,7 @@ int f_handle_message(void)
 						 * Exporternummer suchen
 						 */
 						textseg = module.bp[module_num&0xFF] -> p_tbase;
-						modinfo = (MOD_INFO *)*((MOD_INFO **)(textseg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+						modinfo = *((MOD_INFO **)(textseg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
 						strncpy(module_name, modinfo->mod_name, 30);
 						for(t = 0; t < Dialog.expmodList.anzahl; t++)
 						{

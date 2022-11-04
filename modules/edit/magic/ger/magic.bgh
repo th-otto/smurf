@@ -1,0 +1,23 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
+
+#Dial 000
+# 001 Hier wird die fr die Textur zu benutzende Spaltenbreite eingestellt.
+# 008 Berechnungsart, nur fr Objekttexturen.
+# 010 Berechnungsart, nur fr Objekttexturen.
+# 012 Berechnungsart, nur fr Objekttexturen.
+# 014 Berechnungsart, nur fr Objekttexturen.
+# 016 Berechnungsart, nur fr Pixeltexturen.
+# 018 Berechnungsart, nur fr Pixeltexturen.
+# 020 Berechnungsart, nur fr Pixeltexturen.
+# 022 Berechnungsart, nur fr Pixeltexturen.
+# 024 Berechnungsart, fr alle Texturen.
+# 026 Berechnungsart, fr alle Texturen.
+# 027 Berechnung starten.
+# 028 Maximale H”he auf % der Spaltenbreite anpassen.
+# 031 Texturvergr”erung durch Spiegeln.
+# 034 Texturvergr”erung durch Verschieben.
+# 036 Eigene Spaltenbreite (kleiner Texturbreite) benutzen.
+# 037 Eigene Spaltenbreite (kleiner Texturbreite) benutzen.
+# 040 Spaltenbreite = Texturbreite.

@@ -70,13 +70,10 @@
 
 #if COUNTRY==1
     #include "deutsch.rsc\multi.rsh"
-    #include "deutsch.rsc\multi.rh"
 #elif COUNTRY==0
     #include "englisch.rsc\multi.rsh"
-    #include "englisch.rsc\multi.rh"
 #elif COUNTRY==2
     #include "englisch.rsc\multi.rsh" /* missing french resource */
-    #include "englisch.rsc\multi.rh"
 #else
 #error "Keine Sprache!"
 #endif
@@ -111,7 +108,7 @@ PLUGIN_INFO plugin_info=
 {
     name_string,
     0x091,              /* Plugin-Version 1.00 */
-    0x106,              /* fr Smurf-Version 1.06 */
+    SMURF_VERSION,      /* fr Smurf-Version 1.06 */
     0                   /* und nicht resident. */
 };
 
@@ -418,7 +415,7 @@ void handle_dialog(PLUGIN_DATA *data)
                     options_open = 0;
                     
                     textseg = edit_bp[mod_num&0xFF] -> p_tbase;
-                    minfo = (MOD_INFO *)*((MOD_INFO **)(textseg + MOD_INFO_OFFSET));    /* Zeiger auf Modulinfostruktur */
+                    minfo = *((MOD_INFO **)(textseg + MOD_INFO_OFFSET));    /* Zeiger auf Modulinfostruktur */
                     strncpy(module_name, minfo->mod_name, 30);
                                 
                     for(t = 0; t < smurf_vars->anzahl_exporter; t++)
@@ -502,7 +499,7 @@ void init_exporter(void)
     smurf_struct[mod_num&0xFF]->wind_struct = NULL;
 
     txtbeg = edit_bp[mod_num&0xFF]->p_tbase;
-    modinfo = (MOD_INFO *)*((MOD_INFO **)(txtbeg + MOD_INFO_OFFSET));       /* Zeiger auf Modulinfostruktur */
+    modinfo = *((MOD_INFO **)(txtbeg + MOD_INFO_OFFSET));       /* Zeiger auf Modulinfostruktur */
 
     strncpy(module_name, modinfo->mod_name, 30);
 

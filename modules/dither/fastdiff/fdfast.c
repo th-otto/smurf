@@ -25,9 +25,7 @@
 #include <tos.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <vdi.h>
 #include <string.h>
-#include "..\..\..\src\lib\sym_gem.h"
 #include "..\..\import.h"
 #include "..\..\..\src\smurfine.h"
 
@@ -39,7 +37,7 @@ int (*seek_nearest_col)(long *par, int maxcol);
 DITHER_MOD_INFO module_info =
 {
     "Fast Diffusion\0",
-    "Olaf Piesche\0      ",
+    "Olaf Piesche\0",
      0x0100,                    /* Schlumpfine-Version */
     0,                          /* Konfigurierbar? */
     ALLPAL                      /* Palettenmodi */

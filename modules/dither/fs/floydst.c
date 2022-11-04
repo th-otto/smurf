@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
-#include "..\..\..\src\lib\sym_gem.h"
 #include "..\..\import.h"
 #include "..\..\..\src\smurfine.h"
 
@@ -48,7 +47,7 @@ SERVICE_FUNCTIONS *service;
 DITHER_MOD_INFO module_info =
 {
     "Floyd-Steinberg",
-    "Olaf Piesche\0",
+    "Olaf Piesche",
     0x0100,                 /* Schlumpfine-Version */
     0,                      /* Konfigurierbar? */
     ALLPAL                  /* Palettenmodi */

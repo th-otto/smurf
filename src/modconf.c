@@ -804,7 +804,7 @@ void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 	 * ihn unter den eingetragenen Editmodulen
 	 */
 	textseg = (char *)(modbase->p_tbase);
-	modinfo = (MOD_INFO *) *((MOD_INFO **)(textseg + MOD_INFO_OFFSET));
+	modinfo = *((MOD_INFO **)(textseg + MOD_INFO_OFFSET));
 
 	strcpy(cmp_modname, modinfo->mod_name);
 	if(strlen(cmp_modname) < 28)
@@ -853,7 +853,7 @@ void memorize_expmodConfig(BASPAG *modbase, GARGAMEL *smurf_struct, char save)
 	 * ihn unter den eingetragenen Exportmodulen
 	 */
 	textseg = (char *)(modbase->p_tbase);
-	modinfo = (MOD_INFO *) *((MOD_INFO **)(textseg + MOD_INFO_OFFSET));
+	modinfo = *((MOD_INFO **)(textseg + MOD_INFO_OFFSET));
 
 	strcpy(cmp_modname, modinfo->mod_name);
 	if(strlen(cmp_modname) < 28)
@@ -909,7 +909,7 @@ void transmitConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 	 * ihn unter den eingetragenen Editmodulen
 	 */
 	textseg = (char*)(modbase->p_tbase);
-	modinfo = (MOD_INFO *)*((MOD_INFO **)(textseg + MOD_INFO_OFFSET));
+	modinfo = *((MOD_INFO **)(textseg + MOD_INFO_OFFSET));
 	
 	strcpy(cmp_modname, modinfo->mod_name);
 	if(strlen(cmp_modname) < 28)

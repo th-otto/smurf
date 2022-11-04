@@ -1750,7 +1750,7 @@ int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 	{
 		textseg_begin = module.bp[mod_index]->p_tbase;
 		mod_magic = get_modmagic(module.bp[mod_index]);
-		mod_info = (MOD_INFO *)*((MOD_INFO* *)(textseg_begin + MOD_INFO_OFFSET));
+		mod_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 		mod_abs = *((MOD_ABILITY* *)(textseg_begin + MOD_ABS_OFFSET));
 		hm_pix = mod_info->how_many_pix;
 	

@@ -615,7 +615,7 @@ int f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
 {
 
     char savepath[257], *save_ext, *expext;
-    char module_name[30], *txtbeg;
+    char module_name[31], *txtbeg;
     char *picture;
 
     int max_expdepth, dest_format;
@@ -769,7 +769,7 @@ int f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
      */
     smurf_functions->start_exp_module(export_path, MEXTEND, converted_pic, exp_bp, exp_gstruct, mod_num);
     txtbeg = exp_bp->p_tbase;
-    modinfo = (MOD_INFO *)*((MOD_INFO **)(txtbeg + MOD_INFO_OFFSET));       /* Zeiger auf Modulinfostruktur */
+    modinfo = *((MOD_INFO **)(txtbeg + MOD_INFO_OFFSET));       /* Zeiger auf Modulinfostruktur */
 
     if(exp_gstruct->module_mode==M_EXTEND) 
         ext_number = exp_gstruct->event_par[0]-1;
@@ -783,7 +783,7 @@ int f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
     /*
      * Speichername zusammenbasteln 
      */
-    strncpy(module_name, modinfo->mod_name, 28);
+    strncpy(module_name, modinfo->mod_name, 30);
 
     strlwr(pic->filename);
     strcpy(savepath, dest_path);

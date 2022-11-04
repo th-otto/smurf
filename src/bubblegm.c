@@ -37,6 +37,7 @@
 #include "smurf_f.h"
 #include "popdefin.h"
 #include "plugin\plugin.h"
+#include <mint/arch/nf_ops.h>
 
 #include "xrsrc.h"
 #include "globdefs.h"
@@ -159,7 +160,9 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 
 	if (window == NULL || window->shaded)
 		return;
-	if ((klickobj = objc_find(window->resource_form, 0, MAX_DEPTH, xpos, ypos)) == -1)
+	klickobj = objc_find(window->resource_form, 0, MAX_DEPTH, xpos, ypos);
+	nf_debugprintf("bubble: window=%d modulemode=%d obj=%d\n", windownum, modulemode, klickobj);
+	if (klickobj < 0)
 		return;
 
 	if (windownum == WIND_MODULES && !(Dialog.emodList.tree[INFO_MODULE].ob_state & SELECTED))
@@ -239,10 +242,10 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 			if (mod_magic == 'SEMD' || mod_magic == 'SXMD')
 			{
 				textseg_begin = module.bp[mod_index]->p_tbase;
-				mod_info = (MOD_INFO *) * ((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+				mod_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
 
 				/*---- Modulname kopieren und mit Leerzeichen auffllen */
-				memset(mod_name_string, 32, 30);
+				memset(mod_name_string, ' ', 30);
 				strncpy(mod_name_string, mod_info->mod_name, 28);
 				if (strlen(mod_name_string) < 28)
 					strncat(mod_name_string, "                           ", 28 - strlen(mod_name_string));
@@ -468,10 +471,10 @@ void call_stguide(int topwin_handle)
 		if (mod_magic == 'SEMD' || mod_magic == 'SXMD')
 		{
 			textseg_begin = module.bp[mod_index]->p_tbase;
-			mod_info = (MOD_INFO *) * ((MOD_INFO * *)(textseg_begin + MOD_INFO_OFFSET));
+			mod_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 
 			/*---- Modulname kopieren und mit Leerzeichen auffllen */
-			memset(mod_name_string, 32, 30);
+			memset(mod_name_string, ' ', 30);
 			strncpy(mod_name_string, mod_info->mod_name, 28);
 			if (strlen(mod_name_string) < 28)
 				strncat(mod_name_string, "                           ", 28 - strlen(mod_name_string));

@@ -43,7 +43,6 @@
 #include "..\..\import.h"
 #include "..\..\..\src\smurfine.h"
 #include "trp_gfx.h"
-#include "trp_gfx.rh"
 #include "trp_gfx.rsh"
  
 BITBLK *prev(GARGAMEL *prev_struct);
@@ -156,7 +155,6 @@ char *expdata;      /* Output Arrays */
 long org_length;
 long datalength;    /* L„nge der Rckgabedaten in Bytes */                                          
 int quality;
-int module_id, t, button;
 
     org_length=(long)smurf_struct->smurf_pic->pic_width * (long)
             smurf_struct->smurf_pic->pic_height * (long) 
@@ -167,7 +165,7 @@ int module_id, t, button;
     expdata=Malloc (org_length+16000l);
     if ( (!exp_pic) || (!header) || (!bitmap) || (!expdata) )
         {   Mfree(header); Mfree(bitmap); Mfree(expdata);
-            exp_pic->backval=M_MEMORY;
+            /* exp_pic->backval=M_MEMORY; */
             smurf_struct->module_mode=M_MEMORY; 
             return(exp_pic); }
 
@@ -212,7 +210,7 @@ int module_id, t, button;
     /***************************************************/
     exp_pic->pic_data=expdata;
     exp_pic->f_len=datalength;
-    exp_pic->backval=M_DONEEXIT;
+    /* exp_pic->backval=M_DONEEXIT; */
     smurf_struct->module_mode=M_DONEEXIT;
     
     Mfree(header);
@@ -273,7 +271,7 @@ long encoding8Bit_trp(bitmap_struct *bitmap,GARGAMEL *smurf_struct,
                     char *expdata, int quality)
 {
 char ID_Byte_Run, *output, *input, *cptr, *scan1, *scan2;
-int pixel,counter,xgo,same,typ,MaxRun,diff;
+int pixel,counter,xgo,same,typ,MaxRun;
 long x,y,gox,goy,length;
 long id_case[8]={0,0,0,0,0,0,0,0};
 char *pal, *getpal;
@@ -455,12 +453,12 @@ long encoding24Bit_trp(bitmap_struct *bitmap,GARGAMEL *smurf_struct,
 {
 long xc,yc;
 long xmax,ymax;
-char *getdata, *getred, *getgreen, *getblue;
-char *putdata, *puty, *putcb, *putcr;
-char y,cr,r,g,b;
-char cb;
+char *getdata;
+char *putdata;
+char r,g,b;
+long len;
 
-long calc,len;
+(void)quality;
 xmax=bitmap->width;
 ymax=bitmap->height;
 getdata=smurf_struct->smurf_pic->pic_data;

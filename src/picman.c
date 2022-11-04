@@ -495,7 +495,7 @@ MOD_INFO *ready_modpics_popup(WINDOW *mwindow)
 
 	modbp = module.bp[mwindow->module];
 	textbase = modbp->p_tbase;
-	minf = (MOD_INFO *)*((MOD_INFO **)(textbase + MOD_INFO_OFFSET));
+	minf = *((MOD_INFO **)(textbase + MOD_INFO_OFFSET));
 
 	miptr[0] = minf->pic_descr1;
 	miptr[1] = minf->pic_descr2;

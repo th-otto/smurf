@@ -559,7 +559,7 @@ void f_mpref_change(void)
 	{
 		textbeg = module.bp[edit_mod_num]->p_tbase;
 		
-		mod_inf = (MOD_INFO *)*((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
+		mod_inf = *((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
 		mod_abs = *((MOD_ABILITY **)(textbeg + MOD_ABS_OFFSET));
 
 		editval1 = atol(modtree[ED1].TextCast);
@@ -729,7 +729,7 @@ void f_mpref_change(void)
 						break;
 			
 		case MCONF_STDSAVE:	textbeg = module.bp[edit_mod_num]->p_tbase;
-							mod_inf = (MOD_INFO *)*((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
+							mod_inf = *((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
 							cnfblock[0] = sy1;
 							cnfblock[1] = sy2;
 							cnfblock[2] = sy3;
@@ -747,7 +747,7 @@ void f_mpref_change(void)
 							break;
 								
 		case MCONF_STDLOAD:	textbeg = module.bp[edit_mod_num]->p_tbase;
-							mod_inf = (MOD_INFO *)*((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
+							mod_inf = *((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
 								loadcnf = (long *)mconfLoad(mod_inf, edit_mod_num, confname);
 							if(loadcnf != NULL)
 							{
@@ -767,7 +767,7 @@ void f_mpref_change(void)
 			change_object(&wind_s[WIND_MODFORM], START_MOD, UNSEL, 1);
 
 			textbeg=module.bp[edit_mod_num]->p_tbase;
-			mod_inf=(MOD_INFO *)*((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
+			mod_inf=*((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
 
 			/*
 			 * Editfeld-Werte erneut clippen, da diese vor dem Modulstart
@@ -822,7 +822,7 @@ void f_mpref_change(void)
 			 */
 			Window.topNow(&wind_s[WIND_BUSY]);
 			textbeg = module.bp[edit_mod_num]->p_tbase;
-			mod_inf = (MOD_INFO *)*((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
+			mod_inf = *((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
 			mod_abs = *((MOD_ABILITY **)(textbeg + MOD_ABS_OFFSET));
 
 			pic = smurf_picture[active_pic];
@@ -1138,7 +1138,7 @@ void f_make_preview(int redraw_flag)
 
 	textbeg = module.bp[edit_mod_num]->p_tbase;
 	mod_abs = *((MOD_ABILITY* *)(textbeg + MOD_ABS_OFFSET));
-	mod_inf = (MOD_INFO *)*((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
+	mod_inf = *((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
 
 
 	/*

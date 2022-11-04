@@ -142,7 +142,7 @@ void f_edit_pop(void)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
 
 		textseg_begin = module.bp[20]->p_tbase;
-		mod_info = (MOD_INFO *)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+		mod_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 	
 		pic_needed = mod_info->how_many_pix;
 		module.smStruct[20]->module_mode=M_EXIT;
@@ -214,7 +214,7 @@ void f_edit_pop(void)
 					 * Textsegment-Startadresse holen
 					 */
 					textseg_begin = module.bp[mod_num]->p_tbase;
-					mod_info = (MOD_INFO *)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+					mod_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 					mod_abs = *((MOD_ABILITY **)(textseg_begin + MOD_ABS_OFFSET));
 
 					back = 0;
@@ -276,7 +276,7 @@ void f_edit_pop(void)
 						if(module.bp[mod_num] != NULL && module.smStruct[mod_num]->module_mode == M_WAITING)
 						{
 							textseg_begin = (char*)module.bp[mod_num]->p_tbase;				/* Zeiger auf Modulinfostruktur */
-							module_info = (MOD_INFO*)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+							module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 							sn1 = module_info->smin1;
 							sx1 = module_info->smax1;
 							sn2 = module_info->smin2;
@@ -361,7 +361,7 @@ void emod_info_on(int mod_index)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
 
 	textseg_begin = module.bp[20]->p_tbase;
-	info_mi = (MOD_INFO *)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+	info_mi = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 
 	strncpy(Dialog.emodList.infoTree[I_MODNAME].TextCast, Dialog.emodList.modNames[mod_index], 27);
 

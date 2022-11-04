@@ -12,3 +12,4 @@
 *.txt text eol=crlf
 *.TXT text eol=crlf
 *.bgh text eol=crlf
+*.hlp text eol=crlf

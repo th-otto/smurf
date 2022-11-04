@@ -1,0 +1,19 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
+
+#Dial 000
+# 001 Mit diesem Button wird die Berechnung gestartet.
+# 005 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
+# 007 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
+# 018 Wenn diese Checkbox selektiert ist wird das Licht parallel, ansonsten als punktf”rmige Lichtquelle berechnet.
+# 030 Hier k”nnen Sie die St„rke des Glanzpunktes/diffusen Lichtes einstellen. Je mehr, desto kleiner und h„rter wird der Lichtverlauf.
+# 032 Hier k”nnen Sie die St„rke des Glanzpunktes/diffusen Lichtes einstellen. Je mehr, desto kleiner und h„rter wird der Lichtverlauf.
+# 033 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
+# 035 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
+# 037 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
+# 039 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
+# 040 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
+# 041 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
+# 044 Wenn dieser Radiobutton selektiert ist, k”nnen Sie die Einstellungen fr diffuses Licht vornehmen.
+# 046 Wenn dieser Radiobutton selektiert ist, k”nnen Sie die Einstellungen fr den Glanzpunkt vornehmen.

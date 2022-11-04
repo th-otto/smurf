@@ -1732,7 +1732,7 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 	clx_bp = NULL;
 	clx_bp = (BASPAG *)start_exp_module(clipexp_path, MSTART, new_pic, clx_bp, &clx_struct, 0x0101);
 	textseg_begin = (char *)(clx_bp->p_tbase);
-	clipexp_mabs = (MOD_ABILITY *)*((MOD_ABILITY **)(textseg_begin + MOD_ABS_OFFSET));
+	clipexp_mabs = *((MOD_ABILITY **)(textseg_begin + MOD_ABS_OFFSET));
 	f_convert(new_pic, clipexp_mabs, RGB, SAME, 0);
 
 	/*------------------- Bild speichern --------------------------------------------*/

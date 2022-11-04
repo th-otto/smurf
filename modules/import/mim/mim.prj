@@ -20,7 +20,7 @@
 ;
 ; ***** END LICENSE BLOCK *****
 
-..\..\..\dist\modules\import\min.sim
+..\..\..\dist\modules\import\mim.sim
 
 .C [-C -K -M -P-]
 .C [-I..\..\..\src\lib]

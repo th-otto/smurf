@@ -44,7 +44,6 @@
 #include <string.h>
 #include <screen.h>
 #include <ext.h>
-#include "..\..\..\src\lib\sym_gem.h"
 #include "..\..\import.h"
 #include "..\..\..\src\smurfine.h"
 

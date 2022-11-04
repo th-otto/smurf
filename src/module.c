@@ -165,7 +165,7 @@ int start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	
 		textseg_begin = mod_basepage->p_tbase;				/* Textsegment-Startadresse holen */
 
-		module_info = (MOD_INFO *)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));		/* Zeiger auf Modulinfostruktur */
+		module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));		/* Zeiger auf Modulinfostruktur */
 		memset(modname, 0x0, 25);
 		strncpy(modname, module_info->mod_name, 24);
 
@@ -287,7 +287,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, int mode, int mo
 		if(mode == MQUERY)
 		{
 			module.bp[mod_id&0xFF] = edit_basepage;
-			mod_abs = (MOD_ABILITY *)*((MOD_ABILITY **)(textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
+			mod_abs = *((MOD_ABILITY **)(textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
 			return((BASPAG *)mod_abs);
 		}
 	}
@@ -396,7 +396,7 @@ EXPORT_PIC *start_exp_module(char *modpath, int message, SMURF_PIC *pic_to_expor
 		if(message == MQUERY || message == MEXTEND)
 		{
 			module.bp[mod_id&0xFF] = export_basepage;
-			mod_abs = (MOD_ABILITY *)*((MOD_ABILITY **)(textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
+			mod_abs = *((MOD_ABILITY **)(textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
 			return((EXPORT_PIC *)mod_abs);
 		}
 	}
@@ -535,7 +535,7 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 		case M_CROSSHAIR:
 			bsp = module.bp[mod_num&0xFF];
 			textseg_begin = bsp->p_tbase;
-			modinfo = (MOD_INFO *)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+			modinfo = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
 
 			position_markers[mod_num&0xFF].anzahl = smurf_struct->event_par[0];
 			position_markers[mod_num&0xFF].mod_pic[0] = smurf_struct->event_par[1];
@@ -1374,7 +1374,7 @@ void make_modpreview(WINDOW *wind)
 
 	textbeg = module.bp[mod_index]->p_tbase;
 	mod_abs = *((MOD_ABILITY **)(textbeg + MOD_ABS_OFFSET));
-	mod_inf = (MOD_INFO *)*((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
+	mod_inf = *((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
 
 /*
 	for(t=0; t<mod_inf->how_many_pix; t++)

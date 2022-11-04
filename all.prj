@@ -10,47 +10,47 @@ modules\dither\ordered\ordered.prj
 
 
 modules\edit\beule\beule.prj
+modules\edit\border.prj
+modules\edit\bumpmap\bumpmap.prj
+modules\edit\bumpmap\texbump.prj
 modules\edit\cchange\cchange.prj
 modules\edit\chanel5\chanel5.prj
 modules\edit\chanelmx\chanelmx.prj
+modules\edit\clip.prj
 modules\edit\clipnpic.prj
+modules\edit\colsat.prj
+modules\edit\dropshdw.prj
+modules\edit\edgeokil.prj
 modules\edit\equalize.prj
+modules\edit\erode.prj
 modules\edit\expander.prj
+modules\edit\extrapol.prj
+modules\edit\freefilt\freefilt.prj
 modules\edit\gamma.prj
 modules\edit\grau.prj
 modules\edit\highshad.prj
 modules\edit\hsv\hsv.prj
+modules\edit\interpo.prj
 modules\edit\invert.prj
 modules\edit\konform.prj
 modules\edit\litlgrad.prj
 modules\edit\magic\magic.prj
 modules\edit\minmax.prj
 modules\edit\mirror\mirror.prj
-modules\edit\nohow\border\border.prj
-modules\edit\nohow\bumpmap\bumpmap.prj
-modules\edit\nohow\bumpmap\texbump.prj
-modules\edit\nohow\clip\clip.prj
-modules\edit\nohow\free_fil.ter\free_fil.prj
-modules\edit\nohow\shadow\sftshdw.prj
-modules\edit\nohow\smrf_emd\bkblend.prj
-modules\edit\nohow\smrf_emd\colsat.prj
-modules\edit\nohow\smrf_emd\erode.prj
-modules\edit\nohow\smrf_emd\extrapol.prj
-modules\edit\nohow\smrf_emd\interpo.prj
-modules\edit\nohow\smrf_emd\pepsip.prj
-modules\edit\nohow\smrf_emd\picfade.prj
-modules\edit\nohow\smrf_emd\sharp.prj
-modules\edit\nohow\sscale.prj
 modules\edit\noise.prj
 modules\edit\ntsc.prj
 modules\edit\paint.prj
 modules\edit\paletout.prj
+modules\edit\pepsip.prj
+modules\edit\picfade.prj
 modules\edit\pixel\pixel.prj
 modules\edit\quicksmt.prj
 modules\edit\rahmen.prj
 modules\edit\rotate\rotate.prj
+modules\edit\scale.prj
 modules\edit\scatman.prj
 modules\edit\scheren\scheren.prj
+modules\edit\sharp.prj
 modules\edit\sinusw.prj
 modules\edit\smoother.prj
 modules\edit\solarize.prj
@@ -61,6 +61,8 @@ modules\edit\spherica\sphr.prj
 modules\edit\strudel.prj
 modules\edit\sw.prj
 modules\edit\tachyon.prj
+modules\edit\texis\texis.prj
+modules\edit\texshdow.prj
 modules\edit\text\text.prj
 modules\edit\weight.prj
 modules\edit\wind.prj
@@ -86,13 +88,14 @@ modules\export\sgi\sgi.prj
 modules\export\tga\tga.prj
 modules\export\tiff\tiff.prj
 modules\export\tpi_true.prj
+modules\export\trp\trp.prj
 
 modules\import\1stpb.prj
 modules\import\adexv1.prj
 modules\import\alphabmp.prj
 modules\import\bmp.prj
 modules\import\bsgv1.prj
-modules\import\bw2\bw2.prj
+modules\import\bw.prj
 modules\import\cas.prj
 modules\import\ceg.prj
 modules\import\clipboar.prj
@@ -169,7 +172,7 @@ modules\plugin\print\prntplgw.prj
 ;modules\edit\bumber.prj
 ;modules\edit\colrun.prj
 ;modules\edit\displace.prj
-;modules\edit\scale.prj
+;modules\edit\scale.prj (version 1.30)
 ;modules\export\esm.prj
 ;modules\import\godpaint.prj
 ;modules\import\jpeg\jpegdspl.prj
@@ -184,5 +187,4 @@ modules\plugin\print\prntplgw.prj
 ; do not compile:
 ;modules\edit\bumper1.prj
 ;modules\edit\kratzer.prj
-;modules\edit\freefilt.prj
 ;modules\import\neonshp.prj

@@ -262,24 +262,24 @@ typedef struct
 
 
 /*------ Struktur GARGAMEL zur öbergabe an das Modul: */
-/*  77 Bytes*/
 typedef struct
 {
-    SMURF_PIC *smurf_pic;                           /* Zeiger auf Bildstruktur, in die das Bild gelegt werden soll - Smurf                          */
-    WINDOW *wind_struct;                                /* Zeiger auf Bildstruktur, in die das Bild gelegt werden soll - Smurf                          */
-    long slide1, slide2, slide3, slide4;        /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
-    char check1, check2, check3, check4;        /* öbergabewerte aus Einstellformular  (0 oder 1) - Smurf   */
-    long edit1, edit2, edit3, edit4;                /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
-    int module_mode;                                    /* Message */
+    /*  0 */ SMURF_PIC *smurf_pic;                          /* Zeiger auf Bildstruktur, in die das Bild gelegt werden soll - Smurf                          */
+    /*  4 */ WINDOW *wind_struct;                           /* Zeiger auf Bildstruktur, in die das Bild gelegt werden soll - Smurf                          */
+    /*  8 */ long slide1, slide2, slide3, slide4;           /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
+    /* 24 */ char check1, check2, check3, check4;           /* öbergabewerte aus Einstellformular  (0 oder 1) - Smurf   */
+    /* 28 */ long edit1, edit2, edit3, edit4;               /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
+    /* 44 */ int module_mode;                               /* Message */
 
-    int event_par[10];                              /* Beim Event betroffenes Objekt */
+    /* 46 */ int event_par[10];                             /* Beim Event betroffenes Objekt */
 
-    int mousex,mousey;                              /* Mauspos beim Event           */
-    int module_number;                              /* ID des Modules, von Smurf Åbergeben */
-    int klicks;                                         /* Mausklicks beim Event        */
-    int picwind_x, picwind_y, picwind_w, picwind_h;     /* Betroffenes Bildfenster - Abmessungen und Pos. */
+    /* 66 */ int mousex,mousey;                             /* Mauspos beim Event           */
+    /* 70 */ int module_number;                              /* ID des Modules, von Smurf Åbergeben */
+    /* 72 */ int klicks;                                         /* Mausklicks beim Event        */
+    /* 74 */ int picwind_x, picwind_y, picwind_w, picwind_h;     /* Betroffenes Bildfenster - Abmessungen und Pos. */
 
-    SERVICE_FUNCTIONS *services;
+    /* 82 */ SERVICE_FUNCTIONS *services;
+    /* 86 */
 } GARGAMEL;
 
 

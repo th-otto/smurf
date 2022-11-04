@@ -44,7 +44,6 @@
 #include "..\..\..\src\lib\demolib.h"
 
 #include "mirror.rsh"
-#include "mirror.rh"
 
 int (*popup)(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree);
 

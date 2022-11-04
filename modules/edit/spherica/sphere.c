@@ -89,7 +89,12 @@ SERVICE_FUNCTIONS *service;
 
 char comp1[12], comp2[12], comp3[12], comp4[12], comp5[12], comp6[12];
 
-MOD_INFO module_info = {"Spherical Image¿",
+MOD_INFO module_info = {
+#if defined(__68881__) || defined(_M68881)
+	"Spherical Image¿ (FPU)",
+#else
+	"Spherical Image¿",
+#endif
                         0x0050,
                         "Olaf Piesche",
                         "", "", "", "", "",

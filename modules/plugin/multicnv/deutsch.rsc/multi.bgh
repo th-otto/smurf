@@ -1,0 +1,32 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
+
+#Dial 000
+# 001 Startet die Konvertierung.
+# 006 006 Hiermit k”nnen Sie die Optionen fr das gew„hlte Exportformat einstellen.
+# 008 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
+# 009 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
+# 010 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
+# 011 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
+# 012 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
+# 013 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
+# 014 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
+# 015 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
+# 016 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
+# 022 Hier k”nnen Sie den Quellpfad ausw„hlen.
+# 025 Hier k”nnen Sie den Pfad ausw„hlen, unter dem die konvertierten Bilder gespeichert werden sollen.
+# 030 Hier k”nnen Sie durch Kommata getrennte Wildcards fr die zu ladenden Dateien angeben. Die Jokerzeichen * und ? sind zul„ssig.
+# 035 Hier k”nnen Sie w„hlen, in welcher Farbtiefe die Bilder gespeichert werden sollen.
+# 036 Hier k”nnen Sie w„hlen, in welcher Farbtiefe die Bilder gespeichert werden sollen.
+# 043 Hier k”nnen Sie die Methode w„hlen, mit der die Bilder auf die Zielfarbtiefe gerastert werden sollen, wenn die Quellfarbtiefe h”her ist.
+# 044 Hier k”nnen Sie die Methode w„hlen, mit der die Bilder auf die Zielfarbtiefe gerastert werden sollen, wenn die Quellfarbtiefe h”her ist.
+# 047 Hier k”nnen Sie den Palettenmodus w„hlen, der fr ein eventuelles Rastern verwendet werden soll.
+# 048 Hier k”nnen Sie den Palettenmodus w„hlen, der fr ein eventuelles Rastern verwendet werden soll.
+# 050 Ist diese Checkbox gew„hlt, so wird versucht, die Farbtiefe der Quellbilder beizubehalten. Wenn dies nicht m”glich ist, wird auf die eingestellte Farbtiefe gewandelt.
+# 053 Wenn bei 'Palette' die Option 'feste Palette' gew„hlt ist, k”nnen Sie hiermit eine Palette im .PAL-Format laden, auf die gedithert werden soll.
+# 056 Wenn diese Checkbox gew„hlt ist, wird die Farbtiefe an die Namen der zu speichernden Bilder angeh„ngt, z.B. BILD.IMG -> BILD16.IMG.
+# 057 Wenn diese Checkbox gew„hlt ist, werden die Unterordner des Quellpfades auch nach Bildern durchsucht.
+# 058 L„dt eine abgespeicherte Konfiguration.
+# 059 Speichert die aktuelle Konfiguration ab.
+# 061 Wenn diese Checkbox gew„hlt ist, werden mit 'speichern' und 'laden' GEMScript-Scripte auf Diskette/Festplatte erzeugt oder geladen.

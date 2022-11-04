@@ -112,7 +112,7 @@ PLUGIN_INFO plugin_info =
 {
     name_string,
     0x0102,             /* Plugin-Version 1.02 */
-    0x0106,             /* fÅr Smurf-Version 1.06 */
+    SMURF_VERSION,      /* fÅr Smurf-Version 1.06 */
     0                   /* und nicht resident. */
 };
 

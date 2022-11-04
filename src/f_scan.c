@@ -180,7 +180,7 @@ void f_scan_edit(void)
 
 				textseg_begin = edit_baspag->p_tbase;			/* Textsegment-Startadresse holen */
 
-				module_info = (MOD_INFO *)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+				module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 
 				/*
 				 * Modul eintragen
@@ -355,7 +355,7 @@ void f_scan_import(void)
 
 				textseg_begin = import_baspag->p_tbase;			/* Textsegment-Startadresse holen */
 
-				module_info = (MOD_INFO *)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+				module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 			
 				/*---- Modul eintragen */
 				Import_list.imp_mod_list[anzahl_importmods] = malloc(strlen(actual->modname) + 1);
@@ -741,7 +741,7 @@ void f_scan_export(void)
 
 				textseg_begin = export_baspag->p_tbase;			/* Textsegment-Startadresse holen */
 
-				module_info = (MOD_INFO *)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+				module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 
 				/*---- Modul eintragen */
 				export_modules[Dialog.expmodList.anzahl] = malloc(pathlen + 1);		/* keine variable L„nge wegen Sortierung! */
@@ -899,7 +899,7 @@ void f_scan_dither(void)
 
 				textseg_begin = dit_baspag->p_tbase;			/* Textsegment-Startadresse holen */
 
-				ditmod_info[anzahl_dithermods] = (DITHER_MOD_INFO *)*((DITHER_MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+				ditmod_info[anzahl_dithermods] = *((DITHER_MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
 				Dithermod_Basepage[anzahl_dithermods] = dit_baspag;
 				strncpy(string, ditmod_info[anzahl_dithermods]->algo_name, 15);
 				ditmod_info[anzahl_dithermods]->algo_name[15] = '\0';

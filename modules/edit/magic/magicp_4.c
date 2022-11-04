@@ -43,7 +43,6 @@
 
 #if COUNTRY==1
 #include "ger\magic.rsh"
-#include "ger\magic.rh"
 #define fehler1 "Die Streifenbreite ist gr”žer als die Texturbreite. Bitte Textur vergr”žern oder Spaltenbreite kleiner w„hlen."
 #define fehler2 "Die Streifenbreite zu klein."
 #define zielbild_str "Zielbild"
@@ -53,7 +52,6 @@
 #elif COUNTRY==0
 
 #include "eng\magic.rsh"
-#include "eng\magic.rh"
 #define fehler1 "The ..width ist bigger than the texturewidth. Please increase texturewidth or use a smaller ...width."
 #define fehler2 "The ...width is to small."
 #define zielbild_str "destination"
@@ -63,7 +61,6 @@
 #elif COUNTRY==2
 
 #include "fra\magic.rsh"
-#include "fra\magic.rh"
 #define fehler1 "Die Streifenbreite ist gr”žer als die Texturbreite. Bitte Textur vergr”žern oder Spaltenbreite kleiner w„hlen."
 #define fehler2 "Die Streifenbreite zu klein."
 #define zielbild_str "Zielbild"

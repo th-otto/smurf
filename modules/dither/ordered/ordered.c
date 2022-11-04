@@ -42,7 +42,6 @@
 #include <stdio.h>
 #include <ext.h>
 #include "..\..\..\src\lib\demolib.h"
-#include "..\..\..\src\lib\sym_gem.h"
 #include "..\..\import.h"
 #include "..\..\..\src\smurfine.h"
 

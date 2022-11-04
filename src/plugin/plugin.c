@@ -207,7 +207,7 @@ void scan_plugins(void)
 				install_index = anzahl_plugins;
 				install_flag = 1;
 				
-				curr_info = (PLUGIN_INFO *)*((PLUGIN_INFO **)(textseg_begin + PLG_INFO_OFFSET));
+				curr_info = *((PLUGIN_INFO **)(textseg_begin + PLG_INFO_OFFSET));
 
 				if(curr_info->for_smurf_version != SMURF_VERSION)
 				{

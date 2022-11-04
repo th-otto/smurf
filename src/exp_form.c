@@ -169,8 +169,8 @@ void f_export_formular()
 		 * Formulartitel setzen
 		 */
 		textseg_begin = module.bp[exp_index]->p_tbase;		/* Textsegment-Startadresse holen */
-		export_modinfo = (MOD_INFO *)*((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
-		embs = (MOD_ABILITY *)*((MOD_ABILITY **)(textseg_begin + MOD_ABS_OFFSET));
+		export_modinfo = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+		embs = *((MOD_ABILITY **)(textseg_begin + MOD_ABS_OFFSET));
 		strcpy(wind_s[FORM_EXPORT].wtitle, export_modinfo->mod_name);
 
 		Window.windSet(wind_s[FORM_EXPORT].whandlem, WF_NAME, 
