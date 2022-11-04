@@ -32,12 +32,10 @@
 #include <screen.h>
 #include <ext.h>
 
-#include "..\..\src\lib\sym_gem.h"
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 #include "bumpmap.rsh"
-#include "bumpmap.rh"
 #include <math.h>
 
 #define Obj_Selected(a) (main_form[a].ob_state & SELECTED)

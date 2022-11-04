@@ -1,0 +1,19 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Printplugin
+
+#Dial 000 
+# 004 Hier k”nnen Sie den Druckertreiber ausw„hlen.
+# 007 Hier k”nnen Sie das Papierformat w„hlen.
+# 011 Hier sehen Sie eine Vorschau auf den Ausdruck. Der rote Rahmen stellt die bedruckbare Fl„che dar, die graue Box den Bereich des Bildes.
+# 012 Hier sehen Sie eine Vorschau auf den Ausdruck. Der rote Rahmen stellt die bedruckbare Fl„che dar, die graue Box den Bereich des Bildes.
+# 013 Diese graue Box stellt den Bereich des Bildes dar. Sie kann mit der Maus verschoben und skaliert werden. Gehaltene CTRL-Taste beim Skalieren beh„lt die Proportionen des Bildes bei.
+# 014 Mit Klick auf diese schwarze Box kann der Bildbereich skaliert werden. Bei gehaltener CTRL-Taste werden die Bildproportionen beibehalten.
+# 015 Mit Diesem Knopf wird der Druck gestartet.
+
+# 026 Diese Zahl gibt die horizontale Position des Ausdrucks an. Die Einheit entnehmen Sie dem Popup darber.
+# 030 Diese Zahl gibt die vertikale Position des Ausdrucks an. Die Einheit entnehmen Sie dem Popup darber.
+
+# 034 Diese Zahl gibt die Breite des Ausdrucks an. Die Einheit entnehmen Sie dem Popup darber. Leeren Sie dieses Feld wird aus der H”he eine Breite unter der Bercksichtigung der Proportion des Bildes errechnet.
+# 038 Diese Zahl gibt die H”he des Ausdrucks an. Die Einheit entnehmen Sie dem Popup darber. Leeren Sie dieses Feld wird aus der Breite eine H”he unter der Bercksichtigung der Proportion des Bildes errechnet.
+# 042 Mit diesem Popup k”nnen Sie die Einheit in der Position sowie Breite und H”he des Ausdrucks angegeben werden einstellen.

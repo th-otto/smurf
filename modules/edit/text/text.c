@@ -43,22 +43,19 @@
 #include <string.h>
 #include <vdi.h>
 #include <screen.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 #include <math.h>
 #include "fontsel.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "text\de\text.rsh"
-	#include "text\de\text.rh"
+	#include "de/text.rsh"
 #elif COUNTRY==0
-	#include "text\en\text.rsh"
-	#include "text\en\text.rh"
+	#include "en/text.rsh"
 #elif COUNTRY==2
-	#include "text\en\text.rsh" /* missing french resource */
-	#include "text\en\text.rh"
+	#include "en/text.rsh" /* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif

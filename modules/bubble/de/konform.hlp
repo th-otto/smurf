@@ -1,0 +1,7 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "VDI-/hardwarekonform wandeln"
+
+#Dial 000 Dieses Modul konvertiert die Farben eines Palettenbildes ins VDI-Format (wichtig fÅr Programmierer).
+# 006 Soll VDI-konform oder hardwarekonform gewandelt werden? WÑhlen Sie hier.
+# 010 Soll hardwarekonform oder VDI-konform gewandelt werden? WÑhlen Sie hier.

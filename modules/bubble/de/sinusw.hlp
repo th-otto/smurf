@@ -1,0 +1,12 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Sinuswellen"
+
+#Dial 000 Hiermit k”nnen Sie Bilder mittel horizontaler und vertikaler Sinuswellen verzerren.
+# 001 Hier k”nnen Sie die H”he der Wellen einstellen.
+# 002 Hier k”nnen Sie die H”he der Wellen einstellen.
+# 027 Hier k”nnen Sie Entfernung der Wellenberge voneinander einstellen.
+# 028 Hier k”nnen Sie Entfernung der Wellenberge voneinander einstellen.
+# 006 In dieser Einstellung werden die Bilder horizontal verzerrt (Wellen in vertikaler Richtung).
+# 010 In dieser Einstellung werden die Bilder vertikal verzerrt (Wellen in horizontal Richtung).
+# 011 Ist dieser Schalter aktiv, wird die Bildgr”že beibehalten und an der einen Kannte herausfallende Wellen kommen an der anderen Kante wieder herein. Ansonsten vergr”žert sich das Bild um 2 * Wellenh”he.

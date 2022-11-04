@@ -1,0 +1,8 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Scatman's World"
+
+#Dial 000 Vertauscht Pixel in einem einstellbaren Bereich zuf„llig.
+# 006 Ist "clean" angeschaltet, wird das Ergebnis sauberer - auf Kosten des Speicherverbrauches.
+# 013 Hier k”nnen Sie die Breite des zu verscattenden Bereiches angeben.
+# 014 Hier k”nnen Sie die H”he des zu verscattenden Bereiches angeben.

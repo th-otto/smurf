@@ -8,7 +8,6 @@ modules\dither\greyscal\greyscal.prj
 modules\dither\nc\nc.prj
 modules\dither\ordered\ordered.prj
 
-
 modules\edit\beule\beule.prj
 modules\edit\border.prj
 modules\edit\bumpmap\bumpmap.prj

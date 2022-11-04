@@ -1,0 +1,9 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Wind"
+
+#Dial 000 Erzeugt einen Windeffekt im aktiven Bild.
+# 006 Ein LÅftchen von links.
+# 010 Und eines von der anderen Seite.
+# 011 Ein Sturm von links.
+# 012 Und einer von der anderen Seite.

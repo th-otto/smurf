@@ -39,7 +39,6 @@
 #include "demolib.h"
 
 #include "cchange.rsh"
-#include "cchange.rh"
 
 typedef struct
 {

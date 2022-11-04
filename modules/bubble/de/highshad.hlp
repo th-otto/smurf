@@ -1,0 +1,9 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Highlight/Shadow"
+
+#Dial 000 Dieses Modul ermîglicht es, die hellen oder dunklen Bereiche eines Bildes gezielt zu verstÑrken oder abzuschwÑchen.
+# 001 Hier wird die Highlightgrenze eingestellt, Åber der alle Bildpunkte auf ganz hell gesetzt werden sollen.
+# 002 Hier wird die Highlightgrenze eingestellt, Åber der alle Bildpunkte auf ganz hell gesetzt werden sollen.
+# 027 Hier wird die Shadowgrenze eingestellt, unter der alle Bildpunkte auf ganz dunkel gesetzt werden sollen.
+# 028 Hier wird die Shadowgrenze eingestellt, unter der alle Bildpunkte auf ganz dunkel gesetzt werden sollen. 

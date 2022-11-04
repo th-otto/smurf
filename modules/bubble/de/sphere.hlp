@@ -1,0 +1,29 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul 'Spherical Image'
+
+#Dial 000 Mit diesem Modul k”nnen Sie Kugeln mit vielseitig einstellbaren Oberfl„chenstrukturen ray-tracen.
+# 041 Hier k”nnen Sie die Lichtfarbe der punktf”rmigen Lichtquelle einstellen.
+# 045 Hier k”nnen Sie die Lichtfarbe der punktf”rmigen Lichtquelle einstellen.
+# 049 Hier k”nnen Sie die Lichtfarbe der punktf”rmigen Lichtquelle einstellen.
+
+# 073 Hier k”nnen Sie die Lichtfarbe des Umgebungslichtes einstellen.
+# 077 Hier k”nnen Sie die Lichtfarbe des Umgebungslichtes einstellen.
+# 081 Hier k”nnen Sie die Lichtfarbe des Umgebungslichtes einstellen.
+
+# 089 Hier k”nnen Sie das Bumpmapping ein- und ausschalten.
+
+# 091 Hier k”nnen Sie die Oberfl„chenrauhheit ein- und ausschalten.
+
+# 084 Durch Klick auf diese Box wird eine Vorschau der Kugel mit den eingestellten Parametern berechnet.
+# 097 Dieser Button startet die Berechnung der Kugel.
+
+# 003 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
+# 009 Hier k”nnen Sie die horizontale Skalierung der Bumpmap einstellen.
+# 010 Hier k”nnen Sie die vertikale Skalierung der Bumpmap einstellen.
+
+# 060 Hier k”nnen Sie die St„rke des Glanzpunktes einstellen.
+# 064 Hier k”nnen Sie die H„rte des Glanzpunktes einstellen.
+# 068 Hier k”nnen Sie einstellen, wie stark der Glanzpunkt mit der Kugelfarbe gefiltert werden soll. Je mehr, desto metallischer wirkt das Material.
+
+# 030 Hier k”nnen Sie einstellen, wie rauh die Oberfl„che der Kugel sein soll.

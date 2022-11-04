@@ -45,7 +45,6 @@
 #include "..\..\..\src\lib\demolib.h"
 
 #include "chanelmx.rsh"
-#include "chanelmx.rh"
 
 #define DEST_PIC	0
 #define SRC_PIC		1

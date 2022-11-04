@@ -1,0 +1,17 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Bilderrahmen"
+
+#Dial 000 Legt einen einstellbaren Rahmen um das Bild.
+# 001 Rotkomponente der Rahmenfarbe.
+# 002 Rotkomponente der Rahmenfarbe.
+# 027 Grnkomponente der Rahmenfarbe.
+# 028 Grnkomponente der Rahmenfarbe.
+# 029 Blaukomponente der Rahmenfarbe.
+# 030 Blaukomponente der Rahmenfarbe.
+# 006 Gibt an, ob das Bild im Rahmen zentriert werden soll. Die Mae fr die Rahmengr”e werden hierbei ausschlielich aus den Editfeldern "links" und "oben" errechnet.
+# 010 Gibt an, da nicht die ber die Slider eingestellte Farbe, sondern die Farbe des linken oberen Pixels als Rahmenfarbe verwendet werden soll.
+# 013 Breite des linken Rahmens bzw. Gesamtbreite des Rahmens wenn "zentriert" angeschaltet ist.
+# 014 Breite des rechten Rahmens.
+# 015 H”he des oberen Rahmens bzw. Gesamth”he des Rahmens wenn "zentriert" angeschaltet ist.
+# 016 H”he des unteren Rahmens.

@@ -74,14 +74,11 @@
 #include "country.h"
 
 #if COUNTRY==1
-	#include "hsv\de\hsv.rsh"
-	#include "hsv\de\hsv.rh"
+	#include "de/hsv.rsh"
 #elif COUNTRY==0
-	#include "hsv\en\hsv.rsh"
-	#include "hsv\en\hsv.rh"
+	#include "en/hsv.rsh"
 #elif COUNTRY==2
-	#include "hsv\en\hsv.rsh" /* missing french resource */
-	#include "hsv\en\hsv.rh"
+	#include "en/hsv.rsh" /* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif

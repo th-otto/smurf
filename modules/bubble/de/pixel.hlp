@@ -1,0 +1,8 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Aufpixeln"
+
+#Dial 000 Mit diesem Modul k”nnen Sie einen Mosaikeffekt (Pixelvervielfachung) in einem Bild erzeugen.
+# 006 Ist "interpolierend" angeschaltet, wird das Ergebnis viel feiner. Auf Kosten der Geschwindigkeit.
+# 013 Hier k”nnen Sie die Breite der neuen Pixel angeben.
+# 014 Hier k”nnen Sie die H”he der neuen Pixel angeben.

@@ -1,0 +1,7 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul Weichzeichner
+
+#Dial 000 Zeichnet Bilder mit einstellbarer St„rke weich.
+# 001 Mit diesem Regler k”nnen Sie die horizontale St„rke des Weichzeichnens einstellen.
+# 027 Mit diesem Regler k”nnen Sie die vertikale St„rke des Weichzeichnens einstellen.

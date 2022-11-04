@@ -1,0 +1,39 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul Farbverlauf
+
+#Dial 000 Hiermit k”nnen Sie beliebige lineare und radiale Farbverl„ufe erzeugen. 
+# 020 Hier wird ein Preview des eingestellten Farbverlaufs angezeigt.
+# 021 Mit einem Klick in diese Box k”nnen Sie einen neuen Sttzpunkt erzeugen.
+# 022 Dies ist der erste Sttzpunkt. Er kann selektiert, aber nicht verschoben werden, seine Farbe k”nnen Sie rechts einstellen.
+# 023 Dies ist der letzte Sttzpunkt. Er kann selektiert, aber nicht verschoben werden, seine Farbe k”nnen Sie rechts einstellen.
+
+# 024 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 025 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 026 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 027 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 028 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 029 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 030 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 031 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 032 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 033 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 034 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 035 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 036 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+# 037 Dies ist ein Sttzpunkt fr den Verlauf. Linksklick selektiert ihn, mit festgehaltener Maustaste k”nnen Sie ihn verschieben, seine Farbe k”nnen Sie rechts einstellen. Verschieben Sie ihn genau auf einen anderen Sttzpunkt, wird er gel”scht.
+
+# 008 Mit diesem Slider k”nnen Sie die rote Farbkomponente fr den gew„hlten Sttzpunkt einstellen.
+# 009 Mit diesem Slider k”nnen Sie die rote Farbkomponente fr den gew„hlten Sttzpunkt einstellen.
+
+# 016 Mit diesem Slider k”nnen Sie die grne Farbkomponente fr den gew„hlten Sttzpunkt einstellen.
+# 017 Mit diesem Slider k”nnen Sie die grne Farbkomponente fr den gew„hlten Sttzpunkt einstellen.
+
+# 012 Mit diesem Slider k”nnen Sie die blaue Farbkomponente fr den gew„hlten Sttzpunkt einstellen.
+# 013 Mit diesem Slider k”nnen Sie die blaue Farbkomponente fr den gew„hlten Sttzpunkt einstellen.
+
+# 005 Ist dieser Radiobutton selektiert, wird ein linearer Verlauf ins aktive Bild erzeugt.
+# 006 Wenn dieser Radiobutton gew„hlt ist, wird ein kreisf”rmiger Verlauf ins aktive Bild erzeugt, dessen Mittelpunkt mit dem Positionsmarker eingestellt werden kann.
+
+# 039 Hier k”nnen Sie die Richtung des Farbverlaufs einstellen (nur fr lineare Verl„ufe).
+# 019 Dieser Button startet das Erzeugen eines Verlaufs ins aktive Bild.

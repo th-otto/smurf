@@ -1,0 +1,5 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Tachyon"
+
+#Dial 000 Inverts the pixels luminance information but leaves its chrominance information unchanged.

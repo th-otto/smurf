@@ -1,0 +1,14 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Drop Shadow"
+
+#Dial 000 "Drop Shadow" erm”glicht es, weiche Schattenwrfe in Bildern zu erzeugen.
+# 001 Dieser Regler gibt an, wie dunkel der Schatten sein soll (oben=schwarz, unten=wei).
+# 027 Mit diesem Regler k”nnen Sie einstellen, wie weich der Schatten sein soll.
+# 029 Mit diesem Regler k”nnen Sie die Gr”e des Schattens einstellen (unten=klein, oben=gro).
+
+# 011 Wenn diese Checkbox selektiert ist, wird der Schatten an den Ecken st„rker abgerundet.
+# 012 Wenn diese Checkbox selektiert ist, wird der Schatten nur auf weie Farbe im Bild geworfen, ansonsten w„hlen Sie die Farbe mit dem Positionsmarker im Bild aus.
+
+# 013 Hier k”nnen Sie den horizontalen Abstand eingeben, den der Schatten von den Bildelementen haben soll.
+# 014 Hier k”nnen Sie den vertikalen Abstand eingeben, den der Schatten von den Bildelementen haben soll.

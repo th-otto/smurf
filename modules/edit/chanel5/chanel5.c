@@ -44,21 +44,18 @@
 #include <string.h>
 #include <screen.h>
 #include <ext.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
-#include "..\..\..\src\lib\demolib.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
+#include "../../../src/lib/demolib.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "chanel5\de\chanel5.rsh"
-	#include "chanel5\de\chanel5.rh"
+#include "de/chanel5.rsh"
 #elif COUNTRY==0
-	#include "chanel5\en\chanel5.rsh"
-	#include "chanel5\en\chanel5.rh"
+#include "en/chanel5.rsh"
 #elif COUNTRY==2
-	#include "chanel5\en\chanel5.rsh" /* missing french resource */
-	#include "chanel5\en\chanel5.rh"
+#include "en/chanel5.rsh" /* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif

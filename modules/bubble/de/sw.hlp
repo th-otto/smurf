@@ -1,0 +1,8 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "s/w Schwellwert"
+
+#Dial 000 Wandelt ein Farbbild mittels eines Schwellenwerts nach s/w.
+# 001 Hier kînnen Sie die Schwelle fÅr die Wandlung nach s/w einstellen. Alle helleren Stellen werden weiû, die anderen schwarz.
+# 002 Hier kînnen Sie die Schwelle fÅr die Wandlung nach s/w einstellen. Alle helleren Stellen werden weiû, die anderen schwarz.
+# 006 Ohne diesen Schalter wird die Farbtiefe des Bildes belassen. Mit diesem Schalter wird das Bild in 1 Bit Farbtiefe gewandelt.

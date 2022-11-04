@@ -1,0 +1,10 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul Chanel 5
+
+#Dial 000 Mit diesem Modul k馬nen Sie die Farbkan�le (R, G und B) eines Bildes vertauschen.
+# 009 Mit dieser Option werden die Blau- und Gr］anteile des Bildes vertauscht.
+# 011 Mit dieser Option werden die Rot- und Gr］anteile des Bildes vertauscht.
+# 013 Mit dieser Option werden die roten Teile gr］, die gr］en Teile blau und alles blaue wird rot.
+# 015 Mit dieser Option werden die roten Teile blau, die gr］en Teile rot und alles blaue wird gr］.
+# 017 Mit dieser Option werden die Rot- und Blauanteile des Bildes vertauscht.

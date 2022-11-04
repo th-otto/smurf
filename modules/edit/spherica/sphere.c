@@ -39,7 +39,6 @@
 #include "..\..\import.h"
 #include "..\..\..\src\smurfine.h"
 #include "spherica.rsh"
-#include "spherica.rh"
 #include "spherica.h"
 
 #define DEST_PIC    0

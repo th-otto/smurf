@@ -41,7 +41,6 @@
 #include "demolib.h"
 
 #include "spin90.rsh"
-#include "spin90.rh"
 
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);

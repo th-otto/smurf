@@ -1,0 +1,16 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "HSV's mir"
+
+#Dial 000 Mit diesem Modul k”nnen Sie Farbkorrekturen vornehmen oder z.B. Duplexbilder erzeugen.
+# 005 Hier ist die Farbe im HSV-System einstellbar.
+# 006 Hier ist die Farbe im HSV-System einstellbar.
+# 010 Hier ist die S„ttigung im HSV-System einstellbar.
+# 011 Hier ist die S„ttigung im HSV-System einstellbar.
+# 012 Hier ist die Helligkeit im HSV-System einstellbar.
+# 013 Hier ist die Helligkeit im HSV-System einstellbar.
+# 018 Mit diesem Schalter wird zwischen aus, Absolut- und Relativmodus fr die Farbe umgeschaltet.
+# 016 Mit diesem Schalter wird zwischen aus, Absolut- und Relativmodus fr die S„ttigung umgeschaltet.
+# 017 Mit diesem Schalter wird zwischen aus, Absolut- und Relativmodus fr die Helligkeit umgeschaltet.
+# 023 Ist dieser Schalter aktiv, werden die Berechnungen im HSV-System durchgefhrt. Bitte beachten Sie die gegenber HLS ver„nderte Komponentenreihenfolge.
+# 025 Ist dieser Schalter aktiv, werden die Berechnungen im HLS-System durchgefhrt. Bitte beachten Sie die gegenber HSV ver„nderte Komponentenreihenfolge.

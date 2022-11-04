@@ -35,8 +35,7 @@
 #include "..\..\import.h"
 #include "..\..\..\src\smurfine.h"
 
-#include "texture.rsh"
-#include "texture.rh"
+#include "texis.rsh"
 
 
 #define Clip(a,b)   (a>b? 0 : a)

@@ -37,7 +37,6 @@
 #include "..\..\..\..\src\smurfine.h"
 
 #include "bumpmap6.rsh"
-#include "bumpmap6.rh"
 #include <math.h>
 
 #define Obj_Selected(a) (main_form[a].ob_state & SELECTED)

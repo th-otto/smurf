@@ -32,12 +32,10 @@
 #include <vdi.h>
 #include <aes.h>
 #include <screen.h>
-#include "..\..\src\lib\sym_gem.h"
 #include "..\import.h"
 #include "..\..\src\smurfine.h"
 
-#include "scratch.rsh"
-#include "scratch.rh"
+#include "scratch.rsh" /* missing */
 
 
 

@@ -28,7 +28,7 @@
 #include <stddef.h>
 #include "..\..\import.h"
 #include "fontsel.h"
-#include "text\de\text.h"
+#include "de\text.h"
 
 #define	TextCast	ob_spec.tedinfo->te_ptext
 

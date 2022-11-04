@@ -1,0 +1,12 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Zoom"
+
+#Dial 000 Erzeugt einen "Zoomeffekt", im Zentrum scharf, nach auen hin verzerrt.
+# 001 Gibt die St„rke des Zoomeffektes am von der Mitte am weitesten entferntesten Punkt an.
+# 002 Gibt die St„rke des Zoomeffektes am von der Mitte am weitesten entferntesten Punkt an.
+# 003 Gibt die St„rke des Zoomeffektes am von der Mitte am weitesten entferntesten Punkt an.
+# 004 Gibt die St„rke des Zoomeffektes am von der Mitte am weitesten entferntesten Punkt an.
+# 006 Bewirkt einen Effekt, als wrde sich die Kamera schnell auf ein Objekt zubewegen.
+# 010 Bewirkt einen Effekt, als wrde die Kamera w„hrend eines Fotos gedreht.
+# 011 Bewirkt einen schlecht beschreibbaren Effekt.
