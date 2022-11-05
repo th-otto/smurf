@@ -26,9 +26,9 @@
 #include <vdi.h>
 #include <aes.h>
 #include <stddef.h>
-#include "..\..\import.h"
+#include "../../import.h"
 #include "fontsel.h"
-#include "de\text.h"
+#include "de/text.h"
 
 #define	TextCast	ob_spec.tedinfo->te_ptext
 

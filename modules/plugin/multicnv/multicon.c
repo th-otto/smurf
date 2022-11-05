@@ -41,14 +41,14 @@
 #include <ext.h>
 #include <math.h>
 #include "sym_gem.h"
-#include "..\..\import.h"
-#include "..\..\..\src\smurf_st.h"
-#include "..\..\..\src\rsc\smurf.h"
-#include "..\..\..\src\smurfine.h"
-#include "..\..\..\src\globdefs.h"
-#include "..\..\..\src\plugin\plugin.h"
-#include "..\..\..\src\popdefin.h"
-#include "..\..\..\src\smurfobs.h"
+#include "../../import.h"
+#include "../../../src/smurf_st.h"
+#include "../../../src/rsc/smurf.h"
+#include "../../../src/smurfine.h"
+#include "../../../src/globdefs.h"
+#include "../../../src/plugin/plugin.h"
+#include "../../../src/popdefin.h"
+#include "../../../src/smurfobs.h"
 
 #undef NUM_STRINGS
 #undef NUM_FRSTR
@@ -69,11 +69,11 @@
 #include "country.h"
 
 #if COUNTRY==1
-    #include "deutsch.rsc\multi.rsh"
+    #include "deutsch.rsc/multi.rsh"
 #elif COUNTRY==0
-    #include "englisch.rsc\multi.rsh"
+    #include "englisch.rsc/multi.rsh"
 #elif COUNTRY==2
-    #include "englisch.rsc\multi.rsh" /* missing french resource */
+    #include "englisch.rsc/multi.rsh" /* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif

@@ -48,8 +48,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ext.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 char *conv(char val);
 

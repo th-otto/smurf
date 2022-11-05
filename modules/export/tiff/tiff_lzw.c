@@ -27,7 +27,7 @@
 #include <string.h>
 #include <ext.h>
 #include <tos.h>
-#include "..\..\import.h"
+#include "../../import.h"
 
 #define MAXBITS	12
 #define HSIZE	5003

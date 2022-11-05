@@ -58,9 +58,6 @@ void f_showtree(OBJECT *tree, int object)	- Wiederanzeigen eines versteckten Obj
 /*----------------------------------------------------------------------*/
 
 #include <tos.h>
-/*#include <multiaes.h>*/
-#include <aes.h>
-#include <ext.h>
 #include <vdi.h>
 #include <string.h>
 #include <screen.h>
@@ -69,11 +66,11 @@ void f_showtree(OBJECT *tree, int object)	- Wiederanzeigen eines versteckten Obj
 #include "portab.h"
 #include "smurf_st.h"
 #include "sym_gem.h"
-#include "..\..\modules\import.h"
+#include "../../modules/import.h"
 #include "smurf.h"
 #include "smurf_f.h"
 
-/*#include "src\xrsrc.h"  If this is included it screws us all up*/
+/*#include "src/xrsrc.h"  If this is included it screws us all up*/
 #include "globdefs.h"
 
 #include "smurfine.h"

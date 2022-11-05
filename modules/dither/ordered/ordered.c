@@ -41,9 +41,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <ext.h>
-#include "..\..\..\src\lib\demolib.h"
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../../src/lib/demolib.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 void f_dither_orderedcol(SMURF_PIC *pic_todit,  char* ziel, DITHER_DATA *dither);
 void orderedto1(SMURF_PIC *picture, char* ziel);

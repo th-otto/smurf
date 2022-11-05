@@ -40,14 +40,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "..\lib\sym_gem.h"
-#include "..\modules\import.h"
-#include "..\smurfine.h"
-#include "..\smurf_st.h"
-#include "..\smurf_f.h"
+#include "sym_gem.h"
+#include "../modules/import.h"
+#include "../smurfine.h"
+#include "../smurf_st.h"
+#include "../smurf_f.h"
 
-#include "..\smurfobs.h"
-#include "..\ext_obs.h"
+#include "../smurfobs.h"
+#include "../ext_obs.h"
 
 #define ComputeIndex3d(r,g,b)		(unsigned long)( ((unsigned int)r<<10) + ((unsigned int)g<<5) + ((unsigned int)b) )
 

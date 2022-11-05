@@ -22,14 +22,13 @@
  * ***** END LICENSE BLOCK *****
  */
 
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <stdio.h>
 #include <screen.h>
 #include <stdlib.h>
 #include <ext.h>
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "globdefs.h"
 #include "smurfine.h"
 #include "smurf_st.h"

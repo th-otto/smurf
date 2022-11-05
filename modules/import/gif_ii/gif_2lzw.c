@@ -27,7 +27,7 @@
 #include <string.h>
 #include <ext.h>
 #include <tos.h>
-#include "..\..\..\src\lib\demolib.h"
+#include "../../../src/lib/demolib.h"
 
 #define MaxStackSize	4096
 

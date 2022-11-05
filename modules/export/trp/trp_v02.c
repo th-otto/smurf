@@ -40,8 +40,8 @@
 #include <string.h>
 #include <screen.h>
 #include <portab.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 #include "trp_gfx.h"
 #include "trp_gfx.rsh"
  
@@ -261,7 +261,7 @@ bitmap->planes=1;   /* Farbebenen */
 bitmap->mode=1;     /* Kodierung: Dynamic RLE */
 bitmap->incoming=0; /* current Bitstream */
 bitmap->colormodel=0;   /* RGB-Farbmodell */
-strcpy(bitmap->text,"This bitmap was saved with Smurf\0");
+strcpy(bitmap->text,"This bitmap was saved with Smurf");
 }                               
 
 /******************************************************************/

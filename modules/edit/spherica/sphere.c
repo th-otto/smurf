@@ -36,8 +36,8 @@
 #include <aes.h>
 #include <math.h>
 #include "sym_gem.h"
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 #include "spherica.rsh"
 #include "spherica.h"
 
@@ -381,13 +381,13 @@ long xoff, yoff, linelen;
                 nz/=n_abs;
                 
 
-                /*
+#if 0
                 printf("\n nx: %.4f   gx: %.4f", nx,gx);
                 printf("\n ny: %.4f   gy: %.4f", ny,gy);
                 printf("\n nz: %.4f   gz: %.4f", nz,gz);
                 printf("\n---------------------------------------");
                 evnt_keybd();
-                */
+#endif
                 
                 /*--------------------------- Ambiente Helligkeit (0-255) */
                 rk = (int)R_AMB; 

@@ -26,8 +26,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 void    floyd1624(long *par);               /* 24&16-Bit " " mit SysPal */
 int (*set_16pixels)(char *buf16, char *dest, int depth, long planelen, int howmany);

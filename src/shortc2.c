@@ -24,7 +24,6 @@
 
 /* IS_MENU_KEY - eine Funktion um den gedrÅckten Shortcut festzustellen */
 
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <tos.h>
 #include <string.h>

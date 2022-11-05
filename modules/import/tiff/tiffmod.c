@@ -59,7 +59,7 @@
 #include <aes.h>
 #include <ext.h>
 #include <math.h>
-#include "..\..\import.h"
+#include "../../import.h"
 
 #define MOTOROLA 1
 #define INTEL 2

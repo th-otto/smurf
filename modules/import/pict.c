@@ -78,8 +78,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 #define NOMEM		0
 #define WORD_LEN	(-1)

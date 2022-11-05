@@ -29,8 +29,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <screen.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview);

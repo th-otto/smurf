@@ -33,14 +33,14 @@
 #include <stdio.h>
 #include "smurf_st.h"
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurfine.h"
 #include "smurf_f.h"
 #include "smurf.h"
 #include "vaproto.h"
 #include "globdefs.h"
 #include "destruct.h"
-#include "plugin\plugin.h"
+#include "plugin/plugin.h"
 #include "olga.h"
 #include "olgagems.h"
 #include "screen.h"
@@ -866,14 +866,14 @@ int f_handle_message(void)
 		}
 		else
 		{
-/*
+#if 0
 			Dialog.winAlert.openAlrt("Nur auf Desk-Ordner, Laufwerke, Papierkorb und andere Programme!", NULL, NULL, NULL, 1);
-	/*
+#if 0
 			printf("\nZielobjekt: %i", messagebuf[4]);
 			if((char *)*((long *)(&messagebuf[5])) !=NULL)
 				printf("\nName %s", (char*) *((long*)(&messagebuf[5])));
-	*/
-*/
+#endif
+#endif
 		}
 
 		/* av_comm l”schen, damit ich bei der n„xten msg bescheid weiž, ob sie von mir ist */

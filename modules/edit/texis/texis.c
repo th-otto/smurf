@@ -32,8 +32,8 @@
 #include <aes.h>
 #include <screen.h>
 #include <math.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "texis.rsh"
 

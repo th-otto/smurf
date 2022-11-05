@@ -33,8 +33,8 @@
 #include <tos.h>
 #include <aes.h>
 
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 extern long get_point2(void *b ,unsigned int mx,int x,int y,void *xy);
 extern long get_point2_fak(void *b ,unsigned int mx,int x,int y,void *xy);
@@ -128,7 +128,8 @@ int berechne_no_inter(int sposch,int ART,int SPALTE,
 	x2e=EX;
 	xye=(unsigned long)x2e*EY;
 
-/*	switch(rechenfarbe){
+#if 0
+	switch(rechenfarbe){
 		case 2:
 			fcopypoint = fcopypoint2;
 			break;	
@@ -173,7 +174,8 @@ int berechne_no_inter(int sposch,int ART,int SPALTE,
 		case 24000:
 			get_point = get_pointTC24;
 			break;
-	}*/
+	}
+#endif
 
 			fcopypoint = fcopypointTC24;
 			get_point = get_point256PP;
@@ -205,7 +207,8 @@ int berechne_no_inter(int sposch,int ART,int SPALTE,
 	busystart=0;
 	reset_busybox((int)busystart,"magisch aktiv...");
 
-/*	{
+#if 0
+	{
 		FILE *fh;
 		fh=fopen("c:\\bug.bug","a");
 		if(fh){
@@ -216,7 +219,8 @@ int berechne_no_inter(int sposch,int ART,int SPALTE,
 		
 			fclose(fh);
 		}
-	}*/
+	}
+#endif
 
 	yyy=1;
 	switch( ART ){

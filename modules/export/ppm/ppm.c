@@ -46,20 +46,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "ppm\de\ppm.rsh"
-	#include "ppm\de\ppm.rh"
+	#include "ppm/de/ppm.rsh"
+	#include "ppm/de/ppm.rh"
 #elif COUNTRY==0
-	#include "ppm\en\ppm.rsh"
-	#include "ppm\en\ppm.rh"
+	#include "ppm/en/ppm.rsh"
+	#include "ppm/en/ppm.rh"
 #elif COUNTRY==2
-	#include "ppm\en\ppm.rsh" /* missing french resource */
-	#include "ppm\en\ppm.rh"
+	#include "ppm/en/ppm.rsh" /* missing french resource */
+	#include "ppm/en/ppm.rh"
 #else
 #error "Keine Sprache!"
 #endif

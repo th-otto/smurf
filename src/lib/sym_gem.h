@@ -47,7 +47,6 @@
 /*  (incl. Scrolloffset) zurÅck.                                */
 typedef char**  LISTPTR;
 
-/*#include <multiaes.h>*/
 #include <aes.h>
 
 #ifndef FALSE

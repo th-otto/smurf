@@ -31,9 +31,8 @@
 #include <screen.h>
 #include <stdio.h>
 #include <string.h>
-#include "..\..\sym_gem.h"
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 char comp1[12]="Dies ist ein";
 char comp2[12]="Dummy-Export";

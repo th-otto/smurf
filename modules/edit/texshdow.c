@@ -24,12 +24,13 @@
 
 /*
       /---------------- Soft-Tex-Shadow-Modul V1.1 ---------------\
-        |                                                                                   |
-        |               FÅr SMURF Bildkonverter, 26.04.96                       |    
-        |                                                                                   |
-        |     Wirft einen weichen Schatten auf ein beliebiges           |
-        |       Hintergrundbild (wenn zu klein wird es gekachelt).      |                                                                                   |
-        |       last change: 3.04.97                                                                  |
+      |                                                           |
+      |               FÅr SMURF Bildkonverter, 26.04.96           |    
+      |                                                           |
+      |     Wirft einen weichen Schatten auf ein beliebiges       |
+      |       Hintergrundbild (wenn zu klein wird es gekachelt).  |
+      |                                                           |
+      |       last change: 3.04.97                                |
       \___________________________________________________________/
 */
 
@@ -43,8 +44,8 @@
 #include <math.h>
 
 #include "sym_gem.h"
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 /*------------------------ Funktionen -----------------------*/
 /*-----------------------------------------------------------*/

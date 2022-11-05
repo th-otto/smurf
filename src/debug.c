@@ -37,9 +37,7 @@
 
 #define SCREEN 1
 
-void write_debug(char *message);
-
-void write_debug(char *message)
+void write_debug(const char *message)
 {
 	int file;
 

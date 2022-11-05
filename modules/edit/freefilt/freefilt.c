@@ -34,8 +34,8 @@
 #include <math.h>
 
 #include "sym_gem.h"
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 #include "freefilt.rsh"
  
 #define Obj_Selected(a) (main_form[a].ob_state & SELECTED)
@@ -219,14 +219,14 @@ else if(SmurfMessage==MBEVT)
     case STRENGTH_SLIDE:    strength=slider(&strength_slider);
                                             break;
     
-    case SAVE_FILTER:    if(0 > Save_Filter("D:\\*.WF5"))
+    case SAVE_FILTER:    if(0 > Save_Filter("*.WF5"))
                                             {
                                                 /* Fehler beim Speichern */
                                             }
                                             break;
                                              
     
-    case LOAD_FILTER:   file = Load_Filter("D:\\*.WF5");
+    case LOAD_FILTER:   file = Load_Filter("*.WF5");
                                             if((long)file < 0L) 
                                             {
                                                 break;

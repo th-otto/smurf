@@ -5,6 +5,7 @@
 *.lib
 *.a
 *.sim
+*.six
 *.plg
 *.plx
 *.sxm

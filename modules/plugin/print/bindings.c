@@ -1,7 +1,7 @@
 #include <aes.h>
 #include <vdi.h>
 #include "wdialog.h"
-#include "..\..\..\src\bindings.h"
+#include "../../../src/bindings.h"
 
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 

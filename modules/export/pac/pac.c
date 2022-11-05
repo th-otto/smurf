@@ -41,20 +41,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "pac\de\pac.rsh"
-	#include "pac\de\pac.rh"
+	#include "pac/de/pac.rsh"
+	#include "pac/de/pac.rh"
 #elif COUNTRY==0
-	#include "pac\en\pac.rsh"
-	#include "pac\en\pac.rh"
+	#include "pac/en/pac.rsh"
+	#include "pac/en/pac.rh"
 #elif COUNTRY==2
-	#include "pac\en\pac.rsh" /* missing french resource */
-	#include "pac\en\pac.rh"
+	#include "pac/en/pac.rsh" /* missing french resource */
+	#include "pac/en/pac.rh"
 #else
 #error "Keine Sprache!"
 #endif

@@ -45,20 +45,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "gem_img\de\gem_img.rsh"
-	#include "gem_img\de\gem_img.rh"
+	#include "gem_img/de/gem_img.rsh"
+	#include "gem_img/de/gem_img.rh"
 #elif COUNTRY==0
-	#include "gem_img\en\gem_img.rsh"
-	#include "gem_img\en\gem_img.rh"
+	#include "gem_img/en/gem_img.rsh"
+	#include "gem_img/en/gem_img.rh"
 #elif COUNTRY==2
-	#include "gem_img\en\gem_img.rsh" /* missing french resource */
-	#include "gem_img\en\gem_img.rh"
+	#include "gem_img/en/gem_img.rsh" /* missing french resource */
+	#include "gem_img/en/gem_img.rh"
 #else
 #error "Keine Sprache!"
 #endif

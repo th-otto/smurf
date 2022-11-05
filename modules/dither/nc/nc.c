@@ -28,8 +28,8 @@
 #include <stdlib.h>
 #include <vdi.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 void    nearest_color(long *par);               /* 24&16-Bit " " mit SysPal */
 

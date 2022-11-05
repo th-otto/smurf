@@ -31,12 +31,12 @@
 #include <math.h>
 #include <screen.h>
 #include "sym_gem.h"
-#include "..\..\import.h"
-#include "..\..\..\src\smurf_st.h"
-#include "..\..\..\src\globdefs.h"
-#include "..\..\..\src\smurfine.h"
-#include "..\..\..\src\plugin\plugin.h"
-#include "..\..\..\src\rsc\smurf.h"
+#include "../../import.h"
+#include "../../../src/smurf_st.h"
+#include "../../../src/globdefs.h"
+#include "../../../src/smurfine.h"
+#include "../../../src/plugin/plugin.h"
+#include "../../../src/rsc/smurf.h"
 #undef NUM_STRINGS
 #undef NUM_FRSTR
 #undef NUM_UD
@@ -52,23 +52,23 @@
 #undef ALERT_STRINGS /* conflicts with smurf.h */
 #include "gdos.h"
 
-#include "..\..\..\src\smurfobs.h"
+#include "../../../src/smurfobs.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-    #include "deutsch.rsc\print.rsh"
-    #include "deutsch.rsc\print.rh"
+    #include "deutsch.rsc/print.rsh"
+    #include "deutsch.rsc/print.rh"
 #define TEXT1 "Drucken..."
 #define TEXT2 "Drucken: \""
 #elif COUNTRY==0
-    #include "englisch.rsc\print.rsh"
-    #include "englisch.rsc\print.rh"
+    #include "englisch.rsc/print.rsh"
+    #include "englisch.rsc/print.rh"
 #define TEXT1 "Print..."
 #define TEXT2 "Print: \""
 #elif COUNTRY==2
-    #include "englisch.rsc\print.rsh" /* missing french resource */
-    #include "englisch.rsc\print.rh"
+    #include "englisch.rsc/print.rsh" /* missing french resource */
+    #include "englisch.rsc/print.rh"
 #define TEXT1 "Print..."
 #define TEXT2 "Print: \""
 #else

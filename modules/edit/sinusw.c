@@ -64,9 +64,9 @@
 #include <screen.h>
 #include <ext.h>
 #include <math.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
-#include "..\..\src\lib\demolib.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
+#include "../../src/lib/demolib.h"
 
 #define EXTEND	0
 #define HOLD	1

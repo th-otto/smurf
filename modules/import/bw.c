@@ -45,8 +45,8 @@
 #include <string.h>
 #include <portab.h>
 
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 
 /* Infostruktur fÅr Hauptmodul */

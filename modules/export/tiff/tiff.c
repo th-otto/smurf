@@ -58,22 +58,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #define PRG		0
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "tiff\de\tiff.rsh"
-	#include "tiff\de\tiff.rh"
+	#include "tiff/de/tiff.rsh"
+	#include "tiff/de/tiff.rh"
 #elif COUNTRY==0
-	#include "tiff\en\tiff.rsh"
-	#include "tiff\en\tiff.rh"
+	#include "tiff/en/tiff.rsh"
+	#include "tiff/en/tiff.rh"
 #elif COUNTRY==2
-	#include "tiff\en\tiff.rsh" /* missing french resource */
-	#include "tiff\en\tiff.rh"
+	#include "tiff/en/tiff.rsh" /* missing french resource */
+	#include "tiff/en/tiff.rh"
 #else
 #error "Keine Sprache!"
 #endif

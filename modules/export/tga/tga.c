@@ -55,20 +55,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <screen.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "tga\de\tga.rsh"
-	#include "tga\de\tga.rh"
+	#include "tga/de/tga.rsh"
+	#include "tga/de/tga.rh"
 #elif COUNTRY==0
-	#include "tga\en\tga.rsh"
-	#include "tga\en\tga.rh"
+	#include "tga/en/tga.rsh"
+	#include "tga/en/tga.rh"
 #elif COUNTRY==2
-	#include "tga\en\tga.rsh" /* missing french resource */
-	#include "tga\en\tga.rh"
+	#include "tga/en/tga.rsh" /* missing french resource */
+	#include "tga/en/tga.rh"
 #else
 #error "Keine Sprache!"
 #endif

@@ -58,20 +58,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "bmp\de\bmp.rsh"
-	#include "bmp\de\bmp.rh"
+	#include "bmp/de/bmp.rsh"
+	#include "bmp/de/bmp.rh"
 #elif COUNTRY==0
-	#include "bmp\en\bmp.rsh"
-	#include "bmp\en\bmp.rh"
+	#include "bmp/en/bmp.rsh"
+	#include "bmp/en/bmp.rh"
 #elif COUNTRY==2
-	#include "bmp\en\bmp.rsh" /* missing french resource */
-	#include "bmp\en\bmp.rh"
+	#include "bmp/en/bmp.rsh" /* missing french resource */
+	#include "bmp/en/bmp.rh"
 #else
 #error "Keine Sprache!"
 #endif

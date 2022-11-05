@@ -28,8 +28,8 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 /* Set 16 Pixel (Standard Format) Assembler-Rout */
     int (*set_16_pixels)(char *source, char *dest, int depth, long planelen, int howmany);          

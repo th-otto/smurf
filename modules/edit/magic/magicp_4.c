@@ -36,8 +36,8 @@
 #include <aes.h>
 #include <vdi.h>
 
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 

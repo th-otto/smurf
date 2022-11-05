@@ -26,13 +26,12 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <vdi.h>
 #include <ext.h>
 #include <math.h>
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"

@@ -44,25 +44,24 @@
 
 #include <tos.h>
 #include <ext.h>
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <string.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "..\lib\sym_gem.h"
-#include "..\modules\import.h"
-#include "..\smurfine.h"
-#include "..\globdefs.h"
-#include "..\smurf_st.h"
+#include "sym_gem.h"
+#include "../modules/import.h"
+#include "../smurfine.h"
+#include "../globdefs.h"
+#include "../smurf_st.h"
 #include "smurf.h"
-#include "..\smurf_f.h"
+#include "../smurf_f.h"
 #include "plugin.h"
-#include "..\ext_rsc.h"
-#include "..\destruct.h"
+#include "../ext_rsc.h"
+#include "../destruct.h"
 
-#include "..\smurfobs.h"
-#include "..\ext_obs.h"
+#include "../smurfobs.h"
+#include "../ext_obs.h"
 
 /*
  * lokale Funktionen

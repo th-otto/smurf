@@ -29,7 +29,6 @@
 /*	Olaf Piesche													*/
 /*------------------------------------------------------------------*/
 
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <tos.h>
 #include <ext.h>
@@ -39,13 +38,13 @@
 #include <screen.h>
 
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurfine.h"
 #include "smurf_st.h"
 #include "smurf_f.h"
 #include "smurf.h"
 #include "globdefs.h"
-#include "plugin\plugin.h"
+#include "plugin/plugin.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"

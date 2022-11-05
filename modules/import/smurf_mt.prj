@@ -20,7 +20,7 @@
 ;
 ; ***** END LICENSE BLOCK *****
 
-..\..\dist\modules\import\smurf_mt.sim
+..\..\dist\modules\import\smurf_mt.six
 .C [-C -K -M -P-]
 .C [-I..\..\src\lib]
 .C [-I..\dither]
@@ -33,7 +33,6 @@ smurf_mt.c
 ;f:\daleman\smurf\setp16.S          ; setpix and getpix for standard format
 
 
-pcfltlib.lib       ; floating point library
 pcstdlib.lib       ; standard library
 pcextlib.lib       ; extended library
 pctoslib.lib       ; TOS library

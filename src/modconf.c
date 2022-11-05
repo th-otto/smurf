@@ -62,14 +62,13 @@
 
 
 #include <tos.h>
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include "smurf.h"
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "globdefs.h"
 #include "smurf_st.h"
 #include "smurf_f.h"

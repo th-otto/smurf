@@ -46,8 +46,8 @@
 #include <string.h>
 #include <screen.h>
 #include <ext.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 #include "demolib.h"
 
 void normalpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, char BitsPerPixel);

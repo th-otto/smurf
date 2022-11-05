@@ -30,16 +30,16 @@
 #include <screen.h>
 #include <string.h>
 #include <math.h>
-#include "..\lib\sym_gem.h"
-#include "..\..\modules\import.h"
-#include "..\smurf_st.h"
-#include "..\smurfine.h"
-#include "..\smurf_f.h"
+#include "sym_gem.h"
+#include "../../modules/import.h"
+#include "../smurf_st.h"
+#include "../smurfine.h"
+#include "../smurf_f.h"
 #include "smurf.h"
-#include "..\globdefs.h"
-#include "..\smurfobs.h"
-#include "..\ext_obs.h"
-#include "..\bindings.h"
+#include "../globdefs.h"
+#include "../smurfobs.h"
+#include "../ext_obs.h"
+#include "../bindings.h"
 
 
 void rotozoom(int *img, int *padr, int xstep, int xystep, int pos);

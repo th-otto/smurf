@@ -35,21 +35,21 @@
 #include <ext.h>
 #include <math.h>
 #include "sym_gem.h"
-#include "..\..\import.h"
-#include "..\..\..\src\smurf_st.h"
-#include "..\..\..\src\globdefs.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurf_st.h"
+#include "../../../src/globdefs.h"
+#include "../../../src/smurfine.h"
 #include "gdos.h"
 #include "wdialog.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "deutsch.rsc\print.h"
+	#include "deutsch.rsc/print.h"
 #elif COUNTRY==0
-	#include "englisch.rsc\print.h"
+	#include "englisch.rsc/print.h"
 #elif COUNTRY==2
-	#include "englisch.rsc\print.h" /* missing french resource */
+	#include "englisch.rsc/print.h" /* missing french resource */
 #endif
 
 extern void v_ext_opnwk(int *work_in, int *handle, int *work_out);

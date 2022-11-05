@@ -40,20 +40,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "sgi\de\sgi.rsh"
-	#include "sgi\de\sgi.rh"
+	#include "sgi/de/sgi.rsh"
+	#include "sgi/de/sgi.rh"
 #elif COUNTRY==0
-	#include "sgi\en\sgi.rsh"
-	#include "sgi\en\sgi.rh"
+	#include "sgi/en/sgi.rsh"
+	#include "sgi/en/sgi.rh"
 #elif COUNTRY==2
-	#include "sgi\en\sgi.rsh" /* missing french resource */
-	#include "sgi\en\sgi.rh"
+	#include "sgi/en/sgi.rsh" /* missing french resource */
+	#include "sgi/en/sgi.rh"
 #else
 #error "Keine Sprache!"
 #endif

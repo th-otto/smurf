@@ -31,9 +31,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "..\..\..\src\lib\sym_gem.h"
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../../src/lib/sym_gem.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 extern int (*seek_nearest_col)(long *par, int maxcol);
 void (*read_pixel)(void);

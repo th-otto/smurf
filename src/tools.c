@@ -31,14 +31,14 @@
 #include <ctype.h>
 #include "startup.h"
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurf_st.h"
 #include "smurf_f.h"
 #include "smurf.h"
 #include "globdefs.h"
 #include "vaproto.h"
 #include "bindings.h"
-#include "..\modules\dither\dit_mod.h"
+#include "../modules/dither/dit_mod.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"

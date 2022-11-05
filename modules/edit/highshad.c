@@ -39,8 +39,8 @@
 #include <screen.h>
 #include <ext.h>
 #include <math.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 MOD_INFO module_info = {"Highlight/Shadow",
 						0x0020,

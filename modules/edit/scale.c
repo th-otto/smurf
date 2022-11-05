@@ -31,8 +31,8 @@
 #include <screen.h>
 #include <ext.h>
 #include "sym_gem.h"
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 /*--------------- Funktionen -------------------*/
 /*----------------------------------------------*/
@@ -654,7 +654,7 @@ static int do_it(GARGAMEL *smurf_struct)
 	src = pic;
 	for (y = 0; y < n_height; y++)
 	{
-		scale_line(dst, src, n_width, (int)(((long) width << 10) / n_width));
+		scale_line(dst, src, n_width, ((long) width << 10) / n_width);
 		dst += n_bpl;
 		src = pic + (((long)y * height) / n_height) * bpl;
 	}

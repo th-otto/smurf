@@ -58,8 +58,8 @@
 #include <screen.h>
 #include <ext.h>
 #include <math.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 #include "demolib.h"
 
 void *(*SMalloc)(long amount);

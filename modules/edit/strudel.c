@@ -60,9 +60,9 @@
 #include <aes.h>
 #include <math.h>
 #include <screen.h>
-#include "..\..\src\lib\sym_gem.h"
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../../src/lib/sym_gem.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 
 #define betrag(a)   (a<0 ? -a : a)

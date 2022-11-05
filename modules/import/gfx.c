@@ -35,8 +35,8 @@
 #include <aes.h>
 #include <vdi.h>
 
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO	module_info={

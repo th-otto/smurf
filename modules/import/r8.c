@@ -45,8 +45,8 @@
 #include <screen.h>
 #include <stdio.h>
 #include <string.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 void *fload(char *Path, int header);
 int strsrcr(char *s, char c);

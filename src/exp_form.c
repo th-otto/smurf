@@ -32,14 +32,13 @@
 /**************************************************************	*/
 
 #include <tos.h>
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"

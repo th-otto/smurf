@@ -30,14 +30,14 @@
 #include <errno.h>
 #include <screen.h>
 #include "sym_gem.h"
-#include "..\..\import.h"
-#include "..\..\..\src\smurf_st.h"
-#include "..\..\..\src\rsc\smurf.h"
-#include "..\..\..\src\smurfine.h"
-#include "..\..\..\src\globdefs.h"
-#include "..\..\..\src\plugin\plugin.h"
-#include "..\..\..\src\popdefin.h"
-#include "..\..\..\src\smurfobs.h"
+#include "../../import.h"
+#include "../../../src/smurf_st.h"
+#include "../../../src/rsc/smurf.h"
+#include "../../../src/smurfine.h"
+#include "../../../src/globdefs.h"
+#include "../../../src/plugin/plugin.h"
+#include "../../../src/popdefin.h"
+#include "../../../src/smurfobs.h"
 
 #undef INFOICON /* conflicts with smurf.h */
 #undef DITHER_CB /* conflicts with smurf.h */

@@ -54,8 +54,8 @@
 #include <string.h>
 #include <screen.h>
 #include <ext.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 MOD_INFO module_info = {TEXT1,
 						0x0020,

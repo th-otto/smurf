@@ -57,9 +57,9 @@
 #include <string.h>
 #include <screen.h>
 #include <ext.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
-#include "..\..\src\lib\demolib.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
+#include "../../src/lib/demolib.h"
 
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);

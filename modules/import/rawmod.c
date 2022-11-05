@@ -28,8 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 
 /* Infostruktur fr Hauptmodul */
@@ -73,7 +73,7 @@ char    *buffer, *Daten;
 int width=0, height=0, BitsPerPixel, colors;
 buffer=smurf_struct->smurf_pic->pic_data;
 if (strncmp(buffer,"mhwanh",6)!=0)
-    form_alert(1,"[1][ Kein RAW Format ]\[ Stop ]");
+    form_alert(1,"[1][ Kein RAW Format ][ Stop ]");
 else {
     width=(*(buffer+8)<<8)+*(buffer+9);
     height=(*(buffer+8)<<10)+*(buffer+11);

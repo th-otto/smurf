@@ -32,7 +32,7 @@
 #include <screen.h>
 #include "smurf_st.h"
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurfine.h"
 #include "smurf_f.h"
 #include "globdefs.h"

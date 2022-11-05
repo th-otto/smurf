@@ -34,13 +34,12 @@
 /* Statusabfrage:	if( OBJEKTBAUM [BUTTON-OBJEKT].ob_state & SELECTED) */
 /*					-> 1=selektiert, 0=unselektiert						*/
 
-/*#include <multiaes.h> why both originally ? */
 #include <aes.h>
 #include <vdi.h>
 #include <stdio.h>
 #include "sym_gem.h"
 #include "smurf.h"
-#include "..\..\modules\import.h"
+#include "../../modules/import.h"
 
 #define RADIOBUTTON   	43		/* Oberes Byte.... */
 #define CHECKBOX  		44		/* FÅr den Res-Editor */

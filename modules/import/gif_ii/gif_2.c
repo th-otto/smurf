@@ -56,10 +56,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 #include "gif.h"
-#include "..\..\..\src\lib\demolib.h"
+#include "../../../src/lib/demolib.h"
 
 #define _LSCRDES	7			/* ist wegen des auffÅllens der Strukturen */
 #define _IMAGE_DES	10			/* von Compilerseite her leider nîtig */

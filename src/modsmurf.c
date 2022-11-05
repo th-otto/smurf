@@ -40,7 +40,6 @@
 #include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <vdi.h>
 #include <ext.h>
@@ -48,13 +47,13 @@
 #include "demolib.h"
 #include <errno.h>
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"
 #include "smurf_f.h"
 #include "popdefin.h"
-#include "plugin\plugin.h"
+#include "plugin/plugin.h"
 #include "olgagems.h"
 #include "smurfobs.h"
 #include "ext_obs.h"

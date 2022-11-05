@@ -30,12 +30,12 @@
 #include <ext.h>
 #include <math.h>
 #include "sym_gem.h"
-#include "..\..\import.h"
-#include "..\..\..\src\smurf_st.h"
-#include "..\..\..\src\globdefs.h"
-#include "..\..\..\src\smurfine.h"
-#include "..\..\..\src\plugin\plugin.h"
-#include "..\..\..\src\rsc\smurf.h"
+#include "../../import.h"
+#include "../../../src/smurf_st.h"
+#include "../../../src/globdefs.h"
+#include "../../../src/smurfine.h"
+#include "../../../src/plugin/plugin.h"
+#include "../../../src/rsc/smurf.h"
 #undef NUM_STRINGS
 #undef NUM_FRSTR
 #undef NUM_UD
@@ -52,21 +52,21 @@
 #include "gdos.h"
 #include "wdialog.h"
 
-#include "..\..\..\src\smurfobs.h"
+#include "../../../src/smurfobs.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-    #include "deutsch.rsc\printw.rsh"
-    #include "deutsch.rsc\printw.rh"
+    #include "deutsch.rsc/printw.rsh"
+    #include "deutsch.rsc/printw.rh"
 #define TEXT1 "Drucken..."
 #elif COUNTRY==0
-    #include "englisch.rsc\printw.rsh"
-    #include "englisch.rsc\printw.rh"
+    #include "englisch.rsc/printw.rsh"
+    #include "englisch.rsc/printw.rh"
 #define TEXT1 "Print..."
 #elif COUNTRY==2
-    #include "englisch.rsc\printw.rsh" /* missing french resource */
-    #include "englisch.rsc\printw.rh"
+    #include "englisch.rsc/printw.rsh" /* missing french resource */
+    #include "englisch.rsc/printw.rh"
 #define TEXT1 "Print..."
 #else
 #error "Keine Sprache!"

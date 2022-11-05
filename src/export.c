@@ -23,7 +23,6 @@
  */
 
 #include <tos.h>
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <vdi.h>
 #include <stdio.h>
@@ -33,7 +32,7 @@
 #include <ext.h>
 #include "smurf.h"
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "popdefin.h"

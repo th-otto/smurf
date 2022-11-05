@@ -52,20 +52,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <screen.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "gif\de\gif.rsh"
-	#include "gif\de\gif.rh"
+	#include "gif/de/gif.rsh"
+	#include "gif/de/gif.rh"
 #elif COUNTRY==0
-	#include "gif\en\gif.rsh"
-	#include "gif\en\gif.rh"
+	#include "gif/en/gif.rsh"
+	#include "gif/en/gif.rh"
 #elif COUNTRY==2
-	#include "gif\en\gif.rsh" /* missing french resource */
-	#include "gif\en\gif.rh"
+	#include "gif/en/gif.rsh" /* missing french resource */
+	#include "gif/en/gif.rh"
 #else
 #error "Keine Sprache!"
 #endif

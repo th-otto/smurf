@@ -43,8 +43,8 @@
 #include <stdlib.h>
 #include <ext.h>
 
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 
 MOD_INFO module_info=

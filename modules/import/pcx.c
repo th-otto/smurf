@@ -47,13 +47,13 @@
 #error "Keine Sprache!"
 #endif
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<tos.h>
-#include<ext.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <tos.h>
+#include <ext.h>
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 #define DEBUG	0
 #define	PCX		1

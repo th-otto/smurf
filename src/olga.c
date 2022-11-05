@@ -30,13 +30,13 @@
 #include <stdio.h>
 #include <ext.h>
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "smurf_st.h"
 #include "smurf.h"
 #include "smurf_f.h"
-#include "plugin\plugin.h"
+#include "plugin/plugin.h"
 #include "ext_rsc.h"
 #include "olga.h"
 #include "bindings.h"

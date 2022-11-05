@@ -39,7 +39,6 @@
 #include <string.h>
 #include <screen.h>
 #include <stdio.h>
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <stdlib.h>
 #include <vdi.h>
@@ -47,7 +46,7 @@
 #include <math.h>
 #include "demolib.h"
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"

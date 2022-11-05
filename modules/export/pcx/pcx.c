@@ -40,20 +40,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "pcx\de\pcx.rsh"
-	#include "pcx\de\pcx.rh"
+	#include "pcx/de/pcx.rsh"
+	#include "pcx/de/pcx.rh"
 #elif COUNTRY==0
-	#include "pcx\en\pcx.rsh"
-	#include "pcx\en\pcx.rh"
+	#include "pcx/en/pcx.rsh"
+	#include "pcx/en/pcx.rh"
 #elif COUNTRY==2
-	#include "pcx\en\pcx.rsh" /* missing french resource */
-	#include "pcx\en\pcx.rh"
+	#include "pcx/en/pcx.rsh" /* missing french resource */
+	#include "pcx/en/pcx.rh"
 #else
 #error "Keine Sprache!"
 #endif

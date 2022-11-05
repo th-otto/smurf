@@ -45,9 +45,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <screen.h>
-#include "..\..\src\lib\sym_gem.h"
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../../src/lib/sym_gem.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 
 /*------ Infostruktur fÅr Hauptprogramm -----*/

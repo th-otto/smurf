@@ -47,8 +47,8 @@
 #include <aes.h>
 #include <vdi.h>
 
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 char orgft[3*16]={
 255,255,255,

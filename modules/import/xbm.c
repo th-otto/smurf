@@ -39,8 +39,8 @@
 #include <screen.h>
 #include <stdio.h>
 #include <string.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 #define START	'{'
 #define END		'}'

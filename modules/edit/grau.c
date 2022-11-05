@@ -92,9 +92,9 @@
 #include <string.h>
 #include <screen.h>
 #include <ext.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
-#include "..\..\SRC\LIB\demolib.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
+#include "../../src/lib/demolib.h"
 
 
 void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);

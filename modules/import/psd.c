@@ -51,8 +51,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "..\import.h"
-#include "..\..\src\smurfine.h"
+#include "../import.h"
+#include "../../src/smurfine.h"
 
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);

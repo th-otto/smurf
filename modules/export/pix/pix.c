@@ -41,20 +41,20 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "..\..\import.h"
-#include "..\..\..\src\smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "pix\de\pix.rsh"
-	#include "pix\de\pix.rh"
+	#include "pix/de/pix.rsh"
+	#include "pix/de/pix.rh"
 #elif COUNTRY==0
-	#include "pix\en\pix.rsh"
-	#include "pix\en\pix.rh"
+	#include "pix/en/pix.rsh"
+	#include "pix/en/pix.rh"
 #elif COUNTRY==2
-	#include "pix\en\pix.rsh" /* missing french resource */
-	#include "pix\en\pix.rh"
+	#include "pix/en/pix.rsh" /* missing french resource */
+	#include "pix/en/pix.rh"
 #else
 #error "Keine Sprache!"
 #endif

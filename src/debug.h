@@ -43,4 +43,5 @@
 	#define DEBUG_MSG(x)
 #endif
 
+void write_debug(const char *message);
 void DebugMsg( char *str, ... );
