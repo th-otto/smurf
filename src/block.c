@@ -23,7 +23,6 @@
  */
 
 #include <tos.h>
-/*#include <multiaes.h>*/
 #include <aes.h>
 #include <vdi.h>
 #include <stdio.h>
@@ -33,7 +32,7 @@
 #include <ext.h>
 #include "smurf.h"
 #include "sym_gem.h"
-#include "..\modules\import.h"
+#include "../modules/import.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "popdefin.h"
@@ -46,7 +45,6 @@
 #include "demolib.h"
 
 
-extern	void blockfunctions_off(void);
 extern	void f_display_bwh(WINDOW *pic_window);
 
 extern	SMURF_PIC *smurf_picture[25];
@@ -64,24 +62,21 @@ extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
 extern	int	obj;
 
 /*------------ kloake Funktionen -----------*/
-void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels);
-void *copyblock(SMURF_PIC *old_pic);
-void get_blockcoords(SMURF_PIC *pic, int button);
-void insert_blockcoords(SMURF_PIC *pic);
-int clear_scrap(void);
-int insert_block(WINDOW *picwindow);
-int intersect_block(SMURF_PIC *picture);
+extern void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels);
+
+static int intersect_block(SMURF_PIC *picture);
 
 long block_opac, opac2;
 
 GRECT block;
 
-void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
-void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
-void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
-void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
-void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
-void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
+static void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
+static void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
+static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
+static void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
+static void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
+static void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
+static void get_blockcoords(SMURF_PIC *pic, int button);
 
 /******************************************************************	*/
 /*							Block freistellen						*/
@@ -145,9 +140,7 @@ void block_freistellen(WINDOW *pwindow)
 
 	Dialog.busy.ok();
 	Dialog.busy.dispRAM();
-
-	return;
-} /* block_freistellen */
+}
 
 
 /* ------------------------------------------------------------	*/
@@ -166,8 +159,6 @@ int block2clip(SMURF_PIC *picture, int mode, char *path)
 	long bytes_blockline, bytes_per_line, bytes_set, yoff, planeoff, planelen;
 
 	EXPORT_PIC *pic_to_save;
-
-
 
 	if(encode_block(picture, &pic_to_save) != 0)
 		return(-1);
@@ -252,18 +243,16 @@ int block2clip(SMURF_PIC *picture, int mode, char *path)
 	Dialog.busy.dispRAM();
 
 	return(0);
-} /* block2clip */
+}
 
 
 /* ------------------------------------------------------------	*/
 /*		clear_scrap - Clipboard komplett l”schen 				*/
 /* ------------------------------------------------------------	*/
-int clear_scrap(void)
+static int clear_scrap(void)
 {
 	char *filename;
-
 	DTA *dta;
-
 
 	if(Sys_info.scrp_path == NULL)
 		return(-1);
@@ -286,7 +275,7 @@ int clear_scrap(void)
 	free(filename);
 	
 	return(0);
-} /* clear_scrap */
+}
 
 
 /* ------------------------------------------------------------	*/
@@ -390,7 +379,7 @@ void *copyblock(SMURF_PIC *old_pic)
 	Dialog.busy.dispRAM();
 
 	return(dest_pic);
-} /* copyblock */
+}
 
 
 /* ------------------------------------------------------------	*/
@@ -401,12 +390,9 @@ void block_type_in(void)
 	int button=0;
 	int my_scancode;
 
-	extern	void blockfunctions_on(void);
-
 	OBJECT *bwindow;
 	SMURF_PIC *pic;
 	WINDOW *blockwin;
-
 
 	my_scancode=(key_scancode&0xff00) >> 8;
 
@@ -470,16 +456,14 @@ void block_type_in(void)
 		blockfunctions_off();
 	else
 		blockfunctions_on();
-
-	return;
-} /* block_type_in */
+}
 
 
 /* get_blockcoords --------------------------------------------------------------
 	bernimmt die im Blockeingabefenster eingetragenen Blockkoordinaten in die
 	bergebene SMURF_PIC-Struktur und zeichnet das aktive Bildfenster neu.	
 	-----------------------------------------------------------------------------*/
-void get_blockcoords(SMURF_PIC *pic, int button)
+static void get_blockcoords(SMURF_PIC *pic, int button)
 {
 	long val;
 
@@ -579,9 +563,7 @@ void get_blockcoords(SMURF_PIC *pic, int button)
 	 * Blockbox neu zeichnen
 	 */
 	Window.redraw(&picture_windows[active_pic], NULL, 0, DRAWNOTREE|BLOCK_ONLY|DRAWNOBLOCK);
-
-	return;
-} /* get_blockcoords */
+}
 
 
 /* insert_blockcoords --------------------------------------------------------------
@@ -611,9 +593,7 @@ void insert_blockcoords(SMURF_PIC *pic)
 		f_txtinsert(pic->blockheight + pic->blocky - 1, bwindow, BLOCK_YRU, blockwin);
 	else
 		f_txtinsert(0, bwindow, BLOCK_YRU, blockwin);
-
-	return;
-} /* insert_blockcoords */
+}
 
 
 /* void block_dklick(WINDOW *picwindow) ------------------------------------
@@ -728,9 +708,7 @@ void block_dklick(WINDOW *picwindow)
 
 		Dialog.busy.ok();
 	}
-
-	return;
-} /* block_dklick */
+}
 
 
 /* clip2block() ------------------------------------------------------------------
@@ -847,9 +825,7 @@ void clip2block(SMURF_PIC *picture, char *data, int mx, int my)
 
 	Dialog.busy.ok();
 	Dialog.busy.dispRAM();
-
-	return;
-} /* clip2block */
+}
 
 
 /* insert_block() -------------------------------------------------------------
@@ -1161,10 +1137,10 @@ int insert_block(WINDOW *picwindow)
 	Dialog.busy.dispRAM();
 
 	return(0);
-} /* insert_block */
+}
 
 
-void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	unsigned char *pic;
 	unsigned int *p16, *b16, x;
@@ -1222,10 +1198,10 @@ void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned int num,
 	}
 
 	return;
-} /* insertline_replace */
+}
 
 
-void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	unsigned char *pic;
 	unsigned int *p16, *b16, x;
@@ -1285,12 +1261,10 @@ void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int num, lon
 			}
 		}
 	}
-
-	return;
-} /* insertline_add */
+}
 
 
-void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	unsigned char *pic;
 	unsigned int *p16, *b16, x;
@@ -1366,10 +1340,10 @@ void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned int num,
 	}
 
 	return;
-} /* insertline_clipadd */
+}
 
 
-void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	unsigned char *pic;
 	unsigned int *p16, *b16, x;
@@ -1429,12 +1403,10 @@ void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int num, lon
 			}
 		}
 	}
-
-	return;
-} /* insertline_sub */
+}
 
 
-void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	unsigned char *pic;
 	unsigned int *p16, *b16, x;
@@ -1508,12 +1480,10 @@ void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned int num,
 			}
 		}
 	}
-
-	return;
-} /* insertline_clipsub */
+}
 
 
-void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	unsigned char *pic;
 	unsigned int *p16, *b16, x;
@@ -1578,7 +1548,7 @@ void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int num, lo
 	}
 
 	return;
-} /* insertline_mult */
+}
 
 
 void blockmode(void)
@@ -1633,13 +1603,12 @@ void blockmode(void)
 		Dialog.close(WIND_BLOCKMODE);
 
 	return;
-} /* blockmode */
+}
 
 
 void blockfunctions_on(void)
 {
 	extern OBJECT *menu_tree;
-
 
 	if(Sys_info.scrp_path != NULL)
 	{
@@ -1655,15 +1624,12 @@ void blockfunctions_on(void)
 
 	menu_ienable(menu_tree, EDIT_CROP, 1);
 	menu_ienable(menu_tree, EDIT_RELEASE, 1);
-
-	return;
-} /* blockfunctions_on */
+}
 
 
 void blockfunctions_off(void)
 {
 	extern OBJECT *menu_tree;
-
 
  	if(Sys_info.scrp_path != NULL)
  	{
@@ -1681,9 +1647,7 @@ void blockfunctions_off(void)
 
 	menu_ienable(menu_tree, EDIT_CROP, 0);
 	menu_ienable(menu_tree, EDIT_RELEASE, 0);
-
-	return;
-} /* blockfunctions_off */
+}
 
 
 int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
@@ -1770,7 +1734,7 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 	}
 
 	return(back);
-} /* encode_block */
+}
 
 
 /* save_block -------------------------------------------------------
@@ -1837,7 +1801,7 @@ set_free:
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EXP_MFREE_ERR].TextCast, NULL, NULL, NULL, 1);
 
 	return(0);
-} /* save_block */
+}
 
 
 void block_over_all(WINDOW *window)
@@ -1857,12 +1821,10 @@ void block_over_all(WINDOW *window)
 	Window.redraw(window, NULL, 0, 0);
 
 	blockfunctions_on();
-
-	return;
-} /* new_block */
+}
 
 
-int intersect_block(SMURF_PIC *picture)
+static int intersect_block(SMURF_PIC *picture)
 {
 	int x, y, w, h;
 
@@ -1878,4 +1840,4 @@ int intersect_block(SMURF_PIC *picture)
 	block.g_h = h - y;
 
 	return((w > x) && (h > y));
-} /* intersect_block */
+}

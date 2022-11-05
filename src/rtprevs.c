@@ -48,9 +48,6 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-void *copyblock(SMURF_PIC *old_pic);
-int insert_block(WINDOW *picwindow);
-
 /*
  * fÅrs RT-Blockpreview:
  * kopiert den Bereich blockpart aus Bild und Block in Puffer und rechnet

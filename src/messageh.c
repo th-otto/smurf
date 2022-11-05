@@ -131,9 +131,8 @@ int f_handle_message(void)
 	
 	extern int mouse_xpos, mouse_ypos;
 
-	extern	void blockfunctions_off(void);
 	extern	void terminate_plugin(int index);
-	void scrollWindowRT(WINDOW *window, int xamount, int yamount);
+	extern void scrollWindowRT(WINDOW *window, int xamount, int yamount);
 	
 	aes_red.g_x = 0;
 	aes_red.g_y = 0;

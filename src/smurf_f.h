@@ -337,12 +337,16 @@ int find_crosshair(WINDOW *window);         /* findet eine Fadenkreuzstruktur zu
 /*      "Um den n„chsten Block und dann links abbiegen..."              */
 /* **********************************************************************/
 
-void    f_draw_blockbox(WINDOW *window);
-void    draw_block(WINDOW *window, GRECT *picbox);
+void f_draw_blockbox(WINDOW *window);
+void draw_block(WINDOW *window, GRECT *picbox);
 
-void    block_freistellen(WINDOW *pwindow);
-void    block_type_in(void);
-void    blockmode(void);
+void block_freistellen(WINDOW *pwindow);
+void block_type_in(void);
+void blockmode(void);
+void blockfunctions_off(void);
+void blockfunctions_on(void);
+void block_over_all(WINDOW *window);
+void insert_blockcoords(SMURF_PIC *pic);
 
 int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save);
 int save_block(EXPORT_PIC *pic_to_save, char *path);
@@ -353,6 +357,9 @@ void clip2block(SMURF_PIC *picture, char *data, int mx, int my);
 void    f_draw_crosshair(WINDOW *window);       /* Positionierungskreuz in einem Bild zeichnen */
 
 SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart);
+void *copyblock(SMURF_PIC *old_pic);
+int insert_block(WINDOW *picwindow);
+void block_dklick(WINDOW *picwindow);
 
 /* **********************************************************************/
 /* ------------------------------ Statusbox --------------------------- */

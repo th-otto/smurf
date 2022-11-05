@@ -68,18 +68,15 @@ int crosshair_mouse(WINDOW *window, int mx, int my);
 void move_crosshair(WINDOW *window);
 void f_block_popup(WINDOW *picwindow);
 void pic_popup(WINDOW *picwindow);
-void do_block_box(WINDOW *picwindow, int mx, int my);
-void blockfunctions_off(void);
-void blockfunctions_on(void);
 void reload_pic(WINDOW *picwindow);
-void blockmode(void);
 void drop_block(WINDOW *picwindow, int mx, int my);
 int mouse_block_position(WINDOW *picwindow, int mx, int my, int *hmode, int *vmode);
 void f_display_bwh(WINDOW *pic_window);
 
+static void do_block_box(WINDOW *picwindow, int mx, int my);
+
 
 /*----------- externe Funktionen -----------------------------*/
-extern	void insert_blockcoords(SMURF_PIC *pic);
 extern	void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
 extern	void getpix_std_1(char *std, int *pixval, int depth, long planelen, int which);
 extern	int duplicate_pic(WINDOW *window);
@@ -109,7 +106,6 @@ void f_pic_event(WINDOW *picwindow, int event_type, int windnum)
 	OBJECT *pic_form;
 	static WINDOW *oldwindow;
 
-	extern void block_dklick(WINDOW *picwindow);
 	extern int active_pic;
 
 
@@ -664,7 +660,7 @@ void f_block_popup(WINDOW *picwindow)
 /*	werden, wird innerhalb des Frames geklickt, kann er bewegt 			*/
 /*	werden.																				*/
 /* ----------------------------------------------------------------	*/
-void do_block_box(WINDOW *picwindow, int mx, int my)
+static void do_block_box(WINDOW *picwindow, int mx, int my)
 {
 	int n_mx, n_my, new_block, oldblock = 0;
 	int mbutton, move_x, move_y, dummy;
@@ -1258,7 +1254,7 @@ void do_block_box(WINDOW *picwindow, int mx, int my)
 		Window.redraw(Dialog.picMan.window, NULL, PICMAN_PREVIEW, 0);
 
 	return;
-} /* do_block_box */
+}
 
 
 /*-------------------------------------------------------------------------------------
