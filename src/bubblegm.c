@@ -37,7 +37,6 @@
 #include "smurf_f.h"
 #include "popdefin.h"
 #include "plugin\plugin.h"
-#include <mint/arch/nf_ops.h>
 
 #include "xrsrc.h"
 #include "globdefs.h"
@@ -161,7 +160,6 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 	if (window == NULL || window->shaded)
 		return;
 	klickobj = objc_find(window->resource_form, 0, MAX_DEPTH, xpos, ypos);
-	nf_debugprintf("bubble: window=%d modulemode=%d obj=%d\n", windownum, modulemode, klickobj);
 	if (klickobj < 0)
 		return;
 
