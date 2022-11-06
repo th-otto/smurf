@@ -83,8 +83,9 @@ char *ENV_avserver;
 /* ------------------------------------------------------------	*/
 static int open_vwork(void);						/* Virt. Workstation */
 static int copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic);
+static void insert_float(OBJECT *tree, int object, float val);
+static int do_MBEVT(int module_number, WINDOW *mod_win, int mode);
 
-extern	void	scan_plugins(void);
 
 /* ------------------------------------------------------------*/
 /*		 			Globale Variablendeklaration			   */
@@ -246,7 +247,6 @@ int main(int argc, const char *argv[])
 	extern void *edit_cnfblock[100];
 
 	GRECT desk;
-	extern EXPORT_CONFIG exp_conf;
 	extern int decode(char *string);
 
 
@@ -839,8 +839,6 @@ void f_pic_info(void)
 		restore_display(&old);
 #endif
 	}
-
-	return;
 }
 
 
@@ -860,10 +858,6 @@ void f_newpic(int scancode)
 	float oldwid, oldhgt, newwid, newhgt, conv_factor;
 
 	OBJECT *new_form;
-
-	float convert_units(int oldunit, int newunit, float dpi);
-	void insert_float(OBJECT *tree, int object, float val);
-
 
 	new_form = wind_s[WIND_NEWPIC].resource_form;
 
@@ -960,9 +954,7 @@ void f_newpic(int scancode)
 				Window.redraw(&wind_s[WIND_NEWPIC], NULL, NEWPIC_HGT, 0);
 			}
 		}
-
-	return;
-} /* f_newpic */
+}
 
 
 /*---------------------------------------------------------------------------------	*/
@@ -970,7 +962,7 @@ void f_newpic(int scancode)
 /*	fÅgt eine 64Bit-Flieûkommazahl val als Text in den Objektbaum tree, TEXTobjekt	*/
 /*	ein. Der String hat hinterher grundsÑtzlich 9 Stellen, bei variabler Mantisse.	*/
 /*---------------------------------------------------------------------------------	*/
-void insert_float(OBJECT *tree, int object, float val)
+static void insert_float(OBJECT *tree, int object, float val)
 {
 	char str[10], str2[10];
 
@@ -996,9 +988,7 @@ void insert_float(OBJECT *tree, int object, float val)
 	strcat(str2, str + dec);
 
 	strncpy(tree[object].TextCast, str2, 9);
-
-	return;
-} /* insert_float */
+}
 
 
 
@@ -1092,7 +1082,7 @@ SMURF_PIC *f_generate_newpic(int wid, int hgt, int depth)
 	}
 	
 	return(smurf_picture[pic_to_make]);
-} /* f_generate_newpic */
+}
 
 
 
@@ -1123,8 +1113,6 @@ void make_smurf_pic(int pic_to_make, int wid, int hgt, int depth, char *picdata)
 		smurf_picture[pic_to_make]->format_type = FORM_STANDARD;
 	else
 		smurf_picture[pic_to_make]->format_type = FORM_PIXELPAK;
-
-	return;
 }
 
 
@@ -1191,8 +1179,6 @@ void make_pic_window(int pic_to_make, int wid, int hgt, char *name)
 	picture_windows[pic_to_make].picture->blockwidth = 0;
 	picture_windows[pic_to_make].picture->blockheight = 0;
 	picture_windows[pic_to_make].pflag = 1;
-
-	return;
 }
 
 
@@ -1692,9 +1678,7 @@ void f_event(void)
 		} /* if(!(back&MU_MESAG)) */
 		
 	} while(message_back != PRG_CLOSED);
-
-	return;
-} /* f_event */
+}
 
 
 
@@ -1704,7 +1688,7 @@ void f_event(void)
 /*	Åbergeben, bei Return von M_STARTED werden die vom Modul benîtigten		*/
 /*	Bilder ans Modul Åbergeben bzw. konvertiert und das Modul gestartet.	*/
 /* ------------------------------------------------------------------------	*/
-int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
+static int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 {
 	char *textseg_begin;
 	char *picture;
@@ -1912,7 +1896,7 @@ int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 	Window.topHandle(oldtop);
 	Dialog.busy.dispRAM();
 	return(0);
-} /* do_MBEVT */
+}
 
 
 
@@ -2017,8 +2001,6 @@ void f_info(void)
 			timer_fx_rout[0] = NULL;
 			deinit_roto();
 		}
-
-	return;
 }
 					
 
@@ -2035,9 +2017,6 @@ void check_windclose(int windnum)
 	int module_number;
 	int whandle;
 	int sel_option;
-
-	extern EXPORT_CONFIG exp_conf;
-	extern BLOCKMODE blockmode_conf;
 
 	WINDOW *window_to_handle;
 	OBJECT *rsc, *rsc2;
@@ -2176,8 +2155,6 @@ void check_windclose(int windnum)
 			deinit_roto();
 			break;
 	}
-
-	return;
 }
 
 
@@ -2304,7 +2281,7 @@ int f_loadpic(char *pic, char *picpath)
 	timer_fx_rout[1]=(void(*)())Dialog.busy.ok;
 	
 	return(back);							/* und zurÅck*/
-} /* f_loadpic */
+}
 
 
 /* --------------------------------------------------------------- */
@@ -2432,7 +2409,7 @@ int f_formhandle(int picture_to_load, int module_ret, char *namename)
 	}
 
 	return(back);
-} /* f_formhandle */
+}
 
 
 /* ************************************************************** */
@@ -2593,7 +2570,7 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 	}
 
 	return(module_ret);
-} /* f_import_pic */
+}
 
 
 /* ******************************************************************/
@@ -2601,7 +2578,7 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 /*	Handled Radiobuttons und setzt globale Variable button beim		*/
 /*	DrÅcken von RETURN, îffnet oder toppt das Dialogfenster.		*/
 /* ******************************************************************/
-int	init_dialog(int DialogNumber, int DialogOK)
+int init_dialog(int DialogNumber, int DialogOK)
 {
 	int button;
 
@@ -2631,7 +2608,6 @@ int	init_dialog(int DialogNumber, int DialogOK)
 void close_dialog(int windnum)
 {
 	WINDOW *wind;
-
 
 	wind = &wind_s[windnum];
 
@@ -2842,7 +2818,7 @@ int f_init_system(void)
 void f_init_palette(void)
 {
 	int rgb[3];
-	register int t;
+	int t;
 
 
 	for(t = 0; t <= Sys_info.Max_col; t++)
@@ -2874,9 +2850,6 @@ char *f_init_table(void)
 {
 	char tablename[256], bpstring[8];
 	char *palbuf, *access_table, *pltab;
-
-	extern void makeNCT(long *par, int maxcol);
-
 
 	int redcomp[256];
 	int grncomp[256];
@@ -3069,7 +3042,7 @@ char *f_init_table(void)
 	DEBUG_MSG(("f_init_table...Ende\n"));
 
 	return(access_table);
-} /* f_init_table */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -3110,9 +3083,7 @@ void f_init_bintable(OBJECT *rsc)
 	}
 
 	graf_mouse(M_ON, dummy_ptr);
-
-	return;
-} /* f_init_bintable */
+}
 
 
 void shutdown_smurf(char while_startup)
@@ -3252,7 +3223,7 @@ End_Only:
 	xrsrc_free(resource_global);
 	v_clsvwk(handle); 
 	appl_exit();
-} /* shutdown_smurf */
+}
 
 
 /* Legt eine Kopie des Åbergebenen Bildes an */
@@ -3294,7 +3265,7 @@ int duplicate_pic(WINDOW *window)
 	active_pic = pic_to_make;
 
 	return(0);	
-} /* duplicate_pic */
+}
 
 
 /* kopiert eine in picture Åbergebene SMURF_PIC-Struktur. */
@@ -3385,4 +3356,4 @@ static int copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic)
 	(*new_pic)->next_picture = NULL;
 
 	return(0);
-} /* copy_smurfpic */
+}

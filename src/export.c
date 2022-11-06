@@ -92,8 +92,6 @@ void f_export_pic(void)
 	int my_scancode;
 
 	static MOD_ABILITY expmabs;
-	extern void	prepare_depthpopup(void);
-
 
 	my_scancode = key_scancode >> 8;
 	info = Dialog.expmodList.tree[EXMOD_INFO].ob_state&SELECTED;
@@ -323,9 +321,7 @@ void f_export_pic(void)
 			}
 		}
 	}
-
-	return;
-} /* f_export_pic */
+}
 
 
 /* save_file -----------------------------------------------------
@@ -444,9 +440,7 @@ void save_file(void)
 			f_save_pic(&expmabs);
 		}
 	}
-
-	return;
-} /* save_file */
+}
 
 
 /*-----------------------------------------------------------------	*/
@@ -724,7 +718,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	Dialog.busy.ok();
 
 	return(0);
-} /* f_save_pic */
+}
 
 
 /********************************************************************/
@@ -738,8 +732,6 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 /********************************************************************/
 int dither_for_export(MOD_ABILITY *mod_abs, int max_expdepth, int dest_format, SMURF_PIC *converted_pic)
 {
-	extern int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MODES *display, 
-								int *fixpal_red, int *fixpal_green, int *fixpal_blue);
 	char *dest_pal, dest_depth, dest_form;
 	int t;
 	SYSTEM_INFO	Cheat_sysinfo;
@@ -811,7 +803,7 @@ int dither_for_export(MOD_ABILITY *mod_abs, int max_expdepth, int dest_format, S
 	}
 
 	return(0);
-} /* dither_for_export */
+}
 
 
 
@@ -931,8 +923,6 @@ void exmod_info_off(void)
 
 		change_object(&wind_s[WIND_EXPORT], EXMOD_INFO, UNSEL, 0);
 	}
-
-	return;
 }
 
 

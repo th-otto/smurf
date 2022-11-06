@@ -46,8 +46,6 @@ void nvdi5_raster(SMURF_PIC *picture, char *ziel, int zoom);
 unsigned int swap_word(unsigned int w)
 	0xE058;
 
-extern	int bplanes;
-
 typedef struct
 {
 	char Intel;
@@ -58,14 +56,14 @@ typedef struct
 } SERVICE;
 
 
-void d24_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service);
-void d24_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service);
-void d16_to_16(unsigned int *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service);
-void d16_to_24(unsigned int *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service);
-void d8pp_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service, char *palette);
-void d8pp_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service, char *palette);
-void dstd_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, unsigned int realwidth, unsigned int realheight, SERVICE *service, char *palette, char BitsPerPixel);
-void dstd_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, unsigned int realwidth, unsigned int realheight, SERVICE *service, char *palette, char BitsPerPixel);
+static void d24_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service);
+static void d24_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service);
+static void d16_to_16(unsigned int *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service);
+static void d16_to_24(unsigned int *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service);
+static void d8pp_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service, char *palette);
+static void d8pp_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service, char *palette);
+static void dstd_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, unsigned int realwidth, unsigned int realheight, SERVICE *service, char *palette, char BitsPerPixel);
+static void dstd_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, unsigned int realwidth, unsigned int realheight, SERVICE *service, char *palette, char BitsPerPixel);
 
 
 /*--------------------------------------------------------------*/
@@ -301,17 +299,17 @@ void direct2screen(SMURF_PIC *picture, char *where_to, GRECT *part)
 	}
 
 
-/* wie schnell waren wir? */
-/*	printf("\n%lu", get_timer());
-	getch(); */
-
-	return;	
-} /* direct2screen */
+#if 0
+	/* wie schnell waren wir? */
+	printf("\n%lu", get_timer());
+	getch();
+#endif
+}
 
 
 
 /* <= 8 Bit Standardformat -> 16 Bit */
-void dstd_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, unsigned int realwidth, unsigned int realheight, SERVICE *service, char *palette, char BitsPerPixel)
+static void dstd_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, unsigned int realwidth, unsigned int realheight, SERVICE *service, char *palette, char BitsPerPixel)
 {
 	char *line, *pixbuf, *pal,
 		 Intel, rs, gs, gm, skiph, v;
@@ -377,13 +375,11 @@ void dstd_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned i
 
 	free(convtab);
 	SMfree(pixbuf);
-
-	return;
-} /* dstd_to_16 */
+}
 
 
 /* <= 8 Bit Standardformat -> 24 Bit */
-void dstd_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, unsigned int realwidth, unsigned int realheight, SERVICE *service, char *palette, char BitsPerPixel)
+static void dstd_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, unsigned int realwidth, unsigned int realheight, SERVICE *service, char *palette, char BitsPerPixel)
 {
 	char *line, *pixbuf, *pal,
 		 Intel, val, skiph, v, xfirst, jump;
@@ -445,13 +441,11 @@ void dstd_to_24(char *buffer, char *ziel, unsigned int width, unsigned int heigh
 	} while(++y < height);
 
 	SMfree(pixbuf);
-
-	return;
-} /* dstd_to_24 */
+}
 
 
 /* 8 Bit pixelpacked -> 16 Bit */
-void d8pp_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service, char *palette)
+static void d8pp_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service, char *palette)
 {
 	char *pal,
 		 Intel, rs, gs, gm, skiph, v;
@@ -504,13 +498,11 @@ void d8pp_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned i
 	} while(++y < height);
 
 	free(convtab);
-
-	return;
-} /* d8pp_to_16 */
+}
 
 
 /* 8 Bit pixelpacked -> 24 Bit */
-void d8pp_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service, char *palette)
+static void d8pp_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service, char *palette)
 {
 	char *pal,
 		 Intel, skiph, v, val, xfirst, jump;
@@ -561,13 +553,11 @@ void d8pp_to_24(char *buffer, char *ziel, unsigned int width, unsigned int heigh
 		buffer += skipv;
 		ziel += v;
 	} while(++y < height);
-
-	return;
-} /* d8pp_to_24 */
+}
 
 
 /* 16 Bit -> 16 Bit */
-void d16_to_16(unsigned int *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service)
+static void d16_to_16(unsigned int *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service)
 {
 	char Intel, rs, gs, gm, skiph, v, r, g, b;
 
@@ -626,13 +616,11 @@ void d16_to_16(unsigned int *buffer, unsigned int *ziel, unsigned int width, uns
 			ziel += v;
 		} while(++y < height);
 	}
-
-	return;
-} /* d16_to_16 */
+}
 
 
 /* 16 Bit -> 24 Bit */
-void d16_to_24(unsigned int *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service)
+static void d16_to_24(unsigned int *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service)
 {
 	char Intel, skiph, v, xfirst, jump;
 
@@ -680,13 +668,11 @@ void d16_to_24(unsigned int *buffer, char *ziel, unsigned int width, unsigned in
 		buffer += skipv;
 		ziel += v;
 	} while(++y < height);
-
-	return;
-} /* d16_to_24 */
+}
 
 
 /* 24 Bit -> 16 Bit */
-void d24_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service)
+static void d24_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned int height, SERVICE *service)
 {
 	char Intel, rs, gs, gm, skiph, v;
 
@@ -721,13 +707,11 @@ void d24_to_16(char *buffer, unsigned int *ziel, unsigned int width, unsigned in
 		buffer += skipv;
 		ziel += v;
 	} while(++y < height);
-
-	return;
-} /* d24_to_16 */
+}
 
 
 /* 24 Bit -> 24 Bit */
-void d24_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service)
+static void d24_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height, SERVICE *service)
 {
 	char Intel, skiph, v, xfirst, jump;
 
@@ -774,6 +758,4 @@ void d24_to_24(char *buffer, char *ziel, unsigned int width, unsigned int height
 		buffer += skipv;
 		ziel += v;
 	} while(++y < height);
-
-	return;
-} /* d24_to_24 */
+}

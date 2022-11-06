@@ -66,17 +66,13 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-void bgrtorgb(char *pic, long pixels);
-char test_if_grey(SMURF_PIC *picture);
+void bgrtorgb(char *pic, long pixels) ASM_NAME("_bgrtorgb");
 
 /* fÅr M_COLSYS */
 extern	int active_pic;
 extern	SMURF_PIC *smurf_picture[MAX_PIC];
-extern	EXPORT_CONFIG exp_conf;
 extern	char *export_path;				/* Pfad des Export-Modules	*/
 
-int setpix_std_line(char *buf, char *dest, int depth, long planelen, int howmany);
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
 
 int f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mode, char automatic)
 {
@@ -293,7 +289,7 @@ int tfm_std_to_std(SMURF_PIC *picture, char dst_depth, char mode)
 	picture->depth = dst_depth;
 
 	return(0);
-} /* tfm_std_to_std */
+}
 
 
 /*----------------------------------------------------------------- */
@@ -416,7 +412,7 @@ int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode)
 	Dialog.busy.ok();
 
 	return(0);
-} /* tfm_std_to_pp */
+}
 
 
 /*----------------------------------------------------------------- */
@@ -479,7 +475,7 @@ int tfm_pp_to_std8(SMURF_PIC *picture, char mode)
 	Dialog.busy.ok();
 
 	return(0);
-} /* tfm_pp_to_std8 */
+}
 
 
 /*----------------------------------------------------------------- */
@@ -534,7 +530,7 @@ int tfm_8_to_16(SMURF_PIC *picture, char mode)
 	Dialog.busy.ok();
 
 	return(0);
-} /* tfm_8_to_16 */
+}
 
 
 /*----------------------------------------------------------------- */
@@ -590,7 +586,7 @@ int tfm_8_to_24(SMURF_PIC *picture, char mode)
 	Dialog.busy.ok();
 
 	return(0);
-} /* tfm_8_to_24 */
+}
 
 
 /*----------------------------------------------------------------- */
@@ -644,7 +640,7 @@ int tfm_16_to_24(SMURF_PIC *picture, char mode)
 	Dialog.busy.ok();
 
 	return(0);
-} /* tfm_16_to_24 */
+}
 
 
 /*----------------------------------------------------------------- */
@@ -701,7 +697,7 @@ int tfm_24_to_16(SMURF_PIC *picture, char mode)
 	Dialog.busy.ok();
 
 	return(0);
-} /* tfm_24_to_16 */
+}
 
 
 
@@ -772,7 +768,7 @@ int tfm_bgr_to_rgb(SMURF_PIC *picture, char mode)
 	Dialog.busy.ok();
 
 	return(0);
-} /* tfm_bgr_to_rgb */
+}
 
 
 /*------------------------------------------------------------------*/
@@ -855,7 +851,7 @@ int tfm_cmy_to_rgb(SMURF_PIC *picture, char mode)
 	Dialog.busy.ok();
 
 	return(0);
-} /* tfm_rgb_to_cmy */
+}
 
 
 /*------------------------------------------------------------------*/
@@ -982,12 +978,13 @@ int tfm_rgb_to_grey(SMURF_PIC *picture, char mode)
 	Dialog.busy.ok();
 
 	return(0);
-} /* tfm_rgb_to_grey */
+}
 
 
 /*------------------------------------------------------------------*/
 /*		Testet, ob das Åbergebene Bild ein Graustufenbild ist		*/
 /*------------------------------------------------------------------*/
+#if 0 /* unused */
 char test_if_grey(SMURF_PIC *picture)
 {
 	char *data,
@@ -1046,4 +1043,5 @@ char test_if_grey(SMURF_PIC *picture)
 	}
 	else
 		return(0);
-} /* test_if_grey */
+}
+#endif

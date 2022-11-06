@@ -355,3 +355,4 @@ typedef struct plginfo
 /* Funktionsprototypen */
 int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data);
 void call_plugin(int menuentry);
+void scan_plugins(void);

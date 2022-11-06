@@ -80,15 +80,14 @@
 #define SEEKBUF_SIZE 2048
 
 
-long Idxtab(unsigned char *s1, unsigned char *s2, long len);
-void save_to_modconf(MOD_INFO *modinfo, void *confblock, long len, char *name, long type);
-int open_modconf_popup(MOD_INFO *modinfo);
-long seek_modconf(int filehandle, MOD_INFO *modinfo);
-long seek_MCNF(char *cnfname, int filehandle);
-void expandFile(int handle, long len);
-int overwriteMCNF(MOD_INFO *modinfo, char *confblock, long newlen, char *name, int num, long type);
-long seekInFile(int filehandle, char *SeekString);
-int nametest(MOD_INFO *modinfo, char *name);
+static long Idxtab(unsigned char *s1, unsigned char *s2, long len);
+static void save_to_modconf(MOD_INFO *modinfo, void *confblock, long len, char *name, long type);
+static int open_modconf_popup(MOD_INFO *modinfo);
+static long seek_modconf(int filehandle, MOD_INFO *modinfo);
+static void expandFile(int handle, long len);
+static int overwriteMCNF(MOD_INFO *modinfo, char *confblock, long newlen, char *name, int num, long type);
+static long seekInFile(int filehandle, char *SeekString);
+static int nametest(MOD_INFO *modinfo, char *name);
 
 OBJECT *confsave_dialog;
 OBJECT *modconf_popup;
@@ -211,8 +210,6 @@ again:
 		strcpy(cnfname, modconf_popup[back].TextCast);
 		overwriteMCNF(modinfo, confblock, len, cnfname, back, 'SEMD');
 	}
-
-	return;	
 }
 
 
@@ -223,7 +220,7 @@ again:
 	Eintrag zurÅck.
 	Scrolling im Popup muû noch gemacht werden!
 	----------------------------------------------------------------------*/
-int open_modconf_popup(MOD_INFO *modinfo)
+static int open_modconf_popup(MOD_INFO *modinfo)
 {
 	char cnfpath[257];
 	char *omca, *mca;
@@ -403,7 +400,7 @@ int open_modconf_popup(MOD_INFO *modinfo)
 	der LÑnge len unter dem Namen name in der MODCONF.CNF. 
 	Wird von mconfSave() aufgerufen!
 	-------------------------------------------------------------------------*/
-void save_to_modconf(MOD_INFO *modinfo, void *confblock, long len, char *name, long type)
+static void save_to_modconf(MOD_INFO *modinfo, void *confblock, long len, char *name, long type)
 {
 	char cnfpath[257];
 
@@ -598,7 +595,7 @@ void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type)
 	öberschreibt eine Modulkonfiguration mit dem Index num in der Datei
 	mit dem neuen Block confblock der LÑnge newlen.
 	-------------------------------------------------------------------*/
-int overwriteMCNF(MOD_INFO *modinfo, char *confblock, long newlen, char *name, int num, long type)
+static int overwriteMCNF(MOD_INFO *modinfo, char *confblock, long newlen, char *name, int num, long type)
 {
 	char SeekString[37] = "MCNF";
 	char cnfpath[257];
@@ -688,7 +685,7 @@ int overwriteMCNF(MOD_INFO *modinfo, char *confblock, long newlen, char *name, i
 	den Dateipointer auf das 'MCAB'.
 	ZurÅckgegeben wird die neue Position relativ zur alten vor dem Aufruf.
 	-------------------------------------------------------------*/
-long seek_modconf(int filehandle, MOD_INFO *modinfo)
+static long seek_modconf(int filehandle, MOD_INFO *modinfo)
 {
 	char SeekString[128] = "MCAB";
 
@@ -711,7 +708,7 @@ long seek_modconf(int filehandle, MOD_INFO *modinfo)
 /* Schnelle Suchroutine nach Boyer-Moore */
 /* implementiert 24.5.95 - 10.6.95 von Christian Eyrich */
 /* sucht m in n */
-long Idxtab(unsigned char *n, unsigned char *m, long len)
+static long Idxtab(unsigned char *n, unsigned char *m, long len)
 {
 	char skiptab[256], t, lenofm, lenofm2;
 
@@ -752,7 +749,7 @@ long Idxtab(unsigned char *n, unsigned char *m, long len)
 	Platz. Der Dateipointer wird nicht verÑndert. Dateipuffer ist 2048
 	Bytes, sollte vielleicht noch grîûer gewÑhlt werden?
 	----------------------------------------------------*/
-void expandFile(int handle, long len)
+static void expandFile(int handle, long len)
 {
 	char *buffer;
 
@@ -777,8 +774,6 @@ void expandFile(int handle, long len)
 	Fseek(oldpos, handle, 0);				/* und wieder zurÅck */
 
 	SMfree(buffer);
-
-	return;
 }
 
 
@@ -826,8 +821,6 @@ void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 	memcpy(edit_cnfblock[index], cnfblock, edit_cnflen[index]);
 
 	SMfree(cnfblock);
-
-	return;
 }
 
 
@@ -880,8 +873,6 @@ void memorize_expmodConfig(BASPAG *modbase, GARGAMEL *smurf_struct, char save)
 			overwriteMCNF(modinfo, cnfblock, length, "", 0, 'SXMD');
 		else
 			save_to_modconf(modinfo, cnfblock, length, "", 'SXMD');
-
-	return;
 }
 
 
@@ -929,8 +920,6 @@ void transmitConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 		module.comm.startEdit("", modbase, CONFIG_TRANSMIT, smurf_struct->module_number, smurf_struct);
 		f_handle_modmessage(smurf_struct);
 	}
-
-	return;
 }
 
 
@@ -940,7 +929,7 @@ void transmitConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 	Position und gibt relativ zur Dateiposition beim Aufruf den Abstand des
 	gefundenen Strings in der Datei zurÅck, bzw. -1, wenn nix gefunden wurde.
 	-------------------------------------------------------------------------*/
-long seekInFile(int filehandle, char *SeekString)
+static long seekInFile(int filehandle, char *SeekString)
 {
 	char *seekbuffer;
 
@@ -983,7 +972,7 @@ long seekInFile(int filehandle, char *SeekString)
 
 /* Testet ob der Konfigname schon vergeben fÅr dieses Modul */
 /* RÅckgabe 0: alles ist klar, 1: schon vergeben */
-int nametest(MOD_INFO *modinfo, char *name)
+static int nametest(MOD_INFO *modinfo, char *name)
 {
 	char cnfpath[257];
 	char SeekString[37] = "MCNF";
@@ -1034,4 +1023,4 @@ int nametest(MOD_INFO *modinfo, char *name)
 		else
 			return(1);
 	}
-} /* nametest */
+}

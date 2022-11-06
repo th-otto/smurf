@@ -277,8 +277,7 @@ int v_delete_ctab(int handle, COLOR_TAB *ctab)
 } /* v_delete_ctab */
 
 
-int	objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1,
-				int ob_sival2, int *ob_soval1, int *ob_soval2)
+int	objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1, int ob_sival2, int *ob_soval1, int *ob_soval2)
 {
 	AESPB aespb;
 
@@ -307,7 +306,7 @@ int	objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1,
 	*ob_soval2 = aespb.intout[2];
 
 	return(aespb.intout[0]);
-} /* objc_sysvar */
+}
 
 
 /*

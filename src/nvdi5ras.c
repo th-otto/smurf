@@ -35,7 +35,6 @@
 #include "nvdi5ras.h"
 
 extern  int handle;
-extern  int bplanes;
 
 void nvdi5_raster(SMURF_PIC *picture, char *ziel, int zoom)
 {

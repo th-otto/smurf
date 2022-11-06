@@ -46,7 +46,6 @@
 extern OBJECT *menu_tree;
 extern SMURF_PIC *smurf_picture[25];
 extern int openmode;
-extern void save_file(void);
 
 extern int picwindthere, dialwindthere, picthere;
 extern int appl_id;
@@ -82,7 +81,6 @@ int f_handle_menuevent(int *message)
 	SMURF_PIC *picture;
 	
 	extern signed char menu2plugin[128];		/* feste Meneintr„ge, in die Plugins eingeh„ngt sind */
-	extern void reload_pic(WINDOW *picwindow);
 	extern DISPLAY_MODES Display_Opt;
 
 
@@ -326,7 +324,6 @@ int f_handle_menuevent(int *message)
 void actualize_menu(void)
 {
 	extern int printplug_found;
-	extern EXPORT_CONFIG exp_conf;
 
 	DEBUG_MSG (( "actualize_menu...\n" ));
 
@@ -385,8 +382,6 @@ void actualize_menu(void)
 		if(dialwindthere > 0) 
 			menu_tree[DISP_NEXTWIN].ob_state &= ~DISABLED;
 	}
-
-	return;
 }
 
 
@@ -402,9 +397,7 @@ void lock_Smurf(void)
 	menu_bar(menu_tree, 1);
 
 	Smurf_locked = 1;
-
-	return;
-} /* lock_Smurf */
+}
 
 
 void unlock_Smurf(void)
@@ -419,6 +412,4 @@ void unlock_Smurf(void)
 	menu_bar(menu_tree, 1);
 
 	Smurf_locked = 0;
-
-	return;
-} /* unlock_Smurf */
+}

@@ -54,12 +54,8 @@
 
 USERBLK user_cicon;
 
-long get_proclen(BASPAG *baspag);
 
-extern void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-extern int setpix_std_line(char *buf, char *std, int depth, long planelen, int howmany);
 extern char name[200];
-extern bplanes;
 
 
 void init_modtree(OBJECT *tree, int index);
@@ -178,7 +174,7 @@ int start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	}
 
 	return(module_return);
-} /* start_imp_module */
+}
 
 
 /*-----------------------------------------------------------------	*/
@@ -402,7 +398,7 @@ EXPORT_PIC *start_exp_module(char *modpath, int message, SMURF_PIC *pic_to_expor
 		return((EXPORT_PIC *)export_basepage);
 	else
 		return(encoded_pic);
-} /* start_exp_module */
+}
 
 
 /*	-----------------------------------------------------------	*/
@@ -453,7 +449,7 @@ int handle_modevent(int event_type, WINDOW *mod_window)
 	}
 	
 	return(0);
-} /* handle_modevent */
+}
 
 
 /*	-----------------------------------------------------------	*/
@@ -474,7 +470,6 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 
 	extern DISPLAY_MODES Display_Opt;
 	extern CROSSHAIR position_markers[20];		/* Positionsmarker fÅr die Editmodule */
-	extern EXPORT_CONFIG exp_conf;
 
 
 	message = smurf_struct->module_mode;
@@ -563,9 +558,7 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 			Window.redraw(&picture_windows[back], NULL, 0,0);
 			break;
 	}
-
-	return;
-} /* f_handle_modmessage */
+}
 
 
 /*	-----------------------------------------------------------	*/
@@ -674,7 +667,7 @@ int analyze_message(int module_ret, int picture_to_load)
 	}
 
 	return(picerror);
-} /* analyze_message */
+}
 
 
 /*------------------------------------------------------------*/
@@ -751,7 +744,7 @@ int f_open_module_window(WINDOW *module_window)
 	f_set_syspal();
 
 	return(0);
-} /* f_open_module_window */
+}
 
 
 /* --------------------------------------------------------------------------------	*/
@@ -773,7 +766,7 @@ int give_free_module(void)
 	}
 	else
 		return(mod_num);
-} /* give_free_module */
+}
 
 
 /* --------------------------------------------------------------------------------	*/
@@ -793,9 +786,7 @@ void check_and_terminate(int mode, int module_number)
 		free(module.smStruct[module_number]);
 		module.smStruct[module_number] = NULL;
 	}
-
-	return;
-} /* check_and_terminate */
+}
 
 
 /*-----------------------------------------------------------------	*/
@@ -835,7 +826,7 @@ BASPAG *start_dither_module(int mode, int mod_id, DITHER_DATA *ditherdata)
 	}
 
 	return(dither_basepage);
-} /* start_dither_module */
+}
 
 
 /* ------------------------------------------------------------------------	*/
@@ -876,9 +867,7 @@ void walk_module_tree(WINDOW *wind, int start)
 
 		walk_module_tree(wind,index); /* rekursiv fÅr alle Kinder! */
 	}
-
-	return;
-} /* walk_module_tree */
+}
 
 
 /*------------------------------------------------------------------------	*/
@@ -892,11 +881,12 @@ void init_modtree(OBJECT *tree, int index)
 {
 	CICON *img, *best_img;
 
-/*	
+#if 0
 	/* nur unter MagiC nîtig */
 	if(!(Sys_info.OS&MATSCHIG))
 		return;
-*/
+#endif
+
 	best_img = img = tree[index].ob_spec.ciconblk->mainlist;
 
 	while(img != NULL)
@@ -918,18 +908,17 @@ void init_modtree(OBJECT *tree, int index)
 		best_img->col_mask = tree[index].ob_spec.ciconblk->monoblk.ib_pmask;
 		best_img->num_planes = 1;
 	}
-/*
+#if 0
 	printf("best_img->num_planes: %d\n", best_img->num_planes);
 	if(best_img->next_res == NULL)
 		printf("best_img->next_res == NULL\n");
 	else
 		printf("best_img->next_res != NULL\n");
 	getch();
-*/
-	tree[index].ob_spec.ciconblk->mainlist = best_img;
+#endif
 
-	return;
-} /* init_modtree */
+	tree[index].ob_spec.ciconblk->mainlist = best_img;
+}
 
 
 /* convert_icon -------------------------------------------------------------
@@ -1052,8 +1041,7 @@ void convert_icon(OBJECT *tree, int index)
 	}
 
 	ciconblk->mainlist->num_planes = icon_bitplanes;
-	return;
-} /* convert_icon */
+}
 
 
 /*------------------------------------------------------------------------	*/
@@ -1111,7 +1099,7 @@ SMURF_PIC *get_pic(int num, int mod_id, MOD_INFO *mod_info, int depth, int form,
 	}
 
 	return(current_pic);
-} /* get_pic */
+}
 
 
 /* ------------------------------------------------------------------------	*/
@@ -1186,7 +1174,7 @@ int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, int module_number)
 	} 
 
 	return(0);
-} /* f_give_pics */
+}
 
 
 /* inform_modules -------------------------------------------------------------
@@ -1243,7 +1231,7 @@ int inform_modules(int message, SMURF_PIC *picture)
 	}
 	
 	return(0);
-} /* inform_modules */
+}
 
 
 /* get_proclen -------------------------------------------------
@@ -1261,7 +1249,7 @@ long get_proclen(BASPAG *baspag)
 	ProcLen = sizeof(BASPAG) + TextLen + DataLen + BSSLen + 1024L;
 	
 	return(ProcLen);
-} /* get_proclen */
+}
 
 
 /* get_modmagic -------------------------------------------------
@@ -1276,7 +1264,7 @@ long get_modmagic(BASPAG *basepage)
 	
 	textseg_begin = basepage->p_tbase;
 	return(*((long *)(textseg_begin + MAGIC_OFFSET)));
-} /* get_modmagic */
+}
 
 
 /* AESmsg_to_module -------------------------------------------------
@@ -1341,9 +1329,7 @@ void AESmsg_to_modules(int *msgbuf)
 			}
 		}
 	}
-
-	return;
-} /* AESmsg_to_modules */
+}
 
 
 /* ------------------------------------------------------------------------	*/
@@ -1373,7 +1359,7 @@ void make_modpreview(WINDOW *wind)
 	mod_abs = *((MOD_ABILITY **)(textbeg + MOD_ABS_OFFSET));
 	mod_inf = *((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
 
-/*
+#if 0
 	for(t=0; t<mod_inf->how_many_pix; t++)
 	{
 		SMfree(add_pix[t]);
@@ -1388,7 +1374,7 @@ void make_modpreview(WINDOW *wind)
 			return;
 		}
 	}
-*/
+#endif
 
 
 	/* ------------- Preview-Pic-Struktur vorbereiten -----------*/
@@ -1396,7 +1382,7 @@ void make_modpreview(WINDOW *wind)
 	if(source_pic->block != NULL) 
 		source_pic = source_pic->block;
 
-/*
+#if 0
 	/* ---alte Bildschirmdarstellung freigeben--- */
 	if(wind->picture != NULL && wind->picture->changed == 0x80)
 	{
@@ -1405,7 +1391,7 @@ void make_modpreview(WINDOW *wind)
 		free(wind->picture->palette);
 		SMfree(wind->picture);
 	}
-*/
+#endif
 
 	/*
 	 * Speicher fÅr berechnetes Preview anfordern
@@ -1538,6 +1524,4 @@ void make_modpreview(WINDOW *wind)
 
 	Dialog.busy.ok();
 	Dialog.busy.dispRAM();
-
-	return;
 }

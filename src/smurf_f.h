@@ -39,31 +39,41 @@ extern int active_pic;
 extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
 extern SERVICE_FUNCTIONS global_services;
 
+
+#ifdef __GNUC__
+#  define ASM_NAME(x) __asm__(x)
+#else
+#  define ASM_NAME(x)
+#endif
+#if !defined(__GNUC__) && !defined(__attribute__)
+#  define __attribute(x)
+#endif
+
 /* **********************************************************************/
 /* ----------------------- Fileroutinen ------------------------------- */
 /* Alles, was mit Dateizugriffen, Bild laden, etc zu tun hat            */
 /* **********************************************************************/
 
-    struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen);
-    struct DIRENTRY *insert_entry(struct DIRENTRY *ende, char *string);
-    void    destroy_filelist(struct DIRENTRY *begin);
-
 /* Dateihandling mit Fileselector */
-    int     file_save(char *stext, char *buf, long length);
-    void    file_load(char *ltext, char **dateien, int mode);
-    int     f_fsbox(char *Path, char *fbtext, char selectart);
+void file_load(char *ltext, char **dateien, int mode);
+int file_save(char *stext, char *buf, long length);
+int f_fsbox(char *Path, char *fbtext, char selectart);
 
 /*  File laden */
-    char    *fload(char *Path, int header);
+char *fload(char *Path, int header);
 
 /* Bild importieren */
-    void    reload_pic(WINDOW *picwindow);
-    int     f_import_pic(SMURF_PIC *smurf_picture, char *filename);
-    int     f_formhandle(int picture_to_load, int module_ret, char *namename);
-    char    *f_do_pcd(char *Path);
+void reload_pic(WINDOW *picwindow);
+int f_import_pic(SMURF_PIC *smurf_picture, char *filename);
+char *f_do_pcd(char *Path);
 
-    void    save_config(void);
-    int     load_config(void);
+
+/*
+ * config.c
+ */
+int load_config(void);
+void save_config(void);
+void f_analyze_system(void);
 void GetSMPath(void);
 
 
@@ -76,18 +86,12 @@ void GetSMPath(void);
 /* ----------------------- Event- und Messagefunktionen --------------- */
 /* How to speak AES - Dialog mit dem Betriebssystem u.Ñ.                */
 /* **********************************************************************/
-void    f_event(void);              /* Allg. Event-Funktion                 */
-int     f_handle_message(void);     /* AES-Message-Handler                  */
-void    f_pic_event(WINDOW *picwindow, int event_type, int windnum);            /* Auswertung von Events im Bildfenster */
-void    picwin_keyboard(int key_scancode, int key_at_event, WINDOW *picwin);
+void f_event(void);              /* Allg. Event-Funktion                 */
+int  f_handle_message(void);     /* AES-Message-Handler                  */
 
-void    check_windclose(int windnum);   /* Auswerten von Windowdialog-AbbrÅchen */
-int     f_handle_menuevent(int *message);
+void check_windclose(int windnum);   /* Auswerten von Windowdialog-AbbrÅchen */
 
-void cdecl message_handler(int *msg);   /* Messagehandler fÅr Betrieb des FSEL im Fenster */
 
-void lock_Smurf(void);
-void unlock_Smurf(void);
 
 
 /* **********************************************************************/
@@ -95,52 +99,63 @@ void unlock_Smurf(void);
 /* alles zur Bilddarstellung.                                           */
 /* **********************************************************************/
 
+extern int bplanes;
+extern int pic_dmode;
+extern int dithermode;
+
 /*---- Dither-Routinen - Maindispatcher ----*/
-    int     f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *part, DISPLAY_MODES *displayOpt);
+int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *part, DISPLAY_MODES *displayOpt);
 
 /*---- Histogrammberechnung + Median Cut ----*/
     long *make_histogram(SMURF_PIC *picture);
-    void median_cut(long *histogram, SMURF_PIC *picture, SYSTEM_INFO *sysinfo);
+void median_cut(long *histogram, SMURF_PIC *picture, SYSTEM_INFO *sysinfo);
 
 /*---- Dit-Routs C Subdispatcher ----*/
-    void    f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, char *where_to, int mode, char *nct, GRECT *part);
-    void    f_transform_to_standard(SMURF_PIC *picture,char *paddr);
-    void    f_align_standard(SMURF_PIC *picture,char *paddr, GRECT *part);
+void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, char *where_to, int mode, char *nct, GRECT *part);
+void f_transform_to_standard(SMURF_PIC *picture,char *paddr);
+void f_align_standard(SMURF_PIC *picture,char *paddr, GRECT *part);
 
 /* Anpassen der Palette */
-    char    *fix_palette(SMURF_PIC *dest, SYSTEM_INFO *sys_info);
-
-/* Dither-Routinen  -   Assembler */
-    void    floyd24Bit_Palette(long *par);      /* 24-Bit " " mit eigener Palette */
+char *fix_palette(SMURF_PIC *dest, SYSTEM_INFO *sys_info);
 
 /* Nearest-Color-Suchfunktion (Assembler) */
-    int seek_nearest_col(long *par, int maxcol);
+int seek_nearest_col(long *par, int maxcol) ASM_NAME("_seek_nearest_col");
 
 /* Routinen fÅr 16 und 24Bit-Bildschirmmodus */
-    void direct2screen(SMURF_PIC *picture, char *where_to, GRECT *part);
+void direct2screen(SMURF_PIC *picture, char *where_to, GRECT *part);
+
+int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MODES *display, int *fixpal_red, int *fixpal_green, int *fixpal_blue);
+void make_tmp_nct(long *histogram, SMURF_PIC *pic, unsigned int maxc);
+void makeNCT(long *par, int maxcol) ASM_NAME("_makeNCT");
+
+
 
 /*--------------------- Transformers -----------------------*/
-int     f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mode, char automatic);
+int f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mode, char automatic);
+int tfm_std_to_std(SMURF_PIC *smurf_pic, char dst_depth, char mode);
+int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode);
+int tfm_pp_to_std8(SMURF_PIC *picture, char mode);
+int tfm_8_to_16(SMURF_PIC *picture, char mode);
+int tfm_8_to_24(SMURF_PIC *picture, char mode);
+int tfm_16_to_24(SMURF_PIC *picture, char mode);
+int tfm_24_to_16(SMURF_PIC *picture, char mode);
+int tfm_bgr_to_rgb(SMURF_PIC *picture, char mode);
+int tfm_cmy_to_rgb(SMURF_PIC *picture, char mode);
+int tfm_rgb_to_grey(SMURF_PIC *picture, char mode);
 
-int     tfm_std_to_std(SMURF_PIC *smurf_pic, char dst_depth, char mode);
-int     tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode);
-int     tfm_pp_to_std8(SMURF_PIC *picture, char mode);
-int     tfm_8_to_16(SMURF_PIC *picture, char mode);
-int     tfm_8_to_24(SMURF_PIC *picture, char mode);
-int     tfm_16_to_24(SMURF_PIC *picture, char mode);
-int     tfm_24_to_16(SMURF_PIC *picture, char mode);
-int     tfm_bgr_to_rgb(SMURF_PIC *picture, char mode);
-int     tfm_cmy_to_rgb(SMURF_PIC *picture, char mode);
-int     tfm_rgb_to_grey(SMURF_PIC *picture, char mode);
 
-
-void    transform_pic(void);        /* "Bild Wandeln" - Dialog */
+void transform_pic(void);        /* "Bild Wandeln" - Dialog */
 
 /*-------- Pixel Packed -> Standardformat - Routinen    ----------------*/
-int     setpix_standard(char *buf16, char *dest, int depth, long planelen, int howmany);
-int     setpix_pp(char *buf16, char *dest, int depth, long planelen, int howmany);
-int     setpix_standard_16(char *buf16, char *dest, int depth, long planelen, int howmany);
-void    get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
+int setpix_standard(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_standard");
+int setpix_pp(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_pp");
+int setpix_standard_16(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_standard_16");
+void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen) ASM_NAME("_get_standard_pix");
+void getpix_std_1(char *std, int *pixval, int depth, long planelen, int which) ASM_NAME("_getpix_std_1");
+int setpix_std_line(char *buf, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_std_line");
+void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany) ASM_NAME("_getpix_std_line");
+int setpix_std_line16(char *buf, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_std_line16");
+void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels) ASM_NAME("_rearrange_line2");
 
 
 
@@ -155,19 +170,22 @@ SMURF_PIC   *f_generate_newpic(int wid, int hgt, int depth);
 /* ------------------------ SMURF-Systemfunktionen -------------------- */
 /* Was, Bin ich, wo bin ich, wieviele Farben hab' ich?                  */
 /* **********************************************************************/
-void    f_scan_edit(void);                  /* Edit Modules scannen */
-void    f_scan_export(void);                /* Edit Modules scannen */
-void    f_scan_dither(void);                /* Dither Modules scannen */
+void f_scan_edit(void);                  /* Edit Modules scannen */
+void f_scan_import(void);                                    /* Importmodule scannen */
+int load_import_list(void);                                 /* Extensionsliste laden */
+int seek_module(SMURF_PIC *picture, char *extension);       /* Modul aus Extensionsliste suchen */
+void f_scan_export(void);                /* Edit Modules scannen */
+void f_scan_dither(void);                /* Dither Modules scannen */
+struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen);
+struct DIRENTRY *insert_entry(struct DIRENTRY *ende, char *string);
+void destroy_filelist(struct DIRENTRY *begin);
+
 int     f_init_system(void);                /* Systeminitialisierung - die Mutterfunktion */
 void    f_init_palette(void);               /* Palette auslesen     */
 char    *f_init_table(void);                /* NC-Tabelle init      */
 void    f_init_bintable(OBJECT *rsc);       /* BinÑrwert-Table init */
 
-void    *SMalloc(long amount);
-int     SMfree(void *ptr);
 
-void    actualize_menu(void);       /* MenÅzeile aktualisieren */
-void set_startupdial(char *string);
 
 int     handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object);
 
@@ -175,44 +193,31 @@ void    init_smurfrsc(char *rscpath);
 void    fix_rsc(void);              /* RSC-Anpassung an OS, Farbtiefe, AES, etc... */
 void    f_init_popups(void);        /* Alle Popups initialisieren */
 void    f_init_sliders(void);   
-void    f_init_menu(void);          /* MenÅzeile her! */
-void    f_exit_menu(void);          /* MenÅzeile weg! */
 
-char    set_menu_key(OBJECT *menu);
-char    get_menu_key(OBJECT *menu, KINFO *ki, int *title, int *item);
-int     scan_2_ascii(int scan, int state);
-
-int     CallDialog(int topwin);     /* Dialogdispatcher */
-int     UDO_or_not(WINDOW *wind, int klickobj);
-
-int     appl_xgetinfo (int type, int *out1, int *out2, int *out3, int *out4);
-
-void    f_handle_radios(OBJECT *tree, int klickobj, int windnum);
 void    change_object(WINDOW *window, int objct, int status, int redraw);
 
-void    f_analyze_system(void);
 
-void    f_activate_pic(int windnum);
-
-int     do_MBEVT(int module_number, WINDOW *mod_win, int mode);
-
-void    check_and_terminate(int mode, int module_number);
-
-void    get_module_structures(char* *textseg_begin, MOD_INFO* *mod_info, MOD_ABILITY* *mod_abs, long *mod_magic, int mod_num);
-
-int     init_dialog(int DialogNumber, int DialogOK);
-void    close_dialog(int windnum);
-
-void    f_move_preview(WINDOW *window, SMURF_PIC *orig_pic, int redraw_object);
-void    copy_preview(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev_window);
-
-void    make_smurf_pic(int pic_to_make, int wid, int hgt, int depth, char *picdata);
-void    make_pic_window(int pic_to_make, int wid, int hgt, char *name);
+/*
+ * shortc2.c
+ */
+char set_menu_key(OBJECT *menu);
+char get_menu_key(OBJECT *menu, KINFO *ki, int *title, int *item);
+int scan_2_ascii(int scan, int state);
 
 
-void    f_scan_import(void);                                    /* Importmodule scannen */
-int     load_import_list(void);                                 /* Extensionsliste laden */
-int     seek_module(SMURF_PIC *picture, char *extension);       /* Modul aus Extensionsliste suchen */
+
+
+/*
+ * menu.c
+ */
+void f_init_menu(void);          /* MenÅzeile her! */
+void f_exit_menu(void);          /* MenÅzeile weg! */
+int f_handle_menuevent(int *message);
+void actualize_menu(void);       /* MenÅzeile aktualisieren */
+void lock_Smurf(void);
+void unlock_Smurf(void);
+
+
 
 
 int blend_demopic(SMURF_PIC *picture);
@@ -221,7 +226,6 @@ int blend_demopic(SMURF_PIC *picture);
 
 void cursor_off(WINDOW *window);
 void cursor_on(WINDOW *window);
-void f_handle_editklicks(WINDOW *window, int object);
 
 void free_preview(void);
 
@@ -229,9 +233,6 @@ void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, int dither);
 
 void mr_message(void);
 void protocol_message(int message, int id, char *modname);
-
-void    exmod_info_off(void);
-void    emod_info_off(void);
 
 int init_roto(void);
 void roto(void);
@@ -255,6 +256,7 @@ void bubble_exit(void);
 void bubble_gem(int windownum, int xpos, int ypos, int modulemode);
 void init_AVPROTO(void);
 void get_avserv(void);
+void call_stguide(int topwin_handle);
 
 
 
@@ -262,30 +264,50 @@ void get_avserv(void);
 /* ---------------------------- Modulfunktionen ----------------------- */
 /* Some of them want to use you, some of them want to get used by you...*/
 /* **********************************************************************/
-void    f_module_prefs(MOD_INFO *infostruct, int mod_id);   /* Modulformular aufrufen */
-void    f_mpref_change(void);                               /* Eingabe im Modulformular */
-void    f_export_pic(void);                                 /* Bild exportieren */
-
-int     analyze_message(int module_ret, int picture_to_load);   /* Analyse eines Modul-Returns */
-int     handle_modevent(int event_type, WINDOW *mod_window);    /* Handling eines Events im Modulfenster */
-void    f_handle_modmessage(GARGAMEL *smurf_struct);
-
-int     f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, int module_number);       /* mehrere Bilder ans Modul Åbergeben */
-
-int     give_free_module(void);     /* Ermittelt Strukturindex fÅr freies Modul und gibt diesen zurÅck */
-
+int handle_modevent(int event_type, WINDOW *mod_window);    /* Handling eines Events im Modulfenster */
+void f_handle_modmessage(GARGAMEL *smurf_struct);
+int analyze_message(int module_ret, int picture_to_load);   /* Analyse eines Modul-Returns */
+int f_open_module_window(WINDOW *module_window);        /* Modulfenster îffnen */
+int give_free_module(void);     /* Ermittelt Strukturindex fÅr freies Modul und gibt diesen zurÅck */
+void check_and_terminate(int mode, int module_number);
+void walk_module_tree(WINDOW *wind, int start);
+void init_modtree(OBJECT *tree, int index);
+void convert_icon(OBJECT *tree, int index);
 SMURF_PIC *get_pic(int num, int mod_id, MOD_INFO *mod_info, int depth, int form, int col);
-
+int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, int module_number);       /* mehrere Bilder ans Modul Åbergeben */
 int inform_modules(int message, SMURF_PIC *picture);    /* Informiert alle Module und Plugins Åber message */
-void AESmsg_to_modules(int *msgbuf);
+long get_proclen(BASPAG *baspag);
 long get_modmagic(BASPAG *basepage);
+void AESmsg_to_modules(int *msgbuf);
+void make_modpreview(WINDOW *wind);
 
+
+/*
+ * prefdial.c
+ */
+void f_module_prefs(MOD_INFO *infostruct, int mod_id);   /* Modulformular aufrufen */
+void f_mpref_change(void);                               /* Eingabe im Modulformular */
+void f_move_preview(WINDOW *window, SMURF_PIC *orig_pic, int redraw_object);
+void copy_preview(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev_window);
+
+
+/*
+ * modconf.c
+ */
 void *mconfLoad(MOD_INFO *modinfo, int mod_id, char *name);
 void mconfSave(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *name);
-void transmitConfig(BASPAG *modbase, GARGAMEL *smurf_struct);
+void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type);
 void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct);
 void memorize_expmodConfig(BASPAG *modbase, GARGAMEL *smurf_struct, char save);
-void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type);
+void transmitConfig(BASPAG *modbase, GARGAMEL *smurf_struct);
+
+
+/*
+ * undo.c
+ */
+void saveUndoBuffer(SMURF_PIC *picture, int picnum);
+void swapUndoBuffer(SMURF_PIC *toPicture, int picNum);
+
 
 
 /* **********************************************************************/
@@ -329,15 +351,6 @@ extern USERBLK cycle_user;
 void f_treewalk(OBJECT *tree,int start);                 /* Userdefined Objects eintragen */
 int	cdecl f_do_checkbox(PARMBLK *parm);
 int	cdecl f_do_cycle(PARMBLK *parm);
-
-
-/*
- * module.c
- */
-int f_open_module_window(WINDOW *module_window);        /* Modulfenster îffnen */
-
-
-
 
 
 /* **********************************************************************/
@@ -385,33 +398,94 @@ void fulldisable_busybox(void);
 /* **********************************************************************/
 
 extern long timer_fx_max[10];
+extern int *messagebuf;
 
-void    f_display_opt(void);            /* Display-Optionen */
-
-void    f_options(void);                /* SMURF - Optionen */
-void    f_edit_pop(void);               /* Edit-Modul-Fenster */
-
-int     f_loadpic(char *pic, char *picpath);
-int     f_save_pic(MOD_ABILITY *export_mabs);
-void    f_set_syspal(void);             /* Systempalette setzen */
-void    f_set_picpal(SMURF_PIC *pic);   /* Bildpalette setzen */
-void    f_deselect_popup(WINDOW *wind, int ob1, int ob2);
-
-void    f_pic_info(void);               /* Bildinfo anzeigen */
-void    f_newpic(int scancode);
-
-void    f_export_formular(void);
-
-void    f_display_coords(WINDOW *pic_window, int mx, int my, char blockflag);
-void    set_nullcoord(WINDOW *picwindow);
-
-void    f_set_envconfig(void);          /* Environment-Konfiguration Åbernehmen */
-
-void    f_update_dwindow(int mode, int redraw);
-void 	shutdown_smurf(char while_startup);
+void f_set_syspal(void);             /* Systempalette setzen */
+void f_set_picpal(SMURF_PIC *pic);   /* Bildpalette setzen */
+void f_pic_info(void);               /* Bildinfo anzeigen */
+void f_newpic(int scancode);
+void make_smurf_pic(int pic_to_make, int wid, int hgt, int depth, char *picdata);
+void make_pic_window(int pic_to_make, int wid, int hgt, char *name);
+int CallDialog(int topwin);     /* Dialogdispatcher */
+void f_info(void);
+int f_loadpic(char *pic, char *picpath);
+int f_formhandle(int picture_to_load, int module_ret, char *namename);
+int init_dialog(int DialogNumber, int DialogOK);
+void close_dialog(int windnum);
+void shutdown_smurf(char while_startup);
 int duplicate_pic(WINDOW *window);
 
-/* picman.c */
+
+/*
+ * options.c
+ */
+void f_options(void);                /* SMURF - Optionen */
+void f_set_envconfig(void);          /* Environment-Konfiguration Åbernehmen */
+
+
+/*
+ * edit.c
+ */
+void f_edit_pop(void);               /* Edit-Modul-Fenster */
+void emod_info_on(int mod_index);
+void emod_info_off(void);
+
+
+/*
+ * export.c
+ */
+extern EXPORT_CONFIG exp_conf;
+
+void f_export_pic(void);                                 /* Bild exportieren */
+int f_save_pic(MOD_ABILITY *export_mabs);
+void save_file(void);
+int dither_for_export(MOD_ABILITY *mod_abs, int max_expdepth, int dest_format, SMURF_PIC *converted_pic);
+void init_exmod_info(int mod_index);
+void exmod_info_off(void);
+int loadNCT(int loadplanes, SYSTEM_INFO *sysinfo);
+
+
+/*
+ * objct.c
+ */
+void f_handle_radios(OBJECT *tree, int klickobj, int windnum);
+void f_handle_editklicks(WINDOW *window, int object);
+int UDO_or_not(WINDOW *wind, int klickobj);
+void f_deselect_popup(WINDOW *wind, int ob1, int ob2);
+
+
+/*
+ * exp_form.c
+ */
+void f_export_formular(void);
+void prepare_depthpopup(void);
+
+
+/*
+ * picevent.c
+ */
+extern BLOCKMODE blockmode_conf;
+
+void f_pic_event(WINDOW *picwindow, int event_type, int windnum);            /* Auswertung von Events im Bildfenster */
+void f_block_popup(WINDOW *picwindow);
+void set_nullcoord(WINDOW *picwindow);
+void f_display_coords(WINDOW *pic_window, int mx, int my, char blockflag);
+void f_display_bwh(WINDOW *pic_window);
+void reload_pic(WINDOW *picwindow);
+void f_activate_pic(int windnum);
+void picwin_keyboard(int key_scancode, int key_at_event, WINDOW *picwin);
+
+
+/*
+ * dispopts.c
+ */
+void f_display_opt(void);            /* Display-Optionen */
+void f_update_dwindow(int mode, int redraw);
+
+
+/*
+ * picman.c
+ */
 void f_picman(void);
 void insert_to_picman(int pic_to_insert);
 void show_picman_wh(SMURF_PIC *pic);
@@ -421,35 +495,36 @@ MOD_INFO *ready_modpics_popup(WINDOW *mwindow);     /* Modul-Bildreihenfolge-Pop
 void make_picman_thumbnail(int picture_num);
 void picman_windowmove(void);
 int compute_zoom(SMURF_PIC *picture, int twid, int thgt);
-void f_info(void);
 
 
 
 /* **********************************************************************/
 /* ---------------------------- Toolfunktionen ------------------------ */
 /* **********************************************************************/
-char    *quote_arg(char *s);
-char    *unquote_arg(char *s);
-char    *strargvtok(char *s);
-char    *mystrtok(char *s, char c);
-int     strsrchl(char *s, char c);
-int     strsrchr(char *s, char c);
-void    get_tmp_dir(char *tmpdir);
-int     get_cookie(unsigned long cookie, unsigned long *value);
-void    BCD2string(char *string, int bcd);
-char    *strrpbrk(char *s1beg, char *s1, char *s2);
-char    *shorten_name(char *string, char newlen);
-int get_path(char *path, char drive);
-int set_path(char *path);
-
-long    get_maxnamelen(char *path);
-
-void f_drag_object ( WINDOW *wind, int objct, int *dex, int *dey, int call, int (*call_me)(int mx, int my) );
-
-int get_selected_object(OBJECT *tree, int first_enty, int last_entry);
-void call_stguide(int topwin_handle);
+char *quote_arg(char *s);
+char *unquote_arg(char *s);
+char *strargvtok(char *s);
+char *mystrtok(char *s, char c);
+int strsrchl(char *s, char c);
+int strsrchr(char *s, char c);
+void get_tmp_dir(char *tmpdir);
+int get_cookie(unsigned long cookie, unsigned long *value);
+void *SMalloc(long amount);
+int SMfree(void *ptr);
+void set_startupdial(char *string);
+float convert_units(int oldunit, int newunit, float dpi);
+char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols);
+long get_maxnamelen(char *path);
+void BCD2string(char *string, int bcd);
+char *strrpbrk(char *s1beg, char *s1, char *s2);
 void make_singular_display(DISPLAY_MODES *old, int Dither, int Pal);
 void restore_display(DISPLAY_MODES *old);
+char *shorten_name(char *string, char newlen);
+int get_path(char *path, char drive);
+int set_path(char *path);
+void f_drag_object ( WINDOW *wind, int objct, int *dex, int *dey, int call, int (*call_me)(int mx, int my) );
+
+
 
 /* **********************************************************************/
 void color_choose(void);
@@ -461,9 +536,7 @@ void color_choose(void);
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 int cdecl fsel_boxinput(char *path, char *name, int *button, char *label, void *callback);
 #endif
-int SM_wind_set(int wi_ghandle, int wi_gfield, int wi_gw1,
-                int wi_gw2, int wi_gw3, int wi_gw4);
-int SM_wind_get(int wi_ghandle, int wi_gfield, int *wi_gw1,
-                int *wi_gw2, int *wi_gw3, int *wi_gw4);
+int SM_wind_set(int wi_ghandle, int wi_gfield, int wi_gw1, int wi_gw2, int wi_gw3, int wi_gw4);
+int SM_wind_get(int wi_ghandle, int wi_gfield, int *wi_gw1, int *wi_gw2, int *wi_gw3, int *wi_gw4);
 
 #endif

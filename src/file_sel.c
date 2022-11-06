@@ -43,10 +43,10 @@
 #include "ext_obs.h"
 
 
-void set_multfiles(SLCT_STR *slct_str, char **selliste);
-void get_multfiles(SLCT_STR *slct_str, char *pathname, char **selliste);
-void f_build_filelist(char **param, int mode);
-void f_free_filelist(void);
+static void set_multfiles(SLCT_STR *slct_str, char **selliste);
+static void get_multfiles(SLCT_STR *slct_str, char *pathname, char **selliste);
+static void f_build_filelist(char **param, int mode);
+static void f_free_filelist(void);
 
 #define LOAD	1
 #define SAVE	2
@@ -140,9 +140,7 @@ void file_load(char *ltext, char **dateien, int mode)
 	DraufschmeissBild = 0;					/* Ja, jetzt erst */
 
 	f_free_filelist();
-
-	return;
-} /* file_load */
+}
 
 
 int file_save(char *stext, char *buf, long length)
@@ -210,7 +208,34 @@ start:
 	}
 
 	return(TRUE);
-} /* file_save */
+}
+
+
+/* Messagehandler fr Betrieb des FSEL im Fenster */
+/* 
+ * Die Einsprungadresse dieser Funktion wird als Callback an BoxKite
+ * bergeben. 
+ * Wie man sieht, kann sie auch andere Messagetypen als WM_REDRAW
+ * behandeln. WM_MOVED ist sogar ratsam, da es immerhin Betriebssystem-
+ * versionen gibt, die das Verschieben von hintenliegenden Fenstern
+ * erm”glichen. Messages, die implizit neue Fenster ”ffnen oder vorhandene 
+ * nach oben bringen, sollten dagegen ignoriert oder aufgehoben und erst 
+ * nach der Rckkehr aus dem Fileselector behandelt werden.
+ * WM_TOPPED-Messages werden nicht an den Message-Callback durchgereicht.
+ */
+static void cdecl message_handler(int *msg)
+{
+	switch(msg[0])
+	{
+		case WM_REDRAW: memcpy(messagebuf, msg, 16);
+						f_handle_message();
+						break;
+		case WM_MOVED:	memcpy(messagebuf, msg, 16);
+						f_handle_message();
+						break;
+		default:		break;
+	}
+}
 
 
 /* Datei mittels Fileselector ”ffnen. */
@@ -292,12 +317,12 @@ int f_fsbox(char *Path, char *fbtext, char selectart)
 	}
 	else
 		return(FALSE);
-} /* f_fsbox */
+}
 
 
 /* Anlegen und initialisieren der Filenamenliste, welche durch den */
 /* Fileselektor bei einer Mehrfachselektion dann gefllt wird. */
-void set_multfiles(SLCT_STR *slct_str, char **sellist)
+static void set_multfiles(SLCT_STR *slct_str, char **sellist)
 {
 	int i;
 
@@ -324,14 +349,12 @@ void set_multfiles(SLCT_STR *slct_str, char **sellist)
 		slct_str->out_count = i;
 		slct_str->out_ptr = sellist;
 	}
-
-	return;
-} /* set_multfiles */
+}
 
 
 /* Alle Files der Liste werden direkt ber die f_loadpic() geladen */
 /* und der Laderoutine dann ein Abbruch vorgegaukelt. */
-void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
+static void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
 {
 	char *part;
 
@@ -369,9 +392,7 @@ void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
 
 	/* Mehrfachselektion aus */
 	slct_str->comm = 0x0;
-
-	return;
-} /* get_multfiles */
+}
 
 
 /* Packt eine Fileliste des jeweiligen Typs in eine Liste des */
@@ -381,7 +402,7 @@ void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
 /* ARGS = Liste von D&D-Type ARGS, String mit gequoteten Namen */
 /* START = Liste vom ARGV-Verfahren, Array von Zeigern */
 /* VA = Liste von VA_START, String mit gequoteten Namen */
-void f_build_filelist(char **param, int mode)
+static void f_build_filelist(char **param, int mode)
 {
 	char *arg_name;
 
@@ -422,20 +443,15 @@ void f_build_filelist(char **param, int mode)
 			namelist[1] = NULL;		/* terminieren */
 			break;
 	}
-
-	return;
-} /* f_build_filelist() */
+}
 
 
-void f_free_filelist(void)
+static void f_free_filelist(void)
 {
 	int i;
-
 
 	/* angeforderte Zeiger wieder freigeben */
 	i = 0;
 	while(i < 256 && namelist[i])
 		free(namelist[i++]);
-
-	return;
-} /* f_free_filelist() */
+}

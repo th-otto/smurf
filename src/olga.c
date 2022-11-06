@@ -39,20 +39,13 @@
 #include "plugin/plugin.h"
 #include "ext_rsc.h"
 #include "olga.h"
+#include "olgagems.h"
 #include "bindings.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"
 #include "debug.h"
 
-
-int init_OLGA(void);
-int deinit_OLGA(void);
-int rename_OLGA(char *oldname, char *newname);
-int update_OLGA(char *filename);
-
-
-extern SYSTEM_INFO Sys_info;
 
 /*-------------------------------------------------------------------
 	Initialisieren des OLGA-Protokolls, wie von Th. Much beschrieben.
@@ -147,7 +140,7 @@ int init_OLGA(void)
 	DEBUG_MSG (( "init_OLGA... Ende \n" ));
 
 	return(0);
-} /* init_OLGA */
+}
 
 
 
@@ -160,7 +153,7 @@ int deinit_OLGA(void)
 		Comm.sendAESMsg(Sys_info.olgaman_ID, OLE_EXIT, -1);
 
 	return(0);
-} /* deinit_OLGA */
+}
 
 
 /*-------------------------------------------------------------------
@@ -192,7 +185,7 @@ int update_OLGA(char *filename)
 	/* das wird nach Antwort von Olga durch OLGA_ACK gemacht */
 
 	return(0);
-} /* update_OLGA */
+}
 
 
 /*-------------------------------------------------------------------
@@ -231,4 +224,4 @@ int rename_OLGA(char *oldname, char *newname)
 
 
 	return(0);
-} /* rename_OLGA */
+}

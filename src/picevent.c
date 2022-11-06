@@ -64,22 +64,12 @@ extern	OBJECT	*blockpopup;
 int lastmousex = 0, lastmousey = 0;
 
 /*----------- lokale Funktionen -----------------------------*/
-int crosshair_mouse(WINDOW *window, int mx, int my);
-void move_crosshair(WINDOW *window);
-void f_block_popup(WINDOW *picwindow);
-void pic_popup(WINDOW *picwindow);
-void reload_pic(WINDOW *picwindow);
-void drop_block(WINDOW *picwindow, int mx, int my);
-int mouse_block_position(WINDOW *picwindow, int mx, int my, int *hmode, int *vmode);
-void f_display_bwh(WINDOW *pic_window);
-
+static int crosshair_mouse(WINDOW *window, int mx, int my);
+static void move_crosshair(WINDOW *window);
+static void pic_popup(WINDOW *picwindow);
+static void drop_block(WINDOW *picwindow, int mx, int my);
+static int mouse_block_position(WINDOW *picwindow, int mx, int my, int *hmode, int *vmode);
 static void do_block_box(WINDOW *picwindow, int mx, int my);
-
-
-/*----------- externe Funktionen -----------------------------*/
-extern	void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
-extern	void getpix_std_1(char *std, int *pixval, int depth, long planelen, int which);
-extern	int duplicate_pic(WINDOW *window);
 
 
 BLOCKMODE blockmode_conf =
@@ -330,12 +320,10 @@ void f_pic_event(WINDOW *picwindow, int event_type, int windnum)
 
 	oldwindow = picwindow;
 	oldwindnum = windnum;
-
-	return;
-} /* f_pic_event */
+}
 
 
-int crosshair_mouse(WINDOW *window, int mx, int my)
+static int crosshair_mouse(WINDOW *window, int mx, int my)
 {
 	int arrnum = -1, x, y, dummy;
 	int all_yoff, all_xoff;
@@ -369,10 +357,10 @@ int crosshair_mouse(WINDOW *window, int mx, int my)
 		return(1);
 	else
 		return(0);
-} /* crosshair_mouse */
+}
 
 
-void move_crosshair(WINDOW *window)
+static void move_crosshair(WINDOW *window)
 {
 	int arrnum = -1;
 	int all_yoff, all_xoff;
@@ -506,12 +494,10 @@ void move_crosshair(WINDOW *window)
 	} while(mbutton != 0);
 
 	Window.redraw(window, NULL, 0, DRAWNOTREE);
-
-	return;
-} /* move_crosshair */
+}
 
 
-void pic_popup(WINDOW *picwindow)
+static void pic_popup(WINDOW *picwindow)
 {
 	int back, dummy, kstate;
 
@@ -589,9 +575,7 @@ void pic_popup(WINDOW *picwindow)
 				
 		default: 		 	f_set_picpal(picture);
 	}
-
-	return;
-} /* pic_popup */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -648,9 +632,7 @@ void f_block_popup(WINDOW *picwindow)
 		case BLOCK_MODE:	blockmode();
 							break;
 	}
-
-	return;
-} /* f_block_popup */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -1252,8 +1234,6 @@ static void do_block_box(WINDOW *picwindow, int mx, int my)
 
 	if(picwindow->xoffset != merkxoffset || picwindow->yoffset != merkyoffset)
 		Window.redraw(Dialog.picMan.window, NULL, PICMAN_PREVIEW, 0);
-
-	return;
 }
 
 
@@ -1264,7 +1244,7 @@ static void do_block_box(WINDOW *picwindow, int mx, int my)
 	Drag&Drop-Protokoll, Speichern mit AV-Protokoll, šbertragen in ein anderes Smurf-
 	Bildfenster, etc.
 	-----------------------------------------------------------------------------------	*/
-void drop_block(WINDOW *picwindow, int mx, int my)
+static void drop_block(WINDOW *picwindow, int mx, int my)
 {
 	char newPicName[256];
 
@@ -1434,9 +1414,7 @@ void drop_block(WINDOW *picwindow, int mx, int my)
 			Comm.avComm.keystate = key;
 			Comm.sendAESMsg(AV_WHAT_IZIT, mx, my, -1);
 		}
-
-	return;
-} /* drop_block */
+}
 
 
 
@@ -1446,7 +1424,7 @@ void drop_block(WINDOW *picwindow, int mx, int my)
 	Block in picwindow angefažt wurde. Wenn hierbei ein neuer Block aufgezogen wird,
 	ist der Rckgabewert 1, und 0, wenn ein bereits vorhandener Block ge„ndert wird.
 	-----------------------------------------------------------------------------------	*/
-int mouse_block_position(WINDOW *picwindow, int mx, int my, int *hmode, int *vmode)
+static int mouse_block_position(WINDOW *picwindow, int mx, int my, int *hmode, int *vmode)
 {
 	int n_mx, n_my;
 	int bx1, by1, bx2, by2;
@@ -1504,7 +1482,7 @@ int mouse_block_position(WINDOW *picwindow, int mx, int my, int *hmode, int *vmo
 	}
 
 	return(new_block);
-} /* mouse_block_position */
+}
 
 
 /*	void set_nullcoord --------------------------------------------------------	
@@ -1538,9 +1516,7 @@ void set_nullcoord(WINDOW *picwindow)
 	}
 
 	nullcoordset = 1;
-
-	return;
-} /* set_nullcoord */
+}
 
 
 /* f_display_coords --------------------------------------------------------------
@@ -1690,9 +1666,7 @@ void f_display_coords(WINDOW *pic_window, int mx, int my, char blockflag)
 	}
 
 	nullcoordset = 0;
-
-	return;
-} /* f_display_coords */
+}
 
 
 
@@ -1738,9 +1712,7 @@ void f_display_bwh(WINDOW *pic_window)
 		obw = bw;
 		obh = bh;
 	}
-
-	return;
-} /* f_display_bwh */
+}
 
 
 /* void	reload_pic --------------------------------------------------------
@@ -1954,9 +1926,7 @@ void f_activate_pic(int windnum)
 	}
 
 	inform_modules(MPIC_UPDATE, smurf_picture[active_pic]);
-
-	return;
-} /* f_activate_pic */
+}
 
 
 /* picwin_keyboard -------------------------------------------------------------
@@ -2021,6 +1991,4 @@ void picwin_keyboard(int key_scancode, int key_at_event, WINDOW *picwin)
 		*((long *)&(Iorec(1)->ibufhd)) = 0L;
 
 	Window.redraw(Dialog.picMan.window, NULL, PM_PREVBOX, 0);
-
-	return;
-} /* picwin_keyboard */
+}

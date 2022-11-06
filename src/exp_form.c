@@ -75,21 +75,19 @@ extern	SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
 
 extern	long 	f_len;					/* LÑnge des letzten geladenen Files */
 
-extern	EXPORT_CONFIG exp_conf;
-
 MOD_ABILITY export_mod_ability;
 int dest_colsys;
 
 /*------------- lokale Funktionen --------------*/
-int best_depth(int desired_depth);
-void get_picform(MOD_ABILITY *dest_mabs, int ed_button);
-void act_exdither_popups(void);
+static int best_depth(int desired_depth);
+static void get_picform(MOD_ABILITY *dest_mabs, int ed_button);
+static void act_exdither_popups(void);
 
 
 /**********************************************************************	*/
 /*								Export-Dialog							*/
 /**********************************************************************	*/
-void f_export_formular()
+void f_export_formular(void)
 {
 	int pop_button, button, enablemode;
 	int old_display_obj, old_cycle;
@@ -103,9 +101,6 @@ void f_export_formular()
 	static char	export_filepal_name[32] = "feste Palette";
 	int exp_index;
 	char *pal_loadpath;
-
-	extern char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols);
-
 
 	exp_index = exp_conf.export_mod_num&0xFF;
 
@@ -316,9 +311,7 @@ void f_export_formular()
 							change_object(&wind_s[FORM_EXPORT], LOAD_EXPPAL, UNSEL, 1);
 							break;
 	}
-
-	return;
-} /* f_export_formular */
+}
 
 
 
@@ -327,7 +320,7 @@ void f_export_formular()
 /*		Setzt in dest_mabs das zu ed_button (Farbtiefe) passende		*/
 /*		Datenformat und die Farbtiefe aus src_mabs.						*/
 /**********************************************************************	*/
-void get_picform(MOD_ABILITY *dest_mabs, int ed_button)
+static void get_picform(MOD_ABILITY *dest_mabs, int ed_button)
 {
 	if(ed_button == EXP_D24)
 		dest_mabs->depth1 = 24;
@@ -366,9 +359,7 @@ void get_picform(MOD_ABILITY *dest_mabs, int ed_button)
 
 	exp_conf.exp_depth = dest_mabs->depth1;
 	exp_conf.exp_form = dest_mabs->form1;
-
-	return;
-} /* get_picform */
+}
 
 
 /*------------------------------------------------------------------*/
@@ -377,7 +368,7 @@ void get_picform(MOD_ABILITY *dest_mabs, int ed_button)
 /*	export_depth[n] eines Moduls und der gewÅnschten Farbtiefe		*/
 /*	desired_depth.													*/
 /*------------------------------------------------------------------*/
-int best_depth(int desired_depth)
+static int best_depth(int desired_depth)
 {
 	int t;
 
@@ -392,7 +383,7 @@ int best_depth(int desired_depth)
 		t--;
 
 	return(export_depth[t]);
-} /* best_depth */
+}
 
 
 /*----------------------------------------------------------------	*/
@@ -400,7 +391,7 @@ int best_depth(int desired_depth)
 /*	Baut die Popups um und redrawed sie, je nach den Einstellungen	*/
 /*	und den Spezifikationen des Exporters.							*/
 /*----------------------------------------------------------------	*/
-void act_exdither_popups(void)
+static void act_exdither_popups(void)
 {
 	int enablemode;
 
@@ -433,9 +424,7 @@ void act_exdither_popups(void)
 	change_object(&wind_s[FORM_EXPORT], EXP_DITHERC, enablemode, 1);
 	change_object(&wind_s[FORM_EXPORT], EXP_COLRED, enablemode, 1);
 	change_object(&wind_s[FORM_EXPORT], EXP_COLREDC, enablemode, 1);
-
-	return;
-} /* act_exdither_popups */
+}
 
 
 /* prepare_depthpopup -------------------------------
@@ -473,6 +462,4 @@ void prepare_depthpopup(void)
 			case 1:		exp_dp_popup[EXP_D1].ob_state &= ~DISABLED;		break;
 		}
 	}
-
-	return;
-} /* prepare_depthpopup */
+}

@@ -66,27 +66,24 @@ void write_debug(const char *message)
 		
 }
 
-void WriteDebugMsg( FILE *DebugHandle, char *Arg, va_list ap )
-{
-	char Puf[512];
-	vsprintf( Puf, Arg, ap);
-	if( DebugHandle )
-		fwrite( Puf, sizeof( char ), strlen( Puf ), DebugHandle );
-}
 
-void DebugMsg( char *Arg __c_va_alist )
+void DebugMsg(const char *Arg, ...)
 {
 #ifdef DEBUG
+	char Puf[512];
 	va_list	ap;
-	FILE *DebugHandle = NULL;
+	FILE *DebugHandle;
+	int len;
 	
 	va_start( ap, Arg );
 	DebugHandle = fopen( "smurf.log", "a+" );
 
 	if( DebugHandle )
-		WriteDebugMsg( DebugHandle, Arg, ap );
-	if( DebugHandle )
+	{
+		len = vsprintf( Puf, Arg, ap);
+		fwrite( Puf, sizeof( char ), len, DebugHandle );
 		fclose( DebugHandle );
+	}
 	
 	va_end ( ap );
 #endif

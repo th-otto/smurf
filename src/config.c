@@ -57,11 +57,10 @@ struct ploadinfo
 
 #define	DEBUGGER	1
 
-void check_and_create(char *chpath);
-
-unsigned int InqMagX(void);
-void inquire_clipboard(void);
-int getploadinfo(char *cmdlin, char *fname);
+static void check_and_create(char *chpath);
+static unsigned int InqMagX(void);
+static void inquire_clipboard(void);
+static int getploadinfo(char *cmdlin, char *fname);
 
 extern MFORM *dummy_ptr;				/* Dummymouse fÅr Maus-Form */
 
@@ -70,8 +69,6 @@ extern SERVICE_FUNCTIONS global_services;
 
 extern char *stpath;
 
-int objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1,
-				int ob_sival2, int *ob_soval1, int *ob_soval2);
 
 
 int load_config(void)
@@ -319,7 +316,7 @@ void f_analyze_system(void)
 }
 
 
-unsigned int InqMagX(void)
+static unsigned int InqMagX(void)
 {
 	MAGX_COOKIE *cv;
 
@@ -339,7 +336,7 @@ unsigned int InqMagX(void)
 	Clipboardpfad ermitteln und ggf. setzen. Es wird ggfs. ein Clipboardordner
 	C:\\CLIPBRD erzeugt.
 	------------------------------------------------------------------------*/
-void inquire_clipboard(void)
+static void inquire_clipboard(void)
 {
 	char *env_path, chpath[256];
 
@@ -412,7 +409,7 @@ void inquire_clipboard(void)
 
 /* prÅft ob der ermittelte Clipboardpfad tatsÑchlich vorhanden ist */
 /* und versucht einen anzulegen wenn er nicht vorhanden ist */
-void check_and_create(char *chpath)
+static void check_and_create(char *chpath)
 {
 #if 0
 	if(Sys_info.scrp_path != NULL)
@@ -442,9 +439,7 @@ void check_and_create(char *chpath)
 			scrp_write(Sys_info.scrp_path);
 		}
 	}
-
-	return;
-} /* check_and_create */
+}
 
 
 /* Holt sich das Smurflaufwerk */
@@ -546,7 +541,7 @@ void GetSMPath(void)
 
 /* gibt im Fehlerfall 0 zurÅck um returnwertkompatibel */
 /* zu shel_read() zu sein (s.o.) */
-int getploadinfo(char *cmdlin, char *fname)
+static int getploadinfo(char *cmdlin, char *fname)
 {
 	long handle, ret;
 
@@ -566,8 +561,5 @@ int getploadinfo(char *cmdlin, char *fname)
 		if(ret == 0)
 			return(1);
 	}
-	else
-		return(0);
-
-	return(1);
+	return(0);
 }

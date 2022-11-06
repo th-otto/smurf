@@ -73,8 +73,6 @@ int load_plugin(int plugin_number);
 void terminate_plugin(int index);
 void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename);
 
-extern	struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen);
-extern	void destroy_filelist(struct DIRENTRY *begin);
 extern	OBJECT	*menu_tree;
 extern	long Name_Max;
 
@@ -126,8 +124,6 @@ void scan_plugins(void)
 	long temp, lback;
 
 	struct DIRENTRY *actual, *filelist;
-
-	extern	long get_proclen(BASPAG *baspag);
 
 	
 	for(t=0; t<11; t++)	plg_data[t]=NULL;
@@ -494,8 +490,6 @@ int load_plugin(int plugin_number)
 	char alert[128];
 	long temp, lback, ProcLen, mod_magic;
 
-	extern	long get_proclen(BASPAG *baspag);
-
 	
 	Dialog.busy.reset(128, "Lade Plugin");
 
@@ -654,7 +648,6 @@ void init_structs(void)
 	extern	int	anzahl_importmods, anzahl_dithermods;
 	extern	EXPORT_CONFIG exp_conf;				/* laufender Exporter */
 
-	extern	int dither_for_export(MOD_ABILITY *mod_abs, int max_expdepth, int dest_format, SMURF_PIC *converted_pic);
 	extern	DITHER_MOD_INFO *ditmod_info[10];
 
 	extern int mouse_xpos, mouse_ypos, mouse_button, klicks, key_scancode, key_ascii, key_at_event, obj;

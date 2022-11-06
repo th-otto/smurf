@@ -615,6 +615,4 @@ void fix_rsc(void)
 		ob[INTERFACE_BUTTON].ob_spec.tedinfo->te_thickness = 1;
 		ob[CONVERS_BUTTON].ob_spec.tedinfo->te_thickness = 1;
 	}
-
-	return;
 }

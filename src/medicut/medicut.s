@@ -190,10 +190,10 @@ xloop2:
 
 ;-----------------------------------------------------
 ;	Histogramm fÅr 24 Bit-Bild erstellen
-; Deklaration: histogram_24bit(long *histogram, char *pdata, long pixlen)
+; Deklaration: long histogram_24bit(long *histogram, char *pdata, long pixlen)
 GLOBL histogram_24bit
 histogram_24bit:
-	movem.l d3-d4, -(sp)
+	movem.l d2-d4, -(sp)
 
 	clr.l	d1
 	clr.l	d2
@@ -230,5 +230,5 @@ no_new_col:
 	bne	pixloop24
 	
 	move.l d4, d0
-	movem.l	(sp)+,	d3-d4
+	movem.l	(sp)+,	d2-d4
 	rts

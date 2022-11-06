@@ -76,7 +76,6 @@ void f_display_opt(void)
 
 	OBJECT *dopt_tree;
 
-	extern char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols);
 	extern int picwindthere;
 	extern WINDOW picture_windows[MAX_PIC];
 
@@ -254,9 +253,7 @@ void f_display_opt(void)
 
 	if(button == DISPLAY_SET)
 		change_object(&wind_s[WIND_DOPT], DISPLAY_SET, UNSEL, 1);
-
-	return;
-} /* f_display_opt */
+}
 
 
 /*------------------------ Display-Options Popups updaten. -----------------*/
@@ -339,6 +336,4 @@ void f_update_dwindow(int mode, int redraw)
 	}
 
 	DEBUG_MSG (( "f_update_dwindow...Ende\n" ));
-
-	return;
-} /* f_update_dwindow */
+}

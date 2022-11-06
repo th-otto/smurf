@@ -48,18 +48,12 @@
 #include "ext_obs.h"
 
 
-/*------------ externe Funktionen ------------------*/
-	extern	int loadNCT(int loadplanes, SYSTEM_INFO *sysinfo);
-	extern	int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int dest_colsys, DISPLAY_MODES *display, 
-										 int *fixpal_red, int *fixpal_green, int *fixpal_blue);
-
-
 /*------------ lokale Funktionen ------------------*/
-	void actualize_convpopups(int dither_algo, int depth, int pal);
-	void do_transform(int conv_depth, int conv_dither, int conv_pal);
+static void actualize_convpopups(int dither_algo, int depth, int pal);
+static void do_transform(int conv_depth, int conv_dither, int conv_pal);
 
-	int dither_destruktiv(int dest_depth, int dest_dither, int dest_pal);
-	int autoreduce_image(void);
+static int dither_destruktiv(int dest_depth, int dest_dither, int dest_pal);
+static int autoreduce_image(void);
 
 /*------------ externer Kram ----------------------*/
 	extern	DISPLAY_MODES Display_Opt;
@@ -77,9 +71,13 @@
 	extern	long f_len;
 
 /*------------ globales fÅr die Konvertierung ------*/
-	int conv_depth = 24, conv_dither = DIT1, conv_pal = CR_SYSPAL;
+static int conv_depth = 24;
+static int conv_dither = DIT1;
+static int conv_pal = CR_SYSPAL;
 
-	int tfm_fix_red[256], tfm_fix_blue[256], tfm_fix_green[256];
+static int tfm_fix_red[256];
+static int tfm_fix_blue[256];
+static int tfm_fix_green[256];
 
 
 
@@ -94,7 +92,6 @@ void transform_pic(void)
 
 	OBJECT *resource;
 
-	extern char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols);
 	extern OBJECT *form_pop;						/* Zeiger auf Resource	*/
 
 
@@ -299,7 +296,7 @@ void transform_pic(void)
 /**************************************************************	*/
 /*			Aktualisieren der Popups im Wandeln-Dialog			*/
 /**************************************************************	*/
-void actualize_convpopups(int dither_algo, int depth, int pal)
+static void actualize_convpopups(int dither_algo, int depth, int pal)
 {
 	int mode_pal, mode_dit, mode_load;
 
@@ -362,7 +359,7 @@ void actualize_convpopups(int dither_algo, int depth, int pal)
 /**************************************************************	*/
 /*						Bild wandeln							*/
 /**************************************************************	*/
-void do_transform(int conv_depth, int conv_dither, int conv_pal)
+static void do_transform(int conv_depth, int conv_dither, int conv_pal)
 {
 	char picdepth;
 
@@ -392,16 +389,14 @@ void do_transform(int conv_depth, int conv_dither, int conv_pal)
 		else
 			/* ... und runterwÑrts */
 			dither_destruktiv(conv_depth, conv_dither, conv_pal);
-
-	return;
-} /* do_transform */
+}
 
 
 /**************************************************************	*/
 /*		Ditherdispatcher fÅr destruktives Dithern 				*/
 /*	Der einzige Teil von Smurf, der nicht konstruktiv ist ...	*/
 /**************************************************************	*/
-int dither_destruktiv(int dest_depth, int dest_dither, int dest_pal)
+static int dither_destruktiv(int dest_depth, int dest_dither, int dest_pal)
 {
 	char *dest_palette,
 		 dest_form;
@@ -413,9 +408,6 @@ int dither_destruktiv(int dest_depth, int dest_dither, int dest_pal)
 	DISPLAY_MODES new_display;
 	SYSTEM_INFO	Cheat_sysinfo;
 	
-	extern EXPORT_CONFIG exp_conf;
-
-
 	convpic = smurf_picture[active_pic];
 	
 	if(dest_depth < 8)
@@ -457,7 +449,7 @@ int dither_destruktiv(int dest_depth, int dest_dither, int dest_pal)
 	new_display.dither_24 = dest_dither;
 
 	/* destruktiv dithern */
-	export_dither_dispatcher(convpic, &Cheat_sysinfo, RGB, &new_display, tfm_fix_red, tfm_fix_green, tfm_fix_blue);
+	export_dither_dispatcher(convpic, &Cheat_sysinfo, &new_display, tfm_fix_red, tfm_fix_green, tfm_fix_blue);
 
 	/*---------------- Bilddaten aus dem MFDB Åbertragen */
 	SMfree(convpic->pic_data);
@@ -506,7 +498,7 @@ int dither_destruktiv(int dest_depth, int dest_dither, int dest_pal)
 
 
 
-int autoreduce_image(void)
+static int autoreduce_image(void)
 {
 	char *rt, *gt, *bt, *data;
 	char R, G, B;

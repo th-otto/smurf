@@ -86,9 +86,8 @@ void saveUndoBuffer(SMURF_PIC *picture, int picnum)
 	Fwrite(fHandle, 1024, picture->palette);
 
 	Fclose(fHandle);
-
-	return;
 }
+
 
 /*
  * imageWindow.undo.swapBuffer
@@ -170,6 +169,4 @@ void swapUndoBuffer(SMURF_PIC *toPicture, int picNum)
 	 * das mÅûte alles sein (hoffe ich).
 	 * Das Bild muû dann (vom Aufrufer) redithered/redrawed werden.
 	 */
-
-	return;
 }

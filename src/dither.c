@@ -58,7 +58,6 @@
 
 
 extern SMURF_PIC picman_thumbnail;
-extern void make_tmp_nct(long *histogram, SMURF_PIC *pic, unsigned int maxc);
 
 
 /*------------------ Globale Variablen ---------------------*/
@@ -66,8 +65,10 @@ char *palette, *pic, *nc_table, *plane_table;
 char data_is_screen;
 
 int width, height, src_depth, dest_depth, src_format;
-int pic_dmode, bplanes, dithermode;
-unsigned int w;
+int pic_dmode;
+int bplanes;
+int dithermode;
+static unsigned int w;
 
 extern	MFORM	*dummy_ptr;				/* Dummymouse fr Maus-Form */
 
@@ -464,7 +465,7 @@ int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *par
 		dest->own_pal = 1;
 
 	return(0);
-} /* f_dither */
+}
 
 
 
@@ -502,7 +503,6 @@ void f_transform_to_standard(SMURF_PIC *picture, char *paddr)
 	unsigned int y, bh, bl;
 
 	long planelength;
-	extern	int setpix_std_line16(char *buf, char *dest, int depth, long planelen, int howmany);
 
 
 /* wie schnell sind wir? */
@@ -530,12 +530,12 @@ void f_transform_to_standard(SMURF_PIC *picture, char *paddr)
 		buffer += width;
 	} while(++y < height);
 
-/* wie schnell waren wir? */
-/*	printf("timer: %lu\n", get_timer());
-	getch(); */
-
-	return;
-} /* f_transform_to_standard */
+#if 0
+	/* wie schnell waren wir? */
+	printf("timer: %lu\n", get_timer());
+	getch();
+#endif
+}
 
 
 /*------------------------------------------------------------------*/
@@ -554,10 +554,6 @@ void f_align_standard(SMURF_PIC *picture, char *paddr, GRECT *part)
 	long planelen, dest_planelen, bufwid;
 	int x, y, bytes_per_line, bytes_aligned, bytes_copy, xbegin;
 	int endwid, endhgt;
-
-	extern	void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-	extern	int setpix_std_line16(char *buf, char *dest, int depth, long planelen, int howmany);
-	extern	void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels);
 
 	buffer = picture->pic_data;
 	Planes = picture->depth;
@@ -647,9 +643,7 @@ void f_align_standard(SMURF_PIC *picture, char *paddr, GRECT *part)
 
 		free(linebuf);
 	}
-
-	return;
-} /* f_align_standard */
+}
 
 
 
@@ -659,8 +653,7 @@ void f_align_standard(SMURF_PIC *picture, char *paddr, GRECT *part)
 /*                  Aufruf mit gefakter Sysinfo                     */
 /* ---------------------------------------------------------------- */
 /* ---------------------------------------------------------------- */
-int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MODES *display, 
-								int *fixpal_red, int *fixpal_green, int *fixpal_blue)
+int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MODES *display, int *fixpal_red, int *fixpal_green, int *fixpal_blue)
 {
 	char *paddr, *tmp_nct, *z,
 		 oldzoom;
@@ -882,4 +875,4 @@ int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MOD
 	dest->screen_pic = standard_image;
     
     return(0);
-} /* export_dither_dispatcher */
+}

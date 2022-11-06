@@ -55,23 +55,17 @@
 #define YEDGE	2
 #define ZEDGE	3
 
-void makeNCT(long *par, int maxcol);
+static void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram);
+static int find_cutpos(int box_to_cut, int edge, long *histogram);
+static int find_edge(int *edge, int num_of_boxes);
+static void shrink_box(int num_of_box, long *histogram);
 
-void median_cut(long *histogram, SMURF_PIC *picture, SYSTEM_INFO *sysinfo);
-void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram);
-int find_cutpos(int box_to_cut, int edge, long *histogram);
-int find_edge(int *edge, int num_of_boxes);
+static unsigned long sum_xyplane(int box_to_cut, int zposition, long *histogram);
+static unsigned long sum_xzplane(int box_to_cut, int yposition, long *histogram);
+static unsigned long sum_yzplane(int box_to_cut, int xposition, long *histogram);
 
-void shrink_box(int num_of_box, long *histogram);
+long histogram_24bit(long *histogram, char *pdata, long pixlen) ASM_NAME("_histogram_24bit");
 
-unsigned long sum_xyplane(int box_to_cut, int zposition, long *histogram);
-unsigned long sum_xzplane(int box_to_cut, int yposition, long *histogram);
-unsigned long sum_yzplane(int box_to_cut, int xposition, long *histogram);
-
-histogram_24bit(long *histogram, char *pdata, long pixlen);
-
-
-void make_tmp_nct(long *histogram, SMURF_PIC *pic, unsigned int maxc);
 
 /*------------- Median-Cut - BOX-Struktur ----*/
 /* Zur Verwaltung der einzelnen Boxes im RGB-WÅrfel */
@@ -82,13 +76,13 @@ typedef struct
 } MC_BOX;
 
 
-MC_BOX *boxes[256];
+static MC_BOX *boxes[256];
 
-unsigned long sumplane_xy(long *hist, MC_BOX *box, int zposition);
-unsigned long sumplane_xz(long *hist, MC_BOX *box, int yposition);
-unsigned long sumplane_yz(long *hist, MC_BOX *box, int xposition);
+unsigned long sumplane_xy(long *hist, MC_BOX *box, int zposition) ASM_NAME("_sumplane_xy");
+unsigned long sumplane_xz(long *hist, MC_BOX *box, int yposition) ASM_NAME("_sumplane_xz");
+unsigned long sumplane_yz(long *hist, MC_BOX *box, int xposition) ASM_NAME("_sumplane_yz");
 
-unsigned long colnum;
+static unsigned long colnum;
 
 /*--------------------------------------------------------------*/
 /*							make_histogram						*/
@@ -326,7 +320,7 @@ int *pr, *pg, *pb;
 /*	den WÅrfel auseinander,	erzeugt eine neue MC_BOX-Struktur und paût	*/
 /*	die alte an.														*/
 /*---------------------------------------------------------------------	*/
-void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram)
+static void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram)
 {
 	int cut_position;
 	int old_len;
@@ -385,7 +379,7 @@ void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram)
 		boxes[num_of_boxes]->boxdepth = old_len-boxes[box_to_cut]->boxdepth;
 	}
 
-	/*
+#if 0
 	printf("\n Box 1 (Nr %i): %i-%i-%i, %i-%i-%i   ", box_to_cut,
 		boxes[box_to_cut].xbox, boxes[box_to_cut].ybox, boxes[box_to_cut].zbox,
 		boxes[box_to_cut].boxwid, boxes[box_to_cut].boxhgt, boxes[box_to_cut].boxdepth);
@@ -394,7 +388,7 @@ void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram)
 		boxes[num_of_boxes].xbox, boxes[num_of_boxes].ybox, boxes[num_of_boxes].zbox,
 		boxes[num_of_boxes].boxwid, boxes[num_of_boxes].boxhgt, boxes[num_of_boxes].boxdepth);
 	getch();
-	*/
+#endif
 }
 
 
@@ -412,7 +406,7 @@ void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram)
 /*	keiten der Farben in den beiden resultierenden HÑlften gleich sind.	*/
 /*	Die Schnittposition ABSLOUT ZUM GESAMTWöRFEL wird zurÅckgegeben.	*/
 /*---------------------------------------------------------------------	*/
-int find_cutpos(int box_to_cut, int edge, long *histogram)
+static int find_cutpos(int box_to_cut, int edge, long *histogram)
 {
 	int left_position, right_position;
 	unsigned long left_sum=0, all_sum=0;
@@ -476,7 +470,7 @@ int find_cutpos(int box_to_cut, int edge, long *histogram)
 /*	Sucht den WÅrfel mit der lÑngsten Kante Åberhaupt und liefert die	*/
 /*	Nummer des wÅrfels mit return() und die Kante in *edge zurÅck.		*/
 /*---------------------------------------------------------------------	*/
-int find_edge(int *edge, int num_of_boxes)
+static int find_edge(int *edge, int num_of_boxes)
 {
 int t;
 int w,h,d;
@@ -526,7 +520,7 @@ int curedge=0, maxlen=0, curmaxlen=0;
 /*								shrink_box								*/
 /* Schrumpft die MC_BOX mit der Nummer num_of_box auf ihre Extrema ein	*/
 /*---------------------------------------------------------------------	*/
-void shrink_box(int num_of_box, long *histogram)
+static void shrink_box(int num_of_box, long *histogram)
 {
 int t;
 unsigned int diff;
@@ -614,7 +608,7 @@ unsigned long sum;
 /*	"Scheibe" aus einem WÅrfel durch und gibt die Summe (long) zurÅck.	*/
 /*---------------------------------------------------------------------	*/
 /* X-Y-Plane aufsummieren */
-unsigned long sum_xyplane(int box_to_cut, int zposition, long *histogram)
+static unsigned long sum_xyplane(int box_to_cut, int zposition, long *histogram)
 {
 int x,y;
 int yb, xb;
@@ -644,7 +638,7 @@ unsigned long sum=0;
 }
 
 /* X-Z-Plane aufsummieren */
-unsigned long sum_xzplane(int box_to_cut, int yposition, long *histogram)
+static unsigned long sum_xzplane(int box_to_cut, int yposition, long *histogram)
 {
 int x,z;
 int xb,zb;
@@ -674,7 +668,7 @@ unsigned long sum=0;
 }
 
 /* Y-Z-Plane aufsummieren */
-unsigned long sum_yzplane(int box_to_cut, int xposition, long *histogram)
+static unsigned long sum_yzplane(int box_to_cut, int xposition, long *histogram)
 {
 int y,z;
 int yb,zb;
@@ -779,7 +773,7 @@ int not_in_nct=0, idx=0;
 	}
 
 
-	/*
+#if 0
 	for(tt=0; tt<256; tt++)
 	{
 		cred[cnt]=pic->red[tt]>>3;
@@ -791,5 +785,5 @@ int not_in_nct=0, idx=0;
 	par[0]=(long)&cred;
 	par[3]=(long)nct;
 	makeNCT(par, maxc);
-	*/
+#endif
 }

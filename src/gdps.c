@@ -43,10 +43,10 @@
 
 #include <screen.h>
 
-int send_command(COMSTRUCT *comstruct, int command);
-int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps);
-void save_pic(COMSTRUCT *comstruct);
-int copy_gdpsmemory(SMURF_PIC *smurf_picture, COMSTRUCT *comstruct);
+static int send_command(COMSTRUCT *comstruct, int command);
+static int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps);
+static void save_pic(COMSTRUCT *comstruct);
+static int copy_gdpsmemory(SMURF_PIC *smurf_picture, COMSTRUCT *comstruct);
 
 extern SMURF_PIC *smurf_picture[MAX_PIC];
 extern SYSTEM_INFO Sys_info;
@@ -173,13 +173,11 @@ End:
 
 	/* Scanner freigeben */
 	actual->free = 0;
-
-	return;
 }
 
 
 /* sendet ein Kommando an ein GDPS-Device */
-int send_command(COMSTRUCT *comstruct, int command)
+static int send_command(COMSTRUCT *comstruct, int command)
 {
 	/* Adresse der eigenen Kommandostruktur eintragen */
 	actual->comstruct = comstruct;
@@ -192,12 +190,12 @@ int send_command(COMSTRUCT *comstruct, int command)
 		evnt_timer(EVNT_TIME(100));
 
 	return(0);
-} /* send_command */
+}
 
 
 /* fllt die Kommandostruktur aus */
 /* voerst nur nach GDPS 1.00 */
-int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps)
+static int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps)
 {
 	comstruct->result = 0;						/* Rckgabe initialisieren */
 
@@ -231,12 +229,12 @@ int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps)
 	comstruct->add_bits = 0;
 
 	return(0);	
-} /* make_comstruct */
+}
 
 
 /* Klabustert die Daten im Zielspeicher auseinander */
 /* und setzt sie zum Bild zusammen */
-void save_pic(COMSTRUCT *comstruct)
+static void save_pic(COMSTRUCT *comstruct)
 {
 	int width, height, depth;
 	char *palette;
@@ -359,12 +357,10 @@ void save_pic(COMSTRUCT *comstruct)
 		
 	actualize_ram();	/* wieviel RAM? */
 	actualize_menu();	/* Meneintr„ge ENABLEn / DISABLEn */
-
-	return;
-} /* save_picture */
+}
 
 
-int copy_gdpsmemory(SMURF_PIC *smurf_picture, COMSTRUCT *comstruct)
+static int copy_gdpsmemory(SMURF_PIC *smurf_picture, COMSTRUCT *comstruct)
 {
 
 	if(comstruct->modes&1 || comstruct->modes&2)
@@ -375,4 +371,4 @@ int copy_gdpsmemory(SMURF_PIC *smurf_picture, COMSTRUCT *comstruct)
 				return(0);
 
 	return(0);
-} /* copy_gdpsmemory */
+}

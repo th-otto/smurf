@@ -70,10 +70,8 @@ extern OBJECT *col_pop;					/* Zeiger auf Resource-DITHERPOPUP	*/
 int files_read;
 extern long Name_Max;
 
-void save_extensions(MOD_INFO *module_info);
-void save_import_list(void);
-
-extern long get_proclen(BASPAG *baspag);
+static void save_extensions(MOD_INFO *module_info);
+static void save_import_list(void);
 
 /* ----------------------------------------------------------------	*/
 /*----------------- Edit-Module suchen und eintragen ---------------*/
@@ -243,9 +241,7 @@ void f_scan_edit(void)
 	free(swapstr);
 	free(edit_path);
 	free(editpath);
-
-	return;
-} /* f_scan_edit */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -410,16 +406,14 @@ void f_scan_import(void)
 	load_import_list();
 
 	DEBUG_MSG (( "Lade Import-Module...Ende\n" ));
-
-	return;
-} /* f_scan_import */
+}
 
 
 
 /* ----------------------------------------------------------------	*/
 /*		Extensionen eines Importers in Import_list speichern		*/
 /* ----------------------------------------------------------------	*/
-void save_extensions(MOD_INFO *module_info)
+static void save_extensions(MOD_INFO *module_info)
 {
 	int t;
 
@@ -431,16 +425,14 @@ void save_extensions(MOD_INFO *module_info)
 		strcpy(Import_list.mod_exts[t][anzahl_importmods], module_info->ext[t]);
 		strupr(Import_list.mod_exts[t][anzahl_importmods]);
 	} while(++t < 10);
-
-	return;
-} /* save_extensions */
+}
 
 
 
 /******************************************************************	*/
 /*					Importerliste speichern							*/
 /******************************************************************	*/
-void save_import_list(void)
+static void save_import_list(void)
 {
 	char *string, listpath[256],
 		 len;
@@ -521,9 +513,7 @@ void save_import_list(void)
 		Dialog.winAlert.openAlert("Fehler beim Schreiben der Importerliste!", NULL, NULL, NULL, 1);
 	else
 		Dialog.busy.ok();
-
-	return;
-} /* save_import_list */
+}
 
 
 /******************************************************************	*/
@@ -587,7 +577,7 @@ int load_import_list(void)
 	DEBUG_MSG (( "load_import_list...Ende\n" ));
 
 	return(0);
-} /* load_import_list */
+}
 
 
 
@@ -651,7 +641,7 @@ int seek_module(SMURF_PIC *picture, char *extension)
 	}
 
 	return(mod_ret);
-} /* seek_module */
+}
 
 
 
@@ -801,9 +791,7 @@ void f_scan_export(void)
 	free(swapstr);
 	free(ex_path);
 	free(expath);
-
-	return;
-} /* f_scan_export */
+}
 
 
 
@@ -919,9 +907,7 @@ void f_scan_dither(void)
 
 	free(dit_path);
 	free(ditpath);
-
-	return;
-} /* f_scan_dither */
+}
 
 
 /* build_up_filelist baut eine doppelt verkettete Liste der im Verzeichnis vorhandenen */
@@ -1027,7 +1013,7 @@ struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen)
 	}
 
 	return(begin);
-} /* build_up_filelist */
+}
 
 
 /* insert_entry fgt einen Eintrag (eine Datei) in die verkettete Liste ein. */
@@ -1052,7 +1038,7 @@ struct DIRENTRY *insert_entry(struct DIRENTRY *ende, char *string)
 	ende->next = new;			/* Vorg„nger (also bisher letzter) zeigt auf neues Element */
 
 	return(new);
-} /* insert_entry */
+}
 
 
 /* L”st die verkettete Liste wieder auf. */
@@ -1070,6 +1056,4 @@ void destroy_filelist(struct DIRENTRY *actual)
 		free(actual);			/* zugegriffen werden darf */
 		actual = next;
 	}
-
-	return;
-} /* destroy_filelist */
+}

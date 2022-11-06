@@ -49,8 +49,6 @@
 
 static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int stripheight);
 
-extern void f_display_bwh(WINDOW *pic_window);
-
 extern	MFORM	*dummy_ptr;				/* Dummymouse fr Maus-Form */
 
 extern	int picwindthere, dialwindthere, picthere;
@@ -659,9 +657,6 @@ void draw_block(WINDOW *window, GRECT *picbox)
 	GRECT picpart, block, *ditherPart;
 	SMURF_PIC *picture = window->picture, *previewedStrip;
 	MFDB *disp_pic, m_screen;
-
-	extern BLOCKMODE blockmode_conf;
-
 
 	if(window->picture->block == NULL || (window->picture->blockwidth == 0 && window->picture->blockheight == 0))
 		return;

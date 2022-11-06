@@ -38,10 +38,6 @@
 #include "smurf_f.h"
 
 
-extern SYSTEM_INFO Sys_info;
-extern DISPLAY_MODES Display_Opt;
-
-
 void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, int dither)
 {
 	int zoom;
@@ -92,6 +88,4 @@ void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, int dither)
 	 * dithern
 	 */
 	f_dither(thumbnail, &Sys_info, 0, NULL, &thisDisplay);
-
-	return;
-} /* make_thumbnail */
+}

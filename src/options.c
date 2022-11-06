@@ -375,9 +375,7 @@ void f_options(void)
 			if(wind_s[item].whandlem != 0)
 				Window.redraw(&wind_s[item], NULL, 0, 0);
 	}
-
-	return;
-} /* f_options */
+}
 
 
 void f_set_envconfig(void)
@@ -412,6 +410,4 @@ void f_set_envconfig(void)
 				}
 				break;
 	}
-
-	return;
-} /* f_set_envconfig */
+}

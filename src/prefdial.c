@@ -41,9 +41,6 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-void check_clipping(void);
-void applyConfig(long *loadcnf);
-
 #define	ABS(i)	(i>0? i : -i)
 
 extern	CROSSHAIR	position_markers[20];		/* Positionsmarker fr die Editmodule */
@@ -73,9 +70,11 @@ extern	char module_pics[21][7];
 
 extern MFORM *dummy_ptr;
 
-void f_make_preview(int redraw_flag);
-void f_insert_prefs(GARGAMEL *smurf_st, SMURF_PIC *picture);
-void check_prevzoom(void);
+static void f_make_preview(int redraw_flag);
+static void f_insert_prefs(GARGAMEL *smurf_st, SMURF_PIC *picture);
+static void check_prevzoom(void);
+static void check_clipping(void);
+static void applyConfig(long *loadcnf);
 
 SMURF_PIC *module_preview = NULL;
 SMURF_PIC move_prev;
@@ -518,9 +517,7 @@ void f_module_prefs(MOD_INFO *infostruct, int mod_id)
 	module.smStruct[edit_mod_num]->wind_struct = &wind_s[WIND_MODFORM];
 
 	Dialog.busy.ok();
-
-	return;
-} /* f_module_prefs */
+}
 
 
 /* ------------------------------------------------------------------------	*/
@@ -944,15 +941,13 @@ void f_mpref_change(void)
 
 	if(!close_me)
 		check_and_terminate(module.smStruct[edit_mod_num]->module_mode, edit_mod_num);
-
-	return;
-} /* f_mpref_change */
+}
 
 
 /* ------------------------------------------------------------------------	*/
 /*	En-/Disablen der Preview-Zoom-Buttons nach Prfung der Gr”žen			*/
 /* ------------------------------------------------------------------------	*/
-void check_prevzoom(void)
+static void check_prevzoom(void)
 {
 	OBJECT *modtree;
 	SMURF_PIC *pic;
@@ -980,16 +975,14 @@ void check_prevzoom(void)
 		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, ENABLED, 1);
 		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, ENABLED, 1);
 	}
-
-	return;
-} /* check_prevzoom */
+}
 
 
 /* ----------------------------------------------------------------------------	*/
 /*	šberprft das Clipping des Previewausschnittes im Module-Preferences-Dialog	*/
 /*	anhand Bildbreite, Zoom und PrevBox-Abmessungen und pažt es ggfs. an.		*/
 /* ----------------------------------------------------------------------------	*/
-void check_clipping(void)
+static void check_clipping(void)
 {
 	OBJECT *modtree = wind_s[WIND_MODFORM].resource_form;
 
@@ -1001,9 +994,7 @@ void check_clipping(void)
 		wind_s[WIND_MODFORM].clipwid = smurf_picture[active_pic]->pic_width / prev_zoom;
 	if(smurf_picture[active_pic]->pic_height / prev_zoom < modtree[PREV_BOX].ob_height)
 		wind_s[WIND_MODFORM].cliphgt = smurf_picture[active_pic]->pic_height / prev_zoom;
-
-	return;
-} /* check_clipping */
+}
 
 
 /* ------------------------------------------------------------------------		*/
@@ -1111,15 +1102,13 @@ void f_move_preview(WINDOW *window, SMURF_PIC *orig_pic, int redraw_object)
 	graf_mouse(ARROW, dummy_ptr);
 
 	window->picture = old_pic;
-
-	return;
-} /* f_move_preview */
+}
 
 
 /* ------------------------------------------------------------------------	*/
 /*								Preview erzeugen							*/
 /* ------------------------------------------------------------------------	*/
-void f_make_preview(int redraw_flag)
+static void f_make_preview(int redraw_flag)
 {
 	SMURF_PIC *source_pic;
 	SMURF_PIC *add_pix[7];
@@ -1310,15 +1299,13 @@ void f_make_preview(int redraw_flag)
 
 	Dialog.busy.ok();
 	Dialog.busy.dispRAM();
-
-	return;
-} /* f_make_preview */
+}
 
 
 /* ------------------------------------------------------------------------	*/
 /*				PD-Parameter in GARGAMEL-Struktur einfgen					*/
 /* ------------------------------------------------------------------------	*/
-void f_insert_prefs(GARGAMEL *smurf_st, SMURF_PIC *picture)
+static void f_insert_prefs(GARGAMEL *smurf_st, SMURF_PIC *picture)
 {
 	OBJECT *modtree;
 
@@ -1356,10 +1343,6 @@ void copy_preview(SMURF_PIC *source_pic, SMURF_PIC *preview, WINDOW *prev_window
 	char *Destdata, *Srcdata, *sptr, *dptr, *linebuf, *src, *dest;
 	int *sptr16, *dptr16;
 	int prev_endhgt, prev_endwid, desty_count, destx_count;
-
-	extern	void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-	extern	int setpix_std_line16(char *buf, char *dest, int depth, long planelen, int howmany);
-
 
 	Srcdata=source_pic->pic_data;
 	Destdata=preview->pic_data;
@@ -1491,7 +1474,7 @@ void copy_preview(SMURF_PIC *source_pic, SMURF_PIC *preview, WINDOW *prev_window
 }
 
 
-void applyConfig(long *loadcnf)
+static void applyConfig(long *loadcnf)
 {
 	OBJECT *modtree;
 	

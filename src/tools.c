@@ -72,7 +72,7 @@ char *quote_arg(char *s)
 	*t = '\0';
 
 	return(ot);
-} /* quote_arg */
+}
 
 
 /* Entfernt die Anfangs-, die End- und die doppelten Quotemarks (') */
@@ -102,7 +102,7 @@ char *unquote_arg(char *s)
 	*(t - 1) = '\0';	/* und ganz hinten ein Quote weg */
 
 	return(os);
-} /* unquote_name */
+}
 
 
 /* Die Funktion arbeitet Ñhnlich der Bibliotheksfunktion strtok() */
@@ -169,7 +169,7 @@ char *strargvtok(char *s)
 	t = s;							/* und neuen Anfang setzen */
 
 	return(back);
-} /* strargvtok */
+}
 
 
 /* So stelle ich mir die Implementierung der Bibliotheksfunktion strtok() vor. */
@@ -216,7 +216,7 @@ char *mystrtok(char *s, char c)
 	t = s;							/* und neuen Anfang setzen */
 
 	return(back);
-} /* mystrtok */
+}
 
 
 /* Die Funktion sucht von vorne her nach dem ersten Vorkommen des */
@@ -237,7 +237,7 @@ int strsrchl(char *s, char c)
 		return(-1);
 	else
 		return(i);
-} /* strsrchl */
+}
 
 
 
@@ -257,7 +257,7 @@ int strsrchr(char *s, char c)
 	}
 
 	return(i);
-} /* strsrchr */
+}
 
 
 /* Sucht das Environment nach Tempdirs ab und fÅllt es in tmpdir. */
@@ -276,9 +276,7 @@ void get_tmp_dir(char *tmpdir)
 
 	if(*tmpdir == '\0')
 		strcpy(tmpdir, Sys_info.standard_path);
-
-	return;
-} /* get_tmp_dir */
+}
 
 
 /* Funktion um Cookie auf Anwesenheit zu testen */
@@ -337,7 +335,7 @@ int get_cookie(unsigned long cookie, unsigned long *value)
 			return(FALSE);
 		}
 	}
-} /* get_cookie */
+}
 
 
 /* --- Funktion zur Reservierung von Speicher + Kontrolle ------- */
@@ -385,8 +383,6 @@ void set_startupdial(char *string)
 		strcpy(startrsc[STARTUP_TXT].TextCast, string);
 		objc_draw(startrsc, STARTUP_TXT, 1, sx,sy,sw,sh);
 	}
-
-	return;
 }
 
 
@@ -536,9 +532,7 @@ void BCD2string(char *string, int bcd)
 	*string++ = '0' + ((bcd&0x00f0) >> 4);
 	*string++ = '0' + (bcd&0x000f);
 	*string++ = '\0';
-
-	return;
-} /* BCD2string */
+}
 
 
 /* string right pointer break - GegenstÅck zum string pointer break */
@@ -563,7 +557,7 @@ char *strrpbrk(char *s1beg, char *s1, char *s2)
 		return(s1);
 	else
 		return(NULL);
-} /* strrpbrk */
+}
 
 
 /* make_singular_display -----------------------------------------------
@@ -573,8 +567,6 @@ char *strrpbrk(char *s1beg, char *s1, char *s2)
 	--------------------------------------------------------------------*/
 void make_singular_display(DISPLAY_MODES *old, int Dither, int Pal)
 {
-	extern DISPLAY_MODES Display_Opt;
-
 	memcpy(old, &Display_Opt, sizeof(DISPLAY_MODES));
 	Display_Opt.dither_24 = Dither;
 	Display_Opt.dither_8 = Dither;
@@ -582,8 +574,6 @@ void make_singular_display(DISPLAY_MODES *old, int Dither, int Pal)
 	Display_Opt.syspal_24 = Pal;
 	Display_Opt.syspal_8 = Pal;
 	Display_Opt.syspal_4 = Pal;
-
-	return;
 }
 
 /* restore_display -------------------------------------------------------
@@ -592,11 +582,7 @@ void make_singular_display(DISPLAY_MODES *old, int Dither, int Pal)
 	----------------------------------------------------------------------*/
 void restore_display(DISPLAY_MODES *old)
 {
-	extern DISPLAY_MODES Display_Opt;
-
 	memcpy(&Display_Opt, old, sizeof(DISPLAY_MODES));
-
-	return;
 }
 
 
@@ -618,7 +604,7 @@ char *shorten_name(char *string, char newlen)
 	strcat(temp, string + strlen(string) - (newlen - newlen / 2 - 3));	/* und bis newlen LÑnge mit Originalstring affÅllen */
 
 	return(temp);	
-} /* shorten_name */
+}
 
 
 /* Lesen des aktuellen Pfad. (drive = 0 fÅr Defaultdrive) */
@@ -644,10 +630,10 @@ int get_path(char *path, char drive)
 	ret = Dgetpath (path + 2, drive_nr + 1);
 	strcat (path, "\\");
 
-/*	
+#if 0
 	if (fs_case_sens(path) == NO_CASE)
 		str_toupper(path);
-*/
+#endif
 
 	return (ret == 0);
 }

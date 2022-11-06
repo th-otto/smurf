@@ -40,7 +40,6 @@
 
 extern int klicks;
 extern int key_at_event, key_scancode, mouse_xpos, mouse_ypos, mouse_button;
-extern int *messagebuf;
 
 
 /* --------------------------------------------------------------------	*/
@@ -57,9 +56,7 @@ void f_handle_radios(OBJECT *tree, int klickobj, int windnum)
 		Window.topNow(&wind_s[windnum]);
 		form_button(wind_s[windnum].resource_form, klickobj, klicks, &newedit);	
 	}
-
-	return;
-} /* f_handle_radios */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -81,9 +78,7 @@ void f_handle_editklicks(WINDOW *window, int object)
 		window->editob = object;
 		Window.cursorOn(window);	
 	}
-
-	return;
-} /* f_handle_editklicks */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -96,9 +91,6 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 	int ox,oy, dummy, button;
 
 	extern int active_pic, picthere;
-	extern void make_modpreview(WINDOW *wind);
-	extern int cdecl f_do_checkbox	(PARMBLK *parm);
-	extern int cdecl f_do_cycle(PARMBLK *parm);
 	extern SMURF_PIC *smurf_picture[MAX_PIC];
 
 	SMURF_PIC *prevpic;
@@ -211,7 +203,7 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 	}
 
 	return(objct);
-} /* UDO_or_not */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -225,6 +217,4 @@ void f_deselect_popup(WINDOW *wind, int ob1, int ob2)
 	change_object(wind, ob2, UNSEL, 1);
 
 	DEBUG_MSG (( "f_deselect_popup...Ende\n" ));
-
-	return;
-} /* f_deselect_popup */
+}

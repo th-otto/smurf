@@ -41,18 +41,6 @@
 #include "ext_obs.h"
 
 
-/* Get 16 Pixel (Standard Format) Assembler-Rout */
-	void	get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
-
-	int		setpix_standard(char *buf16, char *dest, int depth, long planelen, int howmany);
-	int		setpix_pp(char *buf16, char *dest, int depth, long planelen, int howmany);
-	int		setpix_standard_16(char *buf16, char *dest, int depth, long planelen, int howmany);
-
-	extern	int setpix_std_line(char *buf, char *dest, int depth, long planelen, int howmany);
-	extern	int setpix_std_line16(char *buf, char *dest, int depth, long planelen, int howmany);
-
-extern	int pic_dmode, bplanes, dithermode;
-
 DITHER_DATA ditherdata;
 
 extern	MOD_ABILITY export_mod_ability;
@@ -73,9 +61,6 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture,
 	int *c_red, *c_grn, *c_blu;
 	int width, height;
 	int endwid, endhgt;
-
-	extern EXPORT_CONFIG exp_conf;
-
 
 	width=picture->pic_width;
 	height=picture->pic_height;
@@ -205,15 +190,17 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture,
 		ditherdata.blue = c_blu;
 	}
 
-/* wie schnell sind wir? */
+	/* wie schnell sind wir? */
 /*	init_timer(); */
 
 	/********* Und Dithermodul starten! ************/
 	module.comm.startDither(MSTART, dithermode - 1, &ditherdata);
 
-/* wie schnell waren wir? */
-/*	printf("\n%lu", get_timer());
-	getch(); */
+#if 0
+	/* wie schnell waren wir? */
+	printf("\n%lu", get_timer());
+	getch();
+#endif
 
 	
 	if(mode&SCALEPAL)
@@ -222,6 +209,4 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture,
 		free(c_grn);
 		free(c_blu);
 	}
-
-	return;
 }

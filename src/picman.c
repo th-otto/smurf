@@ -331,9 +331,7 @@ void f_picman(void)
 
 			f_activate_pic(picture_num);
 		}
-
-	return;
-} /* f_picman */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -392,9 +390,7 @@ void insert_to_picman(int pic_to_insert)
 	f_listfield((long *)Dialog.picMan.window, action, 0, &Dialog.picMan.pictureList);
 
 	Dialog.picMan.selectedPic = pic_to_insert;
-
-	return;
-} /* insert_to_picman */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -468,8 +464,6 @@ void f_resort_piclist(void)
 			Dialog.picMan.picmanList[t + 1] = -1;
 		}
 	}
-
-	return;
 }
 
 
@@ -541,12 +535,13 @@ void make_picman_thumbnail(int picture_num)
 	SMURF_PIC *pic;
 	OBJECT *ob;
 
-/* Oh doch, sonst wird weder Preview noch WH beim ™ffnen des Picman
-   angezeigt wenn vorher schon ein Bild geladen worden war
+#if 0
+	/* Oh doch, sonst wird weder Preview noch WH beim ™ffnen des Picman
+       angezeigt wenn vorher schon ein Bild geladen worden war */
 	/* wenn BM zu, kein Preview berechnen. */
 	if(Dialog.picMan.window->whandlem == -1)
 		return;
-*/	
+#endif
 	ob = Dialog.picMan.tree;
 
 	Dialog.picMan.thumbnail.pic_width = ob[PM_PREVBOX].ob_width;

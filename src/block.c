@@ -62,7 +62,6 @@ extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
 extern	int	obj;
 
 /*------------ kloake Funktionen -----------*/
-extern void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels);
 
 static int intersect_block(SMURF_PIC *picture);
 
@@ -603,13 +602,8 @@ void insert_blockcoords(SMURF_PIC *pic)
 void block_dklick(WINDOW *picwindow)
 {
 	char *block_data;
-
 	int back;
-
 	SMURF_PIC *picture, *picblock;
-
-	extern BLOCKMODE blockmode_conf;
-
 
 	picture = picwindow->picture;
 

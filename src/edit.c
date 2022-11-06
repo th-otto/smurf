@@ -340,8 +340,6 @@ void f_edit_pop(void)
 
 		}
 	}
-
-	return;
 }
 
 
@@ -420,9 +418,7 @@ void emod_info_on(int mod_index)
 	Dialog.emodList.infoTree[0].ob_y = wind_s[WIND_MODULES].wy;
 
 	Window.redraw(&wind_s[WIND_MODULES], NULL, 0, 0);
-
-	return;
-} /* emod_info_on */
+}
 
 
 /* emod_info_off --------------------------------------------------	
@@ -445,6 +441,4 @@ void emod_info_off(void)
 	}
 
 	Window.redraw(&wind_s[WIND_MODULES], NULL, 0, 0);
-
-	return;
-} /* emod_info_off */
+}

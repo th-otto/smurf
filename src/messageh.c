@@ -63,8 +63,6 @@ extern int	obj;					/* Objekt beim loslassen des Buttons */
 extern CROSSHAIR	position_markers[20];		/* Positionsmarker fÅr die Editmodule */
 extern DISPLAY_MODES Display_Opt;
 
-extern int *messagebuf;
-
 extern char Smurf_locked;
 
 extern	OBJECT	*menu_tree;
@@ -94,8 +92,6 @@ extern	BASPAG	*plugin_bp[11];
 extern	PLUGIN_DATA *plg_data[11];
 extern	PLUGIN_INFO *plg_info[11];
 extern	int anzahl_plugins;
-
-extern	EXPORT_CONFIG exp_conf;
 
 typedef struct
 {
@@ -964,33 +960,4 @@ int f_handle_message(void)
 	}
 
 	return(0);
-} /* f_handle_message */
-
-
-/* Messagehandler fÅr Betrieb des FSEL im Fenster */
-/* 
- * Die Einsprungadresse dieser Funktion wird als Callback an BoxKite
- * Åbergeben. 
- * Wie man sieht, kann sie auch andere Messagetypen als WM_REDRAW
- * behandeln. WM_MOVED ist sogar ratsam, da es immerhin Betriebssystem-
- * versionen gibt, die das Verschieben von hintenliegenden Fenstern
- * ermîglichen. Messages, die implizit neue Fenster îffnen oder vorhandene 
- * nach oben bringen, sollten dagegen ignoriert oder aufgehoben und erst 
- * nach der RÅckkehr aus dem Fileselector behandelt werden.
- * WM_TOPPED-Messages werden nicht an den Message-Callback durchgereicht.
- */
-void cdecl message_handler(int *msg)
-{
-	switch(msg[0])
-	{
-		case WM_REDRAW: memcpy(messagebuf, msg, 16);
-						f_handle_message();
-						break;
-		case WM_MOVED:	memcpy(messagebuf, msg, 16);
-						f_handle_message();
-						break;
-		default:		break;
-	}
-
-	return;
-} /* message_handler */
+}

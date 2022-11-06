@@ -32,6 +32,7 @@
 #include "smurfobs.h"
 #include "olgagems.h"
 #include "ext_rsc.h"
+#include "destruct.h"
 
 
 CLASS_MODULE module;
@@ -43,12 +44,6 @@ COMMUNICATION Comm;
 
 void init_moduleObs(void)
 {
-	extern void init_modtree(OBJECT *tree, int index);
-	extern void convert_icon(OBJECT *tree, int index);
-	extern void walk_module_tree(WINDOW *wind, int start);
-	extern void make_modpreview(WINDOW *wind);
-
-
 	/*
 	 * Modulkommunikation
 	 */
@@ -78,23 +73,6 @@ void init_moduleObs(void)
 
 void init_GuiObs(void)
 {
-	extern void remove_block(WINDOW *picwindow);
-	extern void fulldisable_busybox(void);
-
-	extern void emod_info_on(int mod_index);
-	extern void init_exmod_info(int mod_index);
-	extern void exmod_info_off(void);
-	extern WINDOW wind_s[25];
-
-	extern void f_options(void);
-	extern void f_block_popup(WINDOW *picwindow);
-	extern int init_dialog(int DialogNumber, int DialogOK);
-	extern void close_dialog(int windnum);
-
-	extern void saveUndoBuffer(SMURF_PIC *picture, int picnum);
-	extern void swapUndoBuffer(SMURF_PIC *toPicture, int picNum);
-
-
 	/*
 	 * genereller Fensterkrempel
 	 */
@@ -203,9 +181,7 @@ void init_GuiObs(void)
 	 */
 	Dialog.winAlert.openAlert = f_alert;
 	Dialog.winAlert.closeAlert = close_alert;
-
-	return;
-} /* init_GuiObs */
+}
 
 
 void init_MiscObs(void)

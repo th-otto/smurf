@@ -228,7 +228,7 @@ int get_dragdrop(WINDOW *window_to_handle, int *messagebuf)
 	}
 
 	return(0);
-} /* get_dragdrop */
+}
 
 
 /*------------ D&D-Header einlesen ----------*/
@@ -300,7 +300,7 @@ int dd_getheader(DD_HEADER *dd_header, int pipe_handle)
 	} while(dd_header->data_type != 'ARGS' && dd_header->data_type != '.IMG');
 
 	return(TRUE);
-} /* dd_getheader */
+}
 
 
 /*---------------------------- Drag&Drop - Sendehandling --------------*/
@@ -472,7 +472,7 @@ int send_dragdrop(SMURF_PIC *picture, int dest_whandle, int mx, int my)
 /*	Fdelete(dest_path); */
 
 	return(0);
-} /* send_dragdrop */
+}
 
 
 /*----------- D&D-Header verschicken --------*/
@@ -494,7 +494,7 @@ int dd_sendheader(int pipe_handle, long ext, long size, char *data_name, char *f
 	Fwrite(pipe_handle, strlen(file_name) + 1, file_name);
 
 	return(0);
-} /* dd_sendheader */
+}
 
 
 /*---------------------- Document History updaten -----------------	*/
@@ -555,12 +555,12 @@ void update_dhst(char *path)
 	/* das wird nach Antwort vom History-Server durch DHST_ACK gemacht */
 
 	return;
-} /* update_dhst */
+}
 
 
 /*----------- Ben”tigte Environment-Variablen auslesen -------------*/
 void get_avserv(void)
-{	
+{
 	char *avs;
 	char av_name[9];
 	char av_string[21];
@@ -581,9 +581,7 @@ void get_avserv(void)
 	}
 	else
 		Sys_info.ENV_avserver = -1;
-
-	return;
-} /* get_avserv */
+}
 
 
 /*------------- Initialisierung des AV-Protokolls -------------*/
@@ -613,9 +611,7 @@ void init_AVPROTO(void)
 		*((char * *)&ap_buf[6]) = send_smurfid;
 		appl_write(Sys_info.ENV_avserver, 16, ap_buf);
 	}
-
-	return;
-} /* init_AVPROTO */
+}
 
 
 
@@ -623,7 +619,6 @@ void send_AESMessage(int dest_id, int msg, ...)
 {
 	int ap_buf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 	int var, t;
-
 	va_list parms;
 
 	va_start(parms, msg);
@@ -644,12 +639,12 @@ void send_AESMessage(int dest_id, int msg, ...)
 			ap_buf[t] = var;
 		} while(++t < 8);
 
-/*		printf("ap_buf[7]: %d\n", ap_buf[7]);*/
+#if 0
+		printf("ap_buf[7]: %d\n", ap_buf[7]);
+#endif
 
 		appl_write(dest_id, 16, ap_buf);
 	}
     
 	va_end(parms);
-
-	return;
-} /* send_AESMessage */
+}

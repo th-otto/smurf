@@ -53,8 +53,6 @@ extern int PCDwidth, PCDheight;
 extern int mouse_xpos, mouse_ypos;
 extern long f_len;
 
-extern SYSTEM_INFO Sys_info;
-
 
 /*	---------------------------------------	*/
 /*	Extension stimmt - Is dat Ding en PCD?	*/
@@ -160,4 +158,4 @@ char *f_do_pcd(char *Path)
 	} /* Malloc fÅr Erkennung */
 
 	return(FALSE);
-} /* f_do_pcd */
+}

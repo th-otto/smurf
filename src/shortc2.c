@@ -42,14 +42,8 @@
 #define THEFIRST	3					/* Objekt-Nummer des ersten MenÅs */
 
 
-char set_menu_key(OBJECT *menu);
-char get_menu_key(OBJECT *menu, KINFO *ki, int *title, int *item);
-char is_state(OBJECT *tree, int obj, unsigned int state);
-
-
-
 /* Fehlt noch die Dimensionierung */
-CUTTAB cuttab[128];
+static CUTTAB cuttab[128];
 
 
 /* SET_MENU_KEY */
@@ -118,7 +112,13 @@ char set_menu_key(OBJECT *menu)
 	} /* if */
 
 	return(0);
-} /* set_menu_key */
+}
+
+
+static char is_state(OBJECT *tree, int obj, unsigned int state)
+{
+	return((tree[obj].ob_state & state) != 0);
+}
 
 
 /* GET_MENU_KEY */
@@ -161,17 +161,7 @@ char get_menu_key(OBJECT *menu, KINFO *ki, int *title, int *item)
 		return(1);
 	else
 		return(0);
-} /* is_menu_key */
-
-
-/* IS_STATE */
-
-char is_state(OBJECT *tree, int obj, unsigned int state)
-{
-	return((tree[obj].ob_state & state) != 0);
-} /* is_state */
-
-
+}
 
 
 int scan_2_ascii(int scan,int state)

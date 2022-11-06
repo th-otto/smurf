@@ -24,14 +24,6 @@
 
 /* Headerfile zu DEBUG.C */
 
-#define __c_va_alist				, ...
-#define __c_va_dcl
-#define __c_va_list				va_list
-#define __c_va_start(pvar, prev) 	va_start(pvar, prev)
-#define __c_va_arg(pvar, type)	va_arg(pvar, type)
-#define __c_va_end(pvar) 			va_end(pvar)
-
-
 #ifdef DEBUG
 /*	extern _BOOL is_DEBUGGING;
 
@@ -44,4 +36,4 @@
 #endif
 
 void write_debug(const char *message);
-void DebugMsg( char *str, ... );
+void DebugMsg(const char *str, ... ) __attribute__((format(printf, 1, 2)));
