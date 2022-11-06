@@ -31,7 +31,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../../../src/lib/sym_gem.h"
 #include "../../import.h"
 #include "../../../src/smurfine.h"
 

@@ -37,12 +37,11 @@
 
 #include <tos.h>
 #include <string.h>
-#include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <aes.h>
-#include <vdi.h>
+#ifdef __PUREC__
 #include <ext.h>
+#endif
 #include <math.h>
 #include "demolib.h"
 #include <errno.h>
@@ -2182,6 +2181,11 @@ int f_loadpic(char *pic, char *picpath)
 
 	strcpy(smurf_picture[picture_to_load]->filename, picpath);
 
+	/*
+	 * can't use init_timer() here,
+	 * because it would clobber its static variable,
+	 * which may also be used by the plugins
+	 */
 	oldtim = clock();
 
 	namename = strrchr(picpath, '\\') + 1;		/* Dateinamen abtrennen */

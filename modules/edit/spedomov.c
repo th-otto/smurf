@@ -50,11 +50,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vdi.h>
-#include <aes.h>
 #include <math.h>
-#include <screen.h>
-#include "../../src/lib/sym_gem.h"
 #include "../import.h"
 #include "../../src/smurfine.h"
 

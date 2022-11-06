@@ -25,12 +25,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vdi.h>
 #include <tos.h>
-#include <ext.h>
 #include <math.h>
-#include <screen.h>
-#include "sym_gem.h"
 #include "../../import.h"
 #include "../../../src/smurf_st.h"
 #include "../../../src/globdefs.h"
@@ -74,6 +70,8 @@
 #else
 #error "Keine Sprache!"
 #endif
+
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
 

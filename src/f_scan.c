@@ -37,12 +37,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <screen.h>
-#include <ext.h>
-#include <aes.h>
 #include <errno.h>
 
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurfine.h"
 #include "smurf_st.h"

@@ -34,8 +34,6 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ext.h>
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurf_st.h"
 #include "smurf_f.h"

@@ -31,8 +31,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <tos.h>
-#include <ext.h>
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurfine.h"
 #include "smurf.h"
@@ -42,7 +40,7 @@
 #include "gdps.h"
 #include "ext_rsc.h"
 
-#include <screen.h>
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 static int send_command(COMSTRUCT *comstruct, int command);
 static int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps);

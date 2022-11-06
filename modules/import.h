@@ -30,7 +30,7 @@
 /*  Modulschnittstelle SCHLUMPFINE V0.6, 20.04.96 Olaf Piesche      */
 /*  KOMMUNIKATION grožgeschrieben...                                */
 
-#include <aes.h>
+#include "portab.h"
 #include <vdi.h>
 #include "sym_gem.h"
 

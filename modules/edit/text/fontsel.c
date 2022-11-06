@@ -23,8 +23,6 @@
  */
 
 #include <stdio.h>
-#include <vdi.h>
-#include <aes.h>
 #include <stddef.h>
 #include "../../import.h"
 #include "fontsel.h"

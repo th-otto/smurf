@@ -23,8 +23,6 @@
  */
 
 #include <tos.h>
-#include <ext.h>
-#include <screen.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -108,7 +106,7 @@ if (!out) return(M_MEMORY);
 memset(out, 0, 32000L);
 oout=out;
 #if DEBUG>0
-    Clear_home();
+    (void) Cconws("\33E")
     printf("\n\n        -> Id-Byte:%i",ID_Byte);
     printf("\n      -> Pack-Byte:%i",Pack_Byte);
     printf("\n      -> Special-Byte:%i",Special_Byte);

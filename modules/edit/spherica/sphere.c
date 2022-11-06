@@ -31,15 +31,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <screen.h>
-#include <ext.h>
-#include <aes.h>
 #include <math.h>
-#include "sym_gem.h"
 #include "../../import.h"
 #include "../../../src/smurfine.h"
 #include "spherica.rsh"
 #include "spherica.h"
+
+#undef random
+#define random( x ) (rand() % (x))
 
 #define DEST_PIC    0
 #define BUMP_PIC    1
@@ -350,7 +349,7 @@ long xoff, yoff, linelen;
 
     service->reset_busybox(0, "Rumkugeln...");
 
-    for (y=0; y<hgt && !kbhit(); y++)
+    for (y=0; y<hgt && !Bconstat(2); y++)
     {
         xoff=0;
         if(!(y&3)) service->busybox((y<<7L)/hgt);

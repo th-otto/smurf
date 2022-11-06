@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <ext.h>
 #include <tos.h>
 #include "../../import.h"
 

@@ -29,9 +29,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vdi.h>
-#include <aes.h>
-#include <screen.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
 

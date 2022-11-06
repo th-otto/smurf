@@ -27,12 +27,8 @@
 */
 
 #include <tos.h>
-#include <ext.h>
 #include <stdio.h>
 #include <string.h>
-#include <portab.h>
-#include <aes.h>
-#include <vdi.h>
 
 #include "../import.h"
 #include "../../src/smurfine.h"

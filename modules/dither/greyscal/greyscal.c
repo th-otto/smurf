@@ -40,10 +40,7 @@
 #include <tos.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <vdi.h>
 #include <string.h>
-#include <screen.h>
-#include <ext.h>
 #include "../../import.h"
 #include "../../../src/smurfine.h"
 

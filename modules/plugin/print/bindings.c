@@ -1,5 +1,4 @@
-#include <aes.h>
-#include <vdi.h>
+#include "../../import.h"
 #include "wdialog.h"
 #include "../../../src/bindings.h"
 

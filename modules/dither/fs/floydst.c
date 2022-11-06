@@ -23,7 +23,6 @@
  */
 
 #include <tos.h>
-#include <ext.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>

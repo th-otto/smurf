@@ -23,17 +23,12 @@
  */
 
 #include <tos.h>
-#include <aes.h>
-#include <vdi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <screen.h>
 #include <string.h>
-#include <ext.h>
 #include <time.h>
-#include "smurf.h"
-#include "sym_gem.h"
 #include "../modules/import.h"
+#include "smurf.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "popdefin.h"

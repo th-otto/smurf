@@ -23,15 +23,11 @@
  */
 
 #include <tos.h>
-#include <aes.h>
-#include <vdi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <screen.h>
-#include <ext.h>
-#include "smurf.h"
 #include "../modules/import.h"
+#include "smurf.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "popdefin.h"
@@ -1172,8 +1168,6 @@ static void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned i
 			}
 		}
 	}
-
-	return;
 }
 
 
@@ -1314,8 +1308,6 @@ static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned i
 			}
 		}
 	}
-
-	return;
 }
 
 
@@ -1522,8 +1514,6 @@ static void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int 
 			}
 		}
 	}
-
-	return;
 }
 
 
@@ -1573,8 +1563,6 @@ void blockmode(void)
 	
 	if(button == BCONF_OK)
 		Dialog.close(WIND_BLOCKMODE);
-
-	return;
 }
 
 

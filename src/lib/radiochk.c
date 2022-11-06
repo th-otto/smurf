@@ -35,8 +35,6 @@
 /*					-> 1=selektiert, 0=unselektiert						*/
 
 #include <tos.h>
-#include <aes.h>
-#include <vdi.h>
 #include <stdio.h>
 #include "../../modules/import.h"
 #include "smurf.h"

@@ -64,8 +64,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <screen.h>
-#include <ext.h>
 #include <math.h>
 #include "../../import.h"
 #include "../../../src/smurfine.h"
@@ -289,7 +287,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			}
 
 #if DEBUG
-			Cur_home();
+			(void) Cconws("\033H);
 			printf("colval: %d, satval: %lu, brightval: %lu\n", colval, satval, brightval);
 #endif
 

@@ -27,14 +27,10 @@
 	z.B. Popup-Strukturen, WINDOW-Strukturen, etc. */
 
 #include <tos.h>
-#include <aes.h>
-#include <vdi.h>
 #include <string.h>
 #include <stdio.h>
-#include <ext.h>
 #include <stdlib.h>
 
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurfine.h"
 #include "smurf.h"

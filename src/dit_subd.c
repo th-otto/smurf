@@ -22,20 +22,18 @@
  * ***** END LICENSE BLOCK *****
  */
 
-#include "demolib.h"
-#include "ext.h"
-#include "tos.h"
-#include "string.h"
-#include "stddef.h"
-#include "stdlib.h"
-#include "stdio.h"
-#include "sym_gem.h"
+#include <tos.h>
+#include <string.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "../modules/import.h"
 #include "globdefs.h"
 #include "smurfine.h"
 #include "smurf_st.h"
 #include "smurf_f.h"
 #include "smurf.h"
+#include "demolib.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"

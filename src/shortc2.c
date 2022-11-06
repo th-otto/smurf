@@ -24,12 +24,9 @@
 
 /* IS_MENU_KEY - eine Funktion um den gedrÅckten Shortcut festzustellen */
 
-#include <aes.h>
 #include <tos.h>
 #include <string.h>
-#include <screen.h>
 #include <stdio.h>
-#include <ext.h>
 #include "../modules/import.h"
 #include "smurfine.h"
 #include "smurf_st.h"

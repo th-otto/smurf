@@ -23,10 +23,8 @@
  */
 
 #include <tos.h>
-#include <ext.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <vdi.h>
 #include <string.h>
 #include "../../import.h"
 #include "../../../src/smurfine.h"

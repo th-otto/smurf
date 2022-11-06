@@ -23,13 +23,12 @@
  */
 
 #include <tos.h>
-#include <ext.h>
-#include <screen.h>
 #include <stdio.h>
 #include <string.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
 
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO    module_info={"Speichertestmodul",
@@ -84,7 +83,7 @@ Mfree(buffer);
 free_mem=(long)Mxalloc(-1, 2);
 printf("\n- und freigegeben: %li Bytes.", free_mem);
 puts("\n\n Taste...");
-getch();
+(void) Cnecin();
 
 return(M_INVALID);
 }

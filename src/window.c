@@ -23,17 +23,11 @@
  */
 
 #include <tos.h>
-#include <aes.h>
-#include <vdi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <screen.h>
 #include <string.h>
-#include <ext.h>
-/*#include <time.h>*/
-#include "smurf.h"
-#include "sym_gem.h"
 #include "../modules/import.h"
+#include "smurf.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "popdefin.h"
@@ -47,6 +41,8 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 #include "ext_rsc.h"
+
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int stripheight);
 
@@ -585,9 +581,7 @@ static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdicli
 	Dialog.busy.enable();
 	if(!window->pflag) 
 		restore_display(&old);
-
-	return;
-} /* realtime_dither */
+}
 
 
 /* draw_iconified ---------------------------------------------------

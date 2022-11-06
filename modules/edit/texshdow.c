@@ -39,11 +39,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <screen.h>
-#include <ext.h>
 #include <math.h>
 
-#include "sym_gem.h"
 #include "../import.h"
 #include "../../src/smurfine.h"
 

@@ -29,11 +29,9 @@
 #include <tos.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ext.h>
 #include <stdio.h>
-#include "smurf_st.h"
-#include "sym_gem.h"
 #include "../modules/import.h"
+#include "smurf_st.h"
 #include "smurfine.h"
 #include "smurf_f.h"
 #include "smurf.h"
@@ -43,7 +41,6 @@
 #include "plugin/plugin.h"
 #include "olga.h"
 #include "olgagems.h"
-#include "screen.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"

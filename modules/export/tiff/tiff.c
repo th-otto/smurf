@@ -54,7 +54,6 @@
 /* =========================================================*/
 
 #include <tos.h>
-#include <ext.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

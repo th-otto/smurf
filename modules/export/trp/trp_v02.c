@@ -33,13 +33,9 @@
 #define FALSE   0
 
 #include <tos.h>
-#include <ext.h>
-#include <aes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <screen.h>
-#include <portab.h>
 #include "../../import.h"
 #include "../../../src/smurfine.h"
 #include "trp_gfx.h"

@@ -32,13 +32,12 @@
 #include <tos.h>
 #include <stdio.h>
 #include <string.h>
-#include <screen.h>
 #include <stdlib.h>
-#include <ext.h>
 
 #include "../import.h"
 #include "../../src/smurfine.h"
 
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 char *find_numpoints(char *data_pos, int *points);
 

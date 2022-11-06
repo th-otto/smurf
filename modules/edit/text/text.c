@@ -37,12 +37,9 @@
 /* =========================================================*/
 
 #include <tos.h>
-#include <ext.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vdi.h>
-#include <screen.h>
 #include "../../import.h"
 #include "../../../src/smurfine.h"
 #include <math.h>
@@ -59,6 +56,8 @@
 #else
 #error "Keine Sprache!"
 #endif
+
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 #define	TextCast	ob_spec.tedinfo->te_ptext
 

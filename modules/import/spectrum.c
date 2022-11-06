@@ -41,7 +41,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ext.h>
 
 #include "../import.h"
 #include "../../src/smurfine.h"

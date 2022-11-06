@@ -36,11 +36,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vdi.h>
 #include <tos.h>
-#include <ext.h>
 #include <math.h>
-#include "sym_gem.h"
 #include "../../import.h"
 #include "../../../src/smurf_st.h"
 #include "../../../src/rsc/smurf.h"

@@ -40,7 +40,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <tos.h>
-#include "portab.h"
 #include <vdi.h>
 #include <aes.h>
 #include "xrsrc.h"

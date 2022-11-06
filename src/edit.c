@@ -23,14 +23,11 @@
  */
 
 #include <tos.h>
-#include <aes.h>
-#include <vdi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "smurf.h"
-#include "sym_gem.h"
 #include "../modules/import.h"
+#include "smurf.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "smurf_st.h"

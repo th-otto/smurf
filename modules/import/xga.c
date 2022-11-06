@@ -42,8 +42,6 @@
 /* =========================================================*/
 
 #include <tos.h>
-#include <ext.h>
-#include <screen.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

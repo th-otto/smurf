@@ -28,11 +28,8 @@
 #include <string.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <ext.h>
-#include <screen.h>
-#include "smurf_st.h"
-#include "sym_gem.h"
 #include "../modules/import.h"
+#include "smurf_st.h"
 #include "smurfine.h"
 #include "smurf_f.h"
 #include "globdefs.h"
@@ -42,6 +39,8 @@
 #include "ext_obs.h"
 #include "debug.h"
 #include "bindings.h"
+
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 /*-------- lokale Funktionen -----------*/
 
@@ -538,8 +537,6 @@ void update_dhst(char *path)
 
 	/* auf keinen Fall hier schon string oder history freigeben! */
 	/* das wird nach Antwort vom History-Server durch DHST_ACK gemacht */
-
-	return;
 }
 
 

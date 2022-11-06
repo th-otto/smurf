@@ -58,19 +58,15 @@ void f_showtree(OBJECT *tree, int object)	- Wiederanzeigen eines versteckten Obj
 /*----------------------------------------------------------------------*/
 
 #include <tos.h>
-#include <vdi.h>
 #include <string.h>
-#include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "portab.h"
 #include "smurf_st.h"
-#include "sym_gem.h"
 #include "../../modules/import.h"
 #include "smurf.h"
 #include "smurf_f.h"
 
-/*#include "src/xrsrc.h"  If this is included it screws us all up*/
+#include "../xrsrc.h"
 #include "globdefs.h"
 
 #include "smurfine.h"
@@ -81,13 +77,8 @@ void f_showtree(OBJECT *tree, int object)	- Wiederanzeigen eines versteckten Obj
 
 static void f_update_listfield(LIST_FIELD *lfstruct, OBJECT *tree);
 
-/*baldrick prototypes insertion this is the only thing we need from
- * xrsrc.h in this file
- */
-short xrsrc_gaddr (short re_gtype, short re_gindex, void *re_gaddr, WORD *pglobal);
-
 /* Leereintrag fÅr Listenfelder */
-	char empty_entry[128]="";
+static char empty_entry[128];
 
 
 /* **************************************************************** */
@@ -503,8 +494,6 @@ void f_txtinsert(int num, OBJECT *tree, int txt_obj, WINDOW *ws)
 		objc_draw(tree, txt_obj, 1, 0,0,scrwd,scrht);
 	else
 		Window.redraw(ws, NULL, txt_obj, DRAWNOPICTURE);
-
-	return;
 }
 
 
@@ -527,8 +516,6 @@ void f_hidetree(OBJECT *tree, int object)
 	
 	for(ob_t=startob; ob_t<=endob; ob_t++)
 		tree[ob_t].ob_flags|=HIDETREE;	
-
-	return;
 }
 
 
@@ -551,8 +538,6 @@ void f_showtree(OBJECT *tree, int object)
 
 	for(ob_t=startob; ob_t<=endob; ob_t++)
 		tree[ob_t].ob_flags&=~HIDETREE;	
-
-	return;
 }
 
 /* ****************************************************************	*/
@@ -760,8 +745,6 @@ void setslider(SLIDER *sliderstruct, long value)
 
 		wind_update(END_UPDATE);
 	}
-
-	return;
 }
 
 
@@ -1241,9 +1224,7 @@ void f_generate_listfield(int uparrow, int dnarrow, int sliderparent, int slider
 		listfield->autolocator = malloc(autoloc);
 		memset(listfield->autolocator, 0x0, autoloc);
 	}
-
-	return;
-} /* f_generate_listfield */
+}
 
 
 /******************************************************************	*/
@@ -1286,8 +1267,6 @@ void change_object(WINDOW *window, int objct, int status, int redraw)
 		Window.redraw(window, &gred, objct, DRAWNOPICTURE);
 
 	DEBUG_MSG (( "change_object...Ende\n" ));
-
-	return;
 }
 
 
@@ -1462,8 +1441,6 @@ int omx, omy, redraw;
 	*dey = mousey;
 
 	SMfree(buffer.fd_addr);
-
-	return;
 }
 
 
@@ -1483,4 +1460,4 @@ int appl_xgetinfo (int type, int *out1, int *out2, int *out3, int *out4)
 		return(appl_getinfo (type, out1, out2, out3, out4));
 	else
 		return(0);
-} /* appl_xgetinfo */
+}

@@ -29,9 +29,7 @@
 
 
 #include <stdio.h>
-#include <portab.h>
 #include <tos.h>
-#include <aes.h>
 
 #include "../../import.h"
 #include "../../../src/smurfine.h"

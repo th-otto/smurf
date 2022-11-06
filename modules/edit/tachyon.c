@@ -32,7 +32,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <screen.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
 #include "../../src/lib/demolib.h"
@@ -187,7 +186,7 @@ void do_tachyon(char *data, unsigned int width, unsigned int height)
 
 
 #if DEBUG
-	Cur_home();
+	(void) Cconws("\033H);
 #endif
 
 /* wie schnell sind wir? */

@@ -23,13 +23,10 @@
  */
 
 #include <tos.h>
-#include <ext.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-#include <screen.h>
-#include "sym_gem.h"
 #include "../../import.h"
 #include "../../../src/smurf_st.h"
 #include "../../../src/rsc/smurf.h"

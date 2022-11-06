@@ -32,12 +32,10 @@
 /**************************************************************	*/
 
 #include <tos.h>
-#include <aes.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurf.h"
 #include "smurf_st.h"

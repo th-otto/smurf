@@ -25,12 +25,9 @@
 /*  ------------- Bumpmap mit Texture - Modul V1.0 ------------------   */
 /*          FÅr SMURF Bildkonverter, 26.04.96           */
 #include <tos.h>
-#include <aes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <screen.h>
-#include <ext.h>
 
 #include "../import.h"
 #include "../../src/smurfine.h"

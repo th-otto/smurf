@@ -34,13 +34,10 @@
 /*-------------------------------------------------------------------------	*/
 
 #include <tos.h>
-#include <ext.h>
 #include <string.h>
-#include <screen.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "../smurfine.h"
 #include "../smurf_st.h"
@@ -50,6 +47,8 @@
 #include "../ext_obs.h"
 
 #define ComputeIndex3d(r,g,b)		(unsigned long)( ((unsigned int)r<<10) + ((unsigned int)g<<5) + ((unsigned int)b) )
+
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 #define XEDGE	1
 #define YEDGE	2

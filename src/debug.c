@@ -27,8 +27,6 @@
 /* lassen.													*/
 /************************************************************/
 
-#include <tos.h>
-#include <ext.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -39,29 +37,23 @@
 
 void write_debug(const char *message)
 {
-	int file;
-
-	long dummy;
+	FILE *file;
 
 
 	if(message == NULL)
 	{
-		dummy = Fcreate("debug.log", 0);
+		file = fopen("debug.log", "w");
 		message = "Smurf Debug";
 	}
 	else
-		dummy = Fopen("debug.log", FO_WRITE);
+		file = fopen("debug.log", "a");
 
-	if(dummy >= 0)
+	if(file != NULL)
 	{
-		file = (int)dummy;
+		fputs(message, file);
+		fputs("\n", file);
 
-		Fseek(0, file, 2);
-
-		Fwrite(file, strlen(message), message);
-		Fwrite(file, 2, "\r\n");
-
-		Fclose(file);
+		fclose(file);
 	}
 		
 }

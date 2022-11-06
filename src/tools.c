@@ -26,12 +26,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <tos.h>
-#include <ext.h>
 #include <errno.h>
 #include <ctype.h>
-#include "startup.h"
-#include "sym_gem.h"
 #include "../modules/import.h"
+#include "startup.h"
 #include "smurf_st.h"
 #include "smurf_f.h"
 #include "smurf.h"

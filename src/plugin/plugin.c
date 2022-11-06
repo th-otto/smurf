@@ -43,13 +43,10 @@
 /* -------------------------------------------------------------------- */
 
 #include <tos.h>
-#include <ext.h>
-#include <aes.h>
 #include <string.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "../smurfine.h"
 #include "../globdefs.h"

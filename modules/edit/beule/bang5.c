@@ -58,8 +58,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <portab.h>
-#include <aes.h>
 #include <math.h>
 
 #include "../../import.h"

@@ -48,7 +48,6 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <ext.h>
 
 void tokenize_wildcards(char *string);
 char check_wildcard(char *filename, char *wildcard);

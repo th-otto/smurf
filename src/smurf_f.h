@@ -25,7 +25,7 @@
  * ***** END LICENSE BLOCK *****
  */
 
-#include <portab.h>
+#include "portab.h"
 
 #define MAX_PIC 25
 

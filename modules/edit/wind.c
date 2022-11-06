@@ -56,11 +56,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <screen.h>
-#include <ext.h>
+#include <time.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
 #include "../../src/lib/demolib.h"
+
+#undef random
+#define random( x ) (rand() % (x))
 
 #define WIND	1
 #define STORM	2

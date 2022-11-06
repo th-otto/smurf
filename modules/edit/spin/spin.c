@@ -34,8 +34,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <screen.h>
-#include <ext.h>
 #include "../../import.h"
 #include "../../../src/smurfine.h"
 #include "demolib.h"

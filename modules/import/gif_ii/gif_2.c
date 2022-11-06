@@ -51,8 +51,6 @@
 /* =========================================================*/
 
 #include <tos.h>
-#include <ext.h>
-#include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,6 +82,8 @@ extern int decode_lzw_fast(char *buffer, char *ziel);
 /* Dies bastelt direct ein rol.w #8,d0 inline ein. */
 unsigned int swap_word(unsigned int w)
 	0xE058;
+
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"GIF",

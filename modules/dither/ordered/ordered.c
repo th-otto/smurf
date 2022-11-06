@@ -37,10 +37,8 @@
 
 #include <tos.h>
 #include <stdlib.h>
-#include <vdi.h>
 #include <string.h>
 #include <stdio.h>
-#include <ext.h>
 #include "../../../src/lib/demolib.h"
 #include "../../import.h"
 #include "../../../src/smurfine.h"

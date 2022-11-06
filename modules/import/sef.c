@@ -23,7 +23,6 @@
  */
 
 #include <tos.h>
-#include <screen.h>
 #include <stdio.h>
 #include <string.h>
 #include "../import.h"

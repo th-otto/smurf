@@ -25,7 +25,6 @@
 #include <tos.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurfine.h"
 #include "globdefs.h"

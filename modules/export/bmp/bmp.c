@@ -53,8 +53,6 @@
 /* =========================================================*/
 
 #include <tos.h>
-#include <ext.h>
-#include <screen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -25,12 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <screen.h>
 #include <tos.h>
-#include <ext.h>
-#include <vdi.h>
-#include <aes.h>
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "select.h"
 #include "smurf_st.h"

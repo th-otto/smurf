@@ -25,14 +25,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <ext.h>
 #include <tos.h>
+#include "../../import.h"
 #include "../../../src/lib/demolib.h"
 
 #define MaxStackSize	4096
-
-#define TRUE	1
-#define FALSE	0
 
 #define DEBUG	0
 #define TIMER	0

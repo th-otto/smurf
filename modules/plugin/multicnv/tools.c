@@ -24,7 +24,6 @@
 
 #include <tos.h>
 #include <stddef.h>
-#include "sym_gem.h"
 #include "../../import.h"
 #include "../../../src/smurf_st.h"
 #include "../../../src/rsc/smurf.h"

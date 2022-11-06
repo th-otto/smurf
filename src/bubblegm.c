@@ -24,12 +24,10 @@
 
 #include <tos.h>
 #include <errno.h>
-#include <aes.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "vaproto.h"
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurf.h"
 #include "smurf_st.h"

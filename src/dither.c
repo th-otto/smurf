@@ -37,15 +37,10 @@
 
 #include <tos.h>
 #include <string.h>
-#include <screen.h>
 #include <stdio.h>
-#include <aes.h>
 #include <stdlib.h>
-#include <vdi.h>
-#include <ext.h>
 #include <math.h>
 #include "demolib.h"
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurf.h"
 #include "smurf_st.h"
