@@ -35,5 +35,9 @@
 	#define DEBUG_MSG(x)
 #endif
 
+#if !defined(__GNUC__) && !defined(__attribute__)
+#  define __attribute__(x)
+#endif
+
 void write_debug(const char *message);
 void DebugMsg(const char *str, ... ) __attribute__((format(printf, 1, 2)));

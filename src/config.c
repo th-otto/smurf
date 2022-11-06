@@ -62,14 +62,6 @@ static unsigned int InqMagX(void);
 static void inquire_clipboard(void);
 static int getploadinfo(char *cmdlin, char *fname);
 
-extern MFORM *dummy_ptr;				/* Dummymouse fÅr Maus-Form */
-
-extern DISPLAY_MODES Display_Opt;
-extern SERVICE_FUNCTIONS global_services;
-
-extern char *stpath;
-
-
 
 int load_config(void)
 {

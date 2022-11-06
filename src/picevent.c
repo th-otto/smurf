@@ -39,6 +39,7 @@
 #include "destruct.h"
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 #include <screen.h>
 
 #define	TOP		1
@@ -47,21 +48,8 @@
 #define	LEFT	8
 #define MOVE	16
 
-extern	MFORM *dummy_ptr;					/* Dummymouse fÅr Mausform */
-extern	int mouse_xpos, mouse_ypos;			/* Mausposition */
-extern	int klicks;
-extern	int openmode;						/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
-extern	POP_UP popups[25];
-extern	int mouse_button, key_at_event;
-extern	int	obj;
-extern	MFORM lr_arrow, ud_arrow, lrud_arrow;
-extern	CROSSHAIR position_markers[20];		/* Positionsmarker fÅr die Editmodule */
-extern	char module_pics[21][7];
-extern	int nullcoordset, syspalset;
-extern	DISPLAY_MODES Display_Opt;
-extern	OBJECT	*blockpopup;
-
-int lastmousex = 0, lastmousey = 0;
+static int lastmousex = 0;
+static int lastmousey = 0;
 
 /*----------- lokale Funktionen -----------------------------*/
 static int crosshair_mouse(WINDOW *window, int mx, int my);
@@ -95,9 +83,6 @@ void f_pic_event(WINDOW *picwindow, int event_type, int windnum)
 	SMURF_PIC *picture;
 	OBJECT *pic_form;
 	static WINDOW *oldwindow;
-
-	extern int active_pic;
-
 
 	picture = picwindow->picture;
 	pic_form = picwindow->resource_form;
@@ -668,10 +653,6 @@ static void do_block_box(WINDOW *picwindow, int mx, int my)
 	WINDOW *mouse_window;
 	GRECT redraw;
 	SMURF_PIC *picture;
-
-	extern OBJECT *u_tree;
-	extern GRECT screen;
-
 
 	picture = picwindow->picture;
 	zoom = picture->zoom + 1;
@@ -1254,10 +1235,6 @@ static void drop_block(WINDOW *picwindow, int mx, int my)
 	SMURF_PIC *dest_picture, *srcpic;
 	GRECT redraw;
 
-	extern int picthere;
-	extern SMURF_PIC *smurf_picture[MAX_PIC];
-
-	
 	dest_whandle = wind_find(mx, my);
 	my_wnum = Window.myWindow(dest_whandle);
 
@@ -1723,11 +1700,6 @@ void reload_pic(WINDOW *picwindow)
 {
 	int back;
 
-	extern char loadpath[257];
-
-	extern	int	*messagebuf;			/* Zeiger fÅr Messageevents */
-
-
 	/*
 	 * gibt es die Datei Åberhaupt (noch)?
 	 */
@@ -1789,10 +1761,6 @@ void f_activate_pic(int windnum)
 
 	OBJECT *pref_form;
 	DISPLAY_MODES old;
-
-	extern int active_pic, prev_zoom;
-	extern SMURF_PIC *smurf_picture[MAX_PIC], move_prev;
-
 
 	if(active_pic == windnum)					/* ist das Bild schon das aktive? */
 		return;

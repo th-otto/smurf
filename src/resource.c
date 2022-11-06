@@ -62,16 +62,6 @@
 
 int add_flags[40];			/* zusÑtzliche Fensterelemente */
 
-extern WORD resource_global[100];
-
-extern int gl_wchar, gl_hchar, gl_wbox, gl_hbox;
-
-extern POP_UP popups[25];
-extern SLIDER sliders[15];
-
-extern	MFORM	lr_arrow, ud_arrow, lrud_arrow;
-
-
 /* f_init_popup */
 /* Diese Funktion generiert die Popup-strukturen fÅr jedes
 	einzelne POPUP, das in Smurf irgendwo vorkommt */
@@ -253,9 +243,6 @@ void init_smurfrsc(char *rscpath)
 {
 	int back, t, dummy;
 	GRECT desk;
-
-	extern OBJECT *confsave_dialog, *modconf_popup;
-
 
 	/* ----- Startup-Dialog initialisieren --- */
 	desk.g_x = 0;

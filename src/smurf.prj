@@ -73,7 +73,7 @@ smurfobs.c
 module.c			; Module starten, beenden, Modulfenster
 modconf.c			; Funktionen um die Modulkonfigurationen zu sichern
 ;------- Plugin-Schnittstelle
-plugin\plugin.C [-Z]
+plugin\plugin.c [-Z]
 ;
 ;----------------- GEM & AES - Handling ----------------
 ;
@@ -127,7 +127,7 @@ tools.c			; allgemeine Tools
 bindings.c		; Bindings fÅr Systemfunktionen, die in keiner Lib vorhanden sind
 comm.c			; alle fÅr die Kommunikation zustÑndige Protokolle
 destruct.c		; Destruktoren fÅr diverse Datenstrukturen
-roto\roto1.C
+roto\roto1.c
 olga.c
 debug.c
 ;**********************************

@@ -131,10 +131,6 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 	int t;
 	long mod_magic;
 
-	extern BASPAG *plugin_bp[11];
-	extern char *plugin_paths[11];
-
-
 	if (BGHI_Exist == FALSE)
 		return;
 

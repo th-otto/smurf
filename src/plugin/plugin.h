@@ -350,9 +350,18 @@ typedef struct plginfo
 } PLUGIN_INFO;
 
 
+extern BASPAG *plugin_bp[11];
+extern PLUGIN_DATA *plg_data[11];	
+extern PLUGIN_INFO *plg_info[11];
+extern char *plugin_paths[11];
+extern EXT_MODCONF *modconfs[20];			/* Strukturen fÅr Modul-Notifying */
+extern int anzahl_plugins;
+extern signed char menu2plugin[128];		/* feste MenÅeintrÑge, in die Plugins eingehÑngt sind */
+extern int printplug_found;
 
 
 /* Funktionsprototypen */
 int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data);
 void call_plugin(int menuentry);
 void scan_plugins(void);
+void terminate_plugin(int index);

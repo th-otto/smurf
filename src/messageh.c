@@ -47,6 +47,7 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 
 #define	AP_ARGSTART		0x5001
 
@@ -54,44 +55,7 @@
 #define	BUBBLEGEM_ACK	0xBABC
 #define DHST_ACK 0xdade
 
-extern int picwindthere, dialwindthere, picthere;
-
-extern SMURF_PIC *smurf_picture[MAX_PIC];
-
-extern int	obj;					/* Objekt beim loslassen des Buttons */
-
-extern CROSSHAIR	position_markers[20];		/* Positionsmarker fÅr die Editmodule */
-extern DISPLAY_MODES Display_Opt;
-
-extern char Smurf_locked;
-
-extern	OBJECT	*menu_tree;
-
 #define	PRG_CLOSED	-2
-
-extern char *send_smurfid;
-
-extern char	module_pics[21][7];
-
-extern OBJECT	*pic_form;					/* Pic-Window-Formular */
-
-extern int num_of_pics, active_pic, pic_to_handle;
-extern int openmode;				/* Fenster neu geîffnet (0) oder buttonevent? (!=0) */
-extern int edit_mod_num;		/* Modul-ID des Moduls, das das Einstellformular benutzt */
-extern int menu_id, ap_id;
-
-extern	char	commpath[257];
-extern	char	DraufschmeissBild;
-
-extern int add_flags[40];
-
-extern char *export_cnfblock[50];
-extern int export_cnflen[50];
-
-extern	BASPAG	*plugin_bp[11];
-extern	PLUGIN_DATA *plg_data[11];
-extern	PLUGIN_INFO *plg_info[11];
-extern	int anzahl_plugins;
 
 typedef struct
 {
@@ -125,17 +89,10 @@ int f_handle_message(void)
 	int topwin;
 	OBJECT *ob;
 	
-	extern int mouse_xpos, mouse_ypos;
-
-	extern	void terminate_plugin(int index);
-	extern void scrollWindowRT(WINDOW *window, int xamount, int yamount);
-	
 	aes_red.g_x = 0;
 	aes_red.g_y = 0;
 	aes_red.g_w = Sys_info.screen_width;
 	aes_red.g_h = Sys_info.screen_height;
-
-
 
 	/*
 	 * Zur Message gehîrige Fensterstruktur ermitteln	

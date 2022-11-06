@@ -31,7 +31,6 @@
 #include <screen.h>
 #include <ext.h>
 #include "smurf.h"
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurfine.h"
 #include "globdefs.h"
@@ -42,32 +41,19 @@
 #include "vaproto.h"
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 #include "demolib.h"
 
 
-extern	void f_display_bwh(WINDOW *pic_window);
 
-extern	SMURF_PIC *smurf_picture[25];
-extern	int active_pic;
-
-extern	DISPLAY_MODES Display_Opt;
-extern	int	mouse_xpos, mouse_ypos;		/* Mausposition */
-extern	int	openmode;					/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
-extern	POP_UP	popups[25];
-extern	OBJECT	*blockpopup;
-
-extern	int	mouse_button, key_at_event;
-extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
-
-extern	int	obj;
 
 /*------------ kloake Funktionen -----------*/
 
 static int intersect_block(SMURF_PIC *picture);
 
-long block_opac, opac2;
+static long block_opac, opac2;
 
-GRECT block;
+static GRECT block;
 
 static void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
 static void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2);
@@ -849,10 +835,6 @@ int insert_block(WINDOW *picwindow)
 	long plen_pic;
 	char *linebuf;
 
-	extern BLOCKMODE blockmode_conf;
-	extern	void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-
-
 	/*
 	 * Strukturen auslesen
 	 */
@@ -1553,10 +1535,6 @@ void blockmode(void)
 
 	OBJECT *tree;
 
-	extern int picwindthere;
-	extern SLIDER sliders[15];
-
-	
 	button = Dialog.init(WIND_BLOCKMODE, BCONF_OK);
 	tree = wind_s[WIND_BLOCKMODE].resource_form;
 
@@ -1602,8 +1580,6 @@ void blockmode(void)
 
 void blockfunctions_on(void)
 {
-	extern OBJECT *menu_tree;
-
 	if(Sys_info.scrp_path != NULL)
 	{
 		blockpopup[BLOCK_COPY].ob_state &= ~DISABLED;
@@ -1623,8 +1599,6 @@ void blockfunctions_on(void)
 
 void blockfunctions_off(void)
 {
-	extern OBJECT *menu_tree;
-
  	if(Sys_info.scrp_path != NULL)
  	{
 		blockpopup[BLOCK_COPY].ob_state |= DISABLED;

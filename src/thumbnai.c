@@ -44,9 +44,6 @@ void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, int dither)
 
 	DISPLAY_MODES thisDisplay;
 
-	extern int compute_zoom(SMURF_PIC *picture, int twid, int thgt);
-
-
 	zoom = compute_zoom(original_pic, thumbnail->pic_width, thumbnail->pic_height);
 
 	/*

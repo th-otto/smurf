@@ -37,14 +37,8 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-extern int handle;
-void vq_scrninfo(int handle, int *work_out);
-void getpix_std_line(char *std, char *buf, int planes, long planelen, int howmany);
-void nvdi5_raster(SMURF_PIC *picture, char *ziel, int zoom);
-
 /* Dies bastelt direkt ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w)
-	0xE058;
+static unsigned int swap_word(unsigned int w) 0xE058;
 
 typedef struct
 {
@@ -87,14 +81,15 @@ void direct2screen(SMURF_PIC *picture, char *where_to, GRECT *part)
 
 	SERVICE service;
 
-/*
+#if 0
 	vq_extnd(handle, 1, work_out);
 	if(work_out[30]&0x02)				/* Bit 1 gesetzt - neue Rasterfunktionen vorhanden? */
 	{
 		nvdi5_raster(picture, where_to, picture->zoom);
 		return;
 	}
-*/
+#endif
+
 	buffer = picture->pic_data;
 	width = picture->pic_width;
 	height = picture->pic_height;

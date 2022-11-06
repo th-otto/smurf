@@ -43,44 +43,17 @@
 
 #define	ABS(i)	(i>0? i : -i)
 
-extern	CROSSHAIR	position_markers[20];		/* Positionsmarker fr die Editmodule */
-
-extern	SERVICE_FUNCTIONS global_services;
-extern	DISPLAY_MODES Display_Opt;
-
-extern	int openmode;					/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
-extern	int edit_mod_num;				/* Modul-ID des Moduls, das das Einstellformular benutzt */
-extern	int	obj;						/* Objekt beim loslassen des Buttons */
-extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
-extern	int key_ascii;
-
-extern	SMURF_PIC *smurf_picture[MAX_PIC];
-extern	int active_pic;
-extern	int picwindthere, dialwindthere, picthere;
-extern	key_at_event;
-
-extern	long sx1, sx2, sx3, sx4;		/* Maxima */
-extern	long sn1, sn2, sn3, sn4;		/* Minima */
-extern	int	sy1,sy2,sy3,sy4;			/* eingestellte Sliderwerte */
-	
-/*----- Window-Variablen --------*/
-extern	POP_UP	popups[25];
-extern	SLIDER sliders[15];
-extern	char module_pics[21][7];
-
-extern MFORM *dummy_ptr;
-
 static void f_make_preview(int redraw_flag);
 static void f_insert_prefs(GARGAMEL *smurf_st, SMURF_PIC *picture);
 static void check_prevzoom(void);
 static void check_clipping(void);
 static void applyConfig(long *loadcnf);
 
-SMURF_PIC *module_preview = NULL;
-SMURF_PIC move_prev;
-SMURF_PIC *oldpic;
-int oldxoff, oldyoff;
 int prev_zoom=1;
+SMURF_PIC move_prev;
+static SMURF_PIC *module_preview = NULL;
+static SMURF_PIC *oldpic;
+static int oldxoff, oldyoff;
 
 /*------------------- Modul-Einstell-Formular ”ffnen ------------------	*/
 /* Vom Modul aufgerufen: mod_id (GARGAMEL->module_number) ist			*/
@@ -99,9 +72,6 @@ void f_module_prefs(MOD_INFO *infostruct, int mod_id)
 	long editval1, editval2, editval3, editval4, *cnfblock;
 
 	OBJECT *pref_form;
-
-	extern void *edit_cnfblock[100];
-
 
 	/* evtl. altes Modul terminieren */
 	if(edit_mod_num != -1)

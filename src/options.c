@@ -44,21 +44,8 @@
 #include "olgagems.h"
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 #include "globdefs.h"
-
-extern int openmode;				/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
-
-extern POP_UP	popups[25];
-extern DITHER_MOD_INFO *ditmod_info[10];
-
-extern OBJECT 	*col_pop;					/* Zeiger auf Resource-DITHERPOPUP	*/
-extern OBJECT	*colred_popup;
-extern WINDOW picture_windows[MAX_PIC];
-
-extern int Radio, SelectedRadio;
-extern int Check, SelectedCheck;
-extern int Cycle, SelectedCycle;
-
 
 
 /* ----------------------------------------------------------------	*/

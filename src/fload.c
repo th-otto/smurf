@@ -29,8 +29,6 @@
 #include "smurf_st.h"
 #include "smurf_f.h"
 
-extern long f_len;
-
 /* -------------------------- File laden --------------------------------*/
 char *fload(char *Path, int header)
 {

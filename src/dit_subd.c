@@ -41,9 +41,7 @@
 #include "ext_obs.h"
 
 
-DITHER_DATA ditherdata;
-
-extern	MOD_ABILITY export_mod_ability;
+static DITHER_DATA ditherdata;
 
 /********************************************************************/
 /*				    		FD - FAST								*/

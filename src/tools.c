@@ -44,8 +44,6 @@
 #include "ext_obs.h"
 
 
-extern	SYSTEM_INFO	Sys_info;			/* Systemkonfiguration */
-
 #define UNLIMITED	0x7fffffffL
 
 /* Klammert einen String mit ' ein und verdoppelt alle im String	*/
@@ -373,11 +371,6 @@ int SMfree(void *ptr)
 /*---- String im Startup-Dialog setzen und redrawen. Nur verwenden, wenn der Dialog offen ist! ---*/
 void set_startupdial(char *string)
 {
-	extern char startupdial_exist;
-	extern int sx,sy,sw,sh;
-	extern OBJECT *startrsc;
-
-
 	if(startupdial_exist)
 	{
 		strcpy(startrsc[STARTUP_TXT].TextCast, string);
@@ -457,7 +450,6 @@ char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols)
 	int *palbuf, *palcpy;
 	int max_count, t;
 	static char pal_loadpath[256];
-	extern long f_len;
 
 	strcpy(pal_loadpath, path);
 	fsback = f_fsbox(pal_loadpath, "Palette laden", 0);

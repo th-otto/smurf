@@ -42,15 +42,11 @@
 #include "../bindings.h"
 
 
-void rotozoom(int *img, int *padr, int xstep, int xystep, int pos);
-void roto(void);
+void rotozoom(int *img, int *padr, int xstep, int xystep, int pos) ASM_NAME("_rotozoom");
 
-
-extern MFORM	*dummy_ptr;				/* Dummymouse fÅr Maus-Form */
 
 static int *Sin;
 static int *Cos;
-char *image;
 
 static int old_timer;
 static SMURF_PIC rotoimage;

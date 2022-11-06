@@ -44,20 +44,9 @@
 #include "olgagems.h"
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 #include "globdefs.h"
 #include "debug.h"
-
-extern int openmode;				/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
-extern DISPLAY_MODES Display_Opt;
-
-extern POP_UP	popups[25];
-extern DITHER_MOD_INFO *ditmod_info[10];
-
-extern OBJECT 	*col_pop;					/* Zeiger auf Resource-DITHERPOPUP	*/
-extern OBJECT	*colred_popup;
-
-extern int fix_red[256], fix_blue[256], fix_green[256];
-
 
 /* ****************************************************************	*/
 /*				Formular DARSTELLUNG / OPTIONEN						*/
@@ -75,10 +64,6 @@ void f_display_opt(void)
 	int olditem, ditmode;
 
 	OBJECT *dopt_tree;
-
-	extern int picwindthere;
-	extern WINDOW picture_windows[MAX_PIC];
-
 
 	dopt_tree = wind_s[WIND_DOPT].resource_form;
 

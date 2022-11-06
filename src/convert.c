@@ -68,12 +68,6 @@
 
 void bgrtorgb(char *pic, long pixels) ASM_NAME("_bgrtorgb");
 
-/* fÅr M_COLSYS */
-extern	int active_pic;
-extern	SMURF_PIC *smurf_picture[MAX_PIC];
-extern	char *export_path;				/* Pfad des Export-Modules	*/
-
-
 int f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mode, char automatic)
 {
 	char picdepth, dstdepth, srcmode, dstmode, t;

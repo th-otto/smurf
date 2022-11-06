@@ -34,7 +34,6 @@
 #include "smurf_f.h"
 #include "nvdi5ras.h"
 
-extern  int handle;
 
 void nvdi5_raster(SMURF_PIC *picture, char *ziel, int zoom)
 {

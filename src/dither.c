@@ -57,32 +57,21 @@
 #include "ext_obs.h"
 
 
-extern SMURF_PIC picman_thumbnail;
-
-
 /*------------------ Globale Variablen ---------------------*/
-char *palette, *pic, *nc_table, *plane_table;
-char data_is_screen;
-
-int width, height, src_depth, dest_depth, src_format;
-int pic_dmode;
 int bplanes;
 int dithermode;
+static char *palette;
+static char *pic;
+static char *nc_table;
+static char *plane_table;
+
+static int width, height;
+static int src_depth;
+static int src_format;
+static int pic_dmode;
 static unsigned int w;
 
-extern	MFORM	*dummy_ptr;				/* Dummymouse fÅr Maus-Form */
-
-extern DISPLAY_MODES Display_Opt;
-extern int handle;
-
 void vq_scrninfo(int handle, int *work_out);
-
-/* die Original-Systempalette */
-extern int *orig_red;
-extern int *orig_green;
-extern int *orig_blue;
-
-extern int fix_red[256], fix_blue[256], fix_green[256];
 
 /* ----------------------------------------------------------------	*/
 /* ----------------------------------------------------------------	*/

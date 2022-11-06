@@ -42,34 +42,11 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 
-
-/*-------- GUI-Spezifisches -------*/
-extern	OBJECT	*menu_tree;
-extern	SMURF_PIC *smurf_picture[MAX_PIC];
-extern	int picthere;
-extern	int klicks;						/* Anzahl Mausklicks beim letzten Buttonevent */
-extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
-extern	int openmode;					/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
-extern	int key_at_event;
-extern	char savepath[257];				/* voller Pfad der zuletzt gespeicherten Datei */
 
 /*--------- Exporterspezifisches ------*/
-extern	char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
-extern	char *export_cnfblock[50];
-extern	int export_cnflen[50];
-extern	char *export_path;				/* Pfad des Export-Modules	*/
-extern	int export_depth[8];
-extern	int export_format[8];
-
 EXPORT_CONFIG exp_conf;
-
-/*--------	lokale Funktionen	--------------------*/
-void init_exmod_info(int mod_index);
-int dither_for_export(MOD_ABILITY *mod_abs, int max_expdepth, int dest_format, /*int dest_colsys,*/ SMURF_PIC *converted_pic);
-int loadNCT(int loadplanes, SYSTEM_INFO *sysinfo);
-
-
 
 /* ------------------------------------------------------------	*/
 /*							Bild exportieren  					*/
@@ -471,9 +448,6 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	GARGAMEL	*exp_gstruct;
 	BASPAG		*exp_bp;
 	WINDOW		*saved_window;
-
-	extern	char *picnames[100];			/* BILDMANAGER: Namen fÅr bis zu 100 Bilder */
-
 
 	exp_gstruct = module.smStruct[exp_conf.export_mod_num&0xFF];
 	exp_bp = module.bp[exp_conf.export_mod_num&0xFF];

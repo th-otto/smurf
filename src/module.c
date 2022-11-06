@@ -52,44 +52,18 @@
 #define SEL		1
 #define UNSEL	0
 
-USERBLK user_cicon;
-
-
-extern char name[200];
-
-
-void init_modtree(OBJECT *tree, int index);
-void convert_icon(OBJECT *tree, int index);
-void walk_module_tree(WINDOW *wind, int start);
-int cdecl f_draw_ucicon(PARMBLK *parm);
-
-extern SMURF_PIC *smurf_picture[MAX_PIC];
-extern char module_pics[21][7];
-
-extern int mouse_xpos, mouse_ypos;
-extern int mouse_button, key_at_event;
-extern int klicks;
-extern int obj;
-extern int active_pic;
-extern int key_scancode, key_ascii;
-
-extern	BASPAG *Dithermod_Basepage[10];
-
-extern	MFORM *dummy_ptr;				/* Dummymouse fr Maus-Form */
-
-extern char *export_cnfblock[50];
-extern int export_cnflen[50];
-
-char modname[25];
+static char modname[25];
 
 /* Standardpaletten im VDI-Format fr TC-Iconwandlung */
-char stdpal1bit[] = {0xff, 0xff, 0xff,
+#if 0 /* unused */
+static char stdpal1bit[] = {0xff, 0xff, 0xff,
 					 0x00, 0x00, 0x00};
-char stdpal2bit[] = {0xff, 0xff, 0xff,
+static char stdpal2bit[] = {0xff, 0xff, 0xff,
 					 0xff, 0x00, 0x00,
 					 0x00, 0xff, 0x00,
 					 0x00, 0x00, 0x00};
-char stdpal4bit[] = {0xff, 0xff, 0xff,
+#endif
+static char stdpal4bit[] = {0xff, 0xff, 0xff,
 					 0xff, 0x00, 0x00,
 					 0x00, 0xff, 0x00,
 					 0xff, 0xff, 0x00,
@@ -467,10 +441,6 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 	DISPLAY_MODES thisDisplay;
 	BASPAG *bsp;
 	MOD_INFO *modinfo;
-
-	extern DISPLAY_MODES Display_Opt;
-	extern CROSSHAIR position_markers[20];		/* Positionsmarker fr die Editmodule */
-
 
 	message = smurf_struct->module_mode;
 	mod_num = smurf_struct->module_number;
@@ -1191,11 +1161,6 @@ int inform_modules(int message, SMURF_PIC *picture)
 
 	BASPAG *curr_baspag;
 	
-	extern	int anzahl_plugins;
-	extern	BASPAG	*plugin_bp[11];
-	extern	PLUGIN_DATA *plg_data[11];
-
-	
 	/*
 	 * alle Editmodule informieren
 	 */
@@ -1282,11 +1247,6 @@ void AESmsg_to_modules(int *msgbuf)
 
 	BASPAG *curr_bp;
 	
-	extern BASPAG *plugin_bp[11];
-	extern PLUGIN_DATA *plg_data[11];
-	extern PLUGIN_INFO *plg_info[11];
-
-
 	/*
 	 * Editmodule und Exporter informieren
 	 */
@@ -1348,9 +1308,6 @@ void make_modpreview(WINDOW *wind)
 	MOD_INFO *mod_inf;
 
 	DISPLAY_MODES thisDisplay;
-
-	extern	WINDOW picture_windows[MAX_PIC];
-
 
 	mod_num = wind->module;
 	mod_index = mod_num&0xFF;

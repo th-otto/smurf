@@ -52,23 +52,10 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 #include "debug.h"
 
-extern SYSTEM_INFO Sys_info;
-extern IMPORT_LIST Import_list;
-
-extern char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
-
-extern int anzahl_importmods;			/* Anzahl an Import-Modulen */
-extern int anzahl_dithermods;			/* Anzahl an Dither-Modulen */
-
-extern BASPAG *Dithermod_Basepage[10];		/* Basepages fÅr Dithermodule */
-extern DITHER_MOD_INFO *ditmod_info[10];
-
-extern OBJECT *col_pop;					/* Zeiger auf Resource-DITHERPOPUP	*/
-
-int files_read;
-extern long Name_Max;
+static int  files_read;
 
 static void save_extensions(MOD_INFO *module_info);
 static void save_import_list(void);
@@ -655,7 +642,6 @@ void f_scan_export(void)
 	char *swapstr, alert[128];
 	char *textseg_begin;
 	char edstring[64], strn[4];
-	extern void set_startupdial(char *string);
 	long mod_magic;
 
 	int t, tt, biggest, pathlen;
@@ -807,7 +793,6 @@ void f_scan_dither(void)
 	char *dit_path;
 	char alert[128], string[20] = "";
 	char *textseg_begin;
-	extern void set_startupdial(char *string);
 	long mod_magic;
 
 	int pathlen;

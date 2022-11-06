@@ -30,7 +30,10 @@
 #include <screen.h>
 #include <stdio.h>
 #include <ext.h>
+#include "../modules/import.h"
+#include "smurfine.h"
 #include "smurf_st.h"
+#include "smurf_f.h"
 #include "debug.h"
 
 #define CTRL_CHAR	'^'					/* MenÅ-Control-Buchstabe */

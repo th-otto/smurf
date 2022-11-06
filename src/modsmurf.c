@@ -46,7 +46,6 @@
 #include <math.h>
 #include "demolib.h"
 #include <errno.h>
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurf.h"
 #include "smurf_st.h"
@@ -59,6 +58,7 @@
 #include "ext_obs.h"
 #include "debug.h"
 #include "destruct.h"
+#include "ext_rsc.h"
 
 #include "xrsrc.h"
 #include "globdefs.h"
@@ -74,10 +74,6 @@ SERVICE_FUNCTIONS global_services;
 
 #define	AP_ARGSTART		0x5001
 
-/*-------------------- Environmentstrings ---------------------	*/
-char *ENV_avserver;
-
-
 /* ------------------------------------------------------------	*/
 /*				lokale Funktionsdeklarationen					*/
 /* ------------------------------------------------------------	*/
@@ -90,7 +86,7 @@ static int do_MBEVT(int module_number, WINDOW *mod_win, int mode);
 /* ------------------------------------------------------------*/
 /*		 			Globale Variablendeklaration			   */
 /* ------------------------------------------------------------*/
-unsigned char *mononct;			/* monochrome NCT (32KByte) */
+static unsigned char *mononct;			/* monochrome NCT (32KByte) */
 
 WORD resource_global[100];
 int nullcoordset, syspalset = 0;
@@ -103,7 +99,7 @@ int PCD;					/* PCD-Kennung fÅr aktuell zu ladendes Bild */
 int PCDwidth, PCDheight;	/* Hîhe und Breite des PCD-Bildes */
 
 int handle;					/* VDI-Hendl */
-int	work_out[57];
+static int work_out[57];
 int scrwd, scrht;			/* Screen Breite+Hîhe */
 int mouse_xpos, mouse_ypos;	/* Mausposition */
 int	key_scancode;			/* Scancode beim letzten Keyboard-Event */
@@ -139,7 +135,7 @@ OBJECT *u_tree;						/* Zeiger auf Radiobutton/Checkbox-Formular	*/
 
 MFORM *dummy_ptr;					/* Dummymouse fÅr Maus-Form */
 MFORM lr_arrow, ud_arrow, lrud_arrow;
-unsigned long f_len = 'KDA\0';		/* LÑnge des letzten geladenen Files */
+long f_len = 'KDA\0';				/* LÑnge des letzten geladenen Files */
 int *messagebuf;					/* Zeiger fÅr Messageevents */
 int klicks;							/* Anzahl Mausklicks beim letzten Buttonevent */
 
@@ -149,17 +145,13 @@ char savepath[257];					/* voller Pfad der zuletzt gespeicherten Datei */
 char commpath[257];					/* voller Pfad der zuletzt Åber ein Protokoll empfangenen Datei */
 char DraufschmeissBild = 0;
 
-/* Array von Filenamenzeigern fÅr Selectrics Multilader, */
-/* momentan noch statisch */
-extern char *filenamearray[20];
-
 SYSTEM_INFO Sys_info;				/* Systemkonfiguration */
 IMPORT_LIST Import_list;			/* Importmodul-Liste */
 
 /* 15Bit-Systempalette aus NCT - werden in Sys_info eingehÑngt!*/
-int red[257];
-int grn[257];
-int blu[257];
+static int red[257];
+static int grn[257];
+static int blu[257];
 
 /* die Original-Systempalette, wird bei Systemstart ausgelesen und
    danach nie mehr verÑndert */
@@ -188,14 +180,14 @@ long Name_Max;
 WINDOW wind_s[25];
 WINDOW picture_windows[MAX_PIC];
 
-POP_UP	popups[25];
+POP_UP popups[25];
 SLIDER sliders[15];
-signed char module_pics[21][7];
+char module_pics[21][7];
 
 int Radio = RADIO, SelectedRadio = RADIO_SEL;
 int Check = CHECK, SelectedCheck = CHECK_SEL;
 int Cycle = CYCLE, SelectedCycle = CYCLE_SEL;
-long oldtim, tim;
+static long oldtim, tim;
 
 
 GRECT screen;
@@ -222,17 +214,19 @@ char Smurf_locked;
 char Startup;				/* Hochfahren des ganzen Monster-Systems */
 char startupdial_exist = 0;
 
-int demopic, num_of_pics;
+int num_of_pics;
 
-long timer_fx_counter[10];
+static long timer_fx_counter[10];
 long timer_fx_max[10];
-void *timer_fx_rout[10];
+static void *timer_fx_rout[10];
 
-int fix_red[256], fix_blue[256], fix_green[256];
+int fix_red[256];
+int fix_blue[256];
+int fix_green[256];
 
 int sx, sy, sw, sh;
 OBJECT *startrsc;
-int startuprsc_global[10];
+static int startuprsc_global[10];
 
 /* ------------------------------------------------------------*/
 /* ------------------------------------------------------------*/
@@ -244,10 +238,8 @@ int main(int argc, const char *argv[])
 	char timer[4] = "___";
 	int t, tt, back;
 	char *rsc_path;
-	extern void *edit_cnfblock[100];
 
 	GRECT desk;
-	extern int decode(char *string);
 
 
 	/*
@@ -1220,9 +1212,6 @@ void f_event(void)
 	static int oldwindnum;
 
 	int mod_desire, mod_index;
-	extern	EXT_MODCONF	*modconfs[20];			/* Strukturen fÅr Modul-Notifying */
-	extern	BASPAG	*plugin_bp[11];
-	extern	PLUGIN_DATA *plg_data[11];	
 
 	DEBUG_MSG (( "f_event...\n" ));
 
@@ -1706,10 +1695,6 @@ static int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 	EXPORT_PIC *pic_to_save;
 	SMURF_PIC *edited_pic;	
 
-	extern	BASPAG	*plugin_bp[11];
-	extern	PLUGIN_DATA *plg_data[11];
-
-
 	mod_index = module_number&0xFF;
 
 	/*
@@ -1990,7 +1975,7 @@ void f_info(void)
 		init_roto();
 		timer_fx_max[0] = 1;
 		timer_fx_counter[0] = 0;
-		timer_fx_rout[0] = (void( *)())roto;
+		timer_fx_rout[0] = roto;
 	}
 	else
 		if(button == INFO_YEAH)
@@ -2639,8 +2624,6 @@ void close_dialog(int windnum)
 /* ----------------------------------------------------------------	*/
 int f_init_system(void)
 {
-	extern int sx,sy,sw,sh;
-	extern int startuprsc_global[10];
 	OBJECT *tree;
 	int pxy[8] = {0,0,0,0};
 	
@@ -3092,12 +3075,6 @@ void shutdown_smurf(char while_startup)
 	int rgb[4];
 
 	long mod_magic;
-
-	extern	BASPAG	*plugin_bp[11];
-	extern	PLUGIN_DATA *plg_data[11];
-	extern	PLUGIN_INFO *plg_info[11];
-	extern	int anzahl_plugins;
-
 
 	Comm.sendAESMsg(Sys_info.ENV_avserver, AV_EXIT, Sys_info.app_id, -1);
 

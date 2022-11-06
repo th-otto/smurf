@@ -97,10 +97,7 @@ OBJECT *modconf_popup;
  * die Default-Konfigurationen fÅr die Editmodule
  */
 void *edit_cnfblock[100];
-int edit_cnflen[100];
-
-extern char *export_cnfblock[50];
-extern int export_cnflen[50];
+static int edit_cnflen[100];
 
 
 /* mconfLoad --------------------------------------------
@@ -231,12 +228,6 @@ static int open_modconf_popup(MOD_INFO *modinfo)
 
 	long *confnames;
 	long fback, mca_len, areaheader_pos, magic, len;
-
-	extern int mouse_xpos, mouse_ypos;
-
-	extern GRECT screen;
-	extern SYSTEM_INFO Sys_info;
-
 
 	/*
 	 * Position des Dialogs festlegen
@@ -408,9 +399,6 @@ static void save_to_modconf(MOD_INFO *modinfo, void *confblock, long len, char *
 
 	long oback, cback, mca_len = 0, pos, areaname_len, areaheader_pos;
 
-	extern SYSTEM_INFO Sys_info;
-
-	
 	strcpy(cnfpath, Sys_info.home_path);
 	strcat(cnfpath, "\\modconf.cnf");
 
@@ -981,9 +969,6 @@ static int nametest(MOD_INFO *modinfo, char *name)
 	int filehandle;
 
 	long back, mca_len = 0;
-
-	extern SYSTEM_INFO Sys_info;
-
 
 	strcpy(cnfpath, Sys_info.home_path);
 	strcat(cnfpath, "\\modconf.cnf");

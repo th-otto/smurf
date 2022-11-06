@@ -32,11 +32,11 @@
 #include "globdefs.h"
 #include "smurfine.h"
 #include "smurf_st.h"
+#include "smurf_f.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-extern int key_at_event;
 
 int handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object)
 {

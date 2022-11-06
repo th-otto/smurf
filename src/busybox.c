@@ -97,11 +97,6 @@ int draw_busybox(int lft)
 	OBJECT *busytree = Dialog.busy.busyTree;
 	GRECT box;
 
-	extern char	Startup;				/* Hochfahren des ganzen Monster-Systems */
-	extern int *messagebuf;				/* Zeiger fÅr Messageevents */
-	extern int mouse_xpos, mouse_ypos;	/* Mausposition */
-
-
 	if(Dialog.busy.disabled)
 		return(0);
 	

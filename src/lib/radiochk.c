@@ -43,6 +43,7 @@
 #include "smurf_st.h"
 #include "smurfine.h"
 #include "smurf_f.h"
+#include "ext_rsc.h"
 
 #define RADIOBUTTON   	43		/* Oberes Byte.... */
 #define CHECKBOX  		44		/* FÅr den Res-Editor */
@@ -56,13 +57,6 @@ static USERBLK corner_user;
 #if 0
 static USERBLK angle_user;
 #endif
-
-extern OBJECT *u_tree;
-extern int handle;
-
-extern int Radio, SelectedRadio;
-extern int Check, SelectedCheck;
-extern int Cycle, SelectedCycle;
 
 static void f_init_tree(OBJECT *baum,int element);
 static int cdecl f_do_radio(PARMBLK *parm);

@@ -40,6 +40,7 @@
 #include "smurf_f.h"
 #include "globdefs.h"
 #include "gdps.h"
+#include "ext_rsc.h"
 
 #include <screen.h>
 
@@ -48,23 +49,8 @@ static int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps);
 static void save_pic(COMSTRUCT *comstruct);
 static int copy_gdpsmemory(SMURF_PIC *smurf_picture, COMSTRUCT *comstruct);
 
-extern SMURF_PIC *smurf_picture[MAX_PIC];
-extern SYSTEM_INFO Sys_info;
-extern OBJECT *alerts;
-extern WINDOW picture_windows[MAX_PIC];
-extern DISPLAY_MODES Display_Opt;
-
-extern int orig_red[256];
-extern int orig_green[256];
-extern int orig_blue[256];
-extern char planetable[260];
-
-extern int picthere;
-
-GENERAL_GDPS *actual;
-char firstblock;
-
-#define DEBUG	1
+static GENERAL_GDPS *actual;
+static char firstblock;
 
 
 void gdps_main(void)
@@ -97,7 +83,7 @@ void gdps_main(void)
 	{
 		if(actual->type >= 0x0 && actual->type <= 0x0ff)
 		{
-#if DEBUG
+#ifdef DEBUG
 			printf("Magic: %lx\n", actual->magic);
 			printf("Treiberversion: %d\n", actual->version);
 			printf("Treibertyp: %x\n", actual->type);
@@ -136,7 +122,7 @@ void gdps_main(void)
 	if(!actual->desc)								/* Scanner noch nicht initialisiert? */
 		send_command(&comstruct, 0x105);			/* dann tue es jetzt */
 
-#if DEBUG
+#ifdef DEBUG
 	printf("Scannerbeschreibung: %x\n", actual->desc);
 	printf("Anzahl Farben: %x\n", actual->cols);
 	printf("Bittiefen: %x\n", actual->depth);
@@ -157,7 +143,7 @@ void gdps_main(void)
 		send_command(&comstruct, 0x100);
 		if(comstruct.result < 0xfffd)					/* Fehler beim Scannen? */
 		{
-#if DEBUG
+#ifdef DEBUG
 			printf("Fehler beim Scanvorgang!\n");
 #endif
 			break;										/* Schleife verlassen */
@@ -245,7 +231,7 @@ static void save_pic(COMSTRUCT *comstruct)
 
 	long PicLen;
 
-#if DEBUG
+#ifdef DEBUG
 	printf("modes: %x\n", comstruct->modes);
 	printf("depth: %x\n", comstruct->depth);
 	printf("memlen: %ld\n", comstruct->memlen);

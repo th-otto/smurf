@@ -76,40 +76,15 @@ void f_showtree(OBJECT *tree, int object)	- Wiederanzeigen eines versteckten Obj
 #include "smurfine.h"
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 #include "debug.h"
 
-void f_update_listfield(LIST_FIELD *lfstruct, OBJECT *tree);
+static void f_update_listfield(LIST_FIELD *lfstruct, OBJECT *tree);
 
 /*baldrick prototypes insertion this is the only thing we need from
  * xrsrc.h in this file
  */
-extern short xrsrc_gaddr (short re_gtype, short re_gindex, void *re_gaddr, WORD *pglobal);
-
-extern WORD resource_global[20];
-
-extern int handle;						/* VDI-Handle */
-extern int klicks;						/* Wieviele Klicks (button_ev) */
-extern int mouse_xpos, mouse_ypos;		/* Button_ev Mausposition */
-/*extern int mouse_button; */
-extern MFORM *dummy_ptr;
-
-extern int moveable;			/* f_drag moveable-Flag */
-extern int maxx, maxy;			/* Koordinaten des Hauptformulars */
-extern int minx, miny;			
-extern int scrwd, scrht;		/* Bildschirmbreite / -hîhe		*/
-
-extern int *messagebuf;			/* fÅr EVNT_MULTI und EVNT_MESAG */
-extern int appl_id;
-
-extern int mouse_button, key_at_event;
-
-extern SYSTEM_INFO Sys_info;
-
-extern GRECT screen;
-
-
-extern OBJECT 	*u_tree;				/* Zeiger auf Radiobutton/Checkbox-Formular*/
-
+short xrsrc_gaddr (short re_gtype, short re_gindex, void *re_gaddr, WORD *pglobal);
 
 /* Leereintrag fÅr Listenfelder */
 	char empty_entry[128]="";
@@ -460,6 +435,9 @@ int f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree)
 /* und zeichnet es neu. Erwartet ein globales Flag 'moveable', das	*/
 /* angibt, ob ein Objekt gezogen werden darf (1) oder nicht (0).	*/
 /* ****************************************************************	*/
+#if 0 /* unused */
+static int moveable;
+
 void f_drag(int obj, int parent, OBJECT *tree)
 {
 	int xkoo, ykoo;
@@ -505,8 +483,8 @@ void f_drag(int obj, int parent, OBJECT *tree)
 		
 		objc_draw(tree, parent, MAX_DEPTH, oxkoo+xmin-5,oykoo+ymin-5,w+10,h+10);	/* Neuzeichnen des alten Bereichs */
 	}
-
 }
+#endif
 
 
 /* ****************************************************************	*/
@@ -1168,7 +1146,7 @@ if(klick_obj!=0)
 /*	um weitere ca. 30% beschleunigt...								*/
 /*	Olaf, 28.09.96													*/
 
-void f_update_listfield(LIST_FIELD *lfstruct, OBJECT *tree)
+static void f_update_listfield(LIST_FIELD *lfstruct, OBJECT *tree)
 {
 	register char * * entries;
 	register char *myentry;

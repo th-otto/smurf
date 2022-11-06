@@ -78,3 +78,5 @@ typedef struct
     char conf_able;             /* Konfigurierbar? */
     int pal_mode;               /* Palettenmodus (MCUT|SYSPAL || FIXPAL) */
 } DITHER_MOD_INFO;
+
+extern DITHER_MOD_INFO *ditmod_info[10];		/* Ditherinfostrukturen fÅr Dithermodule */

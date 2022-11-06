@@ -39,21 +39,9 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 #include "debug.h"
 
-
-
-extern OBJECT *menu_tree;
-extern SMURF_PIC *smurf_picture[25];
-extern int openmode;
-
-extern int picwindthere, dialwindthere, picthere;
-extern int appl_id;
-extern int active_pic;
-extern int *messagebuf;
-
-extern int mouse_button, key_at_event, key_scancode;
-extern char Smurf_locked;
 
 
 void f_init_menu(void)
@@ -80,10 +68,6 @@ int f_handle_menuevent(int *message)
 	WINDOW *nextwin;
 	SMURF_PIC *picture;
 	
-	extern signed char menu2plugin[128];		/* feste MenÅeintrÑge, in die Plugins eingehÑngt sind */
-	extern DISPLAY_MODES Display_Opt;
-
-
 	menu_title = message[3];
 	menu_entry = message[4];
 
@@ -323,8 +307,6 @@ int f_handle_menuevent(int *message)
 	----------------------------------------------------------*/
 void actualize_menu(void)
 {
-	extern int printplug_found;
-
 	DEBUG_MSG (( "actualize_menu...\n" ));
 
 	menu_tree[WIND_CLOSE].ob_state |= DISABLED;

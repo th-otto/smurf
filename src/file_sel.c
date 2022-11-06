@@ -51,20 +51,7 @@ static void f_free_filelist(void);
 #define LOAD	1
 #define SAVE	2
 
-extern SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
-
-extern long f_len;
-
-char *namelist[257];
-
-extern int appl_id;
-
-extern char loadpath[257];
-extern char savepath[257];
-extern char commpath[257];
-
-extern SYSTEM_INFO Sys_info;
-extern char DraufschmeissBild;
+static char *namelist[257];
 
 /* Ist nun die Hauptladefunktion und wird nicht mehr */
 /* von f_loadpic() aufgerufen, sondern andersherum. */

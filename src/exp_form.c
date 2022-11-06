@@ -50,33 +50,12 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 
 
 /*------------- GUI-Kram --------------*/
-extern OBJECT	*export_form;				/* Export-Formular	*/
-extern OBJECT 	*col_pop;					/* Zeiger auf Resource-DITHERPOPUP	*/
-extern OBJECT	*colred_popup;
-extern	POP_UP	popups[25];
-extern	int	openmode;				/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
-extern	int	obj;					/* Objekt beim loslassen des Buttons */
-extern	OBJECT	*exp_dp_popup;
-extern	OBJECT	*colred_popup;
-
-extern	SMURF_PIC	*smurf_picture[MAX_PIC];
-extern	DITHER_MOD_INFO *ditmod_info[10];
-extern	int	active_pic;
-extern	int	key_scancode;			/* Scancode beim letzten Keyboard-Event */
-
-extern	int	export_depth[8];
-extern	int	export_format[8];
-extern	char *export_path;			/* Pfad des Export-Modules	*/
-extern	char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
-extern	SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
-
-extern	long 	f_len;					/* LÑnge des letzten geladenen Files */
-
 MOD_ABILITY export_mod_ability;
-int dest_colsys;
+static int dest_colsys;
 
 /*------------- lokale Funktionen --------------*/
 static int best_depth(int desired_depth);
@@ -436,10 +415,6 @@ void prepare_depthpopup(void)
 {
 	int t, ob;
 
-	extern OBJECT *exp_dp_popup;				/* Farbtiefenpopup fÅr Export	*/
-	extern int export_depth[8];
-
-	
 	/*
 	 * Depth-Popup vorbereiten
 	 */

@@ -43,34 +43,7 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
-
-
-extern	OBJECT *picorder_popup;
-extern	OBJECT *u_tree;					/* Zeiger auf Radiobutton/Checkbox-Formular*/
-extern	char module_pics[21][7];
-
-extern	POP_UP popups[25];
-extern	char *picnames[100];			/* Namen fÅr bis zu 100 Edit-Module */
-
-extern	int	mouse_button, key_at_event;
-extern	int	mouse_xpos, mouse_ypos;		/* Mausposition */
-extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
-extern	int	key_ascii;
-extern	int	obj;						/* Objekt beim loslassen des Buttons */
-extern	int	klicks;						/* Anzahl Mausklicks beim letzten Buttonevent */
-extern	int picwindthere;
-
-extern	MFORM *dummy_ptr;				/* Dummymouse fÅr Maus-Form */
-
-extern CROSSHAIR	position_markers[20];		/* Positionsmarker fÅr die Editmodule */
-
-/*
- * lokale funktionen - alle Bestandteil von Dialog.picMan
- */
-int pm_autoscroll(int mx, int my);
-int compute_zoom(SMURF_PIC *picture, int twid, int thgt);
-void picman_windowmove(void);
-void show_picman_wh(SMURF_PIC *pic);
+#include "ext_rsc.h"
 
 
 /* ****************************************************************	*/
@@ -96,9 +69,6 @@ void f_picman(void)
 	int my_word3, my_word4;
 	int my_scancode;
 	int dest_whandle;
-
-	extern SMURF_PIC *smurf_picture[MAX_PIC];
-	extern int openmode;
 
 	OBJECT *ob;
 	SMURF_PIC *pic;
@@ -601,10 +571,6 @@ void picman_windowmove(void)
 	int outx, outy, outw, outh;
 
 	OBJECT *pmtree;
-
-	extern	SMURF_PIC *smurf_picture[MAX_PIC];
-	extern	int	picthere;
-
 
 	if(picwindthere == 0)
 		return;

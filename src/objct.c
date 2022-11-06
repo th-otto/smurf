@@ -38,10 +38,6 @@
 #include "debug.h"
 
 
-extern int klicks;
-extern int key_at_event, key_scancode, mouse_xpos, mouse_ypos, mouse_button;
-
-
 /* --------------------------------------------------------------------	*/
 /*		RADIOBUTTONS (nicht hintergrundbedienbar wg. form_button!) 		*/
 /*	Aužerdem Bildreihenfolge - Modulinfo - Button...					*/
@@ -89,9 +85,6 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 	static int mode;
 	int objct, timo, evback, type;
 	int ox,oy, dummy, button;
-
-	extern int active_pic, picthere;
-	extern SMURF_PIC *smurf_picture[MAX_PIC];
 
 	SMURF_PIC *prevpic;
 	OBJECT *ob;

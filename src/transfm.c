@@ -46,6 +46,7 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 
 
 /*------------ lokale Funktionen ------------------*/
@@ -54,21 +55,6 @@ static void do_transform(int conv_depth, int conv_dither, int conv_pal);
 
 static int dither_destruktiv(int dest_depth, int dest_dither, int dest_pal);
 static int autoreduce_image(void);
-
-/*------------ externer Kram ----------------------*/
-	extern	DISPLAY_MODES Display_Opt;
-	extern	SMURF_PIC *smurf_picture[MAX_PIC];
-	extern	DITHER_MOD_INFO *ditmod_info[10];
-	extern	int klicks;
-	extern	int key_at_event, key_scancode, mouse_xpos, mouse_ypos, mouse_button;
-	extern	int active_pic;
-	extern	POP_UP	popups[25];
-	extern	int openmode;		/* Dialog neu geîffnet (0) / Buttonevent? (!=0) */
-	extern	OBJECT	*colred_popup;
-	extern	OBJECT 	*col_pop;					/* Zeiger auf Resource-DITHERPOPUP	*/
-
-	extern	MOD_ABILITY export_mod_ability;
-	extern	long f_len;
 
 /*------------ globales fÅr die Konvertierung ------*/
 static int conv_depth = 24;
@@ -91,9 +77,6 @@ void transform_pic(void)
 	int dbutton, back;
 
 	OBJECT *resource;
-
-	extern OBJECT *form_pop;						/* Zeiger auf Resource	*/
-
 
 	button = Dialog.init(WIND_TRANSFORM, CONV_START);
 

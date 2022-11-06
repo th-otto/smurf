@@ -25,20 +25,9 @@
  * ***** END LICENSE BLOCK *****
  */
 
+#include <portab.h>
+
 #define MAX_PIC 25
-
-/*----- Window-Variablen --------*/
-extern WINDOW wind_s[25];
-extern WINDOW picture_windows[MAX_PIC];
-
-/*----- Smurf-Systemspezifisches ----*/
-extern SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
-extern DISPLAY_MODES Display_Opt;
-extern int obj;							/* Objekt beim loslassen des Buttons */
-extern int active_pic;
-extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
-extern SERVICE_FUNCTIONS global_services;
-
 
 #ifdef __GNUC__
 #  define ASM_NAME(x) __asm__(x)
@@ -46,7 +35,7 @@ extern SERVICE_FUNCTIONS global_services;
 #  define ASM_NAME(x)
 #endif
 #if !defined(__GNUC__) && !defined(__attribute__)
-#  define __attribute(x)
+#  define __attribute__(x)
 #endif
 
 /* **********************************************************************/
@@ -100,7 +89,6 @@ void check_windclose(int windnum);   /* Auswerten von Windowdialog-AbbrÅchen */
 /* **********************************************************************/
 
 extern int bplanes;
-extern int pic_dmode;
 extern int dithermode;
 
 /*---- Dither-Routinen - Maindispatcher ----*/
@@ -187,14 +175,19 @@ void    f_init_bintable(OBJECT *rsc);       /* BinÑrwert-Table init */
 
 
 
-int     handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object);
+int handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object);
+void change_object(WINDOW *window, int objct, int status, int redraw);
 
-void    init_smurfrsc(char *rscpath);
-void    fix_rsc(void);              /* RSC-Anpassung an OS, Farbtiefe, AES, etc... */
-void    f_init_popups(void);        /* Alle Popups initialisieren */
-void    f_init_sliders(void);   
 
-void    change_object(WINDOW *window, int objct, int status, int redraw);
+/*
+ * resource.c
+ */
+extern int add_flags[40];
+
+void f_init_popups(void);        /* Alle Popups initialisieren */
+void f_init_sliders(void);   
+void init_smurfrsc(char *rscpath);
+void fix_rsc(void);              /* RSC-Anpassung an OS, Farbtiefe, AES, etc... */
 
 
 /*
@@ -245,6 +238,8 @@ void gdps_main(void);
 /* ------------------- SMURF-Kommunikationsfunktionen ----------------- */
 /* Bitte reden Sie mit mir, ich bin so alleine.                         */
 /* **********************************************************************/
+extern char *send_smurfid;
+
 int get_dragdrop(WINDOW *window_to_handle, int *messagebuf);
 int send_dragdrop(SMURF_PIC *picture, int dest_whandle, int mx, int my);
 int dd_getheader(DD_HEADER *dd_header, int pipe_handle);
@@ -285,6 +280,9 @@ void make_modpreview(WINDOW *wind);
 /*
  * prefdial.c
  */
+extern int prev_zoom;
+extern SMURF_PIC move_prev;
+
 void f_module_prefs(MOD_INFO *infostruct, int mod_id);   /* Modulformular aufrufen */
 void f_mpref_change(void);                               /* Eingabe im Modulformular */
 void f_move_preview(WINDOW *window, SMURF_PIC *orig_pic, int redraw_object);
@@ -294,6 +292,10 @@ void copy_preview(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev
 /*
  * modconf.c
  */
+extern void *edit_cnfblock[100];
+extern OBJECT *confsave_dialog;
+extern OBJECT *modconf_popup;
+
 void *mconfLoad(MOD_INFO *modinfo, int mod_id, char *name);
 void mconfSave(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *name);
 void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type);
@@ -397,10 +399,103 @@ void fulldisable_busybox(void);
 /*  schwer macht...                                                     */
 /* **********************************************************************/
 
-extern long timer_fx_max[10];
-extern int *messagebuf;
+/*----- Smurf-Systemspezifisches ----*/
+/*----- Smurf-Systemspezifisches ----*/
+extern DISPLAY_MODES Display_Opt;
+extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
+extern SERVICE_FUNCTIONS global_services;
 
-void f_set_syspal(void);             /* Systempalette setzen */
+extern WORD resource_global[100];
+extern int nullcoordset;
+extern int syspalset;
+extern int gl_hchar, gl_wchar, gl_hbox, gl_wbox;
+extern int picwindthere, dialwindthere, picthere;
+extern int openmode;					/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
+extern int PCD;							/* PCD-Kennung fÅr aktuell zu ladendes Bild */
+extern int PCDwidth, PCDheight;			/* Hîhe und Breite des PCD-Bildes */
+extern int handle;						/* VDI-Hendl */
+extern int scrwd, scrht;				/* Screen Breite+Hîhe */
+extern int mouse_xpos, mouse_ypos;		/* Mausposition */
+extern int key_scancode;				/* Scancode beim letzten Keyboard-Event */
+extern int key_ascii;
+extern int obj;							/* Objekt beim loslassen des Buttons */
+extern int mouse_button, key_at_event;
+
+extern MFORM *dummy_ptr;				/* Dummymouse fÅr Maus-Form */
+extern MFORM lr_arrow, ud_arrow, lrud_arrow;
+extern long f_len;						/* LÑnge des letzten geladenen Files */
+extern int *messagebuf;
+extern int klicks;						/* Anzahl Mausklicks beim letzten Buttonevent */
+extern char *stpath;					/* Smurf-Standardpfad */
+extern char loadpath[257];				/* voller Pfad der zuletzt geladenen Datei */
+extern char savepath[257];				/* voller Pfad der zuletzt gespeicherten Datei */
+extern char commpath[257];				/* voller Pfad der zuletzt Åber ein Protokoll empfangenen Datei */
+extern char DraufschmeissBild;
+extern SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
+extern IMPORT_LIST Import_list;			/* Importmodul-Liste */
+
+extern int orig_red[256];
+extern int orig_green[256];
+extern int orig_blue[256];
+extern char planetable[260];
+
+/*--------- Exporterspezifisches ------*/
+extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
+extern char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
+extern char *export_cnfblock[50];		/* Konfigurationsblîcke fÅr die Exporter */
+extern int export_cnflen[50];			/* LÑnge des jeweiligen Blockes */
+
+extern CROSSHAIR position_markers[20];	/* Positionsmarker fÅr die Editmodule */
+extern char *picnames[100];				/* BILDMANAGER: Namen fÅr bis zu 100 Bilder */
+
+extern int anzahl_importmods;			/* Anzahl an Import-Modulen */
+extern int anzahl_dithermods;			/* Anzahl an Dither-Modulen */
+
+extern long Name_Max;
+
+/*----- Window-Variablen --------*/
+extern WINDOW wind_s[25];
+extern WINDOW picture_windows[MAX_PIC];
+extern POP_UP popups[25];
+extern SLIDER sliders[15];
+extern char module_pics[21][7];
+
+extern int Radio, SelectedRadio;
+extern int Check, SelectedCheck;
+extern int Cycle, SelectedCycle;
+
+extern GRECT screen;					/* globales Screen-GRECT */
+
+extern int appl_id, menu_id;
+extern SMURF_PIC *smurf_picture[25];
+extern int active_pic;
+extern BASPAG *Dithermod_Basepage[10];			/* Basepages fÅr Dithermodule */
+
+extern long sx1, sx2, sx3, sx4;			/* Maxima */
+extern long sn1, sn2, sn3, sn4;			/* Minima */
+extern int sy1, sy2, sy3, sy4;				/* eingestellte Sliderwerte */
+extern int edit_mod_num;				/* Modul-ID des Moduls, das das Einstellformular benutzt */
+extern char *export_path;					/* Pfad des Export-Modules	*/
+extern int export_depth[8];
+extern int export_format[8];
+extern int TOOLBAR_HEIGHT;
+
+extern char Smurf_locked;
+extern char Startup;				/* Hochfahren des ganzen Monster-Systems */
+extern char startupdial_exist;
+extern int num_of_pics;
+
+extern long timer_fx_max[10];
+
+extern int fix_red[256];
+extern int fix_blue[256];
+extern int fix_green[256];
+
+extern int sx, sy, sw, sh;
+
+extern OBJECT *startrsc;
+
+void f_set_syspal(void);				/* Systempalette setzen */
 void f_set_picpal(SMURF_PIC *pic);   /* Bildpalette setzen */
 void f_pic_info(void);               /* Bildinfo anzeigen */
 void f_newpic(int scancode);
@@ -457,6 +552,8 @@ void f_deselect_popup(WINDOW *wind, int ob1, int ob2);
 /*
  * exp_form.c
  */
+extern	MOD_ABILITY export_mod_ability;
+
 void f_export_formular(void);
 void prepare_depthpopup(void);
 

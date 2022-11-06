@@ -41,22 +41,6 @@
 #include "ext_obs.h"
 
 
-extern	SMURF_PIC *smurf_picture[MAX_PIC];
-extern	int active_pic;
-
-extern	int	openmode;					/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
-extern	int	key_scancode;				/* Scancode beim letzten Keyboard-Event */
-extern	int	klicks;						/* Anzahl Mausklicks beim letzten Buttonevent */
-
-extern	int	obj;
-extern	int picthere;
-
-extern	long sx1, sx2, sx3, sx4;	/* Maxima */
-extern	long sn1, sn2, sn3, sn4;	/* Minima */
-extern	CROSSHAIR	position_markers[20];		/* Positionsmarker fr die Editmodule */
-extern	signed char module_pics[21][7];
-
-
 /* ----------------------------------------------------------------	*/
 /* ------------------------ EDIT-MODUL-WINDOW ----------------------*/
 /* ----------------------------------------------------------------	*/
@@ -79,9 +63,6 @@ void f_edit_pop(void)
 	MOD_ABILITY *mod_abs;
 	GARGAMEL *garg_st;
 	SMURF_PIC *picture_to_handle;
-
-	extern DISPLAY_MODES Display_Opt;
-
 
 	my_scancode = (key_scancode&0xff00) >> 8;
 

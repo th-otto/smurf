@@ -66,25 +66,10 @@
 /*
  * lokale Funktionen
  */
-void insert_to_menu(OBJECT *menu, int entry, char *string);
-int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data);
-void init_structs(void);
-int load_plugin(int plugin_number);
-void terminate_plugin(int index);
-void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename);
-
-extern	OBJECT	*menu_tree;
-extern	long Name_Max;
-
-extern	SMURF_PIC *smurf_picture[MAX_PIC];
-
-extern	char loadpath[257];				/* voller Pfad der zuletzt geladenen Datei */
-extern	char savepath[257];				/* voller Pfad der zuletzt gespeicherten Datei */
-extern	char commpath[257];			/* voller Pfad der zuletzt Åber ein Protokoll empfangenen Datei */
-extern	char DraufschmeissBild;
-
-extern	int picwindthere, dialwindthere, picthere;
-extern	int active_pic;
+static void insert_to_menu(OBJECT *menu, int entry, char *string);
+static void init_structs(void);
+static int load_plugin(int plugin_number);
+static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename);
 
 static PLUGIN_FUNCTIONS global_replace;
 static ADD_FUNCTIONS global_call;
@@ -313,9 +298,7 @@ void scan_plugins(void)
 	free(edit_path);
 	free(editpath);
 	free(swapstr);
-
-	return;
-} /* scan_plugins */
+}
 
 
 
@@ -414,7 +397,7 @@ int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data)
 	}
 
 	return(0);
-} /* start_plugin */
+}
 
 
 
@@ -425,12 +408,13 @@ void call_plugin(int menuentry)
 {
 	int plugin_number, msgbuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-/*
+#if 0
 	if(menuentry >= PLUGIN1 && menuentry <= PLUGIN10)
 		plugin_number = menuentry - PLUGIN1;
 	else
 		plugin_number = menu2plugin[menuentry];
-*/
+#endif
+
 	plugin_number = menu2plugin[menuentry];
 
 	if(plugin_number >= 0)
@@ -474,9 +458,7 @@ void call_plugin(int menuentry)
 		if(plg_data[plugin_number] != NULL && plg_data[plugin_number]->message != M_WAITING)
 			terminate_plugin(plugin_number);
 	}
-
-	return;
-} /* call_plugin */
+}
 
 
 /* load_plugin -------------------------------------------------------
@@ -485,7 +467,7 @@ void call_plugin(int menuentry)
 	Diese Funktion wird z.B. benutzt, um nichtresidente Plugins 
 	nachzuladen.
 	-----------------------------------------------------------------*/
-int load_plugin(int plugin_number)
+static int load_plugin(int plugin_number)
 {
 	char alert[128];
 	long temp, lback, ProcLen, mod_magic;
@@ -528,13 +510,13 @@ int load_plugin(int plugin_number)
 	}
 
 	return(0);
-} /* load_plugin */
+}
 
 
 /* plugin_startup ----------------------------------------------------------
 	Handled die Startup-Kommunikation mit dem Plugin.
 	------------------------------------------------------------------------*/
-void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename)
+static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename)
 {
 	char alert[128];
 
@@ -581,9 +563,7 @@ void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename)
 	 *	mit RÅckgabe != M_WAITING wie gehabt solange geschickt, bis ein M_WAITING kommt.
 	 */	
 	start_plugin(plugin_bp[index], PLG_STARTUP, index, plg_data[index]);
-
-	return;	
-} /* plugin_startup */
+}
 
 
 /*---------------------------------------------------------------------------
@@ -591,8 +571,6 @@ void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename)
 	-------------------------------------------------------------------------*/
 void terminate_plugin(int index)
 {
-
-
 	start_plugin(plugin_bp[index], MTERM, index, plg_data[index]);
 /*	Pexec(102, NULL, plugin_bp[index], ""); */
 
@@ -603,9 +581,7 @@ void terminate_plugin(int index)
 	plg_data[index] = NULL;
 	free(modconfs[index]);
 	modconfs[index] = NULL;
-
-	return;
-} /* terminate_plugin */
+}
 
 
 /* insert_to_menu ---------------------------------------------
@@ -613,7 +589,7 @@ void terminate_plugin(int index)
 	entry als MenÅeintrag ein. string darf nicht lÑnger als der
 	ursprÅngliche MenÅeintrag sein!
 	-----------------------------------------------------------*/
-void insert_to_menu(OBJECT *menu, int entry, char *string)
+static void insert_to_menu(OBJECT *menu, int entry, char *string)
 {
 	char *dest_str;
 	char shortcut[6];
@@ -629,30 +605,14 @@ void insert_to_menu(OBJECT *menu, int entry, char *string)
 	strncpy(dest_str + 2, string, string_len);
 	
 	menu_ienable(menu, entry, 1);
-
-	return;
-} /* insert_to_menu */
+}
 
 
 /*---------------------------------------------------------------
 	Initialisieren der Strukturen fÅr Funktionen und Variablen
 	--------------------------------------------------------------*/
-void init_structs(void)
+static void init_structs(void)
 {
-	extern	POP_UP	popups[25];	
-
-	extern	char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
-
-	extern	char *export_cnfblock[50];		/* Konfigurationsblîcke fÅr die Exporter */
-	extern	int	export_cnflen[50];			/* LÑnge des jeweiligen Blockes */
-	extern	int	anzahl_importmods, anzahl_dithermods;
-	extern	EXPORT_CONFIG exp_conf;				/* laufender Exporter */
-
-	extern	DITHER_MOD_INFO *ditmod_info[10];
-
-	extern int mouse_xpos, mouse_ypos, mouse_button, klicks, key_scancode, key_ascii, key_at_event, obj;
-
-
 	/*---------- Globale Funktionsstruktur zum Zugriff fÅr die Module */
 	global_functions.start_imp_module = start_imp_module;
 	global_functions.start_exp_module = start_exp_module;
@@ -797,6 +757,4 @@ void init_structs(void)
 	global_vars.key_ascii = &key_ascii;
 	global_vars.key_at_event = &key_at_event;
 	global_vars.obj = &obj;
-	
-	return;
-} /* init_structs */
+}

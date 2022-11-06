@@ -46,33 +46,9 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "ext_rsc.h"
 
 static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int stripheight);
-
-extern	MFORM	*dummy_ptr;				/* Dummymouse fÅr Maus-Form */
-
-extern	int picwindthere, dialwindthere, picthere;
-extern	OBJECT *alert_form;				/* WindAlert-Formular	*/
-extern	int *messagebuf;				/* Zeiger fÅr Messageevents */
-
-extern int add_flags[40];
-
-extern	int openmode;					/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
-extern int active_pic;
-
-extern	OBJECT *pic_form;				/* Pic-Window-Formular	*/
-extern	OBJECT *u_tree;					/* Zeiger auf Radiobutton/Checkbox-Formular	*/
-
-extern	GRECT	screen;					/* globales Screen-GRECT */
-
-extern	WORD resource_global[100];
-
-extern	DISPLAY_MODES Display_Opt;
-
-extern char Startup;					/* hochfahren des ganzen Monster-Systems */
-
-extern	CROSSHAIR position_markers[20];
-extern	signed char	module_pics[21][7];
 
 static char alerttok(char *text, char maxlen);
 
@@ -1002,12 +978,6 @@ void draw_picmanboxes(void)
 	int dummy;
 	OBJECT *pmtree;
 	
-	extern int picwindthere, dialwindthere, picthere;
-	extern SMURF_PIC *smurf_picture[MAX_PIC];
-
-	extern int compute_zoom(SMURF_PIC *picture, int twid, int thgt);
-
-
 	if(picwindthere <= 0)
 		return;
 
@@ -1189,10 +1159,6 @@ WINDOW *my_module_window(int handle)
 	int wind_handle;
 	WINDOW *m_window;
 
-	extern	PLUGIN_DATA *plg_data[11];
-	extern	int anzahl_plugins;
-
-	
 	if(handle == 0)
 		return(0);			/* Hiermit wird das Desktopfenster von vornherein ausgeschlossen */
 	
@@ -2048,9 +2014,6 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 	long len;
 
 	OBJECT *alert;
-
-	extern int gl_hchar, gl_wchar, gl_hbox, gl_wbox;
-
 
 	graf_mouse(ARROW, dummy_ptr);
 

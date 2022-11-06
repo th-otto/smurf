@@ -47,6 +47,7 @@
 /*  (incl. Scrolloffset) zurÅck.                                */
 typedef char**  LISTPTR;
 
+#include <portab.h>
 #include <aes.h>
 
 #ifndef FALSE

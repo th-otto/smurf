@@ -46,14 +46,6 @@
 #include "ext_obs.h"
 
 
-extern POP_UP popups[20];
-
-extern int PCD;
-extern int PCDwidth, PCDheight;
-extern int mouse_xpos, mouse_ypos;
-extern long f_len;
-
-
 /*	---------------------------------------	*/
 /*	Extension stimmt - Is dat Ding en PCD?	*/
 /*	---------------------------------------	*/

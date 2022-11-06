@@ -44,21 +44,6 @@
 #include "bindings.h"
 
 /*-------- lokale Funktionen -----------*/
-int dd_getheader(DD_HEADER *dd_header, int pipe_handle);
-int dd_sendheader(int pipe_handle, long ext, long size, char *data_name, char *file_name);
-
-extern SYSTEM_INFO Sys_info;
-extern MFORM	*dummy_ptr;				/* Dummymouse fÅr Maus-Form */
-extern OBJECT *menu_tree;
-extern char Smurf_locked;
-extern char loadpath[257];
-extern char commpath[257];
-extern char DraufschmeissBild;
-extern SMURF_PIC *smurf_picture[40];
-extern int num_of_pics, active_pic, pic_to_handle, picthere;
-extern long f_len;
-
-extern	int	*messagebuf;
 
 char *send_smurfid;
 
