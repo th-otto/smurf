@@ -37,7 +37,6 @@
 #error "Keine Sprache!"
 #endif
 
-#include <tos.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

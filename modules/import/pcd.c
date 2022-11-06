@@ -55,7 +55,6 @@
 /*	  Bilder werden zurechtgedreht: Byte 0x0E02				*/
 /* =========================================================*/
  
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

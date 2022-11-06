@@ -35,7 +35,6 @@
 /*  knapp sind.                                                         */
 /********************************************************************** */
 
-#include <tos.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

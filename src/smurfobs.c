@@ -22,7 +22,6 @@
  * ***** END LICENSE BLOCK *****
  */
 
-#include <tos.h>
 #include "../modules/import.h"
 #include "smurf_st.h"
 #include "smurfine.h"

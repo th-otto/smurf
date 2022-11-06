@@ -32,7 +32,6 @@
 /*	  Nun auch 256farbige Icons								*/
 /* =========================================================*/
  
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

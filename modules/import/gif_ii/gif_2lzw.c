@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <tos.h>
 #include "../../import.h"
 #include "../../../src/lib/demolib.h"
 

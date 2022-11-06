@@ -32,7 +32,6 @@
 #define TRUE    1
 #define FALSE   0
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

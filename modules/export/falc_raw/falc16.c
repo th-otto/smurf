@@ -28,7 +28,6 @@
 /*  Speichert ein 32768-Farben-Bild im Falcon-Screenformat  */
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <string.h>
 #include "../../import.h"

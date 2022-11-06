@@ -59,7 +59,6 @@
 #error "Keine Sprache!"
 #endif
 
-#include <tos.h>
 #include <stdio.h>
 #include <string.h>
 #include "../import.h"

@@ -22,7 +22,11 @@
  * ***** END LICENSE BLOCK *****
  */
 
+#ifdef __PUREC__
 #include <tos.h>
+#else
+#include <osbind.h>
+#endif
 #include <stddef.h>
 
 #define FALSE	0

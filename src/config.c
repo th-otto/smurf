@@ -29,7 +29,6 @@
 /*	Copyright Therapy Seriouz Software						*/
 /*---------------------------------------------------------	*/
 
-#include <tos.h>
 #include <string.h>
 #include <stddef.h>
 #include <stdio.h>

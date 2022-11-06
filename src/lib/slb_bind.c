@@ -7,8 +7,13 @@
 *
 */
 
+#ifdef __PUREC__
 #include <tos.h>
 #include <slb.h>
+#else
+#include <osbind.h>
+#include <mint/slb.h>
+#endif
 
 /*****************************************************************
 *

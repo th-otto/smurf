@@ -34,7 +34,6 @@
 /* Statusabfrage:	if( OBJEKTBAUM [BUTTON-OBJEKT].ob_state & SELECTED) */
 /*					-> 1=selektiert, 0=unselektiert						*/
 
-#include <tos.h>
 #include <stdio.h>
 #include "../../modules/import.h"
 #include "smurf.h"

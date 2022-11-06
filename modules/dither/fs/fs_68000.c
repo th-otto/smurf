@@ -26,7 +26,6 @@
 /*                          FS_68000.C                          */
 /*  EnthÑlt die Floyd-Steinberg-C-Routinen fÅr 68000-Prozessor  */
 /*------------------------------------------------------------- */
-#include <tos.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>

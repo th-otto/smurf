@@ -43,7 +43,6 @@
     Rekursionen hat auch eing„ngiger
     Christian um den 20.7.99 herum erdacht und geschrieben
 -----------------------------------------------------------------*/
-#include <tos.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>

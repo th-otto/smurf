@@ -36,7 +36,6 @@
 /*	  behoben (Workstation wurde zu frÅh geschlossen).		*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

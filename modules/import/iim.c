@@ -29,7 +29,6 @@
 /*	  Der 2 Minuten Decoder									*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

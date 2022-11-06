@@ -22,7 +22,6 @@
  * ***** END LICENSE BLOCK *****
  */
 
-#include <tos.h>
 #include <string.h>
 #include <stddef.h>
 #include <stdlib.h>

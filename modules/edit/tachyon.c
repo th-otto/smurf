@@ -28,7 +28,6 @@
 /*	  1, 2, 4, 7, 8, 24 Bit									*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

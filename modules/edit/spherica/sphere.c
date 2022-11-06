@@ -27,7 +27,6 @@
 /* Version 0.1  --  25.04.97                                */
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

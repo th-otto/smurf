@@ -30,7 +30,6 @@
 /*	  8 und 16 Bit pp										*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -24,7 +24,6 @@
 
 /*  ------------- Edge-O-Kill-Modul V1.1 -------------  */
 /*          FÅr SMURF Bildkonverter, 26.04.96           */
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

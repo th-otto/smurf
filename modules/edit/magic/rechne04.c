@@ -29,7 +29,6 @@
 
 
 #include <stdio.h>
-#include <tos.h>
 
 #include "../../import.h"
 #include "../../../src/smurfine.h"

@@ -26,7 +26,6 @@
 	der Resource und der GEM-Oberfl„che von Smurf,
 	z.B. Popup-Strukturen, WINDOW-Strukturen, etc. */
 
-#include <tos.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

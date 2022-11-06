@@ -24,7 +24,6 @@
 
 /*  ----------------- PEPSIP-Modul V0.1 ----------------    */
 /*          FÅr SMURF Bildkonverter, 30.12.95               */
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

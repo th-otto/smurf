@@ -51,7 +51,6 @@
 /*	  24 Bit, vertikal mit Antialiasing						*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

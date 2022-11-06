@@ -40,7 +40,6 @@
 /*	  Zerschieen des Bildes gefhrt hatte.					*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

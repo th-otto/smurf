@@ -26,7 +26,6 @@
 /*                          FS_68030.C                          */
 /*  EnthÑlt die Floyd-Steinberg-C-Routinen fÅr 68030-Prozessor  */
 /*------------------------------------------------------------- */
-#include <tos.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>

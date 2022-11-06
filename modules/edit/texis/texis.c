@@ -24,7 +24,6 @@
 
 /*              FÅr SMURF Bildkonverter, 19.10.95           */
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

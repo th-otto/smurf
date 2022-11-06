@@ -39,7 +39,6 @@
 /*	  CMY-IMGs k”nnen nun erstellt werden.					*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

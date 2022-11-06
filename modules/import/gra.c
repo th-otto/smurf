@@ -27,7 +27,6 @@
 		Smurf GRA Loader
 */
 
-#include <tos.h>
 #include <stdio.h>
 #include <string.h>
 

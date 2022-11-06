@@ -29,7 +29,6 @@
 /*	  Schwierigkeiten bei der Erkennung "/ 2"!				*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <string.h>
 #include "../import.h"

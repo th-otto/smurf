@@ -60,7 +60,6 @@
 /*	  Bereich von -100 bis 100.								*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -23,7 +23,6 @@
  */
 
 #include <stdio.h>
-#include <tos.h>
 #include "../modules/import.h"
 #include "smurf_st.h"
 #include "smurf_f.h"

@@ -39,9 +39,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef __PUREC__
 #include <tos.h>
 #include <vdi.h>
 #include <aes.h>
+#else
+#include <osbind.h>
+#include <gem.h>
+#endif
 #include "xrsrc.h"
 
 #ifndef TRUE

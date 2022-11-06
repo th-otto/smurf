@@ -31,7 +31,14 @@
 /*  KOMMUNIKATION grožgeschrieben...                                */
 
 #include "portab.h"
+#ifdef __PUREC__
 #include <vdi.h>
+#include <tos.h>
+#else
+#include <osbind.h>
+#include <mintbind.h>
+#include <gem.h>
+#endif
 #include "sym_gem.h"
 
 #define CNFVERSION  0x04

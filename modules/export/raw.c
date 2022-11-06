@@ -28,7 +28,6 @@
 /*	  1, 8 und 24 Bit										*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <string.h>
 #include "../import.h"

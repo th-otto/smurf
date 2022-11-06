@@ -26,7 +26,6 @@
 /* ------------- Handler fr Messages des AES ---------------------	*/
 /* 	Fragt ev_mgpbuff ab und leitet alles weitere in die Wege.		*/
 /* ----------------------------------------------------------------	*/
-#include <tos.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

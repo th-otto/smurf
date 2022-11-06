@@ -27,7 +27,6 @@
 		Smurf GFX Loader
 */
 
-#include <tos.h>
 #include <stdio.h>
 #include <string.h>
 

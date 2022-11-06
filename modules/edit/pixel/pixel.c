@@ -40,7 +40,6 @@
 /*	  kann ich vergessen, es wird nicht schneller ...		*/
 /* =========================================================*/
 
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -24,7 +24,6 @@
 
 /*  ------------- Sharpen-Modul V0.2 -----------------  */
 /*          FÅr SMURF Bildkonverter, 26.04.96           */
-#include <tos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

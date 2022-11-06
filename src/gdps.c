@@ -30,7 +30,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <tos.h>
 #include "../modules/import.h"
 #include "smurfine.h"
 #include "smurf.h"
