@@ -34,23 +34,28 @@
 /* Statusabfrage:	if( OBJEKTBAUM [BUTTON-OBJEKT].ob_state & SELECTED) */
 /*					-> 1=selektiert, 0=unselektiert						*/
 
+#include <tos.h>
 #include <aes.h>
 #include <vdi.h>
 #include <stdio.h>
-#include "sym_gem.h"
-#include "smurf.h"
 #include "../../modules/import.h"
+#include "smurf.h"
+#include "smurf_st.h"
+#include "smurfine.h"
+#include "smurf_f.h"
 
 #define RADIOBUTTON   	43		/* Oberes Byte.... */
 #define CHECKBOX  		44		/* Fr den Res-Editor */
 #define CYCLEBUTTON		45		/* Fr den Res-Editor */
 #define CORNER_IMAGE	46		/* Fr den Res-Editor */
 
-USERBLK check_user;
-USERBLK radio_user;
+static USERBLK check_user;
+static USERBLK radio_user;
 USERBLK cycle_user;
-USERBLK corner_user;
-USERBLK angle_user;
+static USERBLK corner_user;
+#if 0
+static USERBLK angle_user;
+#endif
 
 extern OBJECT *u_tree;
 extern int handle;
@@ -58,14 +63,10 @@ extern int handle;
 extern int Radio, SelectedRadio;
 extern int Check, SelectedCheck;
 extern int Cycle, SelectedCycle;
-extern SYSTEM_INFO Sys_info;
 
-void f_init_tree(OBJECT *baum,int element);
-void f_treewalk	(OBJECT *tree,int start);
-int	cdecl f_do_radio	(PARMBLK *parm);
-int	cdecl f_do_checkbox	(PARMBLK *parm);
-int	cdecl f_do_cycle	(PARMBLK *parm);
-int	cdecl f_do_corner(PARMBLK *parm);
+static void f_init_tree(OBJECT *baum,int element);
+static int cdecl f_do_radio(PARMBLK *parm);
+static int cdecl f_do_corner(PARMBLK *parm);
 
 
 
@@ -80,12 +81,97 @@ void f_treewalk	(OBJECT *tree,int start)
 		f_init_tree(tree,index);
 		f_treewalk(tree,index);		/* rekursiv fr alle Kinder! */
 	}
-
-	return;
 }
 
 
-void f_init_tree(OBJECT *baum,int element)
+#if 0
+/* Winkelobjekt zeichnen
+ * der eingestellte Winkel muž irgendwo in der OBJECT-Struktur
+ * gespeichert werden - einen der bei IBOXes vorhandenen
+ * Parameter muž ich also dazu mižbrauchen.
+ */
+static int	cdecl drawAngleObject(PARMBLK *parm)
+{
+	CICONBLK *quell_img;
+	MFDB source,dest;
+	int pxy[8];
+	int ob_x,ob_y;
+	int color_index[2];
+	int color_index2[2];
+	int Corner;
+	USERBLK	*buttonimg;
+	int write_mode;
+	
+	if(Sys_info.bitplanes>8) write_mode=S_AND_D;
+	else write_mode=S_OR_D;
+
+	color_index[0]=1;
+	color_index[1]=0;
+	color_index2[0]=0;
+	color_index2[1]=1;
+	
+	ob_x=parm->pb_x;
+	ob_y=parm->pb_y;
+	
+	Corner=CORNER2;
+	
+	
+	buttonimg=(USERBLK*)(u_tree[Corner].ob_spec.userblk);
+	if(buttonimg && Sys_info.Max_col>=4)
+		quell_img=(CICONBLK*)(buttonimg->ub_parm);
+	else
+		quell_img=(CICONBLK*)u_tree[Corner].ob_spec.iconblk; 
+	
+	
+	dest.fd_addr=NULL;
+	
+	source.fd_w=48;
+	source.fd_h=42;
+	source.fd_wdwidth=3;
+	source.fd_stand=0;
+
+	pxy [0] = ob_x;
+	pxy [1] = ob_y;
+	pxy [2] = ob_x + source.fd_w-1;
+	pxy [3] = ob_y + source.fd_h-1;
+	vsf_color(handle, Sys_info.AES_bgcolor);
+	vswr_mode(handle, MD_REPLACE);
+	vr_recfl(handle, pxy);
+
+	
+	pxy [0] = 0;
+	pxy [1] = 0;
+	pxy [2] = 47 /*source.fd_w-1*/;
+	pxy [3] = 41 /*source.fd_h-1*/;
+	pxy [4] = ob_x;
+	pxy [5] = ob_y;
+	pxy [6] = ob_x + pxy [2];
+	pxy [7] = ob_y+ pxy [3];
+	
+	if(Sys_info.Max_col>=4)
+	{
+		source.fd_nplanes=1;
+		source.fd_addr=quell_img->mainlist->col_mask;		/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
+		vrt_cpyfm(handle,S_AND_NOTD,pxy,&source,&dest, color_index2);  		/* Farb-Rastercopy */
+
+		source.fd_addr=quell_img->mainlist->col_data;		/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
+		source.fd_nplanes=quell_img->mainlist->num_planes;	/* Bitplanes des Quellimages */
+		vro_cpyfm(handle, write_mode, pxy, &source,&dest);  		/* Farb-Rastercopy */
+	}
+	else
+	{
+		source.fd_addr=quell_img->monoblk.ib_pdata;		/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
+		source.fd_nplanes=1;								/* Bitplanes des Quellimages */
+		vrt_cpyfm(handle,MD_REPLACE,pxy,&source,&dest, color_index);  		/* Farb-Rastercopy */
+	}
+	
+	
+	return (parm->pb_currstate & ~SELECTED);
+}
+#endif
+
+
+static void f_init_tree(OBJECT *baum,int element)
 {
 	switch(baum[element].ob_type >> 8)
 	{
@@ -105,17 +191,19 @@ void f_init_tree(OBJECT *baum,int element)
 							baum[element].ob_spec.userblk=&corner_user;	
 							corner_user.ub_code=f_do_corner;
 							break;
-/*		case ANGLE_OBJECT: 	baum[element].ob_type=(baum[element].ob_type&0xff00)|G_USERDEF;
+#if 0
+		case ANGLE_OBJECT: 	baum[element].ob_type=(baum[element].ob_type&0xff00)|G_USERDEF;
 							baum[element].ob_spec.userblk = angle_user;	
 							angle_user.ub_code = drawAngleObject;
-							break;*/
+							break;
+#endif
 	}
 
 	return;
 }
 
 
-int cdecl f_do_radio(PARMBLK *parm)
+static int cdecl f_do_radio(PARMBLK *parm)
 {
 	int pxy[8];
 	int ob_x, ob_y;
@@ -199,7 +287,7 @@ int cdecl f_do_radio(PARMBLK *parm)
 }
 
 
-int	cdecl f_do_checkbox	(PARMBLK *parm)
+int	cdecl f_do_checkbox(PARMBLK *parm)
 {
 	int pxy[8];
 	int ob_x,ob_y;
@@ -368,7 +456,7 @@ int	cdecl f_do_cycle(PARMBLK *parm)
 }
 
 
-int	cdecl f_do_corner(PARMBLK *parm)
+static int	cdecl f_do_corner(PARMBLK *parm)
 {
 	int pxy[8];
 	int ob_x,ob_y;
@@ -449,89 +537,4 @@ int	cdecl f_do_corner(PARMBLK *parm)
 	
 	
 	return (parm->pb_currstate&~SELECTED);
-}
-
-
-/* Winkelobjekt zeichnen
- * der eingestellte Winkel muž irgendwo in der OBJECT-Struktur
- * gespeichert werden - einen der bei IBOXes vorhandenen
- * Parameter muž ich also dazu mižbrauchen.
- */
-int	cdecl drawAngleObject(PARMBLK *parm)
-{
-	CICONBLK *quell_img;
-	MFDB source,dest;
-	int pxy[8];
-	int ob_x,ob_y;
-	int color_index[2];
-	int color_index2[2];
-	int Corner;
-	USERBLK	*buttonimg;
-	int write_mode;
-	
-	if(Sys_info.bitplanes>8) write_mode=S_AND_D;
-	else write_mode=S_OR_D;
-
-	color_index[0]=1;
-	color_index[1]=0;
-	color_index2[0]=0;
-	color_index2[1]=1;
-	
-	ob_x=parm->pb_x;
-	ob_y=parm->pb_y;
-	
-	Corner=CORNER2;
-	
-	
-	buttonimg=(USERBLK*)(u_tree[Corner].ob_spec.userblk);
-	if(buttonimg && Sys_info.Max_col>=4)
-		quell_img=(CICONBLK*)(buttonimg->ub_parm);
-	else
-		quell_img=(CICONBLK*)u_tree[Corner].ob_spec.iconblk; 
-	
-	
-	dest.fd_addr=NULL;
-	
-	source.fd_w=48;
-	source.fd_h=42;
-	source.fd_wdwidth=3;
-	source.fd_stand=0;
-
-	pxy [0] = ob_x;
-	pxy [1] = ob_y;
-	pxy [2] = ob_x + source.fd_w-1;
-	pxy [3] = ob_y + source.fd_h-1;
-	vsf_color(handle, Sys_info.AES_bgcolor);
-	vswr_mode(handle, MD_REPLACE);
-	vr_recfl(handle, pxy);
-
-	
-	pxy [0] = 0;
-	pxy [1] = 0;
-	pxy [2] = 47 /*source.fd_w-1*/;
-	pxy [3] = 41 /*source.fd_h-1*/;
-	pxy [4] = ob_x;
-	pxy [5] = ob_y;
-	pxy [6] = ob_x + pxy [2];
-	pxy [7] = ob_y+ pxy [3];
-	
-	if(Sys_info.Max_col>=4)
-	{
-		source.fd_nplanes=1;
-		source.fd_addr=quell_img->mainlist->col_mask;		/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		vrt_cpyfm(handle,S_AND_NOTD,pxy,&source,&dest, color_index2);  		/* Farb-Rastercopy */
-
-		source.fd_addr=quell_img->mainlist->col_data;		/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		source.fd_nplanes=quell_img->mainlist->num_planes;	/* Bitplanes des Quellimages */
-		vro_cpyfm(handle, write_mode, pxy, &source,&dest);  		/* Farb-Rastercopy */
-	}
-	else
-	{
-		source.fd_addr=quell_img->monoblk.ib_pdata;		/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		source.fd_nplanes=1;								/* Bitplanes des Quellimages */
-		vrt_cpyfm(handle,MD_REPLACE,pxy,&source,&dest, color_index);  		/* Farb-Rastercopy */
-	}
-	
-	
-	return (parm->pb_currstate & ~SELECTED) ;
 }

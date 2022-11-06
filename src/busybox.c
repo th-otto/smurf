@@ -40,11 +40,10 @@
 #include "ext_obs.h"
 #include "debug.h"
 
-int empty_bb(int lft);
-void empty_rbb(int lft, char *txt);
-int fullempty_bb(int lft);
+static int empty_bb(int lft);
+static void empty_rbb(int lft, char *txt);
+static int fullempty_bb(int lft);
 
-extern	SERVICE_FUNCTIONS global_services;
 
 
 /* ---------------------------------------------------------------- */
@@ -74,23 +73,16 @@ void reset_busybox(int lft,	char *txt)
 	busytxt[20]='\0';							/* nullterminieren */
 
 	Window.redraw(&wind_s[WIND_BUSY], &busy_form, 0, 0);
-
-	return;
 }
 
 
 void ok_busybox(void)
 {
-	extern long timer_fx_max[10];
-
-
 	if(Dialog.busy.disabled)
 		return;
 
 	Dialog.busy.reset(128, "OK");
 	timer_fx_max[1] = 0;
-
-	return;
 }
 
 
@@ -143,25 +135,19 @@ int draw_busybox(int lft)
 /* ---------------------------------------------------------------- */
 void actualize_ram(void)
 {
-	char *ram_str;
-
+	char ram_str[20];
 	int dummy, wind_x, wind_y;
-
-	long frei_mem = 0L;
-
+	long frei_mem;
 	OBJECT *busytree = Dialog.busy.busyTree;
 	GRECT box;
 
 	DEBUG_MSG (( "actualize_ram...\n" ));
-
-	ram_str = (char *)malloc(20);
 
 	frei_mem = (long)Malloc(-1);
 	frei_mem /= 1024L;              /* 1024 = Kilobyte */
 
 	ltoa(frei_mem, ram_str, 10);
 	strncpy(busytree[BW_MEMORY].TextCast, ram_str, 8);
-	free(ram_str);
 
 	Window.windGet(wind_s[WIND_BUSY].whandlem, WF_WORKXYWH, &wind_x, &wind_y, &dummy, &dummy);
 	box.g_x = wind_x + busytree[BW_MEMORY].ob_x;
@@ -171,9 +157,7 @@ void actualize_ram(void)
 	Window.redraw(&wind_s[WIND_BUSY], &box, 0, 0);
 
 	DEBUG_MSG (( "actualize_ram...Ende\n" ));
-
-	return;
-} /* actualize_ram */
+}
 
 
 /*---------------------------------------------------------------
@@ -212,7 +196,7 @@ void fulldisable_busybox(void)
 	Aufruf > 1s ist, wird die Busybox wieder angeschaltet (z.B. um
 	bei langsamen Modulen das Preview beobachten zu k”nnen.
 	------------------------------------------------------------*/ 
-int empty_bb(int lft)
+static int empty_bb(int lft)
 {
 	(void)lft;
 	if(clock() - Dialog.busy.resetClock > 200)
@@ -225,7 +209,7 @@ int empty_bb(int lft)
 /* fullempty_bb --------------------------------------------------
 	wirklich leere draw_busybox
 	------------------------------------------------------------*/ 
-int fullempty_bb(int lft)
+static int fullempty_bb(int lft)
 {
 	(void)lft;
 	return(0);
@@ -235,7 +219,7 @@ int fullempty_bb(int lft)
 /* empty_rbb --------------------------------------------------
 	leere reset_busybox
 	------------------------------------------------------------*/ 
-void empty_rbb(int lft, char *txt)
+static void empty_rbb(int lft, char *txt)
 {
 	(void)lft;
 	(void)txt;

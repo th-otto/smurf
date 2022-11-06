@@ -167,8 +167,6 @@ void save_config(void)
 	graf_mouse(ARROW, dummy_ptr);
 
 	Dialog.busy.ok();
-
-	return;
 }
 
 
@@ -271,7 +269,7 @@ void f_analyze_system(void)
 	}
 
 /* PEXEC(10x) */
-	if(Sys_info.OS&MINT || InqMagX() >= 0x0500 && _GemParBlk.global[1] != 1)
+	if((Sys_info.OS &MINT) || (InqMagX() >= 0x0500 && _GemParBlk.global[1] != 1))
 		Sys_info.OSFeatures |= PEXEC10x;
 
 	if(gi)
@@ -286,10 +284,10 @@ void f_analyze_system(void)
 	}
 
 	if(!gi || !ok)
-		Sys_info.AES_bgcolor = 8;
+		Sys_info.AES_bgcolor = LWHITE;
 
 	if(Sys_info.bitplanes == 1 || !(Sys_info.OSFeatures&AES3D))
-		Sys_info.AES_bgcolor = 0;
+		Sys_info.AES_bgcolor = WHITE;
 
 
 	/* Clipboardpfad ermitteln und ggf. setzen */
@@ -318,8 +316,6 @@ void f_analyze_system(void)
 	DEBUG_MSG (( "    Features   : %#x\n", Sys_info.OSFeatures ));
 	DEBUG_MSG (( "    AES_bgcolor: %#x\n", Sys_info.AES_bgcolor ));
 	DEBUG_MSG (( "    CPU        : %#x\n", global_services.CPU_type ));
-
-	return;
 }
 
 
@@ -335,7 +331,7 @@ unsigned int InqMagX(void)
 			return(FALSE);
 	else
 		return(FALSE);
-} /* InqMagX */
+}
 
 
 
@@ -352,34 +348,38 @@ void inquire_clipboard(void)
 	Sys_info.scrp_path = calloc(1, 256);
 
 	back = scrp_read(Sys_info.scrp_path);
-/*
+#if 0
 	printf("back: %d\n", back);
 	printf("scrp_path: %s\n", Sys_info.scrp_path);
-*/
+#endif
 
 	if(back != 0 && *Sys_info.scrp_path != '\0')
 	{
-/*		printf("scrp_read hat geklappt\n"); */
+#if 0
+		printf("scrp_read hat geklappt\n");
+#endif
 
 		check_and_create(chpath);
 	}
 	else
 	{
-/*		printf("scrp_read hat nicht geklappt\n"); */
+#if 0
+		printf("scrp_read hat nicht geklappt\n");
+#endif
 
 		if((env_path = getenv("CLIPBRD")) != NULL)
 			strcpy(Sys_info.scrp_path, env_path);
 		else
 			if((env_path = getenv("SCRAPDIR")) != NULL)
 				strcpy(Sys_info.scrp_path, env_path);
-/*
+#if 0
 		printf("getenv()\n");
 
 		if(env_path != NULL)
 			printf("env_path: %s\n", env_path);
 		else
 			printf("env_path: NULL\n");
-*/
+#endif
 		if(env_path == NULL)
 			strcpy(Sys_info.scrp_path, "c:\\clipbrd");
 
@@ -399,15 +399,14 @@ void inquire_clipboard(void)
 		if(Fattrib(chpath, 0, 0) < 0)
 			Sys_info.scrp_path = NULL;
 	}
-/*
+#if 0
 	if(Sys_info.scrp_path != NULL)
 		printf("scrp_path: %s\n", Sys_info.scrp_path);
 	else
 		printf("scrp_path: NULL\n");
 
 	getch();
-*/
-	return;
+#endif
 }
 
 
@@ -415,14 +414,15 @@ void inquire_clipboard(void)
 /* und versucht einen anzulegen wenn er nicht vorhanden ist */
 void check_and_create(char *chpath)
 {
-/*
+#if 0
 	if(Sys_info.scrp_path != NULL)
 		printf("scrp_path: %s\n", Sys_info.scrp_path);
 	else
 		printf("scrp_path: NULL\n");
 
 	getch();
-*/
+#endif
+
 	if(Sys_info.scrp_path[strlen(Sys_info.scrp_path) - 1] == '\\')
 	   Sys_info.scrp_path[strlen(Sys_info.scrp_path) - 1] = '\0';
 
@@ -463,11 +463,11 @@ void GetSMPath(void)
 
 	if((back = getploadinfo(sh_rptail, sh_rpcmd)) == 0)
 		back = shel_read(sh_rpcmd, sh_rptail);
-/*
+#if 0
 	printf("back: %d\n", back);
 	printf("sh_rpcmd: %s\n", sh_rpcmd);
 	printf("sh_rptail: %s\n", sh_rptail);
-*/
+#endif
 	if(back != 0 && sh_rpcmd[0] != 0 && sh_rpcmd[1] == ':')			/* hat das geklappt ... */
 	{																/* Pfad enthalten */
 		if((back = strsrchr(sh_rpcmd, '\\')) != -1)
@@ -502,11 +502,15 @@ void GetSMPath(void)
 			strcpy(stpath, "e:\\smurf");
 #endif
 
-/*	printf("stpath: %s\n", stpath); */
+#if 0
+	printf("stpath: %s\n", stpath);
+#endif
 
 	strcpy(Sys_info.standard_path, stpath);
 
-/*	printf("Sys_info.standard_path: %s\n", Sys_info.standard_path); */
+#if 0
+	printf("Sys_info.standard_path: %s\n", Sys_info.standard_path);
+#endif
 
 	/*
 	 *	Pfad des $HOME-Verzeichnis auslesen
@@ -537,9 +541,7 @@ void GetSMPath(void)
 
 	free(sh_rpcmd);
 	free(sh_rptail);
-
-	return;
-} /* GetSMPath */
+}
 
 
 /* gibt im Fehlerfall 0 zurck um returnwertkompatibel */
@@ -568,4 +570,4 @@ int getploadinfo(char *cmdlin, char *fname)
 		return(0);
 
 	return(1);
-} /* getploadinfo */
+}

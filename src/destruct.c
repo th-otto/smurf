@@ -92,9 +92,7 @@ void destroy_smurfpic(SMURF_PIC *pic)
 		next->prev_picture = prev;
 	if(prev != NULL)
 		prev->next_picture = next;
-
-	return;
-} /* destroy_smurfpic */
+}
 
 
 
@@ -136,6 +134,4 @@ void remove_block(WINDOW *picwindow)
 
 	if(block_there)
 		Window.redraw(picwindow, &redraw, 0, DRAWNOTREE);
-
-	return;
-} /* remove_block */
+}

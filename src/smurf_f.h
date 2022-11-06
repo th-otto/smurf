@@ -37,6 +37,7 @@ extern DISPLAY_MODES Display_Opt;
 extern int obj;							/* Objekt beim loslassen des Buttons */
 extern int active_pic;
 extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
+extern SERVICE_FUNCTIONS global_services;
 
 /* **********************************************************************/
 /* ----------------------- Fileroutinen ------------------------------- */
@@ -63,6 +64,7 @@ extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
 
     void    save_config(void);
     int     load_config(void);
+void GetSMPath(void);
 
 
 
@@ -190,8 +192,6 @@ void    change_object(WINDOW *window, int objct, int status, int redraw);
 
 void    f_analyze_system(void);
 
-void    f_resort_piclist(void);
-
 void    f_activate_pic(int windnum);
 
 int     do_MBEVT(int module_number, WINDOW *mod_win, int mode);
@@ -200,15 +200,8 @@ void    check_and_terminate(int mode, int module_number);
 
 void    get_module_structures(char* *textseg_begin, MOD_INFO* *mod_info, MOD_ABILITY* *mod_abs, long *mod_magic, int mod_num);
 
-void    close_alert(void);
-
 int     init_dialog(int DialogNumber, int DialogOK);
 void    close_dialog(int windnum);
-
-void    insert_to_picman(int pic_to_insert);
-void    make_picman_thumbnail(int picture_num);
-
-void    f_pic_changed(WINDOW *window, int onoff);
 
 void    f_move_preview(WINDOW *window, SMURF_PIC *orig_pic, int redraw_object);
 void    copy_preview(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev_window);
@@ -221,12 +214,10 @@ void    f_scan_import(void);                                    /* Importmodule 
 int     load_import_list(void);                                 /* Extensionsliste laden */
 int     seek_module(SMURF_PIC *picture, char *extension);       /* Modul aus Extensionsliste suchen */
 
-MOD_INFO *ready_modpics_popup(WINDOW *mwindow);     /* Modul-Bildreihenfolge-Popup vorbereiten */
 
 int blend_demopic(SMURF_PIC *picture);
 
 
-void clip_picw2screen(WINDOW *picw);
 
 void cursor_off(WINDOW *window);
 void cursor_on(WINDOW *window);
@@ -301,34 +292,52 @@ void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type);
 /* --------------------------- Windowfunktionen ----------------------- */
 /* WINDOWSø sucks!                                                      */
 /* **********************************************************************/
-void    f_treewalk(OBJECT *tree,int start);                 /* Userdefined Objects eintragen */
-void    f_arrow_window(int mode, WINDOW *window, int amount);   /* Pfeilbedienung im Bildfenster */
-void    f_slide_window(int pos, WINDOW *wind, int mode);    /* Bildfenster sliden */
-void    f_setsliders(WINDOW *wind);                         /* Slider setzen */
-int     f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt);   /* Fenster-Alertfunktion */
-int     f_open_window(WINDOW *wind);                        /* Fenster îffnen */
-void    top_window(int handle);
-void    top_window_now(WINDOW *window);
-void    top_windowhandle(int handle);
-void    close_window(int handle);
-int     f_open_module_window(WINDOW *module_window);        /* Modulfenster îffnen */
-int     my_window(int handle);                              /* Fenster identifizieren */
-WINDOW  *my_module_window(int handle);                      /* Modulfenster identif. */
-void    f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags);      /* Fenster Redraw */
-int     f_rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3);     /* Zum Redraw. */
-void    f_info(void);
-
-void    f_draw_vectorgraphic(WINDOW *window);
-
-void    toggle_asterisk(WINDOW *picwin, int onoff);
-
-void    disable_busybox(void);
-void    enable_busybox(void);
-
+int f_open_window(WINDOW *wind);                        /* Fenster îffnen */
+void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags);      /* Fenster Redraw */
+void draw_iconified(WINDOW *window, int *vdiclip);
+void draw_block(WINDOW *window, GRECT *picbox);
+void insert_picwinzoom(WINDOW *window);
+void f_draw_crosshair(WINDOW *window);       /* Positionierungskreuz in einem Bild zeichnen */
+void f_draw_blockbox(WINDOW *window);
+void draw_picmanboxes(void);
+void clip_picw2screen(WINDOW *picw);
+int f_rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3);     /* Zum Redraw. */
+int my_window(int handle);                              /* Fenster identifizieren */
+WINDOW *my_module_window(int handle);                      /* Modulfenster identif. */
+void f_setsliders(WINDOW *wind);                         /* Slider setzen */
+void f_arrow_window(int mode, WINDOW *window, int amount);   /* Pfeilbedienung im Bildfenster */
+void scrollWindowRT(WINDOW *window, int xamount, int yamount);
+void f_slide_window(int pos, WINDOW *wind, int mode);    /* Bildfenster sliden */
+void toggle_asterisk(WINDOW *picwin, int onoff);
 void window_to_list(WINDOW *window);        /* Fenster in die Liste hÑngen */
 void remove_window(WINDOW *window);
-
 int find_crosshair(WINDOW *window);         /* findet eine Fadenkreuzstruktur zu einem Bildfenster */
+void top_window(int handle);
+void top_window_now(WINDOW *window);
+void top_windowhandle(int handle);
+void close_window(int handle);
+int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt);   /* Fenster-Alertfunktion */
+void close_alert(void);
+void f_pic_changed(WINDOW *window, int onoff);
+
+
+/*
+ * lib/radiochk.c
+ */
+extern USERBLK cycle_user;
+
+void f_treewalk(OBJECT *tree,int start);                 /* Userdefined Objects eintragen */
+int	cdecl f_do_checkbox(PARMBLK *parm);
+int	cdecl f_do_cycle(PARMBLK *parm);
+
+
+/*
+ * module.c
+ */
+int f_open_module_window(WINDOW *module_window);        /* Modulfenster îffnen */
+
+
+
 
 
 /* **********************************************************************/
@@ -336,9 +345,6 @@ int find_crosshair(WINDOW *window);         /* findet eine Fadenkreuzstruktur zu
 /*  Alles was mit den Blîcken zu tun hat, oder:                         */
 /*      "Um den nÑchsten Block und dann links abbiegen..."              */
 /* **********************************************************************/
-
-void f_draw_blockbox(WINDOW *window);
-void draw_block(WINDOW *window, GRECT *picbox);
 
 void block_freistellen(WINDOW *pwindow);
 void block_type_in(void);
@@ -354,8 +360,6 @@ int save_block(EXPORT_PIC *pic_to_save, char *path);
 int block2clip(SMURF_PIC *picture, int mode, char *path);
 void clip2block(SMURF_PIC *picture, char *data, int mx, int my);
 
-void    f_draw_crosshair(WINDOW *window);       /* Positionierungskreuz in einem Bild zeichnen */
-
 SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart);
 void *copyblock(SMURF_PIC *old_pic);
 int insert_block(WINDOW *picwindow);
@@ -365,10 +369,13 @@ void block_dklick(WINDOW *picwindow);
 /* ------------------------------ Statusbox --------------------------- */
 /* "Picard an Maschinenraum! Statusbericht!"                            */
 /* **********************************************************************/
-void    ok_busybox(void);                       /* Busybox auf 128/"OK" setzen */
-void    reset_busybox(int lft,  char *txt);     /* Busybox setzen und Text einfÅgen */
-int     draw_busybox(int lft);                  /* Busybox setzen */
-void    actualize_ram(void);                    /* RAM anzeigen */
+void reset_busybox(int lft,  char *txt);     /* Busybox setzen und Text einfÅgen */
+void ok_busybox(void);                       /* Busybox auf 128/"OK" setzen */
+int draw_busybox(int lft);                  /* Busybox setzen */
+void actualize_ram(void);                    /* RAM anzeigen */
+void disable_busybox(void);
+void enable_busybox(void);
+void fulldisable_busybox(void);
 
 
 /* **********************************************************************/
@@ -376,6 +383,9 @@ void    actualize_ram(void);                    /* RAM anzeigen */
 /* Alles, was dem Benutzer das Leben einfach und dem Programmierer      */
 /*  schwer macht...                                                     */
 /* **********************************************************************/
+
+extern long timer_fx_max[10];
+
 void    f_display_opt(void);            /* Display-Optionen */
 
 void    f_options(void);                /* SMURF - Optionen */
@@ -395,11 +405,24 @@ void    f_export_formular(void);
 void    f_display_coords(WINDOW *pic_window, int mx, int my, char blockflag);
 void    set_nullcoord(WINDOW *picwindow);
 
-void    f_picman(void);
-
 void    f_set_envconfig(void);          /* Environment-Konfiguration Åbernehmen */
 
 void    f_update_dwindow(int mode, int redraw);
+void 	shutdown_smurf(char while_startup);
+int duplicate_pic(WINDOW *window);
+
+/* picman.c */
+void f_picman(void);
+void insert_to_picman(int pic_to_insert);
+void show_picman_wh(SMURF_PIC *pic);
+int pm_autoscroll(int mx, int my);
+void f_resort_piclist(void);
+MOD_INFO *ready_modpics_popup(WINDOW *mwindow);     /* Modul-Bildreihenfolge-Popup vorbereiten */
+void make_picman_thumbnail(int picture_num);
+void picman_windowmove(void);
+int compute_zoom(SMURF_PIC *picture, int twid, int thgt);
+void f_info(void);
+
 
 
 /* **********************************************************************/
@@ -427,6 +450,9 @@ int get_selected_object(OBJECT *tree, int first_enty, int last_entry);
 void call_stguide(int topwin_handle);
 void make_singular_display(DISPLAY_MODES *old, int Dither, int Pal);
 void restore_display(DISPLAY_MODES *old);
+
+/* **********************************************************************/
+void color_choose(void);
 
 /* **********************************************************************/
 /* ---------------------- Bindings neuer Funktionen ------------------- */

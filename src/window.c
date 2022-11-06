@@ -47,7 +47,8 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int stripheight);
+static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int stripheight);
+
 extern void f_display_bwh(WINDOW *pic_window);
 
 extern	MFORM	*dummy_ptr;				/* Dummymouse fÅr Maus-Form */
@@ -57,8 +58,6 @@ extern	OBJECT *alert_form;				/* WindAlert-Formular	*/
 extern	int *messagebuf;				/* Zeiger fÅr Messageevents */
 
 extern int add_flags[40];
-
-extern	SERVICE_FUNCTIONS global_services;
 
 extern	int openmode;					/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
 extern int active_pic;
@@ -77,15 +76,7 @@ extern char Startup;					/* hochfahren des ganzen Monster-Systems */
 extern	CROSSHAIR position_markers[20];
 extern	signed char	module_pics[21][7];
 
-void display_windowlist(WINDOW *window);
-void draw_iconified(WINDOW *window, int *vdiclip);
-void insert_picwinzoom(WINDOW *window);
-
-void draw_picmanboxes(void);
-
-void scrollWindowRT(WINDOW *window, int xamount, int yamount);
-
-char alerttok(char *text, char maxlen);
+static char alerttok(char *text, char maxlen);
 
 
 /* ----------------------------------------------------------------	*/
@@ -247,7 +238,7 @@ int f_open_window(WINDOW *window)
 	actualize_menu();
 
 	return(0);
-} /* f_open_window */
+}
 
 
 /*------------------------ Fenster neu zeichnen -------------------	*/
@@ -503,9 +494,7 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 
 	if(!(flags&DRAWNOPICTURE))
 		graf_mouse(M_ON, dummy_ptr);
-
-	return;
-} /* f_redraw_window */
+}
 
 
 /* realtime_dither ----------------------------------------------
@@ -518,7 +507,7 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 		- mit gezoomten Bildern funktionierz noch nicht so recht
 		-
 	-----------------------------------------------------------------*/
-void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int stripheight)
+static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int stripheight)
 {
 	int	partx;
 	int line_blocks, line, block_count;
@@ -531,9 +520,6 @@ void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int 
 	MFDB m_screen, *disp_pic;
 	GRECT picpart;
 
-	extern void fulldisable_busybox(void);
-
-	
 	/*
 	 * Bei Bildfenstern wird in Streifen zu <stripheight> Pixel Hîhe gedithert.
 	 * andere (Previews&Tumbnails) werden auf einmal gedithert.
@@ -655,9 +641,7 @@ void draw_iconified(WINDOW *window, int *vdiclip)
 	vr_recfl(Sys_info.vdi_handle, pxy);
 	objc_draw(u_tree, icon, MAX_DEPTH, vdiclip[0],vdiclip[1],vdiclip[2]-vdiclip[0],vdiclip[3]-vdiclip[1]);
 	vs_clip(Sys_info.vdi_handle, 0, vdiclip);
-
-	return;
-} /* draw_iconified */
+}
 
 
 /* draw_block ------------------------------------------------
@@ -837,9 +821,7 @@ void draw_block(WINDOW *window, GRECT *picbox)
 	}
 
 	vs_clip(Sys_info.vdi_handle, 0, clip);
-
-	return;
-} /* draw_block */
+}
 
 
 /* insert_picwinzoom ---------------------------------------------- 
@@ -873,9 +855,7 @@ void insert_picwinzoom(WINDOW *window)
 
 	xrsrc_gaddr(0, ZOOM_POP, &zptree, resource_global);
 	strncpy(tree[ZOOM_FACTOR].TextCast, zptree[zoomindex].TextCast, 4);
-
-	return;
-} /* insert_picwinzoom */
+}
 
 
 /*---------------------------------------------------------------------	*/
@@ -939,9 +919,7 @@ void f_draw_crosshair(WINDOW *window)
 
 	vsf_interior(Sys_info.vdi_handle, 1);
 	vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
-
-	return;
-} /* f_draw_crosshair */
+}
 
 
 /*---------------------------------------------------------------------	*/
@@ -1013,9 +991,7 @@ void f_draw_blockbox(WINDOW *window)
 
 		vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
 	}
-
-	return;
-} /* f_draw_blockbox */
+}
 
 
 /* draw_picmanboxes -----------------------------------------
@@ -1072,9 +1048,7 @@ void draw_picmanboxes(void)
 	vswr_mode(Sys_info.vdi_handle, MD_XOR);
 	v_pline(Sys_info.vdi_handle, 5, pxy);
 	vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
-
-	return;
-} /* draw_picmanboxes */
+}
 
 
 /* clip_picw2screen ---------------------------------------------
@@ -1166,9 +1140,7 @@ void clip_picw2screen(WINDOW *picw)
 
 	imageWindow.setSliders(picw);
 	imageWindow.nullCoords(picw);
-
-	return;
-} /* clip_picw2screen */
+}
 
 
 /* f_rc_intersect -------------------------------------------------
@@ -1178,7 +1150,7 @@ void clip_picw2screen(WINDOW *picw)
 	-------------------------------------------------------------*/
 int f_rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3)
 {
-   register int x, y, w, h;
+   int x, y, w, h;
 
 
    x = max(r2->g_x, r1->g_x);
@@ -1212,7 +1184,7 @@ int my_window(int handle)
 	}
 	
 	return(0);		/* Nicht mein Fenster - Nicht mein Problem! */
-} /* my_window */
+}
 
 
 /*----------------- DurchlÑuft die Windowhandleliste fÅr Module ------------------*/
@@ -1258,7 +1230,7 @@ WINDOW *my_module_window(int handle)
 	}
 	
 	return(0);				/* nicht mein Fenster - nicht mein Problem! */
-} /* my_module_window */
+}
 
 
 /* -------------------------------------------------------------- 	*/
@@ -1321,9 +1293,7 @@ void f_setsliders(WINDOW *wind)
 	Window.windGet(wind->whandlem, WF_VSLSIZE, &oldslider_h, &dummy,&dummy,&dummy);
 	if(slider_h != oldslider_h)
 		Window.windSet(wind->whandlem, WF_VSLSIZE, slider_h, 0,0,0);
-
-	return;
-} /* f_setsliders */
+}
 
 
 /* -------------------------------------------------------------- */
@@ -1422,9 +1392,7 @@ void f_arrow_window(int mode, WINDOW *wind,int amount)
 		else
 			imageWindow.scrollRT(wind, xscroll, 0);
 	}
-
-	return;
-} /* f_arrow_window */
+}
 
 
 /* scrollWindowRT -----------------------------------------------
@@ -1629,9 +1597,7 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 	}
 
 	graf_mouse(M_ON, dummy_ptr);
-
-	return;
-} /* scrollWindowRT */
+}
 
 
 /* -------------------------------------------------------------- */
@@ -1680,9 +1646,7 @@ void f_slide_window(int pos, WINDOW *wind, int mode)
 
 				break;
 	}
-
-	return;
-} /* f_slide_window */
+}
 
 
 void toggle_asterisk(WINDOW *picwin, int onoff)
@@ -1693,9 +1657,98 @@ void toggle_asterisk(WINDOW *picwin, int onoff)
 		picwin->wtitle[11]='*';
 
 	Window.windSet(picwin->whandlem, WF_NAME, LONG2_2INT((long)picwin->wtitle), 0,0);
+}
 
-	return;
-} /* toggle_asterisk */
+
+#if 0
+static void display_windowlist(WINDOW *window)
+{
+	int first, last, t, biggest_handle, first_handle, handle;
+	WINDOW *picwin, *firstwin;
+
+
+	/*--------- Eigenes Fenster mit kleinerem Handle suchen, da jedoch das grîûte */
+	/*			also das zuletzt geîffnete mit anderen Worten.	*/
+	biggest_handle = -1;
+	for(t = 0; t < 20; t++)
+	{
+		if(window->pflag)
+			handle = &picture_windows[t]->whandlem;
+		else
+			handle = wind_s[t].whandlem;
+
+		if(handle != window->whandlem && handle > biggest_handle && handle != -1)
+			biggest_handle = handle;
+	}
+
+	/* Handle des ersten Fensters (kleinstes) Åberhaupt suchen */
+		first_handle = 1024;
+		for(t = 0; t < 20; t++)
+		{
+			if(window->pflag)
+				handle = &picture_windows[t]->whandlem;
+			else
+				handle = wind_s[t].whandlem;
+			
+			if(handle < first_handle && handle != -1)
+				first_handle = handle;
+		}
+
+
+		if(biggest_handle != -1)
+			last = Window.myWindow(biggest_handle);
+		if(first_handle != 1024)
+			first = Window.myWindow(first_handle);
+
+
+		/*------------ Fensterliste ausgeben -----*/
+/*		Goto_pos(1,0);*/
+		handle = first_handle;
+		first = my_window(handle);
+
+		if(first > 0)
+			picwin = &wind_s[first];
+		else
+			if(first < 0)
+				picwin = &picture_windows[first];
+		firstwin = picwin;
+
+		printf("VorwÑrts:          \n");		
+		if(first_handle != 1024)
+		{
+			do
+			{
+				printf("   %s  - %i                  \n", picwin->wtitle, picwin->whandlem);
+				picwin = picwin->next_window;
+			} while(picwin != firstwin);
+
+			printf("   %s  - %i                  \n", picwin->wtitle, picwin->whandlem);
+		}
+
+		printf("RÅckwÑrts:         \n");		
+
+		if(last > 0)
+			picwin = &wind_s[last];
+		else
+			if(last < 0)
+				picwin = &picture_windows[last];
+		firstwin = picwin;
+
+		if(last != 0)
+		{
+			do
+			{
+				printf("  %s  - %i                   \n", picwin->wtitle, picwin->whandlem);
+				picwin=picwin->prev_window;
+			} while(picwin!=firstwin);
+
+			printf("  %s  - %i                    \n", picwin->wtitle, picwin->whandlem);
+		}
+
+		printf("--------------------------\n");		
+}
+#endif
+
 
 
 /*----------------------------------------------------------------------------------*/
@@ -1785,10 +1838,10 @@ void window_to_list(WINDOW *window)
 		window->prev_window = window;
 	}
 
-/*	display_windowlist(window); */
-
-	return;
-} /* window_to_list */
+#if 0
+	display_windowlist(window);
+#endif
+}
 
 
 /*----------------------------------------------------------------------------------*/
@@ -1811,9 +1864,7 @@ void remove_window(WINDOW *window)
 		previous->next_window = next;
 	if(next != NULL)
 		next->prev_window = previous;
-
-	return;
-} /* remove_window */
+}
 
 
 
@@ -1861,98 +1912,7 @@ int find_crosshair(WINDOW *window)
 	}
 
 	return(arrnum);
-} /* find_crosshair */
-
-
-/*
-void display_windowlist(WINDOW *window)
-{
-	int first, last, t, biggest_handle, first_handle, handle;
-	WINDOW *picwin, *firstwin;
-
-
-	/*--------- Eigenes Fenster mit kleinerem Handle suchen, da jedoch das grîûte */
-	/*			also das zuletzt geîffnete mit anderen Worten.	*/
-	biggest_handle = -1;
-	for(t = 0; t < 20; t++)
-	{
-		if(window->pflag)
-			handle = &picture_windows[t]->whandlem;
-		else
-			handle = wind_s[t].whandlem;
-
-		if(handle != window->whandlem && handle > biggest_handle && handle != -1)
-			biggest_handle = handle;
-	}
-
-	/* Handle des ersten Fensters (kleinstes) Åberhaupt suchen */
-		first_handle = 1024;
-		for(t = 0; t < 20; t++)
-		{
-			if(window->pflag)
-				handle = &picture_windows[t]->whandlem;
-			else
-				handle = wind_s[t].whandlem;
-			
-			if(handle < first_handle && handle != -1)
-				first_handle = handle;
-		}
-
-
-		if(biggest_handle != -1)
-			last = Window.myWindow(biggest_handle);
-		if(first_handle != 1024)
-			first = Window.myWindow(first_handle);
-
-
-		/*------------ Fensterliste ausgeben -----*/
-/*		Goto_pos(1,0);*/
-		handle = first_handle;
-		first = my_window(handle);
-
-		if(first > 0)
-			picwin = &wind_s[first];
-		else
-			if(first < 0)
-				picwin = &picture_windows[first];
-		firstwin = picwin;
-
-		printf("VorwÑrts:          \n");		
-		if(first_handle != 1024)
-		{
-			do
-			{
-				printf("   %s  - %i                  \n", picwin->wtitle, picwin->whandlem);
-				picwin = picwin->next_window;
-			} while(picwin != firstwin);
-
-			printf("   %s  - %i                  \n", picwin->wtitle, picwin->whandlem);
-		}
-
-		printf("RÅckwÑrts:         \n");		
-
-		if(last > 0)
-			picwin = &wind_s[last];
-		else
-			if(last < 0)
-				picwin = &picture_windows[last];
-		firstwin = picwin;
-
-		if(last != 0)
-		{
-			do
-			{
-				printf("  %s  - %i                   \n", picwin->wtitle, picwin->whandlem);
-				picwin=picwin->prev_window;
-			} while(picwin!=firstwin);
-
-			printf("  %s  - %i                    \n", picwin->wtitle, picwin->whandlem);
-		}
-
-		printf("--------------------------\n");		
 }
-*/
-
 
 
 /*-----------------------------------------------------------------	*/
@@ -1981,9 +1941,7 @@ void top_window(int handle)
 			appl_write(Sys_info.app_id, 16, messagebuf);			/* Message an uns selbst */
 		}
  	}
-
-	return;
-} /* top_window */
+}
 
 
 /*-----------------------------------------------------------------	*/
@@ -2008,9 +1966,7 @@ void top_window_now(WINDOW *window)
 		else														/* alles andere */
 			f_set_syspal();
 	}
-
-	return;
-} /* top_window_now */
+}
 
 
 void top_windowhandle(int handle)
@@ -2048,9 +2004,7 @@ void top_windowhandle(int handle)
 		else														/* alles andere */
 			f_set_syspal();
 	}
-
-	return;
-} /* top_windowhandle */
+}
 
 
 /*-----------------------------------------------------------------	*/
@@ -2064,9 +2018,7 @@ void close_window(int handle)
 {
 	if(handle > 0)
 		Comm.sendAESMsg(Sys_info.app_id, WM_CLOSED, handle, -1);
-
-	return;
-} /* close_window */
+}
 
 
 /* f_alert--------------------------------------------------------------
@@ -2311,7 +2263,7 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 	}
 
 	return(0);
-} /* f_alert */
+}
 
 
 
@@ -2333,15 +2285,13 @@ void close_alert(void)
 	unlock_Smurf();
 	Dialog.winAlert.winHandle = -1;
 	Dialog.winAlert.isTop = 0;
-
-	return;
-} /* close_alert */
+}
 
 
 /* gibt den lÑngstmîglichen Teilstring aus s zurÅck, wobei */
 /* versucht wird, den String nur nach einem der Zeichen in */
 /* brk abzusÑgen. maxlen gibt die MaximallÑnge an. */
-char alerttok(char *s, char maxlen)
+static char alerttok(char *s, char maxlen)
 {
 	char *brk = " ,;.:-?!";		/* als Trenner fungierende Zeichen */
 	char *jep;
@@ -2358,7 +2308,7 @@ char alerttok(char *s, char maxlen)
 		return(strlen(jep));
 	else
 		return(maxlen);
-} /* alerttok */
+}
 
 
 /* wird immer aufgerufen wenn sich ein Bild geÑndert hat und 
@@ -2374,6 +2324,4 @@ void f_pic_changed(WINDOW *window, int onoff)
 	Dialog.picMan.makeThumbnail(active_pic);
 /*	Dialog.picMan.showWH(smurf_picture[active_pic]); */
 	imageWindow.toggleAsterisk(window, onoff);
-
-	return;
-} /* f_pic_changed */
+}

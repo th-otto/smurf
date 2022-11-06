@@ -58,6 +58,7 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 #include "debug.h"
+#include "destruct.h"
 
 #include "xrsrc.h"
 #include "globdefs.h"
@@ -73,8 +74,6 @@ SERVICE_FUNCTIONS global_services;
 
 #define	AP_ARGSTART		0x5001
 
-char *decrypt(char *string);
-
 /*-------------------- Environmentstrings ---------------------	*/
 char *ENV_avserver;
 
@@ -82,11 +81,8 @@ char *ENV_avserver;
 /* ------------------------------------------------------------	*/
 /*				lokale Funktionsdeklarationen					*/
 /* ------------------------------------------------------------	*/
-int		open_vwork(void);						/* Virt. Workstation */
-void	GetSMPath(void);
-void 	shutdown_smurf(char while_startup);
-int		copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic);
-void	destroy_smurfpic(SMURF_PIC *pic);
+static int open_vwork(void);						/* Virt. Workstation */
+static int copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic);
 
 extern	void	scan_plugins(void);
 
@@ -242,7 +238,7 @@ int startuprsc_global[10];
 /*	 					void MAIN(void)						   */
 /* ------------------------------------------------------------*/
 /* ------------------------------------------------------------*/
-void main(int argc, const char *argv[])
+int main(int argc, const char *argv[])
 {
 	char timer[4] = "___";
 	int t, tt, back;
@@ -250,7 +246,6 @@ void main(int argc, const char *argv[])
 	extern void *edit_cnfblock[100];
 
 	GRECT desk;
-	extern void set_startupdial(char *string);
 	extern EXPORT_CONFIG exp_conf;
 	extern int decode(char *string);
 
@@ -261,7 +256,7 @@ void main(int argc, const char *argv[])
 	if(open_vwork() == FALSE)
 	{
 		form_alert(1, "[3][Fehler beim ôffnen der VDI-Workstation!][Ups]");
-		exit(-1);
+		return 1;
 	}
 
 	Sys_info.vdi_handle = handle;
@@ -484,7 +479,7 @@ void main(int argc, const char *argv[])
 		xrsrc_free(startuprsc_global);
 
 		shutdown_smurf(0);
-		exit(-1);
+		return 1;
 	}
 	
 	f_analyze_system();								/* was bin ich? */
@@ -628,19 +623,18 @@ void main(int argc, const char *argv[])
 
 	shutdown_smurf(0);
 
-	exit(0);
-} /* Und tschÅss! */
+	return 0;
+}
 
 
 /* --------------------------------------------------------------   */
 /*  Funktion zum ôffnen einer virtuellen Bildschirmworkstation      */
 /* --------------------------------------------------------------   */
-int open_vwork(void)
+static int open_vwork(void)
 {
 	int phys_handle;
 	int work_in[16];
-	register int i;
-
+	int i;
 
 	if((appl_id = appl_init()) != -1)
 	{
@@ -691,8 +685,6 @@ void f_set_syspal(void)
 
 		wind_update(END_UPDATE);
 	}
-
-	return;
 }
 
 
@@ -723,8 +715,6 @@ void f_set_picpal(SMURF_PIC *pic)
 
 		wind_update(END_UPDATE);
 	}
-
-	return;	
 }
 
 
@@ -741,8 +731,6 @@ void f_pic_info(void)
 	static SMURF_PIC infoprev;
 	SMURF_PIC *pic;
 	OBJECT *infowindow;
-
-	extern int compute_zoom(SMURF_PIC *picture, int twid, int thgt);
 
 
 	if(wind_s[WIND_PICINFO].whandlem == -1 && openmode)		/* wenn Infofenster zu, nix zu tun */
@@ -1235,7 +1223,6 @@ void f_event(void)
 	int klickhandle;
 	int timer_event, t, tt,
 		mbutton, dummy, pm_to_redraw=0;
-	extern USERBLK cycle_user;
 
 	void (*timerrout)(void);
 
@@ -1735,7 +1722,6 @@ int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 	EXPORT_PIC *pic_to_save;
 	SMURF_PIC *edited_pic;	
 
-	extern	int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data);
 	extern	BASPAG	*plugin_bp[11];
 	extern	PLUGIN_DATA *plg_data[11];
 
@@ -2635,7 +2621,7 @@ int	init_dialog(int DialogNumber, int DialogOK)
 		f_handle_radios(wind_s[DialogNumber].resource_form, button, DialogNumber);
 
 	return(button);
-} /* init_dialog */
+}
 
 
 /* ******************************************************************/
@@ -2659,9 +2645,7 @@ void close_dialog(int windnum)
 		Sys_info.dialog_opened[windnum] = 0;
 		dialwindthere--;
 	}
-
-	return;
-} /* close_dialog */
+}
 
 
 
@@ -2679,8 +2663,6 @@ void close_dialog(int windnum)
 /* ----------------------------------------------------------------	*/
 int f_init_system(void)
 {
-	extern GEMPARBLK _GemParBlk;
-
 	extern int sx,sy,sw,sh;
 	extern int startuprsc_global[10];
 	OBJECT *tree;
@@ -3144,7 +3126,6 @@ void shutdown_smurf(char while_startup)
 	extern	PLUGIN_DATA *plg_data[11];
 	extern	PLUGIN_INFO *plg_info[11];
 	extern	int anzahl_plugins;
-	extern	int start_plugin(BASPAG *bp, int message, int plg_id, 	PLUGIN_DATA *data);
 
 
 	Comm.sendAESMsg(Sys_info.ENV_avserver, AV_EXIT, Sys_info.app_id, -1);
@@ -3197,7 +3178,9 @@ void shutdown_smurf(char while_startup)
 		{
 			start_plugin(plugin_bp[t], MTERM, t, plg_data[t]);
 
-/*			Pexec(102, NULL, plugin_bp[t], ""); */
+#if 0
+			Pexec(102, NULL, plugin_bp[t], "");
+#endif
 			SMfree(plugin_bp[t]->p_env);
 			SMfree(plugin_bp[t]);
 			plugin_bp[t] = NULL;
@@ -3316,7 +3299,7 @@ int duplicate_pic(WINDOW *window)
 
 /* kopiert eine in picture Åbergebene SMURF_PIC-Struktur. */
 /* Achtung, ein eventuell enthaltener Block wird nicht mitkopiert! */
-int copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic)
+static int copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic)
 {
 	char BitsPerPixel;
 

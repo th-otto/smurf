@@ -23,7 +23,6 @@
  */
 
 #include <tos.h>
-#include "sym_gem.h"
 #include "../modules/import.h"
 #include "smurf_st.h"
 #include "smurfine.h"
@@ -74,21 +73,11 @@ void init_moduleObs(void)
 	module.gui.initTree = init_modtree;
 	module.gui.convertIcon = convert_icon;
 	module.gui.makePreview = make_modpreview;
-
-	return;
-} /* init_moduleObs */
+}
 
 
 void init_GuiObs(void)
 {
-	extern void draw_iconified(WINDOW *window, int *vdiclip);
-	extern void insert_picwinzoom(WINDOW *window);
-	extern void scrollWindowRT(WINDOW *window, int xamount, int yamount);
-	extern void show_picman_wh(SMURF_PIC *pic);
-	extern void f_resort_piclist(void);
-	extern void picman_windowmove(void);
-	extern int pm_autoscroll(int mx, int my);
-	extern void draw_picmanboxes(void);
 	extern void remove_block(WINDOW *picwindow);
 	extern void fulldisable_busybox(void);
 
@@ -103,7 +92,7 @@ void init_GuiObs(void)
 	extern void close_dialog(int windnum);
 
 	extern void saveUndoBuffer(SMURF_PIC *picture, int picnum);
-	void swapUndoBuffer(SMURF_PIC *toPicture, int picNum);
+	extern void swapUndoBuffer(SMURF_PIC *toPicture, int picNum);
 
 
 	/*

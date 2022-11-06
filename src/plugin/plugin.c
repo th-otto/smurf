@@ -75,9 +75,7 @@ void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename);
 
 extern	struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen);
 extern	void destroy_filelist(struct DIRENTRY *begin);
-extern	SYSTEM_INFO Sys_info;			
 extern	OBJECT	*menu_tree;
-extern	SERVICE_FUNCTIONS global_services;
 extern	long Name_Max;
 
 extern	SMURF_PIC *smurf_picture[MAX_PIC];
@@ -90,10 +88,10 @@ extern	char DraufschmeissBild;
 extern	int picwindthere, dialwindthere, picthere;
 extern	int active_pic;
 
-PLUGIN_FUNCTIONS global_replace;
-ADD_FUNCTIONS global_call;
-PLUGIN_FUNCTIONS global_functions;
-SMURF_VARIABLES global_vars;
+static PLUGIN_FUNCTIONS global_replace;
+static ADD_FUNCTIONS global_call;
+static PLUGIN_FUNCTIONS global_functions;
+static SMURF_VARIABLES global_vars;
 
 
 BASPAG	*plugin_bp[11];

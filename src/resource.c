@@ -60,8 +60,6 @@
 #include "lrud_arr.icn"
 #include "lrud_arr.icm"
 
-extern void 	shutdown_smurf(char while_startup);
-
 int add_flags[40];			/* zus„tzliche Fensterelemente */
 
 extern WORD resource_global[100];

@@ -421,9 +421,7 @@ void show_picman_wh(SMURF_PIC *pic)
 		strncpy(ob[PM_DEPTH].TextCast, string, 2);
 		Window.redraw(Dialog.picMan.window, NULL, HW_BOX, 0);
 	}
-
-	return;
-} /* show_picman_wh */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -447,7 +445,7 @@ int pm_autoscroll(int mx, int my)
 	}
 
 	return(redraw);
-} /* pm_autoscroll */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -472,7 +470,7 @@ void f_resort_piclist(void)
 	}
 
 	return;
-} /* f_resort_piclist */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -530,7 +528,7 @@ MOD_INFO *ready_modpics_popup(WINDOW *mwindow)
 	}
 
 	return(minf);
-} /* ready_modpics_popup */
+}
 
 
 /* ----------------------------------------------------------------	*/
@@ -597,9 +595,7 @@ void make_picman_thumbnail(int picture_num)
 	Window.redraw(Dialog.picMan.window, NULL, PICMAN_PREVIEW, 0);
 
 	Dialog.busy.enable();
-
-	return;
-} /* make_picman_thumbnail */
+}
 
 
 void picman_windowmove(void)
@@ -670,9 +666,7 @@ void picman_windowmove(void)
 			Window.redraw(&picture_windows[picnum], NULL, 0, DRAWNOTREE);
 		}
 	}
-
-	return;
-} /* picman_windowmove */
+}
 
 
 int compute_zoom(SMURF_PIC *picture, int twid, int thgt)
@@ -696,4 +690,4 @@ int compute_zoom(SMURF_PIC *picture, int twid, int thgt)
 			zoom = 0;
 
 	return(zoom);
-} /* compute_zoom */
+}

@@ -35,19 +35,17 @@
 #include "smurf_f.h"
 #include "globdefs.h"
 #include "destruct.h"
+#include "plugin/plugin.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"
 #include "debug.h"
 
 
-extern void	call_plugin(int menuentry);
 
 extern OBJECT *menu_tree;
 extern SMURF_PIC *smurf_picture[25];
 extern int openmode;
-extern void color_choose(void);
-extern int duplicate_pic(WINDOW *window);
 extern void save_file(void);
 
 extern int picwindthere, dialwindthere, picthere;

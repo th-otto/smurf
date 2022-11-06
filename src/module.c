@@ -77,8 +77,6 @@ extern int obj;
 extern int active_pic;
 extern int key_scancode, key_ascii;
 
-extern SERVICE_FUNCTIONS global_services;
-
 extern	BASPAG *Dithermod_Basepage[10];
 
 extern	MFORM *dummy_ptr;				/* Dummymouse fÅr Maus-Form */
