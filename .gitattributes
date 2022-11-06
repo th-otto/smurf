@@ -6,6 +6,8 @@
 *.rsh text eol=crlf
 *.rh text eol=crlf
 *.inc text eol=crlf
+*.icn text eol=crlf
+*.icm text eol=crlf
 *.i text eol=crlf
 *.bat text eol=crlf
 *.inf text eol=crlf
