@@ -581,18 +581,18 @@ void restore_display(DISPLAY_MODES *old)
 /* auf 27 Zeichen "Dies ist ein...Filename.img" */
 char *shorten_name(char *string, char newlen)
 {
-	char temp[257] = "";
-
+	static char temp[257];
 
 	/* nichts tun wenn String sowieso passend */
 	if(strlen(string) <= newlen)
 		return(string);
 
+	memset(temp, 0, sizeof(temp));
 	strncpy(temp, string, newlen / 2 - 1);			/* auf die H„lfte und eines weniger */
 	strcat(temp, "...");							/* Lckenfller rein */
-	strcat(temp, string + strlen(string) - (newlen - newlen / 2 - 3));	/* und bis newlen L„nge mit Originalstring affllen */
+	strcat(temp, string + strlen(string) - (newlen - newlen / 2 - 3));	/* und bis newlen L„nge mit Originalstring auffllen */
 
-	return(temp);	
+	return temp;
 }
 
 
