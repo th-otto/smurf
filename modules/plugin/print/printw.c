@@ -27,6 +27,7 @@
 #include <string.h>
 #include <math.h>
 #include "../../import.h"
+#define MAX_MODS 21
 #include "../../../src/smurf_st.h"
 #include "../../../src/globdefs.h"
 #include "../../../src/smurfine.h"

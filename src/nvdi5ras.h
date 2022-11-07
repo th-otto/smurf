@@ -1,4 +1,8 @@
+#ifdef __PUREC__
 #include <vdi.h>
+#else
+#include <gem.h>
+#endif
 
 #if !defined(__GEMLIB__) && !defined(__PORTVDI_H__)
 

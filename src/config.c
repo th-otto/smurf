@@ -81,9 +81,9 @@ int load_config(void)
 			return(-1);
 		}
 
-		if(*(unsigned long  *)(buf + 2 + sizeof(SYSTEM_INFO) + sizeof(DISPLAY_MODES)) != 'CNF!')
+		if(*(unsigned long  *)(buf + 2 + sizeof(SYSTEM_INFO) + sizeof(DISPLAY_MODES)) != 0x434e4621L) /* 'CNF!'*/
 		{
-			f_alert("Keine Smurf-Konfigurationsdatei oder Datei defekt! Datei wird nicht geladen.", NULL, NULL, NULL, 1);
+			f_alert("Keine Smurf-Konfigurationsdatei oder Datei defekt! Datei wird nicht geladen.", NULL, NULL, NULL, 1); /* FIXME: translate */
 			SMfree(buf);
 			DEBUG_MSG (( "Load smurf.cnf...Ende -1, 1\n" ));
 			return(-1);
@@ -170,35 +170,35 @@ void f_analyze_system(void)
 	Sys_info.OS = 0;
 
 	/*-------------- OS feststellen -----------------*/
-	if(get_cookie('MagX', &dummy) || get_cookie('MgMc', &dummy) || get_cookie('MgPC', &dummy))
+	if(get_cookie(0x4D616758L, &dummy) || get_cookie(0x4D674D63L, &dummy) || get_cookie(0x4D675043L, &dummy) || get_cookie(0x4D674D78L, &dummy))
 		Sys_info.OS |= MATSCHIG;
 
-	if(get_cookie('MgPC', &dummy))	/* MagiC PC nochmal extra */
+	if(get_cookie(0x4D675043L, &dummy))	/* 'MgPC' MagiC PC nochmal extra */
 		Sys_info.OS |= MAG_PC;
 
-	if(get_cookie('MiNT', &dummy))
+	if(get_cookie(0x4D694E54L, &dummy)) /* 'MiNT' */
 		Sys_info.OS |= MINT;
 	
-	if(get_cookie('nAES', &dummy))
+	if(get_cookie(0x6E414553L, &dummy)) /* 'nAES' */
 		Sys_info.OS |= NAES;
 
-	if(get_cookie('MTOS', &dummy))
+	if(get_cookie(0x4d544f53L, &dummy)) /* 'MTOS' */
 		Sys_info.OS |= MTOS;
 
-	if(get_cookie('WINX', &dummy))
+	if(get_cookie(0x57494E58L, &dummy)) /* 'WINX' */
 		Sys_info.OS |= WINX;
 
 	Sys_info.OSFeatures = 0;
 
-/* GETINFO */
- 	if(_GemParBlk.global[0] >= 0x400 ||
+	/* GETINFO */
+ 	if(_AESversion >= 0x400 ||
  	   appl_find("?AGI") >= 0)
 	{
 		Sys_info.OSFeatures |= GETINFO;
 		gi = 1;
 	}
 
-/* CICONBLK */
+	/* CICONBLK */
 	if(gi)
 	{	
 		ok = appl_getinfo(2, &out1, &out2, &out3, &out4);
@@ -212,7 +212,7 @@ void f_analyze_system(void)
 			Sys_info.OSFeatures |= COLICONS;
 	}
 
-/* WINDOW - BEVENT */
+	/* WINDOW - BEVENT */
 	if(gi)
 	{	
 		ok = appl_getinfo(11, &out1, &out2, &out3, &out4);
@@ -226,7 +226,7 @@ void f_analyze_system(void)
 			Sys_info.OSFeatures |= BEVT;
 	}
 
-/* MENU_POPUP */
+	/* MENU_POPUP */
 	if(gi)
 	{
 		ok = appl_getinfo(9, &out1, &out2, &out3, &out4);
@@ -240,7 +240,7 @@ void f_analyze_system(void)
 			Sys_info.OSFeatures |= MPOPUP;
 	}
 
-/* 3D-AES */
+	/* 3D-AES */
 	if(gi)
 	{
 		ok = appl_getinfo(13, &out1, &out2, &out3, &out4);
@@ -254,8 +254,8 @@ void f_analyze_system(void)
 			Sys_info.OSFeatures |= AES3D;
 	}
 
-/* PEXEC(10x) */
-	if((Sys_info.OS &MINT) || (InqMagX() >= 0x0500 && _GemParBlk.global[1] != 1))
+	/* PEXEC(10x) */
+	if((Sys_info.OS &MINT) || (InqMagX() >= 0x0500 && _AESnumapps != 1))
 		Sys_info.OSFeatures |= PEXEC10x;
 
 	if(gi)
@@ -270,10 +270,10 @@ void f_analyze_system(void)
 	}
 
 	if(!gi || !ok)
-		Sys_info.AES_bgcolor = LWHITE;
+		Sys_info.AES_bgcolor = G_LWHITE;
 
 	if(Sys_info.bitplanes == 1 || !(Sys_info.OSFeatures&AES3D))
-		Sys_info.AES_bgcolor = WHITE;
+		Sys_info.AES_bgcolor = G_WHITE;
 
 
 	/* Clipboardpfad ermitteln und ggf. setzen */
@@ -281,7 +281,7 @@ void f_analyze_system(void)
 
 
 	/* CPU-Typ ermitteln */
-	get_cookie('_CPU', (unsigned long*)&value);
+	get_cookie(0x5F435055L, (unsigned long*)&value); /* '_CPU' */
 	if(value == 0 || value == 10)
 		global_services.CPU_type = MC68000;
 	else if(value == 20)
@@ -293,7 +293,7 @@ void f_analyze_system(void)
 	else if(value == 60)
 		global_services.CPU_type = MC68060;
 		
-	get_cookie('_FPU', (unsigned long*)&value);
+	get_cookie(0x5F465055L, (unsigned long*)&value); /* '_FPU' */
 	if((value >> 16) != 0)
 		global_services.CPU_type |= FPU;
 
@@ -310,7 +310,7 @@ static unsigned int InqMagX(void)
 	MAGX_COOKIE *cv;
 
 
-	if(get_cookie('MagX', (unsigned long*)&cv)!=0)
+	if(get_cookie(0x4D616758L, (unsigned long*)&cv)!=0) /* 'MagX' */
 		if(cv->aesvars)
 			return(cv->aesvars->version);
 		else

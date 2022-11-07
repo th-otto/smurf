@@ -33,7 +33,7 @@
 #include "../../../src/smurfine.h"
 #include "freefilt.rsh"
  
-#define Obj_Selected(a) (main_form[a].ob_state & SELECTED)
+#define Obj_Selected(a) (main_form[a].ob_state & OS_SELECTED)
 #define GET_Edit_Object(x) (main_form[x].ob_spec.tedinfo->te_ptext)
 
 void Set_Edit_Object(OBJECT *obj, int wert);
@@ -264,14 +264,14 @@ else if(SmurfMessage==MBEVT)
                                             strncpy(main_form[FILTER_NAME].ob_spec.tedinfo->te_ptext, WF5_filter->das_matrix_name, 19);
                                                                                 
                                             if(WF5_filter->das_clipnv & 0x80)
-                                                main_form[CLIP].ob_state |= SELECTED;
+                                                main_form[CLIP].ob_state |= OS_SELECTED;
                                             else
-                                                main_form[CLIP].ob_state &= ~SELECTED;
+                                                main_form[CLIP].ob_state &= ~OS_SELECTED;
                                             
                                             if(WF5_filter->das_clipnv & 0x40)
-                                                main_form[INVERT].ob_state |= SELECTED;
+                                                main_form[INVERT].ob_state |= OS_SELECTED;
                                             else
-                                                main_form[INVERT].ob_state &= ~SELECTED;
+                                                main_form[INVERT].ob_state &= ~OS_SELECTED;
                                             
                                             strength = WF5_filter->das_strength;
                                             set_slider(&strength_slider, strength);

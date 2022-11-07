@@ -28,6 +28,7 @@
 #include "portab.h"
 
 #define MAX_PIC 25
+#define MAX_MODS 21
 
 #ifdef __GNUC__
 #  define ASM_NAME(x) __asm__(x)
@@ -458,7 +459,7 @@ extern WINDOW wind_s[25];
 extern WINDOW picture_windows[MAX_PIC];
 extern POP_UP popups[25];
 extern SLIDER sliders[15];
-extern char module_pics[21][7];
+extern char module_pics[MAX_MODS][7];
 
 extern int Radio, SelectedRadio;
 extern int Check, SelectedCheck;

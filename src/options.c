@@ -78,19 +78,19 @@ void f_options(void)
 		{
 			/* Registerkarte: Allgemein */
 			case MISC_BUTTON:
-					if(infowindow[MISC_BOX].ob_flags&HIDETREE)
+					if(infowindow[MISC_BOX].ob_flags&OF_HIDETREE)
 					{
-						infowindow[MISC_BOX].ob_flags &= ~HIDETREE;
-						infowindow[MISC_BUTTON].ob_state |= SHADOWED;
+						infowindow[MISC_BOX].ob_flags &= ~OF_HIDETREE;
+						infowindow[MISC_BUTTON].ob_state |= OS_SHADOWED;
 						infowindow[MISC_BUTTON].ob_y = 8;
-						infowindow[INTERFACE_BOX].ob_flags |= HIDETREE;
-						infowindow[INTERFACE_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[INTERFACE_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[INTERFACE_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[INTERFACE_BUTTON].ob_y = 12;
-						infowindow[PREVIEWS_BOX].ob_flags |= HIDETREE;
-						infowindow[PREVIEWS_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[PREVIEWS_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[PREVIEWS_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[PREVIEWS_BUTTON].ob_y = 12;
-						infowindow[CONVERSION_BOX].ob_flags |= HIDETREE;
-						infowindow[CONVERS_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[CONVERSION_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[CONVERS_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[CONVERS_BUTTON].ob_y = 12;
 						Window.redraw(&wind_s[WIND_OPTIONS],NULL, BUTTONS_BOX, 0);
 						Window.redraw(&wind_s[WIND_OPTIONS],NULL, MISC_BOX, 0);
@@ -99,19 +99,19 @@ void f_options(void)
 			
 			/* Registerkarte: Interface */				
 			case INTERFACE_BUTTON:
-					if(infowindow[INTERFACE_BOX].ob_flags&HIDETREE)
+					if(infowindow[INTERFACE_BOX].ob_flags&OF_HIDETREE)
 					{
-						infowindow[INTERFACE_BOX].ob_flags &= ~HIDETREE;
-						infowindow[INTERFACE_BUTTON].ob_state |= SHADOWED;
+						infowindow[INTERFACE_BOX].ob_flags &= ~OF_HIDETREE;
+						infowindow[INTERFACE_BUTTON].ob_state |= OS_SHADOWED;
 						infowindow[INTERFACE_BUTTON].ob_y = 8;
-						infowindow[MISC_BOX].ob_flags |= HIDETREE;
-						infowindow[MISC_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[MISC_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[MISC_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[MISC_BUTTON].ob_y = 12;
-						infowindow[PREVIEWS_BOX].ob_flags |= HIDETREE;
-						infowindow[PREVIEWS_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[PREVIEWS_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[PREVIEWS_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[PREVIEWS_BUTTON].ob_y = 12;
-						infowindow[CONVERSION_BOX].ob_flags |= HIDETREE;
-						infowindow[CONVERS_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[CONVERSION_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[CONVERS_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[CONVERS_BUTTON].ob_y = 12;
 						Window.redraw(&wind_s[WIND_OPTIONS],NULL, BUTTONS_BOX, 0);
 						Window.redraw(&wind_s[WIND_OPTIONS],NULL, INTERFACE_BOX, 0);
@@ -120,19 +120,19 @@ void f_options(void)
 
 			/* Registerkarte: PREVIEWS */				
 			case PREVIEWS_BUTTON:
-					if(infowindow[PREVIEWS_BOX].ob_flags&HIDETREE)
+					if(infowindow[PREVIEWS_BOX].ob_flags&OF_HIDETREE)
 					{
-						infowindow[PREVIEWS_BOX].ob_flags &= ~HIDETREE;
-						infowindow[PREVIEWS_BUTTON].ob_state |= SHADOWED;
+						infowindow[PREVIEWS_BOX].ob_flags &= ~OF_HIDETREE;
+						infowindow[PREVIEWS_BUTTON].ob_state |= OS_SHADOWED;
 						infowindow[PREVIEWS_BUTTON].ob_y = 8;
-						infowindow[INTERFACE_BOX].ob_flags |= HIDETREE;
-						infowindow[INTERFACE_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[INTERFACE_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[INTERFACE_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[INTERFACE_BUTTON].ob_y = 12;
-						infowindow[MISC_BOX].ob_flags |= HIDETREE;
-						infowindow[MISC_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[MISC_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[MISC_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[MISC_BUTTON].ob_y = 12;
-						infowindow[CONVERSION_BOX].ob_flags |= HIDETREE;
-						infowindow[CONVERS_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[CONVERSION_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[CONVERS_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[CONVERS_BUTTON].ob_y = 12;
 						Window.redraw(&wind_s[WIND_OPTIONS],NULL, BUTTONS_BOX, 0);
 						Window.redraw(&wind_s[WIND_OPTIONS],NULL, PREVIEWS_BOX, 0);
@@ -141,19 +141,19 @@ void f_options(void)
 
 			/* Registerkarte: Wandlung */				
 			case CONVERS_BUTTON:
-					if(infowindow[CONVERSION_BOX].ob_flags&HIDETREE)
+					if(infowindow[CONVERSION_BOX].ob_flags&OF_HIDETREE)
 					{
-						infowindow[CONVERSION_BOX].ob_flags &= ~HIDETREE;
-						infowindow[CONVERS_BUTTON].ob_state |= SHADOWED;
+						infowindow[CONVERSION_BOX].ob_flags &= ~OF_HIDETREE;
+						infowindow[CONVERS_BUTTON].ob_state |= OS_SHADOWED;
 						infowindow[CONVERS_BUTTON].ob_y = 8;
-						infowindow[INTERFACE_BOX].ob_flags |= HIDETREE;
-						infowindow[INTERFACE_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[INTERFACE_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[INTERFACE_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[INTERFACE_BUTTON].ob_y = 12;
-						infowindow[MISC_BOX].ob_flags |= HIDETREE;
-						infowindow[MISC_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[MISC_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[MISC_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[MISC_BUTTON].ob_y = 12;
-						infowindow[PREVIEWS_BOX].ob_flags |= HIDETREE;
-						infowindow[PREVIEWS_BUTTON].ob_state &= ~SHADOWED;
+						infowindow[PREVIEWS_BOX].ob_flags |= OF_HIDETREE;
+						infowindow[PREVIEWS_BUTTON].ob_state &= ~OS_SHADOWED;
 						infowindow[PREVIEWS_BUTTON].ob_y = 12;
 						Window.redraw(&wind_s[WIND_OPTIONS],NULL, BUTTONS_BOX, 0);
 						Window.redraw(&wind_s[WIND_OPTIONS],NULL, CONVERSION_BOX, 0);
@@ -173,14 +173,14 @@ void f_options(void)
 						strncpy(infowindow[OUTCOL].TextCast, pstr, 2);
 					}
 
-					change_object(&wind_s[WIND_OPTIONS], OCOL_DISP, UNSEL, 1);
+					change_object(&wind_s[WIND_OPTIONS], OCOL_DISP, OS_UNSEL, 1);
 					f_deselect_popup(&wind_s[WIND_OPTIONS], OUTCOL, OCOL_CB);
 					break;
 	
 			/* Importerliste erstellen */
 			case OPT_IMPLIST:
 					f_scan_import();
-					change_object(&wind_s[WIND_OPTIONS], OPT_IMPLIST, UNSEL, 1);
+					change_object(&wind_s[WIND_OPTIONS], OPT_IMPLIST, OS_UNSEL, 1);
 					break;
 
 			case PCD_DEF_PB:
@@ -196,9 +196,9 @@ void f_options(void)
 					for(t = DIT1; t <= DIT5; t++)
 					{
 						if(!ditmod_info[t - 1] || ditmod_info[t - 1]->pal_mode!=ALLPAL)
-							col_pop[t].ob_state |= DISABLED;
+							col_pop[t].ob_state |= OS_DISABLED;
 						else
-							col_pop[t].ob_state &= ~DISABLED;
+							col_pop[t].ob_state &= ~OS_DISABLED;
 					}
 
 					popbut = f_pop(&popups[POPUP_PREVDIT], 0, button, NULL);
@@ -208,7 +208,7 @@ void f_options(void)
 
 					for(t = DIT1; t <= DIT5; t++)
 						if(ditmod_info[t - 1]) 
-							col_pop[t].ob_state &= ~DISABLED;
+							col_pop[t].ob_state &= ~OS_DISABLED;
 
 					break;
 
@@ -217,9 +217,9 @@ void f_options(void)
 					for(t = DIT1; t <= DIT5; t++)
 					{
 						if(!ditmod_info[t - 1] || ditmod_info[t-1]->pal_mode!=ALLPAL)
-							col_pop[t].ob_state |= DISABLED;
+							col_pop[t].ob_state |= OS_DISABLED;
 						else
-							col_pop[t].ob_state &= ~DISABLED;
+							col_pop[t].ob_state &= ~OS_DISABLED;
 					}
 
 					popbut = f_pop(&popups[POPUP_PICMANDIT], 0, button, NULL);
@@ -229,7 +229,7 @@ void f_options(void)
 
 					for(t = DIT1; t <= DIT5; t++)
 						if(ditmod_info[t - 1]) 
-							col_pop[t].ob_state &= ~DISABLED;
+							col_pop[t].ob_state &= ~OS_DISABLED;
 
 					break;
 
@@ -238,9 +238,9 @@ void f_options(void)
 					for(t = DIT1; t <= DIT5; t++)
 					{
 						if(!ditmod_info[t - 1] || ditmod_info[t-1]->pal_mode!=ALLPAL)
-							col_pop[t].ob_state |= DISABLED;
+							col_pop[t].ob_state |= OS_DISABLED;
 						else
-							col_pop[t].ob_state &= ~DISABLED;
+							col_pop[t].ob_state &= ~OS_DISABLED;
 					}
 
 					popbut = f_pop(&popups[POPUP_MOVEDIT], 0, button, NULL);
@@ -250,7 +250,7 @@ void f_options(void)
 
 					for(t = DIT1; t <= DIT5; t++)
 						if(ditmod_info[t - 1])
-							col_pop[t].ob_state &= ~DISABLED;
+							col_pop[t].ob_state &= ~OS_DISABLED;
 
 					break;
 
@@ -264,8 +264,8 @@ void f_options(void)
 					if(ditmod_info[NAUTODIT-1]->pal_mode == FIXPAL)
 					{
 						strncpy(infowindow[AUTOPAL_PB].TextCast, colred_popup[CR_FIXPAL].TextCast, 15);
-						change_object(&wind_s[WIND_OPTIONS], AUTOPAL_PB, DISABLED, 1);
-						change_object(&wind_s[WIND_OPTIONS], AUTOPAL_CB, DISABLED, 1);
+						change_object(&wind_s[WIND_OPTIONS], AUTOPAL_PB, OS_DISABLED, 1);
+						change_object(&wind_s[WIND_OPTIONS], AUTOPAL_CB, OS_DISABLED, 1);
 						NAUTOPAL = CR_FIXPAL;
 					}
 					else
@@ -276,8 +276,8 @@ void f_options(void)
 							NAUTOPAL = CR_SYSPAL;
 
 						strcpy(infowindow[AUTOPAL_PB].TextCast, colred_popup[NAUTOPAL].TextCast);
-						change_object(&wind_s[WIND_OPTIONS], AUTOPAL_PB, ENABLED, 1);
-						change_object(&wind_s[WIND_OPTIONS], AUTOPAL_CB, ENABLED, 1);
+						change_object(&wind_s[WIND_OPTIONS], AUTOPAL_PB, OS_ENABLED, 1);
+						change_object(&wind_s[WIND_OPTIONS], AUTOPAL_CB, OS_ENABLED, 1);
 					}
 					break;
 
@@ -320,31 +320,31 @@ void f_options(void)
 		Sys_info.AutoconvDither = NAUTODIT;
 		Sys_info.AutoconvPalmode = NAUTOPAL;
 
-		if(infowindow[ENV_STANDARD].ob_state&SELECTED)
+		if(infowindow[ENV_STANDARD].ob_state&OS_SELECTED)
 			Sys_info.environment = 1;
 		else
-			if(infowindow[ENV_SILLY].ob_state&SELECTED)
+			if(infowindow[ENV_SILLY].ob_state&OS_SELECTED)
 				Sys_info.environment = 2;
 			else
-				if(infowindow[ENV_THERAPY].ob_state&SELECTED)
+				if(infowindow[ENV_THERAPY].ob_state&OS_SELECTED)
 					Sys_info.environment = 3;
 
-		if(infowindow[KBEV_JOIN].ob_state&SELECTED)
+		if(infowindow[KBEV_JOIN].ob_state&OS_SELECTED)
 			Sys_info.keyevents = KBEV_JOIN;
 		else
-			if(infowindow[KBEV_DELETE].ob_state&SELECTED)
+			if(infowindow[KBEV_DELETE].ob_state&OS_SELECTED)
 				Sys_info.keyevents = KBEV_DELETE;
 
 		if(button == OPT_OK)
 		{
-			change_object(&wind_s[WIND_OPTIONS], OPT_OK, UNSEL, 1);
+			change_object(&wind_s[WIND_OPTIONS], OPT_OK, OS_UNSEL, 1);
 			Dialog.close(WIND_OPTIONS);
 		}
 	}
 
 
 	if(button == OPT_SET)
-		change_object(&wind_s[WIND_OPTIONS], OPT_SET, UNSEL, 1);
+		change_object(&wind_s[WIND_OPTIONS], OPT_SET, OS_UNSEL, 1);
 
 	/*
 	 * Env-Config setzen und Fenster redrawen

@@ -100,7 +100,7 @@ void transform_pic(void)
 
 		popups[POPUP_CONVDEPTH].item = dbutton;
 		strcpy(resource[CONV_DEPTHPB].TextCast, form_pop[dbutton].TextCast);
-		change_object(&wind_s[WIND_TRANSFORM], CONV_DEPTHPB, UNSEL, 1);
+		change_object(&wind_s[WIND_TRANSFORM], CONV_DEPTHPB, OS_UNSEL, 1);
 		actualize_convpopups(conv_dither, conv_depth, conv_pal);
 
 		if(dbutton == DEPTH1)
@@ -154,24 +154,24 @@ void transform_pic(void)
 									conv_pal = CR_FIXPAL;
 									popups[POPUP_CONVPAL].item = conv_pal;
 									strncpy(resource[CONV_PALPB].TextCast, colred_popup[conv_pal].TextCast, 15);
-									enablemode = DISABLED;
-									change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, DISABLED, 1);
+									enablemode = OS_DISABLED;
+									change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, OS_DISABLED, 1);
 								}
 								else 
 								{
 									if(conv_depth == 1)
 									{
 										strcpy(resource[CONV_PALPB].TextCast, "s/w");
-										enablemode = DISABLED;
-										change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, DISABLED, 1);
+										enablemode = OS_DISABLED;
+										change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, OS_DISABLED, 1);
 									}
 									else
 									{
 										conv_pal = CR_SYSPAL;
 										popups[POPUP_CONVPAL].item = conv_pal;
 										strncpy(resource[CONV_PALPB].TextCast, colred_popup[conv_pal].TextCast, 15);
-										enablemode = ENABLED;
-										change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, DISABLED, 1);
+										enablemode = OS_ENABLED;
+										change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, OS_DISABLED, 1);
 									}
 								}
 
@@ -193,23 +193,23 @@ void transform_pic(void)
 								{
 									conv_pal = CR_FIXPAL;
 									strncpy(resource[CONV_PALPB].TextCast, colred_popup[conv_pal].TextCast, 15);
-									enablemode = DISABLED;
-									change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, DISABLED, 1);
+									enablemode = OS_DISABLED;
+									change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, OS_DISABLED, 1);
 								}
 								else 
 								{
 									conv_pal = CR_SYSPAL;
 									popups[POPUP_CONVPAL].item = CR_SYSPAL;
 									strncpy(resource[CONV_PALPB].TextCast, colred_popup[conv_pal].TextCast, 15);
-									enablemode = ENABLED;
-									change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, DISABLED, 1);
+									enablemode = OS_ENABLED;
+									change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, OS_DISABLED, 1);
 								}
 								
 								if(conv_depth == 1)
 								{
 									strcpy(resource[CONV_PALPB].TextCast, "s/w");
-									enablemode = DISABLED;
-									change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, DISABLED, 1);
+									enablemode = OS_DISABLED;
+									change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, OS_DISABLED, 1);
 								}
 								
 								change_object(&wind_s[WIND_TRANSFORM], CONV_PALPB, enablemode, 1);
@@ -225,14 +225,14 @@ void transform_pic(void)
 								conv_pal = popbut;
 
 							if(conv_pal == CR_FILEPAL)
-								change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, ENABLED, 1);
+								change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, OS_ENABLED, 1);
 							else
-								change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, DISABLED, 1);
+								change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, OS_DISABLED, 1);
 
 							f_deselect_popup(&wind_s[WIND_TRANSFORM], CONV_PALCB, CONV_PALPB);
 							break;
 		
-		case CONV_START:	change_object(&wind_s[WIND_TRANSFORM], CONV_START, UNSEL, 1);
+		case CONV_START:	change_object(&wind_s[WIND_TRANSFORM], CONV_START, OS_UNSEL, 1);
 							Dialog.close(WIND_TRANSFORM);
 							do_transform(conv_depth, conv_dither, conv_pal);
 							f_pic_changed(&picture_windows[active_pic], 1);
@@ -248,12 +248,12 @@ void transform_pic(void)
 								strcpy(resource[CONV_PALPB].TextCast, tfm_filepal_name);
 							}
 
-							change_object(&wind_s[WIND_TRANSFORM], CONV_PALPB, UNSEL, 1);
-							change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, UNSEL, 1);
+							change_object(&wind_s[WIND_TRANSFORM], CONV_PALPB, OS_UNSEL, 1);
+							change_object(&wind_s[WIND_TRANSFORM], TFM_LOADPAL, OS_UNSEL, 1);
 							break;
 	
 
-		case TRANSFM_REDUCE:	change_object(&wind_s[WIND_TRANSFORM], TRANSFM_REDUCE, UNSEL, 1);
+		case TRANSFM_REDUCE:	change_object(&wind_s[WIND_TRANSFORM], TRANSFM_REDUCE, OS_UNSEL, 1);
 								Dialog.close(WIND_TRANSFORM);
 								back = autoreduce_image();
 								if(back == M_MEMORY)
@@ -290,41 +290,41 @@ static void actualize_convpopups(int dither_algo, int depth, int pal)
 	{
 		conv_pal = CR_FIXPAL;
 		strncpy(res[CONV_PALPB].TextCast, colred_popup[CR_FIXPAL].TextCast, 15);
-		mode_pal = DISABLED;
-		mode_dit = ENABLED;
-		mode_load = DISABLED;
+		mode_pal = OS_DISABLED;
+		mode_dit = OS_ENABLED;
+		mode_load = OS_DISABLED;
 	}
 
 	if(depth>smurf_picture[active_pic]->depth || depth==16 || depth==24)
 	{
 		strcpy(res[CONV_PALPB].TextCast, "-");
 		strcpy(res[CONV_DITHPB].TextCast, "-");
-		mode_pal = DISABLED;
-		mode_dit = DISABLED;
-		mode_load = DISABLED;
+		mode_pal = OS_DISABLED;
+		mode_dit = OS_DISABLED;
+		mode_load = OS_DISABLED;
 	}
 	else
 		if(depth <= smurf_picture[active_pic]->depth)
 		{
 			strcpy(res[CONV_DITHPB].TextCast, col_pop[dither_algo].TextCast);
-			mode_dit = ENABLED;
+			mode_dit = OS_ENABLED;
 
 			if(ditmod_info[dither_algo-1]->pal_mode != FIXPAL)
 			{
 				strcpy(res[CONV_PALPB].TextCast, colred_popup[pal].TextCast);
-				mode_pal = ENABLED;
+				mode_pal = OS_ENABLED;
 			}
 
 			if(pal == CR_FILEPAL)
-				mode_load = ENABLED;
+				mode_load = OS_ENABLED;
 			else
-				mode_load = DISABLED;
+				mode_load = OS_DISABLED;
 		}
 
 	if(depth == 1)
 	{
 		strcpy(res[CONV_PALPB].TextCast, "s/w");
-		mode_pal = DISABLED;
+		mode_pal = OS_DISABLED;
 	}
 
 	change_object(&wind_s[WIND_TRANSFORM], CONV_PALPB, mode_pal, 1);
@@ -484,7 +484,8 @@ static int autoreduce_image(void)
 	char *rt, *gt, *bt, *data;
 	char R, G, B;
 
-	int idx, *intdata;
+	int idx;
+	short *intdata;
 	int depth, found = 1, ddepth;
 
 	long pixlen, t, colcount = 0, find = 0;
@@ -517,7 +518,8 @@ static int autoreduce_image(void)
 	convpic = smurf_picture[active_pic];
 	pixlen = (long)convpic->pic_width*(long)convpic->pic_height;
 	depth = convpic->depth;
-	intdata = (int*)data = convpic->pic_data;
+	data = convpic->pic_data;
+	intdata = (short*)data;
 
 	for(t = 0; t < pixlen; t++)
 	{

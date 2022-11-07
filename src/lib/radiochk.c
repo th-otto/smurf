@@ -18,20 +18,20 @@
 /* Zuerst sollte der TEXT geschrieben werden.							*/
 /* Dann wird ber den Text eine transparente I-BOX gelegt, die links	*/
 /* Genau 2 Zeichen breit ber den Text hinaussteht (NICHT Adoptieren!).	*/
-/* Der Status SELECTED dieser I-BOXEN kann nachher berprft werden		*/
+/* Der Status OS_SELECTED dieser I-BOXEN kann nachher berprft werden		*/
 /* Die I-BOXEN mssen definiert sein:									*/
 /*																		*/
-/* a) Radio-Buttons: SELECTABLE,RADIOBUTTON; das obere Byte des Typs	*/
+/* a) Radio-Buttons: OF_SELECTABLE,RADIOBUTTON; das obere Byte des Typs	*/
 /*						ist 18 (0x12). Ein (!) Radiobutton muž bereits	*/
-/*						als SELECTED definiert sein.					*/
+/*						als OS_SELECTED definiert sein.					*/
 /*																		*/
 /*																		*/
-/* b) Check-Boxen:	SELECTABLE; oberes Byte: 19 (0x13)					*/
+/* b) Check-Boxen:	OF_SELECTABLE; oberes Byte: 19 (0x13)				*/
 /*																		*/
 /*																		*/
 /* ******************************************************************** */
 
-/* Statusabfrage:	if( OBJEKTBAUM [BUTTON-OBJEKT].ob_state & SELECTED) */
+/* Statusabfrage:	if( OBJEKTBAUM [BUTTON-OBJEKT].ob_state & OS_SELECTED) */
 /*					-> 1=selektiert, 0=unselektiert						*/
 
 #include <stdio.h>
@@ -157,7 +157,7 @@ static int	cdecl drawAngleObject(PARMBLK *parm)
 	}
 	
 	
-	return (parm->pb_currstate & ~SELECTED);
+	return (parm->pb_currstate & ~OS_SELECTED);
 }
 #endif
 
@@ -222,7 +222,7 @@ static int cdecl f_do_radio(PARMBLK *parm)
 	ob_x = parm->pb_x;
 	ob_y = parm->pb_y;
 
-	if(parm->pb_currstate&SELECTED)
+	if(parm->pb_currstate&OS_SELECTED)
 		Radiobutton = SelectedRadio;
 	else
 		Radiobutton = Radio;
@@ -274,7 +274,7 @@ static int cdecl f_do_radio(PARMBLK *parm)
 		vrt_cpyfm(handle, MD_REPLACE, pxy, &source, &dest, color_index);  	/* s/w->Farbe - Rastercopy */
 	}
 
-	return (parm->pb_currstate & ~SELECTED);
+	return (parm->pb_currstate & ~OS_SELECTED);
 }
 
 
@@ -307,7 +307,7 @@ int	cdecl f_do_checkbox(PARMBLK *parm)
 	ob_y = parm->pb_y;
 
 
-	if(parm->pb_currstate&SELECTED)
+	if(parm->pb_currstate&OS_SELECTED)
 		Checkbox = SelectedCheck;
 	else
 		Checkbox = Check;
@@ -360,7 +360,7 @@ int	cdecl f_do_checkbox(PARMBLK *parm)
 		vrt_cpyfm(handle, MD_REPLACE, pxy, &source, &dest, color_index);  		/* Farb-Rastercopy */
 	}
 
-	return (parm->pb_currstate & ~SELECTED);
+	return (parm->pb_currstate & ~OS_SELECTED);
 }
 
 
@@ -391,7 +391,7 @@ int	cdecl f_do_cycle(PARMBLK *parm)
 	ob_x = parm->pb_x;
 	ob_y = parm->pb_y;
 	
-	if(parm->pb_currstate&SELECTED)
+	if(parm->pb_currstate&OS_SELECTED)
 		Cyclebutton = SelectedCycle;
 	else
 		Cyclebutton = Cycle;
@@ -443,7 +443,7 @@ int	cdecl f_do_cycle(PARMBLK *parm)
 		vrt_cpyfm(handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* Farb-Rastercopy */
 	}
 	
-	return (parm->pb_currstate&~SELECTED);
+	return (parm->pb_currstate&~OS_SELECTED);
 }
 
 
@@ -527,5 +527,5 @@ static int	cdecl f_do_corner(PARMBLK *parm)
 	}
 	
 	
-	return (parm->pb_currstate&~SELECTED);
+	return (parm->pb_currstate&~OS_SELECTED);
 }

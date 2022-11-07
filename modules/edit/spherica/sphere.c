@@ -202,7 +202,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
                             smurf_struct->module_mode=M_PICTURE;
                             break;
 
-            case BUMP_PIC:  if(maintree[BUMP_CHECK].ob_state & SELECTED)
+            case BUMP_PIC:  if(maintree[BUMP_CHECK].ob_state & OS_SELECTED)
                             {
                                 smurf_struct->event_par[0]=8;
                                 smurf_struct->event_par[1]=FORM_PIXELPAK;
@@ -305,7 +305,7 @@ long xoff, yoff, linelen;
 
 /*  rad = 64;*/
 
-    if(maintree[BUMP_CHECK].ob_state & SELECTED)
+    if(maintree[BUMP_CHECK].ob_state & OS_SELECTED)
     {
         service->reset_busybox(0, "Bump PreCalc...");
         bmp_width=bump_pic->pic_width;
@@ -393,7 +393,7 @@ long xoff, yoff, linelen;
                 bk = (int)B_AMB; 
 
                 /*--------------------------- Roughness */
-                if(maintree[ROUGH_CHECK].ob_state&SELECTED)
+                if(maintree[ROUGH_CHECK].ob_state&OS_SELECTED)
                 {
                     nx+=random(roughness+1)/256F;
                     ny+=random(roughness+1)/256F;
@@ -401,7 +401,7 @@ long xoff, yoff, linelen;
                 }
 
                 /*--------------------------- Bumpmap einrechnen */
-                if(maintree[BUMP_CHECK].ob_state&SELECTED)
+                if(maintree[BUMP_CHECK].ob_state&OS_SELECTED)
                 {
                     if(nz!=0.0) div=nx/nz;
                     else div=1;
@@ -465,7 +465,7 @@ long xoff, yoff, linelen;
 
 #if 0
                 /*--------------------------- Textur einrechnen */
-                if(maintree[TEXT_CHECK].ob_state&SELECTED)
+                if(maintree[TEXT_CHECK].ob_state&OS_SELECTED)
                 {
                     if(nz!=0.0) div=nx/nz;
                     else div=1;
@@ -711,11 +711,13 @@ int make_sliders(void)
 
 int init_rsc(void)
 {
-/*  maintree[TRAN_IDX].ob_state |= DISABLED;
-    maintree[TEX_XSC].ob_state|=DISABLED;
-    maintree[TEX_YSC].ob_state|=DISABLED;
-    maintree[TEX_XOFF].ob_state|=DISABLED;
-    maintree[TEX_YOFF].ob_state|=DISABLED;*/
+#if 0
+    maintree[TRAN_IDX].ob_state |= OS_DISABLED;
+    maintree[TEX_XSC].ob_state|=OS_DISABLED;
+    maintree[TEX_YSC].ob_state|=OS_DISABLED;
+    maintree[TEX_XOFF].ob_state|=OS_DISABLED;
+    maintree[TEX_YOFF].ob_state|=OS_DISABLED;
+#endif
     return(0);
 }
 
@@ -794,7 +796,7 @@ int compute_preview(GARGAMEL *smurf_struct)
     prev_pic.zoom = 0;
 
     /*--------- Wenn Bumpmapping selektiert ist, versuchen die Bumpmap frs Preview zu holen */
-    if(maintree[BUMP_CHECK].ob_state & SELECTED)
+    if(maintree[BUMP_CHECK].ob_state & OS_SELECTED)
     {
         bump_pic = service->get_pic(BUMP_PIC, smurf_struct->module_number, &module_info, 8, FORM_PIXELPAK, GREY);
 

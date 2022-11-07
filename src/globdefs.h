@@ -35,39 +35,55 @@
 
 #define SMURF_VERSION   0x0106
 
-#define LONG2_2INT(val) (int)((long)val>>16),(int)val
-#define INT2_2_LONG(hiword,loword) (long)(((long)hiword<<16)|loword)
+#define LONG2_2INT(val) (int)((long)(val)>>16),(int)(long)(val)
 
-
-/*----- fest definierte Timerevents */
-    #define STG_TIMER   19
-
-#if MILANHOME
-    #define CR_FILEPAL  9497
-#endif
 
 /*----- 3D-Objekt - Flags */
-#ifndef FL3DIND
-    #define FL3DIND     0x0200
-    #define FL3DBAK     0x0400
-    #define FL3DACT     0x0600
+#ifndef OF_FL3DIND
+    #define OF_FL3DIND     0x0200
+    #define OF_FL3DBAK     0x0400
+    #define OF_FL3DACT     0x0600
+#endif
+
+/* object colors */
+#ifndef G_WHITE
+#define G_WHITE			0
+#define G_BLACK			1
+#define G_RED			2
+#define G_GREEN			3
+#define G_BLUE			4
+#define G_CYAN			5
+#define G_YELLOW		6
+#define G_MAGENTA		7
+#define G_LWHITE		8
+#define G_LBLACK		9
+#define G_LRED			10
+#define G_LGREEN		11
+#define G_LBLUE			12
+#define G_LCYAN			13
+#define G_LYELLOW		14
+#define G_LMAGENTA		15
 #endif
 
 /*----- Max/Min-Makros - gr”žere oder kleinere aus 2 Variablen */
-    #define min(a,b)             ((a) < (b) ? (a) : (b))
-    #define max(a,b)             ((a) > (b) ? (a) : (b))
+#undef min
+#define min(a,b)             ((a) < (b) ? (a) : (b))
+#undef max
+#define max(a,b)             ((a) > (b) ? (a) : (b))
+
+/* AES globals */
+#ifndef _AESversion
+#define _AESversion _GemParBlk.global[0]
+#define _AESnumapps _GemParBlk.global[1]
+#endif
 
 /* Neue AES-Messages (ab 3.2 aufw„rts) */
 #ifndef WM_BOTTOMED
     #define WM_BOTTOMED 33          /* WM_BOTTOMED Message-ID */
 #endif
+#ifndef AP_DRAGDROP
     #define AP_DRAGDROP 63          /* Drag&Drop   Message-ID */
-
-/* AES 4.0-3D-Flags */
-    #define INDICATOR   0x0200;
-    #define BACKGRND    0x0400;
-    #define ACTIVATOR   0x0600;
-    
+#endif
 
 /* WINX-Messages */
     #define WM_SHADED   22360       /* Window Shadowed */
@@ -101,9 +117,8 @@
  * But that caused a bunch of other routines  to have 
  * problems.  And I'm trying to get this compiled at
  */
-#ifndef EINVFN
+#undef EINVFN
 #define EINVFN 	-32
-#endif
 
 #ifndef FEATURES
 #define FEATURES 0x0007
@@ -125,22 +140,19 @@
 #define SC_CHANGED	80
 #endif
 
-#ifndef EACCDN
+#undef EACCDN
 #define EACCDN	-36
-#endif
 
-#ifndef ENMFIL
+#undef ENMFIL
 #define ENMFIL	-49
-#endif
 
 /* end of Baldricks insertion */
 
 
 #define UDO     21
 
-#define SEL     1
-#define UNSEL   0
-#define ENABLED 2
+#define OS_UNSEL   0
+#define OS_ENABLED 2
 
 #define F_REDRAW 99
 
@@ -180,8 +192,6 @@
 #define FIRST_PIC       20
 #define LAST_PIC        120
 
-
-extern  int TOOLBAR_HEIGHT;
 
 #define MAIN_FUNCTION_OFFSET    4   /* war garnicht */
 #define MAGIC_OFFSET    8           /* war 4 */
@@ -226,9 +236,9 @@ extern  int TOOLBAR_HEIGHT;
 
 /* Objektmakros */
 #define TextCast    ob_spec.tedinfo->te_ptext
-#define IsDisabled(object) ( ((object.ob_state) & DISABLED)? 1 : 0)
-#define IsSelected(object) ( ((object.ob_state) & SELECTED)? 1 : 0)
-#define IsSelectable(object) ( ((object.ob_flags) & SELECTABLE)? 1 : 0)
+#define IsDisabled(object) ( (((object).ob_state) & OS_DISABLED))
+#define IsSelected(object) ( (((object).ob_state) & OS_SELECTED))
+#define IsSelectable(object) ( (((object).ob_flags) & OF_SELECTABLE))
 
 
 /* Funktionsmakros */

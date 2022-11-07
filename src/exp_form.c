@@ -144,15 +144,15 @@ void f_export_formular(void)
 		strcpy(wind_s[FORM_EXPORT].wtitle, export_modinfo->mod_name);
 
 		Window.windSet(wind_s[FORM_EXPORT].whandlem, WF_NAME, 
-			LONG2_2INT((long)wind_s[FORM_EXPORT].wtitle), 0, 0);
+			LONG2_2INT(wind_s[FORM_EXPORT].wtitle), 0, 0);
 
 		/*
 		 * More-Button dis-/enablen
 		 */
 		if((embs->ext_flag)&0x02)
-			change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, ENABLED, 0);
+			change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, OS_ENABLED, 0);
 		else
-			change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, DISABLED, 0);
+			change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, OS_DISABLED, 0);
 
 		button = 0;
 	}
@@ -192,13 +192,13 @@ void f_export_formular(void)
 									{
 										exp_conf.exp_colred = CR_FIXPAL;
 										strncpy(exp_form[EXP_COLRED].TextCast, colred_popup[exp_conf.exp_colred].TextCast, 15);
-										enablemode=DISABLED;
+										enablemode=OS_DISABLED;
 									}
 									else 
 									{
 										exp_conf.exp_colred = CR_SYSPAL;
 										strncpy(exp_form[EXP_COLRED].TextCast, colred_popup[exp_conf.exp_colred].TextCast, 15);
-										enablemode=ENABLED;
+										enablemode=OS_ENABLED;
 									}
 
 									change_object(&wind_s[FORM_EXPORT], EXP_COLRED, enablemode, 1);
@@ -229,18 +229,18 @@ void f_export_formular(void)
 								{
 									exp_conf.exp_colred = CR_FIXPAL;
 									strncpy(exp_form[EXP_COLRED].TextCast, colred_popup[exp_conf.exp_colred].TextCast, 15);
-									enablemode=DISABLED;
+									enablemode=OS_DISABLED;
 								}
 								else 
 								{
 									exp_conf.exp_colred = CR_SYSPAL;
 									popups[POPUP_COLRED].item=CR_SYSPAL;
 									strncpy(exp_form[EXP_COLRED].TextCast, colred_popup[exp_conf.exp_colred].TextCast, 15);
-									enablemode = ENABLED;
+									enablemode = OS_ENABLED;
 								}
 								change_object(&wind_s[FORM_EXPORT], EXP_COLRED, enablemode, 1);
 								change_object(&wind_s[FORM_EXPORT], EXP_COLREDC, enablemode, 1);
-								change_object(&wind_s[FORM_EXPORT], LOAD_EXPPAL, DISABLED, 1);
+								change_object(&wind_s[FORM_EXPORT], LOAD_EXPPAL, OS_DISABLED, 1);
 							}
 							break;
 	
@@ -263,16 +263,16 @@ void f_export_formular(void)
 							f_deselect_popup(&wind_s[FORM_EXPORT], EXP_COLRED, EXP_COLREDC);
 
 							if(exp_conf.exp_colred == CR_FILEPAL)
-								change_object(&wind_s[FORM_EXPORT], LOAD_EXPPAL, ENABLED, 1);
+								change_object(&wind_s[FORM_EXPORT], LOAD_EXPPAL, OS_ENABLED, 1);
 							else
-								change_object(&wind_s[FORM_EXPORT], LOAD_EXPPAL, DISABLED, 1);
+								change_object(&wind_s[FORM_EXPORT], LOAD_EXPPAL, OS_DISABLED, 1);
 							break;
 
-		case EXPORT_MORE:	change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, UNSEL, 1);
+		case EXPORT_MORE:	change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, OS_UNSEL, 1);
 							module.comm.startExport(export_path, MMORE, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
 							break;
 
-		case START_EXPORT:	change_object(&wind_s[FORM_EXPORT], START_EXPORT, UNSEL, 1);
+		case START_EXPORT:	change_object(&wind_s[FORM_EXPORT], START_EXPORT, OS_UNSEL, 1);
 							f_save_pic(&export_mod_ability);
 							break;
 		
@@ -283,8 +283,8 @@ void f_export_formular(void)
 								strcpy(colred_popup[CR_FILEPAL].TextCast, export_filepal_name);
 								strcpy(exp_form[EXP_COLRED].TextCast, export_filepal_name);
 							}
-							change_object(&wind_s[FORM_EXPORT], EXP_COLRED, UNSEL, 1);
-							change_object(&wind_s[FORM_EXPORT], LOAD_EXPPAL, UNSEL, 1);
+							change_object(&wind_s[FORM_EXPORT], EXP_COLRED, OS_UNSEL, 1);
+							change_object(&wind_s[FORM_EXPORT], LOAD_EXPPAL, OS_UNSEL, 1);
 							break;
 	}
 }
@@ -386,14 +386,14 @@ static void act_exdither_popups(void)
 			strcpy(export_form[EXP_COLRED].TextCast, "-");
 		}
 
-		enablemode = DISABLED;
+		enablemode = OS_DISABLED;
 	}
 	else
 	{
 		strcpy(export_form[EXP_DITHER].TextCast, col_pop[exp_conf.exp_dither].TextCast);
 		strcpy(export_form[EXP_COLRED].TextCast, colred_popup[exp_conf.exp_colred].TextCast);
 
-		enablemode = ENABLED;
+		enablemode = OS_ENABLED;
 	}
 
 	change_object(&wind_s[FORM_EXPORT], EXP_DITHER, enablemode, 1);
@@ -418,7 +418,7 @@ void prepare_depthpopup(void)
 	ob = EXP_D1;
 	for(t = 0; t <= 6; t++)
 	{
-		exp_dp_popup[ob].ob_state |= DISABLED;
+		exp_dp_popup[ob].ob_state |= OS_DISABLED;
 		ob++;
 	}
 
@@ -426,12 +426,12 @@ void prepare_depthpopup(void)
 	{
 		switch(export_depth[t])
 		{
-			case 24:	exp_dp_popup[EXP_D24].ob_state &= ~DISABLED;		break;
-			case 16:	exp_dp_popup[EXP_D16].ob_state &= ~DISABLED;		break;
-			case 8:		exp_dp_popup[EXP_D8].ob_state &= ~DISABLED;		break;
-			case 4:		exp_dp_popup[EXP_D4].ob_state &= ~DISABLED;		break;
-			case 2:		exp_dp_popup[EXP_D2].ob_state &= ~DISABLED;		break;
-			case 1:		exp_dp_popup[EXP_D1].ob_state &= ~DISABLED;		break;
+			case 24:	exp_dp_popup[EXP_D24].ob_state &= ~OS_DISABLED;		break;
+			case 16:	exp_dp_popup[EXP_D16].ob_state &= ~OS_DISABLED;		break;
+			case 8:		exp_dp_popup[EXP_D8].ob_state &= ~OS_DISABLED;		break;
+			case 4:		exp_dp_popup[EXP_D4].ob_state &= ~OS_DISABLED;		break;
+			case 2:		exp_dp_popup[EXP_D2].ob_state &= ~OS_DISABLED;		break;
+			case 1:		exp_dp_popup[EXP_D1].ob_state &= ~OS_DISABLED;		break;
 		}
 	}
 }

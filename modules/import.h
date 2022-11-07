@@ -38,6 +38,14 @@
 #include <osbind.h>
 #include <mintbind.h>
 #include <gem.h>
+#define BASPAG BASEPAGE
+#define DTA _DTA
+#define d_fname dta_name
+#define cdecl
+#include <support.h>
+#define itoa(val, str, base) _itoa(val, str, base, 0)
+#define ltoa(val, str, base) _itoa(val, str, base, 0)
+#define ftoa(val, str, ndig, format, decpnt, sign) strcpy(str, (format == 0 ? ecvt : fcvt)(*(val), ndig, decpnt, sign))
 #endif
 #include "sym_gem.h"
 
@@ -390,8 +398,14 @@ typedef struct
 } EXPORT_PIC;
 
 
+#define MOD_MAGIC_DITHER 0x53444d44L /* 'SDMD' */
+#define MOD_MAGIC_EDIT   0x53454d44L /* 'SEMD' */
+#define MOD_MAGIC_EXPORT 0x53484d44L /* 'SXMD' */
+#define MOD_MAGIC_IMPORT 0x53494d44L /* 'SIMD' */
+#define MOD_MAGIC_PLUGIN 0x53504c47L /* 'SPLG' */
+
 int     f_rslid(SLIDER *slider_struct);
 void    setslider(SLIDER *sliderstruct, long value);
-void    f_txtinsert(int num, OBJECT *tree, int txt_obj, WINDOW *ws);
+void    f_txtinsert(int num, OBJECT *tree, int txt_obj, WINDOW *ws); /* EinfÅgen von Zahlen in Textobjekte */
 
 #endif

@@ -65,7 +65,7 @@ void f_export_pic(void)
 	static MOD_ABILITY expmabs;
 
 	my_scancode = key_scancode >> 8;
-	info = Dialog.expmodList.tree[EXMOD_INFO].ob_state&SELECTED;
+	info = Dialog.expmodList.tree[EXMOD_INFO].ob_state&OS_SELECTED;
 	exp_form = Dialog.expmodList.tree;
 
 	/* aktuelles Listen-Objekt vor Žnderung ermittelten */
@@ -94,7 +94,7 @@ void f_export_pic(void)
 
 	if(key_scancode && my_scancode != KEY_UP && my_scancode != KEY_DOWN || !openmode)
 		Window.windSet(wind_s[WIND_EXPORT].whandlem, WF_INFO,
-			LONG2_2INT((long)Dialog.expmodList.modList.autolocator), 0, 0);
+			LONG2_2INT(Dialog.expmodList.modList.autolocator), 0, 0);
 
 	/*
 	 * wenn gescrollt oder ein anderes Modul selektiert wurde, 
@@ -103,10 +103,10 @@ void f_export_pic(void)
 	if(omod_index != mod_index)
 	{
 		if(Sys_info.defaultExporter != mod_index && IsSelected(exp_form[EXPORT_STANDARD]))
-		   change_object(&wind_s[WIND_EXPORT], EXPORT_STANDARD, UNSEL, 1);
+		   change_object(&wind_s[WIND_EXPORT], EXPORT_STANDARD, OS_UNSEL, 1);
 		else
 			if(Sys_info.defaultExporter == mod_index && !IsSelected(exp_form[EXPORT_STANDARD]))
-			   change_object(&wind_s[WIND_EXPORT], EXPORT_STANDARD, SELECTED, 1);
+			   change_object(&wind_s[WIND_EXPORT], EXPORT_STANDARD, OS_SELECTED, 1);
 
 		/*
 		 * Options-Button enablen bzw. disablen
@@ -118,9 +118,9 @@ void f_export_pic(void)
 		export_mabs = (MOD_ABILITY *)module.comm.startExport(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num&0xFF], module.smStruct[mod_num&0xFF], mod_num);
 	
 		if((export_mabs->ext_flag)&0x02)
-			change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, ENABLED, 1);
+			change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_ENABLED, 1);
 		else
-			change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, DISABLED, 1);
+			change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_DISABLED, 1);
 
 		module.smStruct[mod_num&0xFF]->module_mode = M_EXIT;		/* Modulende "simulieren" */
 		check_and_terminate(MTERM, mod_num&0xFF);
@@ -147,12 +147,12 @@ void f_export_pic(void)
 		if(IsSelected(exp_form[EXPORT_STANDARD]))
 		{
 			Sys_info.defaultExporter = mod_index;
-			menu_tree[FILE_SAVE].ob_state &= ~DISABLED;
+			menu_tree[FILE_SAVE].ob_state &= ~OS_DISABLED;
 		}
 		else
 		{
 			Sys_info.defaultExporter = -1;
-			menu_tree[FILE_SAVE].ob_state |= DISABLED;
+			menu_tree[FILE_SAVE].ob_state |= OS_DISABLED;
 		}
 	}
 	/*
@@ -178,7 +178,7 @@ void f_export_pic(void)
 		if(export_cnfblock[mod_index] == NULL)
 		{
 			export_cnflen[mod_index] = 0;
-			export_cnfblock[mod_index] = load_from_modconf(modinfo, "", &export_cnflen[mod_index], 'SXMD');
+			export_cnfblock[mod_index] = load_from_modconf(modinfo, "", &export_cnflen[mod_index], MOD_MAGIC_EXPORT);
 		}
 
 		if(export_cnfblock[mod_index] != NULL)
@@ -192,7 +192,7 @@ void f_export_pic(void)
 		module.bp[mod_num&0xFF] = (BASPAG *)module.comm.startExport(export_path, MSTART, smurf_picture[active_pic], module.bp[mod_num&0xFF], module.smStruct[mod_num&0xFF], mod_num);
 		module.comm.startExport(export_path, MMORE, smurf_picture[active_pic], module.bp[mod_num&0xFF], module.smStruct[mod_num&0xFF], mod_num);
 
-		change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, UNSEL, 1);
+		change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_UNSEL, 1);
 	}
 	/*
 	 * Exporter starten
@@ -200,7 +200,7 @@ void f_export_pic(void)
 	else
 	if(!info && button == START_EMOD || (klicks == 2 && button >= EMODULE1 && button <= EMODULE9) || my_scancode == SCAN_RETURN || my_scancode == SCAN_ENTER)
 	{
-		change_object(&wind_s[WIND_EXPORT], START_EMOD, UNSEL, 1);
+		change_object(&wind_s[WIND_EXPORT], START_EMOD, OS_UNSEL, 1);
 
 		if(!picthere)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOPIC_TO_SAVE].TextCast, NULL, NULL, NULL, 1);
@@ -264,7 +264,7 @@ void f_export_pic(void)
 			if(export_cnfblock[mod_index] == NULL)
 			{
 				export_cnflen[mod_index] = 0;
-				export_cnfblock[mod_index] = load_from_modconf(modinfo, "", &export_cnflen[mod_index], 'SXMD');
+				export_cnfblock[mod_index] = load_from_modconf(modinfo, "", &export_cnflen[mod_index], MOD_MAGIC_EXPORT);
 			}
 
 			if(export_cnfblock[mod_index] != NULL)
@@ -384,7 +384,7 @@ void save_file(void)
 		if(export_cnfblock[t] == NULL)
 		{
 			export_cnflen[t] = 0;
-			export_cnfblock[t] = load_from_modconf(modinfo, "", &export_cnflen[t], 'SXMD');
+			export_cnfblock[t] = load_from_modconf(modinfo, "", &export_cnflen[t], MOD_MAGIC_EXPORT);
 		}
 
 		if(export_cnfblock[t] != NULL)
@@ -642,7 +642,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 					else
 						name = savepath;
 					strcat(saved_window->wtitle, shorten_name(name, 41 - (char)strlen(saved_window->wtitle)));
-					Window.windSet(saved_window->whandlem, WF_NAME, LONG2_2INT((long)saved_window->wtitle), 0, 0);
+					Window.windSet(saved_window->whandlem, WF_NAME, LONG2_2INT(saved_window->wtitle), 0, 0);
 
 					t = 0;
 					while(Dialog.picMan.picmanList[t] != active_pic)
@@ -883,13 +883,13 @@ void exmod_info_off(void)
 	 */
 	if(wind_s[WIND_EXPORT].resource_form == Dialog.expmodList.infoTree)
 	{
-		change_object(&wind_s[WIND_EXPORT], EXMOD_INFO_OK, UNSEL, 0);
+		change_object(&wind_s[WIND_EXPORT], EXMOD_INFO_OK, OS_UNSEL, 0);
 		wind_s[WIND_EXPORT].resource_form = Dialog.expmodList.tree;
 
 		Dialog.expmodList.tree[0].ob_x = wind_s[WIND_EXPORT].wx;
 		Dialog.expmodList.tree[0].ob_y = wind_s[WIND_EXPORT].wy;
 
-		change_object(&wind_s[WIND_EXPORT], EXMOD_INFO, UNSEL, 0);
+		change_object(&wind_s[WIND_EXPORT], EXMOD_INFO, OS_UNSEL, 0);
 	}
 }
 

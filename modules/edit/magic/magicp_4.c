@@ -189,8 +189,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			break;
 
 		case MPICS:
-			if(my_tree[INTERPOL].ob_state&SELECTED) interpol=1;
-			if(my_tree[SPEICHER].ob_state&SELECTED) sparen=1;
+			if(my_tree[INTERPOL].ob_state&OS_SELECTED) interpol=1;
+			if(my_tree[SPEICHER].ob_state&OS_SELECTED) sparen=1;
 			/*
 				 interpol 
 				 	alles in TC
@@ -268,21 +268,21 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			int ART=0, SPALTE=1, sposch=0;
 			int i;
 
-			if(my_tree[RI1].ob_state&SELECTED) ART=1;
-			if(my_tree[RI2].ob_state&SELECTED) ART=2;
-			if(my_tree[RI3].ob_state&SELECTED) ART=3;
-			if(my_tree[RI4].ob_state&SELECTED) ART=4;
-			if(my_tree[RI5].ob_state&SELECTED) ART=5;
-			if(my_tree[RI6].ob_state&SELECTED) ART=6;
-			if(my_tree[RI7].ob_state&SELECTED) ART=7;
-			if(my_tree[RI8].ob_state&SELECTED) ART=8;
-			if(my_tree[RI9].ob_state&SELECTED) ART=9;
-			if(my_tree[RI10].ob_state&SELECTED) ART=10;
+			if(my_tree[RI1].ob_state&OS_SELECTED) ART=1;
+			if(my_tree[RI2].ob_state&OS_SELECTED) ART=2;
+			if(my_tree[RI3].ob_state&OS_SELECTED) ART=3;
+			if(my_tree[RI4].ob_state&OS_SELECTED) ART=4;
+			if(my_tree[RI5].ob_state&OS_SELECTED) ART=5;
+			if(my_tree[RI6].ob_state&OS_SELECTED) ART=6;
+			if(my_tree[RI7].ob_state&OS_SELECTED) ART=7;
+			if(my_tree[RI8].ob_state&OS_SELECTED) ART=8;
+			if(my_tree[RI9].ob_state&OS_SELECTED) ART=9;
+			if(my_tree[RI10].ob_state&OS_SELECTED) ART=10;
 
-			if(my_tree[SPOSCH1].ob_state&SELECTED) sposch=1;
-			if(my_tree[SPOSCH2].ob_state&SELECTED) sposch=0;
+			if(my_tree[SPOSCH1].ob_state&OS_SELECTED) sposch=1;
+			if(my_tree[SPOSCH2].ob_state&OS_SELECTED) sposch=0;
 
-			if( my_tree[STRF1].ob_state&SELECTED){
+			if( my_tree[STRF1].ob_state&OS_SELECTED){
 				SPALTE=text_pic->pic_width;
 			}else{
 				SPALTE = atoi( my_tree[ANZSPALT].ob_spec.tedinfo->te_ptext );
@@ -298,7 +298,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				return;
 			}
 
-			if(my_tree[SHORTEN].ob_state&SELECTED){
+			if(my_tree[SHORTEN].ob_state&OS_SELECTED){
 				int MAXPRO=30, high;
 				long l;
 				MAXPRO = atoi( my_tree[HOEHE_SW].ob_spec.tedinfo->te_ptext);

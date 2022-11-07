@@ -73,7 +73,7 @@ void bubble_init(void)
 
 	BGHI_Exist = TRUE;
 	BGHI_Slb = FALSE;
-	if (!get_cookie('BGHI', &(unsigned long) BGHI_Cookie))	/* Cookie suchen                    */
+	if (!get_cookie(0x42474849L, &(unsigned long) BGHI_Cookie))	/* 'BGHI' Cookie suchen */
 	{
 		err = Slbopen("BGH.SLB", NULL, /*0x0101L */ 2L, &slb, &slbexec);
 		if (err == -64L)				/* Versionsnummer zu klein ?                */
@@ -156,7 +156,7 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 	if (klickobj < 0)
 		return;
 
-	if (windownum == WIND_MODULES && !(Dialog.emodList.tree[INFO_MODULE].ob_state & SELECTED))
+	if (windownum == WIND_MODULES && !(Dialog.emodList.tree[INFO_MODULE].ob_state & OS_SELECTED))
 		if (klickobj >= MODULE1 && klickobj <= MODULE9)
 			general_info = 1;
 
@@ -188,7 +188,7 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 				TreeId = BILDFENSTER;
 			} else if (windownum == WIND_MODULES)
 			{
-				if (Dialog.emodList.tree[INFO_MODULE].ob_state & SELECTED)	/* Editmodul-Info */
+				if (Dialog.emodList.tree[INFO_MODULE].ob_state & OS_SELECTED)	/* Editmodul-Info */
 				{
 					Section = BGH_USER;
 					TreeId = EDITMODULE_INFO;
@@ -199,7 +199,7 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 				}
 			} else if (windownum == WIND_EXPORT)	/* Exportmodul-Info */
 			{
-				if (Dialog.expmodList.tree[EXMOD_INFO].ob_state & SELECTED)
+				if (Dialog.expmodList.tree[EXMOD_INFO].ob_state & OS_SELECTED)
 				{
 					Section = BGH_USER;
 					TreeId = EXPORTMODUL_INFO;
@@ -230,7 +230,7 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 			else
 				mod_magic = get_modmagic(module.bp[mod_index]);
 
-			if (mod_magic == 'SEMD' || mod_magic == 'SXMD')
+			if (mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT)
 			{
 				textseg_begin = module.bp[mod_index]->p_tbase;
 				mod_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
@@ -251,7 +251,7 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 				if (t >= 99)
 					return;
 				modpath = edit_modules[t];
-			} else if (mod_magic == 'SPLG')
+			} else if (mod_magic == MOD_MAGIC_PLUGIN)
 			{
 				textseg_begin = plugin_bp[mod_index]->p_tbase;
 
@@ -459,7 +459,7 @@ void call_stguide(int topwin_handle)
 			mod_magic = get_modmagic(module.bp[mod_index]);
 
 
-		if (mod_magic == 'SEMD' || mod_magic == 'SXMD')
+		if (mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT)
 		{
 			textseg_begin = module.bp[mod_index]->p_tbase;
 			mod_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
@@ -481,7 +481,7 @@ void call_stguide(int topwin_handle)
 				return;
 
 			modpath = edit_modules[t];
-		} else if (mod_magic == 'SPLG')
+		} else if (mod_magic == MOD_MAGIC_PLUGIN)
 		{
 			textseg_begin = plugin_bp[mod_index]->p_tbase;
 

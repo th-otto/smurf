@@ -123,10 +123,10 @@ void f_picman(void)
 					strcpy(avname, namestr);
 					pathstr[pathlen] = 0;
 
-					my_word1 = (int)((long)pathstr >> 16);
-					my_word2 = (int)pathstr;
-					my_word3 = (int)((long)avname >> 16);
-					my_word4 = (int)avname;
+					my_word1 = (short)((long)pathstr >> 16);
+					my_word2 = (short)(long)pathstr;
+					my_word3 = (short)((long)avname >> 16);
+					my_word4 = (short)(long)avname;
 
 					if(Sys_info.ENV_avserver != -1)
 					{
@@ -147,7 +147,7 @@ void f_picman(void)
 					{
 						ptr = picture_windows[picture_num].picture->filename;
 						my_word1 = (int)((long)ptr >> 16);
-						my_word2 = (int)ptr;
+						my_word2 = (int)(long)ptr;
 						Comm.sendAESMsg(Sys_info.ENV_avserver, AV_STARTPROG, my_word1, my_word2, 0,0, PM_VIEWCALL, -1);
 					}
 			}
@@ -260,11 +260,11 @@ void f_picman(void)
 	{
 		if(lf_back > PM_PIC1)
 		{
-			change_object(Dialog.picMan.window, lf_back, UNSEL, 1);
-			change_object(Dialog.picMan.window, lf_back - 1, SEL, 1);
+			change_object(Dialog.picMan.window, lf_back, OS_UNSEL, 1);
+			change_object(Dialog.picMan.window, lf_back - 1, OS_SELECTED, 1);
 		}
 		else
-		if(ob[PM_PIC1].ob_state&SELECTED)
+		if(ob[PM_PIC1].ob_state&OS_SELECTED)
 		{
 			if(Dialog.picMan.thumbnail.screen_pic)
 			{
@@ -275,12 +275,12 @@ void f_picman(void)
 				Dialog.picMan.window->picture = NULL;
 			}
 	
-			change_object(Dialog.picMan.window, PM_PIC1, UNSEL, 1);
+			change_object(Dialog.picMan.window, PM_PIC1, OS_UNSEL, 1);
 			Dialog.picMan.window->picture = NULL;
 			strcpy(ob[PM_WIDTH].TextCast, "");
-			ob[X1].ob_flags |= HIDETREE;
+			ob[X1].ob_flags |= OF_HIDETREE;
 			strcpy(ob[PM_HEIGHT].TextCast, "");
-			ob[X2].ob_flags |= HIDETREE;
+			ob[X2].ob_flags |= OF_HIDETREE;
 			strcpy(ob[PM_DEPTH].TextCast, "");
 			Window.redraw(Dialog.picMan.window, NULL, 0, 0);
 		}
@@ -291,7 +291,7 @@ void f_picman(void)
 	else
 		if(picture_num != -1 && new_sel != old_sel || openmode == 0)
 		{
-			if(Sys_info.immed_prevs == SELECTED)
+			if(Sys_info.immed_prevs == OS_SELECTED)
 				Dialog.picMan.makeThumbnail(picture_num);
 
 			f_activate_pic(picture_num);
@@ -341,14 +341,14 @@ void insert_to_picman(int pic_to_insert)
 
 	/* Bild im BM aktivieren */
 	for(t = first; t < last; t++)
-		res[t].ob_state &= ~SELECTED;
+		res[t].ob_state &= ~OS_SELECTED;
 
 	if(scrolled)
 		entry_to_select = last;
 	else
 		entry_to_select = first + pmentry - sc_off;
 
-	res[entry_to_select].ob_state |= SELECTED;
+	res[entry_to_select].ob_state |= OS_SELECTED;
 
 	Dialog.picMan.makeThumbnail(pic_to_insert); 
 	
@@ -374,10 +374,10 @@ void show_picman_wh(SMURF_PIC *pic)
 			
 		itoa(pic->pic_width, string, 10);
 		strcpy(ob[PM_WIDTH].TextCast, string);
-		ob[X1].ob_flags &= ~HIDETREE;
+		ob[X1].ob_flags &= ~OF_HIDETREE;
 		itoa(pic->pic_height, string, 10);
 		strcpy(ob[PM_HEIGHT].TextCast, string);
-		ob[X2].ob_flags &= ~HIDETREE;
+		ob[X2].ob_flags &= ~OF_HIDETREE;
 		itoa(pic->depth, string, 10);
 		strncpy(ob[PM_DEPTH].TextCast, string, 2);
 		Window.redraw(Dialog.picMan.window, NULL, HW_BOX, 0);
@@ -464,14 +464,14 @@ MOD_INFO *ready_modpics_popup(WINDOW *mwindow)
 	if(minf->how_many_pix > 1)
 	{
 		for(t = 0; t < 6; t++)
-			picorder_popup[P1 + t].ob_state |= DISABLED;
+			picorder_popup[P1 + t].ob_state |= OS_DISABLED;
 
 		for(t = 0; t < minf->how_many_pix; t++)
 		{
 			dest_str = picorder_popup[PDES1 + t].TextCast;
 			src_str = miptr[t];
 
-			picorder_popup[P1 + t].ob_state &= ~DISABLED;
+			picorder_popup[P1 + t].ob_state &= ~OS_DISABLED;
 
 			src_str2 = picture_windows[module_pics[mwindow->module][t]].picture->filename;
 			dest_str2 = picorder_popup[P1 + t].TextCast;
@@ -523,7 +523,7 @@ void make_picman_thumbnail(int picture_num)
 	}
 
 	first_sel = get_selected_object(ob, PM_PIC1, PM_PIC8);
-	ob[first_sel].ob_state &= ~SELECTED;
+	ob[first_sel].ob_state &= ~OS_SELECTED;
 
 	if(t < Dialog.picMan.pictureList.scroll_offset || t > (Dialog.picMan.pictureList.scroll_offset + Dialog.picMan.pictureList.max_entries - 1)) 
 		Dialog.picMan.pictureList.scroll_offset = t;
@@ -533,7 +533,7 @@ void make_picman_thumbnail(int picture_num)
 	if(Dialog.picMan.pictureList.scroll_offset < 0)
 		Dialog.picMan.pictureList.scroll_offset = 0;
 				 
-	ob[(t - Dialog.picMan.pictureList.scroll_offset + PM_PIC1)].ob_state = SELECTED;
+	ob[(t - Dialog.picMan.pictureList.scroll_offset + PM_PIC1)].ob_state = OS_SELECTED;
 
 	f_listfield((long *)Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
 

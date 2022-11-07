@@ -34,7 +34,7 @@
 #include "bumpmap.rsh"
 #include <math.h>
 
-#define Obj_Selected(a) (main_form[a].ob_state & SELECTED)
+#define Obj_Selected(a) (main_form[a].ob_state & OS_SELECTED)
 #define TextCast    ob_spec.tedinfo->te_ptext
 
 int do_it(GARGAMEL *smurf_struct);
@@ -804,16 +804,16 @@ void apply_setting(BUMP_CONFIG *myConfig)
     
     main_form[INVERT].ob_state = myConfig->invert;
     main_form[BM_TEXTURE].ob_state = myConfig->texture;
-    main_form[BLACK_BAK].ob_state &= ~SELECTED;
-    main_form[WHITE_BAK].ob_state &= ~SELECTED;
-    main_form[NORM_BAK].ob_state &= ~SELECTED;
+    main_form[BLACK_BAK].ob_state &= ~OS_SELECTED;
+    main_form[WHITE_BAK].ob_state &= ~OS_SELECTED;
+    main_form[NORM_BAK].ob_state &= ~OS_SELECTED;
 
     if(myConfig->background == BLACK_BAK)
-        main_form[BLACK_BAK].ob_state |= SELECTED;
+        main_form[BLACK_BAK].ob_state |= OS_SELECTED;
     else if(myConfig->background == WHITE_BAK)
-        main_form[WHITE_BAK].ob_state |= SELECTED;
+        main_form[WHITE_BAK].ob_state |= OS_SELECTED;
     else if(myConfig->background == NORM_BAK)
-        main_form[NORM_BAK].ob_state |= SELECTED;
+        main_form[NORM_BAK].ob_state |= OS_SELECTED;
 
     main_form[BM_PARALEL].ob_state = myConfig->parallel;
     
@@ -824,7 +824,7 @@ void apply_setting(BUMP_CONFIG *myConfig)
     redraw_window(my_window, NULL, BM_TEXTURE, 0);
     redraw_window(my_window, NULL, INVERT, 0);
     
-    if(main_form[M_RADIO_DIFFUSE].ob_state&SELECTED)
+    if(main_form[M_RADIO_DIFFUSE].ob_state&OS_SELECTED)
     {
         set_slider(&red_slider, red);
         set_slider(&green_slider, green);
@@ -857,11 +857,11 @@ void write_setting(BUMP_CONFIG *myConfig)
     myConfig->gl_pow = glanz_hard;
     myConfig->bump_str = bm_strengh;
     
-    if(main_form[BLACK_BAK].ob_state&SELECTED)
+    if(main_form[BLACK_BAK].ob_state&OS_SELECTED)
         myConfig->background = BLACK_BAK;
-    else if(main_form[WHITE_BAK].ob_state&SELECTED)
+    else if(main_form[WHITE_BAK].ob_state&OS_SELECTED)
         myConfig->background = WHITE_BAK;
-    else if(main_form[NORM_BAK].ob_state&SELECTED)
+    else if(main_form[NORM_BAK].ob_state&OS_SELECTED)
         myConfig->background = NORM_BAK;
 
     myConfig->parallel = main_form[BM_PARALEL].ob_state;

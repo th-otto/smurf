@@ -152,7 +152,7 @@ void scan_plugins(void)
 			plugin_bp[anzahl_plugins] = (BASPAG *)temp;
 
 			mod_magic = get_modmagic(plugin_bp[anzahl_plugins]);		/* Zeiger auf Magic (muž 'PLGN' sein!) */
-			if(mod_magic != 'SPLG')
+			if(mod_magic != MOD_MAGIC_PLUGIN)
 			{
 				strcpy(alert, "[1][ File ");
 				strcat(alert, actual->modname);
@@ -317,7 +317,7 @@ int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data)
 	mod_magic = get_modmagic(bp);			/* Zeiger auf Magic (muž 'PLGN' sein!) */
 	index = plg_id&0xFF;
 
-	if(mod_magic == 'SPLG')
+	if(mod_magic == MOD_MAGIC_PLUGIN)
 	{
 		/* PluginData fertigmachen */
 		data->services = &global_services;
@@ -495,11 +495,9 @@ static int load_plugin(int plugin_number)
 
 		mod_magic = get_modmagic(plugin_bp[plugin_number]);							/* Zeiger auf Magic (muž 'PLGN' sein!) */
 
-		if(mod_magic != 'SPLG')
+		if(mod_magic != MOD_MAGIC_PLUGIN)
 		{
-			strcpy(alert, "[1][Plugin-typ ist nicht");
-			strcat(alert, " |registriert!]");
-			strcat(alert, "[ Au weia ]");
+			strcpy(alert, "[1][Plugin-typ ist nicht |registriert!][ Au weia ]");
 			form_alert(1, alert);
 			return(-1);
 		}

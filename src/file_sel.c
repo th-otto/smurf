@@ -241,7 +241,7 @@ int f_fsbox(char *Path, char *fbtext, char selectart)
 /*	printf("vor Fsel - pathname: %s, filename: %s\n", pathname, filename);
 	getch(); */
 
-	get_cookie('FSEL', &(unsigned long)slct_str);
+	get_cookie(0x4653454cL, (unsigned long *)&slct_str); /* 'FSEL' */
 
 	if(selectart == LOAD)
 		set_multfiles(slct_str, sellist);
@@ -253,15 +253,15 @@ int f_fsbox(char *Path, char *fbtext, char selectart)
 	/* 1.02 ist Boxkite ab nonmodal */
 	/* 2.0 ist Freedom mit nonmodal */
 	/* Bei Nonmodalit„t keine wind_update()-Klammerung! */
-/*	if(!slct_str || slct_str->id != 'SLCT' || (slct_str->version <= 0x0110 && slct_str->version!=0x0102))*/
+/*	if(!slct_str || slct_str->id != 0x534c4354L || (slct_str->version <= 0x0110 && slct_str->version!=0x0102))*/
 		wind_update(BEG_UPDATE);
 
-	if(Sys_info.AES_version >= 0x0140 || (slct_str && slct_str->id == 'SLCT'))
+	if(Sys_info.AES_version >= 0x0140 || (slct_str && slct_str->id == 0x534c4354L))
 		back = fsel_boxinput(pathname, filename, &t, fbtext, message_handler);
 	else
 		back = fsel_input(pathname, filename, &t);
 
-/*	if(!slct_str || slct_str->id != 'SLCT' || (slct_str->version <= 0x0110 && slct_str->version!=0x0102))*/
+/*	if(!slct_str || slct_str->id != 0x534c4354L || (slct_str->version <= 0x0110 && slct_str->version!=0x0102))*/
 		wind_update(END_UPDATE);
 
 	if(back == FALSE)

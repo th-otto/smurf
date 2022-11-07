@@ -38,6 +38,7 @@
 #include <string.h>
 #include <math.h>
 #include "../../import.h"
+#define MAX_MODS 21
 #include "../../../src/smurf_st.h"
 #include "../../../src/rsc/smurf.h"
 #include "../../../src/smurfine.h"
@@ -356,9 +357,9 @@ void handle_dialog(PLUGIN_DATA *data)
                                 if(back>0) my_exp_conf.exp_colred = back;
                                     
                                 if(my_exp_conf.exp_colred==CR_FILEPAL)
-                                    change_object(&window, LOADPAL, ENABLED, 1);
+                                    change_object(&window, LOADPAL, OS_ENABLED, 1);
                                 else
-                                    change_object(&window, LOADPAL, DISABLED, 1);
+                                    change_object(&window, LOADPAL, OS_DISABLED, 1);
                                 break;
 
             case EXPORTER_OPTIONS:  open_exporter_options();
@@ -383,8 +384,8 @@ void handle_dialog(PLUGIN_DATA *data)
                                 strcpy(smurf_vars->colred_popup[CR_FILEPAL].TextCast, strrchr(pal_loadpath, '\\')+1);
                                 strcpy(dialog[PALMODE_PB].TextCast, strrchr(pal_loadpath, '\\')+1);
                             }
-                            change_object(&window, DITHER_PB, UNSEL, 1);
-                            change_object(&window, LOADPAL, UNSEL, 1);
+                            change_object(&window, DITHER_PB, OS_UNSEL, 1);
+                            change_object(&window, LOADPAL, OS_UNSEL, 1);
                             break;
 
             case GO:        start_conversion();
@@ -536,9 +537,9 @@ void analyze_module(MOD_ABILITY *expmabs, char *export_path, int mod_num)
     memcpy(expmabs, export_mabs, sizeof(MOD_ABILITY));
 
     if(expmabs->ext_flag&0x02)
-        dialog[EXPORTER_OPTIONS].ob_state &= ~DISABLED;
+        dialog[EXPORTER_OPTIONS].ob_state &= ~OS_DISABLED;
     else
-        dialog[EXPORTER_OPTIONS].ob_state |= DISABLED;
+        dialog[EXPORTER_OPTIONS].ob_state |= OS_DISABLED;
 
     services->redraw_window(&window, NULL, EXPORTER_OPTIONS, 0);
     
@@ -569,19 +570,19 @@ void ready_depth_popup(MOD_ABILITY *expmabs)
     ob=EXP_D1;
     for(t=0; t<=6; t++)
     {
-        smurf_vars->exp_dp_popup[ob].ob_state |= DISABLED;
+        smurf_vars->exp_dp_popup[ob].ob_state |= OS_DISABLED;
         ob++;
     }
     for(t=0; t<8; t++)
     {
         switch(export_depth[t])
         {
-            case 24:    smurf_vars->exp_dp_popup[EXP_D24].ob_state &= ~DISABLED;    break;
-            case 16:    smurf_vars->exp_dp_popup[EXP_D16].ob_state &= ~DISABLED;    break;
-            case 8:     smurf_vars->exp_dp_popup[EXP_D8].ob_state &= ~DISABLED;     break;
-            case 4:     smurf_vars->exp_dp_popup[EXP_D4].ob_state &= ~DISABLED;     break;
-            case 2:     smurf_vars->exp_dp_popup[EXP_D2].ob_state &= ~DISABLED;     break;
-            case 1:     smurf_vars->exp_dp_popup[EXP_D1].ob_state &= ~DISABLED;     break;
+            case 24:    smurf_vars->exp_dp_popup[EXP_D24].ob_state &= ~OS_DISABLED;    break;
+            case 16:    smurf_vars->exp_dp_popup[EXP_D16].ob_state &= ~OS_DISABLED;    break;
+            case 8:     smurf_vars->exp_dp_popup[EXP_D8].ob_state &= ~OS_DISABLED;     break;
+            case 4:     smurf_vars->exp_dp_popup[EXP_D4].ob_state &= ~OS_DISABLED;     break;
+            case 2:     smurf_vars->exp_dp_popup[EXP_D2].ob_state &= ~OS_DISABLED;     break;
+            case 1:     smurf_vars->exp_dp_popup[EXP_D1].ob_state &= ~OS_DISABLED;     break;
         }
     }
 }
@@ -656,15 +657,15 @@ void check_depth(void)
     if(exp_depth==EXP_D1)
     {
         strcpy(dialog[PALMODE_PB].TextCast, "s/w");
-        dialog[PALMODE_CB].ob_state |= DISABLED;
-        dialog[PALMODE_PB].ob_state |= DISABLED;
+        dialog[PALMODE_CB].ob_state |= OS_DISABLED;
+        dialog[PALMODE_PB].ob_state |= OS_DISABLED;
         my_exp_conf.exp_colred = CR_SYSPAL;
     }
     else
     {
         strcpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[my_exp_conf.exp_colred].TextCast);
-        dialog[PALMODE_CB].ob_state &= ~DISABLED;
-        dialog[PALMODE_PB].ob_state &= ~DISABLED;
+        dialog[PALMODE_CB].ob_state &= ~OS_DISABLED;
+        dialog[PALMODE_PB].ob_state &= ~OS_DISABLED;
     }
     
     services->deselect_popup(&window, PALMODE_PB, PALMODE_CB);
@@ -677,25 +678,25 @@ void check_depth(void)
             palette_popup.item = CR_FIXPAL;
             my_exp_conf.exp_colred = CR_FIXPAL;
             strncpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[my_exp_conf.exp_colred].TextCast, 15);
-            enablemode=DISABLED;
+            enablemode=OS_DISABLED;
         }
         else 
         {
             palette_popup.item = CR_SYSPAL;
             my_exp_conf.exp_colred = CR_SYSPAL;
             strncpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[my_exp_conf.exp_colred].TextCast, 15);
-            enablemode=ENABLED;
+            enablemode=OS_ENABLED;
         }
         
-        if(enablemode==DISABLED)
+        if(enablemode==OS_DISABLED)
         {
-            dialog[PALMODE_PB].ob_state |= DISABLED;
-            dialog[PALMODE_CB].ob_state |= DISABLED;
+            dialog[PALMODE_PB].ob_state |= OS_DISABLED;
+            dialog[PALMODE_CB].ob_state |= OS_DISABLED;
         }
         else
         {
-            dialog[PALMODE_PB].ob_state &= ~DISABLED;
-            dialog[PALMODE_CB].ob_state &= ~DISABLED;
+            dialog[PALMODE_PB].ob_state &= ~OS_DISABLED;
+            dialog[PALMODE_CB].ob_state &= ~OS_DISABLED;
         }
         services->deselect_popup(&window, PALMODE_PB, PALMODE_CB);
     }

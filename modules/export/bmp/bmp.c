@@ -205,38 +205,38 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 		case MMORE:
 			/* Ressource aktualisieren */
-			win_form[WIN12].ob_state &= ~SELECTED;
-			win_form[WIN3].ob_state &= ~SELECTED;
-			win_form[OS2_1].ob_state &= ~SELECTED;
-			win_form[OS2_2T1].ob_state &= ~SELECTED;
-			win_form[OS2_2T2].ob_state &= ~SELECTED;
-			win_form[config.format].ob_state |= SELECTED;
+			win_form[WIN12].ob_state &= ~OS_SELECTED;
+			win_form[WIN3].ob_state &= ~OS_SELECTED;
+			win_form[OS2_1].ob_state &= ~OS_SELECTED;
+			win_form[OS2_2T1].ob_state &= ~OS_SELECTED;
+			win_form[OS2_2T2].ob_state &= ~OS_SELECTED;
+			win_form[config.format].ob_state |= OS_SELECTED;
 
 			if(config.comp == KEINE)
 			{
-				win_form[KEINE].ob_state |= SELECTED;
-				win_form[RLE].ob_state &= ~SELECTED;
+				win_form[KEINE].ob_state |= OS_SELECTED;
+				win_form[RLE].ob_state &= ~OS_SELECTED;
 			}
 			else
 			{
-				win_form[KEINE].ob_state &= ~SELECTED;
-				win_form[RLE].ob_state |= SELECTED;
+				win_form[KEINE].ob_state &= ~OS_SELECTED;
+				win_form[RLE].ob_state |= OS_SELECTED;
 			}
 
 			/* Zwangskorrektur weil Win 1.x/2.x und OS/2 1.x keine Kompression unterstÅtzten */
 			if(config.format == WIN12 || config.format == OS2_1)
 			{
-				win_form[KEINE].ob_state |= SELECTED;
-				win_form[RLE].ob_state &= ~SELECTED;
+				win_form[KEINE].ob_state |= OS_SELECTED;
+				win_form[RLE].ob_state &= ~OS_SELECTED;
 
-				win_form[KEINE].ob_state |= DISABLED;
-				win_form[RLE].ob_state |= DISABLED;
+				win_form[KEINE].ob_state |= OS_DISABLED;
+				win_form[RLE].ob_state |= OS_DISABLED;
 			}
 			else
 				if(config.format == WIN3 || config.format == OS2_2T1 || config.format == OS2_2T2)
 				{
-					win_form[KEINE].ob_state &= ~DISABLED;
-					win_form[RLE].ob_state &= ~DISABLED;
+					win_form[KEINE].ob_state &= ~OS_DISABLED;
+					win_form[RLE].ob_state &= ~OS_DISABLED;
 				}
 
 			f_module_window = smurf_struct->services->f_module_window;	/* Windowfunktion */
@@ -313,19 +313,19 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 				/* Zwangskorrektur weil Win 1.x/2.x und OS/2 1.x keine Kompression unterstÅtzten */
 				if(config.format == WIN12 || config.format == OS2_1)
 				{
-					win_form[KEINE].ob_state |= SELECTED;
-					win_form[RLE].ob_state &= ~SELECTED;
+					win_form[KEINE].ob_state |= OS_SELECTED;
+					win_form[RLE].ob_state &= ~OS_SELECTED;
 
-					win_form[KEINE].ob_state |= DISABLED;
-					win_form[RLE].ob_state |= DISABLED;
+					win_form[KEINE].ob_state |= OS_DISABLED;
+					win_form[RLE].ob_state |= OS_DISABLED;
 
 					redraw_window(&window, NULL, COMP_BOX, 0);
 				}
 				else
 					if(config.format == WIN3 || config.format == OS2_2T1 || config.format == OS2_2T2)
 					{
-						win_form[KEINE].ob_state &= ~DISABLED;
-						win_form[RLE].ob_state &= ~DISABLED;
+						win_form[KEINE].ob_state &= ~OS_DISABLED;
+						win_form[RLE].ob_state &= ~OS_DISABLED;
 
 						redraw_window(&window, NULL, COMP_BOX, 0);
 					}

@@ -89,14 +89,14 @@ int f_open_window(WINDOW *window)
 			f_set_syspal();
 
 		/*---- Fenster neu, Dialoge zentrieren an? */
-		if(m_whandle <= 0 && Sys_info.center_dialog&SELECTED)
+		if(m_whandle <= 0 && Sys_info.center_dialog&OS_SELECTED)
 		{
 			if((window->wnum != WIND_BUSY) && (Sys_info.dialog_opened[window->wnum] == 0))
 				form_center(window->resource_form, &m_wind_x,&m_wind_y,&m_wind_w,&m_wind_h);
 		}
 
 		/*---- Dialoge zentrieren aus oder Startup? */
-		if((!(Sys_info.center_dialog&SELECTED) || Startup == 1) && window->wnum != WIND_ALERT)
+		if((!(Sys_info.center_dialog&OS_SELECTED) || Startup == 1) && window->wnum != WIND_ALERT)
 		{
 			m_wind_x = Sys_info.dialog_xposition[window->wnum];
 			m_wind_y = Sys_info.dialog_yposition[window->wnum];
@@ -158,15 +158,15 @@ int f_open_window(WINDOW *window)
 		if(Sys_info.OSFeatures&BEVT)	
 			Window.windSet(window->whandlem,WF_BEVENT,1,0,0,0);
 
-		Window.windSet(window->whandlem, WF_NAME, LONG2_2INT((long)window->wtitle), 0,0);
+		Window.windSet(window->whandlem, WF_NAME, LONG2_2INT(window->wtitle), 0,0);
 
 		if(add_flags[window->wnum]&INFO) 
 		{
 			if(window->wnum == WIND_MODULES) 
-				Window.windSet(window->whandlem, WF_INFO, LONG2_2INT((long)Dialog.emodList.modList.autolocator), 0,0);
+				Window.windSet(window->whandlem, WF_INFO, LONG2_2INT(Dialog.emodList.modList.autolocator), 0,0);
 			else
 				if(window->wnum == WIND_EXPORT) 
-					Window.windSet(window->whandlem, WF_INFO, LONG2_2INT((long)Dialog.expmodList.modList.autolocator), 0,0);
+					Window.windSet(window->whandlem, WF_INFO, LONG2_2INT(Dialog.expmodList.modList.autolocator), 0,0);
 		}
 
 		wind_open(window->whandlem, m_wind_x, m_wind_y, m_wind_w, m_wind_h);
@@ -297,9 +297,9 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 					{
 						imageWindow.insertZoom(window);
 						if(window->wnum != active_pic)
-							tree[0].ob_state |= SELECTED;		/* nicht aktiv ... */
+							tree[0].ob_state |= OS_SELECTED;		/* nicht aktiv ... */
 						else
-							tree[0].ob_state &= ~SELECTED;		/* ... oder aktiv? */
+							tree[0].ob_state &= ~OS_SELECTED;		/* ... oder aktiv? */
 
 						if(window->picture->blockwidth || window->picture->blockheight)
 						{
@@ -379,7 +379,9 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 							{
 								online = 1;
 								realtime_dither(&picbox, window, pxy, vdiclip, 64);
-/*								disp_pic = window->picture->screen_pic;		/* neu geditherten Ausschnitt einh„ngen */ */
+#if 0
+								disp_pic = window->picture->screen_pic;		/* neu geditherten Ausschnitt einh„ngen */
+#endif
 							}
 							
 							/*
@@ -1047,7 +1049,7 @@ void clip_picw2screen(WINDOW *picw)
 	strncat(str, "            ", (long)(12 - whlen));
 	strncpy(picw->wtitle, str, strlen(str) - 1);
 
-	Window.windSet(picw->whandlem, WF_NAME, LONG2_2INT((long)picw->wtitle), 0,0);
+	Window.windSet(picw->whandlem, WF_NAME, LONG2_2INT(picw->wtitle), 0,0);
 
 	/*
 	 * Fensterkoordinaten und -ausmaže clippen 
@@ -1610,7 +1612,7 @@ void toggle_asterisk(WINDOW *picwin, int onoff)
 	else
 		picwin->wtitle[11]='*';
 
-	Window.windSet(picwin->whandlem, WF_NAME, LONG2_2INT((long)picwin->wtitle), 0,0);
+	Window.windSet(picwin->whandlem, WF_NAME, LONG2_2INT(picwin->wtitle), 0,0);
 }
 
 
@@ -2010,7 +2012,7 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 
 	graf_mouse(ARROW, dummy_ptr);
 
-	if(Sys_info.window_alert&SELECTED)
+	if(Sys_info.window_alert&OS_SELECTED)
 	{
 		alwidth = 40;
 
@@ -2041,17 +2043,17 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 		/*
 		 * zun„chst alle Buttons gut verstecken
 		 */
-		alert[ALBUTTON1].ob_flags |= HIDETREE;
-		alert[ALBUTTON2].ob_flags |= HIDETREE;
-		alert[ALBUTTON3].ob_flags |= HIDETREE;
+		alert[ALBUTTON1].ob_flags |= OF_HIDETREE;
+		alert[ALBUTTON2].ob_flags |= OF_HIDETREE;
+		alert[ALBUTTON3].ob_flags |= OF_HIDETREE;
 
 		/*
 		 * Button-Defaultstatus setzen
 		 */
-		alert[ALBUTTON1].ob_flags &= ~DEFAULT;
-		alert[ALBUTTON2].ob_flags &= ~DEFAULT;
-		alert[ALBUTTON3].ob_flags &= ~DEFAULT;
-		alert[ALBUTTON1 + defbt - 1].ob_flags |= DEFAULT;
+		alert[ALBUTTON1].ob_flags &= ~OF_DEFAULT;
+		alert[ALBUTTON2].ob_flags &= ~OF_DEFAULT;
+		alert[ALBUTTON3].ob_flags &= ~OF_DEFAULT;
+		alert[ALBUTTON1 + defbt - 1].ob_flags |= OF_DEFAULT;
 
 		/*
 		 * die Texte in die Buttons und aufdecken
@@ -2063,19 +2065,19 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 			else
 				strcpy(alert[ALBUTTON1].ob_spec.free_string, b1);
 
-			alert[ALBUTTON1].ob_flags &= ~HIDETREE;
+			alert[ALBUTTON1].ob_flags &= ~OF_HIDETREE;
 		}
 		
 		if(b2)
 		{
 			strcpy(alert[ALBUTTON2].ob_spec.free_string, b2);
-			alert[ALBUTTON2].ob_flags &= ~HIDETREE;
+			alert[ALBUTTON2].ob_flags &= ~OF_HIDETREE;
 		}
 
 		if(b3)
 		{
 			strcpy(alert[ALBUTTON3].ob_spec.free_string, b3);
-			alert[ALBUTTON3].ob_flags &= ~HIDETREE;
+			alert[ALBUTTON3].ob_flags &= ~OF_HIDETREE;
 		}
 
 		/*
@@ -2163,7 +2165,7 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 		}
 	}
 
-	if(!(Sys_info.window_alert&SELECTED) || windback == -1)
+	if(!(Sys_info.window_alert&OS_SELECTED) || windback == -1)
 	{
 		if(Sys_info.OS&MATSCHIG || Sys_info.OS&NAES)
 			alwidth = 40;
@@ -2227,9 +2229,9 @@ void close_alert(void)
 	if(wind_s[WIND_ALERT].whandlem == -1)				/* ist der Alert ist schon zu? */
 		return;
 
-	change_object(&wind_s[WIND_ALERT], ALBUTTON1, UNSEL, 1);
-	change_object(&wind_s[WIND_ALERT], ALBUTTON2, UNSEL, 1);
-	change_object(&wind_s[WIND_ALERT], ALBUTTON3, UNSEL, 1);
+	change_object(&wind_s[WIND_ALERT], ALBUTTON1, OS_UNSEL, 1);
+	change_object(&wind_s[WIND_ALERT], ALBUTTON2, OS_UNSEL, 1);
+	change_object(&wind_s[WIND_ALERT], ALBUTTON3, OS_UNSEL, 1);
 	wind_close(Dialog.winAlert.winHandle);
 	wind_delete(Dialog.winAlert.winHandle);
 	wind_s[WIND_ALERT].whandlem = -1;

@@ -197,8 +197,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
         
                 exp_pic=Malloc(sizeof(EXPORT_PIC));
 
-                if(main[ENC_BINARY].ob_state&SELECTED)      file_config.encoding |= BINARY;
-                if(main[INCLUDE_HEADER].ob_state&SELECTED)  file_config.include_header = 1;
+                if(main[ENC_BINARY].ob_state&OS_SELECTED)      file_config.encoding |= BINARY;
+                if(main[INCLUDE_HEADER].ob_state&OS_SELECTED)  file_config.include_header = 1;
             
                 if(file_config.include_header) 
                     file_len= ((long)width*(long)height*2L) + sizeof(TRP_HEADER);

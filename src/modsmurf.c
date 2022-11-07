@@ -133,7 +133,7 @@ OBJECT *u_tree;						/* Zeiger auf Radiobutton/Checkbox-Formular	*/
 
 MFORM *dummy_ptr;					/* Dummymouse fÅr Maus-Form */
 MFORM lr_arrow, ud_arrow, lrud_arrow;
-long f_len = 'KDA\0';				/* LÑnge des letzten geladenen Files */
+long f_len = 0x4b444100L;			/* LÑnge des letzten geladenen Files 'KDA\0' */
 int *messagebuf;					/* Zeiger fÅr Messageevents */
 int klicks;							/* Anzahl Mausklicks beim letzten Buttonevent */
 
@@ -180,7 +180,7 @@ WINDOW picture_windows[MAX_PIC];
 
 POP_UP popups[25];
 SLIDER sliders[15];
-char module_pics[21][7];
+char module_pics[MAX_MODS][7];
 
 int Radio = RADIO, SelectedRadio = RADIO_SEL;
 int Check = CHECK, SelectedCheck = CHECK_SEL;
@@ -257,7 +257,7 @@ int main(int argc, const char *argv[])
 	/* Aber nur wenn Smurf als Accessory gestartet wurde */
 	/* oder in einer Multitaskingumgebung lÑuft, sonst */
 	/* bringt es SingleTOS durcheinander. */
-	if(_app == 0 || _GemParBlk.global[1] != 1)
+	if(_app == 0 || _AESnumapps != 1)
 		menu_register(appl_id, "  Smurf");
 
 	/* ausfÅhrlichen systemweiten Namen setzen */
@@ -328,13 +328,13 @@ int main(int argc, const char *argv[])
 	/* Display-Optionen  - Defaultwerte eintragen */
 	set_startupdial("Lade Konfiguration...");
 
-	if(Dialog.dispOpt.tree[PAL_MOUSE].ob_state&SELECTED)
+	if(Dialog.dispOpt.tree[PAL_MOUSE].ob_state&OS_SELECTED)
 		Display_Opt.palette_mode = PAL_MOUSE;
 	else
-		if(Dialog.dispOpt.tree[PAL_TOPWIN].ob_state&SELECTED)
+		if(Dialog.dispOpt.tree[PAL_TOPWIN].ob_state&OS_SELECTED)
 			Display_Opt.palette_mode = PAL_TOPWIN;
 		else
-			if(Dialog.dispOpt.tree[PAL_SYSTEM].ob_state&SELECTED)
+			if(Dialog.dispOpt.tree[PAL_SYSTEM].ob_state&OS_SELECTED)
 				Display_Opt.palette_mode = PAL_SYSTEM;
 	
 	/*
@@ -380,26 +380,26 @@ int main(int argc, const char *argv[])
 	Dialog.smurfOpt.tree[OPT_PROFI].ob_state = Sys_info.profi_mode;
 	Dialog.smurfOpt.tree[OPT_PREVS].ob_state = Sys_info.immed_prevs;
 	Dialog.smurfOpt.tree[REALTIME_DITHER].ob_state = Sys_info.realtime_dither;
-	Dialog.smurfOpt.tree[ORIGINAL_CLIP].ob_state |= DISABLED;
+	Dialog.smurfOpt.tree[ORIGINAL_CLIP].ob_state |= OS_DISABLED;
 
 	/* OberflÑchenbuttons deselektieren */
-	Dialog.smurfOpt.tree[ENV_STANDARD].ob_state &= ~SELECTED;
-	Dialog.smurfOpt.tree[ENV_SILLY].ob_state &= ~SELECTED;
-	Dialog.smurfOpt.tree[ENV_THERAPY].ob_state &= ~SELECTED;
+	Dialog.smurfOpt.tree[ENV_STANDARD].ob_state &= ~OS_SELECTED;
+	Dialog.smurfOpt.tree[ENV_SILLY].ob_state &= ~OS_SELECTED;
+	Dialog.smurfOpt.tree[ENV_THERAPY].ob_state &= ~OS_SELECTED;
 
 	/* Palettenmodi deselektieren */
-	Dialog.dispOpt.tree[PAL_MOUSE].ob_state &= ~SELECTED;
-	Dialog.dispOpt.tree[PAL_TOPWIN].ob_state &= ~SELECTED;
-	Dialog.dispOpt.tree[PAL_SYSTEM].ob_state &= ~SELECTED;
+	Dialog.dispOpt.tree[PAL_MOUSE].ob_state &= ~OS_SELECTED;
+	Dialog.dispOpt.tree[PAL_TOPWIN].ob_state &= ~OS_SELECTED;
+	Dialog.dispOpt.tree[PAL_SYSTEM].ob_state &= ~OS_SELECTED;
 
 	/* und den richtigen selektieren */
 	switch(Display_Opt.palette_mode)
 	{
-		case PAL_MOUSE:		Dialog.dispOpt.tree[PAL_MOUSE].ob_state |= SELECTED;
+		case PAL_MOUSE:		Dialog.dispOpt.tree[PAL_MOUSE].ob_state |= OS_SELECTED;
 							break;
-		case PAL_TOPWIN:	Dialog.dispOpt.tree[PAL_TOPWIN].ob_state |= SELECTED;
+		case PAL_TOPWIN:	Dialog.dispOpt.tree[PAL_TOPWIN].ob_state |= OS_SELECTED;
 							break;
-		case PAL_SYSTEM:	Dialog.dispOpt.tree[PAL_SYSTEM].ob_state |= SELECTED;
+		case PAL_SYSTEM:	Dialog.dispOpt.tree[PAL_SYSTEM].ob_state |= OS_SELECTED;
 							break;
 	}
 
@@ -421,7 +421,8 @@ int main(int argc, const char *argv[])
 		smurf_picture[t] = NULL;
 		wind_s[t].whandlem =-1;
 		picture_windows[t].whandlem = -1;
-		module.smStruct[t] = NULL;
+		if (t < MAX_MODS)
+			module.smStruct[t] = NULL;
 		Dialog.picMan.picmanList[t] = -1;
 	}
 
@@ -496,7 +497,7 @@ int main(int argc, const char *argv[])
 	 */
 	switch(Sys_info.environment)
 	{
-		case 1:	Dialog.smurfOpt.tree[ENV_STANDARD].ob_state |= SELECTED;
+		case 1:	Dialog.smurfOpt.tree[ENV_STANDARD].ob_state |= OS_SELECTED;
 				Radio = RADIO; SelectedRadio = RADIO_SEL;
 				Check = CHECK; SelectedCheck = CHECK_SEL;
 				Cycle = CYCLE; SelectedCycle = CYCLE_SEL;
@@ -506,7 +507,7 @@ int main(int argc, const char *argv[])
 					SelectedCycle=CYCLE_SEL_MAGX;
 				}
 				break;
-		case 2:	Dialog.smurfOpt.tree[ENV_SILLY].ob_state |= SELECTED;
+		case 2:	Dialog.smurfOpt.tree[ENV_SILLY].ob_state |= OS_SELECTED;
 				Radio = RADIO2; SelectedRadio = RADIO2_SEL;
 				Check = CHECKICN2; SelectedCheck = CHECKICN2_SEL;
 				Cycle = CYCLE_2; SelectedCycle = CYCLE_2_SEL;
@@ -516,7 +517,7 @@ int main(int argc, const char *argv[])
 					SelectedCycle = CYCLE_SEL_MAGX;
 				}
 				break;
-		case 3:	Dialog.smurfOpt.tree[ENV_THERAPY].ob_state |= SELECTED;
+		case 3:	Dialog.smurfOpt.tree[ENV_THERAPY].ob_state |= OS_SELECTED;
 				Radio = RADIO3; SelectedRadio = RADIO3_SEL;
 				Check = CHECKICN3; SelectedCheck = CHECKICN3_SEL;
 				Cycle = CYCLE_3; SelectedCycle = CYCLE_3_SEL;
@@ -900,7 +901,7 @@ void f_newpic(int scancode)
 							break;
 		}
 
-		change_object(&wind_s[WIND_NEWPIC], NEWPIC_MAKE, UNSEL, 1);
+		change_object(&wind_s[WIND_NEWPIC], NEWPIC_MAKE, OS_UNSEL, 1);
 		Dialog.close(WIND_NEWPIC);
 		f_generate_newpic(wid, hgt, dep);
 		Dialog.busy.ok();
@@ -954,16 +955,14 @@ void f_newpic(int scancode)
 /*---------------------------------------------------------------------------------	*/
 static void insert_float(OBJECT *tree, int object, float val)
 {
-	char str[10], str2[10];
-
+	char str[40];
+	char str2[40];
 	int dec, dummy;	
-
 	double fval;
 
-
-	memset(str, 0x0, 10);
-	memset(str2, 0x0, 10);
-	fval = (double)val;
+	memset(str, 0, sizeof(str));
+	memset(str2, 0, sizeof(str2));
+	fval = val;
 
 	ftoa(&fval, str, 10, 1, &dec, &dummy);
 
@@ -1460,7 +1459,7 @@ void f_event(void)
 							obj = key_object;
 							do_MBEVT(mod_win->module, mod_win, MKEVT);
 							if(keyboard_back == 0)
-								change_object(mod_win, obj, UNSEL,1);
+								change_object(mod_win, obj, OS_UNSEL,1);
 						}
 					}
 	
@@ -1526,12 +1525,12 @@ void f_event(void)
 							}
 							else
 								if(klickobj != -1 && IsSelectable(ob[klickobj]) &&
-								   !IsDisabled(ob[klickobj]) && !(ob[klickobj].ob_flags&RBUTTON))
+								   !IsDisabled(ob[klickobj]) && !(ob[klickobj].ob_flags&OF_RBUTTON))
 								{
-									if(!ob[klickobj].ob_state&SELECTED)
-										change_object(&wind_s[windnum], klickobj, SEL, 1);
+									if(!ob[klickobj].ob_state&OS_SELECTED)
+										change_object(&wind_s[windnum], klickobj, OS_SELECTED, 1);
 									else
-										change_object(&wind_s[windnum], klickobj, UNSEL, 1);
+										change_object(&wind_s[windnum], klickobj, OS_UNSEL, 1);
 								}
 		
 							obj = UDO_or_not(&wind_s[windnum], klickobj);			/* UDOs behandeln */
@@ -1542,7 +1541,7 @@ void f_event(void)
 							if((ob[obj].ob_type >> 8) == CANCELBUTTON)
 							{
 								Window.close(wind_s[windnum].whandlem);
-								change_object(&wind_s[windnum], obj, UNSEL, 1);
+								change_object(&wind_s[windnum], obj, OS_UNSEL, 1);
 							}
 							else
 							{
@@ -1582,14 +1581,14 @@ void f_event(void)
 								if(obj == klickobj && (mod_win->resource_form[obj].ob_type >> 8) == CANCELBUTTON)
 								{
 									Window.close(mod_win->whandlem);
-									change_object(mod_win, obj, UNSEL, 1);
+									change_object(mod_win, obj, OS_UNSEL, 1);
 								}
 								else
 								{
 									f_handle_editklicks(mod_win, klickobj);
 
 									/* Radiobutton - noch keine Extrawurst */
-									if(mod_win->resource_form[klickobj].ob_flags & RBUTTON)
+									if(mod_win->resource_form[klickobj].ob_flags & OF_RBUTTON)
 									{
 										Window.topNow(mod_win);
 										form_button(mod_win->resource_form, klickobj, klicks, &newedit);
@@ -1609,10 +1608,10 @@ void f_event(void)
 									/* oben geholt noch auf den nun ungÅltigen Speicher zeigt. */
 									if(module.smStruct[module_number&0xFF] && module.smStruct[module_number&0xFF]->wind_struct &&
 									   (mod_win->resource_form[klickobj].ob_type&0x00ff) != G_USERDEF &&
-									   !(mod_win->resource_form[klickobj].ob_flags & RBUTTON) &&
+									   !(mod_win->resource_form[klickobj].ob_flags & OF_RBUTTON) &&
 									   (mod_win->resource_form[klickobj].ob_type>>8)!=UDO &&
-									   (mod_win->resource_form[klickobj].ob_flags&SELECTABLE))
-											change_object(mod_win, klickobj, UNSEL, 1);
+									   (mod_win->resource_form[klickobj].ob_flags&OF_SELECTABLE))
+											change_object(mod_win, klickobj, OS_UNSEL, 1);
 								}
 							}
 						} /* mod_win != 0 */
@@ -1715,14 +1714,14 @@ static int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 	else
 	{
 		textseg_begin = plugin_bp[mod_index]->p_tbase;
-		mod_magic = 'SPLG';
+		mod_magic = MOD_MAGIC_PLUGIN;
 	}
 
 
 	/*
 	 * Edit-Modul?
 	 */	
-	if(mod_magic == 'SEMD')
+	if(mod_magic == MOD_MAGIC_EDIT)
 	{
 		/* Buttonevent Åbergeben ---*/
 		module.comm.startEdit("", module.bp[mod_index], mode, mod_index, module.smStruct[mod_index]);
@@ -1767,7 +1766,7 @@ static int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 	 * Export-Modul?
 	 */
 	else
-	if(mod_magic == 'SXMD')
+	if(mod_magic == MOD_MAGIC_EXPORT)
 	{
 		pic_to_save = module.comm.startExport("", mode, smurf_picture[active_pic], module.bp[mod_index], module.smStruct[mod_index], module_number);
 
@@ -1787,7 +1786,7 @@ static int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 	 * Plugin?
 	 */
 	else
-	if(mod_magic == 'SPLG')
+	if(mod_magic == MOD_MAGIC_PLUGIN)
 	{
 		plg_data[mod_index]->event_par[0] = obj;
 
@@ -1810,13 +1809,13 @@ static int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 		return(start_plugin(plugin_bp[mod_index], mode, mod_index|0x200, plg_data[mod_index]));
 	}
 
-	if((mod_magic == 'SEMD' || mod_magic == 'SXMD') && module.smStruct[mod_index])
+	if((mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT) && module.smStruct[mod_index])
 		f_handle_modmessage(module.smStruct[mod_index]);	/* handlen von MBEVT-Antworten */
 
 	/*
 	 * das Edit-Modul ist fertig mit dem Bildbearbeiten und Smurf muû entsprechend reagieren
 	 */
-	if(mod_magic == 'SEMD' && (module.smStruct[mod_index]->module_mode == M_PICDONE || module.smStruct[mod_index]->module_mode == M_DONEEXIT))
+	if(mod_magic == MOD_MAGIC_EDIT && (module.smStruct[mod_index]->module_mode == M_PICDONE || module.smStruct[mod_index]->module_mode == M_DONEEXIT))
 	{
 		Dialog.busy.dispRAM();
 		
@@ -1873,7 +1872,7 @@ static int do_MBEVT(int module_number, WINDOW *mod_win, int mode)
 		inform_modules(MPIC_UPDATE, smurf_picture[active_pic]);
 	}
 
-	if((mod_magic == 'SEMD' || mod_magic == 'SXMD') && module.smStruct[mod_index])
+	if((mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT) && module.smStruct[mod_index])
 		check_and_terminate(module.smStruct[mod_index]->module_mode, mod_index);
 
 	Window.topHandle(oldtop);
@@ -1978,7 +1977,7 @@ void f_info(void)
 	else
 		if(button == INFO_YEAH)
 		{
-			change_object(&wind_s[WIND_INFO], INFO_YEAH, UNSEL, 1);
+			change_object(&wind_s[WIND_INFO], INFO_YEAH, OS_UNSEL, 1);
 			timer_fx_max[0] = 0;
 			timer_fx_counter[0] = 0;
 			timer_fx_rout[0] = NULL;
@@ -2013,19 +2012,19 @@ void check_windclose(int windnum)
 		case WIND_OPTIONS:
 			rsc = wind_s[WIND_OPTIONS].resource_form;
 
-			rsc[OPT_CENTER].ob_state &= ~SELECTED;
-			rsc[OPT_PROFI].ob_state &= ~SELECTED;
-			rsc[OPT_WINDOWALERT].ob_state &= ~SELECTED;
-			rsc[OPT_PREVS].ob_state &= ~SELECTED;
+			rsc[OPT_CENTER].ob_state &= ~OS_SELECTED;
+			rsc[OPT_PROFI].ob_state &= ~OS_SELECTED;
+			rsc[OPT_WINDOWALERT].ob_state &= ~OS_SELECTED;
+			rsc[OPT_PREVS].ob_state &= ~OS_SELECTED;
 
 			rsc[OPT_CENTER].ob_state |= Sys_info.center_dialog;
 			rsc[OPT_PROFI].ob_state |= Sys_info.profi_mode;
 			rsc[OPT_WINDOWALERT].ob_state |= Sys_info.window_alert;
 			rsc[OPT_PREVS].ob_state |= Sys_info.immed_prevs;
 
-			rsc[ENV_STANDARD].ob_state &= ~SELECTED;
-			rsc[ENV_SILLY].ob_state &= ~SELECTED;
-			rsc[ENV_THERAPY].ob_state &= ~SELECTED;
+			rsc[ENV_STANDARD].ob_state &= ~OS_SELECTED;
+			rsc[ENV_SILLY].ob_state &= ~OS_SELECTED;
+			rsc[ENV_THERAPY].ob_state &= ~OS_SELECTED;
 
 			itoa(Sys_info.outcol, str, 10);
 			strncpy(rsc[OUTCOL].TextCast, str, 2);
@@ -2034,11 +2033,11 @@ void check_windclose(int windnum)
 
 			switch(Sys_info.environment)
 			{
-				case 1:	rsc[ENV_STANDARD].ob_state|=SELECTED;
+				case 1:	rsc[ENV_STANDARD].ob_state|=OS_SELECTED;
 						break;
-				case 2:	rsc[ENV_SILLY].ob_state|=SELECTED;
+				case 2:	rsc[ENV_SILLY].ob_state|=OS_SELECTED;
 						break;
-				case 3:	rsc[ENV_THERAPY].ob_state|=SELECTED;
+				case 3:	rsc[ENV_THERAPY].ob_state|=OS_SELECTED;
 						break;
 			}
 			break;
@@ -2050,18 +2049,18 @@ void check_windclose(int windnum)
 			rsc=wind_s[WIND_DOPT].resource_form;
 	
 			/* Palettenmodi deselektieren */
-			rsc[PAL_MOUSE].ob_state &= ~SELECTED;
-			rsc[PAL_TOPWIN].ob_state &= ~SELECTED;
-			rsc[PAL_SYSTEM].ob_state &= ~SELECTED;
+			rsc[PAL_MOUSE].ob_state &= ~OS_SELECTED;
+			rsc[PAL_TOPWIN].ob_state &= ~OS_SELECTED;
+			rsc[PAL_SYSTEM].ob_state &= ~OS_SELECTED;
 		
 			/* und den richtigen Selektieren */
 			switch(Display_Opt.palette_mode)
 			{
-				case PAL_MOUSE:		rsc[PAL_MOUSE].ob_state |= SELECTED;
+				case PAL_MOUSE:		rsc[PAL_MOUSE].ob_state |= OS_SELECTED;
 									break;
-				case PAL_TOPWIN:	rsc[PAL_TOPWIN].ob_state |= SELECTED;
+				case PAL_TOPWIN:	rsc[PAL_TOPWIN].ob_state |= OS_SELECTED;
 									break;
-				case PAL_SYSTEM:	rsc[PAL_SYSTEM].ob_state |= SELECTED;
+				case PAL_SYSTEM:	rsc[PAL_SYSTEM].ob_state |= OS_SELECTED;
 									break;
 			}
 
@@ -2114,8 +2113,8 @@ void check_windclose(int windnum)
 		case WIND_BLOCKMODE:
 			rsc = wind_s[WIND_BLOCKMODE].resource_form;
 			sel_option = get_selected_object(rsc, BCONF_REPLACE, BCONF_MULT);
-			rsc[sel_option].ob_state &= ~SELECTED;
-			rsc[blockmode_conf.mode].ob_state |= SELECTED;
+			rsc[sel_option].ob_state &= ~OS_SELECTED;
+			rsc[blockmode_conf.mode].ob_state |= OS_SELECTED;
 
 			setslider(&sliders[BLOCK_SLIDER], blockmode_conf.opacity);
 			break;
@@ -2338,7 +2337,7 @@ int f_formhandle(int picture_to_load, int module_ret, char *namename)
 		 * Wenn realtime-dither aus ist, Bild vordithern, ansonsten
 		 * gleich weiter.
 		 */
-		if(Sys_info.realtime_dither&SELECTED)
+		if(Sys_info.realtime_dither&OS_SELECTED)
 		{
 			smurf_picture[picture_to_load]->screen_pic = NULL;
 			back = 0;
@@ -2354,13 +2353,13 @@ int f_formhandle(int picture_to_load, int module_ret, char *namename)
 			 * Zeit in Statusbox eintragen
 			 */
 			tim = clock();
-			timer_val = (double)((float)(tim - oldtim) / 200F);
-			memset(stats, 0x0, 21);
-			memset(times, 0x0, 6);
-			strncpy(stats, "OK (", 4);
+			timer_val = (double)((float)(tim - oldtim) / 200.0F);
+			memset(stats, 0, sizeof(stats));
+			memset(times, 0, sizeof(times));
+			strcpy(stats, "OK (");
 			ftoa(&timer_val, times, 10, 1, &dec, &sign);
 			if(dec > 0) strncat(stats, times, dec);
-			else strncat(stats, "0", 1);
+			else strcat(stats, "0");
 			if(dec < 0) dec = 0;
 			strncat(stats, ".", 1);
 			strncat(stats, times + dec, 2);
@@ -2638,7 +2637,7 @@ int f_init_system(void)
 	screen.g_h = scrht;
 	
 	/* alles systemgegebene ermitteln */
-	Sys_info.AES_version = _GemParBlk.global[0];
+	Sys_info.AES_version = _AESversion;
 	Sys_info.Max_col = work_out[13] - 1;
 	Sys_info.vdi_handle = handle;
 	Sys_info.app_id = appl_id;
@@ -2711,11 +2710,11 @@ int f_init_system(void)
 	{
 		DEBUG_MSG(( "***** Keine Editmodule!\n"));
 		form_alert(1, "[1][Keine Editmodule gefunden!][ Oh! ]");
-		change_object(&wind_s[WIND_MODULES], START_MODULE, DISABLED, 1);
-		change_object(&wind_s[WIND_MODULES], INFO_MODULE, DISABLED, 1);
+		change_object(&wind_s[WIND_MODULES], START_MODULE, OS_DISABLED, 1);
+		change_object(&wind_s[WIND_MODULES], INFO_MODULE, OS_DISABLED, 1);
 
 		xrsrc_gaddr(0, PIC_POPUP, &tree, resource_global);
-		tree[PIC_EDIT].ob_state |= DISABLED;
+		tree[PIC_EDIT].ob_state |= OS_DISABLED;
 	}
 	
 	DEBUG_MSG(("Editmodule: %i\n", Dialog.emodList.anzahl));
@@ -2729,13 +2728,13 @@ int f_init_system(void)
 		DEBUG_MSG(("***** Keine Exportmodule!\n"));
 
 		Dialog.winAlert.openAlert("Keine Exportmodule gefunden!", NULL, NULL, NULL, 1);
-		change_object(&wind_s[WIND_EXPORT], START_EMOD, DISABLED, 1);
-		change_object(&wind_s[WIND_EXPORT], EXMOD_INFO, DISABLED, 1);
+		change_object(&wind_s[WIND_EXPORT], START_EMOD, OS_DISABLED, 1);
+		change_object(&wind_s[WIND_EXPORT], EXMOD_INFO, OS_DISABLED, 1);
 
 		xrsrc_gaddr(0, BLOCK_POPUP, &tree, resource_global);
-		tree[BLOCK_EXPORT].ob_state |= DISABLED;
+		tree[BLOCK_EXPORT].ob_state |= OS_DISABLED;
 		xrsrc_gaddr(0, PIC_POPUP, &tree, resource_global);
-		tree[PIC_EXPORT].ob_state|=DISABLED;
+		tree[PIC_EXPORT].ob_state|=OS_DISABLED;
 	}
 
 	DEBUG_MSG(("Exportmodule: %i\n", Dialog.expmodList.anzahl));
@@ -3113,7 +3112,7 @@ void shutdown_smurf(char while_startup)
 		{
 			mod_magic = get_modmagic(module.bp[t]);
 
-			if(mod_magic == 'SEMD')
+			if(mod_magic == MOD_MAGIC_EDIT)
 				module.comm.startEdit("", module.bp[t], MTERM, t, module.smStruct[t]);
 			
 			check_and_terminate(MTERM, t);

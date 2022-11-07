@@ -89,8 +89,8 @@ typedef struct moduleObj
     MODCOMM comm;
     MODGUI gui;
 
-    BASPAG  *bp[21];            /* Basepages der Module */
-    GARGAMEL *smStruct[21];     /* šbergabestrukturen der Edit-Module */
+    BASPAG  *bp[MAX_MODS];        /* Basepages der Module */
+    GARGAMEL *smStruct[MAX_MODS]; /* šbergabestrukturen der Edit-Module */
 } CLASS_MODULE;
 
 

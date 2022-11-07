@@ -112,9 +112,9 @@ void *mconfLoad(MOD_INFO *modinfo, int mod_id, char *name)
 	(void)mod_id;
 	(void)name;
 		
-	modconf_popup[NEW_CONF].ob_state |= DISABLED;
+	modconf_popup[NEW_CONF].ob_state |= OS_DISABLED;
 	back = open_modconf_popup(modinfo);				/* erstmal das Popup auf */
-	modconf_popup[NEW_CONF].ob_state &= ~DISABLED;
+	modconf_popup[NEW_CONF].ob_state &= ~OS_DISABLED;
 	if(back <= 0)
 		return(NULL);
 	
@@ -123,7 +123,7 @@ void *mconfLoad(MOD_INFO *modinfo, int mod_id, char *name)
 	else
 	{
 		strcpy(cnfname, modconf_popup[back].TextCast);
-		block = load_from_modconf(modinfo, cnfname, &back, 'SEMD');
+		block = load_from_modconf(modinfo, cnfname, &back, MOD_MAGIC_EDIT);
 	}
 
 	return(block);
@@ -174,7 +174,7 @@ again:
 		{
 			objc_draw(confsave_dialog, 0, MAX_DEPTH, x, y, w, h);
 			back = form_do(confsave_dialog, MODCONF_NAME);
-			confsave_dialog[back].ob_state &= ~SELECTED;
+			confsave_dialog[back].ob_state &= ~OS_SELECTED;
 		} while((back != MODCONF_SAVE || strlen(confsave_dialog[MODCONF_NAME].TextCast) == 0) &&
 				back != MODCONF_CANCEL);
 
@@ -193,16 +193,16 @@ again:
 				if(back == 1)						/* nicht berschreiben */
 					goto again;
 				else								/* berschreiben */
-					overwriteMCNF(modinfo, confblock, len, cnfname, 0, 'SEMD');
+					overwriteMCNF(modinfo, confblock, len, cnfname, 0, MOD_MAGIC_EDIT);
 			}
 			else
-				save_to_modconf(modinfo, confblock, len, cnfname, 'SEMD');
+				save_to_modconf(modinfo, confblock, len, cnfname, MOD_MAGIC_EDIT);
 		}
 	}
 	else
 	{
 		strcpy(cnfname, modconf_popup[back].TextCast);
-		overwriteMCNF(modinfo, confblock, len, cnfname, back, 'SEMD');
+		overwriteMCNF(modinfo, confblock, len, cnfname, back, MOD_MAGIC_EDIT);
 	}
 }
 
@@ -223,7 +223,7 @@ static int open_modconf_popup(MOD_INFO *modinfo)
 	int mconf_index = 0;
 	int fhandle, num_confs;
 
-	long *confnames;
+	char **confnames;
 	long fback, mca_len, areaheader_pos, magic, len;
 
 	/*
@@ -276,18 +276,18 @@ static int open_modconf_popup(MOD_INFO *modinfo)
 	num_confs = *(int *)mca;									/* Konfigurationsanzahl auslesen */
 	mca += 2;
 
-	confnames = malloc(num_confs * 4);
-	memset(confnames, 0x0, num_confs * 4);
+	confnames = (char **)malloc(num_confs * sizeof(confnames[0]));
+	memset(confnames, 0x0, num_confs * sizeof(confnames[0]));
 
 	for(t = 0; t < num_confs; t++)
 	{
 		magic = *(long *)mca;
 		mca += 4;
 
-		if(magic == 'MCNF')
+		if(magic == 0x4d434e46L) /* 'MCNF' */
 		{
-			(char *)confnames[t] = malloc(33);
-			strcpy((char *)confnames[t], mca);					/* Konfignamen lesen */
+			confnames[t] = malloc(33);
+			strcpy(confnames[t], mca);							/* Konfignamen lesen */
 			mca += 33;
 			len = *(long *)mca;									/* und seine L„nge */
 			mca += 4 + len;
@@ -303,24 +303,24 @@ static int open_modconf_popup(MOD_INFO *modinfo)
 	{
 		if(t > num_confs - 1)
 		{
-			modconf_popup[t + MCONF1].ob_state |= DISABLED;			/* Rest disablen */
+			modconf_popup[t + MCONF1].ob_state |= OS_DISABLED;			/* Rest disablen */
 			modconf_popup[t + MCONF1].TextCast[0] = 0;
 		}
 		else
 		{
-			modconf_popup[t + MCONF1].ob_state &= ~DISABLED;		/* enablen */
-			modconf_popup[t + MCONF1].TextCast = (char *)confnames[t];
+			modconf_popup[t + MCONF1].ob_state &= ~OS_DISABLED;		/* enablen */
+			modconf_popup[t + MCONF1].TextCast = confnames[t];
 		}
 	}
 
 	/*
 	 * ggfs. Scrollbuttons disablen bzw. enablen
 	 */
-	modconf_popup[MCONF_UP].ob_state |= DISABLED;
+	modconf_popup[MCONF_UP].ob_state |= OS_DISABLED;
 	if(num_confs < 8)
-		modconf_popup[MCONF_DN].ob_state |= DISABLED;
+		modconf_popup[MCONF_DN].ob_state |= OS_DISABLED;
 	else
-		modconf_popup[MCONF_DN].ob_state &= ~DISABLED;
+		modconf_popup[MCONF_DN].ob_state &= ~OS_DISABLED;
 
 
 	/*
@@ -346,26 +346,26 @@ static int open_modconf_popup(MOD_INFO *modinfo)
 					mconf_index++;
 				for(t = 0; t < 8; t++)
 				{
-						modconf_popup[t + MCONF1].ob_state &= ~DISABLED;		/* Enablen */
-						modconf_popup[t + MCONF1].TextCast = (char *)confnames[t + mconf_index];
+						modconf_popup[t + MCONF1].ob_state &= ~OS_DISABLED;		/* Enablen */
+						modconf_popup[t + MCONF1].TextCast = confnames[t + mconf_index];
 						objc_draw(modconf_popup, MCONF1+t, MAX_DEPTH, x,y,w,h);
 				}
 			}
 		}
 
 		if(mconf_index <= 0)
-			modconf_popup[MCONF_UP].ob_state |= DISABLED;
+			modconf_popup[MCONF_UP].ob_state |= OS_DISABLED;
 		else
-			modconf_popup[MCONF_UP].ob_state &= ~DISABLED;
+			modconf_popup[MCONF_UP].ob_state &= ~OS_DISABLED;
 		if(mconf_index >= num_confs - 8)
-			modconf_popup[MCONF_DN].ob_state |= DISABLED;
+			modconf_popup[MCONF_DN].ob_state |= OS_DISABLED;
 		else
-			modconf_popup[MCONF_DN].ob_state &= ~DISABLED;
+			modconf_popup[MCONF_DN].ob_state &= ~OS_DISABLED;
 
 		objc_draw(modconf_popup, MCONF_UP, MAX_DEPTH, x,y,w,h);
 		objc_draw(modconf_popup, MCONF_DN, MAX_DEPTH, x,y,w,h);
 	} while(back == MCONF_UP || back == MCONF_DN ||
-			modconf_popup[back].ob_state&DISABLED || !IsSelectable(modconf_popup[back]) &&
+			modconf_popup[back].ob_state&OS_DISABLED || !IsSelectable(modconf_popup[back]) &&
 			back != -1);
 
 	form_dial(FMD_FINISH, x,y,w,h,x,y,w,h);
@@ -373,7 +373,7 @@ static int open_modconf_popup(MOD_INFO *modinfo)
 	wind_update(END_UPDATE);
 
 	for(t = 0; t < num_confs; t++)
-		free((char *)confnames[t]);
+		free(confnames[t]);
 	free(confnames);
 
 	if(back == -1)
@@ -476,7 +476,7 @@ static void save_to_modconf(MOD_INFO *modinfo, void *confblock, long len, char *
 		Fwrite(filehandle, 2, &num_confs);					/* Konf-Anzahl schreiben */
 
 		Fwrite(filehandle, 4, "MCNF");						/* "Module Configuration" */
-		if(type == 'SEMD')
+		if(type == MOD_MAGIC_EDIT)
 			Fwrite(filehandle, 33, name);					/* Konfigurationsname inkl. Nullbyte schreiben */
 		Fwrite(filehandle, 4, &len);						/* L„nge schreiben */
 		Fwrite(filehandle, len, confblock);					/* Konfigurationsblock schreiben */
@@ -518,7 +518,7 @@ void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type)
 	back = Fopen(cnfpath, FO_RW);
 	if(back < 0)
 	{
-		if(type == 'SEMD')
+		if(type == MOD_MAGIC_EDIT)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_OPENERR].TextCast, NULL, NULL, NULL, 1);
 		return(NULL);											/* fr dieses Modul keine CNF vorhanden */
 	}
@@ -528,7 +528,7 @@ void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type)
 	if(areaheader_pos == -1) 
 	{
 		Fclose(fhandle);
-		if(type == 'SEMD')
+		if(type == MOD_MAGIC_EDIT)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_READERR].TextCast, NULL, NULL, NULL, 1);
 		return(NULL);											/* fr dieses Modul keine CNF vorhanden */
 	}
@@ -558,14 +558,14 @@ void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type)
 		return(NULL);
 
 	strcpy(name, mca + back + 4);								/* Konfignamen lesen */
-	if(type == 'SEMD')
+	if(type == MOD_MAGIC_EDIT)
 		len = *(long *)(mca + back + 4 + 33);					/* und seine L„nge */
 	else
 		len = *(long *)(mca + back + 4);						/* und seine L„nge */
 	*num = (int)len;
 	
 	block = SMalloc(len);
-	if(type == 'SEMD')
+	if(type == MOD_MAGIC_EDIT)
 		memcpy(block, mca + back + 4 + 33 + 4, len);			/* und schliežlich die Config */
 	else
 		memcpy(block, mca + back + 4 + 4, len);					/* und schliežlich die Config */
@@ -643,7 +643,7 @@ static int overwriteMCNF(MOD_INFO *modinfo, char *confblock, long newlen, char *
 
 	Fseek(areaheader_pos + back + 4, filehandle, 0);			/* bis zum MCNF und noch drber */
 
-	if(type == 'SEMD')
+	if(type == MOD_MAGIC_EDIT)
 		Fread(filehandle, 33, name);							/* Konfignamen lesen */
 	Fread(filehandle, 4, &len);									/* und seine L„nge */
 
@@ -855,9 +855,9 @@ void memorize_expmodConfig(BASPAG *modbase, GARGAMEL *smurf_struct, char save)
 	}
 	else
 		if(nametest(modinfo, ""))
-			overwriteMCNF(modinfo, cnfblock, length, "", 0, 'SXMD');
+			overwriteMCNF(modinfo, cnfblock, length, "", 0, MOD_MAGIC_EXPORT);
 		else
-			save_to_modconf(modinfo, cnfblock, length, "", 'SXMD');
+			save_to_modconf(modinfo, cnfblock, length, "", MOD_MAGIC_EXPORT);
 }
 
 

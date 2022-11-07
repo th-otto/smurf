@@ -32,7 +32,7 @@
 #include "bumpmap.rsh"
 #include <math.h>
 
-#define Obj_Selected(a) (main_form[a].ob_state & SELECTED)
+#define Obj_Selected(a) (main_form[a].ob_state & OS_SELECTED)
 
 int do_it(GARGAMEL *smurf_struct);
 

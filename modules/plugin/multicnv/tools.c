@@ -35,10 +35,10 @@ void change_object(WINDOW *window, int object, int status, int redraw)
 
     OBJECT *obj = window->resource_form;
     
-    if(status==SEL) obj[object].ob_state|=SELECTED;
-    else if(status==UNSEL)  obj[object].ob_state &= ~SELECTED;
-    else if(status==DISABLED)   obj[object].ob_state |= DISABLED;
-    else if(status==ENABLED)    obj[object].ob_state &= ~DISABLED;
+    if(status==OS_SELECTED) obj[object].ob_state|=OS_SELECTED;
+    else if(status==OS_UNSEL)  obj[object].ob_state &= ~OS_SELECTED;
+    else if(status==OS_DISABLED)   obj[object].ob_state |= OS_DISABLED;
+    else if(status==OS_ENABLED)    obj[object].ob_state &= ~OS_DISABLED;
     
     if(redraw)  services->redraw_window(window, NULL, object, 0);
 }

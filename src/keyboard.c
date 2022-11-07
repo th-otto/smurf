@@ -84,7 +84,7 @@ int handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object)
 	if(np_nextob != 0)
 	{
 		*sel_object = np_nextob;
-		if(form[np_nextob].ob_flags&EDITABLE) old_edob = np_nextob;
+		if(form[np_nextob].ob_flags&OF_EDITABLE) old_edob = np_nextob;
 		ret_val = keybback;
 	}
 	else

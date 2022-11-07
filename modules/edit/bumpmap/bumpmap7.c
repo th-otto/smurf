@@ -51,7 +51,7 @@
 #include "bumpmap6.rsh"
 
  
-#define Obj_Selected(a) (main_form[a].ob_state & SELECTED)
+#define Obj_Selected(a) (main_form[a].ob_state & OS_SELECTED)
 
 
 #include <math.h>

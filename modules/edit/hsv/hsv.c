@@ -885,15 +885,15 @@ int make_sliders(void)
 
 	if(setcol == ' ')
 	{
-		colsl.rtree[S4_F].ob_state |= DISABLED;
-		colsl.rtree[S4_S].ob_state |= DISABLED;
-		colsl.rtree[S4_E].ob_state |= DISABLED;
+		colsl.rtree[S4_F].ob_state |= OS_DISABLED;
+		colsl.rtree[S4_S].ob_state |= OS_DISABLED;
+		colsl.rtree[S4_E].ob_state |= OS_DISABLED;
 	}
 	else
 	{
-		colsl.rtree[S4_F].ob_state &= ~DISABLED;
-		colsl.rtree[S4_S].ob_state &= ~DISABLED;
-		colsl.rtree[S4_E].ob_state &= ~DISABLED;
+		colsl.rtree[S4_F].ob_state &= ~OS_DISABLED;
+		colsl.rtree[S4_S].ob_state &= ~OS_DISABLED;
+		colsl.rtree[S4_E].ob_state &= ~OS_DISABLED;
 	}
 
 	satsl.regler = S5_S;
@@ -914,15 +914,15 @@ int make_sliders(void)
 
 	if(setsat == ' ')
 	{
-		satsl.rtree[S5_F].ob_state |= DISABLED;
-		satsl.rtree[S5_S].ob_state |= DISABLED;
-		satsl.rtree[S5_E].ob_state |= DISABLED;
+		satsl.rtree[S5_F].ob_state |= OS_DISABLED;
+		satsl.rtree[S5_S].ob_state |= OS_DISABLED;
+		satsl.rtree[S5_E].ob_state |= OS_DISABLED;
 	}
 	else
 	{
-		satsl.rtree[S5_F].ob_state &= ~DISABLED;
-		satsl.rtree[S5_S].ob_state &= ~DISABLED;
-		satsl.rtree[S5_E].ob_state &= ~DISABLED;
+		satsl.rtree[S5_F].ob_state &= ~OS_DISABLED;
+		satsl.rtree[S5_S].ob_state &= ~OS_DISABLED;
+		satsl.rtree[S5_E].ob_state &= ~OS_DISABLED;
 	}
 
 	brsl.regler = S6_S;
@@ -943,15 +943,15 @@ int make_sliders(void)
 
 	if(setbright == ' ')
 	{
-		brsl.rtree[S6_F].ob_state |= DISABLED;
-		brsl.rtree[S6_S].ob_state |= DISABLED;
-		brsl.rtree[S6_E].ob_state |= DISABLED;
+		brsl.rtree[S6_F].ob_state |= OS_DISABLED;
+		brsl.rtree[S6_S].ob_state |= OS_DISABLED;
+		brsl.rtree[S6_E].ob_state |= OS_DISABLED;
 	}
 	else
 	{
-		brsl.rtree[S6_F].ob_state &= ~DISABLED;
-		brsl.rtree[S6_S].ob_state &= ~DISABLED;
-		brsl.rtree[S6_E].ob_state &= ~DISABLED;
+		brsl.rtree[S6_F].ob_state &= ~OS_DISABLED;
+		brsl.rtree[S6_S].ob_state &= ~OS_DISABLED;
+		brsl.rtree[S6_E].ob_state &= ~OS_DISABLED;
 	}
 
 	return(0);
@@ -1019,9 +1019,9 @@ void apply_setting(CONFIG *myConfig)
 	redraw_window(&window, NULL, CHECK_V, 0);
 	service->set_slider(&brsl, slidbright);
 
-	win_form[_HSV].ob_state &= ~SELECTED;
-	win_form[_HLS].ob_state &= ~SELECTED;
-	win_form[mode].ob_state |= SELECTED;
+	win_form[_HSV].ob_state &= ~OS_SELECTED;
+	win_form[_HLS].ob_state &= ~OS_SELECTED;
+	win_form[mode].ob_state |= OS_SELECTED;
 	redraw_window(&window, NULL, SYSTEM_BOX, 0);
 
 	return;

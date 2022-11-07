@@ -32,6 +32,11 @@
 #include "smurf_f.h"
 #include "debug.h"
 
+#ifndef __PUREC__
+#define KEYTAB _KEYTAB
+#endif
+
+
 #define CTRL_CHAR	'^'					/* MenÅ-Control-Buchstabe */
 #define ALT_CHAR	0x07				/* MenÅ-Alternate-Buchstabe */
 #define SHIFT_CHAR	0x01				/* MenÅ-Shifttaste */
@@ -155,7 +160,7 @@ char get_menu_key(OBJECT *menu, KINFO *ki, int *title, int *item)
 			j++;
 	}
 
-	if(!is_state(menu, *item, DISABLED) && sc_found)
+	if(!is_state(menu, *item, OS_DISABLED) && sc_found)
 	/* RÅckgabe der ausgewÑhlten Werte */
 		return(1);
 	else

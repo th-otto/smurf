@@ -45,16 +45,6 @@
 /* AES-Erweiterungs- und Vereinfachungsfunktionen. 
 	01.08.1995, Olaf Piesche. Benîtigt RADIOCHK.C!						*/
 
-/* Funktionsliste:
-int button_ev(OBJECT *tree)						- 	Evnt-button-Erweiterung.
-int f_numedit(int obj, OBJECT *tree)			-	Editpopup zum einfacheren Editieren von FTEXTs.
-int f_pop(int obj, int popup, OBJECT *tree, int redraw_ob) - Popupmanager
-void f_drag(int obj, int parent, OBJECT *tree) 	- Usergesteuertes Draggen von Objekten in einem Formular.
-void f_txtinsert(int num, OBJECT *tree, int txt_obj) - EinfÅgen von Zahlen in Textobjekte
-void f_hidetree(OBJECT *tree, int object)	- Verstecken eines Objektes mit allen Kindern
-void f_showtree(OBJECT *tree, int object)	- Wiederanzeigen eines versteckten Objekts mit allen Kindern
-*/
-
 /*----------------------------------------------------------------------*/
 
 #include <string.h>
@@ -209,8 +199,8 @@ int f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree)
 		{
 			if(popup_form[curr_ob].ob_type!=G_STRING)
 			{
-				popup_form[curr_ob].ob_flags &= ~ACTIVATOR;
-				popup_form[curr_ob].ob_flags |= INDICATOR;
+				popup_form[curr_ob].ob_flags &= ~OF_FL3DACT;
+				popup_form[curr_ob].ob_flags |= OF_FL3DIND;
 			}
 
 			curr_ob = popup_form[curr_ob].ob_next;
@@ -288,7 +278,7 @@ int f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree)
 			else
 				if(cycled_item<popup_head)
 					cycled_item=popup_tail;
-		} while((popup_form[cycled_item].ob_state&DISABLED) && cycled_item!=item);
+		} while((popup_form[cycled_item].ob_state&OS_DISABLED) && cycled_item!=item);
 
 		popup_struct->item=cycled_item;
 
@@ -356,12 +346,12 @@ int f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree)
 		mx=mouse_xpos;
 		my=mouse_ypos;
 		pop_button=objc_find(popup_form, 0, MAX_DEPTH, mx,my);
-		if(pop_button>0 && !(popup_form[pop_button].ob_state&DISABLED))
+		if(pop_button>0 && !(popup_form[pop_button].ob_state&OS_DISABLED))
 		{
 			objc_offset(popup_form, pop_button, &em_x, &em_y);
 			em_x--;
 			em_y--;
-			popup_form[pop_button].ob_state |= SELECTED;
+			popup_form[pop_button].ob_state |= OS_SELECTED;
 			objc_draw(popup_form, pop_button, MAX_DEPTH, 0,0,Sys_info.screen_width, Sys_info.screen_height);
 			obutton=pop_button;
 		}
@@ -378,13 +368,13 @@ int f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree)
 			{
 				if(obutton>0)
 				{
-					popup_form[obutton].ob_state &= ~SELECTED;
+					popup_form[obutton].ob_state &= ~OS_SELECTED;
 					objc_draw(popup_form, obutton, MAX_DEPTH, 0,0,Sys_info.screen_width, Sys_info.screen_height);
 				}
 
-				if(pop_button>0 && !(popup_form[pop_button].ob_state&DISABLED))
+				if(pop_button>0 && !(popup_form[pop_button].ob_state&OS_DISABLED))
 				{
-					popup_form[pop_button].ob_state |= SELECTED;
+					popup_form[pop_button].ob_state |= OS_SELECTED;
 					objc_draw(popup_form, pop_button, MAX_DEPTH, 0,0,Sys_info.screen_width, Sys_info.screen_height);
 				}
 
@@ -393,10 +383,10 @@ int f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree)
 
 			if(backval&MU_BUTTON && pop_button==-1)
 				break;
-		} while(popup_form[pop_button].ob_state&DISABLED || pop_button==0 || !(backval&MU_BUTTON) );
+		} while(popup_form[pop_button].ob_state&OS_DISABLED || pop_button==0 || !(backval&MU_BUTTON) );
 
 		if(pop_button>0)
-			popup_form[pop_button].ob_state &= ~SELECTED;
+			popup_form[pop_button].ob_state &= ~OS_SELECTED;
 		
 		form_dial(FMD_FINISH, xpos-2,ypos-2,popwidth+4,popheight+4, xpos-2,ypos-2,popwidth+4,popheight+4);
 		wind_update(END_UPDATE);
@@ -450,7 +440,7 @@ void f_drag(int obj, int parent, OBJECT *tree)
 	{
 		objc_offset(tree, 0, &xmin, &ymin);			/* Hauptformular - Koo's ermitteln 	*/
 		
-		objc_change(tree, obj, 0, 0,0,scrwd,scrht, SHADOWED, 0); 	/* 'Hochheben' */
+		objc_change(tree, obj, 0, 0,0,scrwd,scrht, OS_SHADOWED, 0); 	/* 'Hochheben' */
 		objc_draw(tree, obj, MAX_DEPTH, oxkoo+w-5+xmin,oykoo+ymin,10,h+10);		/* Neuzeichnen rechter Rand */
 		objc_draw(tree, obj, MAX_DEPTH, oxkoo+xmin,oykoo+h-5+ymin,w+10,10);		/* Neuzeichnen unterer Rand */
 		
@@ -511,10 +501,10 @@ void f_hidetree(OBJECT *tree, int object)
 	startob=treepointer->ob_head;
 	endob=treepointer->ob_tail;
 	
-	tree[object].ob_flags|=HIDETREE;	
+	tree[object].ob_flags|=OF_HIDETREE;	
 	
 	for(ob_t=startob; ob_t<=endob; ob_t++)
-		tree[ob_t].ob_flags|=HIDETREE;	
+		tree[ob_t].ob_flags|=OF_HIDETREE;	
 }
 
 
@@ -533,10 +523,10 @@ void f_showtree(OBJECT *tree, int object)
 	startob=treepointer->ob_head;
 	endob=treepointer->ob_tail;
 
-	tree[object].ob_flags&=~HIDETREE;	
+	tree[object].ob_flags&=~OF_HIDETREE;	
 
 	for(ob_t=startob; ob_t<=endob; ob_t++)
-		tree[ob_t].ob_flags&=~HIDETREE;	
+		tree[ob_t].ob_flags&=~OF_HIDETREE;	
 }
 
 /* ****************************************************************	*/
@@ -580,7 +570,7 @@ int f_rslid(SLIDER *slider_struct)
 	wsize.g_w = windst->ww;
 	wsize.g_h = windst->wh;
 
-	if(rtree[regler].ob_state&DISABLED)
+	if(rtree[regler].ob_state&OS_DISABLED)
 		return(0);
 
 	wind_update(BEG_UPDATE);
@@ -618,7 +608,7 @@ int f_rslid(SLIDER *slider_struct)
 				else
 					Window.redraw(windst, &wsize, fhr, DRAWNOPICTURE);
 
-				slidval = (long)(121 - ypos) * (differ / 121F) + min_val;
+				slidval = (long)(121 - ypos) * (differ / 121.0F) + min_val;
 				if(slidval < min_val)
 					slidval = min_val;
 				else
@@ -651,7 +641,7 @@ int f_rslid(SLIDER *slider_struct)
 
 		rtree[regler].ob_y = ypos;
 
-		slidval = (long)(121 - ypos) * (differ / 121F) + min_val;
+		slidval = (long)(121 - ypos) * (differ / 121.0F) + min_val;
 		if(slidval < min_val)
 			slidval = min_val;
 		else
@@ -702,7 +692,7 @@ void setslider(SLIDER *sliderstruct, long value)
 		if(value < min_val)
 			value = min_val;
 
-	div = (max_val - min_val) / 121F;
+	div = (max_val - min_val) / 121.0F;
 	if(div == 0)
 		ypos = 0;
 	else
@@ -806,7 +796,7 @@ if(key_scancode!=0)
 	{
 
 		entryc=get_selected_object(tree, first_entry, last_entry);
-		tree[entryc].ob_state &= ~SELECTED;		/* Deselektieren! */
+		tree[entryc].ob_state &= ~OS_SELECTED;		/* Deselektieren! */
 		next_obj=entryc;
 	
 		if(key_scancode==KEY_DOWN)
@@ -825,7 +815,7 @@ if(key_scancode!=0)
 				else klick_obj=lfstruct->slar_dn;
 			}
 
-			tree[next_obj].ob_state |= SELECTED;
+			tree[next_obj].ob_state |= OS_SELECTED;
 			if(entryc<last_entry)
 				Window.redraw(window, NULL, listparent, DRAWNOPICTURE);
 
@@ -847,7 +837,7 @@ if(key_scancode!=0)
 					klick_obj = lfstruct->slar_up;
 			}
 
-			tree[next_obj].ob_state |= SELECTED;
+			tree[next_obj].ob_state |= OS_SELECTED;
 			if(entryc > first_entry)
 				Window.redraw(window, NULL, listparent, DRAWNOPICTURE);
 		}
@@ -926,7 +916,7 @@ if(key_scancode!=0)
 				/* damit auch wirklich nur was passiert wenn sich der ausgewÑhlte Eintrag geÑndert hat */
 				if(entryc - lfstruct->scroll_offset - 1 != first_sel - first_entry)
 				{
-					tree[first_sel].ob_state &= ~SELECTED;
+					tree[first_sel].ob_state &= ~OS_SELECTED;
 				
 					lfstruct->scroll_offset=entryc-1;
 								
@@ -935,7 +925,7 @@ if(key_scancode!=0)
 				
 					if(lfstruct->scroll_offset < 0) lfstruct->scroll_offset = 0;
 				 
-					tree[(entryc-lfstruct->scroll_offset+first_entry)-1].ob_state=SELECTED;
+					tree[(entryc-lfstruct->scroll_offset+first_entry)-1].ob_state=OS_SELECTED;
 					
 					klick_obj=F_REDRAW;
 				}
@@ -985,7 +975,7 @@ if(klick_obj!=0)
 	{
 		graf_mouse(FLAT_HAND, dummy_ptr);
 		
-		change_object(window, sl_ob, SEL, 1);
+		change_object(window, sl_ob, OS_SELECTED, 1);
 		
 		objc_offset(tree, sl_parent, &spar_x, &spar_y);
 		spar_height=tree[sl_parent].ob_height;
@@ -1047,7 +1037,7 @@ if(klick_obj!=0)
 			Window.redraw(window, NULL, sl_parent, DRAWNOPICTURE);
 		}
 		
-		change_object(window, sl_ob, UNSEL, 1);
+		change_object(window, sl_ob, OS_UNSEL, 1);
 		graf_mouse(ARROW, dummy_ptr);
 	}
 
@@ -1158,12 +1148,12 @@ static void f_update_listfield(LIST_FIELD *lfstruct, OBJECT *tree)
 		if(myentry!=NULL && stringcount<number_of_entries)
 		{
 			entry_obj->TextCast=myentry;
-			entry_obj->ob_state &= ~DISABLED;
+			entry_obj->ob_state &= ~OS_DISABLED;
 		}
 		else
 		{
 			entry_obj->TextCast=empty_entry;
-			entry_obj->ob_state |= DISABLED;
+			entry_obj->ob_state |= OS_DISABLED;
 		}
 		stringcount++;
 	} 
@@ -1184,7 +1174,7 @@ int get_selected_object(OBJECT *tree, int first_entry, int last_entry)
 
 	do
 	{
-		if(tree[entryc].ob_state&SELECTED)				/* selektiert? */
+		if(tree[entryc].ob_state&OS_SELECTED)				/* selektiert? */
 			break;
 
 		entryc++;
@@ -1230,8 +1220,8 @@ void f_generate_listfield(int uparrow, int dnarrow, int sliderparent, int slider
 /* -------- Hintergrundbedienbares KomplementÑr zu OBJC_CHANGE ----	*/
 /* window = Zeiger auf Fensterstruktur, in dem das objct liegt		*/
 /*																	*/
-/* LÑuft Åber die Rechteckliste. status entweder SEL | UNSEL |		*/
-/* ENABLED | DISABLED												*/
+/* LÑuft Åber die Rechteckliste. status entweder OS_SELECTED | OS_UNSEL |		*/
+/* OS_ENABLED | OS_DISABLED											*/
 /* Redraw = 1->gleich neu zeichnen.									*/
 /* **************************************************************** */
 void change_object(WINDOW *window, int objct, int status, int redraw)
@@ -1250,17 +1240,17 @@ void change_object(WINDOW *window, int objct, int status, int redraw)
 	gred.g_w=tree[objct].ob_width+6; 
 	gred.g_h=tree[objct].ob_height+6; 
 	
-	if(status == SEL)
-		tree[objct].ob_state |= SELECTED;
+	if(status == OS_SELECTED)
+		tree[objct].ob_state |= OS_SELECTED;
 	else
-	if(status == UNSEL)
-		tree[objct].ob_state &= ~SELECTED;
+	if(status == OS_UNSEL)
+		tree[objct].ob_state &= ~OS_SELECTED;
 	else
-	if(status == DISABLED)
-		tree[objct].ob_state |= DISABLED;
+	if(status == OS_DISABLED)
+		tree[objct].ob_state |= OS_DISABLED;
 	else
-	if(status == ENABLED)
-		tree[objct].ob_state &= ~DISABLED;
+	if(status == OS_ENABLED)
+		tree[objct].ob_state &= ~OS_DISABLED;
 	
 	if(redraw != 0)
 		Window.redraw(window, &gred, objct, DRAWNOPICTURE);
@@ -1445,18 +1435,20 @@ int omx, omy, redraw;
 
 
 
+#ifndef __GEMLIB__
 int appl_xgetinfo (int type, int *out1, int *out2, int *out3, int *out4)
 {
-	char has_agi = FALSE;
+	char has_agi;
 
 	unsigned long dummy;
 
 
-	has_agi = ((get_cookie('MagX', &dummy) || get_cookie('MgMc', &dummy) || get_cookie('MgPC', &dummy)) ||
-			   (_GemParBlk.global[0] == 0x400 && type < 4) || (_GemParBlk.global[0] > 0x400));
+	has_agi = appl_find("?AGI") || get_cookie('MagX', &dummy) || get_cookie('MgMc', &dummy) || get_cookie('MgPC', &dummy) ||
+			  (_AESversion == 0x400 && type < 4) || (_AESversion > 0x400);
 
 	if(has_agi)
 		return(appl_getinfo (type, out1, out2, out3, out4));
 	else
 		return(0);
 }
+#endif

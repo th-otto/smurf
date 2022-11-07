@@ -73,7 +73,7 @@ void color_choose(void)
 	int ok;
 	
 	/* Farbauswahlcookie holen */
-	ok = get_cookie('COLS', &val);
+	ok = get_cookie(0x434f4c53L, &val); /* 'COLS' */
 	
 	if(!ok) 
 	{

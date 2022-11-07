@@ -35,7 +35,7 @@
 /*  fÅgen, in denen bereits Platz fÅr den String ist (also z.B. */
 /*  mit '_' auffÅllen). Die Text-Objcs mÅssen RADIOBUTTONS und  */
 /*  eines davon selektiert sein. Neben dieses Objekt dann eine  */
-/*  BOX als Parentobjekt fÅr den Slider (INDICATOR, SELECTED)   */
+/*  BOX als Parentobjekt fÅr den Slider (INDICATOR, OS_SELECTED)   */
 /*  aufziehen, darin eine BOX (INDICATOR) als Slider selbst.    */
 /*  DarÅber und darunter je ein Boxchar (INDICATOR) mit einem   */
 /*  Pfeil nach oben und nach unten setzen. Und das wars. Die    */
@@ -48,7 +48,12 @@
 typedef char**  LISTPTR;
 
 #include "portab.h"
+#ifdef __PUREC__
 #include <aes.h>
+#else
+#include <gem.h>
+extern short _app;
+#endif
 
 #ifndef FALSE
 #define FALSE   0
@@ -69,6 +74,18 @@ typedef char**  LISTPTR;
 
 #ifndef SMALLER
 #define SMALLER				0x4000
+#endif
+
+#ifndef OS_SELECTED
+#define OS_SELECTED SELECTED
+#define OS_DISABLED DISABLED
+#define OS_SHADOWED SHADOWED
+
+#define OF_SELECTABLE SELECTABLE
+#define OF_DEFAULT    DEFAULT
+#define OF_EDITABLE   EDITABLE
+#define OF_RBUTTON    RBUTTON
+#define OF_HIDETREE   HIDETREE
 #endif
 
 typedef struct
@@ -103,18 +120,20 @@ typedef struct
 /*  ------------------- SYM_GEM Functions -------------------------*/
 /*  ---------------------------------------------------------------*/
 
+#ifndef __GEMLIB__
 int appl_xgetinfo (int type, int *out1, int *out2, int *out3, int *out4);
 int objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1, int ob_sival2, int *ob_soval1, int *ob_soval2);
+#endif
 
 
-int     button_ev(OBJECT *tree);                                
+int     button_ev(OBJECT *tree);                                /* Evnt-button-Erweiterung. */
 
-int     f_numedit(int obj, OBJECT *tree, int deflt);                    
+int     f_numedit(int obj, OBJECT *tree, int deflt);            /* Editpopup zum einfacheren Editieren von FTEXTs. */
 int     f_schiebe(int regler, int fhr, OBJECT *tree);           
-int     f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree);
-void    f_drag(int obj, int parent, OBJECT *tree);          
-void    f_hidetree(OBJECT *tree, int object);               
-void    f_showtree(OBJECT *tree, int object);                   
+int     f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree); /* Popupmanager */
+void    f_drag(int obj, int parent, OBJECT *tree);          	/* Usergesteuertes Draggen von Objekten in einem Formular. */
+void    f_hidetree(OBJECT *tree, int object);               	/* Verstecken eines Objektes mit allen Kindern */
+void    f_showtree(OBJECT *tree, int object);                   /* Wiederanzeigen eines versteckten Objekts mit allen Kindern */
 
 int     get_selected_object(OBJECT *tree, int first_entry, int last_entry);
 

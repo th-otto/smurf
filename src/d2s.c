@@ -33,9 +33,19 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
+#ifndef __PUREC__
+#include <gemx.h>
+#endif
 
+#ifdef __PUREC__
 /* Dies bastelt direkt ein rol.w #8,d0 inline ein. */
-static unsigned int swap_word(unsigned int w) 0xE058;
+static unsigned short swap_word(unsigned short w) 0xE058;
+#else
+static unsigned short swap_word(unsigned short w)
+{
+	return (w >> 8) | (w << 8);
+}
+#endif
 
 typedef struct
 {
@@ -94,7 +104,7 @@ void direct2screen(SMURF_PIC *picture, char *where_to, GRECT *part)
 	ziel = where_to;
 	palette = picture->palette;
 
-	if(get_cookie('EdDI', (unsigned long *)&func) != 0 && (*func)(0) >= 0x0100)
+	if(get_cookie(0x45644449L, (unsigned long *)&func) != 0 && (*func)(0) >= 0x0100) /* 'EdDI' */
 	{
 		vq_scrninfo(handle, work_out);
 

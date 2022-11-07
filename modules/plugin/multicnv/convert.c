@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "../../import.h"
+#define MAX_MODS 21
 #include "../../../src/smurf_st.h"
 #include "../../../src/rsc/smurf.h"
 #include "../../../src/smurfine.h"
@@ -157,7 +158,7 @@ void start_conversion(void)
     dialog[PROC_BAR].ob_width=0;
     strcpy(wildcard_string, "  0 Dateien konvertiert...");
     strcpy(dialog[PROC_TEXT].TextCast, wildcard_string);
-    dialog[PROC_BACK].ob_flags &= ~HIDETREE;
+    dialog[PROC_BACK].ob_flags &= ~OF_HIDETREE;
     services->redraw_window(&window, NULL, PROC_BACK, 0);
 
     /*
@@ -235,7 +236,7 @@ void start_conversion(void)
                 }
 
                 strcpy(current_pic->filename, file->modname);
-                if(dialog[KEEP_DEPTH].ob_state & SELECTED)
+                if(dialog[KEEP_DEPTH].ob_state & OS_SELECTED)
                     saveback = f_save_pic(&expmabs, current_pic);
                 else
                     saveback = f_save_pic(&user_modabs, current_pic);
@@ -264,7 +265,7 @@ void start_conversion(void)
     for(t = 0; t < num_of_wildcards; t++)
         free(wildcards[t]);
 
-    dialog[PROC_BACK].ob_flags |= HIDETREE;
+    dialog[PROC_BACK].ob_flags |= OF_HIDETREE;
     services->redraw_window(&window, NULL, 0, 0);
 
     return;

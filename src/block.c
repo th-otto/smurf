@@ -400,11 +400,11 @@ void block_type_in(void)
 			case BLOCK_CLR:	Window.cursorOff(blockwin);
 							imageWindow.removeBlock(&picture_windows[active_pic]);
 							insert_blockcoords(pic);
-							change_object(blockwin, BLOCK_CLR, UNSEL, 1);
+							change_object(blockwin, BLOCK_CLR, OS_UNSEL, 1);
 							blockfunctions_off();
 							break;
 
-			case BLOCK_OK:	change_object(blockwin, BLOCK_OK, UNSEL, 1);
+			case BLOCK_OK:	change_object(blockwin, BLOCK_OK, OS_UNSEL, 1);
 							Dialog.close(WIND_BTYPEIN);
 							break;
 
@@ -467,7 +467,7 @@ static void get_blockcoords(SMURF_PIC *pic, int button)
 			{
 				val = pic->blockx;
 		
-				if(!(Sys_info.profi_mode&SELECTED))
+				if(!(Sys_info.profi_mode&OS_SELECTED))
 					Dialog.winAlert.openAlert("Blîcke nur mit Maûen und Koordinaten bis 32767!", NULL, NULL, NULL, 1);
 				f_txtinsert((int)val, bwindow, BLOCK_XLO, blockwin);
 			}
@@ -480,7 +480,7 @@ static void get_blockcoords(SMURF_PIC *pic, int button)
 			{
 				val = pic->blocky;
 		
-				if(!(Sys_info.profi_mode&SELECTED))
+				if(!(Sys_info.profi_mode&OS_SELECTED))
 					Dialog.winAlert.openAlert("Blîcke nur mit Maûen und Koordinaten bis 32767!", NULL, NULL, NULL, 1);
 				f_txtinsert((int)val, bwindow, BLOCK_YLO, blockwin);
 			}
@@ -493,7 +493,7 @@ static void get_blockcoords(SMURF_PIC *pic, int button)
 			{
 				val = pic->blockwidth;
 		
-				if(!(Sys_info.profi_mode&SELECTED))
+				if(!(Sys_info.profi_mode&OS_SELECTED))
 					Dialog.winAlert.openAlert("Blîcke nur mit Maûen und Koordinaten bis 32767!", NULL, NULL, NULL, 1);
 				f_txtinsert((int)val, bwindow, BLOCK_WID, blockwin);
 			}
@@ -505,7 +505,7 @@ static void get_blockcoords(SMURF_PIC *pic, int button)
 			if(val > 32767 || pic->blocky + val > 32767)
 			{
 				val = pic->blockheight;
-				if(!(Sys_info.profi_mode&SELECTED))
+				if(!(Sys_info.profi_mode&OS_SELECTED))
 					Dialog.winAlert.openAlert("Blîcke nur mit Maûen und Koordinaten bis 32767!", NULL, NULL, NULL, 1);
 				f_txtinsert((int)val, bwindow, BLOCK_HGT, blockwin);
 			}
@@ -517,7 +517,7 @@ static void get_blockcoords(SMURF_PIC *pic, int button)
 			if(val > 32767)
 			{
 				val = pic->blockx + pic->blockwidth - 1;
-				if(!(Sys_info.profi_mode&SELECTED))
+				if(!(Sys_info.profi_mode&OS_SELECTED))
 					Dialog.winAlert.openAlert("Blîcke nur mit Maûen und Koordinaten bis 32767!", NULL, NULL, NULL, 1);
 				f_txtinsert((int)val, bwindow, BLOCK_XRU, blockwin);
 			}
@@ -530,7 +530,7 @@ static void get_blockcoords(SMURF_PIC *pic, int button)
 			if(val > 32767)
 			{
 				val = pic->blocky + pic->blockheight - 1;
-				if(!(Sys_info.profi_mode&SELECTED))
+				if(!(Sys_info.profi_mode&OS_SELECTED))
 					Dialog.winAlert.openAlert("Blîcke nur mit Maûen und Koordinaten bis 32767!", NULL, NULL, NULL, 1);
 				f_txtinsert((int)val, bwindow, BLOCK_YRU, blockwin);
 			}
@@ -878,7 +878,7 @@ int insert_block(WINDOW *picwindow)
 		if(blockdepth <= 8 &&
 		   (picdepth < 8 || picdepth == 8 && pic->format_type == FORM_STANDARD))
 		{
-			if(!(Sys_info.profi_mode&SELECTED))
+			if(!(Sys_info.profi_mode&OS_SELECTED))
 			{
 				f_set_syspal();
 				if(Dialog.winAlert.openAlert("Das Bild muû zum EinfÅgen des Blocks in eine hîhere Farbtiefe konvertiert werden!", "Abbruch", "Weiter", NULL, 1) == 1)
@@ -895,7 +895,7 @@ int insert_block(WINDOW *picwindow)
 		else
 			if(blockdepth > picdepth)
 			{
-				if(!(Sys_info.profi_mode&SELECTED))
+				if(!(Sys_info.profi_mode&OS_SELECTED))
 				{
 					f_set_syspal();
 					if(Dialog.winAlert.openAlert("Das Bild muû zum EinfÅgen des Blocks in eine hîhere Farbtiefe konvertiert werden!", "Abbruch", "Weiter", NULL, 1) == 1)
@@ -913,7 +913,7 @@ int insert_block(WINDOW *picwindow)
 	else
 		if(picdepth < 16 || blockdepth > picdepth)
 		{
-			if(!(Sys_info.profi_mode&SELECTED))
+			if(!(Sys_info.profi_mode&OS_SELECTED))
 			{
 				f_set_syspal();
 				if(Dialog.winAlert.openAlert("Das Bild muû zum EinfÅgen des Blocks in eine hîhere Farbtiefe konvertiert werden!", "Abbruch", "Weiter", NULL, 1) == 1)
@@ -1544,7 +1544,7 @@ void blockmode(void)
 			if(IsSelected(tree[BCONF_WTRANS]))
 				blockmode_conf.transparent |= 0x02;
 			
-			change_object(&wind_s[WIND_BLOCKMODE], button, UNSEL, 1);
+			change_object(&wind_s[WIND_BLOCKMODE], button, OS_UNSEL, 1);
 
 			/*
 			 * wenn der RT-dither an ist, mÅssen nun evtl. Blîcke in allen
@@ -1569,15 +1569,15 @@ void blockfunctions_on(void)
 {
 	if(Sys_info.scrp_path != NULL)
 	{
-		blockpopup[BLOCK_COPY].ob_state &= ~DISABLED;
-		blockpopup[BLOCK_CUT].ob_state &= ~DISABLED;
+		blockpopup[BLOCK_COPY].ob_state &= ~OS_DISABLED;
+		blockpopup[BLOCK_CUT].ob_state &= ~OS_DISABLED;
 		menu_ienable(menu_tree, EDIT_COPY, 1);
 		menu_ienable(menu_tree, EDIT_CUT, 1);
 	}
 
-	blockpopup[BLOCK_RELEASE].ob_state &= ~DISABLED;
-	blockpopup[BLOCK_FREE].ob_state &= ~DISABLED;
-	blockpopup[BLOCK_MODE].ob_state &= ~DISABLED;
+	blockpopup[BLOCK_RELEASE].ob_state &= ~OS_DISABLED;
+	blockpopup[BLOCK_FREE].ob_state &= ~OS_DISABLED;
+	blockpopup[BLOCK_MODE].ob_state &= ~OS_DISABLED;
 
 	menu_ienable(menu_tree, EDIT_CROP, 1);
 	menu_ienable(menu_tree, EDIT_RELEASE, 1);
@@ -1588,17 +1588,17 @@ void blockfunctions_off(void)
 {
  	if(Sys_info.scrp_path != NULL)
  	{
-		blockpopup[BLOCK_COPY].ob_state |= DISABLED;
-		blockpopup[BLOCK_CUT].ob_state |= DISABLED;
+		blockpopup[BLOCK_COPY].ob_state |= OS_DISABLED;
+		blockpopup[BLOCK_CUT].ob_state |= OS_DISABLED;
 		menu_ienable(menu_tree, EDIT_COPY, 0);
 		menu_ienable(menu_tree, EDIT_CUT, 0);
 	}
 
-	blockpopup[BLOCK_RELEASE].ob_state |= DISABLED;
-	blockpopup[BLOCK_FREE].ob_state |= DISABLED;
-	blockpopup[BLOCK_SIZE].ob_state |= DISABLED;
-	blockpopup[BLOCK_EXPORT].ob_state |= DISABLED;
-	blockpopup[BLOCK_MODE].ob_state |= DISABLED;
+	blockpopup[BLOCK_RELEASE].ob_state |= OS_DISABLED;
+	blockpopup[BLOCK_FREE].ob_state |= OS_DISABLED;
+	blockpopup[BLOCK_SIZE].ob_state |= OS_DISABLED;
+	blockpopup[BLOCK_EXPORT].ob_state |= OS_DISABLED;
+	blockpopup[BLOCK_MODE].ob_state |= OS_DISABLED;
 
 	menu_ienable(menu_tree, EDIT_CROP, 0);
 	menu_ienable(menu_tree, EDIT_RELEASE, 0);
@@ -1723,7 +1723,7 @@ int save_block(EXPORT_PIC *pic_to_save, char *path)
 
 	strcat(clipexp_path, "scrap.img");
 	dummy = Fcreate(clipexp_path, 0);
-	if(dummy < 0 && (Sys_info.profi_mode&SELECTED) == 0)
+	if(dummy < 0 && (Sys_info.profi_mode&OS_SELECTED) == 0)
 		Dialog.winAlert.openAlert("Datei konnte nicht erzeugt werden!", NULL, NULL, NULL, 1);
 	else
 	{

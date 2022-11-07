@@ -123,7 +123,7 @@ int f_handle_menuevent(int *message)
 								{
 									for(t = 1; t <= picthere; t++)
 									{
-										if(picture_windows[t].wtitle[11] == '*' && !(Sys_info.profi_mode&SELECTED))
+										if(picture_windows[t].wtitle[11] == '*' && !(Sys_info.profi_mode&OS_SELECTED))
 											if(Dialog.winAlert.openAlert(Dialog.winAlert.alerts[QUIT_ALERT].TextCast, "Nein", " Ja ", NULL, 1) == 1)
 												quit = 0;
 									}
@@ -306,60 +306,60 @@ void actualize_menu(void)
 {
 	DEBUG_MSG (( "actualize_menu...\n" ));
 
-	menu_tree[WIND_CLOSE].ob_state |= DISABLED;
-	menu_tree[FILE_RELOAD].ob_state |= DISABLED;
-	menu_tree[FILE_INFO].ob_state |= DISABLED;
-	menu_tree[FILE_PRINT].ob_state |= DISABLED;
-	menu_tree[FILE_SAVE].ob_state |= DISABLED;
-	menu_tree[EDIT_COLRED].ob_state |= DISABLED;
-	menu_tree[DUPLICATE_PIC].ob_state |= DISABLED;
-	menu_tree[SELECT_ALL].ob_state |= DISABLED;
-	menu_tree[EDIT_INSERT].ob_state |= DISABLED;
-	menu_tree[DISP_NEXTPIC].ob_state |= DISABLED;
-	menu_tree[DISP_NEXTWIN].ob_state |= DISABLED;
+	menu_tree[WIND_CLOSE].ob_state |= OS_DISABLED;
+	menu_tree[FILE_RELOAD].ob_state |= OS_DISABLED;
+	menu_tree[FILE_INFO].ob_state |= OS_DISABLED;
+	menu_tree[FILE_PRINT].ob_state |= OS_DISABLED;
+	menu_tree[FILE_SAVE].ob_state |= OS_DISABLED;
+	menu_tree[EDIT_COLRED].ob_state |= OS_DISABLED;
+	menu_tree[DUPLICATE_PIC].ob_state |= OS_DISABLED;
+	menu_tree[SELECT_ALL].ob_state |= OS_DISABLED;
+	menu_tree[EDIT_INSERT].ob_state |= OS_DISABLED;
+	menu_tree[DISP_NEXTPIC].ob_state |= OS_DISABLED;
+	menu_tree[DISP_NEXTWIN].ob_state |= OS_DISABLED;
 
-	change_object(&wind_s[WIND_MODULES], START_MODULE, DISABLED, 1);
-	change_object(&wind_s[WIND_EXPORT], START_EMOD, DISABLED, 1);
-	change_object(&wind_s[WIND_MODFORM], START_MOD, DISABLED, 1);
+	change_object(&wind_s[WIND_MODULES], START_MODULE, OS_DISABLED, 1);
+	change_object(&wind_s[WIND_EXPORT], START_EMOD, OS_DISABLED, 1);
+	change_object(&wind_s[WIND_MODFORM], START_MOD, OS_DISABLED, 1);
 
 	if(Dialog.emodList.anzahl == 0)
-		menu_tree[EDIT_EDIT].ob_state |= DISABLED;
+		menu_tree[EDIT_EDIT].ob_state |= OS_DISABLED;
 
 	if(Dialog.expmodList.anzahl == 0)
-		menu_tree[FILE_SAVEAS].ob_state |= DISABLED;
+		menu_tree[FILE_SAVEAS].ob_state |= OS_DISABLED;
 
 	if(picwindthere || dialwindthere)
 	{
-		menu_tree[WIND_CLOSE].ob_state &= ~DISABLED;
+		menu_tree[WIND_CLOSE].ob_state &= ~OS_DISABLED;
 
 		if(picwindthere > 0)
 		{
-			menu_tree[FILE_RELOAD].ob_state &= ~DISABLED;
-			menu_tree[FILE_INFO].ob_state &= ~DISABLED;
+			menu_tree[FILE_RELOAD].ob_state &= ~OS_DISABLED;
+			menu_tree[FILE_INFO].ob_state &= ~OS_DISABLED;
 
 			if(printplug_found)
-				menu_tree[FILE_PRINT].ob_state &= ~DISABLED;
+				menu_tree[FILE_PRINT].ob_state &= ~OS_DISABLED;
 
 			if(Sys_info.defaultExporter!=-1)
-				menu_tree[FILE_SAVE].ob_state &= ~DISABLED;
+				menu_tree[FILE_SAVE].ob_state &= ~OS_DISABLED;
 
-			menu_tree[EDIT_COLRED].ob_state &= ~DISABLED;
-			menu_tree[DUPLICATE_PIC].ob_state &= ~DISABLED;
-			menu_tree[SELECT_ALL].ob_state &= ~DISABLED;
-			menu_tree[EDIT_INSERT].ob_state &= ~DISABLED;
-			menu_tree[DISP_NEXTPIC].ob_state &= ~DISABLED;
+			menu_tree[EDIT_COLRED].ob_state &= ~OS_DISABLED;
+			menu_tree[DUPLICATE_PIC].ob_state &= ~OS_DISABLED;
+			menu_tree[SELECT_ALL].ob_state &= ~OS_DISABLED;
+			menu_tree[EDIT_INSERT].ob_state &= ~OS_DISABLED;
+			menu_tree[DISP_NEXTPIC].ob_state &= ~OS_DISABLED;
 
 			/*
 			 * mal was anderes, hat nichts mit der Menzeile
 			 * zu tun, der Status wird aber genauso bestimmt
 			 */
-			change_object(&wind_s[WIND_MODULES], START_MODULE, ENABLED, 1);
-			change_object(&wind_s[WIND_EXPORT], START_EMOD, ENABLED, 1);
-			change_object(&wind_s[WIND_MODFORM], START_MOD, ENABLED, 1);
+			change_object(&wind_s[WIND_MODULES], START_MODULE, OS_ENABLED, 1);
+			change_object(&wind_s[WIND_EXPORT], START_EMOD, OS_ENABLED, 1);
+			change_object(&wind_s[WIND_MODFORM], START_MOD, OS_ENABLED, 1);
 		}
 
 		if(dialwindthere > 0) 
-			menu_tree[DISP_NEXTWIN].ob_state &= ~DISABLED;
+			menu_tree[DISP_NEXTWIN].ob_state &= ~OS_DISABLED;
 	}
 }
 

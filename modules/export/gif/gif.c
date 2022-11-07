@@ -205,35 +205,35 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		case MMORE:
 			/* Ressource aktualisieren */
 			if(config.interlace)
-				win_form[LINE_ARRANGE].ob_state |= SELECTED;
+				win_form[LINE_ARRANGE].ob_state |= OS_SELECTED;
 			else
-				win_form[LINE_ARRANGE].ob_state &= ~SELECTED;
+				win_form[LINE_ARRANGE].ob_state &= ~OS_SELECTED;
 
 			if(config.tindexok)
 			{
-				win_form[TINDEX].ob_state &= ~DISABLED;
-				win_form[TINDEXOK].ob_state |= SELECTED;
+				win_form[TINDEX].ob_state &= ~OS_DISABLED;
+				win_form[TINDEXOK].ob_state |= OS_SELECTED;
 			}
 			else
 			{
-				win_form[TINDEX].ob_state |= DISABLED;
-				win_form[TINDEXOK].ob_state &= ~SELECTED;
+				win_form[TINDEX].ob_state |= OS_DISABLED;
+				win_form[TINDEXOK].ob_state &= ~OS_SELECTED;
 			}
 
 			if(config.typ == GIF87A)
 			{
-				win_form[GIF87A].ob_state |= SELECTED;
-				win_form[GIF89A].ob_state &= ~SELECTED;
-				win_form[TINDEX].ob_state |= DISABLED;
-				win_form[TINDEXOK].ob_state |= DISABLED;
+				win_form[GIF87A].ob_state |= OS_SELECTED;
+				win_form[GIF89A].ob_state &= ~OS_SELECTED;
+				win_form[TINDEX].ob_state |= OS_DISABLED;
+				win_form[TINDEXOK].ob_state |= OS_DISABLED;
 			}
 			else
 			{
-				win_form[GIF87A].ob_state &= ~SELECTED;
-				win_form[GIF89A].ob_state |= SELECTED;
+				win_form[GIF87A].ob_state &= ~OS_SELECTED;
+				win_form[GIF89A].ob_state |= OS_SELECTED;
 				if(config.tindexok)
-					win_form[TINDEX].ob_state &= ~DISABLED;
-				win_form[TINDEXOK].ob_state &= ~DISABLED;
+					win_form[TINDEX].ob_state &= ~OS_DISABLED;
+				win_form[TINDEXOK].ob_state &= ~OS_DISABLED;
 			}
 
 			itoa(config.transparent, win_form[TINDEX].ob_spec.tedinfo->te_ptext, 10);
@@ -324,14 +324,14 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 							if(config.typ == GIF87A)
 							{
-								win_form[TINDEX].ob_state |= DISABLED;
-								win_form[TINDEXOK].ob_state |= DISABLED;
+								win_form[TINDEX].ob_state |= OS_DISABLED;
+								win_form[TINDEXOK].ob_state |= OS_DISABLED;
 							}
 							else
 							{
 								if(config.tindexok)
-									win_form[TINDEX].ob_state &= ~DISABLED;
-								win_form[TINDEXOK].ob_state &= ~DISABLED;
+									win_form[TINDEX].ob_state &= ~OS_DISABLED;
+								win_form[TINDEXOK].ob_state &= ~OS_DISABLED;
 							}
 
 							redraw_window(&window, NULL, TINDEX_BOX, 0);
@@ -342,9 +342,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 								config.tindexok ^= 1;
 
 								if(config.tindexok)
-									win_form[TINDEX].ob_state &= ~DISABLED;
+									win_form[TINDEX].ob_state &= ~OS_DISABLED;
 								else
-									win_form[TINDEX].ob_state |= DISABLED;
+									win_form[TINDEX].ob_state |= OS_DISABLED;
 
 								redraw_window(&window, NULL, TINDEX, 0);
 							}

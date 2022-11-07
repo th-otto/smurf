@@ -410,12 +410,12 @@ void apply_setting(CONFIG *myConfig)
 {
 	Folge = myConfig->Folge;
 
-	win_form[_RBG].ob_state &= ~SELECTED;
-	win_form[_GRB].ob_state &= ~SELECTED;
-	win_form[_GBR].ob_state &= ~SELECTED;
-	win_form[_BRG].ob_state &= ~SELECTED;
-	win_form[_BGR].ob_state &= ~SELECTED;
-	win_form[Folge].ob_state |= SELECTED;
+	win_form[_RBG].ob_state &= ~OS_SELECTED;
+	win_form[_GRB].ob_state &= ~OS_SELECTED;
+	win_form[_GBR].ob_state &= ~OS_SELECTED;
+	win_form[_BRG].ob_state &= ~OS_SELECTED;
+	win_form[_BGR].ob_state &= ~OS_SELECTED;
+	win_form[Folge].ob_state |= OS_SELECTED;
 
 	redraw_window(&window, NULL, FORMAT_BOX, 1);
 

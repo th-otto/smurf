@@ -74,13 +74,13 @@ void f_display_opt(void)
 	else
 	if(button == DITHER_POPBUT || button == DITHER_CB)
 	{
-		if(dopt_tree[DITHER_24].ob_state&SELECTED)
+		if(dopt_tree[DITHER_24].ob_state&OS_SELECTED)
 			ditmode = Sys_info.dither24;
 		else
-			if(dopt_tree[DITHER_8].ob_state&SELECTED)
+			if(dopt_tree[DITHER_8].ob_state&OS_SELECTED)
 				ditmode = Sys_info.dither8;
 			else
-				if(dopt_tree[DITHER_4].ob_state&SELECTED)
+				if(dopt_tree[DITHER_4].ob_state&OS_SELECTED)
 					ditmode = Sys_info.dither4;
 	
 		olditem=popups[POPUP_DITHER].item;
@@ -92,7 +92,7 @@ void f_display_opt(void)
 		
 		if(popback > 0)
 		{
-			if(dopt_tree[DITHER_4].ob_state&SELECTED)
+			if(dopt_tree[DITHER_4].ob_state&OS_SELECTED)
 			{
 				Sys_info.dither4 = popback;
 				if(ditmod_info[popback - 1]->pal_mode == FIXPAL)
@@ -102,7 +102,7 @@ void f_display_opt(void)
 						Sys_info.pal4 = CR_SYSPAL;
 			}
 			else
-			if(dopt_tree[DITHER_8].ob_state&SELECTED) 
+			if(dopt_tree[DITHER_8].ob_state&OS_SELECTED) 
 			{
 				Sys_info.dither8 = popback;
 				if(ditmod_info[popback - 1]->pal_mode == FIXPAL)
@@ -112,7 +112,7 @@ void f_display_opt(void)
 						Sys_info.pal8 = CR_SYSPAL;
 			}
 			else
-			if(dopt_tree[DITHER_24].ob_state&SELECTED)
+			if(dopt_tree[DITHER_24].ob_state&OS_SELECTED)
 			{
 				Sys_info.dither24 = popback;
 				if(ditmod_info[popback - 1]->pal_mode == FIXPAL)
@@ -130,13 +130,13 @@ void f_display_opt(void)
 	else
 	if(button == COLRED_POPBUT || button == COLRED_CB)
 	{
-		if(dopt_tree[DITHER_24].ob_state&SELECTED)
+		if(dopt_tree[DITHER_24].ob_state&OS_SELECTED)
 			ditmode = Sys_info.pal24;
 		else
-			if(dopt_tree[DITHER_8].ob_state&SELECTED)
+			if(dopt_tree[DITHER_8].ob_state&OS_SELECTED)
 				ditmode = Sys_info.pal8;
 			else
-				if(dopt_tree[DITHER_4].ob_state&SELECTED)
+				if(dopt_tree[DITHER_4].ob_state&OS_SELECTED)
 					ditmode = Sys_info.pal4;
 
 		olditem=popups[POPUP_COLRED].item;
@@ -150,13 +150,13 @@ void f_display_opt(void)
 
 		if(popback > 0)
 		{
-			if(dopt_tree[DITHER_4].ob_state&SELECTED)
+			if(dopt_tree[DITHER_4].ob_state&OS_SELECTED)
 				Sys_info.pal4 = popback;
 			else
-				if(dopt_tree[DITHER_8].ob_state&SELECTED)
+				if(dopt_tree[DITHER_8].ob_state&OS_SELECTED)
 					Sys_info.pal8 = popback;
 			else
-				if(dopt_tree[DITHER_24].ob_state&SELECTED)
+				if(dopt_tree[DITHER_24].ob_state&OS_SELECTED)
 					Sys_info.pal24 = popback;
 
 			Dialog.dispOpt.updateWindow(0, 1);
@@ -176,8 +176,8 @@ void f_display_opt(void)
 			strcpy(dopt_tree[COLRED_POPBUT].TextCast, filepal_name);
 		}
 
-		change_object(&wind_s[WIND_DOPT], COLRED_POPBUT, UNSEL, 1);
-		change_object(&wind_s[WIND_DOPT], LOAD_PAL, UNSEL, 1);
+		change_object(&wind_s[WIND_DOPT], COLRED_POPBUT, OS_UNSEL, 1);
+		change_object(&wind_s[WIND_DOPT], LOAD_PAL, OS_UNSEL, 1);
 	}
 
 
@@ -192,13 +192,13 @@ void f_display_opt(void)
 		Display_Opt.syspal_8 = Sys_info.pal8;
 		Display_Opt.syspal_24 = Sys_info.pal24;
 
-		if(Dialog.dispOpt.tree[PAL_MOUSE].ob_state&SELECTED)
+		if(Dialog.dispOpt.tree[PAL_MOUSE].ob_state&OS_SELECTED)
 			Display_Opt.palette_mode = PAL_MOUSE;
 		else
-			if(Dialog.dispOpt.tree[PAL_TOPWIN].ob_state&SELECTED)
+			if(Dialog.dispOpt.tree[PAL_TOPWIN].ob_state&OS_SELECTED)
 				Display_Opt.palette_mode = PAL_TOPWIN;
 			else
-				if(Dialog.dispOpt.tree[PAL_SYSTEM].ob_state&SELECTED)
+				if(Dialog.dispOpt.tree[PAL_SYSTEM].ob_state&OS_SELECTED)
 					Display_Opt.palette_mode = PAL_SYSTEM;
 				
 		Sys_info.Event_Timer = atoi(Dialog.dispOpt.tree[PAL_TIMER].TextCast);
@@ -212,7 +212,7 @@ void f_display_opt(void)
 		if(button == DISPLAY_OK)
 		{
 			Dialog.dispOpt.updateWindow(1, 0);
-			change_object(&wind_s[WIND_DOPT], DISPLAY_OK, UNSEL, 1);
+			change_object(&wind_s[WIND_DOPT], DISPLAY_OK, OS_UNSEL, 1);
 			
 			Dialog.close(WIND_DOPT);
 		}
@@ -231,7 +231,7 @@ void f_display_opt(void)
 	}
 
 	if(button == DISPLAY_SET)
-		change_object(&wind_s[WIND_DOPT], DISPLAY_SET, UNSEL, 1);
+		change_object(&wind_s[WIND_DOPT], DISPLAY_SET, OS_UNSEL, 1);
 }
 
 
@@ -270,19 +270,19 @@ void f_update_dwindow(int mode, int redraw)
 
 	dopt_tree = wind_s[WIND_DOPT].resource_form;
 
-	if(dopt_tree[DITHER_4].ob_state&SELECTED)
+	if(dopt_tree[DITHER_4].ob_state&OS_SELECTED)
 	{
 		rdit = dit4;
 		rpal = pal4;
 	}
 	else
-		if(dopt_tree[DITHER_8].ob_state&SELECTED)
+		if(dopt_tree[DITHER_8].ob_state&OS_SELECTED)
 		{
 			rdit = dit8;
 			rpal = pal8;
 		}
 		else
-			if(dopt_tree[DITHER_24].ob_state&SELECTED)
+			if(dopt_tree[DITHER_24].ob_state&OS_SELECTED)
 			{
 				rdit = dit24;
 				rpal = pal24;
@@ -292,20 +292,20 @@ void f_update_dwindow(int mode, int redraw)
 	strncpy(dopt_tree[COLRED_POPBUT].TextCast, colred_popup[rpal].TextCast, 15);
 
 	if(rpal == CR_FILEPAL)
-		change_object(&wind_s[WIND_DOPT], LOAD_PAL, ENABLED, 1);
+		change_object(&wind_s[WIND_DOPT], LOAD_PAL, OS_ENABLED, 1);
 	else
-		change_object(&wind_s[WIND_DOPT], LOAD_PAL, DISABLED, 1);
+		change_object(&wind_s[WIND_DOPT], LOAD_PAL, OS_DISABLED, 1);
 
 
 	if(rpal == CR_FIXPAL)
 	{
-		change_object(&wind_s[WIND_DOPT], COLRED_POPBUT, DISABLED, 0);
-		change_object(&wind_s[WIND_DOPT], COLRED_CB, DISABLED, 0);
+		change_object(&wind_s[WIND_DOPT], COLRED_POPBUT, OS_DISABLED, 0);
+		change_object(&wind_s[WIND_DOPT], COLRED_CB, OS_DISABLED, 0);
 	}
 	else
 	{
-		change_object(&wind_s[WIND_DOPT], COLRED_POPBUT, ENABLED, 0);
-		change_object(&wind_s[WIND_DOPT], COLRED_CB, ENABLED, 0);
+		change_object(&wind_s[WIND_DOPT], COLRED_POPBUT, OS_ENABLED, 0);
+		change_object(&wind_s[WIND_DOPT], COLRED_CB, OS_ENABLED, 0);
 	}
 
 	if(redraw)

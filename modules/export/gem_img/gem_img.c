@@ -215,19 +215,19 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			/* Ressource aktualisieren */
 			if(config.mode == GVW)
 			{
-				win_form[GVW].ob_state |= SELECTED;
-				win_form[PIXA].ob_state &= ~SELECTED;
+				win_form[GVW].ob_state |= OS_SELECTED;
+				win_form[PIXA].ob_state &= ~OS_SELECTED;
 			}
 			else
 			{
-				win_form[GVW].ob_state &= ~SELECTED;
-				win_form[PIXA].ob_state |= SELECTED;
+				win_form[GVW].ob_state &= ~OS_SELECTED;
+				win_form[PIXA].ob_state |= OS_SELECTED;
 			}
 
 			if(config.format == XIMG)
-				win_form[FORMAT].ob_state |= SELECTED;
+				win_form[FORMAT].ob_state |= OS_SELECTED;
 			else
-				win_form[FORMAT].ob_state &= ~SELECTED;
+				win_form[FORMAT].ob_state &= ~OS_SELECTED;
 
 			f_module_window = smurf_struct->services->f_module_window;	/* Windowfunktion */
 	

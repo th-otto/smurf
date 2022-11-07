@@ -45,7 +45,7 @@ void f_handle_radios(OBJECT *tree, int klickobj, int windnum)
 	int newedit;
 
 
-	if(tree[klickobj].ob_flags&RBUTTON && !(tree[klickobj].ob_state&DISABLED))
+	if(tree[klickobj].ob_flags&OF_RBUTTON && !(tree[klickobj].ob_state&OS_DISABLED))
 	{
 		Window.topNow(&wind_s[windnum]);
 		form_button(wind_s[windnum].resource_form, klickobj, klicks, &newedit);	
@@ -97,7 +97,7 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 	/* Use-Direct-Object? */
 	if(klickobj > 0 && type != PREVIEW_ACTION)
 	{
-		if(type == UDO || (ob[klickobj].ob_flags&RBUTTON) ||
+		if(type == UDO || (ob[klickobj].ob_flags&OF_RBUTTON) ||
 		   (ob[klickobj].ob_type&0x00ff) == G_USERDEF)
 		{
 			objct = klickobj;
@@ -118,7 +118,7 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 					else
 						if((evback&MU_BUTTON) && mode == 1)
 						{
-							change_object(wind, klickobj, UNSEL, 1);
+							change_object(wind, klickobj, OS_UNSEL, 1);
 							mode = 0;
 							return(-1);
 						}	
@@ -139,13 +139,13 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 			
 				if(timo != klickobj)
 				{
-					if((ob[klickobj].ob_state & SELECTED) && ob[klickobj].ob_flags&SELECTABLE)
-						change_object(wind, klickobj, UNSEL, 1);
+					if((ob[klickobj].ob_state & OS_SELECTED) && ob[klickobj].ob_flags&OF_SELECTABLE)
+						change_object(wind, klickobj, OS_UNSEL, 1);
 				}
 				else
 				{
-					if(!(ob[klickobj].ob_state & SELECTED) && ob[klickobj].ob_flags&SELECTABLE) 
-						change_object(wind, klickobj, SEL, 1);
+					if(!(ob[klickobj].ob_state & OS_SELECTED) && ob[klickobj].ob_flags&OF_SELECTABLE) 
+						change_object(wind, klickobj, OS_SELECTED, 1);
 				}
 			} while(mouse_button != 0 && evback != MU_BUTTON);
 
@@ -204,8 +204,8 @@ void f_deselect_popup(WINDOW *wind, int ob1, int ob2)
 {
 	DEBUG_MSG (( "f_deselect_popup...\n" ));
 
-	change_object(wind, ob1, UNSEL, 1);
-	change_object(wind, ob2, UNSEL, 1);
+	change_object(wind, ob1, OS_UNSEL, 1);
+	change_object(wind, ob2, OS_UNSEL, 1);
 
 	DEBUG_MSG (( "f_deselect_popup...Ende\n" ));
 }

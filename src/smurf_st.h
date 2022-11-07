@@ -28,7 +28,7 @@
 /* Falls Dpathconf() nicht existiert, wird 12 angenommen. */
 #define NAME_MAX 255        /* maximale L„nge Dateiname ohne Pfad */
 
-typedef struct DIRENTRY
+struct DIRENTRY
 {
     char *modname;
     struct DIRENTRY *next;

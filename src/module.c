@@ -44,9 +44,6 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-#define SEL		1
-#define UNSEL	0
-
 static char modname[25];
 
 /* Standardpaletten im VDI-Format fr TC-Iconwandlung */
@@ -109,8 +106,8 @@ int start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	{
 		mod_basepage = (BASPAG *)temp;
 
-		mod_magic = get_modmagic(mod_basepage);				/* Zeiger auf Magic (muž SIMD sein!) */
-		if(mod_magic != 'SIMD') 
+		mod_magic = get_modmagic(mod_basepage);				/* Zeiger auf Magic (muž MOD_MAGIC_IMPORT sein!) */
+		if(mod_magic != MOD_MAGIC_IMPORT) 
 			return(M_MODERR);
 
 		/* L„nge des gesamten Tochterprozesses ermitteln */
@@ -137,7 +134,9 @@ int start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 		module_main = (INT_FUNCTION)(textseg_begin + MAIN_FUNCTION_OFFSET);
 		module_return = module_main(&sm_struct);
 	
-/*		Pexec(102, NULL, mod_basepage, 0L);				/* Modul systemkonform t”ten */ */
+#if 0
+		Pexec(102, NULL, mod_basepage, 0L);				/* Modul systemkonform t”ten */
+#endif
 		SMfree(mod_basepage->p_env);
 		SMfree(mod_basepage);								/* Modul-Basepage freigeben */
 	}
@@ -182,8 +181,8 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, int mode, int mo
 		{
 			edit_basepage = (BASPAG *)temp;
 
-			mod_magic = get_modmagic(edit_basepage);		/* Zeiger auf Magic (muž 'SEMD' sein!) */
-			if(mod_magic != 'SEMD')
+			mod_magic = get_modmagic(edit_basepage);		/* Zeiger auf Magic (muž MOD_MAGIC_EDIT sein!) */
+			if(mod_magic != MOD_MAGIC_EDIT)
 			{
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 				return(NULL);
@@ -295,8 +294,8 @@ EXPORT_PIC *start_exp_module(char *modpath, int message, SMURF_PIC *pic_to_expor
 		{
 			export_basepage = (BASPAG *)temp;
 
-			mod_magic = get_modmagic(export_basepage);		/* Zeiger auf Magic (muž 'SXMD' sein!) */
-			if(mod_magic != 'SXMD')
+			mod_magic = get_modmagic(export_basepage);		/* Zeiger auf Magic (muž MOD_MAGIC_EXPORT sein!) */
+			if(mod_magic != MOD_MAGIC_EXPORT)
 			{
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 				return(NULL);
@@ -402,16 +401,16 @@ int handle_modevent(int event_type, WINDOW *mod_window)
 				if(!IsDisabled(mod_resource[which_object]))
 				{
 					if(!IsSelected(mod_resource[which_object]))
-						change_object(mod_window, which_object, SEL, 1);
+						change_object(mod_window, which_object, OS_SELECTED, 1);
 					else
-						change_object(mod_window, which_object, UNSEL, 1);
+						change_object(mod_window, which_object, OS_UNSEL, 1);
 				}
 				else
 					which_object=-1;
 			}
 
 		/*------- Radiobutton angeklickt (Window toppen) */
-		if(which_object!=-1 && mod_resource[which_object].ob_flags&RBUTTON)
+		if(which_object!=-1 && mod_resource[which_object].ob_flags&OF_RBUTTON)
 			Window.topNow(mod_window);
 	
 		return(which_object);
@@ -684,7 +683,7 @@ int f_open_module_window(WINDOW *module_window)
 		if(Sys_info.OSFeatures&BEVT)	
 			Window.windSet(module_window->whandlem, WF_BEVENT,1,0,0,0);
 
-		Window.windSet(module_window->whandlem, WF_NAME, LONG2_2INT((long)module_window->wtitle), 0,0);
+		Window.windSet(module_window->whandlem, WF_NAME, LONG2_2INT(module_window->wtitle), 0,0);
 
 		wind_open(module_window->whandlem, m_wind_x, m_wind_y, m_wind_w, m_wind_h);
 
@@ -896,8 +895,8 @@ void convert_icon(OBJECT *tree, int index)
 	char *pixbuf, *line,
 		 get, set;
 
-	int *imgdata;
-	int **img_data[2];
+	WORD *imgdata;
+	WORD **img_data[2];
 	int t, icon_bitplanes, icon_w, icon_w16, icon_h, x, y;
 
 	long icon_planelength;
@@ -933,8 +932,8 @@ void convert_icon(OBJECT *tree, int index)
 				 */
 				if(icon_bitplanes > ciconblk->mainlist->num_planes)
 				{
-					imgdata = (int *)SMalloc(icon_planelength * icon_bitplanes);
-					memset(imgdata, 0x0, icon_planelength * icon_bitplanes);
+					imgdata = (WORD *)SMalloc(icon_planelength * icon_bitplanes);
+					memset(imgdata, 0, icon_planelength * icon_bitplanes);
 					memcpy(imgdata, *img_data[t], icon_planelength * ciconblk->mainlist->num_planes);
 					SMfree(*img_data[t]);
 					*img_data[t] = imgdata;
@@ -960,7 +959,7 @@ void convert_icon(OBJECT *tree, int index)
 							line++;
 						} while(++x < icon_w);
 
-						((char *)imgdata) += setpix_std_line(pixbuf, (char *)imgdata, icon_bitplanes, icon_planelength, icon_w);
+						imgdata = (WORD *)((char *)imgdata + setpix_std_line(pixbuf, (char *)imgdata, icon_bitplanes, icon_planelength, icon_w));
 					} while(++y < icon_h);
 
 					SMfree(pixbuf);
@@ -984,7 +983,7 @@ void convert_icon(OBJECT *tree, int index)
 			}
 			else
 			{
-				imgdata = (int *)SMalloc(icon_planelength * icon_bitplanes);
+				imgdata = (WORD *)SMalloc(icon_planelength * icon_bitplanes);
 
 				smpic.pic_data = (char *)*img_data[t];
 				smpic.pic_width = icon_w;
@@ -1165,7 +1164,7 @@ int inform_modules(int message, SMURF_PIC *picture)
 		if(curr_baspag)
 		{
 			mod_magic = get_modmagic(curr_baspag);
-			if(mod_magic == 'SEMD')
+			if(mod_magic == MOD_MAGIC_EDIT)
 			{
 				module.smStruct[t]->smurf_pic = picture;
 				module.comm.startEdit("", curr_baspag, message, 0, module.smStruct[t]);
@@ -1182,7 +1181,7 @@ int inform_modules(int message, SMURF_PIC *picture)
 		if(curr_baspag)
 		{
 			mod_magic = get_modmagic(curr_baspag);
-			if(mod_magic=='SPLG')
+			if(mod_magic==MOD_MAGIC_PLUGIN)
 			{
 				plg_data[t]->event_par[0] = active_pic;
 				start_plugin(curr_baspag, message, 0, plg_data[t]);
@@ -1255,11 +1254,10 @@ void AESmsg_to_modules(int *msgbuf)
 
 			memcpy(module.smStruct[t]->event_par, msgbuf, 16);
 
-			if(magic == 'SEMD')
+			if(magic == MOD_MAGIC_EDIT)
 				module.comm.startEdit(NULL, curr_bp, SMURF_AES_MESSAGE, 0, module.smStruct[t]);
-			else
-				if(magic == 'SXMD')
-					start_exp_module(NULL, SMURF_AES_MESSAGE, NULL, curr_bp, module.smStruct[t], 0);
+			else if(magic == MOD_MAGIC_EXPORT)
+				start_exp_module(NULL, SMURF_AES_MESSAGE, NULL, curr_bp, module.smStruct[t], 0);
 
 			f_handle_modmessage(module.smStruct[t]);	
 		}
@@ -1277,7 +1275,7 @@ void AESmsg_to_modules(int *msgbuf)
 		{
 			magic = get_modmagic(plugin_bp[t]);
 
-			if(magic == 'SPLG')
+			if(magic == MOD_MAGIC_PLUGIN)
 			{
 				memcpy(plg_data[t]->event_par, msgbuf, 16);
 				start_plugin(curr_bp, SMURF_AES_MESSAGE, 0, plg_data[t]);

@@ -28,6 +28,10 @@
 #include "fontsel.h"
 #include "de/text.h"
 
+#ifndef _AESversion
+#define _AESversion _GemParBlk.global[0]
+#endif
+
 #define	TextCast	ob_spec.tedinfo->te_ptext
 
 extern int work_in[25], work_out[50];
@@ -46,10 +50,10 @@ int call_fontsel(int handle, FONT_INFO *fontinfo)
 	xFSL *fontsel_struct;
 
 
-	if(get_cookie('xFSL', (unsigned long *)&fontsel_struct))
+	if(get_cookie(0x7846534CL, (unsigned long *)&fontsel_struct)) /* 'xFSL' */
 		back = call_xfsl(handle, fontinfo, fontsel_struct);
 	else
-		if((_GemParBlk.global[0] >= 0x400 || appl_find("?AGI") >= 0) &&
+		if((_AESversion >= 0x400 || appl_find("?AGI") >= 0) &&
 		   appl_getinfo(7, &back, &idummy, &idummy, &idummy) && back&0x04)
 			back = call_magic_fsl(handle, fontinfo);
 		else
@@ -124,14 +128,17 @@ int call_magic_fsl(int handle, FONT_INFO *fontinfo)
 		}
 
 		fnts_delete(fnt_dialog, 0);
-	}
-	else
+	} else
+	{
 /*		form_alert(1, "[1][Fehler beim Aufruf des|MagiC-Fontselectors!][ Hoppla ]"); */
-/* 1.06 Style
+/* 1.06 Style */
+#if 0
 		services->f_alert(alerts[ERROR_MAGIC_FSEL].TextCast, NULL, NULL, NULL, 1);
-		services->f_alert(alerts[ERROR_MAGIC_FSEL].TextCast); */
+		services->f_alert(alerts[ERROR_MAGIC_FSEL].TextCast);
+#endif
+	}
 
 	v_clsvwk(dummy_handle);
 
 	return(back);
-} /* call_magic_fsl */
+}

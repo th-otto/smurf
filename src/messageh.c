@@ -487,7 +487,7 @@ int f_handle_message(void)
 		{
 			if(wind_num < 0)				/* bearbeitetes Bild? -> Rckfrage! */
 			{
-				if(window_to_handle->wtitle[11] == '*' && !(Sys_info.profi_mode&SELECTED))
+				if(window_to_handle->wtitle[11] == '*' && !(Sys_info.profi_mode&OS_SELECTED))
 				{
 					if(Dialog.winAlert.openAlert(Dialog.winAlert.alerts[WCLOSE_ALERT].TextCast, "Nein", " Ja ", NULL, 1) == 1)
 							return(0);
@@ -896,7 +896,7 @@ int f_handle_message(void)
 	 * OLE_NEW: ein Olgamanager wurde nachgestartet - mal Hallo sagen.
 	 */
 	case OLE_NEW:	Sys_info.olgaman_ID = messagebuf[1];
-					Comm.sendAESMsg(Sys_info.olgaman_ID, OLE_INIT, OL_SERVER, 0,0,0, 'RG', -1);
+					Comm.sendAESMsg(Sys_info.olgaman_ID, OLE_INIT, OL_SERVER, 0,0,0, 0x5247, -1);
 					break;
 
 	/*

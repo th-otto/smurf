@@ -68,8 +68,12 @@
 
 #define CONST    const
 #define VOLATILE volatile
+#ifdef __PUREC__
 #define CDECL    cdecl
 #define PASCAL   pascal
+#else
+#define CDECL
+#endif
 
 #define SIZE_T   size_t
 

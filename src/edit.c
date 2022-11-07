@@ -62,7 +62,7 @@ void f_edit_pop(void)
 
 	my_scancode = (key_scancode&0xff00) >> 8;
 
-	info = Dialog.emodList.tree[INFO_MODULE].ob_state&SELECTED;
+	info = Dialog.emodList.tree[INFO_MODULE].ob_state&OS_SELECTED;
 
 	/*
 	 * Neuinitialisierung des Dialogs
@@ -89,7 +89,7 @@ void f_edit_pop(void)
 		mod_index = f_listfield((long*)&wind_s[WIND_MODULES], 0, 0, &Dialog.emodList.modList);
 
 	if(key_scancode && my_scancode != KEY_UP && my_scancode != KEY_DOWN || !openmode)
-		Window.windSet(wind_s[WIND_MODULES].whandlem, WF_INFO, LONG2_2INT((long)Dialog.emodList.modList.autolocator), 0,0);
+		Window.windSet(wind_s[WIND_MODULES].whandlem, WF_INFO, LONG2_2INT(Dialog.emodList.modList.autolocator), 0,0);
 
 	/*
 	 * "Info" angeklickt?
@@ -107,7 +107,7 @@ void f_edit_pop(void)
 	   Dialog.emodList.modNames[mod_index] != NULL && strlen(Dialog.emodList.modNames[mod_index]) != 0)
 	{
 		mpath = edit_modules[mod_index];					/* Modulpfad holen */
-		change_object(&wind_s[WIND_MODULES], START_MODULE, UNSEL, 1);
+		change_object(&wind_s[WIND_MODULES], START_MODULE, OS_UNSEL, 1);
 
 		/*
 		 * Modulinformationen holen
@@ -168,7 +168,7 @@ void f_edit_pop(void)
 				if(module.smStruct[mod_num]->module_mode == M_STARTED)
 				{
 					/* Sicherheitsabfrage */
-					if(Sys_info.profi_mode != SELECTED)
+					if(Sys_info.profi_mode != OS_SELECTED)
 					{
 						strcpy(alert, "[2][");
 						strcat(alert, Dialog.emodList.modNames[mod_index]);
@@ -408,13 +408,13 @@ void emod_info_off(void)
 	 */
 	if(wind_s[WIND_MODULES].resource_form == Dialog.emodList.infoTree)
 	{
-		change_object(&wind_s[WIND_MODULES], MOD_INFO_OK, UNSEL, 0);
+		change_object(&wind_s[WIND_MODULES], MOD_INFO_OK, OS_UNSEL, 0);
 		wind_s[WIND_MODULES].resource_form = Dialog.emodList.tree;
 
 		Dialog.emodList.tree[0].ob_x = wind_s[WIND_MODULES].wx;
 		Dialog.emodList.tree[0].ob_y = wind_s[WIND_MODULES].wy;
 
-		change_object(&wind_s[WIND_MODULES], INFO_MODULE, UNSEL, 0);
+		change_object(&wind_s[WIND_MODULES], INFO_MODULE, OS_UNSEL, 0);
 	}
 
 	Window.redraw(&wind_s[WIND_MODULES], NULL, 0, 0);

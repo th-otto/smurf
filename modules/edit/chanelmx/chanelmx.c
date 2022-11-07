@@ -462,15 +462,15 @@ void apply_setting(CONFIG *myConfig)
 	srcchanel = myConfig->srcchanel;
 	destchanel = myConfig->destchanel;
 
-	win_form[ZR].ob_state &= ~SELECTED;
-	win_form[ZG].ob_state &= ~SELECTED;
-	win_form[ZB].ob_state &= ~SELECTED;
-	win_form[destchanel].ob_state |= SELECTED;
+	win_form[ZR].ob_state &= ~OS_SELECTED;
+	win_form[ZG].ob_state &= ~OS_SELECTED;
+	win_form[ZB].ob_state &= ~OS_SELECTED;
+	win_form[destchanel].ob_state |= OS_SELECTED;
 
-	win_form[QR].ob_state &= ~SELECTED;
-	win_form[QG].ob_state &= ~SELECTED;
-	win_form[QB].ob_state &= ~SELECTED;
-	win_form[srcchanel].ob_state |= SELECTED;
+	win_form[QR].ob_state &= ~OS_SELECTED;
+	win_form[QG].ob_state &= ~OS_SELECTED;
+	win_form[QB].ob_state &= ~OS_SELECTED;
+	win_form[srcchanel].ob_state |= OS_SELECTED;
 
 	redraw_window(&window, NULL, DEST_BOX, 1);
 	redraw_window(&window, NULL, SRC_BOX, 1);

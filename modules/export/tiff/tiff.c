@@ -229,15 +229,15 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 		case MMORE:
 			/* Ressource aktualisieren */
-			win_form[KEINE].ob_state &= ~SELECTED;
-			win_form[RLE].ob_state &= ~SELECTED;
-			win_form[HUFFMAN].ob_state &= ~SELECTED;
-			win_form[LZW].ob_state &= ~SELECTED;
-			win_form[config.comp].ob_state |= SELECTED;
+			win_form[KEINE].ob_state &= ~OS_SELECTED;
+			win_form[RLE].ob_state &= ~OS_SELECTED;
+			win_form[HUFFMAN].ob_state &= ~OS_SELECTED;
+			win_form[LZW].ob_state &= ~OS_SELECTED;
+			win_form[config.comp].ob_state |= OS_SELECTED;
 
-			win_form[MOTO].ob_state &= ~SELECTED;
-			win_form[INTEL].ob_state &= ~SELECTED;
-			win_form[config.border].ob_state |= SELECTED;
+			win_form[MOTO].ob_state &= ~OS_SELECTED;
+			win_form[INTEL].ob_state &= ~OS_SELECTED;
+			win_form[config.border].ob_state |= OS_SELECTED;
 
 			f_module_window = smurf_struct->services->f_module_window;	/* Windowfunktion */
 

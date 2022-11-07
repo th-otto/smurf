@@ -134,8 +134,8 @@ void f_scan_edit(void)
 		{	
 			edit_baspag = (BASPAG *)temp;
 
-			mod_magic = get_modmagic(edit_baspag);			/* Zeiger auf Magic (muž 'SEMD' sein!) */
-			if(mod_magic != 'SEMD')
+			mod_magic = get_modmagic(edit_baspag);			/* Zeiger auf Magic (muž MOD_MAGIC_EDIT sein!) */
+			if(mod_magic != MOD_MAGIC_EDIT)
 			{
 				strcpy(alert, "[1][Datei ");
 				strcat(alert, actual->modname);
@@ -309,8 +309,8 @@ void f_scan_import(void)
 		{	
 			import_baspag = (BASPAG *)temp;
 
-			mod_magic = get_modmagic(import_baspag);		/* Zeiger auf Magic (muž 'SIMD' sein!) */
-			if(mod_magic != 'SIMD')
+			mod_magic = get_modmagic(import_baspag);		/* Zeiger auf Magic (muž MOD_MAGIC_IMPORT sein!) */
+			if(mod_magic != MOD_MAGIC_IMPORT)
 			{
 				strcpy(alert, "[1][Datei ");
 				strcat(alert, actual->modname);
@@ -688,8 +688,8 @@ void f_scan_export(void)
 		{	
 			export_baspag = (BASPAG *)temp;
 
-			mod_magic = get_modmagic(export_baspag);			/* Zeiger auf Magic (muž 'SXMD' sein!) */
-			if(mod_magic != 'SXMD')
+			mod_magic = get_modmagic(export_baspag);			/* Zeiger auf Magic (muž MOD_MAGIC_EXPORT sein!) */
+			if(mod_magic != MOD_MAGIC_EXPORT)
 			{
 				strcpy(alert, "[1][Datei ");
 				strcat(alert, actual->modname);
@@ -843,8 +843,8 @@ void f_scan_dither(void)
 		{
 			dit_baspag = (BASPAG *)temp;
 		
-			mod_magic = get_modmagic(dit_baspag);			/* Zeiger auf Magic (muž 'SDMD' sein!) */
-			if(mod_magic != 'SDMD')
+			mod_magic = get_modmagic(dit_baspag);			/* Zeiger auf Magic (muž MOD_MAGIC_DITHER sein!) */
+			if(mod_magic != MOD_MAGIC_DITHER)
 			{
 				strcpy(alert, "[1][Datei ");
 				strcat(alert, actual->modname);
@@ -874,7 +874,7 @@ void f_scan_dither(void)
 
 				/* Algorithmus ins Popup eintragen und Button einschalten */	
 				col_pop[anzahl_dithermods + 1].TextCast = ditmod_info[anzahl_dithermods]->algo_name;
-				col_pop[anzahl_dithermods + 1].ob_state &= ~DISABLED;
+				col_pop[anzahl_dithermods + 1].ob_state &= ~OS_DISABLED;
 
 				anzahl_dithermods++;
 			}

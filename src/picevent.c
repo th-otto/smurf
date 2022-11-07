@@ -45,6 +45,9 @@
 #define MOVE	16
 
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
+#ifndef __PUREC__
+#define IOREC _IOREC
+#endif
 
 static int lastmousex = 0;
 static int lastmousey = 0;
@@ -770,11 +773,11 @@ static void do_block_box(WINDOW *picwindow, int mx, int my)
 		wind_update(BEG_UPDATE);
 */
 		Window.redraw(picwindow, NULL, 0, DRAWNOTREE|BLOCK_ONLY|DRAWNOBLOCK);
-/*
+#if 0
 		imageWindow.drawBlockbox(picwindow);			/* Blockbox l”schen */
 		wind_update(END_UPDATE);
 		graf_mouse(M_ON, dummy_ptr);
-*/
+#endif
 	}
 
 	/*--------- Mauspos einmal speichern ---------------*/
@@ -1208,8 +1211,8 @@ static void do_block_box(WINDOW *picwindow, int mx, int my)
 	if(wind_s[WIND_BTYPEIN].whandlem != -1)
 		insert_blockcoords(picture);
 
-	blockpopup[BLOCK_RELEASE].ob_state &= ~DISABLED;
-	blockpopup[BLOCK_FREE].ob_state &= ~DISABLED;
+	blockpopup[BLOCK_RELEASE].ob_state &= ~OS_DISABLED;
+	blockpopup[BLOCK_FREE].ob_state &= ~OS_DISABLED;
 
 	if(picwindow->xoffset != merkxoffset || picwindow->yoffset != merkyoffset)
 		Window.redraw(Dialog.picMan.window, NULL, PICMAN_PREVIEW, 0);
@@ -1541,7 +1544,8 @@ void f_display_coords(WINDOW *pic_window, int mx, int my, char blockflag)
 	{
 		if(!blockflag)
 		{
-			pic16 = (unsigned int *)pic = pic_window->picture->pic_data;
+			pic = pic_window->picture->pic_data;
+			pic16 = (unsigned int *)pic;
 			width = pic_window->picture->pic_width;
 			height = pic_window->picture->pic_height;
 			depth = pic_window->picture->depth;
@@ -1709,7 +1713,7 @@ void reload_pic(WINDOW *picwindow)
 
 	if(picwindow->wtitle[11] == '*')
 	{
-		if(Sys_info.profi_mode&SELECTED)
+		if(Sys_info.profi_mode&OS_SELECTED)
 			imageWindow.toggleAsterisk(picwindow, 0);
 		else
 		{
@@ -1954,7 +1958,7 @@ void picwin_keyboard(int key_scancode, int key_at_event, WINDOW *picwin)
 	 * Tastaturbuffer gegen nachlaufen l”schen
 	 */
 	if(Sys_info.keyevents == KBEV_DELETE)
-		*((long *)&(Iorec(1)->ibufhd)) = 0L;
+		*((long *)&(((IOREC *)Iorec(1))->ibufhd)) = 0;
 
 	Window.redraw(Dialog.picMan.window, NULL, PM_PREVBOX, 0);
 }

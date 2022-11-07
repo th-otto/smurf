@@ -493,7 +493,7 @@ void update_dhst(char *path)
 
 
 	/* DHST-Server finden */
-	if( get_cookie('DHST', &value) == FALSE )
+	if( get_cookie(0x44485354L, &value) == FALSE ) /* 'DHST' */
 		return;
 	dhst_id = (int)value;
 

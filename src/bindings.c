@@ -22,8 +22,12 @@
  * ***** END LICENSE BLOCK *****
  */
 
+#ifdef __PUREC__
 #include <aes.h>
 #include <vdi.h>
+#else
+#include <gem.h>
+#endif
 #include <stdio.h>
 #include "smurf_st.h"
 #include "bindings.h"
@@ -50,9 +54,7 @@ void vq_scrninfo(int handle, int *work_out)
 	vdipb.intin[0] = 2;
 
 	vdi(&vdipb);
-
-	return;
-} /* vq_scrninfo */
+}
 
 
 int vq_ext_devinfo(int handle, int device, int *dev_exists, char *file_path, char *file_name, char *name)
@@ -110,9 +112,7 @@ void v_ext_opnwk(int *work_in, int *handle, int *work_out)
 	vdi(&vdipb);
 	
 	*handle = vdipb.contrl[6];
-
-	return;
-} /* v_ext_opnwk */
+}
 
 
 /* vr_transfer_bits--------------------------------------------
@@ -156,9 +156,7 @@ void vr_transfer_bits(int handle, GCBITMAP *src_bm, GCBITMAP *dst_bm, int *src_r
 	vdipb.ptsin[7] = dst_rect[3];
 
 	vdi(&vdipb);
-
-	return;
-} /* vr_transfer_bits */
+}
 
 
 /* vq_px_format------------------------------------------------
@@ -188,7 +186,7 @@ long vq_px_format(int handle, unsigned long *px_format)
 	*px_format = *(long *)&vdipb.intout[2];
 
 	return(	*(long *)&vdipb.intout[0]);
-} /* vq_px_format */
+}
 
 
 /* v_get_ctab_id-----------------------------------------------
@@ -215,7 +213,7 @@ long v_get_ctab_id(int handle)
 	vdi(&vdipb);
 
 	return(*(long *)&vdipb.intout[0]);
-} /* v_get_ctab_id */
+}
 
 
 /* v_create_ctab-----------------------------------------------
@@ -245,7 +243,7 @@ COLOR_TAB *v_create_ctab(int handle, long color_space, unsigned long px_format)
 	vdi(&vdipb);
 
 	return(*(COLOR_TAB **)&vdipb.intout[0]);
-} /* v_create_ctab */
+}
 
 
 /* v_delete_ctab-----------------------------------------------
@@ -274,7 +272,7 @@ int v_delete_ctab(int handle, COLOR_TAB *ctab)
 	vdi(&vdipb);
 
 	return(vdipb.intout[0]);
-} /* v_delete_ctab */
+}
 
 
 int	objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1, int ob_sival2, int *ob_soval1, int *ob_soval2)
@@ -345,18 +343,16 @@ int cdecl fsel_boxinput(char *path, char *name, int *button, char *label, void *
 #endif
 
 
-int	SM_wind_get(int wi_ghandle, int wi_gfield, int *wi_gw1,
-				int *wi_gw2, int *wi_gw3, int *wi_gw4)
+int	SM_wind_get(int wi_ghandle, int wi_gfield, int *wi_gw1, int *wi_gw2, int *wi_gw3, int *wi_gw4)
 {
 	return wind_get(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
-} /* wind_get */
+}
 
 
-int	SM_wind_set(int wi_ghandle, int wi_gfield, int wi_gw1,
-				int wi_gw2, int wi_gw3, int wi_gw4)
+int	SM_wind_set(int wi_ghandle, int wi_gfield, int wi_gw1, int wi_gw2, int wi_gw3, int wi_gw4)
 {
 	return wind_set(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
-} /* wind_set */
+}
 
 
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
@@ -389,9 +385,7 @@ void v_opnbm(int *work_in, MFDB *bitmap, int *handle, int *work_out)
     vdi(&vdipb);
 
     *handle = vdipb.contrl[6];
-
-    return;
-} /* v_opnbm */
+}
 
 
 /* Binding fÅr die neue VDI-Funktion v_clsbm(), Offscreen-Bitmap schlieûen */
@@ -414,7 +408,5 @@ void v_clsbm(int handle)
     vdipb.contrl[6] = handle;
 
     vdi(&vdipb);
-
-    return;
-} /* v_clsbm */
+}
 #endif

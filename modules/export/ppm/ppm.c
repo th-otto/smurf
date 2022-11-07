@@ -178,13 +178,13 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			/* Ressource aktualisieren */
 			if(mode == BIN)
 			{
-				win_form[BIN].ob_state |= SELECTED;
-				win_form[ASCII].ob_state &= ~SELECTED;
+				win_form[BIN].ob_state |= OS_SELECTED;
+				win_form[ASCII].ob_state &= ~OS_SELECTED;
 			}
 			else
 			{
-				win_form[BIN].ob_state &= ~SELECTED;
-				win_form[ASCII].ob_state |= SELECTED;
+				win_form[BIN].ob_state &= ~OS_SELECTED;
+				win_form[ASCII].ob_state |= OS_SELECTED;
 			}
 
 			f_module_window = smurf_struct->services->f_module_window;	/* Windowfunktion */

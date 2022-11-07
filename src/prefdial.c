@@ -103,117 +103,117 @@ void f_module_prefs(MOD_INFO *infostruct, int mod_id)
 	pref_form = wind_s[WIND_MODFORM].resource_form;
 	strncpy(wind_s[WIND_MODFORM].wtitle, infostruct->mod_name, 40);
 	if(wind_s[WIND_MODFORM].whandlem > 0)
-		Window.windSet(wind_s[WIND_MODFORM].whandlem, WF_NAME, LONG2_2INT((long)wind_s[WIND_MODFORM].wtitle), 0,0);
+		Window.windSet(wind_s[WIND_MODFORM].whandlem, WF_NAME, LONG2_2INT(wind_s[WIND_MODFORM].wtitle), 0,0);
 
 	/*
 	 * unbenutzte Elemente verstecken
 	 */
 	if(strlen(infostruct->slide1)==0)
 	{
-		pref_form[S1_F].ob_flags|=HIDETREE;
-		pref_form[S1_A].ob_flags|=HIDETREE;
-		pref_form[S1_R].ob_flags|=HIDETREE;
+		pref_form[S1_F].ob_flags|=OF_HIDETREE;
+		pref_form[S1_A].ob_flags|=OF_HIDETREE;
+		pref_form[S1_R].ob_flags|=OF_HIDETREE;
 	}
 	else
 	{
-		pref_form[S1_F].ob_flags&=~HIDETREE;
-		pref_form[S1_A].ob_flags&=~HIDETREE;
-		pref_form[S1_R].ob_flags&=~HIDETREE;
+		pref_form[S1_F].ob_flags&=~OF_HIDETREE;
+		pref_form[S1_A].ob_flags&=~OF_HIDETREE;
+		pref_form[S1_R].ob_flags&=~OF_HIDETREE;
 	}
 
 	if(strlen(infostruct->slide2)==0)
 	{
-		pref_form[S2_F].ob_flags|=HIDETREE;
-		pref_form[S2_A].ob_flags|=HIDETREE;
-		pref_form[S2_R].ob_flags|=HIDETREE;
+		pref_form[S2_F].ob_flags|=OF_HIDETREE;
+		pref_form[S2_A].ob_flags|=OF_HIDETREE;
+		pref_form[S2_R].ob_flags|=OF_HIDETREE;
 	}
 	else
 	{
-		pref_form[S2_F].ob_flags&=~HIDETREE;
-		pref_form[S2_A].ob_flags&=~HIDETREE;
-		pref_form[S2_R].ob_flags&=~HIDETREE;
+		pref_form[S2_F].ob_flags&=~OF_HIDETREE;
+		pref_form[S2_A].ob_flags&=~OF_HIDETREE;
+		pref_form[S2_R].ob_flags&=~OF_HIDETREE;
 	}
 
 	if(strlen(infostruct->slide3)==0)
 	{
-		pref_form[S3_F].ob_flags|=HIDETREE;
-		pref_form[S3_A].ob_flags|=HIDETREE;
-		pref_form[S3_R].ob_flags|=HIDETREE;
+		pref_form[S3_F].ob_flags|=OF_HIDETREE;
+		pref_form[S3_A].ob_flags|=OF_HIDETREE;
+		pref_form[S3_R].ob_flags|=OF_HIDETREE;
 	}
 	else
 	{
-		pref_form[S3_F].ob_flags&=~HIDETREE;
-		pref_form[S3_A].ob_flags&=~HIDETREE;
-		pref_form[S3_R].ob_flags&=~HIDETREE;
+		pref_form[S3_F].ob_flags&=~OF_HIDETREE;
+		pref_form[S3_A].ob_flags&=~OF_HIDETREE;
+		pref_form[S3_R].ob_flags&=~OF_HIDETREE;
 	}
 
 	if(strlen(infostruct->slide4)==0)
 	{
-		pref_form[S4_F].ob_flags|=HIDETREE;
-		pref_form[S4_A].ob_flags|=HIDETREE;
-		pref_form[S4_R].ob_flags|=HIDETREE;
+		pref_form[S4_F].ob_flags|=OF_HIDETREE;
+		pref_form[S4_A].ob_flags|=OF_HIDETREE;
+		pref_form[S4_R].ob_flags|=OF_HIDETREE;
 	}
 	else
 	{
-		pref_form[S4_F].ob_flags&=~HIDETREE;
-		pref_form[S4_A].ob_flags&=~HIDETREE;
-		pref_form[S4_R].ob_flags&=~HIDETREE;
+		pref_form[S4_F].ob_flags&=~OF_HIDETREE;
+		pref_form[S4_A].ob_flags&=~OF_HIDETREE;
+		pref_form[S4_R].ob_flags&=~OF_HIDETREE;
 	}
 
 	if(strlen(infostruct->check1)==0)
-		pref_form[CHECK1].ob_flags|=HIDETREE;
+		pref_form[CHECK1].ob_flags|=OF_HIDETREE;
 	else
-		pref_form[CHECK1].ob_flags&=~HIDETREE;
+		pref_form[CHECK1].ob_flags&=~OF_HIDETREE;
 
 	if(strlen(infostruct->check2)==0)
-		pref_form[CHECK2].ob_flags|=HIDETREE;
+		pref_form[CHECK2].ob_flags|=OF_HIDETREE;
 	else
-		pref_form[CHECK2].ob_flags&=~HIDETREE;
+		pref_form[CHECK2].ob_flags&=~OF_HIDETREE;
 
 	if(strlen(infostruct->check3)==0)
-		pref_form[CHECK3].ob_flags|=HIDETREE;
+		pref_form[CHECK3].ob_flags|=OF_HIDETREE;
 	else
-		pref_form[CHECK3].ob_flags&=~HIDETREE;
+		pref_form[CHECK3].ob_flags&=~OF_HIDETREE;
 
 	if(strlen(infostruct->check4)==0)
-		pref_form[CHECK4].ob_flags|=HIDETREE;
+		pref_form[CHECK4].ob_flags|=OF_HIDETREE;
 	else
-		pref_form[CHECK4].ob_flags&=~HIDETREE;
+		pref_form[CHECK4].ob_flags&=~OF_HIDETREE;
 
 	if(strlen(infostruct->edit1)==0)
-		pref_form[ED1].ob_flags|=HIDETREE;
+		pref_form[ED1].ob_flags|=OF_HIDETREE;
 	else
-		pref_form[ED1].ob_flags&=~HIDETREE;
+		pref_form[ED1].ob_flags&=~OF_HIDETREE;
 
 	if(strlen(infostruct->edit2)==0)
-		pref_form[ED2].ob_flags|=HIDETREE;
+		pref_form[ED2].ob_flags|=OF_HIDETREE;
 	else
-		pref_form[ED2].ob_flags&=~HIDETREE;
+		pref_form[ED2].ob_flags&=~OF_HIDETREE;
 
 	if(strlen(infostruct->edit3)==0)
-		pref_form[ED3].ob_flags|=HIDETREE;
+		pref_form[ED3].ob_flags|=OF_HIDETREE;
 	else
-		pref_form[ED3].ob_flags&=~HIDETREE;
+		pref_form[ED3].ob_flags&=~OF_HIDETREE;
 
 	if(strlen(infostruct->edit4)==0)
-		pref_form[ED4].ob_flags|=HIDETREE;
+		pref_form[ED4].ob_flags|=OF_HIDETREE;
 	else
-		pref_form[ED4].ob_flags&=~HIDETREE;
+		pref_form[ED4].ob_flags&=~OF_HIDETREE;
 
 	if(infostruct->how_many_pix > 1)
-		pref_form[PICS_INFO].ob_flags&=~HIDETREE;
+		pref_form[PICS_INFO].ob_flags&=~OF_HIDETREE;
 	else
-		pref_form[PICS_INFO].ob_flags|=HIDETREE;
+		pref_form[PICS_INFO].ob_flags|=OF_HIDETREE;
 
 	/*
 	 * und jetzt alle abgeschalteten Objekte disablen 
 	 */
 	for(t=pref_form[0].ob_head; t<pref_form[0].ob_tail; t++)
 	{
-		if(pref_form[t].ob_flags & HIDETREE)
-			pref_form[t].ob_state |= DISABLED;
+		if(pref_form[t].ob_flags & OF_HIDETREE)
+			pref_form[t].ob_state |= OS_DISABLED;
 		else
-			pref_form[t].ob_state &= ~DISABLED;
+			pref_form[t].ob_state &= ~OS_DISABLED;
 	}
 
 	/* 
@@ -224,7 +224,7 @@ void f_module_prefs(MOD_INFO *infostruct, int mod_id)
 		wind_s[WIND_MODFORM].editob=0;
 	else
 		wind_s[WIND_MODFORM].editob=ED1;
-/*
+#if 0
 	/*------------------------------------ Formulartexte l”schen */	
 	memset(pref_form[S1_TIT].TextCast, 0x0, 8);
 	memset(pref_form[S2_TIT].TextCast, 0x0, 8);
@@ -238,7 +238,7 @@ void f_module_prefs(MOD_INFO *infostruct, int mod_id)
 	memset(pref_form[ED2_TIT].TextCast, 0x0, 10);
 	memset(pref_form[ED3_TIT].TextCast, 0x0, 10);
 	memset(pref_form[ED4_TIT].TextCast, 0x0, 10);
-*/
+#endif
 	/*----------------------------- neue Formulartexte eintragen */	
 	strcpy(pref_form[S1_TIT].TextCast, infostruct->slide1);
 	strcpy(pref_form[S2_TIT].TextCast, infostruct->slide2);
@@ -322,72 +322,72 @@ void f_module_prefs(MOD_INFO *infostruct, int mod_id)
 	{
 		pref_form[CHECK1].ob_type &= ~(CHECKBOX << 8);
 		pref_form[CHECK1].ob_type |= RADIOBUTTON << 8;
-		pref_form[CHECK1].ob_flags |= RBUTTON;
+		pref_form[CHECK1].ob_flags |= OF_RBUTTON;
 	}
 	else
 	{
 		pref_form[CHECK1].ob_type &= ~(RADIOBUTTON << 8);
 		pref_form[CHECK1].ob_type |= CHECKBOX << 8;
-		pref_form[CHECK1].ob_flags &= ~RBUTTON;
+		pref_form[CHECK1].ob_flags &= ~OF_RBUTTON;
 	}
 
 	if(infostruct->cdef2 >= 2)
 	{
 		pref_form[CHECK2].ob_type &= ~(CHECKBOX << 8);
 		pref_form[CHECK2].ob_type |= RADIOBUTTON << 8;
-		pref_form[CHECK2].ob_flags |= RBUTTON;
+		pref_form[CHECK2].ob_flags |= OF_RBUTTON;
 	}
 	else
 	{
 		pref_form[CHECK2].ob_type &= ~(RADIOBUTTON << 8);
 		pref_form[CHECK2].ob_type |= CHECKBOX << 8;
-		pref_form[CHECK2].ob_flags &= ~RBUTTON;
+		pref_form[CHECK2].ob_flags &= ~OF_RBUTTON;
 	}
 
 	if(infostruct->cdef3 >= 2)
 	{
 		pref_form[CHECK3].ob_type &= ~(CHECKBOX << 8);
 		pref_form[CHECK3].ob_type |= RADIOBUTTON << 8;
-		pref_form[CHECK3].ob_flags |= RBUTTON;
+		pref_form[CHECK3].ob_flags |= OF_RBUTTON;
 	}
 	else
 	{	
 		pref_form[CHECK3].ob_type &= ~(RADIOBUTTON << 8);
 		pref_form[CHECK3].ob_type |= CHECKBOX << 8;
-		pref_form[CHECK3].ob_flags &= ~RBUTTON;
+		pref_form[CHECK3].ob_flags &= ~OF_RBUTTON;
 	}
 
 	if(infostruct->cdef4 >= 2)
 	{
 		pref_form[CHECK4].ob_type &= ~(CHECKBOX << 8);
 		pref_form[CHECK4].ob_type |= RADIOBUTTON << 8;
-		pref_form[CHECK4].ob_flags |= RBUTTON;
+		pref_form[CHECK4].ob_flags |= OF_RBUTTON;
 	}
 	else
 	{	
 		pref_form[CHECK4].ob_type &= ~(RADIOBUTTON << 8);
 		pref_form[CHECK4].ob_type |= CHECKBOX << 8;
-		pref_form[CHECK4].ob_flags &= ~RBUTTON;
+		pref_form[CHECK4].ob_flags &= ~OF_RBUTTON;
 	}
 
 	f_treewalk(pref_form, 0);
 
 	if(infostruct->cdef1 != 0 && infostruct->cdef1 != 3)
-		pref_form[CHECK1].ob_state |= SELECTED;
+		pref_form[CHECK1].ob_state |= OS_SELECTED;
 	else
-		pref_form[CHECK1].ob_state &= ~SELECTED;
+		pref_form[CHECK1].ob_state &= ~OS_SELECTED;
 	if(infostruct->cdef2 != 0 && infostruct->cdef2 != 3)
-		pref_form[CHECK2].ob_state |= SELECTED;
+		pref_form[CHECK2].ob_state |= OS_SELECTED;
 	else
-		pref_form[CHECK2].ob_state &= ~SELECTED;
+		pref_form[CHECK2].ob_state &= ~OS_SELECTED;
 	if(infostruct->cdef3 != 0 && infostruct->cdef3 != 3)
-		pref_form[CHECK3].ob_state |= SELECTED;
+		pref_form[CHECK3].ob_state |= OS_SELECTED;
 	else
-		pref_form[CHECK3].ob_state &= ~SELECTED;
+		pref_form[CHECK3].ob_state &= ~OS_SELECTED;
 	if(infostruct->cdef4 != 0 && infostruct->cdef4 != 3)
-		pref_form[CHECK4].ob_state |= SELECTED;
+		pref_form[CHECK4].ob_state |= OS_SELECTED;
 	else
-		pref_form[CHECK4].ob_state &= ~SELECTED;
+		pref_form[CHECK4].ob_state &= ~OS_SELECTED;
 
 
 	/*
@@ -610,20 +610,20 @@ void f_mpref_change(void)
 		case PREVZOOM_DEC:	prev_zoom++; 
 								check_clipping();
 								f_make_preview(0);
-								change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, UNSEL, 1);
+								change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, OS_UNSEL, 1);
 								break;
 
 		case PREVZOOM_INC:	if(prev_zoom>1)
 								prev_zoom--; 
 								check_clipping();
 								f_make_preview(0);
-								change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, UNSEL, 1);
+								change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, OS_UNSEL, 1);
 								break;
 
 		case PREVZOOM_RESET:	prev_zoom=1; 
 								check_clipping();
 								f_make_preview(0);
-								change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, UNSEL, 1);
+								change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, OS_UNSEL, 1);
 								break;
 
 
@@ -686,7 +686,7 @@ void f_mpref_change(void)
 
 		case PICS_INFO:	ready_modpics_popup(&wind_s[WIND_MODFORM]);
 						f_pop(&popups[POPUP_PICORDER], 1, 0, NULL);		/* Bildreihenfolge-popup ”ffnen */
-						change_object(&wind_s[WIND_MODFORM], PICS_INFO, UNSEL, 1);
+						change_object(&wind_s[WIND_MODFORM], PICS_INFO, OS_UNSEL, 1);
 						break;
 			
 		case MCONF_STDSAVE:	textbeg = module.bp[edit_mod_num]->p_tbase;
@@ -704,7 +704,7 @@ void f_mpref_change(void)
 							cnfblock[10] = atol(modtree[ED3].TextCast);
 							cnfblock[11] = atol(modtree[ED4].TextCast);
 							mconfSave(mod_inf, edit_mod_num, cnfblock, 12 * 4, confname);
-							change_object(&wind_s[WIND_MODFORM], MCONF_STDSAVE, UNSEL, 1);
+							change_object(&wind_s[WIND_MODFORM], MCONF_STDSAVE, OS_UNSEL, 1);
 							break;
 								
 		case MCONF_STDLOAD:	textbeg = module.bp[edit_mod_num]->p_tbase;
@@ -720,12 +720,12 @@ void f_mpref_change(void)
 								setslider(&sliders[PDSLIDER3], sy3);
 								setslider(&sliders[PDSLIDER4], sy4);
 							}
-							change_object(&wind_s[WIND_MODFORM], MCONF_STDLOAD, UNSEL, 1);
+							change_object(&wind_s[WIND_MODFORM], MCONF_STDLOAD, OS_UNSEL, 1);
 							break;
 
 		/* Los! (Start gedrckt): */
 		case START_MOD:
-			change_object(&wind_s[WIND_MODFORM], START_MOD, UNSEL, 1);
+			change_object(&wind_s[WIND_MODFORM], START_MOD, OS_UNSEL, 1);
 
 			textbeg=module.bp[edit_mod_num]->p_tbase;
 			mod_inf=*((MOD_INFO **)(textbeg + MOD_INFO_OFFSET));
@@ -769,7 +769,7 @@ void f_mpref_change(void)
 			cnf_save[10] = editval3;
 			cnf_save[11] = editval4;
 			w1 = (long)cnf_save>>16;
-			w2 = (int)cnf_save;
+			w2 = (short)(long)cnf_save;
 			module.smStruct[edit_mod_num]->event_par[0] = (int)w1;
 			module.smStruct[edit_mod_num]->event_par[1] = w2;
 			module.smStruct[edit_mod_num]->event_par[2] = 12*4;
@@ -896,7 +896,7 @@ void f_mpref_change(void)
 
 	/*------------ Immediate-Preview? -------------*/
 	graf_mkstate(&dummy, &dummy, &dummy, &staste);
-	if(Sys_info.immed_prevs == SELECTED && !(staste&0x03) && 
+	if(Sys_info.immed_prevs == OS_SELECTED && !(staste&0x03) && 
 	   (button == S1_R || button == S2_R || button == S3_R || button == S4_R))
 	{
 		wind_s[WIND_MODFORM].xoffset=oldxoff;
@@ -926,19 +926,19 @@ static void check_prevzoom(void)
 
 	if((modtree[PREV_BOX].ob_width) * (prev_zoom + 1) >= pic->pic_width &&
 	   (modtree[PREV_BOX].ob_height) * (prev_zoom + 1) >= pic->pic_height)
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, DISABLED, 1);
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, OS_DISABLED, 1);
 	else
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, ENABLED, 1);
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, OS_ENABLED, 1);
 
 	if(prev_zoom <= 1)
 	{
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, DISABLED, 1);
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, DISABLED, 1);
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, OS_DISABLED, 1);
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, OS_DISABLED, 1);
 	}
 	else
 	{
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, ENABLED, 1);
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, ENABLED, 1);
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, OS_ENABLED, 1);
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, OS_ENABLED, 1);
 	}
 }
 
@@ -1290,10 +1290,10 @@ static void f_insert_prefs(GARGAMEL *smurf_st, SMURF_PIC *picture)
 	smurf_st->edit2=atol(modtree[ED2].TextCast);
 	smurf_st->edit3=atol(modtree[ED3].TextCast);
 	smurf_st->edit4=atol(modtree[ED4].TextCast);
-	smurf_st->check1=modtree[CHECK1].ob_state&SELECTED;
-	smurf_st->check2=modtree[CHECK2].ob_state&SELECTED;
-	smurf_st->check3=modtree[CHECK3].ob_state&SELECTED;
-	smurf_st->check4=modtree[CHECK4].ob_state&SELECTED;
+	smurf_st->check1=modtree[CHECK1].ob_state&OS_SELECTED;
+	smurf_st->check2=modtree[CHECK2].ob_state&OS_SELECTED;
+	smurf_st->check3=modtree[CHECK3].ob_state&OS_SELECTED;
+	smurf_st->check4=modtree[CHECK4].ob_state&OS_SELECTED;
 }
 
 

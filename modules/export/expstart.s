@@ -34,23 +34,23 @@
 ;	Struktur: MOD_INFO module_info muž im Modul sein
 ;	aužerdem MODULE_ABILITY mod_ability
 
-	.TEXT
+	.text
 	clr.w -(sp)
 	trap #1
 
-	.IMPORT exp_module_main				; Hauptfunktion des Moduls holen
+	.globl exp_module_main				; Hauptfunktion des Moduls holen
 	bra exp_module_main					; mainfunction anspringen
-	dc.l 'SXMD'							; Magic (TEXT + 8 Bytes)
+	dc.l 0x53584d44						; Magic (TEXT + 8 Bytes)
 
-	.IMPORT module_info					; Modulinformationsstruktur
+	.globl module_info					; Modulinformationsstruktur
 	dc.l module_info					; Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes)
 
-	.IMPORT module_ability				; Modulf„higkeiten-Struktur
+	.globl module_ability				; Modulf„higkeiten-Struktur
 	dc.l module_ability					; Zeiger auf Modability-Struktur (TEXT + 16 Bytes)
 
 	dc.l $0101							; Versionsnummer
 
-.DATA
-	.EXPORT errno
+	.data
+	.globl errno
 
 errno: ds.w	1

@@ -153,7 +153,7 @@ int init_roto(void)
 	old_timer = Sys_info.Event_Timer;
 	Sys_info.Event_Timer = 20;
 	
-	wind_s[WIND_INFO].resource_form[ROTOBOX].ob_flags &= ~HIDETREE;
+	wind_s[WIND_INFO].resource_form[ROTOBOX].ob_flags &= ~OF_HIDETREE;
 	
 	Window.redraw(&wind_s[WIND_INFO], NULL, 0, 0);
 	graf_mouse(ARROW, dummy_ptr);
@@ -270,7 +270,7 @@ void deinit_roto(void)
 	}
 	
 	Sys_info.Event_Timer = old_timer;
-	wind_s[WIND_INFO].resource_form[ROTOBOX].ob_flags |= HIDETREE;
-	wind_s[WIND_INFO].resource_form[INFO_YEAH].ob_state &= ~SELECTED;
+	wind_s[WIND_INFO].resource_form[ROTOBOX].ob_flags |= OF_HIDETREE;
+	wind_s[WIND_INFO].resource_form[INFO_YEAH].ob_state &= ~OS_SELECTED;
 	Window.redraw(&wind_s[WIND_INFO], NULL, 0, 0);
 }

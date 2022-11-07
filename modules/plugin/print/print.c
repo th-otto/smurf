@@ -27,6 +27,7 @@
 #include <string.h>
 #include <math.h>
 #include "../../import.h"
+#define MAX_MODS 21
 #include "../../../src/smurf_st.h"
 #include "../../../src/globdefs.h"
 #include "../../../src/smurfine.h"
@@ -561,21 +562,21 @@ void handle_print_dialog(PLUGIN_DATA *data)
                                     if(DevParam.can_scale == 0)
                                     {
                                         print_window.editob = XPOS;
-                                        print_dialog[WIDTH_UP].ob_state |= DISABLED;
-                                        print_dialog[WIDTH_DOWN].ob_state |= DISABLED;
-                                        print_dialog[WIDTH].ob_state |= DISABLED;
-                                        print_dialog[HEIGHT_UP].ob_state |= DISABLED;
-                                        print_dialog[HEIGHT_DOWN].ob_state |= DISABLED;
-                                        print_dialog[HEIGHT].ob_state |= DISABLED;
+                                        print_dialog[WIDTH_UP].ob_state |= OS_DISABLED;
+                                        print_dialog[WIDTH_DOWN].ob_state |= OS_DISABLED;
+                                        print_dialog[WIDTH].ob_state |= OS_DISABLED;
+                                        print_dialog[HEIGHT_UP].ob_state |= OS_DISABLED;
+                                        print_dialog[HEIGHT_DOWN].ob_state |= OS_DISABLED;
+                                        print_dialog[HEIGHT].ob_state |= OS_DISABLED;
                                     }
                                     else
                                     {
-                                        print_dialog[WIDTH_UP].ob_state &= ~DISABLED;
-                                        print_dialog[WIDTH_DOWN].ob_state &= ~DISABLED;
-                                        print_dialog[WIDTH].ob_state &= ~DISABLED;
-                                        print_dialog[HEIGHT_UP].ob_state &= ~DISABLED;
-                                        print_dialog[HEIGHT_DOWN].ob_state &= ~DISABLED;
-                                        print_dialog[HEIGHT].ob_state &= ~DISABLED;
+                                        print_dialog[WIDTH_UP].ob_state &= ~OS_DISABLED;
+                                        print_dialog[WIDTH_DOWN].ob_state &= ~OS_DISABLED;
+                                        print_dialog[WIDTH].ob_state &= ~OS_DISABLED;
+                                        print_dialog[HEIGHT_UP].ob_state &= ~OS_DISABLED;
+                                        print_dialog[HEIGHT_DOWN].ob_state &= ~OS_DISABLED;
+                                        print_dialog[HEIGHT].ob_state &= ~OS_DISABLED;
                                     }
 
                                     redraw_window(&print_window, NULL, ADJUST_PARENT,0);

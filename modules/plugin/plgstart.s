@@ -33,19 +33,19 @@
 ;   
 ;   main-function im Modul: plugin_main
 
-    .TEXT
+    .text
     clr.w -(sp)
     trap #1
 
-    .IMPORT plugin_main             ; Hauptfunktion des Moduls holen
+    .globl plugin_main             ; Hauptfunktion des Moduls holen
     bra.w plugin_main               ; mainfunction anspringen
-    dc.l 'SPLG'                     ; TEXT + 8
+    dc.l 0x53504c47                 ; TEXT + 8
 
-    .IMPORT plugin_info             ; Modulinformationsstruktur
+    .globl plugin_info             ; Modulinformationsstruktur
     dc.l plugin_info                ; Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes)
     dc.l $0101                      ; Versionsnummer
 
-    .DATA
-    .EXPORT errno
+    .data
+    .globl errno
 
 errno: ds.w 1

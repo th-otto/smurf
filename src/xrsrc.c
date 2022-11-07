@@ -46,6 +46,8 @@
 #else
 #include <osbind.h>
 #include <gem.h>
+#define DTA _DTA
+#define d_length dta_size
 #endif
 #include "xrsrc.h"
 
@@ -55,6 +57,14 @@
 
 #ifndef FALSE
 #define FALSE	0
+#endif
+
+#ifndef OS_SELECTED
+#define OS_SELECTED SELECTED
+#endif
+#ifndef G_WHITE
+#define G_WHITE			0
+#define G_BLACK			1
 #endif
 
 /****** Compilerswitches ******************************************************/
@@ -146,7 +156,7 @@ static VOID rs_sglobal(WORD *base)
 {
 	rs_global = base;
 	hdr_buf = (RSXHDR *) * (LONG *) & rs_global[7];
-	(LONG) rs_hdr = (LONG) hdr_buf + sizeof(RSXHDR);
+	rs_hdr = (RSXHDR *)((char *) hdr_buf + sizeof(RSXHDR));
 }
 
 /*****************************************************************************/
@@ -772,7 +782,7 @@ static WORD CDECL xdraw_cicon(PARMBLK *pb)
 	WORD xy[4];
 	WORD invert = FALSE;
 
-	selected = pb->pb_currstate & SELECTED;
+	selected = pb->pb_currstate & OS_SELECTED;
 
 	xrect2array((GRECT *) & pb->pb_xc, xy);
 	vs_clip(xvdi_handle, TRUE, xy);		/* Setze Rechteckausschnitt */
@@ -829,11 +839,11 @@ static WORD CDECL xdraw_cicon(PARMBLK *pb)
 			i_mode = MD_TRANS;
 	}
 
-	mindex[0] = ((iconblk->ib_char & 0x0f00) != 0x0100) ? (iconblk->ib_char & 0x0f00) >> 8 : WHITE;
-	mindex[1] = WHITE;
+	mindex[0] = ((iconblk->ib_char & 0x0f00) != 0x0100) ? (iconblk->ib_char & 0x0f00) >> 8 : G_WHITE;
+	mindex[1] = G_WHITE;
 
 	icncol = iindex[0] = (WORD) (((UWORD) iconblk->ib_char & 0xf000U) >> 12U);
-	iindex[1] = WHITE;
+	iindex[1] = G_WHITE;
 
 	mskcol = (iconblk->ib_char & 0x0f00) >> 8;
 
@@ -859,8 +869,8 @@ static WORD CDECL xdraw_cicon(PARMBLK *pb)
 
 	if (dark)
 	{
-		mindex[0] = BLACK;
-		mindex[1] = WHITE;
+		mindex[0] = G_BLACK;
+		mindex[1] = G_WHITE;
 		draw_bitblk(dark, x, y, iconblk->ib_wicon, iconblk->ib_hicon, 1, MD_TRANS, mindex);
 	}
 
@@ -909,7 +919,7 @@ static WORD CDECL xdraw_cicon(PARMBLK *pb)
 
 	vs_clip(xvdi_handle, FALSE, xy);
 
-	return pb->pb_currstate & ~SELECTED;
+	return pb->pb_currstate & ~OS_SELECTED;
 }										/* draw_userdef */
 
 /*****************************************************************************/
@@ -1342,7 +1352,7 @@ static WORD fill_cicon_liste(LONG *cicon_liste, ULONG header, RSXHDR *rsxhdr)
 		if (!p2 || header + p2 == (LONG) p || p2 < rsxhdr->rsh_string || p2 > rsxhdr->rsh_rssize)
 			cblk->monoblk.ib_ptext = (char *) p;
 		else
-			(LONG) cblk->monoblk.ib_ptext = header + (LONG) cblk->monoblk.ib_ptext;
+			cblk->monoblk.ib_ptext = (char *)header + (LONG) cblk->monoblk.ib_ptext;
 
 		cicon = (CICON *) & p[12];
 		p += 12L;
@@ -1423,11 +1433,13 @@ static VOID do_ciconfix(ULONG header, RSXHDR *rsxhdr, LONG rs_len)
 					(WORD *) * (LONG *) (rsxhdr->rsh_rssize + (rsxhdr->rsh_rssize & 1L) + header + 2 * sizeof(LONG));
 				if (palette != NULL)
 				{
-					(LONG) palette += header;
+					palette = (WORD *)((char *)palette + header);
 					memcpy(rgb_palette, palette, sizeof(rgb_palette));
 					is_palette = TRUE;
 				} else
+				{
 					is_palette = FALSE;
+				}
 
 				xfill_farbtbl();
 
@@ -1496,7 +1508,7 @@ static WORD rs_read(WORD *global, CONST char *fname)
 	{
 		if ((hdr_buf = (RSXHDR *) malloc(size + sizeof(RSXHDR))) != NULL)
 		{
-			(LONG) rs_hdr = (LONG) hdr_buf + sizeof(RSXHDR);
+			rs_hdr = (RSXHDR *)((char *) hdr_buf + sizeof(RSXHDR));
 
 			if (Fread(fh, size, rs_hdr) == size)
 			{
