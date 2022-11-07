@@ -122,7 +122,6 @@ rearr.s			; Standardformat-Zeile umbauen (linker Bitrand vom Ausschneiden)
 ;
 ;----------- Format- und Systemkonvertierung ------------
 ;
-bgrtorgb.s		; Farbsystem BGR nach RGB
 tools.c			; allgemeine Tools
 bindings.c		; Bindings fr Systemfunktionen, die in keiner Lib vorhanden sind
 comm.c			; alle fr die Kommunikation zust„ndige Protokolle

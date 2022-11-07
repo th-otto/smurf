@@ -63,7 +63,19 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-void bgrtorgb(char *pic, long pixels) ASM_NAME("_bgrtorgb");
+static void bgrtorgb(char *pic, long pixels)
+{
+	char c;
+	
+	do
+	{
+		c = pic[0];
+		pic[0] = pic[2];
+		pic += 2;
+		*pic++ = c;
+	} while (--pixels > 0);
+}
+
 
 int f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mode, char automatic)
 {
@@ -149,10 +161,10 @@ int f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mo
 			dstdepth = moddepth[--t];
 		else
 			dstdepth = moddepth[t];
-/*
+#if 0
 		printf("\nsrcmode: %d, dstmode: %d, piccolform: %d, modcolform: %d, picdepth: %d, moddepth[%d]: %d", (int)srcmode, (int)modform[t], (int)piccolform, (int)modcolform, (int)picdepth, (int)t, (int)moddepth[t]);
 		getch();
-*/
+#endif
 		/* will der User das Bild vielleicht in eine h”here Farbtiefe gewandelt haben? */
 		if(g_ask)
 		{
@@ -299,14 +311,14 @@ int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode)
 
 	Dialog.busy.reset(128, "StF -> PP");
 
-/* Struktur auslesen */
+	/* Struktur auslesen */
 	buffer = picture->pic_data;
 	palette = picture->palette;
 	width = picture->pic_width;
 	height = picture->pic_height;
 	BitsPerPixel = picture->depth;
 
-/* Zielbild anfordern */
+	/* Zielbild anfordern */
 	if((ziel = SMalloc((((long)width * (long)height * dst_depth) >> 3) + 7)) == 0)
 		return(M_MEMORY);
 
@@ -377,7 +389,8 @@ int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode)
 					val = *pixbuf++;
 					pal = palette + val + val + val;
 
-					*((unsigned int *)ziel)++ = ((*pal & 0xf8) << 8) | ((*(pal + 1) & 0xfc) << 3) | (*(pal + 2) >> 3);
+					*((unsigned short *)ziel) = ((*pal & 0xf8) << 8) | ((*(pal + 1) & 0xfc) << 3) | (*(pal + 2) >> 3);
+					ziel += 2;
 				} while(++x < width); 
 			} while(++y < height);
 		}

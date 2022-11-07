@@ -63,7 +63,6 @@ OBJS = \
 	setlines.o \
 	getlines.o \
 	rearr.o \
-	bgrtorgb.o \
 	tools.o \
 	bindings.o \
 	comm.o \
