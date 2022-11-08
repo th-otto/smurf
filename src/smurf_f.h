@@ -30,11 +30,6 @@
 #define MAX_PIC 25
 #define MAX_MODS 21
 
-#ifdef __GNUC__
-#  define ASM_NAME(x) __asm__(x)
-#else
-#  define ASM_NAME(x)
-#endif
 #if !defined(__GNUC__) && !defined(__attribute__)
 #  define __attribute__(x)
 #endif
@@ -115,7 +110,7 @@ void direct2screen(SMURF_PIC *picture, char *where_to, GRECT *part);
 
 int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MODES *display, int *fixpal_red, int *fixpal_green, int *fixpal_blue);
 void make_tmp_nct(long *histogram, SMURF_PIC *pic, unsigned int maxc);
-void makeNCT(long *par, int maxcol) ASM_NAME("_makeNCT");
+void makeNCT(long *par, long maxcol) ASM_NAME("_makeNCT");
 
 
 
@@ -134,19 +129,6 @@ int tfm_rgb_to_grey(SMURF_PIC *picture, char mode);
 
 
 void transform_pic(void);        /* "Bild Wandeln" - Dialog */
-
-/*-------- Pixel Packed -> Standardformat - Routinen    ----------------*/
-int setpix_standard(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_standard");
-int setpix_pp(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_pp");
-int setpix_standard_16(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_standard_16");
-void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen) ASM_NAME("_get_standard_pix");
-void getpix_std_1(char *std, int *pixval, int depth, long planelen, int which) ASM_NAME("_getpix_std_1");
-int setpix_std_line(char *buf, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_std_line");
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany) ASM_NAME("_getpix_std_line");
-int setpix_std_line16(char *buf, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_std_line16");
-void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels) ASM_NAME("_rearrange_line2");
-
-
 
 /* **********************************************************************/
 /* --------------------------- Bildanpassung -------------------------- */

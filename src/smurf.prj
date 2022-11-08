@@ -39,7 +39,7 @@
 ; the reason that FDFast and NC often crashed Smurf.
 .L [-S=16384]
 =
-PCVSTART.O			;STUPARGV.O
+pcvstart.o			;STUPARGV.O
 ;
 ;--------------------- Smurf-System --------------------
 ;
@@ -113,9 +113,9 @@ pixelins.s			; Einrechnen Blockpixel->Bildpixel
 ;-------------------- Ditherroutinen --------------------
 ;
 getpix.s		; 16 Pixel ins Standardformat setzen (fr C-Dithers)
-dit_read.s		; Ausleseroutinen - subrouts 
-ditreadp.s		; Ausleseroutinen - subrouts
-set_pixl.s		; 16 Pixel schreiben in 8Bit-Standard- und Pixelpacked
+;dit_read.s		; Ausleseroutinen - subrouts 
+;ditreadp.s		; Ausleseroutinen - subrouts
+setpix.s		; 16 Pixel schreiben in 8Bit-Standard- und Pixelpacked
 setlines.s		; beliebig viele Pixel ins Standardformat setzen
 getlines.s
 rearr.s			; Standardformat-Zeile umbauen (linker Bitrand vom Ausschneiden)

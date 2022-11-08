@@ -49,6 +49,12 @@
 #endif
 #include "sym_gem.h"
 
+#ifdef __GNUC__
+#  define ASM_NAME(x) __asm__(x)
+#else
+#  define ASM_NAME(x)
+#endif
+
 #define CNFVERSION  0x04
 
 /*  OS-defines  */
@@ -404,8 +410,20 @@ typedef struct
 #define MOD_MAGIC_IMPORT 0x53494d44L /* 'SIMD' */
 #define MOD_MAGIC_PLUGIN 0x53504c47L /* 'SPLG' */
 
-int     f_rslid(SLIDER *slider_struct);
-void    setslider(SLIDER *sliderstruct, long value);
-void    f_txtinsert(int num, OBJECT *tree, int txt_obj, WINDOW *ws); /* EinfÅgen von Zahlen in Textobjekte */
+/*-------- Pixel Packed -> Standardformat - Routinen    ----------------*/
+int setpix_standard(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_standard");
+int setpix_pp(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_pp");
+int setpix_standard_16(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_standard_16");
+void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen) ASM_NAME("_get_standard_pix");
+void getpix_std_1(char *std, short *pixval, int depth, long planelen, int which) ASM_NAME("_getpix_std_1");
+int setpix_std_line(char *buf, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_std_line");
+void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany) ASM_NAME("_getpix_std_line");
+int setpix_std_line16(char *buf, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_std_line16");
+void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels) ASM_NAME("_rearrange_line2");
+
+
+int f_rslid(SLIDER *slider_struct);
+void setslider(SLIDER *sliderstruct, long value);
+void f_txtinsert(int num, OBJECT *tree, int txt_obj, WINDOW *ws); /* EinfÅgen von Zahlen in Textobjekte */
 
 #endif

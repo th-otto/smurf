@@ -34,7 +34,6 @@
 #define TIMER	0
 
 long encode_LZW(char *buffer, char *ziel, unsigned long w, unsigned int height, GARGAMEL *smurf_struct);
-void getpix_std_line(void *st_pic, void *buf16, int planes, long planelen, int howmany);
 
 
 /* momentan nur 8, 16 und 24 Bit pixelpacked */

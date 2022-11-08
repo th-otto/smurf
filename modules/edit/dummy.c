@@ -33,7 +33,7 @@
 #include <string.h>
 #include "../import.h"
 #include "../../../src/smurfine.h"
-#include "../../../src/lib/demolib.h"
+#include "demolib.h"
 
 MOD_INFO module_info = {"Dummy",
 						0x0010,

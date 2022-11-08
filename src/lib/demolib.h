@@ -21,7 +21,7 @@ typedef struct
 
 /* ICE_UNPA */
 
-void ice_decrunch(void *packed,void *pack_to);
+void ice_decrunch(void *packed, void *pack_to) ASM_NAME("_ice_decrunch");
 
 /* SCREENS */
 

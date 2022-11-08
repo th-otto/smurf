@@ -42,14 +42,14 @@ IMPORT  Palette, rgbtab
 
 
 read24bit:
-        move.b  (a0)+,d4        ;get red
-        lsr.w   #3,d4           ;>>3
+        move.b  (a0)+,d4        /*get red */
+        lsr.w   #3,d4           /*>>3 */
 
-        move.b  (a0)+,d3        ;get green
-        lsr.w   #3,d3           ;>>3
+        move.b  (a0)+,d3        /*get green */
+        lsr.w   #3,d3           /*>>3 */
 
-        move.b  (a0)+,d2        ;get blue
-        lsr.w   #3,d2           ;>>3
+        move.b  (a0)+,d2        /*get blue */
+        lsr.w   #3,d2           /*>>3 */
 
         bra read_ready
 
@@ -61,24 +61,24 @@ read24bit:
 
 
 read8bit:
-        move.l  Palette,a6      ;Palette holen
+        move.l  Palette,a6      /*Palette holen */
 
-        move.b  (a0)+,d2        ;*pic
+        move.b  (a0)+,d2        /**pic */
         
-        adda.l  d2, a6
-        adda.l  d2, a6
-        adda.l  d2, a6
+        adda.l  d2,a6
+        adda.l  d2,a6
+        adda.l  d2,a6
 
-        move.b  (a6)+,d4        ;get red
-        lsr.b   #3, d4
+        move.b  (a6)+,d4        /*get red */
+        lsr.b   #3,d4
         
-        move.b  (a6)+,d3        ;get green
-        lsr.b   #3, d3
+        move.b  (a6)+,d3        /*get green */
+        lsr.b   #3,d3
 
-        move.b  (a6)+,d2        ;get blue
-        lsr.b   #3, d2
+        move.b  (a6)+,d2        /*get blue */
+        lsr.b   #3,d2
 
-        move.l  rgbtab,a6       ; rgbtab wieder holen
+        move.l  rgbtab,a6       /* rgbtab wieder holen */
 
         bra read_ready
 
@@ -87,17 +87,17 @@ read8bit:
 
 
 read16bit:
-        move.w  (a0)+, d4           ; pixel holen
-        move.w  d4, d3              ; fr grn
-        move.w  d4, d2              ; fr blau
+        move.w  (a0)+,d4           /* pixel holen */
+        move.w  d4,d3              /* fr grn */
+        move.w  d4,d2              /* fr blau */
     
-        rol.w   #5,d4               ; rot fertigmachen
-        and.w   #$001f, d4          ; rot ausmaskieren
+        rol.w   #5,d4               /* rot fertigmachen */
+        and.w   #$001f,d4          /* rot ausmaskieren */
 
-        lsr.w   #6,d3               ;grn fertigmachen
-        and.w   #$001f, d3          ; grn ausmaskieren
+        lsr.w   #6,d3               /*grn fertigmachen */
+        and.w   #$001f,d3          /* grn ausmaskieren */
     
-        and.w   #$001f, d2          ; blau ausmaskieren
+        and.w   #$001f,d2          /* blau ausmaskieren */
 
         bra read_ready
 

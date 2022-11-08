@@ -71,29 +71,35 @@ int get_dragdrop(WINDOW *window_to_handle, int *messagebuf)
 	int new_pic, module_ret;
 
 	long dummy;
-	long dd_list[8] = {'.IMG', 'ARGS', '    ', '    ', '    ', '    ', '    ', '    '};
+	long dd_list[8] = { 0x2e494d47L, 0x41524753L, 0x20202020L, 0x20202020L, 0x20202020L, 0x20202020L, 0x20202020L, 0x20202020L };
 
 	DD_HEADER dd_header;
 
 		
-/*
+#if 0
 	printf("\n ***Drag&Drop auf %s", window_to_handle->wtitle);	
 	printf("\n    Mouse X/Y:  %i/%i", messagebuf[4], messagebuf[5]);	
 	printf("\n    Kbshift  %i", messagebuf[6]);
-*/
+#endif
 	
 	/* Pipenamen zusammenbasteln */
 	pipe_name[17] = (messagebuf[7] & 0xff00) >> 8;
 	pipe_name[18] = messagebuf[7] & 0x00ff;
 	
-/*	printf("\n    Pipe-Name: %s", pipe_name); */
-	
+#if 0
+	printf("\n    Pipe-Name: %s", pipe_name);
+#endif
+
 	dummy = Fopen(pipe_name, FO_RW);
-/*	printf("\n    Fopen: %li", fopback); */
+#if 0
+	printf("\n    Fopen: %li", fopback);
+#endif
 	if(dummy >= 0)
 	{
 		pipe_handle = (int)dummy;
-/*		printf("\n    Pipe-Handle: %i", pipe_handle); */
+#if 0
+		printf("\n    Pipe-Handle: %i", pipe_handle);
+#endif
 
 		if(Smurf_locked)									/* GUI gesperrt? */
 		{
@@ -103,10 +109,14 @@ int get_dragdrop(WINDOW *window_to_handle, int *messagebuf)
 		}
 		else
 			dummy = Fwrite(pipe_handle, 1, &dd_ok);			/* DD_OK! */
-/*		printf("\n    DD_OK sent (1 Byte): %li", fopback); */
+#if 0
+		printf("\n    DD_OK sent (1 Byte): %li", fopback);
+#endif
 		dummy = Fwrite(pipe_handle, 32, dd_list);			/* Wunschliste schicken */
-/*		printf("\n    Data list sent (32 Bytes): %li", fopback);*/
-		
+#if 0
+		printf("\n    Data list sent (32 Bytes): %li", fopback);
+#endif
+
 		if(!Comm.ddGetheader(&dd_header, pipe_handle))
 		{
 			Fwrite(pipe_handle, 1, &dd_nak);				/* NAK senden */
@@ -133,7 +143,7 @@ int get_dragdrop(WINDOW *window_to_handle, int *messagebuf)
 		/*
 		 * weil bei einem switch ja nur ints verglichen werde, muž man hier etwas aufpassen!
 		 */
-		if (dd_header.data_type == 'ARGS')
+		if (dd_header.data_type == 0x41524753L) /* 'ARGS' */
 		{
 							/*----------------- Kommandozeile wurde geschickt ----*/
 							data_tag = data;
@@ -142,11 +152,13 @@ int get_dragdrop(WINDOW *window_to_handle, int *messagebuf)
 							if(*data_tag == '\0')
 								strcpy(data_tag, data_tag + 1);
 							/* Extra Puffer anlegen, da sonst f_loadpic() die Daten kaputtmacht :-/ */
-/*							printf("\nkomplette ARGS-Zeile: %s\n\n", data_tag);*/
+#if 0
+							printf("\nkomplette ARGS-Zeile: %s\n\n", data_tag);
+#endif
 							DraufschmeissBild = ARGS,
 							file_load("", &data_tag, ARGS);
 							SMfree(data);
-		} else if (dd_header.data_type == '.IMG')
+		} else if (dd_header.data_type == 0x2e494d47L)
 		{
 							/*----------------- XIMG wurde geschickt ----*/
 							graf_mouse(BUSYBEE, dummy_ptr);
@@ -231,21 +243,28 @@ int dd_getheader(DD_HEADER *dd_header, int pipe_handle)
 	{
 		/* einlesen der ersten drei Strukturfelder */
 		fopback = Fread(pipe_handle, 10, dd_header);
-/*		printf("\n    Header read (10 Bytes): %li", fopback); */
+#if 0
+		printf("\n    Header read (10 Bytes): %li", fopback);
+#endif
 		if(fopback != 10)
 			return(FALSE);
 
-/*		printf("\n    Drag&Drop Header length: %i", dd_header->header_length); */
-/*		/* Nur fr printf() */
+#if 0
+		printf("\n    Drag&Drop Header length: %i", dd_header->header_length);
+#endif
+#if 0 /* Nur fr printf() */
 		strncpy(datatype, (char *)&(dd_header->data_type), 4);
 		datatype[4] = 0;
 		printf("\n    Data type: %s", datatype);
-		printf("\n    Data length: %li", dd_header->data_length); */
+		printf("\n    Data length: %li", dd_header->data_length);
+#endif
 
 		/* anscheinend z„hlt die Headerl„ngenangabe nicht dazu! */
 		header_read_bytes = 8;
 
-/*		printf("\n    header_read_bytes: %i", header_read_bytes); */
+#if 0
+		printf("\n    header_read_bytes: %i", header_read_bytes);
+#endif
 
 		read_dd_string = dd_header->data_name;
 		while(header_read_bytes < dd_header->header_length)
@@ -255,7 +274,9 @@ int dd_getheader(DD_HEADER *dd_header, int pipe_handle)
 			if(*read_dd_string++ == '\0')
 				break;
 		}
-/*		printf("\n    Datenname: %s", dd_header->data_name); */
+#if 0
+		printf("\n    Datenname: %s", dd_header->data_name);
+#endif
 
 		read_dd_string = dd_header->file_name;
 		while(header_read_bytes < dd_header->header_length)
@@ -265,7 +286,9 @@ int dd_getheader(DD_HEADER *dd_header, int pipe_handle)
 			if(*read_dd_string++ == '\0')
 				break;
 		}
-/*		printf("\n    Filename: %s", dd_header->file_name); */
+#if 0
+		printf("\n    Filename: %s", dd_header->file_name);
+#endif
 
 		/* m”glichen Rest auslesen */
 		while(header_read_bytes < dd_header->header_length)
@@ -278,9 +301,9 @@ int dd_getheader(DD_HEADER *dd_header, int pipe_handle)
 			header_read_bytes += overread;
 		}
 
-		if(dd_header->data_type != 'ARGS' && dd_header->data_type != '.IMG')
+		if(dd_header->data_type != 0x41524753L && dd_header->data_type != 0x2e494d47L)
 			Fwrite(pipe_handle, 4, &dd_ext);			/* N”, das mag ich nicht */
-	} while(dd_header->data_type != 'ARGS' && dd_header->data_type != '.IMG');
+	} while(dd_header->data_type != 0x41524753L && dd_header->data_type != 0x2e494d47L); /* '.IMG' */
 
 	return(TRUE);
 }
@@ -296,7 +319,7 @@ int send_dragdrop(SMURF_PIC *picture, int dest_whandle, int mx, int my)
 	int pipe_handle, recv_id, wi_gw2, wi_gw3, wi_gw4;
 
 	long dd_list[32];
-	long my_dd_list[8] = {'.IMG', 'ARGS', '    ', '    ', '    ', '    ', '    ', '    '};
+	long my_dd_list[8] = { 0x2e494d47L, 0x41524753L, 0x20202020L, 0x20202020L, 0x20202020L, 0x20202020L, 0x20202020L, 0x20202020L };
 	long dummy, fd_mask, data_length = 0;
 
 	EXPORT_PIC *pic_to_save;
@@ -335,7 +358,9 @@ int send_dragdrop(SMURF_PIC *picture, int dest_whandle, int mx, int my)
 	}
 
 	dummy = Fread(pipe_handle, 1, &dd_akt);		/* Pipe auslesen */
-/*	printf("dd_akt 1: %d\n", dd_akt); */
+#if 0
+	printf("dd_akt 1: %d\n", dd_akt);
+#endif
 	if(dd_akt != DD_OK)							/* andere Applikation beherrscht kein D&D */
 	{
 		Fclose(pipe_handle);
@@ -368,26 +393,29 @@ int send_dragdrop(SMURF_PIC *picture, int dest_whandle, int mx, int my)
 	else
 		file_name++;
 	
-/*	printf("file_name: %s\n", file_name); */
-
-/*	Goto_pos(1, 0); */
+#if 0
+	printf("file_name: %s\n", file_name);
+	Goto_pos(1, 0);
+#endif
 
 	dd_akt = DD_EXT;
 	i = 0;
 	do
 	{
-/*		printf("dd_akt 2: %d\n", (int)dd_akt); */
+#if 0
+		printf("dd_akt 2: %d\n", (int)dd_akt);
+#endif
 
 		switch(dd_akt)
 		{
-			case DD_OK:		if(my_dd_list[i - 1] == '.IMG')
+			case DD_OK:		if(my_dd_list[i - 1] == 0x2e494d47L)
 							{
 								Fwrite(pipe_handle, data_length, dd_data);
 								SMfree(pic_to_save->pic_data);
 								SMfree(pic_to_save);
 							}
 							else
-							if(my_dd_list[i - 1] == 'ARGS')
+							if(my_dd_list[i - 1] == 0x41524753L)
 							{
 								if(save_block(pic_to_save, dest_path) != 0)
 								{
@@ -396,34 +424,46 @@ int send_dragdrop(SMURF_PIC *picture, int dest_whandle, int mx, int my)
 									SMfree(pic_to_save);
 									return(-1);
 								}
-/*								printf("dd_data: %s\n", dd_data); */
+#if 0
+								printf("dd_data: %s\n", dd_data);
+#endif
 								Fwrite(pipe_handle, data_length, dd_data);
 								free(dd_data);
 							}
-/*							printf("Daten schreiben\n"); */
+#if 0
+							printf("Daten schreiben\n");
+#endif
 							break;
 			case DD_NAK:	Fclose(pipe_handle);
 							return(-1);			/* andere Applikation will nicht mehr */
 			case DD_EXT:	/* Header ausw„hlen */
-/*							printf("neuer Extender\n"); */
-							if(my_dd_list[i] == '.IMG')
+#if 0
+							printf("neuer Extender\n");
+#endif
+							if(my_dd_list[i] == 0x2e494d47L)
 							{
-/*								printf(".IMG\n"); */
+#if 0
+								printf(".IMG\n");
+#endif
 								dd_data = data;
 								data_length = f_len;
-								Comm.ddSendheader(pipe_handle, '.IMG', data_length, "", file_name);
+								Comm.ddSendheader(pipe_handle, 0x2e494d47L, data_length, "", file_name);
 							}
 							else
-							if(my_dd_list[i] == 'ARGS')
+							if(my_dd_list[i] == 0x41524753L)
 							{
-/*								printf("ARGS\n"); */
+#if 0
+								printf("ARGS\n");
+#endif
 								get_tmp_dir(dest_path);
 								strcat(dest_path, "ARGS.IMG");
-/*								dd_data = quote_arg(dest_path); */
-/*								printf("dest_path: %s\n", dest_path); */
+#if 0
+								dd_data = quote_arg(dest_path);
+								printf("dest_path: %s\n", dest_path);
+#endif
 								dd_data = dest_path;
 								data_length = strlen(dd_data) + 1;
-								Comm.ddSendheader(pipe_handle, 'ARGS', data_length, "", file_name);
+								Comm.ddSendheader(pipe_handle, 0x41524753L, data_length, "", file_name);
 							}
 							else
 							{
@@ -446,13 +486,19 @@ int send_dragdrop(SMURF_PIC *picture, int dest_whandle, int mx, int my)
 			break;
 
 		dummy = Fread(pipe_handle, 1, &dd_akt);			/* Pipe auslesen */
-/*		printf("read: %ld\n", dummy); */
-	} while(my_dd_list[i++] != '    ');
+#if 0
+		printf("read: %ld\n", dummy);
+#endif
+	} while(my_dd_list[i++] != 0x20202020L);
 
-/*	printf("Hier2\n"); */
+#if 0
+	printf("Hier2\n");
+#endif
 
 	Fclose(pipe_handle);
-/*	Fdelete(dest_path); */
+#if 0
+	Fdelete(dest_path);
+#endif
 
 	return(0);
 }
@@ -573,8 +619,8 @@ void init_AVPROTO(void)
 	DEBUG_MSG (( "init_AVPROTO...\n" ));
 
 	/*-------- Block wenn m”glich als global anfordern? */
-	if(Ssystem(FEATURES, 0L, 0L) != EINVFN || Sys_info.OS&MINT || Sys_info.OS&MATSCHIG)
-		send_smurfid = Mxalloc(9, 0x20);
+	if(Ssystem(FEATURES, 0L, 0L) != EINVFN || (Sys_info.OS&MINT) || (Sys_info.OS&MATSCHIG))
+		send_smurfid = (char *)Mxalloc(9, 0x20);
 	else
 		send_smurfid = SMalloc(9);
 

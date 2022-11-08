@@ -13,11 +13,10 @@
 #endif
 
 #ifndef _MINT_SLB_H
-typedef void *SHARED_LIB;
+typedef void *SLB_HANDLE;
 
-typedef LONG cdecl (*SLB_EXEC)( SHARED_LIB *sl, LONG fn, WORD nargs, ... );
+typedef LONG cdecl (*SLB_EXEC)( SLB_HANDLE sl, LONG fn, WORD nargs, ... );
 
-extern LONG Slbopen( char *name, char *path, LONG min_ver,
-				SHARED_LIB *sl, SLB_EXEC *fn );
-extern LONG Slbclose( SHARED_LIB *sl );
+extern LONG Slbopen( char *name, char *path, LONG min_ver, SLB_HANDLE *sl, SLB_EXEC *fn );
+extern LONG Slbclose( SLB_HANDLE sl );
 #endif

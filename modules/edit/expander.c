@@ -40,7 +40,7 @@
 #include <string.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
-#include "../../src/lib/demolib.h"
+#include "demolib.h"
 
 /* Get Standardformat-Pixel Assembler-Rout */
 void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);

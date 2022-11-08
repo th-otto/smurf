@@ -58,7 +58,7 @@
 #include <time.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
-#include "../../src/lib/demolib.h"
+#include "demolib.h"
 
 #undef random
 #define random( x ) (rand() % (x))

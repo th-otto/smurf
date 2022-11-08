@@ -30,116 +30,116 @@
 IMPORT  Palette, rgbtab, line_ready
 EXPORT loopx24, loopx16, loopx8
 
-;----------------- 24 Bit
+*----------------- 24 Bit
 loopx24:
-    move.b  (a0)+,d4        ;get red
-    lsr.w   #3,d4           ;>>3
+    move.b  (a0)+,d4        /*get red */
+    lsr.w   #3,d4           /*>>3 */
 
-    move.b  (a0)+,d3        ;get green
-    lsr.w   #3,d3           ;>>3
+    move.b  (a0)+,d3        /*get green */
+    lsr.w   #3,d3           /*>>3 */
 
-    move.b  (a0)+,d2        ;get blue
-    lsr.w   #3,d2           ;>>3
+    move.b  (a0)+,d2        /*get blue */
+    lsr.w   #3,d2           /*>>3 */
 
-    ;
-    ;       Nearest Color table offset (3*5bit->15Bit-Wert)
-    ;
-    move.w  d3,d5           ;gr］ kopieren
-    move.w  d4,d6           ;rot kopieren
+    /*
+     *       Nearest Color table offset (3*5bit->15Bit-Wert)
+     */
+    move.w  d3,d5           /*gr］ kopieren */
+    move.w  d4,d6           /*rot kopieren */
     ror.w   #6,d6
-    lsl.w   #5,d5           ;gr］<<=5
-    add.w   d2,d6           ;rot+=blau
-    add.w   d5,d6           ;rot+=gr］
+    lsl.w   #5,d5           /*gr］<<=5 */
+    add.w   d2,d6           /*rot+=blau */
+    add.w   d5,d6           /*rot+=gr］ */
 
-    ;
-    ;   Index aus NC-Table holen und Screenwert eintragen
-    ;
+    /*
+     *   Index aus NC-Table holen und Screenwert eintragen
+     */
     clr.w   d7
-    move.b  (d6.w, a2), d7          ;Index des Screenwerts (NCT)
-    move.b  (d7.w, a3), (a4)+       ;Screenwert eintragen (Planetable)
+    move.b  (d6.w,a2),d7          /*Index des Screenwerts (NCT) */
+    move.b  (d7.w,a3),(a4)+       /*Screenwert eintragen (Planetable) */
 
-    adda.w  d1, a0          ; X-Scaling 
+    adda.w  d1,a0          /* X-Scaling  */
 
-    dbra d0, loopx24
+    dbra d0,loopx24
     jmp line_ready
     
 
-;----------------- 16 Bit
+*----------------- 16 Bit
 loopx16:
-    move.w  (a0)+, d4           ; pixel holen
-    move.w  d4, d3              ; f〉 gr］
-    move.w  d4, d2              ; f〉 blau
+    move.w  (a0)+,d4           /* pixel holen */
+    move.w  d4,d3              /* f〉 gr］ */
+    move.w  d4,d2              /* f〉 blau */
     
-    rol.w   #5,d4               ; rot fertigmachen
-    and.w   #$001f, d4          ; rot ausmaskieren
+    rol.w   #5,d4               /* rot fertigmachen */
+    and.w   #$001f,d4          /* rot ausmaskieren */
     
-    lsr.w   #6,d3               ;gr］ fertigmachen
-    and.w   #$001f, d3          ; gr］ ausmaskieren
+    lsr.w   #6,d3               /*gr］ fertigmachen */
+    and.w   #$001f,d3          /* gr］ ausmaskieren */
     
-    and.w   #$001f, d2          ; blau ausmaskieren
+    and.w   #$001f,d2          /* blau ausmaskieren */
     
-    ;
-    ;       Nearest Color table offset (3*5bit->15Bit-Wert)
-    ;
-    move.w  d3,d5           ;gr］ kopieren
-    move.w  d4,d6           ;rot kopieren
+    /*
+     *       Nearest Color table offset (3*5bit->15Bit-Wert)
+     */
+    move.w  d3,d5           /*gr］ kopieren */
+    move.w  d4,d6           /*rot kopieren */
     ror.w   #6,d6
-    lsl.w   #5,d5           ;gr］<<=5
-    add.w   d2,d6           ;rot+=blau
-    add.w   d5,d6           ;rot+=gr］
+    lsl.w   #5,d5           /*gr］<<=5 */
+    add.w   d2,d6           /*rot+=blau */
+    add.w   d5,d6           /*rot+=gr］ */
 
-    ;
-    ;   Index aus NC-Table holen und Screenwert eintragen
-    ;
+    /*
+     *   Index aus NC-Table holen und Screenwert eintragen
+     */
     clr.w   d7
-    move.b  (d6.w, a2), d7          ;Index des Screenwerts (NCT)
-    move.b  (d7.w, a3), (a4)+       ;Screenwert eintragen (Planetable)
+    move.b  (d6.w,a2),d7          /*Index des Screenwerts (NCT) */
+    move.b  (d7.w,a3),(a4)+       /*Screenwert eintragen (Planetable) */
 
-    adda.w  d1, a0          ; X-Scaling 
+    adda.w  d1,a0          /* X-Scaling  */
 
-    dbra d0, loopx16
+    dbra d0,loopx16
     jmp line_ready
     
 
-;----------------- 8 Bit
+*----------------- 8 Bit
 loopx8:
-    move.l  Palette,a6      ;Palette holen
+    move.l  Palette,a6      /*Palette holen */
 
-    move.b  (a0)+,d2        ;*pic
+    move.b  (a0)+,d2        /**pic */
     
-    adda.l  d2, a6
-    adda.l  d2, a6
-    adda.l  d2, a6
+    adda.l  d2,a6
+    adda.l  d2,a6
+    adda.l  d2,a6
 
-    move.b  (a6)+,d4        ;get red
-    lsr.b   #3, d4
+    move.b  (a6)+,d4        /*get red */
+    lsr.b   #3,d4
     
-    move.b  (a6)+,d3        ;get green
-    lsr.b   #3, d3
+    move.b  (a6)+,d3        /*get green */
+    lsr.b   #3,d3
 
-    move.b  (a6)+,d2        ;get blue
-    lsr.b   #3, d2
+    move.b  (a6)+,d2        /*get blue */
+    lsr.b   #3,d2
 
-    move.l  rgbtab,a6       ; rgbtab wieder holen
+    move.l  rgbtab,a6       /* rgbtab wieder holen */
     
-    ;
-    ;       Nearest Color table offset (3*5bit->15Bit-Wert)
-    ;
-    move.w  d3,d5           ;gr］ kopieren
-    move.w  d4,d6           ;rot kopieren
+    /*
+     *       Nearest Color table offset (3*5bit->15Bit-Wert)
+     */
+    move.w  d3,d5           /*gr］ kopieren */
+    move.w  d4,d6           /*rot kopieren */
     ror.w   #6,d6
-    lsl.w   #5,d5           ;gr］<<=5
-    add.w   d2,d6           ;rot+=blau
-    add.w   d5,d6           ;rot+=gr］
+    lsl.w   #5,d5           /*gr］<<=5 */
+    add.w   d2,d6           /*rot+=blau */
+    add.w   d5,d6           /*rot+=gr］ */
 
-    ;
-    ;   Index aus NC-Table holen und Screenwert eintragen
-    ;
+    /*
+     *   Index aus NC-Table holen und Screenwert eintragen
+     */
     clr.w   d7
-    move.b  (d6.w, a2), d7          ;Index des Screenwerts (NCT)
-    move.b  (d7.w, a3), (a4)+       ;Screenwert eintragen (Planetable)
+    move.b  (d6.w,a2),d7          /*Index des Screenwerts (NCT) */
+    move.b  (d7.w,a3),(a4)+       /*Screenwert eintragen (Planetable) */
 
-    adda.w  d1, a0          ; X-Scaling 
+    adda.w  d1,a0          /* X-Scaling  */
 
-    dbra d0, loopx8
+    dbra d0,loopx8
     jmp line_ready

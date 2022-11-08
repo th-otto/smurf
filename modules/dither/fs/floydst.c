@@ -31,8 +31,6 @@
 
 /* Set 16 Pixel (Standard Format) Assembler-Rout */
     int (*set_16_pixels)(char *source, char *dest, int depth, long planelen, int howmany);          
-/* Get 16 Pixel (Standard Format) Assembler-Rout */
-    void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen, int zoom);
 
 
 int floyd_steinberg68000(SMURF_PIC *picture, DITHER_DATA *dither, char *output);

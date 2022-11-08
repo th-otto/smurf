@@ -2,6 +2,7 @@ top_srcdir=..
 include $(top_srcdir)/config.mak
 
 INCLUDES += -Irsc -Ilib -I$(top_srcdir)/modules/dither
+LIBS += -lm
 
 OBJS = \
 	modsmurf.o \
@@ -57,9 +58,6 @@ OBJS = \
 	pixelins.o \
 	getpix.o \
 	setpix.o \
-	dit_read.o \
-	ditreadp.o \
-	set_pixl.o \
 	setlines.o \
 	getlines.o \
 	rearr.o \
@@ -72,6 +70,9 @@ OBJS = \
 	debug.o \
 	\
 	$(empty)
+
+#	dit_read.o \
+#	ditreadp.o \
 
 all: smurf.prg
 

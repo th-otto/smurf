@@ -48,9 +48,6 @@ void convert_to_grey(long *par);
 
 /* Set 16 Pixel (Standard Format) Assembler-Rout */
 void setpix162(char *source, char *paddr, int num_plane, long bitplanelen);         
-/* Get 16 Pixel (Standard Format) Assembler-Rout */
-void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
 
 int (*set16pixels)(char *buf16, char *dest, int depth, long planelen, int howmany);
 

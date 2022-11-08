@@ -22,28 +22,28 @@
  * ***** END LICENSE BLOCK *****
  */
 
-; SMURF C-Modul Startupcode
-; Version 1.01
-; MiNT memory-protection & 040/060 cacheflush-sicher
-;
-; als Startupcode im Projektfile statt "PCSTART.O" eintragen
-;
-;                       FÅr Plugins
-; 
-;   
-;   main-function im Modul: plugin_main
+* SMURF C-Modul Startupcode
+* Version 1.01
+* MiNT memory-protection & 040/060 cacheflush-sicher
+*
+* als Startupcode im Projektfile statt "PCSTART.O" eintragen
+*
+*                       FÅr Plugins
+* 
+*   
+*   main-function im Modul: plugin_main
 
     .text
     clr.w -(sp)
     trap #1
 
-    .globl plugin_main             ; Hauptfunktion des Moduls holen
-    bra.w plugin_main               ; mainfunction anspringen
-    dc.l 0x53504c47                 ; TEXT + 8
+    .globl plugin_main             /* Hauptfunktion des Moduls holen */
+    bra.w plugin_main               /* mainfunction anspringen */
+    .dc.l 0x53504c47                 /* TEXT + 8 */
 
-    .globl plugin_info             ; Modulinformationsstruktur
-    dc.l plugin_info                ; Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes)
-    dc.l $0101                      ; Versionsnummer
+    .globl plugin_info             /* Modulinformationsstruktur */
+    .dc.l plugin_info                /* Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes) */
+    .dc.l $0101                      /* Versionsnummer */
 
     .data
     .globl errno

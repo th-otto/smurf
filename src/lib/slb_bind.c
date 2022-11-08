@@ -31,8 +31,7 @@
 *****************************************************************/
 
 #ifndef _MINT_SLB_H
-LONG Slbopen( char *name, char *path, LONG min_ver,
-                    SHARED_LIB *sl, SLB_EXEC *fn )
+LONG Slbopen( char *name, char *path, LONG min_ver, SLB_HANDLE *sl, SLB_EXEC *fn )
 
 {
      return(gemdos(0x16, name, path, min_ver, sl, fn ));
@@ -48,8 +47,7 @@ LONG Slbopen( char *name, char *path, LONG min_ver,
 *
 *****************************************************************/
 
-LONG Slbclose( SHARED_LIB *sl )
-
+LONG Slbclose( SLB_HANDLE sl )
 {
      return(gemdos(0x17, sl));
 }

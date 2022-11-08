@@ -85,8 +85,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../src/lib/demolib.h"
 #include "../import.h"
+#include "demolib.h"
 #include "../../src/smurfine.h"
 
 void *(*SMalloc)(long amount);

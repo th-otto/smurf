@@ -22,70 +22,70 @@
  * ***** END LICENSE BLOCK *****
  */
 
-;
-; Mosaik-Effekt - Assemblerroutine
-;
-; Deklaration:
-;	void do_block(unsigned char *data, unsigned long *pixtab, int blocksize);
+*
+* Mosaik-Effekt - Assemblerroutine
+*
+* Deklaration:
+*	void do_block(unsigned char *data, unsigned long *pixtab, int blocksize);
 
 GLOBL do_block
 
 do_block:
 	movem.l d3-d5/a2-a3, -(sp)
 
-	clr.l d1				; blockvalr,
-	clr.l d2				; blockvalg und
-	clr.l d3				; blockvalb auf Null
-	clr.l d4				; Zwischenspeicher fÅr Farbwert
-	clr.l d5				; Divisor Long lîschen
+	clr.l d1				/* blockvalr, */
+	clr.l d2				/* blockvalg und */
+	clr.l d3				/* blockvalb auf Null */
+	clr.l d4				/* Zwischenspeicher fÅr Farbwert */
+	clr.l d5				/* Divisor Long lîschen */
 
-	move.w d0, d5			; Schleifenmaximum nach d5 sichern
-							; nur word, blocksize ist als INT deklariert!
-	movea.l a1, a3			; Pixtab sichern ( addq #4, a1 -> (a1)+ )
+	move.w d0,d5			/* Schleifenmaximum nach d5 sichern */
+							/* nur word, blocksize ist als INT deklariert! */
+	movea.l a1,a3			/* Pixtab sichern ( addq #4, a1 -> (a1)+ ) */
 
 	
-	subq.l #1, d0			; wg. dbra
+	subq.l #1,d0			/* wg. dbra */
 						
 
 loop1:
-	movea.l a0, a2			; data neu holen
-	adda.l (a1)+, a2		; Offset aus Pixtab aufrechnen ...
+	movea.l a0,a2			/* data neu holen */
+	adda.l (a1)+,a2		/* Offset aus Pixtab aufrechnen ... */
 
-	move.b (a2)+, d4		; Byte holen
-	add.l	d4.b, d1.l		; und in die vollen 32Bit von d1 addieren
-	move.b (a2)+, d4
-	add.l	d4.b, d2.l
-	move.b (a2)+, d4
-	add.l	d4.b, d3.l
+	move.b (a2)+,d4		/* Byte holen */
+	add.l	d4.b,d1.l		/* und in die vollen 32Bit von d1 addieren */
+	move.b (a2)+,d4
+	add.l	d4.b,d2.l
+	move.b (a2)+,d4
+	add.l	d4.b,d3.l
 
-	dbra d0, loop1			; Test und zurÅckschleifen
-
-
-	;*********** Durchschnitt ausrechnen *****************
-	divu.w d5, d1			; Durchschnitte fÅr Rot
-	divu.w d5, d2			; GrÅn und
-	divu.w d5, d3			; Blau ausrechnen
+	dbra d0,loop1			/* Test und zurÅckschleifen */
 
 
+	/************ Durchschnitt ausrechnen ***************** */
+	divu.w d5,d1			/* Durchschnitte fÅr Rot */
+	divu.w d5,d2			/* GrÅn und */
+	divu.w d5,d3			/* Blau ausrechnen */
 
 
-	;********* Und jetzt den durchschnittswert in den Block eintragen
-	move.l d5, d0			; Schleifenmaximum aus d5 holen
-	subq.l #1, d0			; wg. dbra
-	movea.l a3, a1			; Pixtab wieder holen
+
+
+	/********** Und jetzt den durchschnittswert in den Block eintragen */
+	move.l d5,d0			/* Schleifenmaximum aus d5 holen */
+	subq.l #1,d0			/* wg. dbra */
+	movea.l a3,a1			/* Pixtab wieder holen */
 
 
 loop2:
-	movea.l a0, a2			; data neu holen
-	adda.l (a1)+, a2		; Offset aus Pixtab aufrechnen ...
+	movea.l a0,a2			/* data neu holen */
+	adda.l (a1)+,a2		/* Offset aus Pixtab aufrechnen ... */
 
-	move.b d1, (a2)+		; Rot,
-	move.b d2, (a2)+		; GrÅn und
-	move.b d3, (a2)+		; Blau im ganzen Block setzen
+	move.b d1,(a2)+		/* Rot, */
+	move.b d2,(a2)+		/* GrÅn und */
+	move.b d3,(a2)+		/* Blau im ganzen Block setzen */
 
-	dbra d0, loop2			; Test und zurÅckschleifen
+	dbra d0,loop2			/* Test und zurÅckschleifen */
 
-	movem.l (sp)+, d3-d5/a2-a3
+	movem.l (sp)+,d3-d5/a2-a3
 	rts
 
 

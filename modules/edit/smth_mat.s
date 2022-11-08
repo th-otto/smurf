@@ -31,44 +31,44 @@
 GLOBL smooth_me
 
 smooth_me:
-    movem.l d3-d5/a2, -(sp)
+    movem.l d3-d5/a2,-(sp)
 
-move.l (a0)+, d0        ; counter
-move.l (a0)+, a1        ; Source
-move.l (a0)+, a2        ; Dest
-move.l (a0)+, a0        ; Offsets
+move.l (a0)+,d0        /* counter */
+move.l (a0)+,a1        /* Source */
+move.l (a0)+,a2        /* Dest */
+move.l (a0)+,a0        /* Offsets */
 
 clr.l   d1
 clr.l   d2
 clr.l   d3
-move.l  d0, d4
-subq.l  #1, d0
+move.l  d0,d4
+subq.l  #1,d0
 
 
 *----------- Aufaddieren der Werte
 loop:
-    add.l   (a0)+, a1
+    add.l   (a0)+,a1
 
-    move.b (a1)+, d5        ; rot
-    add.l   d5.b, d1.l
-    move.b (a1)+, d5        ; grÅn
-    add.l   d5.b, d2.l
-    move.b (a1), d5         ; blau
-    add.l   d5.b, d3.l
+    move.b (a1)+,d5        /* rot */
+    add.l   d5.b,d1.l
+    move.b (a1)+,d5        /* grÅn */
+    add.l   d5.b,d2.l
+    move.b (a1),d5         /* blau */
+    add.l   d5.b,d3.l
 
-    dbra d0, loop
+    dbra d0,loop
 
     *------ Durchschnitt berechnen und Daten schreiben
-    divu.w  d4, d1
-    move.b d1, (a2)+
+    divu.w  d4,d1
+    move.b d1,(a2)+
 
-    divu.w  d4, d2
-    move.b d2, (a2)+
+    divu.w  d4,d2
+    move.b d2,(a2)+
 
-    divu.w  d4, d3
-    move.b d3, (a2)
+    divu.w  d4,d3
+    move.b d3,(a2)
 
-    movem.l (sp)+, d3-d5/a2
+    movem.l (sp)+,d3-d5/a2
 
 
 rts

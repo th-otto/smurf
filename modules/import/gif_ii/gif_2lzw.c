@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../../import.h"
-#include "../../../src/lib/demolib.h"
+#include "demolib.h"
 
 #define MaxStackSize	4096
 
@@ -44,8 +44,8 @@ int setpix_standard(char *buf16, char *dest, int depth, long planelen, int howma
 int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char BitsPerPixel);
 int decode_lzw_fast(char *buffer, char *ziel);
 
-extern	void decode_fast(int *par1, long *par2);
-extern	void decode_fast020(int *par1, long *par2);
+void decode_fast(int *par1, long *par2) ASM_NAME("_decode_fast");
+void decode_fast020(int *par1, long *par2) ASM_NAME("_decode_fast020");
 
 extern int PROCESSOR;
 extern long filelen;

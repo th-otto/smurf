@@ -97,11 +97,9 @@ long encodeBMPdata1(char *ziel, char *buffer, unsigned int w, unsigned int heigh
 long encodeBMPdata(char *ziel, char *buffer, unsigned int w, unsigned int height, char BitsPerPixel);
 long encodeBMPdata4(char *ziel, char *buffer, unsigned int width, unsigned int height);
 int write_header(char *ziel, unsigned int width, unsigned int height, CONFIG *config, char BitsPerPixel, char *pal, char flag, long f_len);
-void getpix_std_line(void *st_pic, void *buf16, int planes, long planelen, int howmany);
 
 /* Dies bastelt direkt ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w)
-	0xE058;
+unsigned int swap_word(unsigned int w) 0xE058;
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"BMP",

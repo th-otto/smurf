@@ -36,27 +36,47 @@
 *   d1: Anzahl an Pixeln, um die das Bild nach links wandern soll
 *
 
-GLOBL /*rearrange_line, */rearrange_line2
-/*
+	.IFNE 0
+	.globl rearrange_line
 rearrange_line:
 
     subq    #1,d0
 
 loop:
-;   move.w  (a0),d2         ; Word(!) holen
+*   move.w  (a0),d2         /* Word(!) holen */
     move.b  (a0),d2
     lsl.w   #8,d2
     move.b  1(a0),d2
     
-    lsr.w   d1,d2           ; nach rechts shiften
+    lsr.w   d1,d2           /* nach rechts shiften */
 
-    move.b  d2,(a0)+        ; Low-Byte(!) zur…kschreiben
+    move.b  d2,(a0)+        /* Low-Byte(!) zur…kschreiben */
 
     dbra    d0,loop
 
     rts
-*/
+	.ENDC
 
+/*
+ * void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels)
+ */
+/* gcc cdecl entry point */
+	.globl _rearrange_line2
+_rearrange_line2:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	move.l 12(a7),d0
+#ifndef __MSHORT__
+	move.w 18(a7),d1
+#else
+	move.w 16(a7),d1
+#endif
+	move.l d2,-(a7)
+	bsr.s rearrange_line2
+	move.l (a7)+,d2
+	rts
+
+	.globl rearrange_line2
 rearrange_line2:
 
     subq    #1,d0
@@ -66,9 +86,9 @@ loop2:
     lsl.w   #8,d2
     move.b  (a0),d2
     
-    lsr.w   d1,d2           ; nach rechts shiften
+    lsr.w   d1,d2           /* nach rechts shiften */
 
-    move.b  d2,(a1)+        ; Low-Byte(!) zur…kschreiben
+    move.b  d2,(a1)+        /* Low-Byte(!) zur…kschreiben */
 
     dbra    d0,loop2
 

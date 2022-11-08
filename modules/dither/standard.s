@@ -41,31 +41,31 @@ GLOBL setpix162, get_standard_pix
 * in d1 planes                                                  *
 *****************************************************************
 setpix162:
-    movem.l     d3-d5, -(sp)        ; save regs
+    movem.l     d3-d5,-(sp)        /* save regs */
     moveq   #16,d4
     subq.w  #1,d0
     moveq   #0,d5
 
 loopplane2:
-    moveq #0, d3        ; Word to write
-    moveq #15, d2       ; Bit val
+    moveq #0,d3        /* Word to write */
+    moveq #15,d2       /* Bit val */
 
     loopp:
-        btst.b  d5,(a0)+    ; is d2th Bit set in d1th Byte of buffer?
-        beq.b   *+4         ; nope!
-        bset.l  d2,d3       ; yep! set d6th Bit in d7!
+        btst.b  d5,(a0)+    /* is d2th Bit set in d1th Byte of buffer? */
+        beq.b   *+4         /* nope! */
+        bset.l  d2,d3       /* yep! set d6th Bit in d7! */
         dbra    d2,loopp
 
-    suba.l d4, a0           ; goto buffer start
-    move.w  d3,(a1)     ; write finished word.
-    adda.l d1, a1       ; next plane
-    addq.w #1, d5
+    suba.l d4,a0           /* goto buffer start */
+    move.w  d3,(a1)     /* write finished word. */
+    adda.l d1,a1       /* next plane */
+    addq.w #1,d5
 
-    dbra d0, loopplane2     ; do this for #d0 Planes.
+    dbra d0,loopplane2     /* do this for #d0 Planes. */
 
 
-movem.l (sp)+, d3-d5
-rts
+	movem.l (sp)+,d3-d5
+	rts
 
 
 
@@ -76,41 +76,108 @@ rts
 *   schreiben.                                                  *
 *   Deklaration:                                                *
 *                                                               *
-/*
-void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
-*/
+* void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
 *************************************************************** *
 get_standard_pix:
-movem.l d3-d6/a2, -(sp)
+movem.l d3-d6/a2,-(sp)
 
-subq.w #1, d0           ; planes-1 fÅr dbra
-moveq   #15, d6
+subq.w #1,d0           /* planes-1 fÅr dbra */
+moveq   #15,d6
 
+	.IFNE 0
+	tst.w d2
+	bne get_zoom
+	.ENDC
 
+*--------------------------- normales auslesen (zoom=0)
 loop16:
-    move.l  d0, d2      ; plane-counter 
+    move.l  d0,d2      /* plane-counter  */
 
-    movea.l a0, a2      ; source kopieren
+    movea.l a0,a2      /* source kopieren */
 
-    moveq.l #0, d3
-    moveq.l #1, d5
+    moveq.l #0,d3
+    moveq.l #1,d5
 
 loopplane:
-    move.w  (a2), d4
+    move.w  (a2),d4
 
-    btst    d6, d4
+    btst    d6,d4
     beq *+4
 
-    or.b    d5, d3
+    or.b    d5,d3
 
-    adda.l  d1, a2          ; eine plane weiter
-    lsl.b   #1, d5
-    dbra d2, loopplane
+    adda.l  d1,a2          /* eine plane weiter */
+    lsl.b   #1,d5
+    dbra d2,loopplane
 
-    move.b d3, (a1)+
+    move.b d3,(a1)+
 
-    dbra d6, loop16
+    dbra d6,loop16
 
 
-movem.l (sp)+, d3-d6/a2
+movem.l (sp)+,d3-d6/a2
 rts
+
+
+
+	.IFNE 0
+*--------------------------- gezoomtes auslesen (1<=zoom<=15)
+get_zoom:
+IMPORT  st_zoom
+
+    move.l a2,old_src
+
+    move.l d7,-(sp)
+    clr.l d7
+
+    move.w d2,d7
+    move.w d2,zoomcounter
+
+
+loop16z:
+    move.l  d0,d2      /* plane-counter  */
+
+    movea.l a0,a2      /* source kopieren */
+
+    moveq.l #0,d3
+    moveq.l #1,d5
+
+    /*------X-scaling */
+    subq.w  #1,d7
+    cmp.w   zoomcounter,d7
+    bge end_planeloop
+        move.w zoomcounter,d7
+
+loopplanez:
+    move.w  (a2),d4
+
+    btst    d6,d4
+    beq *+4
+
+    or.b    d5,d3
+
+    adda.l  d1,a2          /* eine plane weiter */
+    lsl.b   #1,d5
+    dbra d2,loopplanez
+
+    move.b d3,(a1)+
+    add.w   #1,written
+
+end_planeloop:
+    dbra d6,loop16z
+
+    cmp.w #16,written      /*--- ende der 16 Lesepixel: schon 16 geschrieben? */
+    beq end
+    move.w  #15,d6
+    move.l old_src,a2
+    add.l   #2,a2
+    bra loop16z
+
+end:
+    movem.l (sp)+,d3-d7/a2
+    rts
+
+zoomcounter:    ds.w    1
+old_src:        ds.l    1
+written:        ds.w    1
+	.ENDC

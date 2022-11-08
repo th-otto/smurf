@@ -65,6 +65,9 @@ static unsigned long sum_yzplane(int box_to_cut, int xposition, long *histogram)
 long histogram_24bit(long *histogram, char *pdata, long pixlen) ASM_NAME("_histogram_24bit");
 
 
+#define ASSEMBLER 0
+
+
 /*------------- Median-Cut - BOX-Struktur ----*/
 /* Zur Verwaltung der einzelnen Boxes im RGB-Wrfel */
 typedef struct
@@ -408,8 +411,11 @@ static int find_cutpos(int box_to_cut, int edge, long *histogram)
 {
 	int left_position, right_position;
 	unsigned long left_sum=0, all_sum=0;
+#if ASSEMBLER
+	unsigned long (*sum_plane)(long *hist, MC_BOX *box, int xposition);
+#else
 	unsigned long (*sum_plane)(int box_to_cut, int position, long *histo);
-	/*  unsigned long (*sum_plane)(long *hist, MC_BOX *box, int xposition);*/
+#endif
 	int all_pos;
 
 	/*---------------- Welche Kante soll geschnitten werden? ---------*/
@@ -417,22 +423,31 @@ static int find_cutpos(int box_to_cut, int edge, long *histogram)
 	{
 		left_position = boxes[box_to_cut]->xbox;
 		right_position = boxes[box_to_cut]->xbox+boxes[box_to_cut]->boxwid-1;
+#if ASSEMBLER
+		sum_plane = sumplane_yz;
+#else
 		sum_plane = sum_yzplane;
-/*		sum_plane = sumplane_yz;*/
+#endif
 	}
 	else if(edge==YEDGE)
 	{
 		left_position = boxes[box_to_cut]->ybox;
 		right_position = boxes[box_to_cut]->ybox+boxes[box_to_cut]->boxhgt-1;
+#if ASSEMBLER
+		sum_plane = sumplane_xz;
+#else
 		sum_plane = sum_xzplane;
-/*		sum_plane = sumplane_xz;*/
+#endif
 	}
 	else if(edge==ZEDGE)
 	{
 		left_position = boxes[box_to_cut]->zbox;
 		right_position = boxes[box_to_cut]->zbox+boxes[box_to_cut]->boxdepth-1;
+#if ASSEMBLER
+		sum_plane = sumplane_xy;
+#else
 		sum_plane = sum_xyplane;
-/*		sum_plane = sumplane_xy;*/
+#endif
 	}
 
 	if(left_position==right_position) return(left_position);
@@ -442,8 +457,11 @@ static int find_cutpos(int box_to_cut, int edge, long *histogram)
 	all_pos=left_position;
 	do
 	{
-/*		all_sum += sum_plane(histogram, boxes[box_to_cut], all_pos);*/
+#if ASSEMBLER
+		all_sum += sum_plane(histogram, boxes[box_to_cut], all_pos);
+#else
 		all_sum += sum_plane(box_to_cut, all_pos, histogram);
+#endif
 	} while(all_pos++<right_position);
 
 	all_sum/=2;
@@ -537,8 +555,11 @@ unsigned long sum;
 	/*--- von oben -----*/
 	for(t=y; t<y+h; t++)
 	{
-/*		sum=sumplane_xz(histogram, boxes[num_of_box], t);*/
+#if ASSEMBLER
+		sum=sumplane_xz(histogram, boxes[num_of_box], t);
+#else
 		sum=sum_xzplane(num_of_box, t, histogram);
+#endif
 		if(sum!=0) break;
 	}
 	diff=t-y;
@@ -550,16 +571,22 @@ unsigned long sum;
 	do
 	{
 		t--;
-/*		sum=sumplane_xz(histogram, boxes[num_of_box], t+y);*/
+#if ASSEMBLER
+		sum=sumplane_xz(histogram, boxes[num_of_box], t+y);
+#else
 		sum=sum_xzplane(num_of_box, t+y, histogram);
+#endif
 	} while(sum==0 && t>1);
 	boxes[num_of_box]->boxhgt=t+1;
 
 	/*--- von links -----*/
 	for(t=x; t<x+w; t++)
 	{
-/*		sum=sumplane_yz(histogram, boxes[num_of_box], t);*/
+#if ASSEMBLER
+		sum=sumplane_yz(histogram, boxes[num_of_box], t);
+#else
 		sum=sum_yzplane(num_of_box, t, histogram);
+#endif
 		if(sum!=0) break;
 	}
 	diff=t-x;
@@ -571,16 +598,22 @@ unsigned long sum;
 	do
 	{
 		t--;
-/*		sum=sumplane_yz(histogram, boxes[num_of_box], t+x);*/
+#if ASSEMBLER
+		sum=sumplane_yz(histogram, boxes[num_of_box], t+x);
+#else
 		sum=sum_yzplane(num_of_box, t+x, histogram);
+#endif
 	} while(sum==0 && t>1);
 	boxes[num_of_box]->boxwid=t+1;
 
 	/*--- von vorne -----*/
 	for(t=z; t<z+d; t++)
 	{
-/*		sum=sumplane_xy(histogram, boxes[num_of_box], t);*/
+#if ASSEMBLER
+		sum=sumplane_xy(histogram, boxes[num_of_box], t);
+#else
 		sum=sum_xyplane(num_of_box, t, histogram);
+#endif
 		if(sum!=0) break;
 	}
 	diff=t-z;
@@ -592,8 +625,11 @@ unsigned long sum;
 	do
 	{
 		t--;
-/*		sum=sumplane_xy(histogram, boxes[num_of_box], t+z);*/
+#if ASSEMBLER
+		sum=sumplane_xy(histogram, boxes[num_of_box], t+z);
+#else
 		sum=sum_xyplane(num_of_box, t+z, histogram);
+#endif
 	} while(sum==0 && t>1);
 	boxes[num_of_box]->boxdepth=t+1;
 }

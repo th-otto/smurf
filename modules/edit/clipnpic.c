@@ -46,13 +46,10 @@
 #include <math.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
-#include "../../src/lib/demolib.h"
+#include "demolib.h"
 
-void rearrange_line(char *ptr, long bytes, unsigned int pixels);
-void rearrange_line2(char *ptr, char *buf, long bytes, unsigned int pixels);
-/* Get Standardformat-Pixel Assembler-Rout */
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-void getpix_std_1(char *st_pic, int *pixval, int planes, long planelen, int which);
+void rearrange_line(char *ptr, long bytes, unsigned int pixels) ASM_NAME("_rearrange_line");
+void rearrange_line2(char *ptr, char *buf, long bytes, unsigned int pixels) ASM_NAME("_rearrange_line2");
 
 MOD_INFO module_info = {"Clip'n'Pic",
 						0x0050,
@@ -110,18 +107,43 @@ MOD_ABILITY module_ability = {
 
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *start, *pixbuf, *line,
-		 BitsPerPixel, p, did = FALSE, red, green, blue, idx,
-		 minus, out, outstart, pixels;
-
-	int picval = 0;
-	unsigned int *buffer16, *obuffer16, *ziel16, *start16,
-				 x, y, width, height, newwidth, newheight,
-				 leftborder = 0, rightborder = 0, upperborder = 0, lowerborder = 0,
-				 leftbordermod, color;
-
-	long offset, realwidth, newrealwidth, planelength, w;
-
+	char *buffer;
+	char *obuffer;
+	char *ziel;
+	char *start;
+	char *pixbuf;
+	char *line;
+	char BitsPerPixel;
+	char p;
+	char did = FALSE;
+	unsigned char red, green, blue;
+	unsigned char idx;
+	int minus;
+	int out;
+	int outstart;
+	int pixels;
+	short picval = 0;
+	unsigned int *buffer16;
+	unsigned int *obuffer16;
+	unsigned int *ziel16;
+	unsigned int *start16;
+	unsigned int x;
+	unsigned int y;
+	unsigned int width;
+	unsigned int height;
+	unsigned int newwidth;
+	unsigned int newheight;
+	unsigned int leftborder = 0;
+	unsigned int rightborder = 0;
+	unsigned int upperborder = 0;
+	unsigned int lowerborder = 0;
+	unsigned int leftbordermod;
+	unsigned int color;
+	long offset;
+	long realwidth;
+	long newrealwidth;
+	long planelength;
+	long w;
 
 /* wie schnell sind wir? */
 /*	init_timer(); */
@@ -389,7 +411,7 @@ uende8:
 
 				/* ganz linkes Pixel auslesen */
 				getpix_std_1(buffer, &picval, BitsPerPixel, planelength, 0);
-				idx = (char)picval;
+				idx = picval;
 
 				y = 0;
 				do
@@ -417,7 +439,7 @@ oendes:
 
 				/* ganz linkes Pixel auslesen */
 				getpix_std_1(buffer, &picval, BitsPerPixel, planelength, 0);
-				idx = (char)picval;
+				idx = picval;
 
 				x = 0;
 				do
@@ -430,7 +452,7 @@ oendes:
 						y = 0;
 						do
 						{
-							getpix_std_1(buffer, &picval, BitsPerPixel, planelength, (int)out);
+							getpix_std_1(buffer, &picval, BitsPerPixel, planelength, out);
 
 							if(picval != idx)
 								goto lendes;
@@ -449,7 +471,7 @@ lendes:
 				buffer = obuffer + ((width - 1) >> 3);
 				outstart = minus - 1;
 				getpix_std_1(buffer, &picval, BitsPerPixel, planelength, outstart);
-				idx = (char)picval;
+				idx = picval;
 
 				x = width - 1;
 				do
@@ -484,7 +506,7 @@ rendes:
 				buffer = obuffer + (long)(height - 1) * (long)realwidth;
 				/* ganz linkes Pixel auslesen */
 				getpix_std_1(buffer, &picval, BitsPerPixel, planelength, 1);
-				idx = (char)picval;
+				idx = picval;
 
 				y = height - 1;
 				do

@@ -22,36 +22,36 @@
  * ***** END LICENSE BLOCK *****
  */
 
-; SMURF C-Modul Startupcode
-; Version 1.01
-; MiNT memory-protection & 040/060 cacheflush-sicher
-;
-; als Startupcode im Projektfile statt "PCSTART.O" eintragen
-;
-; 						FÅr Edit-Module
-; 
-;	
-;	main-function im Modul: edit_module_main
-;	Struktur MOD_INFO module_info muû im Modul sein
-;	auûerdem MODULE_ABILITY mod_ability
+* SMURF C-Modul Startupcode
+* Version 1.01
+* MiNT memory-protection & 040/060 cacheflush-sicher
+*
+* als Startupcode im Projektfile statt "PCSTART.O" eintragen
+*
+* 						FÅr Edit-Module
+* 
+*	
+*	main-function im Modul: edit_module_main
+*	Struktur MOD_INFO module_info muû im Modul sein
+*	auûerdem MODULE_ABILITY mod_ability
 
 	.text
 	clr.w -(sp)
 	trap #1
 
-	.globl edit_module_main			; Hauptfunktion des Moduls holen
-	bra	edit_module_main				; mainfunction anspringen
-	dc.l 0x53454d44						; Magic (TEXT + 8 Bytes)
+	.globl edit_module_main			/* Hauptfunktion des Moduls holen */
+	bra	edit_module_main				/* mainfunction anspringen */
+	.dc.l 0x53454d44						/* Magic (TEXT + 8 Bytes) */
 
-	.globl module_info					; Modulinformationsstruktur
-	dc.l module_info					; Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes)
+	.globl module_info					/* Modulinformationsstruktur */
+	.dc.l module_info					/* Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes) */
 
-	.globl module_ability				; ModulfÑhigkeiten-Struktur
-	dc.l module_ability					; Zeiger auf Modability-Struktur (TEXT + 16 Bytes)
+	.globl module_ability				/* ModulfÑhigkeiten-Struktur */
+	.dc.l module_ability					/* Zeiger auf Modability-Struktur (TEXT + 16 Bytes) */
 
-	dc.l $0101							; Versionsnummer
+	.dc.l $0101							/* Versionsnummer */
 
 	.data
 	.globl errno
 
-errno: ds.w	1
+errno: .ds.w	1

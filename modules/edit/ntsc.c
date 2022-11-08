@@ -46,7 +46,7 @@
 #include <math.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
-#include "../../src/lib/demolib.h"
+#include "demolib.h"
 
 MOD_INFO module_info = {"NTSC",
 						0x0010,

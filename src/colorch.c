@@ -26,9 +26,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "demolib.h"
 #include <errno.h>
 #include "../modules/import.h"
+#include "demolib.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"

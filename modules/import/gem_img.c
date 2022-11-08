@@ -112,7 +112,6 @@ char *fileext(char *filename);
 
 /* Get 16 Pixel (Interleaved Standard Format) Assembler-Rout */
 void get_IBPLine(char *dest, char *src, long lineplanelen);
-/*void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen); */
 
 int decode_GVW_TC(char *ziel, char *buffer, unsigned int height, char PattLength, char Planes, long w, long srcw);
 int decode_PA_TC(char *ziel, char *buffer, unsigned int height, char PattLength, long w, long srcw);

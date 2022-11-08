@@ -38,16 +38,13 @@
 *
 *	29.02.96 Olaf
 
-GLOBL	cs_transform
-cs_transform:
-
 /* Farbsysteme */
-RGB			equ 0
-BGR			equ 1
-CMYK		equ 2
-YCBCR		equ 3
-YIQ			equ 4
-WURSCHT		equ 5
+RGB			= 0
+BGR			= 1
+CMYK		= 2
+YCBCR		= 3
+YIQ			= 4
+WURSCHT		= 5
 
 Red			set d0
 Green		set d1
@@ -58,33 +55,41 @@ SrcColForm		set d4
 DestColForm		set d5
 
 
-move.l	4(a0), Lcount	; L„nge holen
-move.l	8(a0), SrcColForm	; Quell-Farbsystem
-move.l	8(a0), DestColForm	; Ziel-Farbsystem
+/* gcc cdecl entry point */
+	.globl	_cs_transform
+_cs_transform:
+	move.l 4(a7),a0
 
-movea.l a0, a1
-movea.l a0, a2
+	.globl	cs_transform
+cs_transform:
+
+	move.l	4(a0),Lcount	/* L„nge holen */
+	move.l	8(a0),SrcColForm	/* Quell-Farbsystem */
+	move.l	8(a0),DestColForm	/* Ziel-Farbsystem */
+	
+	movea.l a0,a1
+	movea.l a0,a2
 
 
 loop:
 
-	cmp.l RGB, SrcColForm
+	cmp.l RGB,SrcColForm
 	bne.b l_bgr
-		move.b	(a1)+, Red
-		move.b	(a1)+, Green
-		move.b	(a1)+, Blue
+	move.b	(a1)+,Red
+	move.b	(a1)+,Green
+	move.b	(a1)+,Blue
 
-	l_bgr:
-	cmp.l BGR, SrcColForm
+l_bgr:
+	cmp.l BGR,SrcColForm
 	bne.b l_cmy
-		move.b	(a1)+, Blue
-		move.b	(a1)+, Green
-		move.b	(a1)+, Red
-	l_cmy:
+	move.b	(a1)+,Blue
+	move.b	(a1)+,Green
+	move.b	(a1)+,Red
+l_cmy:
 
 
-		move.w (a2)+, Red
-		move.w (a2)+, Green
-		move.w (a2)+, Blue
+	move.w (a2)+,Red
+	move.w (a2)+,Green
+	move.w (a2)+,Blue
 
-dbra Lcount, loop
+	dbra Lcount,loop

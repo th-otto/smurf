@@ -22,66 +22,76 @@
  * ***** END LICENSE BLOCK *****
  */
 
-;	Median-Cut Routinen
-;	fÅr Smurf Atarimultifunktionsgrafiksoftware ;-)
-;	Olaf, 05.11.1997
+*	Median-Cut Routinen
+*	fÅr Smurf Atarimultifunktionsgrafiksoftware ;-)
+*	Olaf, 05.11.1997
 
 
-;------------------------- Definition fÅr die Strukturoffsets
-;							der MC_BOX - Struktur
-XBOX		equ	0
-YBOX		equ	2
-ZBOX		equ	4
-BOXWID		equ	6
-BOXHGT		equ	8
-BOXDEPTH	equ	10
+*------------------------- Definition fÅr die Strukturoffsets
+*							der MC_BOX - Struktur
+XBOX		= 0
+YBOX		= 2
+ZBOX		= 4
+BOXWID		= 6
+BOXHGT		= 8
+BOXDEPTH	= 10
 
 
-;-----------------------------------------------------
-;	Aufsummieren der Farben einer yz-Plane aus dem FarbwÅrfel
-;	Deklaration: ulong sumplane_yz(long *hist, MC_BOX box, int xposition);
-GLOBL sumplane_yz
+*-----------------------------------------------------
+*	Aufsummieren der Farben einer yz-Plane aus dem FarbwÅrfel
+*	Deklaration: ulong sumplane_yz(long *hist, MC_BOX *box, int xposition);
+/* gcc cdecl entry point */
+	.globl _sumplane_yz
+_sumplane_yz:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+#ifndef __MSHORT__
+	move.w 14(a7),d0
+#else
+	move.w 12(a7),d0
+#endif
 
+	.globl sumplane_yz
 sumplane_yz:
-	movem.l	d3-d7, -(sp)
+	movem.l	d2-d7,-(sp)
 
-	move.w	YBOX(a1), d1
-	move.w	ZBOX(a1), d2
-	move.w	BOXHGT(a1), d3
-	move.w	BOXDEPTH(a1), d4
+	move.w	YBOX(a1),d1
+	move.w	ZBOX(a1),d2
+	move.w	BOXHGT(a1),d3
+	move.w	BOXDEPTH(a1),d4
 
-	move.w	d2, d5
-	add.w	d4, d5			; Endwert fÅr die Z-Schleife
+	move.w	d2,d5
+	add.w	d4,d5			/* Endwert fÅr die Z-Schleife */
 
 	clr.l d6
-	move.w	d0, d6
-	ror.w #6, d6		; rot an seinen Platz schieben
-	lsl.w #5, d1		; blau an seinen Platz schieben
-	add.w d1, d6		; und beide addieren
+	move.w	d0,d6
+	ror.w #6,d6		/* rot an seinen Platz schieben */
+	lsl.w #5,d1		/* blau an seinen Platz schieben */
+	add.w d1,d6		/* und beide addieren */
 
-	subq.w	#1, d3		; fÅr dbra
+	subq.w	#1,d3		/* fÅr dbra */
 
-	clr.l d0		; SummenzÑhler
-	move.l	#32*4, d7
+	clr.l d0		/* SummenzÑhler */
+	move.l	#32*4,d7
 
 
 zloop:
-	move.l	d6, d1
-	add.w	d2, d1		; 3D-Index (15 Bit, r,g & b sind je eine Achse mit 5 Bit)
-	lsl.l	#2, d1		; als long-offset
+	move.l	d6,d1
+	add.w	d2,d1		/* 3D-Index (15 Bit, r,g & b sind je eine Achse mit 5 Bit) */
+	lsl.l	#2,d1		/* als long-offset */
 
 
-	move.w d3, d4		; y-counter
+	move.w d3,d4		/* y-counter */
 yloop:
-	add.l	(d1.l, a0), d0
-	add.l	d7, d1
-	dbra	d4, yloop
+	add.l	(d1.l,a0),d0
+	add.l	d7,d1
+	dbra	d4,yloop
 
-	addq.w #1, d2
-	cmp.w	d5, d2
+	addq.w #1,d2
+	cmp.w	d5,d2
 	blt	zloop
 
-	movem.l	(sp)+, d3-d7
+	movem.l	(sp)+,d2-d7
 	rts
 
 
@@ -89,111 +99,138 @@ yloop:
 
 
 
-;-----------------------------------------------------
-;	Aufsummieren der Farben einer xz-Plane aus dem FarbwÅrfel
-;	Deklaration: ulong sumplane_xz(long *hist, MC_BOX box, int yposition);
-GLOBL sumplane_xz
+*-----------------------------------------------------
+*	Aufsummieren der Farben einer xz-Plane aus dem FarbwÅrfel
+*	Deklaration: ulong sumplane_xz(long *hist, MC_BOX *box, int yposition);
+/* gcc cdecl entry point */
+	.globl _sumplane_xz
+_sumplane_xz:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+#ifndef __MSHORT__
+	move.w 14(a7),d0
+#else
+	move.w 12(a7),d0
+#endif
 
+	.globl sumplane_xz
 sumplane_xz:
-	movem.l	d3-d7, -(sp)
+	movem.l	d2-d7,-(sp)
 
-	move.w	XBOX(a1), d1
-	move.w	ZBOX(a1), d2
-	move.w	BOXWID(a1), d3
-	move.w	BOXDEPTH(a1), d4
+	move.w	XBOX(a1),d1
+	move.w	ZBOX(a1),d2
+	move.w	BOXWID(a1),d3
+	move.w	BOXDEPTH(a1),d4
 
-	move.w	d2, d5
-	add.w	d4, d5			; Endwert fÅr die Z-Schleife
+	move.w	d2,d5
+	add.w	d4,d5			/* Endwert fÅr die Z-Schleife */
 
 	clr.l d6
-	move.w	d0, d6
-	lsl.w #5, d6		; rot an seinen Platz schieben
-	ror.w #6, d1		; blau an seinen Platz schieben
-	add.w d1, d6		; und beide addieren
+	move.w	d0,d6
+	lsl.w #5,d6		/* rot an seinen Platz schieben */
+	ror.w #6,d1		/* blau an seinen Platz schieben */
+	add.w d1,d6		/* und beide addieren */
 
-	subq.w	#1, d3		; fÅr dbra
+	subq.w	#1,d3		/* fÅr dbra */
 
-	clr.l d0		; SummenzÑhler
-	move.l	#1024*4, d7
+	clr.l d0		/* SummenzÑhler */
+	move.l	#1024*4,d7
 
 
 zloop2:
-	move.l	d6, d1
-	add.w	d2, d1		; 3D-Index (15 Bit, r,g & b sind je eine Achse mit 5 Bit)
-	lsl.l	#2, d1		; als long-offset
+	move.l	d6,d1
+	add.w	d2,d1		/* 3D-Index (15 Bit, r,g & b sind je eine Achse mit 5 Bit) */
+	lsl.l	#2,d1		/* als long-offset */
 
 
-	move.w d3, d4		; y-counter
+	move.w d3,d4		/* y-counter */
 xloop:
-	add.l	(d1.l, a0), d0
-	add.l	d7, d1
-	dbra	d4, xloop
+	add.l	(d1.l,a0),d0
+	add.l	d7,d1
+	dbra	d4,xloop
 
-	addq.w #1, d2
-	cmp.w	d5, d2
+	addq.w #1,d2
+	cmp.w	d5,d2
 	blt	zloop2
 
-	movem.l	(sp)+, d3-d7
+	movem.l	(sp)+,d2-d7
 	rts
 
 
 
-;-----------------------------------------------------
-;	Aufsummieren der Farben einer xy-Plane aus dem FarbwÅrfel
-;	Deklaration: ulong sumplane_xy(long *hist, MC_BOX box, int zposition);
-GLOBL sumplane_xy
+*-----------------------------------------------------
+*	Aufsummieren der Farben einer xy-Plane aus dem FarbwÅrfel
+*	Deklaration: ulong sumplane_xy(long *hist, MC_BOX *box, int zposition);
+/* gcc cdecl entry point */
+	.globl _sumplane_xy
+_sumplane_xy:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+#ifndef __MSHORT__
+	move.w 14(a7),d0
+#else
+	move.w 12(a7),d0
+#endif
 
+	.globl sumplane_xy
 sumplane_xy:
-	movem.l	d3-d7, -(sp)
+	movem.l	d2-d7,-(sp)
 	clr.l d2
 
-	move.w	XBOX(a1), d1
-	move.w	YBOX(a1), d2
-	move.w	BOXWID(a1), d3
-	move.w	BOXHGT(a1), d4
+	move.w	XBOX(a1),d1
+	move.w	YBOX(a1),d2
+	move.w	BOXWID(a1),d3
+	move.w	BOXHGT(a1),d4
 
-	move.w	d2, d5
-	add.w	d4, d5			; Endwert fÅr die Z-Schleife
+	move.w	d2,d5
+	add.w	d4,d5			/* Endwert fÅr die Z-Schleife */
 
 	clr.l d6
-	move.w	d1, d6
-	ror.w #6, d6		; rot an seinen Platz schieben
-	add.w d0, d6		; und beide addieren
+	move.w	d1,d6
+	ror.w #6,d6		/* rot an seinen Platz schieben */
+	add.w d0,d6		/* und beide addieren */
 
-	subq.w	#1, d3		; fÅr dbra
+	subq.w	#1,d3		/* fÅr dbra */
 
-	clr.l d0		; SummenzÑhler
-	move.l	#1024*4, d7
+	clr.l d0		/* SummenzÑhler */
+	move.l	#1024*4,d7
 
 
 yloop2:
-	move.l	d2, d1
-	lsl.w	#5, d1
-	add.w	d6, d1		; 3D-Index (15 Bit, r,g & b sind je eine Achse mit 5 Bit)
-	lsl.l	#2, d1		; als long-offset
+	move.l	d2,d1
+	lsl.w	#5,d1
+	add.w	d6,d1		/* 3D-Index (15 Bit, r,g & b sind je eine Achse mit 5 Bit) */
+	lsl.l	#2,d1		/* als long-offset */
 
 
-	move.w d3, d4		; y-counter
+	move.w d3,d4		/* y-counter */
 xloop2:
-	add.l	(d1.l, a0), d0
-	add.l	d7, d1
-	dbra	d4, xloop2
+	add.l	(d1.l,a0),d0
+	add.l	d7,d1
+	dbra	d4,xloop2
 
-	addq.w #1, d2
-	cmp.w	d5, d2
+	addq.w #1,d2
+	cmp.w	d5,d2
 	blt	yloop2
 
-	movem.l	(sp)+, d3-d7
+	movem.l	(sp)+,d2-d7
 	rts
 
 
 
-;-----------------------------------------------------
-;	Histogramm fÅr 24 Bit-Bild erstellen
-; Deklaration: long histogram_24bit(long *histogram, char *pdata, long pixlen)
-GLOBL histogram_24bit
+*-----------------------------------------------------
+*	Histogramm fÅr 24 Bit-Bild erstellen
+* Deklaration: long histogram_24bit(long *histogram, char *pdata, long pixlen)
+/* gcc cdecl entry point */
+	.globl _histogram_24bit
+_histogram_24bit:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	move.l 12(a7),d0
+
+	.globl histogram_24bit
 histogram_24bit:
-	movem.l d2-d4, -(sp)
+	movem.l d2-d4,-(sp)
 
 	clr.l	d1
 	clr.l	d2
@@ -204,31 +241,31 @@ pixloop24:
 	clr.l	d1
 	clr.l	d2
 	clr.l	d3
-	move.b	(a1)+,	d1		; r
-	lsr.b	#3, d1
-	move.b	(a1)+,	d2		; g
-	lsr.b	#3, d2
-	move.b	(a1)+,	d3		; b
-	lsr.b	#3, d3
+	move.b	(a1)+,d1		/* r */
+	lsr.b	#3,d1
+	move.b	(a1)+,d2		/* g */
+	lsr.b	#3,d2
+	move.b	(a1)+,d3		/* b */
+	lsr.b	#3,d3
 
-	; 3D-Index ausrechnen
-	ror.w 	#6,	d1
-	lsl.w	#5,	d2
-	add.w	d2,	d1
-	add.w	d3,	d1
+	/* 3D-Index ausrechnen */
+	ror.w 	#6,d1
+	lsl.w	#5,d2
+	add.w	d2,d1
+	add.w	d3,d1
 	
-	lsl.l	#2,	d1			; long-index
+	lsl.l	#2,d1			/* long-index */
 	
-	tst.l	(a0,d1.l)		; farbe zÑhlen?
+	tst.l	(a0,d1.l)		/* farbe zÑhlen? */
 	bne no_new_col
-	addq.l #1, d4
+	addq.l #1,d4
 
 no_new_col:
-	addq.l	#1,	(a0, d1.l)	; und die Farbanzahl im Histogramm inkrementieren. 
+	addq.l	#1,(a0,d1.l)	/* und die Farbanzahl im Histogramm inkrementieren.  */
 
-	subq.l	#1,	d0
+	subq.l	#1,d0
 	bne	pixloop24
 	
-	move.l d4, d0
-	movem.l	(sp)+,	d2-d4
+	move.l d4,d0
+	movem.l	(sp)+,d2-d4
 	rts

@@ -35,49 +35,49 @@
 ***************************************************************	*
 GLOBL get_IBPLine
 get_IBPLine:
-movem.l d3-d7/a2, -(sp)
+movem.l d3-d7/a2,-(sp)
 
-move.l d0, d5
-subq.l #1, d0
+move.l d0,d5
+subq.l #1,d0
 
 loopline:
-	moveq	#7, d6
-	moveq	#0, d7
+	moveq	#7,d6
+	moveq	#0,d7
 
-	;-------------- 8 Pixel...
+	/*-------------- 8 Pixel... */
 	loop8:
-		moveq.l	#23, d1		; plane-counter 
-		movea.l a1, a2		; source kopieren
+		moveq.l	#23,d1		/* plane-counter  */
+		movea.l a1,a2		/* source kopieren */
 	
-		moveq.l	#0, d3
-		moveq.l	#1, d4
+		moveq.l	#0,d3
+		moveq.l	#1,d4
 
 		loopplane:
-			move.b	(a2), d2		; Byte holen
+			move.b	(a2),d2		/* Byte holen */
 	
-			btst	d6,	d2
+			btst	d6,d2
 			beq *+4
-			or.l	d4, d3
+			or.l	d4,d3
 	
-			adda.l	d5, a2			; eine plane weiter
-			lsl.l	#1, d4
-		dbra d1, loopplane
+			adda.l	d5,a2			/* eine plane weiter */
+			lsl.l	#1,d4
+		dbra d1,loopplane
 	
-/*		lsl.l	#8, d3 */
-		rol.w	#8, d3
-		rol.l	#8, d3
-		rol.l	#8, d3
-		rol.w	#8, d3
+/*		lsl.l	#8,d3 */
+		rol.w	#8,d3
+		rol.l	#8,d3
+		rol.l	#8,d3
+		rol.w	#8,d3
 
-		move.l	d3, (a0)+
-		subq.l	#1, a0
+		move.l	d3,(a0)+
+		subq.l	#1,a0
 
-		addq.l	#1, d7
-	dbra d6, loop8
+		addq.l	#1,d7
+	dbra d6,loop8
 
-addq.l	#1, a1
-dbra d0, loopline
+addq.l	#1,a1
+dbra d0,loopline
 
 
-movem.l (sp)+, d3-d7/a2
+movem.l (sp)+,d3-d7/a2
 rts

@@ -85,7 +85,6 @@ unsigned short *palettes[200];
 
 int FindIndex(int x, int c);
 void *decompress_SPC(char *picdata, char *dest_data, long decompressed_bytes);
-void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
 void decode_palettes(unsigned short *picdata);
 
 int imp_module_main(GARGAMEL *smurf_struct)

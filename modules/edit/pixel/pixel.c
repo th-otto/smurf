@@ -47,9 +47,9 @@
 #include "../../../src/smurfine.h"
 #include "demolib.h"
 
-void normalpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, char BitsPerPixel);
-void interpolpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, SERVICE_FUNCTIONS *service);
-void do_block(unsigned char *data, unsigned long *pixtab, int blocksize);
+static void normalpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, char BitsPerPixel);
+static void interpolpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, SERVICE_FUNCTIONS *service);
+void do_block(unsigned char *data, unsigned long *pixtab, int blocksize) ASM_NAME("_do_block");
 
 MOD_INFO module_info = {"Aufpixeln",
 						0x0040,
@@ -181,7 +181,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 /* Macht Blîcke von xpix * ypix Grîûe. */
 /* Durch die fehlende Interpolation sieht es bei Blîcken */
 /* > 4*4 schon ziemlich hÑûlich aus, dafÅr ist es aber schnell. */
-void normalpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, char BitsPerPixel)
+static void normalpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, char BitsPerPixel)
 {
 	char byte, pix, pix2r;
 
@@ -255,7 +255,7 @@ void normalpixel(char *data, unsigned int width, unsigned int height, char xpix,
 
 /* Macht Blîcke von xpix * ypix Grîûe und interpoliert dabei. */
 /* Ein Problem ist noch die untere Bildkante, das ist nicht schîn gelîst. */
-void interpolpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, SERVICE_FUNCTIONS *services)
+static void interpolpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, SERVICE_FUNCTIONS *services)
 {
 	char xcount, ycount, xpix2r, ypix2r, bwidth, bwidth2;
 

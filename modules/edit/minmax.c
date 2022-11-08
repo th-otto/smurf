@@ -53,7 +53,7 @@
 #include <string.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
-#include "../../src/lib/demolib.h"
+#include "demolib.h"
 
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);

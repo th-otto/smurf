@@ -116,7 +116,6 @@ long writeTIFFdata_pal8(char *ziel, char *buffer, unsigned long w, unsigned int 
 long writeTIFFdata_rgb(char *ziel, char *buffer, unsigned int width, unsigned int height);
 long encode_RLE(char *ziel, char *buffer, unsigned long w, unsigned int height);
 long encode_LZW(char *ziel, char *buffer, unsigned long w, unsigned int height, GARGAMEL *smurf_struct);
-void getpix_std_line(void *st_pic, void *buf16, int planes, long planelen, int howmany);
 unsigned int intborder(unsigned int input);
 unsigned long longborder(unsigned long input);
 void write_IFDEntry(char *ziel, int *dcount, unsigned int tag, unsigned int type, unsigned long count, unsigned long value, unsigned int *ifds);

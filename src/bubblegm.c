@@ -41,7 +41,11 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 #include "bindings.h"
+#ifdef __PUREC__
 #include "slb.h"
+#else
+#include <mint/slb.h>
+#endif
 
 typedef struct
 {
@@ -65,7 +69,7 @@ static ULONG Help;						/* Zeiger auf die Bubble-Help-Texte     */
 static BGH_Cookie *BGHI_Cookie;
 static char BGHI_Slb;					/* BGHI als shared library = TRUE       */
 static SLB_EXEC slbexec;
-static SHARED_LIB slb;
+static SLB_HANDLE slb;
 
 void bubble_init(void)
 {
@@ -73,15 +77,15 @@ void bubble_init(void)
 
 	BGHI_Exist = TRUE;
 	BGHI_Slb = FALSE;
-	if (!get_cookie(0x42474849L, &(unsigned long) BGHI_Cookie))	/* 'BGHI' Cookie suchen */
+	if (!get_cookie(0x42474849L, (unsigned long *)&BGHI_Cookie))	/* 'BGHI' Cookie suchen */
 	{
 		err = Slbopen("BGH.SLB", NULL, /*0x0101L */ 2L, &slb, &slbexec);
 		if (err == -64L)				/* Versionsnummer zu klein ?                */
 		{
-/*
+#if 0
 			ShowArrow();
 			Note(ALERT_NORM,1,BUBBLE_HELP);
-*/
+#endif
 		}
 		if (err >= 0)					/* šber shared library versuchen        */
 		{
@@ -494,6 +498,6 @@ void call_stguide(int topwin_handle)
 		*cmp_string = 0;
 		strcat(hypname, ".hyp");
 
-		Comm.sendAESMsg(STG_id, VA_START, (int) ((long) hypname >> 16), (int) hypname, -1);
+		Comm.sendAESMsg(STG_id, VA_START, LONG2_2INT(hypname), -1);
 	}
 }

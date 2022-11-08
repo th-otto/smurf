@@ -165,12 +165,12 @@ void f_pic_event(WINDOW *picwindow, int event_type, int windnum)
 					{
 						if(&picture_windows[active_pic] != picwindow)
 						{
-/*
-							Testweise raus da anscheinend berhaupt nicht ben”tigt
+#if 0
+							/* Testweise raus da anscheinend berhaupt nicht ben”tigt */
 							Dialog.picMan.makeThumbnail(picwindow->wnum);
 							obj = 0;
 							Dialog.picMan.handlePicman();
-*/
+#endif
 							Window.top(picwindow->whandlem);
 						}
 					}
@@ -767,11 +767,12 @@ static void do_block_box(WINDOW *picwindow, int mx, int my)
 
 	if(!new_block)
 	{
-/*
+#if 0
 		graf_mouse(M_OFF, dummy_ptr);
 		vs_clip(Sys_info.vdi_handle, 1, clip);
 		wind_update(BEG_UPDATE);
-*/
+#endif
+
 		Window.redraw(picwindow, NULL, 0, DRAWNOTREE|BLOCK_ONLY|DRAWNOBLOCK);
 #if 0
 		imageWindow.drawBlockbox(picwindow);			/* Blockbox l”schen */
@@ -833,11 +834,11 @@ static void do_block_box(WINDOW *picwindow, int mx, int my)
 		graf_mouse(M_ON, dummy_ptr);
 
 		imageWindow.displayCoords(picwindow, picture->blockx, picture->blocky, 1);
-/*
+#if 0
 		Goto_pos(1,0);
 		printf("blockx: %d, blocky: %d\n", picture->blockx, picture->blocky);
 		printf("blockw: %d, blockh: %d", picture->blockwidth, picture->blockheight);
-*/
+#endif
 		if(wind_s[WIND_BTYPEIN].whandlem != -1)
 			insert_blockcoords(picture);
 
@@ -1267,14 +1268,14 @@ static void drop_block(WINDOW *picwindow, int mx, int my)
 		 * n„mlich auch keine. Das ist z.B. der Fall, wenn Zielbild=Bildschirmfarbtiefe und mit
 		 * MedianCut gedithert, denn dann wird keine NCT fr dieses Bild angelegt.
 		 */
-/*
+#if 0
 		if(dest_picture->local_nct == NULL)
 		{
 			dest_picture->not_in_nct = 0;
 			dest_picture->local_nct = SMalloc(32768L);
 			memset(dest_picture->local_nct, 0x0, 32768L);
 		}
-*/
+#endif
 		dest_picture->block->local_nct = dest_picture->local_nct;
 
 		memcpy(dest_picture->block->red, dest_picture->red, 256 * 2);
@@ -1510,7 +1511,7 @@ void f_display_coords(WINDOW *pic_window, int mx, int my, char blockflag)
 	int wx, wy, ww, wh;
 	int maxx, maxy, minx, miny;
 	int xcoo, ycoo, xoff, yoff;
-	int picval;
+	short picval;
 	int depth, form;
 	int width, height;
 	int zoom;
@@ -1734,11 +1735,11 @@ void reload_pic(WINDOW *picwindow)
 	Dialog.busy.noEvents = 1;
 	strcpy(loadpath, picwindow->picture->filename);		/* Filename retten */
 	Window.close(picwindow->whandlem);
-/*
+#if 0
 	Comm.avComm.type = AV_IMAGE|0xf0;
 	Comm.avComm.windowhandle = picwindow->whandlem;
 	Comm.avComm.keystate = 0;
-*/
+#endif
 Reload:
 
 	/*
@@ -1890,7 +1891,9 @@ void f_activate_pic(int windnum)
 	 */
 	if(windnum != Dialog.picMan.selectedPic && windnum != -1)
 	{
-/*		Dialog.picMan.handlePicman(); */
+#if 0
+		Dialog.picMan.handlePicman();
+#endif
 		Dialog.picMan.makeThumbnail(windnum);
 		Dialog.picMan.selectedPic = windnum;
 	}

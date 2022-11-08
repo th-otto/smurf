@@ -44,7 +44,6 @@ void read_16_68030(void);
 void read_8_68030(void);
 
 extern int (*set_16_pixels)(char *source, char *dest, int depth, long planelen, int howmany);           
-extern void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen, int zoom);
 
 
 int r, g, b;
@@ -247,7 +246,7 @@ int floyd_steinberg68030(SMURF_PIC *picture, DITHER_DATA *dither, char *output)
             {
                 for(x=0; x<(owidth+15)/16; x++)
                 {
-                    get_standard_pix(actual_pic, line+x*16, picture->depth, planelen8, 0);
+                    get_standard_pix(actual_pic, line+x*16, picture->depth, planelen8);
                     actual_pic +=2;
                 }
 

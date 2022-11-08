@@ -40,56 +40,56 @@ IMPORT  Palette, rgbtab
 
 
 read24bit:
-    move.b  (a0)+,d4        ; rot holen
-        lsr.w   #3,d4           ;r>>3
-        sub.w   d7,d4           ;-rf
-    move.b  (a0)+,d3        ; gr］ holen
+    move.b  (a0)+,d4        /* rot holen */
+        lsr.w   #3,d4           /*r>>3 */
+        sub.w   d7,d4           /*-rf */
+    move.b  (a0)+,d3        /* gr］ holen */
         add.w   d4,d4
-        move.w  (a1, d4.w),d4   ; rot clippen
+        move.w  (a1,d4.w),d4   /* rot clippen */
         
-        lsr.w   #3,d3           ;g>>3
-        sub.w   d6,d3           ;-gf
-    move.b  (a0)+,d2        ; blau holen
+        lsr.w   #3,d3           /*g>>3 */
+        sub.w   d6,d3           /*-gf */
+    move.b  (a0)+,d2        /* blau holen */
         add.w   d3,d3
-        move.w  (a1, d3.w),d3   ;gr］ clippen
+        move.w  (a1,d3.w),d3   /*gr］ clippen */
 
-        lsr.w   #3,d2           ;b>>3
-        sub.w   d5,d2           ;-bf
+        lsr.w   #3,d2           /*b>>3 */
+        sub.w   d5,d2           /*-bf */
         add.w   d2,d2
-        move.w  (a1, d2.w),d2   ; blau clippen
+        move.w  (a1,d2.w),d2   /* blau clippen */
 
         bra read_ready
 
 
 
 read8bit:
-        move.l  Palette,a6      ;Palette holen
+        move.l  Palette,a6      /*Palette holen */
 
-        move.b  (a0)+,d2        ;*pic
+        move.b  (a0)+,d2        /**pic */
         
-        adda.l  d2, a6
-        adda.l  d2, a6
-        adda.l  d2, a6
+        adda.l  d2,a6
+        adda.l  d2,a6
+        adda.l  d2,a6
 
-        move.b  (a6)+,d4        ;get red
-        lsr.b   #3, d4
-        sub.w   d7,d4           ;-rf
+        move.b  (a6)+,d4        /*get red */
+        lsr.b   #3,d4
+        sub.w   d7,d4           /*-rf */
         add.w d4,d4
-        move.w  (a1, d4.w),d4   ;Clipping
+        move.w  (a1,d4.w),d4   /*Clipping */
         
-        move.b  (a6)+,d3        ;get green
-        lsr.b   #3, d3
-        sub.w   d6,d3           ;-gf
+        move.b  (a6)+,d3        /*get green */
+        lsr.b   #3,d3
+        sub.w   d6,d3           /*-gf */
         add.w d3,d3
-        move.w  (a1, d3.w),d3   ;Clipping
+        move.w  (a1,d3.w),d3   /*Clipping */
 
-        move.b  (a6)+,d2        ;get blue
-        lsr.b   #3, d2
-        sub.w   d5,d2           ;-bf
+        move.b  (a6)+,d2        /*get blue */
+        lsr.b   #3,d2
+        sub.w   d5,d2           /*-bf */
         add.w d2,d2
-        move.w  (a1, d2.w),d2   ;Clipping
+        move.w  (a1,d2.w),d2   /*Clipping */
 
-        move.l  rgbtab,a6       ; rgbtab wieder holen
+        move.l  rgbtab,a6       /* rgbtab wieder holen */
 
         bra read_ready
 
@@ -98,26 +98,26 @@ read8bit:
 
 
 read16bit:
-        move.w  (a0)+, d4           ; pixel holen
-        move.w  d4, d3              ; f〉 gr］
-        move.w  d4, d2              ; f〉 blau
+        move.w  (a0)+,d4           /* pixel holen */
+        move.w  d4,d3              /* f〉 gr］ */
+        move.w  d4,d2              /* f〉 blau */
     
-        rol.w   #5,d4               ; rot fertigmachen
-        and.w   #$001f, d4          ; rot ausmaskieren
-        sub.w   d7, d4              ; -rf
+        rol.w   #5,d4               /* rot fertigmachen */
+        and.w   #$001f,d4          /* rot ausmaskieren */
+        sub.w   d7,d4              /* -rf */
         add.w   d4,d4
-        move.w  (a1, d4.w), d4  ; clip
+        move.w  (a1,d4.w),d4  /* clip */
 
-        lsr.w   #6,d3               ;gr］ fertigmachen
-        and.w   #$001f, d3          ; gr］ ausmaskieren
-        sub.w   d6, d3              ; -gf
+        lsr.w   #6,d3               /*gr］ fertigmachen */
+        and.w   #$001f,d3          /* gr］ ausmaskieren */
+        sub.w   d6,d3              /* -gf */
         add.w   d3,d3
-        move.w  (a1, d3.w), d3  ; clip
+        move.w  (a1,d3.w),d3  /* clip */
     
-        and.w   #$001f, d2          ; blau ausmaskieren
-        sub.w   d5, d2              ; -rf
+        and.w   #$001f,d2          /* blau ausmaskieren */
+        sub.w   d5,d2              /* -rf */
         add.w   d2,d2
-        move.w  (a1, d2.w), d2  ; clip
+        move.w  (a1,d2.w),d2  /* clip */
 
         bra read_ready
 

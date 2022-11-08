@@ -81,9 +81,9 @@ int init_roto(void)
 	/*---- FÅllen der Sin/Cos-Tabelle ----*/
 	for(t=0; t<365; t++)
 	{
-		bog=(float)t*M_PI/180F;
-		Sin[t]=(int)(sin(bog)*256F);
-		Cos[t]=(int)(cos(bog)*256F);
+		bog=(float)t*M_PI/180.F;
+		Sin[t]=(int)(sin(bog)*256.F);
+		Cos[t]=(int)(cos(bog)*256.F);
 	}
 
 
@@ -164,9 +164,9 @@ int init_roto(void)
 
 void roto(void)
 {
-	register int pos, t, pxy[5], normvek;
-	register long mySin, myCos;
-	register int xrot[100], yrot[100], zrot[100];
+	int pos, t, pxy[5], normvek;
+	long mySin, myCos;
+	int xrot[100], yrot[100], zrot[100];
 
 
 	/*---- Jetz' gehts los ----*/

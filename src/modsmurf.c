@@ -42,9 +42,9 @@
 #include <ext.h>
 #endif
 #include <math.h>
-#include "demolib.h"
 #include <errno.h>
 #include "../modules/import.h"
+#include "demolib.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"
@@ -1133,7 +1133,9 @@ void make_pic_window(int pic_to_make, int wid, int hgt, char *name)
 	whlen = (int)strlen(picture_windows[pic_to_make].wtitle);
 	strncat(picture_windows[pic_to_make].wtitle, "            ", 12 - whlen);
 	strcat(picture_windows[pic_to_make].wtitle, shorten_name(name, 41 - (char)strlen(picture_windows[pic_to_make].wtitle)));
-/*	strncat(picture_windows[pic_to_make].wtitle, name, 40); */
+#if 0
+	strncat(picture_windows[pic_to_make].wtitle, name, 40);
+#endif
 
 	Window.windGet(0, WF_WORKXYWH, &abx, &aby, &abw, &abh);
 
@@ -1384,7 +1386,7 @@ void f_event(void)
 			 */
 			if(back&MU_KEYBD)
 			{
-/*
+#if 0
 				if(Dialog.winAlert.isTop)
 				{
 					keyboard_back = handle_keyboardevent(&wind_s[WIND_ALERT], key_scancode, &key_object);
@@ -1394,7 +1396,7 @@ void f_event(void)
 					back = 0;
 				}
 				else 
-*/
+#endif
 				if((key_scancode >> 8) == KEY_UNDO)
 				{
 					Window.windGet(0, WF_TOP, &topwin, &dummy,&dummy,&dummy);
@@ -1474,7 +1476,7 @@ void f_event(void)
 
 				key_scancode=0;		/* Scancode lîschen */
 				key_ascii=0;		/* Scancode lîschen */
-			} /* Keyboardevents Ende */
+			}
 
 			/*
 			 * Buttonevents fÅr Bilder, Dialoge und Module -------------------
@@ -2215,9 +2217,6 @@ int f_loadpic(char *pic, char *picpath)
 		else
 			strcpy(ext, "");
 
-/*		printf("ext: %s\n", ext);
-		getch(); */
-
 		module_ret = f_import_pic(smurf_picture[picture_to_load], ext);
 	}
 
@@ -2252,7 +2251,9 @@ int f_loadpic(char *pic, char *picpath)
 	{
 		picture_windows[picture_to_load].clipwid = smurf_picture[picture_to_load]->pic_width;
 		picture_windows[picture_to_load].cliphgt = smurf_picture[picture_to_load]->pic_height;
-/*		Window.redraw(&picture_windows[picture_to_load], NULL, 0, 0); */
+#if 0
+		Window.redraw(&picture_windows[picture_to_load], NULL, 0, 0);
+#endif
 		f_activate_pic(picture_to_load);
 		picthere++;
 	}
@@ -2371,11 +2372,11 @@ int f_formhandle(int picture_to_load, int module_ret, char *namename)
 							smurf_picture[picture_to_load]->pic_height, namename);
 
 			/*------------ Bildnummer in den Fenstertitel - zum EntkÑfern ---- */
-/*
+#if 0
 			itoa(picture_to_load, help_str, 10);
-			strncat(picture_windows[picture_to_load].wtitle, " - Nr. ", 7);
-			strncat(picture_windows[picture_to_load].wtitle, help_str, 2);
-*/
+			strcat(picture_windows[picture_to_load].wtitle, " - Nr. ");
+			strcat(picture_windows[picture_to_load].wtitle, help_str);
+#endif
 
 			Window.open(&picture_windows[picture_to_load]);
 			imageWindow.clipPicwin(&picture_windows[picture_to_load]);
@@ -2428,26 +2429,28 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 	{
 		icebuf = (long *)smurf_picture->pic_data;
 		ice_unpack_len = *(icebuf + 2);
-/*		
+#if 0		
 		strncpy(len_str, "ICE! LÑnge: ", 12);
 		ltoa(ice_unpack_len, help_str, 10);
 		strncat(len_str, help_str, 8);
 		Dialog.busy.reset(128, len_str);
-*/	
+#endif
 		if((ice_depack_buf = SMalloc(ice_unpack_len)) == 0)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOMEM_ICE].TextCast, NULL, NULL, NULL, 1);
 		else
 		{
 			Dialog.busy.reset(128, "ICE-Decrunching...");
 
+#ifdef __PUREC__ /* not ready yet for others */
 			ice_decrunch(icebuf, ice_depack_buf);
+#endif
 			SMfree(smurf_picture->pic_data);
-/*
+#if 0
 			smurf_picture->pic_data = SMalloc(ice_unpack_len);
 			memcpy(smurf_picture->pic_data, ice_depack_buf, ice_unpack_len);
 			if(SMfree(ice_depack_buf) != 0)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[ICE_MFREE_ERR].TextCast, NULL, NULL, NULL, 1);
-*/
+#endif
 			smurf_picture->pic_data = ice_depack_buf;
 			f_len = ice_unpack_len;
 
@@ -2500,17 +2503,17 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 				actual = filelist;
 				while(actual != NULL)
 				{
-				/* Pic-Defaults einstellen */
+					/* Pic-Defaults einstellen */
 					smurf_picture->format_type = 0;
 					smurf_picture->col_format = RGB;
 
-				/*-------- NÑchsten Modulpfad ermitteln */
+					/*-------- NÑchsten Modulpfad ermitteln */
 					strcpy(mod_path, modpath);
 					strcat(mod_path, actual->modname);
 
 					Dialog.busy.reset(128, actual->modname);
 
-				/*-------- Modul starten */
+					/*-------- Modul starten */
 					oldmem = (long)Malloc(-1);
 					oldtim = clock();
 					if((module_ret = module.comm.startImport(mod_path, smurf_picture)) == M_STARTERR)
@@ -2520,6 +2523,7 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 
 					if(oldmem != newmem && module_ret != M_PICDONE && module_ret != M_DONEEXIT)
 					{
+						/* FIXME: translate */
 						strcpy(alertstr, "[3][ Modul ");
 						strcat(alertstr, actual->modname);
 						strcat(alertstr, " | hat ");
@@ -2549,8 +2553,8 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 
 				free(modpath);
 				free(mod_path);
-			} /* if(anzahl_importmods > 0) */
-		} /* if(alertback == 1) */
+			}
+		}
 		else
 			if(alertback == 1)
 				module_ret = M_SILENT_ERR;		/* Meldung "Bild bitte an uns schicken" vermeiden */
@@ -3197,7 +3201,7 @@ End_Only:
 	
 	free(messagebuf);
 
-/* -----  Resource schlieûen, AES freigeben, virWS schlieûen  -- */
+	/* -----  Resource schlieûen, AES freigeben, virWS schlieûen  -- */
 	f_exit_menu();             		/* MenÅ deinstallieren */
 	xrsrc_free(resource_global);
 	v_clsvwk(handle); 

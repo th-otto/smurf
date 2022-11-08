@@ -132,7 +132,7 @@ int init_OLGA(void)
 	/*
 	 * und jetzt OLE_INIT
 	 */
-	Comm.sendAESMsg(-Sys_info.olgaman_ID, OLE_INIT, OL_SERVER, 0,0,0, 'RG', -1);
+	Comm.sendAESMsg(-Sys_info.olgaman_ID, OLE_INIT, OL_SERVER, 0,0,0, 0x5247, -1);
 
 	DEBUG_MSG (( "init_OLGA... Ende \n" ));
 

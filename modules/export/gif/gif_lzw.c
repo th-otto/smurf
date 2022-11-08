@@ -35,7 +35,6 @@
 
 char *encode_lzw_17bit(char *buffer, char *ziel, unsigned int width, unsigned int height, char BitsPerPixel);
 char *encode_lzw_8bit(char *buffer, char *ziel, unsigned int width, unsigned int height);
-void getpix_std_line(void *st_pic, void *buf16, int planes, long planelen, int howmany);
 
 extern int *lacetab;
 

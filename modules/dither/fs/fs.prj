@@ -37,7 +37,6 @@
 floydst.c
 
 ;--------- Lese- / Schreibroutinen ---------- 
-;f:\daleman\smurf\DIT_READ.S        ; Ausleseroutinen - subrouts, Versuch
 ..\standard.s                               ; Ausleseroutinen - subrouts, Versuch
 
 ;--------- 68000-C ---------- 

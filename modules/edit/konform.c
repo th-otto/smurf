@@ -53,7 +53,7 @@
 #include <string.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
-#include "../../src/lib/demolib.h"
+#include "demolib.h"
 
 #define VDI		1
 #define HARD	2

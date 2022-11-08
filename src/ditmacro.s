@@ -35,20 +35,20 @@
 *   Busybox-Aufruf
 *-------------------------------------------------------------
 
-MACRO   _Busybox
+	.MACRO   _Busybox
 
-    move.l busybox, a6      ; busybox-adresse
-    move.w 4(sp), d2        ; Wert...
-    lsl.l #7, d2            ;...ausrechnen
-    move.w height, d0
+    move.l busybox,a6      /*  busybox-adresse */
+    move.w 4(sp),d2        /*  Wert... */
+    lsl.l #7,d2            /* ...ausrechnen */
+    move.w height,d0
     divu.w d0,d2
-    move.w #128, d0
+    move.w #128,d0
     sub.w d2,d0
-    movem.l d3-d7/a0-a6, -(sp)  ; register retten
-    jsr (a6)                    ; busybox
-    movem.l (sp)+, d3-d7/a0-a6  ; und regs zurÅck
+    movem.l d3-d7/a0-a6,-(sp)  /*  register retten */
+    jsr (a6)                    /*  busybox */
+    movem.l (sp)+,d3-d7/a0-a6  /*  und regs zurÅck */
 
-ENDM
+	.ENDM
 
 
 

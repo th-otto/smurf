@@ -286,7 +286,7 @@ int get_cookie(unsigned long cookie, unsigned long *value)
 
 
 	/* Erst den neuen Weg probieren */
-	if((r = Ssystem(GETCOOKIE, cookie, &val)) != EINVFN)
+	if((r = Ssystem(GETCOOKIE, cookie, (long)&val)) != EINVFN)
 	{
 		if(r != -1)
 		{
