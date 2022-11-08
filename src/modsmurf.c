@@ -2441,9 +2441,7 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 		{
 			Dialog.busy.reset(128, "ICE-Decrunching...");
 
-#ifdef __PUREC__ /* not ready yet for others */
 			ice_decrunch(icebuf, ice_depack_buf);
-#endif
 			SMfree(smurf_picture->pic_data);
 #if 0
 			smurf_picture->pic_data = SMalloc(ice_unpack_len);

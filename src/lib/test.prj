@@ -1,0 +1,8 @@
+test.prg
+.L[-S=0]
+=
+cstart0.o
+test.c
+demolib.lib
+pcstdlib.lib
+pctoslib.lib

@@ -74,11 +74,23 @@ OBJS = \
 #	dit_read.o \
 #	ditreadp.o \
 
+LIB_OBJS = \
+	lib/screens.o \
+	lib/ice2.o \
+	lib/super.o \
+	lib/timer.o \
+	lib/dspmod.o \
+	$(empty)
+
 all: smurf.prg
 
 
-smurf.prg: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+smurf.prg: lib/demolib.a $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS) lib/demolib.a $(LIBS)
+
+lib/demolib.a: $(LIB_OBJS)
+	@$(RM) $@
+	$(AR) rcs $@ $(LIB_OBJS)
 
 clean::
-	$(RM) $(OBJS) *.prg *.pdb
+	$(RM) $(OBJS) $(LIB_OBJS) *.prg *.pdb

@@ -2,6 +2,7 @@ CROSS = m68k-atari-mint-
 
 CC = $(CROSS)gcc
 AS = $(CC)
+AR = $(CROSS)ar
 
 OPT = -O2 -fomit-frame-pointer -mshort
 WARN =
