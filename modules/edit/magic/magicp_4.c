@@ -106,7 +106,7 @@ MOD_ABILITY  module_ability =
 
 SERVICE_FUNCTIONS *service;
 int (*busybox)(int lft);
-void (*reset_busybox)(int lft, char *string);
+void (*reset_busybox)(int lft, const char *string);
 
 typedef unsigned char uchar;
 typedef unsigned int uint;

@@ -39,24 +39,19 @@
 #include "ext_obs.h"
 #include "debug.h"
 
-static int empty_bb(int lft);
-static void empty_rbb(int lft, char *txt);
-static int fullempty_bb(int lft);
 
 
 
 /* ---------------------------------------------------------------- */
 /*					Status-Box setzen und Text rein				  	*/
 /* ----------------------------------------------------------------	*/
-void reset_busybox(int lft,	char *txt)
+void reset_busybox(int lft, const char *txt)
 {
 	char *busytxt;
-
 	GRECT busy_form;
 	OBJECT *busytree = Dialog.busy.busyTree;
 
-
-	if(Dialog.busy.disabled)
+	if (Dialog.busy.disabled)
 		return;
 
 	Dialog.busy.resetClock = clock();
@@ -66,10 +61,10 @@ void reset_busybox(int lft,	char *txt)
 	busy_form.g_y = wind_s[WIND_BUSY].wy;
 	busy_form.g_w = wind_s[WIND_BUSY].ww;
 	busy_form.g_h = wind_s[WIND_BUSY].wh;
-	busytree[BW_BOX].ob_x = busytree[BW_ICON].ob_x+lft;
-	busytree[BW_BOX].ob_width = 128-lft;
+	busytree[BW_BOX].ob_x = busytree[BW_ICON].ob_x + lft;
+	busytree[BW_BOX].ob_width = 128 - lft;
 	strncpy(busytxt, txt, 20);
-	busytxt[20]='\0';							/* nullterminieren */
+	busytxt[20] = '\0';					/* nullterminieren */
 
 	Window.redraw(&wind_s[WIND_BUSY], &busy_form, 0, 0);
 }
@@ -77,7 +72,7 @@ void reset_busybox(int lft,	char *txt)
 
 void ok_busybox(void)
 {
-	if(Dialog.busy.disabled)
+	if (Dialog.busy.disabled)
 		return;
 
 	Dialog.busy.reset(128, "OK");
@@ -90,37 +85,37 @@ void ok_busybox(void)
 /* ---------------------------------------------------------------- */
 int draw_busybox(int lft)
 {
-	int dummy, ev_type, keys;
-	int wind_x, wind_y;
-
+	WORD dummy;
+	WORD ev_type;
+	WORD keys;
+	WORD wind_x, wind_y;
 	OBJECT *busytree = Dialog.busy.busyTree;
 	GRECT box;
 
-	if(Dialog.busy.disabled)
-		return(0);
-	
-	if(!Startup && !Dialog.busy.noEvents)
+	if (Dialog.busy.disabled)
+		return 0;
+
+	if (!Startup && !Dialog.busy.noEvents)
 	{
-		ev_type = evnt_multi(MU_KEYBD|MU_MESAG|MU_TIMER, 0,0,0, 0,0,0,0,0, 0,0,0,0,0, messagebuf,
-			EVNT_TIME(1), 
-							 &mouse_xpos, &mouse_ypos, &dummy, &keys, &dummy, &dummy);
-		if(ev_type == MU_MESAG && messagebuf[0] != WM_CLOSED)
+		ev_type = evnt_multi(MU_KEYBD | MU_MESAG | MU_TIMER, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, messagebuf,
+							 EVNT_TIME(1), &mouse_xpos, &mouse_ypos, &dummy, &keys, &dummy, &dummy);
+		if (ev_type == MU_MESAG && messagebuf[0] != WM_CLOSED)
 			f_handle_message();
 	}
 
 	Window.windGet(wind_s[WIND_BUSY].whandlem, WF_WORKXYWH, &wind_x, &wind_y, &dummy, &dummy);
-	
+
 	box.g_x = wind_x + busytree[BW_ICON].ob_x;
 	box.g_y = wind_y + busytree[BW_ICON].ob_y;
 	box.g_w = lft;
 	box.g_h = busytree[BW_ICON].ob_height;
 	Window.redraw(&wind_s[WIND_BUSY], &box, BW_ICON, 0);
 
-	keys = (int)Kbshift(-1);
-	if(keys == 0x003)
-		return(-1);						/* Abbruch (R+L - Shift)? */
+	keys = (int) Kbshift(-1);
+	if (keys == 0x003)
+		return -1;					/* Abbruch (R+L - Shift)? */
 	else
-		return(0);
+		return 0;
 }
 
 
@@ -130,15 +125,16 @@ int draw_busybox(int lft)
 void actualize_ram(void)
 {
 	char ram_str[20];
-	int dummy, wind_x, wind_y;
+	WORD dummy;
+	WORD wind_x, wind_y;
 	long frei_mem;
 	OBJECT *busytree = Dialog.busy.busyTree;
 	GRECT box;
 
-	DEBUG_MSG (( "actualize_ram...\n" ));
+	DEBUG_MSG(("actualize_ram...\n"));
 
-	frei_mem = (long)Malloc(-1);
-	frei_mem /= 1024L;              /* 1024 = Kilobyte */
+	frei_mem = (long) Malloc(-1);
+	frei_mem /= 1024L;					/* 1024 = Kilobyte */
 
 	ltoa(frei_mem, ram_str, 10);
 	strncpy(busytree[BW_MEMORY].TextCast, ram_str, 8);
@@ -150,9 +146,47 @@ void actualize_ram(void)
 	box.g_h = busytree[BW_MEMORY].ob_height + 7;
 	Window.redraw(&wind_s[WIND_BUSY], &box, 0, 0);
 
-	DEBUG_MSG (( "actualize_ram...Ende\n" ));
+	DEBUG_MSG(("actualize_ram...Ende\n"));
 }
 
+
+/*---------------------------------------------------------------
+	Leere Busyboxfunktionen
+	------------------------------------------------------------*/
+
+
+/* empty_bb --------------------------------------------------
+	'leere' draw_busybox, wenn die Zeit vom letzten Reset bis zum
+	Aufruf > 1s ist, wird die Busybox wieder angeschaltet (z.B. um
+	bei langsamen Modulen das Preview beobachten zu k”nnen.
+	------------------------------------------------------------*/
+static int empty_bb(int lft)
+{
+	(void) lft;
+	if (clock() - Dialog.busy.resetClock > 200)
+		Dialog.busy.enable();
+	return 0;
+}
+
+
+/* fullempty_bb --------------------------------------------------
+	wirklich leere draw_busybox
+	------------------------------------------------------------*/
+static int fullempty_bb(int lft)
+{
+	(void) lft;
+	return 0;
+}
+
+
+/* empty_rbb --------------------------------------------------
+	leere reset_busybox
+	------------------------------------------------------------*/
+static void empty_rbb(int lft, const char *txt)
+{
+	(void) lft;
+	(void) txt;
+}
 
 /*---------------------------------------------------------------
 	Funktionen zum Ein- und Ausschalten der Busybox
@@ -177,45 +211,4 @@ void fulldisable_busybox(void)
 	Dialog.busy.disabled = 1;
 	global_services.busybox = fullempty_bb;
 	global_services.reset_busybox = empty_rbb;
-}
-
-
-/*---------------------------------------------------------------
-	Leere Busyboxfunktionen
-	------------------------------------------------------------*/
-
-
-/* empty_bb --------------------------------------------------
-	'leere' draw_busybox, wenn die Zeit vom letzten Reset bis zum
-	Aufruf > 1s ist, wird die Busybox wieder angeschaltet (z.B. um
-	bei langsamen Modulen das Preview beobachten zu k”nnen.
-	------------------------------------------------------------*/ 
-static int empty_bb(int lft)
-{
-	(void)lft;
-	if(clock() - Dialog.busy.resetClock > 200)
-		Dialog.busy.enable();
-		
-	return(0);
-}
-
-
-/* fullempty_bb --------------------------------------------------
-	wirklich leere draw_busybox
-	------------------------------------------------------------*/ 
-static int fullempty_bb(int lft)
-{
-	(void)lft;
-	return(0);
-}
-
-
-/* empty_rbb --------------------------------------------------
-	leere reset_busybox
-	------------------------------------------------------------*/ 
-static void empty_rbb(int lft, char *txt)
-{
-	(void)lft;
-	(void)txt;
-	return;
 }

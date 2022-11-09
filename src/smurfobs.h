@@ -203,7 +203,7 @@ typedef struct windowAlert
 typedef struct busyBox
 {
     int (*draw)(int lft);
-    void (*reset)(int lft, char *txt);
+    void (*reset)(int lft, const char *txt);
     void (*ok)(void);
     void (*dispRAM)(void);
 

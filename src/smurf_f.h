@@ -367,7 +367,7 @@ void block_dklick(WINDOW *picwindow);
 /* ------------------------------ Statusbox --------------------------- */
 /* "Picard an Maschinenraum! Statusbericht!"                            */
 /* **********************************************************************/
-void reset_busybox(int lft,  char *txt);     /* Busybox setzen und Text einfÅgen */
+void reset_busybox(int lft, const char *txt);     /* Busybox setzen und Text einfÅgen */
 void ok_busybox(void);                       /* Busybox auf 128/"OK" setzen */
 int draw_busybox(int lft);                  /* Busybox setzen */
 void actualize_ram(void);                    /* RAM anzeigen */

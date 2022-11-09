@@ -101,7 +101,7 @@ unsigned int C, x,y;
 unsigned int red,green,blue;
 long planelen;
 
-void (*reset_busybox)(int lft, char *txt);
+void (*reset_busybox)(int lft, const char *txt);
 
     reset_busybox=smurf_struct->services->reset_busybox;
 

@@ -105,8 +105,7 @@ MOD_ABILITY	module_ability=
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-void (*get_PD)(MOD_INFO *infostruct, int mod_id);
-int mod_id, t;
+short mod_id, t;
 int SmurfMessage;
 int umgekehrt;
 char *picdata, *pdat;
@@ -137,7 +136,6 @@ static long Sin[370];
 SmurfMessage=smurf_struct->module_mode;
 
 /* Hier werden die Funktionen aus der GARGAMEL-Struktur geholt. */
-get_PD=smurf_struct->services->f_module_prefs;	/* PD-Funktion	*/
 
 
 
@@ -158,7 +156,7 @@ if(SmurfMessage==MSTART)
 		Cos[t]=cos(bog)*32768F;	
 	}
 
-	get_PD(&module_info, mod_id);			/* Gib mir 'n PD! */
+	smurf_struct->services->f_module_prefs(&module_info, mod_id);			/* Gib mir 'n PD! */
 
 	smurf_struct->module_mode=M_WAITING;		/* doch? Ich warte... */
 	return;

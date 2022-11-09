@@ -244,7 +244,7 @@ typedef struct
 typedef struct
 {
     int (*busybox)(int lft);
-    void (*reset_busybox)(int lft, char *string);
+    void (*reset_busybox)(int lft, const char *string);
 
     int (*f_module_window)(WINDOW *mod_window);
     void (*f_module_prefs)(MOD_INFO *infostruct, short mod_id);

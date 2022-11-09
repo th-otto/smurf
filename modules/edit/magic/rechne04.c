@@ -52,7 +52,7 @@ extern void fcopypointTC16(void *a,void *b);
 extern void fcopypointTC24(void *a,void *b);
 extern void	(*fcopypoint)(void *a,void *b);
 
-extern void (*reset_busybox)(int lft, char *string);
+extern void (*reset_busybox)(int lft, const char *string);
 extern int (*busybox)(int lft);
 
 struct fcpypnt
@@ -64,9 +64,6 @@ struct fcpypnt
 
 void	*hintergrundspeicher, *bild3dspeicher, *ebenenspeicher;
 unsigned int RX, RY, HX, HY, EX, EY;
-
-/*int errno;
-long _FilSysV;*/
 
 long busystart, busyfak;
 void update(void)

@@ -54,12 +54,12 @@ typedef struct
 	int sdeck;
 } CONFIG;
 
-int make_sliders(void);
-int (*busybox)(int pos);
-int	(*SMfree)(void *ptr);
-void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
-void *(*mconfLoad)(MOD_INFO *modinfo, int mod_id, char *name);
-void (*mconfSave)(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *name);
+static int make_sliders(void);
+static int (*busybox)(int pos);
+static int	(*SMfree)(void *ptr);
+static void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
+static void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
+static void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
 SERVICE_FUNCTIONS *service;
 
 void save_setting(void);

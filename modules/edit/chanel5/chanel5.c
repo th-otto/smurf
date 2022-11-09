@@ -63,11 +63,11 @@ typedef struct
 	char Folge;
 } CONFIG;
 
-int	(*SMfree)(void *ptr);
-void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
-void *(*mconfLoad)(MOD_INFO *modinfo, int mod_id, char *name);
-void (*mconfSave)(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *name);
-SERVICE_FUNCTIONS *service;
+static int	(*SMfree)(void *ptr);
+static void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
+static void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
+static void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
+static SERVICE_FUNCTIONS *service;
 
 void save_setting(void);
 void load_setting(void);

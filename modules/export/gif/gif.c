@@ -83,7 +83,7 @@ int	(*SMfree)(void *ptr);
 
 int (*f_module_window)(WINDOW *mod_window);
 void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
-void (*reset_busybox)(int lft, char *string);
+static void (*reset_busybox)(int lft, const char *string);
 
 char *write_header(char *file, char typ);
 char *write_lscrdes(char *file, char *pal, unsigned int width, unsigned int height, char BitsPerPixel);

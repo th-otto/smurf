@@ -66,7 +66,7 @@
 
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);
-void (*reset_busybox)(int lft, char *string);
+static void (*reset_busybox)(int lft, const char *string);
 
 char *check_header(char *file, int *version);
 char *read_lscrdes(char *file);
