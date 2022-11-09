@@ -231,10 +231,10 @@ void send_AESMessage(int dest_id, int msg, ...);                /* AES-Message a
 void update_dhst(char *path);
 void bubble_init(void);
 void bubble_exit(void);
-void bubble_gem(int windownum, int xpos, int ypos, int modulemode);
+void bubble_gem(WORD windownum, WORD xpos, WORD ypos, int modulemode);
 void init_AVPROTO(void);
 void get_avserv(void);
-void call_stguide(int topwin_handle);
+void call_stguide(WORD topwin_handle);
 
 
 

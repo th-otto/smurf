@@ -47,14 +47,40 @@
 #include <mint/slb.h>
 #endif
 
+#if !defined(__PUREC__) || !defined(__MSHORT__)
+/* must pass structure by value, because otherwies stack layout is wrong */
+struct bgh_load_args {
+	const char *name;
+	short Mode;
+};
+struct bgh_gethelp_args {
+	ULONG BGH_Handle;
+	short section;
+	short Gruppe;
+	short Index;
+};
+
 typedef struct
 {
-	int Version;
+	short Version;
 	char *Info;
-	unsigned long cdecl(*Load) (const char *Name, int Mode);
-	void cdecl(*Free) (ULONG BGH_Handle);
-	char *cdecl(*GetHelpString) (ULONG BGH_Handle, int Section, int Guppe, int Index);
+	unsigned long cdecl (*Load) (struct bgh_load_args args);
+	void cdecl (*Free) (ULONG BGH_Handle);
+	char *cdecl (*GetHelpString) (struct bgh_gethelp_args args);
 } BGH_Cookie;
+
+#else
+
+typedef struct
+{
+	short Version;
+	char *Info;
+	unsigned long cdecl (*Load) (const char *Name, short Mode);
+	void cdecl (*Free) (ULONG BGH_Handle);
+	char *cdecl (*GetHelpString) (ULONG BGH_Handle, short Section, short Guppe, short Index);
+} BGH_Cookie;
+
+#endif
 
 #define BGH_DIAL  1
 #define BGH_ALERT 2
@@ -107,9 +133,9 @@ void bubble_exit(void)
 }
 
 
-void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
+void bubble_gem(WORD windownum, WORD xpos, WORD ypos, int modulemode)
 {
-	int klickobj;
+	WORD klickobj;
 	char helppath[256];
 	char helpname[64];
 	char *HelpString;
@@ -117,19 +143,19 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 #if 0
 	char *helpstring;
 #endif
-	int Section;
-	int TreeId;
+	short Section;
+	short TreeId;
 	char num_byte[5];
-	int bubble_id;
-	int general_info = 0;
+	WORD bubble_id;
+	short general_info = 0;
 	WINDOW *window = 0;
 
 	char mod_name_string[30];
 	char *cmp_string;
 	char *textseg_begin;
 	MOD_INFO *mod_info;
-	int mod_index;
-	int t;
+	short mod_index;
+	WORD t;
 	long mod_magic;
 
 	if (BGHI_Exist == FALSE)
@@ -288,16 +314,36 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
 		helpstring = (char *) SMalloc(257);
 #endif
 
+#if !defined(__PUREC__) || !defined(__MSHORT__)
+	{
+		struct bgh_load_args args;
+		args.name = helppath;
+		args.Mode = 0;
+		Help = BGHI_Cookie->Load(args);
+	}
+#else
 	Help = BGHI_Cookie->Load(helppath, 0);
+#endif
 	if (!Help)
 		return;
+#if !defined(__PUREC__) || !defined(__MSHORT__)
+	{
+		struct bgh_gethelp_args args;
+		args.BGH_Handle = Help;
+		args.section = Section;
+		args.Gruppe = TreeId;
+		args.Index = klickobj;
+		HelpString = BGHI_Cookie->GetHelpString(args);
+	}
+#else
 	HelpString = BGHI_Cookie->GetHelpString(Help, Section, TreeId, klickobj);
+#endif
 	BGHI_Cookie->Free(Help);
 
 #if 0
 	{
-		int found = 0;
-		int end = 0;
+		short found = 0;
+		short end = 0;
 		char *end_of_string;
 		char *search_pos;
 		char *help_file;
@@ -400,12 +446,12 @@ void bubble_gem(int windownum, int xpos, int ypos, int modulemode)
    Hypertext auf der passenden Seite auf, Module und Plugins inklusive.
    -------------------------------------------------------------
 */
-void call_stguide(int topwin_handle)
+void call_stguide(WORD topwin_handle)
 {
-	int STG_id;
-	int wnum;
-	int t;
-	int mod_index;
+	WORD STG_id;
+	WORD wnum;
+	short t;
+	short mod_index;
 	WINDOW *window;
 	MOD_INFO *mod_info;
 	char *wtitle;
