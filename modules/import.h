@@ -31,6 +31,7 @@
 /*  KOMMUNIKATION groûgeschrieben...                                */
 
 #include "portab.h"
+#include "stdint_.h"
 #ifdef __PUREC__
 #include <vdi.h>
 #include <tos.h>
@@ -92,18 +93,18 @@
 
 typedef struct
 {
-    int     *points;            /* Anzahl an Punkten/Polygon */
-    int     polygons;           /* Anzahl an Polygonen  */
+    WORD    *points;            /* Anzahl an Punkten/Polygon */
+    WORD    polygons;           /* Anzahl an Polygonen  */
     long    *x_coord, 
             *y_coord;           /* Zeiger auf Arrays mit den Punktkoordinaten in mm */
-    int     *polydef;           /* Zeiger auf Array mit Polygondefinitionen, -1 ist Endkennung fÅr ein Polygon  */
+    WORD    *polydef;           /* Zeiger auf Array mit Polygondefinitionen, -1 ist Endkennung fÅr ein Polygon  */
     char    *fillstyle;         /* FÅllstile (nach VDI-Mustern) */  
     char    *linestyle;         /* Linienstile der Polygone, VDI */
     char    *linet;             /* Liniendicke in mm */
     char    *linecol;           /* Linienfarben (wie fÅll) */
     char    *fillcolor;         /* FÅllfarben 3*char ccc mmm yyy, oder 4*char ccc mmm yyy kkk, 24Bittige Farbe  */  
     char    col_format;         /* CMYK oder RGB oder was?  */
-    int     resolution;         /* Auflîsung bei gegebenen Koordinaten in dpi */
+    WORD    resolution;         /* Auflîsung bei gegebenen Koordinaten in dpi */
 
     char    *next_obj;          /* VECTOR-Zeiger aufs nÑchste Objekt in Reihenfolge (NULL = Ende) */
 } VECTOR;
@@ -115,7 +116,7 @@ typedef struct smurfpic
 {
     char filename[257];     /* Zeiger auf Dateiname incl. Pfad des Bildes - von Smurf */
 
-    int changed;            /* Bitvektor fÅr BildÑnderungen: 
+    short changed;          /* Bitvektor fÅr BildÑnderungen: 
                                Bit 0: neue NCT wird benîtigt,
                                Bit 1: Redither ist notwendig
                                = 255: Bildstruktur enthÑlt einen Block! */
@@ -125,9 +126,9 @@ typedef struct smurfpic
     void *pic_data;         /* Zeiger auf rohe Bilddaten */
     void *mask;             /* Zeiger auf 8Bit-Maske, gekocht */
 
-    int pic_width;          /* Breite des Bildes in Pixels, gebraten */
-    int pic_height;         /* Hîhe des Bildes in Pixels, gedÅnstet */
-    int depth;              /* Farbtiefe in BIT (1-24), 30 min. bei 200C im Backofen... */
+    WORD pic_width;         /* Breite des Bildes in Pixels, gebraten */
+    WORD pic_height;        /* Hîhe des Bildes in Pixels, gedÅnstet */
+    WORD depth;             /* Farbtiefe in BIT (1-24), 30 min. bei 200C im Backofen... */
     MFDB *screen_pic;       /* Zeiger auf MFDB fÅr Bildschirmdarstellung */
     char *palette;          /* Zeiger auf Palette */
     char bp_pal;            /* Farbtiefe pro Paletteneintrag (BITs) */
@@ -136,21 +137,21 @@ typedef struct smurfpic
     char col_format;        /* Farbsystem, in dem das Bild vom Modul zurÅckkommt */
     char infotext[97];      /* Infotext fÅr weitere Bildinformationen */
 
-    int  red[256],          /* Palette, nach der die */
+    WORD red[256],          /* Palette, nach der die */
          grn[256],          /* Bildschirmdarstellung */
          blu[256];          /* gedithert wurde. (15Bit-Format) */
 
 
-    int blockx, blocky, blockwidth, blockheight;    /* Koordinaten fÅr den Blockrahmen */
+    WORD blockx, blocky, blockwidth, blockheight;    /* Koordinaten fÅr den Blockrahmen */
 
     struct smurfpic *block;
 
-    int zoom;               /* Zoomfaktor des Bildes */ 
-    int image_type;         /* Was ist drin in der Datei? */
+    WORD zoom;               /* Zoomfaktor des Bildes */ 
+    short image_type;        /* Was ist drin in der Datei? */
 
     char own_pal;           /* 1: hier herrscht eine eigene Palette */
     unsigned char *local_nct;       /* lokale NCT fÅr die aktuelle Palette (wenn != Syspal!)    */
-    int not_in_nct;                 /* Kennung fÅr nicht in der NCT enthaltene Farben           */
+    short not_in_nct;               /* Kennung fÅr nicht in der NCT enthaltene Farben           */
     
     struct smurfpic *prev_picture;  /* Zeiger auf vorheriges Bild (SMURF_PIC*) */
     struct smurfpic *next_picture;  /* Zeiger auf nÑxtes Bild (SMURF_PIC*) */
@@ -161,35 +162,35 @@ typedef struct smurfpic
 /*  101 Bytes */
 typedef struct
 {
-    int whandlem;           /* AES-Handle des Windows */
-    int module;             /* Modul, dem das Fenster gehîrt */
-    int wnum;               /* das wievielte Fenster des Moduls? */
-    int wx, wy, ww, wh;     /* X/Y, Breite, Hîhe */ 
+    WORD whandlem;          /* AES-Handle des Windows */
+    short module;           /* Modul, dem das Fenster gehîrt */
+    short wnum;             /* das wievielte Fenster des Moduls? */
+    WORD wx, wy, ww, wh;    /* X/Y, Breite, Hîhe */ 
     char wtitle[41];        /* Fenstertitel */
     OBJECT *resource_form;  /* Modulresource-Formular */
-    int dialog_num;			/* Dialognummer in der RSC fuer BGH */
+    WORD dialog_num;		/* Dialognummer in der RSC fuer BGH */
     SMURF_PIC *picture;     /* Zeigerfeld fÅr Bild/Animation */
-    int xoffset, yoffset;   /* Scrolloffsets in Pixels */
-    int shaded;             /* Shaded-Flag */
-    int pic_xpos, pic_ypos; /* X/Y-Position fÅr 'picture' im Fenster */
-    int editob, nextedit, editx;
+    WORD xoffset, yoffset;  /* Scrolloffsets in Pixels */
+    short shaded;           /* Shaded-Flag */
+    WORD pic_xpos, pic_ypos; /* X/Y-Position fÅr 'picture' im Fenster */
+    WORD editob, nextedit, editx;
 
-    int clipwid, cliphgt;   /* Breite und Hîhe des Ausschnittes von *picture */
-    int pflag;              /* reines Bildfenster: 1, ansonsten 0 */
+    WORD clipwid, cliphgt;  /* Breite und Hîhe des Ausschnittes von *picture */
+    short pflag;            /* reines Bildfenster: 1, ansonsten 0 */
 
     void *prev_window;      /* vorheriges Fenster (WINDOW*) */
     void *next_window;      /* nÑxtes Fenster (WINDOW*) */
-    int fullx,fully,fullw,fullh;    /* zum RÅckspeichern der Koordinaten bei WM_FULLED */
+    WORD fullx,fully,fullw,fullh;    /* zum RÅckspeichern der Koordinaten bei WM_FULLED */
 } WINDOW;
 
 
 /* Slider-Struktur zur Verwaltung von Slidern durch f_rslid */
 typedef struct
 {
-    int regler;
-    int schiene; 
+    WORD regler;
+    WORD schiene; 
     OBJECT *rtree;
-    int txt_obj;
+    WORD txt_obj;
     long min_val;
     long max_val;
     WINDOW *window;
@@ -202,7 +203,7 @@ typedef struct
 typedef struct
 {
     char *mod_name;                 /* erweiterter Modulname    */
-    int  version;                   /* Modulversion alc BCD     */ 
+    short version;                  /* Modulversion alc BCD     */ 
     char *autor;                    /* Autor des Moduls         */
     char *ext[10];                  /* bis zu 10 Extensionen, deren Formate das Modul unterstÅtzt */
     char *slide1;                   /* Funktion Slider 1        */
@@ -246,23 +247,23 @@ typedef struct
     void (*reset_busybox)(int lft, char *string);
 
     int (*f_module_window)(WINDOW *mod_window);
-    void (*f_module_prefs)(MOD_INFO *infostruct, int mod_id);
+    void (*f_module_prefs)(MOD_INFO *infostruct, short mod_id);
 
-    int     (*popup)(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree);
-    void    (*deselect_popup)(WINDOW *wind, int ob1, int ob2);
+    int     (*popup)(POP_UP *popup_struct, int mouseflag, WORD button, OBJECT *poptree);
+    void    (*deselect_popup)(WINDOW *wind, WORD ob1, WORD ob2);
 
     int     (*slider)(SLIDER *slider_struct);
     void    (*set_slider)(SLIDER *sliderstruct, long value);
 
-    int     (*listfield)(long *window, int klick_obj, int keyscan, LIST_FIELD *lfstruct);
-    void    (*generate_listfield)(int uparrow, int dnarrow, int sliderparent, int sliderobject,
-                int listparent,  char *listentries, int num_entries, int max_entries, LIST_FIELD *listfield, int autoloc);
+    int     (*listfield)(long *window, WORD klick_obj, int keyscan, LIST_FIELD *lfstruct);
+    void    (*generate_listfield)(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
+                WORD listparent, char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield, WORD autoloc);
 
-    SMURF_PIC * (*new_pic)(int wid, int hgt, int depth);
+    SMURF_PIC * (*new_pic)(WORD wid, WORD hgt, WORD depth);
 
-    void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
+    void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, int flags);
 
-    void (*f_move_preview)(WINDOW *window, SMURF_PIC *orig_pic, int redraw_object);
+    void (*f_move_preview)(WINDOW *window, SMURF_PIC *orig_pic, WORD redraw_object);
     void (*copy_preview)(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev_window);
 
     void *  (*SMalloc)(long amount);
@@ -270,14 +271,14 @@ typedef struct
     
     int CPU_type;
     int (*seek_nearest_col)(long *par, int maxcol);
-    SMURF_PIC* (*get_pic)(int num, int mod_id, MOD_INFO *mod_info, int depth, int form, int col);
+    SMURF_PIC* (*get_pic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
 
-    int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, int defbt);
+    int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
     int (*f_fsbox)(char *Path, char *fbtext, char selectart);
     float (*convert_units)(int oldunit, int newunit, float dpi);
 
-    void *(*mconfLoad)(MOD_INFO *modinfo, int mod_id, char *name);
-    void (*mconfSave)(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *name);
+    void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
+    void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
 } SERVICE_FUNCTIONS;
 
 
@@ -289,14 +290,14 @@ typedef struct
     /*  8 */ long slide1, slide2, slide3, slide4;           /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
     /* 24 */ char check1, check2, check3, check4;           /* öbergabewerte aus Einstellformular  (0 oder 1) - Smurf   */
     /* 28 */ long edit1, edit2, edit3, edit4;               /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
-    /* 44 */ int module_mode;                               /* Message */
+    /* 44 */ short module_mode;                             /* Message */
 
-    /* 46 */ int event_par[10];                             /* Beim Event betroffenes Objekt */
+    /* 46 */ WORD event_par[10];                            /* Beim Event betroffenes Objekt */
 
-    /* 66 */ int mousex,mousey;                             /* Mauspos beim Event           */
-    /* 70 */ int module_number;                              /* ID des Modules, von Smurf Åbergeben */
-    /* 72 */ int klicks;                                         /* Mausklicks beim Event        */
-    /* 74 */ int picwind_x, picwind_y, picwind_w, picwind_h;     /* Betroffenes Bildfenster - Abmessungen und Pos. */
+    /* 66 */ WORD mousex,mousey;                            /* Mauspos beim Event           */
+    /* 70 */ short module_number;                           /* ID des Modules, von Smurf Åbergeben */
+    /* 72 */ WORD klicks;                                   /* Mausklicks beim Event        */
+    /* 74 */ WORD picwind_x, picwind_y, picwind_w, picwind_h;     /* Betroffenes Bildfenster - Abmessungen und Pos. */
 
     /* 82 */ SERVICE_FUNCTIONS *services;
     /* 86 */
@@ -308,63 +309,63 @@ typedef struct
 /*  1857 Bytes */
 typedef struct
 {
-    int app_id;
+    WORD app_id;
     char bitplanes;         /* aktuelle Planetiefe */
-    unsigned int Max_col;   /* maximale Farben momentan */
-    int screen_width;       /* Bildschirmbreite */
-    int screen_height;      /* Bildschirmhîhe */
-    int vdi_handle;
+    unsigned short Max_col; /* maximale Farben momentan */
+    WORD screen_width;      /* Bildschirmbreite */
+    WORD screen_height;     /* Bildschirmhîhe */
+    WORD vdi_handle;
     char *nc_table;         /* Standard-Nearest-Color-Table. Muû von Smurf anfangs geladen / erzeugt werden! */
     char *plane_table;      /* Standard-Binary-Palette-Table. Muû von Smurf anfangs erzeugt werden! */
 
-    int *red, *grn, *blu;   /* Zeiger auf Systempalette - mÅssen von Smurf anfangs gefÅllt werden! */
+    WORD *red, *grn, *blu;  /* Zeiger auf Systempalette - mÅssen von Smurf anfangs gefÅllt werden! */
 
 
     char standard_path[256];    /* Smurf-Startpfad */
     char home_path[256];        /* Zeiger auf $HOME-Verzeichnis - kann auf Standard_path zeigen! */
 
-    int DSP;                /* DSP-existant-Flag */
+    short DSP;              /* DSP-existant-Flag */
 
-    int pal_red[257],       /* Systempalette (die echte im VDI-Format!)*/
+    WORD pal_red[257],      /* Systempalette (die echte im VDI-Format!)*/
         pal_green[257], 
         pal_blue[257];
     
 /* Variablen fÅr die Konfiguration */
-    int center_dialog;      
-    int window_alert;       
-    int profi_mode;     
-    int busybox_oc;
-    int harddisk_swap;
-    int immed_prevs;
-    int realtime_dither;
-    int dither24;
-    int dither8;
-    int dither4;
-    int pal24,pal8,pal4;
-    int environment;
-    int busybox_icon;
-    int outcol;
-    int AES_version;
-    int OS;
-    int OSFeatures;
-    int dialog_xposition[25];
-    int dialog_yposition[25];
+    short center_dialog;      
+    short window_alert;       
+    short profi_mode;     
+    short busybox_oc;
+    short harddisk_swap;
+    short immed_prevs;
+    short realtime_dither;
+    short dither24;
+    short dither8;
+    short dither4;
+    short pal24,pal8,pal4;
+    short environment;
+    short busybox_icon;
+    short outcol;
+    WORD AES_version;
+    short OS;
+    short OSFeatures;
+    WORD dialog_xposition[25];
+    WORD dialog_yposition[25];
     char dialog_opened[25];
 
-    int ENV_avserver;
-    int olgaman_ID;
+    WORD ENV_avserver;
+    WORD olgaman_ID;
 
-    int Event_Timer;
+    WORD Event_Timer;
     
-    int PCD_Defsize;
-    int PreviewDither;
-    int PreviewMoveDither;
-    int PicmanDither;
-    int AutoconvDither, AutoconvPalmode;
+    short PCD_Defsize;
+    short PreviewDither;
+    short PreviewMoveDither;
+    short PicmanDither;
+    short AutoconvDither, AutoconvPalmode;
 
-    int AES_bgcolor;
-    int keyevents;
-    int defaultExporter;
+    WORD AES_bgcolor;
+    WORD keyevents;
+    short defaultExporter;
     char *scrp_path;
 } SYSTEM_INFO;
 

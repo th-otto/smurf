@@ -54,7 +54,7 @@ static int oldxoff, oldyoff;
 /* Vom Modul aufgerufen: mod_id (GARGAMEL->module_number) ist			*/
 /* Die Nummer des Moduls, das gerade das Einstellformular benutzt.		*/
 /*---------------------------------------------------------------------	*/
-void f_module_prefs(MOD_INFO *infostruct, int mod_id)
+void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 {
 	char edd[6];
 	char cmp_modname[30];

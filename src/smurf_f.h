@@ -251,7 +251,7 @@ void check_and_terminate(int mode, int module_number);
 void walk_module_tree(WINDOW *wind, int start);
 void init_modtree(OBJECT *tree, int index);
 void convert_icon(OBJECT *tree, int index);
-SMURF_PIC *get_pic(int num, int mod_id, MOD_INFO *mod_info, int depth, int form, int col);
+SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
 int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, int module_number);       /* mehrere Bilder ans Modul Åbergeben */
 int inform_modules(int message, SMURF_PIC *picture);    /* Informiert alle Module und Plugins Åber message */
 long get_proclen(BASPAG *baspag);
@@ -266,7 +266,7 @@ void make_modpreview(WINDOW *wind);
 extern int prev_zoom;
 extern SMURF_PIC move_prev;
 
-void f_module_prefs(MOD_INFO *infostruct, int mod_id);   /* Modulformular aufrufen */
+void f_module_prefs(MOD_INFO *infostruct, short mod_id);   /* Modulformular aufrufen */
 void f_mpref_change(void);                               /* Eingabe im Modulformular */
 void f_move_preview(WINDOW *window, SMURF_PIC *orig_pic, int redraw_object);
 void copy_preview(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev_window);
@@ -279,8 +279,8 @@ extern void *edit_cnfblock[100];
 extern OBJECT *confsave_dialog;
 extern OBJECT *modconf_popup;
 
-void *mconfLoad(MOD_INFO *modinfo, int mod_id, char *name);
-void mconfSave(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *name);
+void *mconfLoad(MOD_INFO *modinfo, short mod_id, char *name);
+void mconfSave(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
 void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type);
 void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct);
 void memorize_expmodConfig(BASPAG *modbase, GARGAMEL *smurf_struct, char save);
@@ -353,10 +353,10 @@ void block_over_all(WINDOW *window);
 void insert_blockcoords(SMURF_PIC *pic);
 
 int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save);
-int save_block(EXPORT_PIC *pic_to_save, char *path);
+int save_block(EXPORT_PIC *pic_to_save, const char *path);
 
-int block2clip(SMURF_PIC *picture, int mode, char *path);
-void clip2block(SMURF_PIC *picture, char *data, int mx, int my);
+int block2clip(SMURF_PIC *picture, int mode, const char *path);
+void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my);
 
 SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart);
 void *copyblock(SMURF_PIC *old_pic);

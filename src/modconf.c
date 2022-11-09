@@ -101,7 +101,7 @@ static int edit_cnflen[100];
 	ôffnet das Pseudopopup und lÑdt eine Konfiguration. Diese wird
 	an das Modul zurÅckgegeben.
 	------------------------------------------------------*/
-void *mconfLoad(MOD_INFO *modinfo, int mod_id, char *name)
+void *mconfLoad(MOD_INFO *modinfo, short mod_id, char *name)
 {
 	char cnfname[33];
 
@@ -137,7 +137,7 @@ void *mconfLoad(MOD_INFO *modinfo, int mod_id, char *name)
 	in die MONDCONF.CNF gespeichert. ZurÅckgegeben wird ein Zeiger
 	auf den vom User eingegebenen Namen (max. 32 Zeichen).
 	------------------------------------------------------*/
-void mconfSave(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *name)
+void mconfSave(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name)
 {
 	char cnfname[33];
 

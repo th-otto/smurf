@@ -333,7 +333,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 	getch(); */
 
 		smurf_struct->smurf_pic->pic_data = ziel;
-		smurf_struct->smurf_pic->format_type = 0;
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
 		smurf_struct->smurf_pic->col_format = RGB;
 
 		buffer = obuffer;

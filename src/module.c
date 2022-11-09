@@ -1013,7 +1013,7 @@ void convert_icon(OBJECT *tree, int index)
 /*	Dienstfunktion, die es einem Edit-Modul ermîglicht, seine Bilder (wenn	*/
 /*	mehrere) ohne den Umweg Åber die Message zu holen.						*/
 /*------------------------------------------------------------------------	*/
-SMURF_PIC *get_pic(int num, int mod_id, MOD_INFO *mod_info, int depth, int form, int col)
+SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col)
 {
 	char alertstr[128];
 

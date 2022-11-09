@@ -345,7 +345,7 @@ int main(int argc, const char *argv[])
 		set_startupdial("Keine Konfigurationsdatei!");
 		Sys_info.center_dialog = 0;
 		Sys_info.profi_mode = 0;
-		Sys_info.outcol = 1;
+		Sys_info.outcol = G_BLACK;
 		Sys_info.dither24 = DIT1;
 		Sys_info.dither8 = DIT1;
 		Sys_info.dither4 = DIT1;
@@ -774,17 +774,15 @@ void f_pic_info(void)
 
 		if(picdepth < 16)
 			strcpy(infowindow[INFO_COLORS].TextCast, itoa(1 << picdepth, dummy, 10));
-		else
-			if(picdepth == 16)
-				strcpy(infowindow[INFO_COLORS].TextCast, "Muchos tausendos");
-			else
-				if(picdepth == 24)
-					strcpy(infowindow[INFO_COLORS].TextCast, "Muchas millionas");
+		else if(picdepth == 16)
+			strcpy(infowindow[INFO_COLORS].TextCast, "Muchos tausendos"); /* FIXME: translate */
+		else if(picdepth == 24)
+			strcpy(infowindow[INFO_COLORS].TextCast, "Muchas millionas"); /* FIXME: translate */
 
 		if(pic->format_type == FORM_STANDARD)
-			strcpy(infowindow[INFO_DATAFORM].TextCast, "Standardformat");
+			strcpy(infowindow[INFO_DATAFORM].TextCast, "Standardformat"); /* FIXME: translate */
 		else
-			strcpy(infowindow[INFO_DATAFORM].TextCast, "Pixel packed");
+			strcpy(infowindow[INFO_DATAFORM].TextCast, "Pixel packed"); /* FIXME: translate */
 
 		if(pic->col_format == RGB)
 			strcpy(infowindow[INFO_COLSYS].TextCast, "RGB");
@@ -795,7 +793,7 @@ void f_pic_info(void)
 		else if(pic->col_format == YIQ)
 			strcpy(infowindow[INFO_COLSYS].TextCast, "YIQ");
 		else if(pic->col_format == GREY)
-			strcpy(infowindow[INFO_COLSYS].TextCast, "Grau");
+			strcpy(infowindow[INFO_COLSYS].TextCast, "Grau"); /* FIXME: translate */
 		else if(pic->col_format == WURSCHT)
 			strcpy(infowindow[INFO_COLSYS].TextCast, "?");
 
@@ -2461,7 +2459,7 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 	smurf_picture->file_len = f_len;
 
 	/* Pic-Defaults einstellen */
-	smurf_picture->format_type = 0;
+	smurf_picture->format_type = FORM_PIXELPAK;
 	smurf_picture->col_format = RGB;
 
 
@@ -2502,7 +2500,7 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 				while(actual != NULL)
 				{
 					/* Pic-Defaults einstellen */
-					smurf_picture->format_type = 0;
+					smurf_picture->format_type = FORM_PIXELPAK;
 					smurf_picture->col_format = RGB;
 
 					/*-------- N„chsten Modulpfad ermitteln */

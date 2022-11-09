@@ -59,7 +59,7 @@ typedef struct modComm
     int (*analyzeMessage)(int module_ret, int picture_to_load);
     void (*handleMessage)(GARGAMEL *smurf_struct);
 
-    SMURF_PIC *(*getPic)(int num, int mod_id, MOD_INFO *mod_info, int depth, int form, int col);
+    SMURF_PIC *(*getPic)(int num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
     int (*givePics)(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, int module_number);
 
     int (*inform)(int message, SMURF_PIC *picture);

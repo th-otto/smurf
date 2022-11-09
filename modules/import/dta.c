@@ -108,7 +108,7 @@ smurf_struct->smurf_pic->pic_height=height;
 smurf_struct->smurf_pic->depth=8;
 smurf_struct->smurf_pic->bp_pal=24;
 smurf_struct->smurf_pic->col_format=RGB;
-smurf_struct->smurf_pic->format_type=0;
+smurf_struct->smurf_pic->format_type=FORM_PIXELPAK;
 len = (long)width *(long)height;
 retbuf=Malloc(len);
 if (!retbuf) return(M_MEMORY);

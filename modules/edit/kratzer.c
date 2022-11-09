@@ -88,7 +88,7 @@ WINDOW *mwindow;
 SMURF_PIC *picture;
 int xmatrix, ymatrix, strength;
 
-void (*set_slider)(SLIDER *sliderstruct, long value);
+static void (*set_slider)(SLIDER *sliderstruct, long value);
 
 
 /*---------------------------  FUNCTION MAIN -----------------------------*/
@@ -97,8 +97,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 int (*get_window)(WINDOW *wind);        /* Funktion deklarieren */
 int (*popup)(POP_UP *popup_struct, int mouseflag, int button);          /* Funktion deklarieren */
 int (*slider)(SLIDER *slider_struct);       /* Funktion deklarieren */
-void (*generate_listfield)(int uparrow, int dnarrow, int sliderparent, int sliderobject,
-    int listparent,  char *listentries, int num_entries, int max_entries, LIST_FIELD *listfield);
+void (*generate_listfield)(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
+    WORD listparent,  char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield);
 void (*listfield)(OBJECT *tree, int klick_obj, LIST_FIELD *lfstruct);
 int given_val, t, back;
 int mod_id;

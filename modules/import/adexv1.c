@@ -173,7 +173,7 @@ if (BitsPerPixel==4)
 
 else buffer=retbuf; 
 strncpy(smurf_struct->smurf_pic->format_name, "Adex ChromaGraph    ", 21);
-smurf_struct->smurf_pic->format_type=0;
+smurf_struct->smurf_pic->format_type=FORM_PIXELPAK;
 smurf_struct->smurf_pic->pic_data=buffer;
 smurf_struct->smurf_pic->depth=(int)BitsPerPixel;
 smurf_struct->smurf_pic->pic_width=(int)width;

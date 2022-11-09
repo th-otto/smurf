@@ -122,7 +122,7 @@ smurf_struct->smurf_pic->pic_width=width;
 smurf_struct->smurf_pic->pic_height=height;
 smurf_struct->smurf_pic->depth=1;
 smurf_struct->smurf_pic->bp_pal=0;
-smurf_struct->smurf_pic->format_type=1;
+smurf_struct->smurf_pic->format_type=FORM_STANDARD;
 smurf_struct->smurf_pic->col_format=WURSCHT;
 
 return(M_PICDONE);

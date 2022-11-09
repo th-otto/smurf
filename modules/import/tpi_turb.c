@@ -167,7 +167,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 		
 			smurf_struct->smurf_pic->pic_data = ziel;
 
-			smurf_struct->smurf_pic->format_type = 1;
+			smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 
 			pal = smurf_struct->smurf_pic->palette;
 

@@ -52,7 +52,7 @@ void f_options(void)
 	int button=0, popbut, item;
 	int oldenv;
 	int t;
-	static int NPCD, NOUTCOL, NPREVDIT, NPICMANDIT, NMOVEDIT, NAUTOPAL, NAUTODIT;
+	static short NPCD, NOUTCOL, NPREVDIT, NPICMANDIT, NMOVEDIT, NAUTOPAL, NAUTODIT;
 
 	OBJECT *infowindow;
 

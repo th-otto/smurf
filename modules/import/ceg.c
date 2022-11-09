@@ -131,7 +131,7 @@ int imp_module_main(GARGAMEL *smurf_struct)
 			} while(y < height); /* y */
 
 			smurf_struct->smurf_pic->pic_data = ziel;
-			smurf_struct->smurf_pic->format_type = 0;
+			smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
 
 		} /* Malloc */
 	} /* Erkennung */

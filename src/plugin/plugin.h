@@ -137,7 +137,7 @@ typedef struct
 	int		(*init_dialog)(int DialogNumber, int DialogOK);
 	void	(*close_dialog)(int windnum);
 
-	void	(*f_module_prefs)(MOD_INFO *infostruct, int mod_id);	/* Modulformular aufrufen */
+	void	(*f_module_prefs)(MOD_INFO *infostruct, short mod_id);	/* Modulformular aufrufen */
 	void	(*f_mpref_change)(void);								/* Eingabe im Modulformular */
 	void 	(*transform_pic)(void);
 	void	(*close_window)(int handle);

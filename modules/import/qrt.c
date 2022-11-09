@@ -97,7 +97,7 @@ smurf_struct->smurf_pic->pic_width=width;
 smurf_struct->smurf_pic->pic_height=height;
 smurf_struct->smurf_pic->pic_data=retbuf;
 smurf_struct->smurf_pic->depth=24;
-smurf_struct->smurf_pic->format_type=0;
+smurf_struct->smurf_pic->format_type=FORM_PIXELPAK;
 smurf_struct->smurf_pic->col_format=RGB;
 strncpy(smurf_struct->smurf_pic->format_name, "QRT Ray Tracer    ", 21);
 return(M_PICDONE);

@@ -760,11 +760,11 @@ int handle_bevt(unsigned int Button)
 		case START:	ret = M_STARTED;
 					break;
 
-		case S4_S:	slidcol = (long)service->slider(&colsl);
+		case S4_S:	slidcol = service->slider(&colsl);
 					break;
-		case S5_S:	slidsat = (long)service->slider(&satsl);
+		case S5_S:	slidsat = service->slider(&satsl);
 					break;
-		case S6_S:	slidbright = (long)service->slider(&brsl);
+		case S6_S:	slidbright = service->slider(&brsl);
 					break;
 
 		case CHECK_H:	if(setcol == ' ')
@@ -796,7 +796,6 @@ int handle_bevt(unsigned int Button)
 								/* von absolut nach relativ umrechnen, inklusive aufrunden */
 								slidsat = (slidsat * 200 + 127) / 255 - 100;
 
-/*						printf("slidsat: %lu\n", slidsat); */
 						*(char *)&rs_object[CHECK_S].ob_spec.tedinfo = setsat;
 						redraw_window(&window, NULL, CHECK_S, 0);
 						make_sliders();
@@ -819,7 +818,6 @@ int handle_bevt(unsigned int Button)
 								/* von absolut nach relativ umrechnen, inklusive aufrunden */
 								slidbright = (slidbright * 200 + 127) / 255 - 100;
 
-/*						printf("slidbright: %lu\n", slidbright); */
 						*(char *)&rs_object[CHECK_V].ob_spec.tedinfo = setbright;
 						redraw_window(&window, NULL, CHECK_V, 0);
 						make_sliders();
