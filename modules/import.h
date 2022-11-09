@@ -406,7 +406,7 @@ typedef struct
 
 #define MOD_MAGIC_DITHER 0x53444d44L /* 'SDMD' */
 #define MOD_MAGIC_EDIT   0x53454d44L /* 'SEMD' */
-#define MOD_MAGIC_EXPORT 0x53484d44L /* 'SXMD' */
+#define MOD_MAGIC_EXPORT 0x53584d44L /* 'SXMD' */
 #define MOD_MAGIC_IMPORT 0x53494d44L /* 'SIMD' */
 #define MOD_MAGIC_PLUGIN 0x53504c47L /* 'SPLG' */
 
