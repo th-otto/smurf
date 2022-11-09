@@ -113,19 +113,11 @@ void f_scan_edit(void)
 			DEBUG_MSG (( "  Fehler bei %s: %li\n", actual->modname, temp ));
 			if(temp == EACCDN)
 			{
-				strcpy(alert, "[1][Modul|");
-				strcat(alert, actual->modname);
-				strcat(alert, "|besitzt keine Berechtigung|");
-				strcat(alert, "ausgefhrt zu werden|(Exec-Flag?)!]");
-				strcat(alert, "[ OK ]");
+				sprintf(alert, "[1][Modul|%s|besitzt keine Berechtigung|ausgefhrt zu werden|(Exec-Flag?)!][ OK ]", actual->modname); /* FIMXE: translate */
 			}
 			else
 			{
-				strcpy(alert, "[1][Fehler in File|");
-				strcat(alert, actual->modname);
-				strcat(alert, "|im Ordner|");
-				strcat(alert, "\\modules\\edit\\!]");
-				strcat(alert, "[ OK ]");
+				sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\edit\\!][ OK ]", actual->modname); /* FIMXE: translate */
 			}
 
 			form_alert(1, alert);
@@ -137,11 +129,7 @@ void f_scan_edit(void)
 			mod_magic = get_modmagic(edit_baspag);			/* Zeiger auf Magic (muž MOD_MAGIC_EDIT sein!) */
 			if(mod_magic != MOD_MAGIC_EDIT)
 			{
-				strcpy(alert, "[1][Datei ");
-				strcat(alert, actual->modname);
-				strcat(alert, "|im Ordner|");
-				strcat(alert, "\\modules\\edit\\|");
-				strcat(alert, "ist kein Editmodul!][ OK ]");
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\edit\\|ist kein Editmodul!][ OK ]", actual->modname); /* FIMXE: translate */
 				form_alert(1, alert);
 			}
 			else
@@ -298,11 +286,7 @@ void f_scan_import(void)
 		if(temp < 0)
 		{
 			DEBUG_MSG (( "  Fehler bei %s: %li\n", actual->modname, temp ));
-			strcpy(alert, "[1][Fehler in File|");
-			strcat(alert, actual->modname);
-			strcat(alert, "|im Ordner|");
-			strcat(alert, "\\modules\\import\\!]");
-			strcat(alert, "[ OK ]");
+			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\import\\!][ OK ]", actual->modname); /* FIMXE: translate */
 			form_alert(1, alert);
 		}
 		else
@@ -312,11 +296,7 @@ void f_scan_import(void)
 			mod_magic = get_modmagic(import_baspag);		/* Zeiger auf Magic (muž MOD_MAGIC_IMPORT sein!) */
 			if(mod_magic != MOD_MAGIC_IMPORT)
 			{
-				strcpy(alert, "[1][Datei ");
-				strcat(alert, actual->modname);
-				strcat(alert, "|im Ordner|");
-				strcat(alert, "\\modules\\import\\|");
-				strcat(alert, "ist kein importmodul!][ OK ]");
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\import\\|ist kein importmodul!][ OK ]", actual->modname); /* FIMXE: translate */
 				form_alert(1, alert);
 			}
 			else
@@ -677,11 +657,7 @@ void f_scan_export(void)
 		if(temp < 0)
 		{
 			DEBUG_MSG (( "  Fehler bei %s: %li\n", actual->modname, temp ));
-			strcpy(alert, "[1][Fehler in File|");
-			strcat(alert, actual->modname);
-			strcat(alert, "|im Ordner|");
-			strcat(alert, "\\modules\\export\\!]");
-			strcat(alert, "[ OK ]");
+			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\export\\!][ OK ]", actual->modname); /* FIMXE: translate */
 			form_alert(1, alert);
 		}
 		else
@@ -691,11 +667,7 @@ void f_scan_export(void)
 			mod_magic = get_modmagic(export_baspag);			/* Zeiger auf Magic (muž MOD_MAGIC_EXPORT sein!) */
 			if(mod_magic != MOD_MAGIC_EXPORT)
 			{
-				strcpy(alert, "[1][Datei ");
-				strcat(alert, actual->modname);
-				strcat(alert, "|im Ordner|");
-				strcat(alert, "\\modules\\export\\|");
-				strcat(alert, "ist kein Exportmodul!][ OK ]");
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\export\\|ist kein Exportmodul!][ OK ]", actual->modname); /* FIXME: translate */
 				form_alert(1, alert);
 			}
 			else
@@ -832,11 +804,7 @@ void f_scan_dither(void)
 		if(temp < 0)
 		{
 			DEBUG_MSG (( "  Fehler bei %s: %li\n", actual->modname, temp ));
-			sprintf ( alert, "[1][Fehler '%li' in File|", temp );
-			strcat(alert, actual->modname);
-			strcat(alert, "|im Ordner|");
-			strcat(alert, "\\modules\\dither\\!]");
-			strcat(alert, "[ OK ]");
+			sprintf ( alert, "[1][Fehler '%li' in File|%s|im Ordner|\\modules\\dither\\!][ OK ]", temp, actual->modname ); /* FIXME: translate */
 			form_alert(1, alert);
 		}
 		else
@@ -846,11 +814,7 @@ void f_scan_dither(void)
 			mod_magic = get_modmagic(dit_baspag);			/* Zeiger auf Magic (muž MOD_MAGIC_DITHER sein!) */
 			if(mod_magic != MOD_MAGIC_DITHER)
 			{
-				strcpy(alert, "[1][Datei ");
-				strcat(alert, actual->modname);
-				strcat(alert, "|im Ordner|");
-				strcat(alert, "\\modules\\dither\\|");
-				strcat(alert, "ist kein Dithermodul!][ OK ]");
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\dither\\|ist kein Dithermodul!][ OK ]", actual->modname); /* FIMXE: translate */
 				form_alert(1, alert);
 			}
 			else

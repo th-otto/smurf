@@ -245,7 +245,7 @@ int main(int argc, const char *argv[])
 	 */
 	if(open_vwork() == FALSE)
 	{
-		form_alert(1, "[3][Fehler beim ™ffnen der VDI-Workstation!][Ups]");
+		form_alert(1, "[3][Fehler beim ™ffnen der VDI-Workstation!][Ups]"); /* FIMXE: translate */
 		return 1;
 	}
 
@@ -2403,7 +2403,6 @@ int f_formhandle(int picture_to_load, int module_ret, char *namename)
 int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 {
 	char *ice_depack_buf;
-	char help_str[16];
 	char no_ext = 0;
 	char *modpath;									/* voller Modulpfad, Original */
 	char *mod_path;									/* voller Modulpfad, editable */
@@ -2520,12 +2519,7 @@ int f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 					if(oldmem != newmem && module_ret != M_PICDONE && module_ret != M_DONEEXIT)
 					{
 						/* FIXME: translate */
-						strcpy(alertstr, "[3][ Modul ");
-						strcat(alertstr, actual->modname);
-						strcat(alertstr, " | hat ");
-						ltoa((oldmem - newmem), help_str, 10);
-						strcat(alertstr, help_str);
-						strcat(alertstr, " | Bytes Speicher verbraten!][ Oh! ]");
+						sprintf(alertstr, "[3][ Modul %s | hat %ld | Bytes Speicher verbraten!][ Oh! ]", actual->modname, oldmem - newmem);
 						form_alert(1, alertstr);
 					}
 
@@ -2709,7 +2703,7 @@ int f_init_system(void)
 	if(Dialog.emodList.anzahl == 0)
 	{
 		DEBUG_MSG(( "***** Keine Editmodule!\n"));
-		form_alert(1, "[1][Keine Editmodule gefunden!][ Oh! ]");
+		form_alert(1, "[1][Keine Editmodule gefunden!][ Oh! ]"); /* FIMXE: translate */
 		change_object(&wind_s[WIND_MODULES], START_MODULE, OS_DISABLED, 1);
 		change_object(&wind_s[WIND_MODULES], INFO_MODULE, OS_DISABLED, 1);
 
