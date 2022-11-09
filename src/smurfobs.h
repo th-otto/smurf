@@ -304,10 +304,10 @@ typedef struct commHandlers
     int (*updateOLGA)(char *filename);
     int (*renameOLGA)(char *oldname, char *newname);
     
-    int (*getDragdrop)(WINDOW *window_to_handle, int *messagebuf);
-    int (*sendDragdrop)(SMURF_PIC *picture, int dest_whandle, int mx, int my);
-    int (*ddGetheader)(DD_HEADER *dd_header, int pipe_handle);
-    int (*ddSendheader)(int pipe_handle, long ext, long size, char *data_name, char *file_name);
+    int (*getDragdrop)(WINDOW *window_to_handle, WORD *messagebuf);
+    int (*sendDragdrop)(SMURF_PIC *picture, WORD dest_whandle, WORD mx, WORD my);
+    int (*ddGetheader)(DD_HEADER *dd_header, WORD pipe_handle);
+    int (*ddSendheader)(WORD pipe_handle, long ext, long size, char *data_name, char *file_name);
     
     void (*updateDhst)(char *path);
 
@@ -316,10 +316,10 @@ typedef struct commHandlers
 
     void (*initbubbleGem)(void);
     void (*deinitbubbleGem)(void);
-    void (*bubbleGem)(int windownum, int xpos, int ypos, int modulemode);
+    void (*bubbleGem)(WORD windownum, WORD xpos, WORD ypos, int modulemode);
 
 
-    void (*sendAESMsg)(int dest_id, int msg, ...);
+    void (*sendAESMsg)(WORD dest_id, WORD msg, ...);
 
     AV_COMM avComm;
 } COMMUNICATION;

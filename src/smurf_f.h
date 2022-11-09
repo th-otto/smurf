@@ -223,11 +223,11 @@ void gdps_main(void);
 /* **********************************************************************/
 extern char *send_smurfid;
 
-int get_dragdrop(WINDOW *window_to_handle, int *messagebuf);
-int send_dragdrop(SMURF_PIC *picture, int dest_whandle, int mx, int my);
-int dd_getheader(DD_HEADER *dd_header, int pipe_handle);
-int dd_sendheader(int pipe_handle, long ext, long size, char *data_name, char *file_name);
-void send_AESMessage(int dest_id, int msg, ...);                /* AES-Message an anderen Prozess schicken */
+int get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf);
+int send_dragdrop(SMURF_PIC *picture, WORD dest_whandle, WORD mx, WORD my);
+int dd_getheader(DD_HEADER *dd_header, WORD pipe_handle);
+int dd_sendheader(WORD pipe_handle, long ext, long size, char *data_name, char *file_name);
+void send_AESMessage(WORD dest_id, WORD msg, ...);                /* AES-Message an anderen Prozess schicken */
 void update_dhst(char *path);
 void bubble_init(void);
 void bubble_exit(void);
