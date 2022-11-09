@@ -330,7 +330,7 @@ typedef struct
         pal_green[257], 
         pal_blue[257];
     
-/* Variablen fÅr die Konfiguration */
+	/* Variablen fÅr die Konfiguration */
     short center_dialog;      
     short window_alert;       
     short profi_mode;     

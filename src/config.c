@@ -48,103 +48,104 @@
 
 struct ploadinfo
 {
-	int fnamelen;
-	char *cmdlin, *fname;
+	short fnamelen;
+	char *cmdlin;
+	char *fname;
 };
 
 #define	DEBUGGER	1
 
 static void check_and_create(char *chpath);
-static unsigned int InqMagX(void);
+static unsigned short InqMagX(void);
 static void inquire_clipboard(void);
-static int getploadinfo(char *cmdlin, char *fname);
+static short getploadinfo(char *cmdlin, char *fname);
 
 
 int load_config(void)
 {
 	char path[128];
-	char *buf, help[256];
+	char *buf;
+	char help[256];
 
-	DEBUG_MSG (( "Load smurf.cnf...\n" ));
+	DEBUG_MSG(("Load smurf.cnf...\n"));
 
 	strcpy(path, Sys_info.home_path);
 	strncat(path, "\\smurf.cnf", 11);
-	
+
 	buf = fload(path, 0);
-	
-	if(buf != NULL)
+
+	if (buf != NULL)
 	{
-		if(*(unsigned int *)buf != CNFVERSION)
+		if (*(uint16_t *) buf != CNFVERSION)
 		{
-			f_alert("Falsche Version der Konfigurationsdatei gefunden! Aus Sicherheitsgrnden wird diese nicht eingeladen.", NULL, NULL, NULL, 1);
+			f_alert("Falsche Version der Konfigurationsdatei gefunden! Aus Sicherheitsgrnden wird diese nicht eingeladen.",
+				 NULL, NULL, NULL, 1); /* FIXME: translate */
 			SMfree(buf);
-			return(-1);
+			return -1;
 		}
 
-		if(*(unsigned long  *)(buf + 2 + sizeof(SYSTEM_INFO) + sizeof(DISPLAY_MODES)) != 0x434e4621L) /* 'CNF!'*/
+		if (*(uint32_t *) (buf + 2 + sizeof(SYSTEM_INFO) + sizeof(DISPLAY_MODES)) != 0x434e4621L)	/* 'CNF!' */
 		{
-			f_alert("Keine Smurf-Konfigurationsdatei oder Datei defekt! Datei wird nicht geladen.", NULL, NULL, NULL, 1); /* FIXME: translate */
+			f_alert("Keine Smurf-Konfigurationsdatei oder Datei defekt! Datei wird nicht geladen.", NULL, NULL, NULL, 1);	/* FIXME: translate */
 			SMfree(buf);
-			DEBUG_MSG (( "Load smurf.cnf...Ende -1, 1\n" ));
-			return(-1);
+			DEBUG_MSG(("Load smurf.cnf...Ende -1, 1\n"));
+			return -1;
 		}
 
 		/* Zeiger retten, da er berschrieben wird */
-		strcpy(help, Sys_info.home_path);	
+		strcpy(help, Sys_info.home_path);
 
 		memcpy(&Sys_info, buf + 2, sizeof(SYSTEM_INFO));
 		memcpy(&Display_Opt, buf + 2 + sizeof(SYSTEM_INFO), sizeof(DISPLAY_MODES));
 		strcpy(Sys_info.standard_path, stpath);	/* berschriebenen String wieder restaurieren */
 
 		/* Zeiger restaurieren */
-		strcpy(Sys_info.home_path, help);	
+		strcpy(Sys_info.home_path, help);
 
 		SMfree(buf);
 
-		DEBUG_MSG (( "Load smurf.cnf...Ende\n" ));
+		DEBUG_MSG(("Load smurf.cnf...Ende\n"));
 
-		return(0);
+		return 0;
 	}
-	
+
 	SMfree(buf);
-	DEBUG_MSG (( "Load smurf.cnf...Ende -1, 2\n" ));
-	return(-1);
+	DEBUG_MSG(("Load smurf.cnf...Ende -1, 2\n"));
+	return -1;
 }
 
 
 void save_config(void)
 {
 	char path[128];
+	int filehandle;
+	int16_t ver;
+	int32_t fcback, len;
 
-	int filehandle, ver;
-
-	long fcback, len;
-
-	DEBUG_MSG (( "Save smurf.cnf...\n" ));
+	DEBUG_MSG(("Save smurf.cnf...\n"));
 
 	Dialog.busy.reset(128, "speichere SMURF.CNF");
 
 	graf_mouse(BUSYBEE, dummy_ptr);
-	
+
 	strcpy(path, Sys_info.home_path);
 	strncat(path, "\\smurf.cnf", 11);
 
-	if((fcback = Fcreate(path, 0)) >= 0)
+	if ((fcback = Fcreate(path, 0)) >= 0)
 	{
-		filehandle=(int)fcback;
+		filehandle = (int) fcback;
 		ver = CNFVERSION;
-		if(Fwrite(filehandle, 2, &ver) != 2)
-			Dialog.winAlert.openAlert("Fehler beim Schreiben der Konfigurationsdatei! M”glicherweise ist das Laufwerk voll.", NULL, NULL, NULL, 1);
+		if (Fwrite(filehandle, 2, &ver) != 2)
+			Dialog.winAlert.openAlert("Fehler beim Schreiben der Konfigurationsdatei! M”glicherweise ist das Laufwerk voll.", NULL, NULL, NULL, 1); /* FUXME: translate */
 		len = sizeof(SYSTEM_INFO);
-		if(Fwrite(filehandle, len, &Sys_info) != len)
-			Dialog.winAlert.openAlert("Fehler beim Schreiben der Konfigurationsdatei! M”glicherweise ist das Laufwerk voll.", NULL, NULL, NULL, 1);
+		if (Fwrite(filehandle, len, &Sys_info) != len)
+			Dialog.winAlert.openAlert("Fehler beim Schreiben der Konfigurationsdatei! M”glicherweise ist das Laufwerk voll.", NULL, NULL, NULL, 1); /* FUXME: translate */
 		len = sizeof(DISPLAY_MODES);
-		if(Fwrite(filehandle, len, &Display_Opt) != len)
-			Dialog.winAlert.openAlert("Fehler beim Schreiben der Konfigurationsdatei! M”glicherweise ist das Laufwerk voll.", NULL, NULL, NULL, 1);
+		if (Fwrite(filehandle, len, &Display_Opt) != len)
+			Dialog.winAlert.openAlert("Fehler beim Schreiben der Konfigurationsdatei! M”glicherweise ist das Laufwerk voll.", NULL, NULL, NULL, 1); /* FUXME: translate */
 		Fwrite(filehandle, 4, "CNF!");
 		Fclose(filehandle);
-	}
-	else
+	} else
 	{
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[CNF_OPENERR].TextCast, NULL, NULL, NULL, 1);
 		Dialog.busy.reset(128, "Fehler");
@@ -160,108 +161,105 @@ void save_config(void)
 void f_analyze_system(void)
 {
 	char gi = 0;
-
-	int out1, out2, out3, out4, ok;
-
+	WORD out1, out2, out3, out4, ok;
 	long value;
 	unsigned long dummy;
-
 
 	Sys_info.OS = 0;
 
 	/*-------------- OS feststellen -----------------*/
-	if(get_cookie(0x4D616758L, &dummy) || get_cookie(0x4D674D63L, &dummy) || get_cookie(0x4D675043L, &dummy) || get_cookie(0x4D674D78L, &dummy))
+	if (get_cookie(0x4D616758L, &dummy) || get_cookie(0x4D674D63L, &dummy) || get_cookie(0x4D675043L, &dummy)
+		|| get_cookie(0x4D674D78L, &dummy))
 		Sys_info.OS |= MATSCHIG;
 
-	if(get_cookie(0x4D675043L, &dummy))	/* 'MgPC' MagiC PC nochmal extra */
+	if (get_cookie(0x4D675043L, &dummy))	/* 'MgPC' MagiC PC nochmal extra */
 		Sys_info.OS |= MAG_PC;
 
-	if(get_cookie(0x4D694E54L, &dummy)) /* 'MiNT' */
+	if (get_cookie(0x4D694E54L, &dummy))	/* 'MiNT' */
 		Sys_info.OS |= MINT;
-	
-	if(get_cookie(0x6E414553L, &dummy)) /* 'nAES' */
+
+	if (get_cookie(0x6E414553L, &dummy))	/* 'nAES' */
 		Sys_info.OS |= NAES;
 
-	if(get_cookie(0x4d544f53L, &dummy)) /* 'MTOS' */
+	if (get_cookie(0x4d544f53L, &dummy))	/* 'MTOS' */
 		Sys_info.OS |= MTOS;
 
-	if(get_cookie(0x57494E58L, &dummy)) /* 'WINX' */
+	if (get_cookie(0x57494E58L, &dummy))	/* 'WINX' */
 		Sys_info.OS |= WINX;
 
 	Sys_info.OSFeatures = 0;
 
 	/* GETINFO */
- 	if(_AESversion >= 0x400 ||
- 	   appl_find("?AGI") >= 0)
+	if (_AESversion >= 0x400 || appl_find("?AGI") >= 0)
 	{
 		Sys_info.OSFeatures |= GETINFO;
 		gi = 1;
 	}
 
 	/* CICONBLK */
-	if(gi)
-	{	
+	if (gi)
+	{
 		ok = appl_getinfo(2, &out1, &out2, &out3, &out4);
-		if(ok && out3 == 1)
+		if (ok && out3 == 1)
 			Sys_info.OSFeatures |= COLICONS;
 	}
 
-	if(!gi || !ok)
+	if (!gi || !ok)
 	{
-		if(Sys_info.AES_version >= 0x340)
+		if (Sys_info.AES_version >= 0x340)
 			Sys_info.OSFeatures |= COLICONS;
 	}
 
 	/* WINDOW - BEVENT */
-	if(gi)
-	{	
+	if (gi)
+	{
 		ok = appl_getinfo(11, &out1, &out2, &out3, &out4);
-		if(ok && out1&32)
+		if (ok && out1 & 32)
 			Sys_info.OSFeatures |= BEVT;
 	}
 
-	if(!gi || !ok)
+	if (!gi || !ok)
 	{
-		if(Sys_info.AES_version >= 0x331)
+		if (Sys_info.AES_version >= 0x331)
 			Sys_info.OSFeatures |= BEVT;
 	}
 
 	/* MENU_POPUP */
-	if(gi)
+	if (gi)
 	{
 		ok = appl_getinfo(9, &out1, &out2, &out3, &out4);
-		if(ok && out2 == 1)
+		if (ok && out2 == 1)
 			Sys_info.OSFeatures |= MPOPUP;
 	}
 
-	if(!gi || !ok)
+	if (!gi || !ok)
 	{
-		if(Sys_info.AES_version >= 0x331 && !(Sys_info.OS&MATSCHIG))
+		if (Sys_info.AES_version >= 0x331 && !(Sys_info.OS & MATSCHIG))
 			Sys_info.OSFeatures |= MPOPUP;
 	}
 
 	/* 3D-AES */
-	if(gi)
+	if (gi)
 	{
 		ok = appl_getinfo(13, &out1, &out2, &out3, &out4);
-		if(ok && out1 == 1)
+		if (ok && out1 == 1)
 			Sys_info.OSFeatures |= AES3D;
 	}
 
-	if(!gi || !ok)
+	if (!gi || !ok)
 	{
-		if(Sys_info.AES_version >= 0x331 && !(Sys_info.OS&MATSCHIG))
+		if (Sys_info.AES_version >= 0x331 && !(Sys_info.OS & MATSCHIG))
 			Sys_info.OSFeatures |= AES3D;
 	}
 
 	/* PEXEC(10x) */
-	if((Sys_info.OS &MINT) || (InqMagX() >= 0x0500 && _AESnumapps != 1))
+	if ((Sys_info.OS & MINT) || (InqMagX() >= 0x0500 && _AESnumapps != 1))
 		Sys_info.OSFeatures |= PEXEC10x;
 
-	if(gi)
+	if (gi)
 	{
 		ok = appl_getinfo(13, &out1, &out2, &out3, &out4);
-		if(ok && out2 == 1)
+		if (ok && out2 == 1)
 		{
 			Sys_info.OSFeatures |= OSYSVAR;
 			objc_sysvar(0, 5, 0, 0, &out1, &out2);	/* AES-Hintergrund */
@@ -269,10 +267,10 @@ void f_analyze_system(void)
 		}
 	}
 
-	if(!gi || !ok)
+	if (!gi || !ok)
 		Sys_info.AES_bgcolor = G_LWHITE;
 
-	if(Sys_info.bitplanes == 1 || !(Sys_info.OSFeatures&AES3D))
+	if (Sys_info.bitplanes == 1 || !(Sys_info.OSFeatures & AES3D))
 		Sys_info.AES_bgcolor = G_WHITE;
 
 
@@ -281,42 +279,41 @@ void f_analyze_system(void)
 
 
 	/* CPU-Typ ermitteln */
-	get_cookie(0x5F435055L, (unsigned long*)&value); /* '_CPU' */
-	if(value == 0 || value == 10)
+	get_cookie(0x5F435055L, (unsigned long *) &value);	/* '_CPU' */
+	if (value == 0 || value == 10)
 		global_services.CPU_type = MC68000;
-	else if(value == 20)
+	else if (value == 20)
 		global_services.CPU_type = MC68020;
-	else if(value == 30)
+	else if (value == 30)
 		global_services.CPU_type = MC68030;
-	else if(value == 40)
+	else if (value == 40)
 		global_services.CPU_type = MC68040;
-	else if(value == 60)
+	else if (value == 60)
 		global_services.CPU_type = MC68060;
-		
-	get_cookie(0x5F465055L, (unsigned long*)&value); /* '_FPU' */
-	if((value >> 16) != 0)
+
+	get_cookie(0x5F465055L, (unsigned long *) &value);	/* '_FPU' */
+	if ((value >> 16) != 0)
 		global_services.CPU_type |= FPU;
 
-	DEBUG_MSG (( "--> Systeminfos\n" ));
-	DEBUG_MSG (( "    OS         : %#x\n", Sys_info.OS ));
-	DEBUG_MSG (( "    Features   : %#x\n", Sys_info.OSFeatures ));
-	DEBUG_MSG (( "    AES_bgcolor: %#x\n", Sys_info.AES_bgcolor ));
-	DEBUG_MSG (( "    CPU        : %#x\n", global_services.CPU_type ));
+	DEBUG_MSG(("--> Systeminfos\n"));
+	DEBUG_MSG(("    OS         : %#x\n", Sys_info.OS));
+	DEBUG_MSG(("    Features   : %#x\n", Sys_info.OSFeatures));
+	DEBUG_MSG(("    AES_bgcolor: %#x\n", Sys_info.AES_bgcolor));
+	DEBUG_MSG(("    CPU        : %#x\n", global_services.CPU_type));
 }
 
 
-static unsigned int InqMagX(void)
+static unsigned short InqMagX(void)
 {
 	MAGX_COOKIE *cv;
 
-
-	if(get_cookie(0x4D616758L, (unsigned long*)&cv)!=0) /* 'MagX' */
-		if(cv->aesvars)
-			return(cv->aesvars->version);
+	if (get_cookie(0x4D616758L, (unsigned long *) &cv) != 0)	/* 'MagX' */
+		if (cv->aesvars)
+			return cv->aesvars->version;
 		else
-			return(FALSE);
+			return FALSE;
 	else
-		return(FALSE);
+		return FALSE;
 }
 
 
@@ -327,9 +324,9 @@ static unsigned int InqMagX(void)
 	------------------------------------------------------------------------*/
 static void inquire_clipboard(void)
 {
-	char *env_path, chpath[256];
-
-	int back;
+	char *env_path;
+	char chpath[256];
+	WORD back;
 
 	Sys_info.scrp_path = calloc(1, 256);
 
@@ -339,54 +336,52 @@ static void inquire_clipboard(void)
 	printf("scrp_path: %s\n", Sys_info.scrp_path);
 #endif
 
-	if(back != 0 && *Sys_info.scrp_path != '\0')
+	if (back != 0 && *Sys_info.scrp_path != '\0')
 	{
 #if 0
 		printf("scrp_read hat geklappt\n");
 #endif
 
 		check_and_create(chpath);
-	}
-	else
+	} else
 	{
 #if 0
 		printf("scrp_read hat nicht geklappt\n");
 #endif
 
-		if((env_path = getenv("CLIPBRD")) != NULL)
+		if ((env_path = getenv("CLIPBRD")) != NULL)
 			strcpy(Sys_info.scrp_path, env_path);
-		else
-			if((env_path = getenv("SCRAPDIR")) != NULL)
-				strcpy(Sys_info.scrp_path, env_path);
+		else if ((env_path = getenv("SCRAPDIR")) != NULL)
+			strcpy(Sys_info.scrp_path, env_path);
 #if 0
 		printf("getenv()\n");
 
-		if(env_path != NULL)
+		if (env_path != NULL)
 			printf("env_path: %s\n", env_path);
 		else
 			printf("env_path: NULL\n");
 #endif
-		if(env_path == NULL)
+		if (env_path == NULL)
 			strcpy(Sys_info.scrp_path, "c:\\clipbrd");
 
 		check_and_create(chpath);
 	}
 
-	if(Sys_info.scrp_path != NULL)
+	if (Sys_info.scrp_path != NULL)
 	{
-		if(Sys_info.scrp_path[strlen(Sys_info.scrp_path) - 1] != '\\')
-		   strcat(Sys_info.scrp_path, "\\");
+		if (Sys_info.scrp_path[strlen(Sys_info.scrp_path) - 1] != '\\')
+			strcat(Sys_info.scrp_path, "\\");
 
 		/*
 		 * Clipboardexporter testen 
 		 */
 		strcpy(chpath, Sys_info.standard_path);
 		strcat(chpath, "\\modules\\clipbrd.sxm");
-		if(Fattrib(chpath, 0, 0) < 0)
+		if (Fattrib(chpath, 0, 0) < 0)
 			Sys_info.scrp_path = NULL;
 	}
 #if 0
-	if(Sys_info.scrp_path != NULL)
+	if (Sys_info.scrp_path != NULL)
 		printf("scrp_path: %s\n", Sys_info.scrp_path);
 	else
 		printf("scrp_path: NULL\n");
@@ -401,7 +396,7 @@ static void inquire_clipboard(void)
 static void check_and_create(char *chpath)
 {
 #if 0
-	if(Sys_info.scrp_path != NULL)
+	if (Sys_info.scrp_path != NULL)
 		printf("scrp_path: %s\n", Sys_info.scrp_path);
 	else
 		printf("scrp_path: NULL\n");
@@ -409,20 +404,19 @@ static void check_and_create(char *chpath)
 	getch();
 #endif
 
-	if(Sys_info.scrp_path[strlen(Sys_info.scrp_path) - 1] == '\\')
-	   Sys_info.scrp_path[strlen(Sys_info.scrp_path) - 1] = '\0';
+	if (Sys_info.scrp_path[strlen(Sys_info.scrp_path) - 1] == '\\')
+		Sys_info.scrp_path[strlen(Sys_info.scrp_path) - 1] = '\0';
 
 	strcpy(chpath, Sys_info.scrp_path);
 
-	if(Fattrib(chpath, 0, 0) < 0)		/* Pfad nicht gefunden */
+	if (Fattrib(chpath, 0, 0) < 0)		/* Pfad nicht gefunden */
 	{
-		if(Dcreate(Sys_info.scrp_path) < 0)
+		if (Dcreate(Sys_info.scrp_path) < 0)
 		{
 			free(Sys_info.scrp_path);
 			Sys_info.scrp_path = NULL;
 			return;
-		}
-		else
+		} else
 		{
 			strcat(Sys_info.scrp_path, "\\");
 			scrp_write(Sys_info.scrp_path);
@@ -436,54 +430,54 @@ static void check_and_create(char *chpath)
 /* auf die eigene Prozeždatei */
 void GetSMPath(void)
 {
-	char *sh_rptail, *sh_rpcmd, *path;
-
-	int drivenum, back;
-
+	char *sh_rptail;
+	char *sh_rpcmd;
+	char *path;
+	short drivenum;
+	short back;
 
 	stpath = calloc(1, 257L);
 	sh_rpcmd = calloc(1, 257L);
 	sh_rptail = calloc(1, 257L);
 
-	if((back = getploadinfo(sh_rptail, sh_rpcmd)) == 0)
+	if ((back = getploadinfo(sh_rptail, sh_rpcmd)) == 0)
 		back = shel_read(sh_rpcmd, sh_rptail);
 #if 0
 	printf("back: %d\n", back);
 	printf("sh_rpcmd: %s\n", sh_rpcmd);
 	printf("sh_rptail: %s\n", sh_rptail);
 #endif
-	if(back != 0 && sh_rpcmd[0] != 0 && sh_rpcmd[1] == ':')			/* hat das geklappt ... */
-	{																/* Pfad enthalten */
-		if((back = strsrchr(sh_rpcmd, '\\')) != -1)
+	if (back != 0 && sh_rpcmd[0] != 0 && sh_rpcmd[1] == ':')	/* hat das geklappt ... */
+	{									/* Pfad enthalten */
+		if ((back = strsrchr(sh_rpcmd, '\\')) != -1)
 		{
 			sh_rpcmd[back] = '\0';
 			strcpy(stpath, sh_rpcmd);
 		}
-	}
-	else															/* oder nicht (z.B. TOS 1.0) */
+	} else								/* oder nicht (z.B. TOS 1.0) */
 	{
 		memset(stpath, 0x0, 257);
-		if((drivenum = Dgetdrv()) <= 25)							/* drivenum hier: A=0, B=1 ... */
-			stpath[0] = drivenum + 'A';								/* alte Laufwerke A - Z, Laufwerksbuchstabe ermitteln */
-		else	
-			stpath[0] = drivenum + '0';								/* neue Laufwerke 1 - 6, Laufwerksbuchstabe ermitteln */
+		if ((drivenum = Dgetdrv()) <= 25)	/* drivenum hier: A=0, B=1 ... */
+			stpath[0] = drivenum + 'A';	/* alte Laufwerke A - Z, Laufwerksbuchstabe ermitteln */
+		else
+			stpath[0] = drivenum + '0';	/* neue Laufwerke 1 - 6, Laufwerksbuchstabe ermitteln */
 
-		drivenum++;													/* von A=0 auf A=1 */
+		drivenum++;						/* von A=0 auf A=1 */
 
 		stpath[1] = ':';
 
-		Dgetpath(sh_rpcmd, drivenum);								/* drivenum hier: A=1, B=2 ... */
+		Dgetpath(sh_rpcmd, drivenum);	/* drivenum hier: A=1, B=2 ... */
 
-		if(sh_rpcmd[0] != '\\')
+		if (sh_rpcmd[0] != '\\')
 			stpath[2] = '\\';
 
 		strcat(stpath, sh_rpcmd);
 	}
 
-	/* ***************Nur fr den Debugger: ********************/
+	/* ***************Nur fr den Debugger: ******************* */
 #if DEBUGGER
-		if(stricmp(stpath, "E:\\PURE-C") == 0)
-			strcpy(stpath, "e:\\smurf");
+	if (stricmp(stpath, "E:\\PURE-C") == 0)
+		strcpy(stpath, "e:\\smurf");
 #endif
 
 #if 0
@@ -497,29 +491,28 @@ void GetSMPath(void)
 #endif
 
 	/*
-	 *	Pfad des $HOME-Verzeichnis auslesen
+	 *  Pfad des $HOME-Verzeichnis auslesen
 	 */
 	path = getenv("HOME");
 
-	if(path == NULL)
+	if (path == NULL)
 		strcpy(Sys_info.home_path, Sys_info.standard_path);
 	else
 	{
 		strcpy(Sys_info.home_path, path);
-		
-		if(Sys_info.home_path[strlen(Sys_info.home_path) - 1] == '\\')
-		   Sys_info.home_path[strlen(Sys_info.home_path) - 1] = '\0';
+
+		if (Sys_info.home_path[strlen(Sys_info.home_path) - 1] == '\\')
+			Sys_info.home_path[strlen(Sys_info.home_path) - 1] = '\0';
 
 		/* mit einem Trick testen, ob der Pfad vorhanden ist ist */
 		/* Ergebnis < 0 wenn die Datei noch nicht vorhanden ist */
 		strcpy(sh_rptail, Sys_info.home_path);
-		if(Fattrib(sh_rptail, 0, 0) >= 0)					/* Pfad gefunden */
+		if (Fattrib(sh_rptail, 0, 0) >= 0)	/* Pfad gefunden */
 		{
 			strcat(sh_rptail, "\\defaults");
-			if(Fattrib(sh_rptail, 0, 0) >= 0)				/* Pfad gefunden */
+			if (Fattrib(sh_rptail, 0, 0) >= 0)	/* Pfad gefunden */
 				strcat(Sys_info.home_path, "\\defaults");
-		}
-		else
+		} else
 			strcpy(Sys_info.home_path, Sys_info.standard_path);
 	}
 
@@ -530,25 +523,24 @@ void GetSMPath(void)
 
 /* gibt im Fehlerfall 0 zurck um returnwertkompatibel */
 /* zu shel_read() zu sein (s.o.) */
-static int getploadinfo(char *cmdlin, char *fname)
+static short getploadinfo(char *cmdlin, char *fname)
 {
-	long handle, ret;
-
+	int handle;
+	long ret;
 	struct ploadinfo pl;
 
-
-	if((handle = Fopen("u:\\proc\\x.-1", FO_READ)) >= 0)
+	if ((handle = (int) Fopen("u:\\proc\\x.-1", FO_READ)) >= 0)
 	{
 		pl.fnamelen = 257;
 		pl.cmdlin = cmdlin;
 		pl.fname = fname;
 
-		ret = Fcntl((int)handle, (long)&pl, PLOADINFO);
+		ret = Fcntl(handle, (long) &pl, PLOADINFO);
 
-		Fclose((int)handle);
+		Fclose(handle);
 
-		if(ret == 0)
-			return(1);
+		if (ret == 0)
+			return 1;
 	}
-	return(0);
+	return 0;
 }

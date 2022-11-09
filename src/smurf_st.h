@@ -38,10 +38,10 @@ struct DIRENTRY
     verschiedene Quellbild-Farbtiefen           */
 typedef struct
 {
-    int dither_24, syspal_24;
-    int dither_8, syspal_8;
-    int dither_4, syspal_4;
-    int palette_mode;
+    short dither_24, syspal_24;
+    short dither_8, syspal_8;
+    short dither_4, syspal_4;
+    short palette_mode;
 } DISPLAY_MODES;
 
 
