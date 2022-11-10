@@ -33,29 +33,26 @@
 
 #include "debug.h"
 
-#define SCREEN 1
-
 void write_debug(const char *message)
 {
 	FILE *file;
 
-
-	if(message == NULL)
+	if (message == NULL)
 	{
 		file = fopen("debug.log", "w");
 		message = "Smurf Debug";
-	}
-	else
+	} else
+	{
 		file = fopen("debug.log", "a");
+	}
 
-	if(file != NULL)
+	if (file != NULL)
 	{
 		fputs(message, file);
 		fputs("\n", file);
 
 		fclose(file);
 	}
-		
 }
 
 
@@ -63,20 +60,20 @@ void DebugMsg(const char *Arg, ...)
 {
 #ifdef DEBUG
 	char Puf[512];
-	va_list	ap;
+	va_list ap;
 	FILE *DebugHandle;
 	int len;
-	
-	va_start( ap, Arg );
-	DebugHandle = fopen( "smurf.log", "a+" );
 
-	if( DebugHandle )
+	va_start(ap, Arg);
+	DebugHandle = fopen("smurf.log", "a+");
+
+	if (DebugHandle)
 	{
-		len = vsprintf( Puf, Arg, ap);
-		fwrite( Puf, sizeof( char ), len, DebugHandle );
-		fclose( DebugHandle );
+		len = vsprintf(Puf, Arg, ap);
+		fwrite(Puf, sizeof(char), len, DebugHandle);
+		fclose(DebugHandle);
 	}
-	
-	va_end ( ap );
+
+	va_end(ap);
 #endif
 }
