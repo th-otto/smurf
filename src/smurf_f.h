@@ -50,7 +50,7 @@ char *fload(char *Path, int header);
 /* Bild importieren */
 void reload_pic(WINDOW *picwindow);
 int f_import_pic(SMURF_PIC *smurf_picture, char *filename);
-char *f_do_pcd(char *Path);
+uint8_t *f_do_pcd(const char *Path);
 
 
 /*

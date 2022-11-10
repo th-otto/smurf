@@ -47,46 +47,42 @@
 /*	---------------------------------------	*/
 /*	Extension stimmt - Is dat Ding en PCD?	*/
 /*	---------------------------------------	*/
-char *f_do_pcd(char *Path)
+uint8_t *f_do_pcd(const char *Path)
 {
-	char *buffer;
+	uint8_t *buffer;
 	int file;
-	int imgtype;
-	long DatenOffset,
-	 len,
-	 back,
-	 dummy;
-	int idummy;
-	int key;
-
+	short imgtype;
+	long DatenOffset, len, back;
+	WORD idummy;
+	WORD key;
 
 	/* Die ersten 3600 Bytes laden ... */
 	if ((buffer = SMalloc(3700)) == NULL)
-		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
-	else
 	{
-		if ((dummy = Fopen(Path, FO_READ)) < 0)
+		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
+	} else
+	{
+		if ((file = (int)Fopen(Path, FO_READ)) < 0)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[FILEOPEN_ERR].TextCast, NULL, NULL, NULL, 1);
 			SMfree(buffer);
 		} else
 		{
-			file = (int) dummy;
 			back = Fread(file, 3600, buffer);
 			Fclose(file);
 
 			if (back != 3600)
 			{
-				Dialog.winAlert.openAlert("Fehler beim Lesen aus der Photo-CD-Datei!", NULL, NULL, NULL, 1);
+				Dialog.winAlert.openAlert("Fehler beim Lesen aus der Photo-CD-Datei!", NULL, NULL, NULL, 1); /* FIXME: translate */
 				SMfree(buffer);
-				return (FALSE);
+				return FALSE;
 			}
 
 			/* isseseins? */
-			if (strcmp(buffer + 2048, "PCD_IPI") != 0)
+			if (strcmp((char *)buffer + 2048, "PCD_IPI") != 0)
 			{
 				SMfree(buffer);
-				return (FALSE);			/* N”! */
+				return FALSE;			/* N”! */
 			} else						/* Jupp! */
 			{
 				SMfree(buffer);
@@ -128,27 +124,26 @@ char *f_do_pcd(char *Path)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
 				else
 				{
-					if ((dummy = Fopen(Path, FO_READ)) < 0)
+					if ((file = (int) Fopen(Path, FO_READ)) < 0)
 					{
 						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[FILEOPEN_ERR].TextCast, NULL, NULL, NULL, 1);
 						SMfree(buffer);
 					} else
 					{
-						file = (int) dummy;
 						Fseek(DatenOffset, file, 0);	/* Ab zum DatenOffset */
 						back = Fread(file, len, buffer);
 						Fclose(file);
 						if (back != len)
 						{
-							Dialog.winAlert.openAlert("Fehler beim Lesen aus der Photo-CD-Datei!", NULL, NULL, NULL, 1);
+							Dialog.winAlert.openAlert("Fehler beim Lesen aus der Photo-CD-Datei!", NULL, NULL, NULL, 1); /* FIXME: translate */
 							SMfree(buffer);
 						} else
-							return (buffer);
-					}					/* Open fr Bilddaten */
-				}						/* Malloc fr Bilddaten */
-			}							/* Magic-Vergleich */
-		}								/* Open fr Erkennung */
-	}									/* Malloc fr Erkennung */
+							return buffer;
+					}
+				}
+			}
+		}
+	}
 
-	return (FALSE);
+	return FALSE;
 }

@@ -177,7 +177,7 @@ typedef struct
 	*/
 	int		(*f_import_pic)(SMURF_PIC *smurf_picture, char *filename);
 	int 	(*f_formhandle)(int picture_to_load, int module_ret, char *namename);
-	char *	(*f_do_pcd)(char *Path);
+	uint8_t *(*f_do_pcd)(const char *Path);
 
 	/*
 	*	Konfiguration und Smurf-Dateien
