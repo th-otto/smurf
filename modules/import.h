@@ -111,50 +111,50 @@ typedef struct
 
 
 /* Struktur SMURF_PIC - Standard-Bildinformationsstruktur von SMURF */
-/* 3 KB */
 typedef struct smurfpic
 {
-    char filename[257];     /* Zeiger auf Dateiname incl. Pfad des Bildes - von Smurf */
+    /*    0 */ char filename[257];     /* Zeiger auf Dateiname incl. Pfad des Bildes - von Smurf */
 
-    short changed;          /* Bitvektor fÅr BildÑnderungen: 
+    /*  258 */ short changed;          /* Bitvektor fÅr BildÑnderungen: 
                                Bit 0: neue NCT wird benîtigt,
                                Bit 1: Redither ist notwendig
                                = 255: Bildstruktur enthÑlt einen Block! */
                                                 
-    char format_name[41];   /* Zeiger auf Formatname - vom Modul */
+    /*  260 */ char format_name[41];   /* Zeiger auf Formatname - vom Modul */
 
-    void *pic_data;         /* Zeiger auf rohe Bilddaten */
-    void *mask;             /* Zeiger auf 8Bit-Maske, gekocht */
+    /*  302 */ void *pic_data;         /* Zeiger auf rohe Bilddaten */
+    /*  306 */ void *mask;             /* Zeiger auf 8Bit-Maske, gekocht */
 
-    WORD pic_width;         /* Breite des Bildes in Pixels, gebraten */
-    WORD pic_height;        /* Hîhe des Bildes in Pixels, gedÅnstet */
-    WORD depth;             /* Farbtiefe in BIT (1-24), 30 min. bei 200C im Backofen... */
-    MFDB *screen_pic;       /* Zeiger auf MFDB fÅr Bildschirmdarstellung */
-    char *palette;          /* Zeiger auf Palette */
-    char bp_pal;            /* Farbtiefe pro Paletteneintrag (BITs) */
-    long file_len;          /* DateilÑnge des Bildes */
-    char format_type;       /* 0=Pixel Packed, 1=Standardformat */
-    char col_format;        /* Farbsystem, in dem das Bild vom Modul zurÅckkommt */
-    char infotext[97];      /* Infotext fÅr weitere Bildinformationen */
+    /*  310 */ WORD pic_width;         /* Breite des Bildes in Pixels, gebraten */
+    /*  312 */ WORD pic_height;        /* Hîhe des Bildes in Pixels, gedÅnstet */
+    /*  314 */ WORD depth;             /* Farbtiefe in BIT (1-24), 30 min. bei 200C im Backofen... */
+    /*  316 */ MFDB *screen_pic;       /* Zeiger auf MFDB fÅr Bildschirmdarstellung */
+    /*  320 */ char *palette;          /* Zeiger auf Palette */
+    /*  324 */ char bp_pal;            /* Farbtiefe pro Paletteneintrag (BITs) */
+    /*  326 */ long file_len;          /* DateilÑnge des Bildes */
+    /*  330 */ char format_type;       /* 0=Pixel Packed, 1=Standardformat */
+    /*  331 */ char col_format;        /* Farbsystem, in dem das Bild vom Modul zurÅckkommt */
+    /*  332 */ char infotext[97];      /* Infotext fÅr weitere Bildinformationen */
 
-    WORD red[256],          /* Palette, nach der die */
-         grn[256],          /* Bildschirmdarstellung */
-         blu[256];          /* gedithert wurde. (15Bit-Format) */
+    /*  430 */ WORD red[256];          /* Palette, nach der die */
+    /*  942 */ WORD grn[256];          /* Bildschirmdarstellung */
+    /* 1454 */ WORD blu[256];          /* gedithert wurde. (15Bit-Format) */
 
 
-    WORD blockx, blocky, blockwidth, blockheight;    /* Koordinaten fÅr den Blockrahmen */
+    /* 1966 */ WORD blockx, blocky, blockwidth, blockheight;    /* Koordinaten fÅr den Blockrahmen */
 
-    struct smurfpic *block;
+    /* 1974 */ struct smurfpic *block;
 
-    WORD zoom;               /* Zoomfaktor des Bildes */ 
-    short image_type;        /* Was ist drin in der Datei? */
+    /* 1978 */ WORD zoom;               /* Zoomfaktor des Bildes */ 
+    /* 1980 */ short image_type;        /* Was ist drin in der Datei? */
 
-    char own_pal;           /* 1: hier herrscht eine eigene Palette */
-    unsigned char *local_nct;       /* lokale NCT fÅr die aktuelle Palette (wenn != Syspal!)    */
-    short not_in_nct;               /* Kennung fÅr nicht in der NCT enthaltene Farben           */
+    /* 1982 */ char own_pal;           /* 1: hier herrscht eine eigene Palette */
+    /* 1984 */ unsigned char *local_nct;       /* lokale NCT fÅr die aktuelle Palette (wenn != Syspal!)    */
+    /* 1988 */ short not_in_nct;               /* Kennung fÅr nicht in der NCT enthaltene Farben           */
     
-    struct smurfpic *prev_picture;  /* Zeiger auf vorheriges Bild (SMURF_PIC*) */
-    struct smurfpic *next_picture;  /* Zeiger auf nÑxtes Bild (SMURF_PIC*) */
+    /* 1990 */ struct smurfpic *prev_picture;  /* Zeiger auf vorheriges Bild (SMURF_PIC*) */
+    /* 1994 */ struct smurfpic *next_picture;  /* Zeiger auf nÑxtes Bild (SMURF_PIC*) */
+    /* 1998 */
 } SMURF_PIC;
 
 
@@ -243,42 +243,43 @@ typedef struct
 /*----------------- SERVICE_FUNCTIONS - die Dienstfunktionen */
 typedef struct
 {
-    int (*busybox)(int lft);
-    void (*reset_busybox)(int lft, const char *string);
+    /*   0 */ int (*busybox)(int lft);
+    /*   4 */ void (*reset_busybox)(int lft, const char *string);
 
-    int (*f_module_window)(WINDOW *mod_window);
-    void (*f_module_prefs)(MOD_INFO *infostruct, short mod_id);
+    /*   8 */ int (*f_module_window)(WINDOW *mod_window);
+    /*  12 */ void (*f_module_prefs)(MOD_INFO *infostruct, short mod_id);
 
-    int     (*popup)(POP_UP *popup_struct, int mouseflag, WORD button, OBJECT *poptree);
-    void    (*deselect_popup)(WINDOW *wind, WORD ob1, WORD ob2);
+    /*  16 */ int     (*popup)(POP_UP *popup_struct, int mouseflag, WORD button, OBJECT *poptree);
+    /*  20 */ void    (*deselect_popup)(WINDOW *wind, WORD ob1, WORD ob2);
 
-    int     (*slider)(SLIDER *slider_struct);
-    void    (*set_slider)(SLIDER *sliderstruct, long value);
+    /*  24 */ int     (*slider)(SLIDER *slider_struct);
+    /*  28 */ void    (*set_slider)(SLIDER *sliderstruct, long value);
 
-    int     (*listfield)(long *window, WORD klick_obj, int keyscan, LIST_FIELD *lfstruct);
-    void    (*generate_listfield)(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
+    /*  32 */ int     (*listfield)(long *window, WORD klick_obj, int keyscan, LIST_FIELD *lfstruct);
+    /*  36 */ void    (*generate_listfield)(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
                 WORD listparent, char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield, WORD autoloc);
 
-    SMURF_PIC * (*new_pic)(WORD wid, WORD hgt, WORD depth);
+    /*  40 */ SMURF_PIC * (*new_pic)(WORD wid, WORD hgt, WORD depth);
 
-    void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, int flags);
+    /*  44 */ void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, int flags);
 
-    void (*f_move_preview)(WINDOW *window, SMURF_PIC *orig_pic, WORD redraw_object);
-    void (*copy_preview)(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev_window);
+    /*  48 */ void (*f_move_preview)(WINDOW *window, SMURF_PIC *orig_pic, WORD redraw_object);
+    /*  52 */ void (*copy_preview)(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev_window);
 
-    void *  (*SMalloc)(long amount);
-    int (*SMfree)(void *ptr);
+    /*  56 */ void *  (*SMalloc)(long amount);
+    /*  60 */ int (*SMfree)(void *ptr);
     
-    int CPU_type;
-    int (*seek_nearest_col)(long *par, int maxcol);
-    SMURF_PIC* (*get_pic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
+    /*  64 */ short CPU_type;
+    /*  66 */ int (*seek_nearest_col)(long *par, int maxcol);
+    /*  70 */ SMURF_PIC* (*get_pic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
 
-    int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
-    int (*f_fsbox)(char *Path, char *fbtext, char selectart);
-    float (*convert_units)(int oldunit, int newunit, float dpi);
+    /*  74 */ int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
+    /*  78 */ int (*f_fsbox)(char *Path, char *fbtext, char selectart);
+    /*  82 */ float (*convert_units)(int oldunit, int newunit, float dpi);
 
-    void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
-    void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
+    /*  86 */ void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
+    /*  90 */ void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
+    /* 100 */ 
 } SERVICE_FUNCTIONS;
 
 
