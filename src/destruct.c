@@ -51,28 +51,26 @@
 void destroy_smurfpic(SMURF_PIC *pic)
 {
 	int back = 0;
-
 	SMURF_PIC *next = NULL;
 	SMURF_PIC *prev = NULL;
 
-
-	if(pic == NULL)
+	if (pic == NULL)
 		return;
 
-	if(pic->next_picture != NULL)
+	if (pic->next_picture != NULL)
 		next = pic->next_picture;
-	if(pic->prev_picture != NULL)
+	if (pic->prev_picture != NULL)
 		prev = pic->prev_picture;
 
-	if(pic->pic_data != NULL)
+	if (pic->pic_data != NULL)
 		back = SMfree(pic->pic_data);
-	if(pic->screen_pic != NULL && pic->screen_pic->fd_addr != NULL)
+	if (pic->screen_pic != NULL && pic->screen_pic->fd_addr != NULL)
 		back = SMfree(pic->screen_pic->fd_addr);
-	if(pic->screen_pic != NULL)
+	if (pic->screen_pic != NULL)
 		free(pic->screen_pic);
-	if(pic->local_nct != NULL && pic->changed != 255)
+	if (pic->local_nct != NULL && pic->changed != 255)
 		back = SMfree(pic->local_nct);
-	if(pic->block != NULL)
+	if (pic->block != NULL)
 	{
 		destroy_smurfpic(pic->block);
 		pic->block = NULL;
@@ -81,12 +79,12 @@ void destroy_smurfpic(SMURF_PIC *pic)
 	free(pic->palette);
 	SMfree(pic);
 
-	if(back != 0)
+	if (back != 0)
 		Dialog.winAlert.openAlert("Fehler beim Freigeben einer Bildstruktur!", NULL, NULL, NULL, 1);
-	
-	if(next != NULL)
+
+	if (next != NULL)
 		next->prev_picture = prev;
-	if(prev != NULL)
+	if (prev != NULL)
 		prev->next_picture = next;
 }
 
@@ -98,13 +96,10 @@ void destroy_smurfpic(SMURF_PIC *pic)
 void remove_block(WINDOW *picwindow)
 {
 	char block_there = 0;
-
-	int zoom;
-
+	short zoom;
 	GRECT redraw;
 
-
-	if(picwindow->picture->block)
+	if (picwindow->picture->block)
 	{
 		block_there = 1;
 
@@ -120,14 +115,14 @@ void remove_block(WINDOW *picwindow)
 	picwindow->picture->block = NULL;
 
 	/* nur die Blockbox l”schen */
-	Window.redraw(picwindow, NULL, 0, DRAWNOTREE|BLOCK_ONLY);
+	Window.redraw(picwindow, NULL, 0, DRAWNOTREE | BLOCK_ONLY);
 
 	picwindow->picture->blockx = 0;
 	picwindow->picture->blocky = 0;
 	picwindow->picture->blockwidth = 0;
 	picwindow->picture->blockheight = 0;
-	picwindow->picture->block = NULL;	
+	picwindow->picture->block = NULL;
 
-	if(block_there)
+	if (block_there)
 		Window.redraw(picwindow, &redraw, 0, DRAWNOTREE);
 }
