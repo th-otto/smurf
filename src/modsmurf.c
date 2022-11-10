@@ -349,9 +349,9 @@ int main(int argc, const char *argv[])
 		Sys_info.dither24 = DIT1;
 		Sys_info.dither8 = DIT1;
 		Sys_info.dither4 = DIT1;
-		Sys_info.pal4 = 1;
-		Sys_info.pal8 = 1;
-		Sys_info.pal24 = 1;
+		Sys_info.pal4 = CR_SYSPAL;
+		Sys_info.pal8 = CR_SYSPAL;
+		Sys_info.pal24 = CR_SYSPAL;
 		Sys_info.environment = 1;
 		Sys_info.Event_Timer = 50;
 		Sys_info.PCD_Defsize = BASE_D4;
@@ -2586,7 +2586,7 @@ int init_dialog(int DialogNumber, int DialogOK)
 /*						Dialog schliežen							*/
 /*	Fenster schliežen und l”schen, aus der Liste nehmen Cursor aus, */
 /* ******************************************************************/
-void close_dialog(int windnum)
+void close_dialog(short windnum)
 {
 	WINDOW *wind;
 

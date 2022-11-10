@@ -135,7 +135,7 @@ typedef struct
 	void	(*check_windclose)(int windnum);	/* Auswerten von Windowdialog-AbbrÅchen */
 	int		(*CallDialog)(int topwin);			/* Dialogdispatcher */
 	int		(*init_dialog)(int DialogNumber, int DialogOK);
-	void	(*close_dialog)(int windnum);
+	void	(*close_dialog)(short windnum);
 
 	void	(*f_module_prefs)(MOD_INFO *infostruct, short mod_id);	/* Modulformular aufrufen */
 	void	(*f_mpref_change)(void);								/* Eingabe im Modulformular */

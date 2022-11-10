@@ -290,10 +290,10 @@ typedef struct dialogHandlers
     OPTIONS_DIALOG smurfOpt;
     DISPOPTS_DIALOG dispOpt;
 
-    int topDialog;
+    WORD topDialog;
 
-    int (*init)(int DialogNumber, int DialogOK);
-    void (*close)(int windnum);
+    WORD (*init)(WORD DialogNumber, WORD DialogOK);
+    void (*close)(short windnum);
 } DIALOGS;
 
 

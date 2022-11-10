@@ -489,7 +489,7 @@ void f_info(void);
 int f_loadpic(char *pic, char *picpath);
 int f_formhandle(int picture_to_load, int module_ret, char *namename);
 int init_dialog(int DialogNumber, int DialogOK);
-void close_dialog(int windnum);
+void close_dialog(short windnum);
 void shutdown_smurf(char while_startup);
 int duplicate_pic(WINDOW *window);
 
