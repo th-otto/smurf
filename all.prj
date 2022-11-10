@@ -18,6 +18,7 @@ modules\edit\chanelmx\chanelmx.prj
 modules\edit\clip.prj
 modules\edit\clipnpic.prj
 modules\edit\colsat.prj
+modules\edit\displace.prj
 modules\edit\dropshdw.prj
 modules\edit\edgeokil.prj
 modules\edit\equalize.prj
@@ -170,8 +171,6 @@ modules\plugin\print\prntplgw.prj
 ; missing:
 ;modules\edit\bumber.prj
 ;modules\edit\colrun.prj
-;modules\edit\displace.prj
-;modules\edit\scale.prj (version 1.30)
 ;modules\export\esm.prj
 ;modules\import\godpaint.prj
 ;modules\import\jpeg\jpegdspl.prj
