@@ -44,16 +44,15 @@ static DITHER_DATA ditherdata;
 /*				    		FD - FAST								*/
 /*			     	 Fehlerdiffusionsraster							*/
 /********************************************************************/
-void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, 
-				   char *where_to, int mode, char *nct, GRECT *part)
+void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, int mode, char *nct, GRECT *part)
 {
 	char *plantab;
 	char empty_planetable[257];
 
-	int red24[257], grn24[257], blu24[257];
+	WORD red24[257], grn24[257], blu24[257];
 	int	t;
-	int *red, *grn, *blu;
-	int *c_red, *c_grn, *c_blu;
+	WORD *red, *grn, *blu;
+	WORD *c_red, *c_grn, *c_blu;
 	int width, height;
 	int endwid, endhgt;
 

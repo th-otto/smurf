@@ -129,7 +129,7 @@ typedef struct smurfpic
     /*  312 */ WORD pic_height;        /* H”he des Bildes in Pixels, gednstet */
     /*  314 */ WORD depth;             /* Farbtiefe in BIT (1-24), 30 min. bei 200C im Backofen... */
     /*  316 */ MFDB *screen_pic;       /* Zeiger auf MFDB fr Bildschirmdarstellung */
-    /*  320 */ char *palette;          /* Zeiger auf Palette */
+    /*  320 */ uint8_t *palette;       /* Zeiger auf Palette */
     /*  324 */ char bp_pal;            /* Farbtiefe pro Paletteneintrag (BITs) */
     /*  326 */ long file_len;          /* Dateil„nge des Bildes */
     /*  330 */ char format_type;       /* 0=Pixel Packed, 1=Standardformat */
@@ -270,7 +270,7 @@ typedef struct
     /*  60 */ int (*SMfree)(void *ptr);
     
     /*  64 */ short CPU_type;
-    /*  66 */ int (*seek_nearest_col)(long *par, int maxcol);
+    /*  66 */ short (*seek_nearest_col)(long *par, short maxcol);
     /*  70 */ SMURF_PIC* (*get_pic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
 
     /*  74 */ int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
@@ -413,15 +413,15 @@ typedef struct
 #define MOD_MAGIC_PLUGIN 0x53504c47L /* 'SPLG' */
 
 /*-------- Pixel Packed -> Standardformat - Routinen    ----------------*/
-int setpix_standard(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_standard");
-int setpix_pp(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_pp");
-int setpix_standard_16(char *buf16, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_standard_16");
-void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen) ASM_NAME("_get_standard_pix");
-void getpix_std_1(char *std, short *pixval, int depth, long planelen, int which) ASM_NAME("_getpix_std_1");
-int setpix_std_line(char *buf, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_std_line");
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany) ASM_NAME("_getpix_std_line");
-int setpix_std_line16(char *buf, char *dest, int depth, long planelen, int howmany) ASM_NAME("_setpix_std_line16");
-void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels) ASM_NAME("_rearrange_line2");
+short setpix_standard(char *buf16, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_standard");
+short setpix_pp(char *buf16, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_pp");
+short setpix_standard_16(char *buf16, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_standard_16");
+void get_standard_pix(void *st_pic, void *buf16, short planes, long planelen) ASM_NAME("_get_standard_pix");
+void getpix_std_1(char *std, short *pixval, short depth, long planelen, short which) ASM_NAME("_getpix_std_1");
+short setpix_std_line(char *buf, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_std_line");
+void getpix_std_line(char *std, char *buf, short depth, long planelen, short howmany) ASM_NAME("_getpix_std_line");
+short setpix_std_line16(char *buf, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_std_line16");
+void rearrange_line2(char *src, char *dst, long bytes, unsigned shortpixels) ASM_NAME("_rearrange_line2");
 
 
 int f_rslid(SLIDER *slider_struct);

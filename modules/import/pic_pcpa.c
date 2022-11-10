@@ -65,14 +65,11 @@
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);
 
-int setpix_std_line(char *buf, char *std, int depth, long planelen, int howmany);
-
 int switch_orient(char *buffer, unsigned int width, unsigned int height, char BitsPerPixel, char Planes);
 char *tfm_pp_to_std(char *buffer, unsigned int width, unsigned int height, char BitsPerPixel);
 
 /* Dies bastelt direct ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w)
-	0xE058;
+unsigned int swap_word(unsigned int w) 0xE058;
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Pictor PC Paint",

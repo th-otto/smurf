@@ -26,14 +26,14 @@
 
 typedef struct
 {
-    int dst_depth;                  /* Farbtiefe, auf die gedithert werden soll */
-    int *red, *blue, *green;        /* Palette, auf die Gedithert werden soll (15 Bit!) */
+    short dst_depth;                /* Farbtiefe, auf die gedithert werden soll */
+    WORD *red, *blue, *green;       /* Palette, auf die Gedithert werden soll (15 Bit!) */
     char *nc_tab;                   /* Nearest-Color-Table */
     char *planetable;               /* Plane-Table fÅr VDI-Indizes */
     
-    SMURF_PIC   *picture;           /* das zu dithernde Bild */
+    SMURF_PIC *picture;             /* das zu dithernde Bild */
 
-    int x,y,w,h;                    /* der zu dithernder Ausschnitt des Bildes */
+    WORD x,y,w,h;                    /* der zu dithernder Ausschnitt des Bildes */
                             /* Ausschnittdithern folgendermaûen: dest_mem wird auf einen Puffer, der
                                 w*h Grîûe hat, ausgerichtet. Das Modul dithert diesen aus dem Bild mit
                                 <x/y/w/h> voll, unter BerÅcksichtigung des Zoomfaktors!
@@ -55,17 +55,17 @@ typedef struct
                                 oder 16 Pixel mitdithert, um zu vermeiden, daû zwei AusschnittrÑnder direkt 
                                 aneinander liegen.
                                 */
-    int zoom;
+    short zoom;
     char        *dest_mem;          /* Zielspeicher, in den gedithert werden soll */
 
-    int message;                    /* Median CUT (1/3) oder Syspal (0/2) */
+    short message;                    /* Median CUT (1/3) oder Syspal (0/2) */
 
     SERVICE_FUNCTIONS   *services;
-    int (*set_16pixels)(char *buf16, char *dest, int depth, long planelen, int howmany);
-    long    dest_planelength;           /* PlanelÑnge fÅr Ziel */
-    int *red24, *blue24, *green24;      /* 24Bit-Palette, auf die Gedithert werden soll */
+    short (*set_16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany);
+    long dest_planelength;           /* PlanelÑnge fÅr Ziel */
+    WORD *red24, *blue24, *green24;      /* 24Bit-Palette, auf die Gedithert werden soll */
 
-    int not_in_nct;                     /* Kennung in der NCT fÅr nicht gesuchte Farben */
+    short not_in_nct;           /* Kennung in der NCT fÅr nicht gesuchte Farben */
 } DITHER_DATA;
 
 
@@ -76,7 +76,7 @@ typedef struct
 
     long smurf_version;         /* Schlumpfine-Version */
     char conf_able;             /* Konfigurierbar? */
-    int pal_mode;               /* Palettenmodus (MCUT|SYSPAL || FIXPAL) */
+    short pal_mode;             /* Palettenmodus (MCUT|SYSPAL || FIXPAL) */
 } DITHER_MOD_INFO;
 
 extern DITHER_MOD_INFO *ditmod_info[10];		/* Ditherinfostrukturen fÅr Dithermodule */

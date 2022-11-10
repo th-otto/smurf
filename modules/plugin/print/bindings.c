@@ -4,10 +4,10 @@
 
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 
-void vq_scrninfo(int handle, int *work_out);
+void vq_scrninfo(WORD handle, WORD *work_out);
 
-int	objc_sysvar( int ob_smode, int ob_swhich, int ob_sival1,
-				int ob_sival2, int *ob_soval1, int *ob_soval2);
+WORD	objc_sysvar( WORD ob_smode, WORD ob_swhich, WORD ob_sival1,
+				WORD ob_sival2, WORD *ob_soval1, WORD *ob_soval2);
 
 
 AESPB aespb;
@@ -67,8 +67,8 @@ int vq_ext_devinfo(int handle, int device, int *dev_exists, char *file_path, cha
 } /* vq_ext_devinfo */
 
 
-int	objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1,
-				int ob_sival2, int *ob_soval1, int *ob_soval2)
+WORD	objc_sysvar(WORD ob_smode, WORD ob_swhich, WORD ob_sival1,
+				WORD ob_sival2, WORD *ob_soval1, WORD *ob_soval2)
 {
 	aespb.contrl = _GemParBlk.contrl;
 	aespb.global = _GemParBlk.global;
@@ -94,7 +94,7 @@ int	objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1,
 	*ob_soval2 = aespb.intout[2];
 
 	return(aespb.intout[0]);
-} /* objc_sysvar */
+}
 
 
 int	SM_wind_set(int wi_ghandle, int wi_gfield, int wi_gw1,
@@ -341,11 +341,11 @@ int pdlg_evnt(PRN_DIALOG *prn_dialog, PRN_SETTINGS *prn_settings,
 	Erweiterter v_opnwk, mit dem auch die erweiterten Parameter
 	von NVDI unterstÅtzt werden.
 	-----------------------------------------------------------*/
-void v_ext_opnwk(int *work_in, int *handle, int *work_out)
+void v_ext_opnwk(WORD *work_in, WORD *handle, WORD *work_out)
 {
 	VDIPB vdipb;
-	int contrl[15];
-	int ptsin[8];
+	WORD contrl[15];
+	WORD ptsin[8];
 	
 	vdipb.contrl = contrl;
 	vdipb.intin = work_in;
@@ -364,6 +364,4 @@ void v_ext_opnwk(int *work_in, int *handle, int *work_out)
 	vdi(&vdipb);
 	
 	*handle = vdipb.contrl[6];
-
-	return;
-} /* v_ext_opnwk */
+}

@@ -49,7 +49,7 @@ void convert_to_grey(long *par);
 /* Set 16 Pixel (Standard Format) Assembler-Rout */
 void setpix162(char *source, char *paddr, int num_plane, long bitplanelen);         
 
-int (*set16pixels)(char *buf16, char *dest, int depth, long planelen, int howmany);
+static short (*set16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany);
 
 int (*busybox)(int pos);
 

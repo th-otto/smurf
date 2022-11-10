@@ -59,8 +59,6 @@
 #define HARD	2
 
 int (*busybox)(int pos);
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-int setpix_std_line(char *buf, char *std, int depth, long planelen, int howmany);
 
 MOD_INFO module_info = {TEXT1,
 						0x0020,

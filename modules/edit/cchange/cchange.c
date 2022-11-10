@@ -49,8 +49,6 @@ void do_24Bit(SMURF_PIC *smurf_pic, PIXEL *dst, PIXEL *src);
 void do_16Bit(SMURF_PIC *smurf_pic, PIXEL *dst, PIXEL *src);
 void do_pal(SMURF_PIC *smurf_pic, PIXEL *dst, PIXEL *src);
 void evaluate_color(SMURF_PIC *smurf_pic, PIXEL *dst, PIXEL *src, unsigned int sx, unsigned int sy, unsigned int dx, unsigned int dy, int type);
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-int setpix_std_line(char *buf, char *dest, int depth, long planelen, int howmany);
 
 void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
 

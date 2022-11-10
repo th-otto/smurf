@@ -48,10 +48,7 @@ void orderedto4(SMURF_PIC *picture, char* ziel);
 char make_tabs(SMURF_PIC *pic_todit, char *divN, char *divN6, char *divN6_1, char *divN36, char *divN36_1, int *modr, int *modg, int *modb);
 void make_pal(SMURF_PIC *picture, char *tab);
 
-/* Get Standardpixel Assembler-Routs */
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-
-int (*set16pixels)(char *buf16, char *dest, int depth, long planelen, int howmany);
+short (*set16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany);
 
 int (*busybox)(int pos);
 

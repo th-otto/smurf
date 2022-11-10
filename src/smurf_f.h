@@ -95,7 +95,7 @@ int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *par
 void median_cut(long *histogram, SMURF_PIC *picture, SYSTEM_INFO *sysinfo);
 
 /*---- Dit-Routs C Subdispatcher ----*/
-void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, char *where_to, int mode, char *nct, GRECT *part);
+void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, int mode, char *nct, GRECT *part);
 void f_transform_to_standard(SMURF_PIC *picture,char *paddr);
 void f_align_standard(SMURF_PIC *picture,char *paddr, GRECT *part);
 
@@ -103,10 +103,10 @@ void f_align_standard(SMURF_PIC *picture,char *paddr, GRECT *part);
 char *fix_palette(SMURF_PIC *dest, SYSTEM_INFO *sys_info);
 
 /* Nearest-Color-Suchfunktion (Assembler) */
-int seek_nearest_col(long *par, int maxcol) ASM_NAME("_seek_nearest_col");
+short seek_nearest_col(long *par, short maxcol) ASM_NAME("_seek_nearest_col");
 
 /* Routinen fÅr 16 und 24Bit-Bildschirmmodus */
-void direct2screen(SMURF_PIC *picture, char *where_to, GRECT *part);
+void direct2screen(SMURF_PIC *picture, uint8_t *where_to, GRECT *part);
 
 int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MODES *display, int *fixpal_red, int *fixpal_green, int *fixpal_blue);
 void make_tmp_nct(long *histogram, SMURF_PIC *pic, unsigned int maxc);

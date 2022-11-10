@@ -121,8 +121,8 @@ typedef struct
 /*  ---------------------------------------------------------------*/
 
 #ifndef __GEMLIB__
-int appl_xgetinfo (int type, int *out1, int *out2, int *out3, int *out4);
-int objc_sysvar(int ob_smode, int ob_swhich, int ob_sival1, int ob_sival2, int *ob_soval1, int *ob_soval2);
+WORD appl_xgetinfo (WORD type, WORD *out1, WORD *out2, WORD *out3, WORD *out4);
+WORD objc_sysvar(WORD ob_smode, WORD ob_swhich, WORD ob_sival1, WORD ob_sival2, WORD *ob_soval1, WORD *ob_soval2);
 #endif
 
 

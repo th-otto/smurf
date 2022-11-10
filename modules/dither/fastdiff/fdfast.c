@@ -29,8 +29,8 @@
 #include "../../../src/smurfine.h"
 
 void floyd1624(long *par) ASM_NAME("_floyd1624");               /* 24&16-Bit " " mit SysPal */
-int (*set_16pixels)(char *buf16, char *dest, int depth, long planelen, int howmany);
-int (*seek_nearest_col)(long *par, int maxcol);
+short (*set_16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany);
+short (*seek_nearest_col)(long *par, short maxcol);
 
 
 DITHER_MOD_INFO module_info =

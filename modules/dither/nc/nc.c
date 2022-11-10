@@ -30,7 +30,7 @@
 
 void    nearest_color(long *par);               /* 24&16-Bit " " mit SysPal */
 
-int (*set_16pixels)(char *buf16, char *dest, int depth, long planelen, int howmany);
+static short (*set_16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany);
 
 DITHER_MOD_INFO module_info =
 {

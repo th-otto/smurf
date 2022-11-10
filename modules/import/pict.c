@@ -86,8 +86,6 @@
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);
 
-int setpix_std_line(char *buf, char *std, int depth, long planelen, int howmany);
-
 void Dispatch(struct pixMap *p);
 char *readunpacked(unsigned int width, unsigned int height, char BitsPerPixel, char packType);
 char *decode(unsigned int width, unsigned int height, char BitsPerPixel, char ctrlByteLen);

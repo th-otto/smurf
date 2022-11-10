@@ -54,7 +54,6 @@
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);
 
-int setpix_std_line(char *buf, char *std, int depth, long planelen, int howmany);
 char *fileext(char *filename);
  
 /* Infostruktur fÅr Hauptmodul */

@@ -90,8 +90,6 @@
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);
 
-int setpix_std_line(char *buf, char *std, int depth, long planelen, int howmany);
-
 char *decodeRLE8(char *buffer, unsigned int width, unsigned int height, unsigned long bperz, unsigned long w);
 char *decodeRLE4(char *buffer, unsigned int width, unsigned int height, unsigned long bperz);
 char *getBMPdata(char *buffer, unsigned int height, unsigned long bperz, unsigned long w);
@@ -101,8 +99,7 @@ char *SwitchOrient(char *buffer, unsigned int width, unsigned int height, char B
 void invert_1Bit(char *data, int width, int height);
 
 /* Dies bastelt direct ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w)
-	0xE058;
+unsigned int swap_word(unsigned int w) 0xE058;
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"BMP/Clipboard",

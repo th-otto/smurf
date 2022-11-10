@@ -53,8 +53,7 @@
 #include "wdialog.h"
 
 
-extern void v_ext_opnwk(int *work_in, int *handle, int *work_out);
-extern void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
+extern void v_ext_opnwk(WORD *work_in, WORD *handle, WORD *work_out);
 extern PLUGIN_FUNCTIONS *smurf_functions;
 extern SMURF_VARIABLES *smurf_vars;
 extern OBJECT *alerts;

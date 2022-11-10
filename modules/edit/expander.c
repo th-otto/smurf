@@ -42,9 +42,6 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
-/* Get Standardformat-Pixel Assembler-Rout */
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-
 int (*busybox)(int pos);
 
 MOD_INFO module_info = {"Expander",

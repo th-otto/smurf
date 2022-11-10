@@ -102,10 +102,7 @@
 void *(*SMalloc)(long amount);
 int	(*SMfree)(void *ptr);
 
-void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
-int setpix_std_line(char *buf, char *std, int depth, long planelen, int howmany);
 void backcolor(SMURF_PIC *picture, char *data, char *buf, unsigned int newwidth, unsigned int newheight);
-void rearrange_line2(char *ptr, char *buf, long bytes, unsigned int pixels);
 
 MOD_INFO module_info = {TEXT1,
 						0x0070,

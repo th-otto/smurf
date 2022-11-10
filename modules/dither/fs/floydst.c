@@ -30,7 +30,7 @@
 #include "../../../src/smurfine.h"
 
 /* Set 16 Pixel (Standard Format) Assembler-Rout */
-    int (*set_16_pixels)(char *source, char *dest, int depth, long planelen, int howmany);          
+short (*set_16_pixels)(uint8_t *source, uint8_t *dest, short depth, long planelen, short howmany);          
 
 
 int floyd_steinberg68000(SMURF_PIC *picture, DITHER_DATA *dither, char *output);
@@ -51,7 +51,7 @@ DITHER_MOD_INFO module_info =
 
 SERVICE_FUNCTIONS *service;
 
-int (*seek_nearest_col)(long *par, int maxcol);
+short (*seek_nearest_col)(long *par, short maxcol);
 int not_in_nct;
 
 

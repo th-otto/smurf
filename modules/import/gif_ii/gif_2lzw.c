@@ -40,7 +40,6 @@
 
 
 /* Set 16 Pixel (Standard Format) Assembler-Rout */
-int setpix_standard(char *buf16, char *dest, int depth, long planelen, int howmany);
 int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char BitsPerPixel);
 int decode_lzw_fast(char *buffer, char *ziel);
 

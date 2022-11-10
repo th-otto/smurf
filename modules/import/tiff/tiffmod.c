@@ -61,7 +61,6 @@
 #define MOTOROLA 1
 #define INTEL 2
 
-int setpix_std_line(char *buf, char *dest, int depth, long planelen, int howmany);
 void decode_difference(char *data, long width, long height, char BitsPerPixel);
 void invert_1Bit(char *data, long length);
 

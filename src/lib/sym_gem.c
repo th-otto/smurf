@@ -1436,14 +1436,12 @@ int omx, omy, redraw;
 
 
 #ifndef __GEMLIB__
-int appl_xgetinfo (int type, int *out1, int *out2, int *out3, int *out4)
+WORD appl_xgetinfo (WORD type, WORD *out1, WORD *out2, WORD *out3, WORD *out4)
 {
 	char has_agi;
-
 	unsigned long dummy;
 
-
-	has_agi = appl_find("?AGI") || get_cookie('MagX', &dummy) || get_cookie('MgMc', &dummy) || get_cookie('MgPC', &dummy) ||
+	has_agi = appl_find("?AGI") || get_cookie(0x4D616758L, &dummy) || get_cookie(0x4D674D63L, &dummy) || get_cookie(0x4D675043L, &dummy) ||
 			  (_AESversion == 0x400 && type < 4) || (_AESversion > 0x400);
 
 	if(has_agi)

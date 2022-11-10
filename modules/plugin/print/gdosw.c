@@ -48,8 +48,7 @@
 	#include "englisch.rsc/print.h" /* missing french resource */
 #endif
 
-extern void v_ext_opnwk(int *work_in, int *handle, int *work_out);
-extern void getpix_std_line(char *std, char *buf, int depth, long planelen, int howmany);
+void v_ext_opnwk(WORD *work_in, WORD *handle, WORD *work_out);
 
 int get_cookie(unsigned long cookie, unsigned long *value);
 

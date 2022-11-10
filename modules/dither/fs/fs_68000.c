@@ -33,7 +33,7 @@
 #include "../../import.h"
 #include "../../../src/smurfine.h"
 
-extern int (*seek_nearest_col)(long *par, int maxcol);
+extern short (*seek_nearest_col)(long *par, short maxcol);
 void (*read_pixel)(void);
 
 int floyd_steinberg68000(SMURF_PIC *picture, DITHER_DATA *dither, 
