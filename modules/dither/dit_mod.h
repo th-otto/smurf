@@ -29,7 +29,7 @@ typedef struct
     short dst_depth;                /* Farbtiefe, auf die gedithert werden soll */
     WORD *red, *blue, *green;       /* Palette, auf die Gedithert werden soll (15 Bit!) */
     char *nc_tab;                   /* Nearest-Color-Table */
-    char *planetable;               /* Plane-Table fÅr VDI-Indizes */
+    uint8_t *planetable;            /* Plane-Table fÅr VDI-Indizes */
     
     SMURF_PIC *picture;             /* das zu dithernde Bild */
 

@@ -317,7 +317,7 @@ typedef struct
     WORD screen_height;     /* Bildschirmh”he */
     WORD vdi_handle;
     char *nc_table;         /* Standard-Nearest-Color-Table. Mu von Smurf anfangs geladen / erzeugt werden! */
-    char *plane_table;      /* Standard-Binary-Palette-Table. Mu von Smurf anfangs erzeugt werden! */
+    uint8_t *plane_table;   /* Standard-Binary-Palette-Table. Mu von Smurf anfangs erzeugt werden! */
 
     WORD *red, *grn, *blu;  /* Zeiger auf Systempalette - mssen von Smurf anfangs gefllt werden! */
 
