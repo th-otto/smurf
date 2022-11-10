@@ -46,7 +46,7 @@ static DITHER_DATA ditherdata;
 /*				    		FD - FAST								*/
 /*			     	 Fehlerdiffusionsraster							*/
 /********************************************************************/
-void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, int mode, char *nct, GRECT *part)
+void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, int mode, uint8_t *nct, GRECT *part)
 {
 	uint8_t *plantab;
 	uint8_t empty_planetable[257];

@@ -35,7 +35,7 @@
 
 
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
-void vq_scrninfo(int handle, int *work_out)
+void vq_scrninfo(WORD handle, WORD *work_out)
 {
 	VDIPB vdipb;
 

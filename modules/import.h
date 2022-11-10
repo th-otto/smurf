@@ -95,8 +95,8 @@ typedef struct
 {
     WORD    *points;            /* Anzahl an Punkten/Polygon */
     WORD    polygons;           /* Anzahl an Polygonen  */
-    long    *x_coord, 
-            *y_coord;           /* Zeiger auf Arrays mit den Punktkoordinaten in mm */
+    long    *x_coord;
+    long    *y_coord;           /* Zeiger auf Arrays mit den Punktkoordinaten in mm */
     WORD    *polydef;           /* Zeiger auf Array mit Polygondefinitionen, -1 ist Endkennung fÅr ein Polygon  */
     char    *fillstyle;         /* FÅllstile (nach VDI-Mustern) */  
     char    *linestyle;         /* Linienstile der Polygone, VDI */
@@ -130,10 +130,10 @@ typedef struct smurfpic
     /*  314 */ WORD depth;             /* Farbtiefe in BIT (1-24), 30 min. bei 200C im Backofen... */
     /*  316 */ MFDB *screen_pic;       /* Zeiger auf MFDB fÅr Bildschirmdarstellung */
     /*  320 */ uint8_t *palette;       /* Zeiger auf Palette */
-    /*  324 */ char bp_pal;            /* Farbtiefe pro Paletteneintrag (BITs) */
+    /*  324 */ uint8_t bp_pal;         /* Farbtiefe pro Paletteneintrag (BITs) */
     /*  326 */ long file_len;          /* DateilÑnge des Bildes */
-    /*  330 */ char format_type;       /* 0=Pixel Packed, 1=Standardformat */
-    /*  331 */ char col_format;        /* Farbsystem, in dem das Bild vom Modul zurÅckkommt */
+    /*  330 */ uint8_t format_type;    /* 0=Pixel Packed, 1=Standardformat */
+    /*  331 */ uint8_t col_format;     /* Farbsystem, in dem das Bild vom Modul zurÅckkommt */
     /*  332 */ char infotext[97];      /* Infotext fÅr weitere Bildinformationen */
 
     /*  430 */ WORD red[256];          /* Palette, nach der die */
@@ -148,7 +148,7 @@ typedef struct smurfpic
     /* 1978 */ WORD zoom;               /* Zoomfaktor des Bildes */ 
     /* 1980 */ short image_type;        /* Was ist drin in der Datei? */
 
-    /* 1982 */ char own_pal;           /* 1: hier herrscht eine eigene Palette */
+    /* 1982 */ uint8_t own_pal;         /* 1: hier herrscht eine eigene Palette */
     /* 1984 */ unsigned char *local_nct;       /* lokale NCT fÅr die aktuelle Palette (wenn != Syspal!)    */
     /* 1988 */ short not_in_nct;               /* Kennung fÅr nicht in der NCT enthaltene Farben           */
     
@@ -227,10 +227,10 @@ typedef struct
     long emin3, emax3;              /* min/max-Werte Ftext 3    */
     long emin4, emax4;              /* min/max-Werte Ftext 4    */
     long sdef1,sdef2,sdef3,sdef4;   /* Defaultwerte fÅr Slider */
-    char cdef1,cdef2,cdef3,cdef4;   /* Defaultwerte fÅr Checkboxes */
+    uint8_t cdef1,cdef2,cdef3,cdef4;   /* Defaultwerte fÅr Checkboxes */
     long edef1,edef2,edef3,edef4;   /* Defaultwerte fÅr Edit-Obs */
 
-    char how_many_pix;              /* Wieviele Bilder braucht das EDITModul? */
+    uint8_t how_many_pix;           /* Wieviele Bilder braucht das EDITModul? */
     char *pic_descr1,               /* Bildbeschreibungen fÅr die einzelnen Bilder */
          *pic_descr2,
          *pic_descr3,
@@ -249,24 +249,24 @@ typedef struct
     /*   8 */ int (*f_module_window)(WINDOW *mod_window);
     /*  12 */ void (*f_module_prefs)(MOD_INFO *infostruct, short mod_id);
 
-    /*  16 */ int     (*popup)(POP_UP *popup_struct, int mouseflag, WORD button, OBJECT *poptree);
-    /*  20 */ void    (*deselect_popup)(WINDOW *wind, WORD ob1, WORD ob2);
+    /*  16 */ int (*popup)(POP_UP *popup_struct, int mouseflag, WORD button, OBJECT *poptree);
+    /*  20 */ void (*deselect_popup)(WINDOW *wind, WORD ob1, WORD ob2);
 
-    /*  24 */ int     (*slider)(SLIDER *slider_struct);
-    /*  28 */ void    (*set_slider)(SLIDER *sliderstruct, long value);
+    /*  24 */ int (*slider)(SLIDER *slider_struct);
+    /*  28 */ void (*set_slider)(SLIDER *sliderstruct, long value);
 
-    /*  32 */ int     (*listfield)(long *window, WORD klick_obj, int keyscan, LIST_FIELD *lfstruct);
-    /*  36 */ void    (*generate_listfield)(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
+    /*  32 */ int (*listfield)(long *window, WORD klick_obj, int keyscan, LIST_FIELD *lfstruct);
+    /*  36 */ void (*generate_listfield)(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
                 WORD listparent, char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield, WORD autoloc);
 
-    /*  40 */ SMURF_PIC * (*new_pic)(WORD wid, WORD hgt, WORD depth);
+    /*  40 */ SMURF_PIC *(*new_pic)(WORD wid, WORD hgt, WORD depth);
 
     /*  44 */ void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, int flags);
 
     /*  48 */ void (*f_move_preview)(WINDOW *window, SMURF_PIC *orig_pic, WORD redraw_object);
     /*  52 */ void (*copy_preview)(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev_window);
 
-    /*  56 */ void *  (*SMalloc)(long amount);
+    /*  56 */ void *(*SMalloc)(long amount);
     /*  60 */ int (*SMfree)(void *ptr);
     
     /*  64 */ short CPU_type;
@@ -289,7 +289,7 @@ typedef struct
     /*  0 */ SMURF_PIC *smurf_pic;                          /* Zeiger auf Bildstruktur, in die das Bild gelegt werden soll - Smurf                          */
     /*  4 */ WINDOW *wind_struct;                           /* Zeiger auf Bildstruktur, in die das Bild gelegt werden soll - Smurf                          */
     /*  8 */ long slide1, slide2, slide3, slide4;           /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
-    /* 24 */ char check1, check2, check3, check4;           /* öbergabewerte aus Einstellformular  (0 oder 1) - Smurf   */
+    /* 24 */ uint8_t check1, check2, check3, check4;        /* öbergabewerte aus Einstellformular  (0 oder 1) - Smurf   */
     /* 28 */ long edit1, edit2, edit3, edit4;               /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
     /* 44 */ short module_mode;                             /* Message */
 
@@ -311,12 +311,12 @@ typedef struct
 typedef struct
 {
     WORD app_id;
-    char bitplanes;         /* aktuelle Planetiefe */
+    uint8_t bitplanes;       /* aktuelle Planetiefe */
     unsigned short Max_col; /* maximale Farben momentan */
     WORD screen_width;      /* Bildschirmbreite */
     WORD screen_height;     /* Bildschirmhîhe */
     WORD vdi_handle;
-    char *nc_table;         /* Standard-Nearest-Color-Table. Muû von Smurf anfangs geladen / erzeugt werden! */
+    uint8_t *nc_table;      /* Standard-Nearest-Color-Table. Muû von Smurf anfangs geladen / erzeugt werden! */
     uint8_t *plane_table;   /* Standard-Binary-Palette-Table. Muû von Smurf anfangs erzeugt werden! */
 
     WORD *red, *grn, *blu;  /* Zeiger auf Systempalette - mÅssen von Smurf anfangs gefÅllt werden! */
@@ -351,7 +351,7 @@ typedef struct
     short OSFeatures;
     WORD dialog_xposition[25];
     WORD dialog_yposition[25];
-    char dialog_opened[25];
+    uint8_t dialog_opened[25];
 
     WORD ENV_avserver;
     WORD olgaman_ID;
@@ -385,11 +385,11 @@ typedef struct
 /*----------Die ersten 3 Parameter werden von Smurf zur automatischen   */
 /*          Transformierung benutzt.                                    */
     /* Farbtiefen, die vom Modul unterstÅtzt werden: */
-    char depth1, depth2, depth3, depth4, depth5, depth6, depth7, depth8;
+    uint8_t depth1, depth2, depth3, depth4, depth5, depth6, depth7, depth8;
     /* Dazugehîrige Datenformate (FORM_PIXELPAK/FORM_STANDARD/FORM_BOTH) */
-    char form1, form2, form3, form4, form5, form6, form7, form8;
+    uint8_t form1, form2, form3, form4, form5, form6, form7, form8;
 
-    char ext_flag;      /* Ext-Flag: Bit 0=Preview, 1=MMORE, 2=Infotext mîglich */
+    uint8_t ext_flag;      /* Ext-Flag: Bit 0=Preview, 1=MMORE, 2=Infotext mîglich */
 } MOD_ABILITY;
 
 
@@ -413,19 +413,19 @@ typedef struct
 #define MOD_MAGIC_PLUGIN 0x53504c47L /* 'SPLG' */
 
 /*-------- Pixel Packed -> Standardformat - Routinen    ----------------*/
-short setpix_standard(char *buf16, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_standard");
-short setpix_pp(char *buf16, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_pp");
-short setpix_standard_16(char *buf16, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_standard_16");
+short setpix_standard(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_standard");
+short setpix_pp(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_pp");
+short setpix_standard_16(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_standard_16");
 void get_standard_pix(void *st_pic, void *buf16, short planes, long planelen) ASM_NAME("_get_standard_pix");
-void getpix_std_1(char *std, short *pixval, short depth, long planelen, short which) ASM_NAME("_getpix_std_1");
-short setpix_std_line(char *buf, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_std_line");
-void getpix_std_line(char *std, char *buf, short depth, long planelen, short howmany) ASM_NAME("_getpix_std_line");
-short setpix_std_line16(char *buf, char *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_std_line16");
-void rearrange_line2(char *src, char *dst, long bytes, unsigned shortpixels) ASM_NAME("_rearrange_line2");
+void getpix_std_1(uint8_t *std, short *pixval, short depth, long planelen, short which) ASM_NAME("_getpix_std_1");
+short setpix_std_line(uint8_t *buf, uint8_t *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_std_line");
+void getpix_std_line(uint8_t *std, uint8_t *buf, short depth, long planelen, short howmany) ASM_NAME("_getpix_std_line");
+short setpix_std_line16(uint8_t *buf, uint8_t *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_std_line16");
+void rearrange_line2(uint8_t *src, uint8_t *dst, long bytes, unsigned short pixels) ASM_NAME("_rearrange_line2");
 
 
 int f_rslid(SLIDER *slider_struct);
 void setslider(SLIDER *sliderstruct, long value);
-void f_txtinsert(int num, OBJECT *tree, int txt_obj, WINDOW *ws); /* EinfÅgen von Zahlen in Textobjekte */
+void f_txtinsert(int num, OBJECT *tree, WORD txt_obj, WINDOW *ws); /* EinfÅgen von Zahlen in Textobjekte */
 
 #endif

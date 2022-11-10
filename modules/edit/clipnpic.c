@@ -48,8 +48,6 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
-void rearrange_line(char *ptr, long bytes, unsigned int pixels) ASM_NAME("_rearrange_line");
-void rearrange_line2(char *ptr, char *buf, long bytes, unsigned int pixels) ASM_NAME("_rearrange_line2");
 
 MOD_INFO module_info = {"Clip'n'Pic",
 						0x0050,

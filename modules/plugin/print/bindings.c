@@ -4,8 +4,6 @@
 
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 
-void vq_scrninfo(WORD handle, WORD *work_out);
-
 WORD	objc_sysvar( WORD ob_smode, WORD ob_swhich, WORD ob_sival1,
 				WORD ob_sival2, WORD *ob_soval1, WORD *ob_soval2);
 
@@ -13,7 +11,7 @@ WORD	objc_sysvar( WORD ob_smode, WORD ob_swhich, WORD ob_sival1,
 AESPB aespb;
 
 
-void vq_scrninfo(int handle, int *work_out)
+void vq_scrninfo(WORD handle, WORD *work_out)
 {
 	VDIPB vdipb;
 
@@ -32,9 +30,7 @@ void vq_scrninfo(int handle, int *work_out)
 	vdipb.intin[0] = 2;
 
 	vdi(&vdipb);
-
-	return;
-} /* vq_scrninfo */
+}
 
 
 int vq_ext_devinfo(int handle, int device, int *dev_exists, char *file_path, char *file_name, char *name)

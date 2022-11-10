@@ -33,9 +33,7 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
-#ifndef __PUREC__
-#include <gemx.h>
-#endif
+#include "bindings.h"
 
 #ifdef __PUREC__
 /* Dies bastelt direkt ein rol.w #8,d0 inline ein. */

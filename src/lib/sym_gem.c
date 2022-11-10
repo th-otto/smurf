@@ -471,10 +471,9 @@ void f_drag(int obj, int parent, OBJECT *tree)
 /* Wandelt eine Zahl in einen String und fÅgt sie ins Objekt txt_obj*/
 /* im Baum *tree ein (muû TEDINFO sein) und redrawed es wenn nîtig.	*/
 /* ****************************************************************	*/
-void f_txtinsert(int num, OBJECT *tree, int txt_obj, WINDOW *ws)
+void f_txtinsert(int num, OBJECT *tree, WORD txt_obj, WINDOW *ws)
 {
 	char vol_disp[10];
-
 	
 	itoa(num, vol_disp, 10);
 	strcpy(tree[txt_obj].TextCast, vol_disp);

@@ -1,15 +1,19 @@
 /* Funktionsprototypen */
 
-void vq_scrninfo(int handle, int *work_out);
-int vq_ext_devinfo(int handle, int device, int *dev_exists, char *file_path, char *file_name, char *name);
+#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
+#ifdef __PUREC__
+void vq_scrninfo(WORD handle, WORD *work_out);
+int vq_ext_devinfo(WORD handle, WORD device, WORD *dev_exists, char *file_path, char *file_name, char *name);
+void v_clsbm(WORD handle);
+void v_opnbm(WORD *work_in, MFDB *bitmap, WORD *handle, WORD *work_out);
+#else
+#include <gemx.h>
+#endif
+#endif
 
 #ifndef _MINT_MINTBIND_H
 #define Ssystem(mode, arg1, arg2)   gemdos(0x154, (int)mode, (long)arg1, (long)arg2)
 #endif
-
-void v_clsbm(int handle);
-void v_opnbm(int *work_in, MFDB *bitmap, int *handle, int *work_out);
-
 
 /* Konstanten fÅr Ssystem() */
 # define OSNAME     	0
