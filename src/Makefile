@@ -82,7 +82,7 @@ LIB_OBJS = \
 	lib/dspmod.o \
 	$(empty)
 
-all: smurf.prg
+all: $(DISTDIR)/smurf.prg
 
 
 smurf.prg: lib/demolib.a $(OBJS)
@@ -93,4 +93,4 @@ lib/demolib.a: $(LIB_OBJS)
 	$(AR) rcs $@ $(LIB_OBJS)
 
 clean::
-	$(RM) $(OBJS) $(LIB_OBJS) *.prg *.pdb
+	$(RM) $(OBJS) $(LIB_OBJS) lib/demolib.a $(DISTDIR)/smurf.prg *.pdb

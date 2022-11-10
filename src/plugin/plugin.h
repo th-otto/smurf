@@ -365,3 +365,5 @@ int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data);
 void call_plugin(int menuentry);
 void scan_plugins(void);
 void terminate_plugin(int index);
+
+void plugin_main(PLUGIN_DATA *data) ASM_NAME("plugin_main");

@@ -64,7 +64,7 @@ MOD_INFO    module_info={".RAW Modul",
 /*      raw hsi Dekomprimierer                      */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void imp_module_main(GARGAMEL *smurf_struct)
+int imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer, *Daten;
 int width=0, height=0, BitsPerPixel, colors;
@@ -87,4 +87,5 @@ else {
     smurf_struct->smurf_pic->depth=BitsPerPixel;
     strncpy(smurf_struct->smurf_pic->format_name, "RAW-Hsi File Format  ", 21);
 }
+return(M_PICDONE);
 }

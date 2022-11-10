@@ -391,7 +391,9 @@ typedef struct
 
     uint8_t ext_flag;      /* Ext-Flag: Bit 0=Preview, 1=MMORE, 2=Infotext mîglich */
 } MOD_ABILITY;
-
+#define M_PREVIEW 0x01
+#define M_MORE    0x02
+#define M_INFO    0x04
 
 /*--------------- RÅckgabestruktur vom Exportmodul ---------------- */
 /*  Diese Struktur muû vom Exportmodul nach Kodierung des Bildes an */
@@ -427,5 +429,13 @@ void rearrange_line2(uint8_t *src, uint8_t *dst, long bytes, unsigned short pixe
 int f_rslid(SLIDER *slider_struct);
 void setslider(SLIDER *sliderstruct, long value);
 void f_txtinsert(int num, OBJECT *tree, WORD txt_obj, WINDOW *ws); /* EinfÅgen von Zahlen in Textobjekte */
+
+extern MOD_INFO module_info ASM_NAME("module_info");
+extern MOD_ABILITY module_ability ASM_NAME("module_ability");
+
+EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct) ASM_NAME("exp_module_main");
+int imp_module_main(GARGAMEL *smurf_struct) ASM_NAME("imp_module_main");
+void edit_module_main(GARGAMEL *smurf_struct) ASM_NAME("edit_module_main");
+
 
 #endif

@@ -119,7 +119,7 @@ void f_export_pic(void)
 			(MOD_ABILITY *) module.comm.startExport(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF],
 													module.smStruct[mod_num & 0xFF], mod_num);
 
-		if ((export_mabs->ext_flag) & 0x02)
+		if (export_mabs->ext_flag & M_MORE)
 			change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_ENABLED, 1);
 		else
 			change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_DISABLED, 1);

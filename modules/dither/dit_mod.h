@@ -79,4 +79,10 @@ typedef struct
     short pal_mode;             /* Palettenmodus (MCUT|SYSPAL || FIXPAL) */
 } DITHER_MOD_INFO;
 
+/* internally to smurf */
 extern DITHER_MOD_INFO *ditmod_info[10];		/* Ditherinfostrukturen fÅr Dithermodule */
+
+/* exported by modules */
+extern DITHER_MOD_INFO dith_module_info ASM_NAME("dith_module_info");
+
+int dither_module_main(DITHER_DATA *dither) ASM_NAME("dither_module_main");

@@ -52,7 +52,7 @@ short (*set16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, 
 
 int (*busybox)(int pos);
 
-DITHER_MOD_INFO module_info =
+DITHER_MOD_INFO dith_module_info =
 {
     "Ordered Dither",
     "Christian Eyrich",

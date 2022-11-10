@@ -36,55 +36,53 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+#define TIMER 0
+
+static void *(*SMalloc)(long amount);
+static int (*SMfree)(void *ptr);
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"C-Source",
-						0x0020,
-						"Christian Eyrich",
-						"ICN", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						0
-						};
+MOD_INFO module_info = {
+	"C-Source",						/* Name of module */
+	0x0020,							/* version */
+	"Christian Eyrich",				/* author */
+	/* 10 Extensionen fr Importer */
+	{ "ICN", "", "", "", "", "", "", "", "", "" },
+	/* 4 Slider titles: max length 8 */
+	"Slider 1", "Slider 2", "Slider 3", "Slider 4",
+	/* 4 checkbox titles */
+	"Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4",
+	/* 4 edit object titles */
+	"Edit 1", "Edit 2", "Edit 3", "Edit 4",
+	/* min/max values for slider */
+	0,128, 0,128, 0,128, 0,128,
+	/* min/max values for edit objects */
+	0,10, 0,10, 0,10, 0,10,
+	/* default values for slider */
+	0, 0, 0, 0,
+	/* default values for checkboxes */
+	0, 0, 0, 0,
+	/* default values for editobjects */
+	0, 0, 0, 0,
+	/* how many pics? */
+	0,
+	/* description for pictures */
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-						1, 2, 4, 8, 0,
-						0, 0, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0
-						};
+MOD_ABILITY module_ability = {
+	1, 2, 4, 8, 0, 0, 0, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -92,160 +90,191 @@ MOD_ABILITY  module_ability = {
 /*		1, 2, 4, 8 Bit, unkomprimiert				*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
+EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
-
-	char *buffer, *obuffer, *ziel, *oziel, *fname, hexTable[16],
-		 BitsPerPixel, two, p, Planes;
-
-	unsigned int x, y, width, height;
-
+	char *buffer;
+	char *obuffer;
+	char *ziel;
+	char *oziel;
+	char *fname;
+	char hexTable[16];
+	uint8_t BitsPerPixel;
+	uint8_t two;
+	uint8_t p;
+	uint8_t Planes;
+	uint16_t x, y, width, height;
 	unsigned long w, headlen, f_len;
 
+	hexTable[0] = '0';
+	hexTable[1] = '1';
+	hexTable[2] = '2';
+	hexTable[3] = '3';
+	hexTable[4] = '4';
+	hexTable[5] = '5';
+	hexTable[6] = '6';
+	hexTable[7] = '7';
+	hexTable[8] = '8';
+	hexTable[9] = '9';
+	hexTable[10] = 'A';
+	hexTable[11] = 'B';
+	hexTable[12] = 'C';
+	hexTable[13] = 'D';
+	hexTable[14] = 'E';
+	hexTable[15] = 'F';
 
-	hexTable[0] = '0';  hexTable[1] = '1';
-	hexTable[2] = '2';  hexTable[3] = '3';
-	hexTable[4] = '4';  hexTable[5] = '5';
-	hexTable[6] = '6';  hexTable[7] = '7';
-	hexTable[8] = '8';  hexTable[9] = '9';
-	hexTable[10] = 'A'; hexTable[11] = 'B';
-	hexTable[12] = 'C'; hexTable[13] = 'D';
-	hexTable[14] = 'E'; hexTable[15] = 'F';
-
-	switch(smurf_struct->module_mode)
+	switch (smurf_struct->module_mode)
 	{
-		case MSTART:
-			smurf_struct->module_mode = M_WAITING;	/* Ich warte... */
-			break;
+	case MSTART:
+		smurf_struct->module_mode = M_WAITING;	/* Ich warte... */
+		break;
 
-	/* Farbsystem wird vom Smurf erfragt */
-		case MCOLSYS:
-			smurf_struct->event_par[0] = RGB;
+		/* Farbsystem wird vom Smurf erfragt */
+	case MCOLSYS:
+		smurf_struct->event_par[0] = RGB;
+		smurf_struct->module_mode = M_COLSYS;
+		break;
 
-			smurf_struct->module_mode = M_COLSYS;
-			
-			break;
+	case MEXEC:
+#if TIMER
+		/* wie schnell sind wir? */
+		init_timer();
+#endif
 
-		case MEXEC:
-/* wie schnell sind wir? */
-/*	init_timer(); */
+		SMalloc = smurf_struct->services->SMalloc;
+		SMfree = smurf_struct->services->SMfree;
 
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;
+		buffer = smurf_struct->smurf_pic->pic_data;
+		obuffer = buffer;
 
-			buffer = smurf_struct->smurf_pic->pic_data;
-			obuffer = buffer;
+		exp_pic = (EXPORT_PIC *) SMalloc(sizeof(EXPORT_PIC));
 
-			exp_pic = (EXPORT_PIC *)SMalloc(sizeof(EXPORT_PIC));
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+		Planes = BitsPerPixel;
 
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-			Planes = BitsPerPixel;
+#if 0
+		   /* GEM Icon Definition: */
+#define xxxxxxxx_W 0x0020
+#define xxxxxxxx_H 0x0020
+#define DATASIZE 0x0040
+		UWORD xxxxxxxx[DATASIZE] = {
+		};
+#endif
+		headlen = 144;
 
-			/*
-			/* GEM Icon Definition: */
-			#define xxxxxxxx_W 0x0020
-			#define xxxxxxxx_H 0x0020
-			#define DATASIZE 0x0040
-			UWORD xxxxxxxx[DATASIZE] =
-			{
-			};
-			*/
-			headlen = 144;
+		w = (unsigned long) (width + 15) / 16;
 
-			w = (unsigned long)(width + 15) / 16;
+		/* Breite (in 16tel Pixel) * H”he * Stringl„nge pro 16 Pixel * Planes + Planes mal CRLF */
+		f_len = w * (unsigned long) height * strlen(" 0x0000,") * Planes + Planes * 2;
 
-			/* Breite (in 16tel Pixel) * H”he * Stringl„nge pro 16 Pixel * Planes + Planes mal CRLF */
-			f_len = w * (unsigned long)height * strlen(" 0x0000,") * Planes + Planes * 2;
+		if ((ziel = (char *) SMalloc(headlen + f_len)) == 0)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return exp_pic;
+		} else
+		{
+			memset(ziel, 0, headlen + f_len);
+			oziel = ziel;
 
-			if((ziel = (char *)SMalloc(headlen + f_len)) == 0)
-			{
-				smurf_struct->module_mode = M_MEMORY;
-				return(exp_pic);
-			}
+			fname = strrchr(smurf_struct->smurf_pic->filename, '\\');
+			if (fname != NULL)
+				fname++;
 			else
+				fname = smurf_struct->smurf_pic->filename;
+
+			strtok(fname, ".");
+
+			/* Header schreiben */
+			sprintf(ziel,
+					"/* GEM Icon Definition: */\r\n"
+					"#define ICON_W 0x%04lx\r\n"
+					"#define ICON_H 0x%04lx\r\n"
+					"#define DATASIZE 0x%04lx\r\n"
+					"UWORD %s[DATASIZE] =\r\n{",
+					(long) width, (long) height, w * (long) height * Planes, fname);
+
+			ziel += strlen(ziel);
+
+			w = (unsigned long) (width + 7) / 8;
+
+			p = 0;
+			do
 			{
-				memset(ziel, 0x0, headlen + f_len);
-				oziel = ziel;
+				*ziel++ = '\r';
+				*ziel++ = '\n';
 
-				fname = strrchr(smurf_struct->smurf_pic->filename, '\\');
-				if(fname != NULL)
-					fname++;
-				else
-					fname = smurf_struct->smurf_pic->filename;
-
-				strtok(fname, ".");
-
-				/* Header schreiben */
-				sprintf(ziel, "/* GEM Icon Definition: */\r\n#define ICON_W 0x%04lx\r\n#define ICON_H 0x%04lx\r\n#define DATASIZE 0x%04lx\r\nUWORD %s[DATASIZE] =\r\n{",
-							   (long)width, (long)height, w * (long)height * Planes, fname);
-
-				ziel += strlen(ziel);
-
-				w = (unsigned long)(width + 7) / 8;
-
-				p = 0;
+				y = 0;
 				do
 				{
-					*((unsigned int *)ziel)++ = '\r\n';
-
-					y = 0;
+					x = 0;
 					do
 					{
-						x = 0;
+						*ziel++ = '0';
+						*ziel++ = 'x';
+
+						two = 0;
 						do
 						{
-							*((unsigned int *)ziel)++ = '0x';
+							*ziel++ = hexTable[*buffer >> 4];
+							*ziel++ = hexTable[(*buffer++) & 0x0f];
+							x++;
+						} while (++two < 2 && x < w);
 
-							two = 0;
-							do
-							{
-								*ziel++ = hexTable[*buffer >> 4];
-								*ziel++ = hexTable[(*buffer++)&0x0f];
-								x++;
-							} while(++two < 2 && x < w);
+						if (two == 2)
+						{
+							*ziel++ = ',';
+							*ziel++ = ' ';
+						}
+					} while (x < w);
+					if (two == 1)
+					{
+						*ziel++ = '0';
+						*ziel++ = '0';
+						*ziel++ = ',';
+						*ziel++ = ' ';
+					}
+				} while (++y < height);
+			} while (++p < Planes);
 
-							if(two == 2)
-								*((unsigned int *)ziel)++ = ', ';
-						} while(x < w);
-						if(two == 1)
-							*((unsigned long *)ziel)++ = '00, ';
-					} while(++y < height);
-				} while(++p < Planes);
+			ziel -= 2;
+			*ziel++ = '\r';
+			*ziel++ = '\n';
+			*ziel++ = '}';
+			*ziel++ = ';';
+			*ziel++ = '\r';
+			*ziel++ = '\n';
 
-				ziel -= 2;
-				*((unsigned int *)ziel)++ = '\r\n';
-				*((unsigned int *)ziel)++ = '};';
+			f_len = ziel - oziel;
 
-				f_len = ziel - oziel;
+			buffer = obuffer;
+			ziel = oziel;
 
-				buffer = obuffer;
-				ziel = oziel;
+			exp_pic->pic_data = ziel;
+			exp_pic->f_len = f_len;
+		}
 
-				exp_pic->pic_data = ziel;
-				exp_pic->f_len = f_len;
-			} /* Malloc */
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("%lu\n", get_timer());
+		getch();
+#endif
 
-/* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
-
-			smurf_struct->module_mode = M_DONEEXIT;
-			return(exp_pic);
+		smurf_struct->module_mode = M_DONEEXIT;
+		return exp_pic;
 
 /* Mterm empfangen - Speicher freigeben und beenden */
-		case MTERM:
-			SMfree(exp_pic->pic_data);
-			SMfree((char *)exp_pic);
-			smurf_struct->module_mode = M_EXIT;
-			break;
+	case MTERM:
+		SMfree(exp_pic->pic_data);
+		SMfree(exp_pic);
+		smurf_struct->module_mode = M_EXIT;
+		break;
 
-		default:
-			smurf_struct->module_mode = M_WAITING;
-			break;
-	} /* switch */
+	default:
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	}
 
-	return(NULL);
+	return NULL;
 }

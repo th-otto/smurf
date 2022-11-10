@@ -40,7 +40,7 @@ SERVICE_FUNCTIONS *service;
 
 
 
-DITHER_MOD_INFO module_info =
+DITHER_MOD_INFO dith_module_info =
 {
     "Floyd-Steinberg",
     "Olaf Piesche",

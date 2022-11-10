@@ -149,7 +149,7 @@ void f_export_formular(void)
 		/*
 		 * More-Button dis-/enablen
 		 */
-		if ((embs->ext_flag) & 0x02)
+		if (embs->ext_flag & M_MORE)
 			change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, OS_ENABLED, 0);
 		else
 			change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, OS_DISABLED, 0);

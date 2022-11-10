@@ -41,10 +41,10 @@
     bra.w   dither_module_main          /* mainfunction anspringen */
     .dc.l 0x53444d44                     /* Magic (TEXT + 8 Bytes) */
 
-    .globl module_info                 /* Modulinformationsstruktur */
-    .dc.l module_info                    /* Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes) */
+    .globl dith_module_info                 /* Modulinformationsstruktur */
+    .dc.l dith_module_info                    /* Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes) */
 
-    .dc.l $0101                          /* Versionsnummer */
+    .dc.l 0x0101                          /* Versionsnummer */
 
 	.data
 	.globl errno

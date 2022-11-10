@@ -55,7 +55,7 @@ int (*busybox)(int pos);
 
 long planelengthw;
 
-DITHER_MOD_INFO module_info =
+DITHER_MOD_INFO dith_module_info =
 {
     TEXT1,
     "Christian Eyrich",

@@ -34,7 +34,6 @@ icn.c
 
 
 
-pcfltlib.lib       ; floating point library
 pcstdlib.lib       ; standard library
 pcextlib.lib       ; extended library
 pctoslib.lib       ; TOS library

@@ -33,7 +33,7 @@ short (*set_16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen,
 short (*seek_nearest_col)(long *par, short maxcol);
 
 
-DITHER_MOD_INFO module_info =
+DITHER_MOD_INFO dith_module_info =
 {
     "Fast Diffusion\0",
     "Olaf Piesche\0",

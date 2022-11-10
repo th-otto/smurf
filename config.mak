@@ -12,6 +12,8 @@ CFLAGS = $(OPT) $(WARN) $(DEFS) $(INCLUDES)
 LDFLAGS =
 LIBS = -lgem
 
+DISTDIR = $(top_srcdir)/dist
+
 .s.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
 

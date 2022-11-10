@@ -43,7 +43,7 @@
 
     .globl plugin_info             /* Modulinformationsstruktur */
     .dc.l plugin_info                /* Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes) */
-    .dc.l $0101                      /* Versionsnummer */
+    .dc.l 0x0101                      /* Versionsnummer */
 
     .data
     .globl errno
