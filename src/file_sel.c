@@ -52,44 +52,39 @@ static char *namelist[257];
 void file_load(char *ltext, char **dateien, int mode)
 {
 	char *buf, *fullname, *ext;
-
-	int t, fh;
-
+	int t;
+	int fh;
 	long dummy;
 
-/* Drag&Drop, ARGV oder AV-BildÅbergabe ----------------------------*/
-	if(DraufschmeissBild)
+	/* Drag&Drop, ARGV oder AV-BildÅbergabe ---------------------------- */
+	if (DraufschmeissBild)
 		f_build_filelist(dateien, mode);
-	else
-		if(f_fsbox(loadpath, ltext, LOAD) == FALSE)
-			return;
+	else if (f_fsbox(loadpath, ltext, LOAD) == FALSE)
+		return;
 
 	t = 0;
-	while(t < 256 && (fullname = namelist[t]) != NULL)
+	while (t < 256 && (fullname = namelist[t]) != NULL)
 	{
-/*		printf("fullname: %s\n", fullname);
-		getch(); */
-
 		/* Sonderbehandlung fÅr Photo-CDs */
 		ext = strrchr(fullname, '.');
-		if(ext != NULL && strnicmp(ext, ".PCD", 4) == 0)
-			buf = f_do_pcd(fullname);
-		else
+		if (ext != NULL && strnicmp(ext, ".PCD", 4) == 0)
 		{
-			if((dummy = Fopen(fullname, FO_READ)) >= 0)		/* Datei îffnen */
+			buf = f_do_pcd(fullname);
+		} else
+		{
+			if ((fh = (int)Fopen(fullname, FO_READ)) >= 0)		/* Datei îffnen */
 			{
-				fh = (int)dummy;
-
 				f_len = Fseek(0, fh, 2);					/* FilelÑnge ermitteln */
 				Fseek(0, fh, 0);							/* und Dateizeiger wieder auf Anfang */
 
-				if((buf = SMalloc(f_len)) == NULL)
+				if ((buf = SMalloc(f_len)) == NULL)
+				{
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
-				else
+				} else
 				{
 					dummy = Fread(fh, f_len, buf);
 
-					if(dummy < f_len)
+					if (dummy < f_len)
 					{
 						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[PICLOAD_READERR].TextCast, NULL, NULL, NULL, 1);
 						SMfree(buf);
@@ -98,27 +93,27 @@ void file_load(char *ltext, char **dateien, int mode)
 				}
 
 				Fclose(fh);
-			}
-			else 										   /* Fehler beim ôffnen */
+			} else						/* Fehler beim ôffnen */
 			{
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[FILEOPEN_ERR].TextCast, NULL, NULL, NULL, 1);
 				buf = NULL;
 			}
 		}
 
-		if(buf)												/* konnte File geladen werden, Bild handlen */
-			if(f_loadpic(buf, fullname) == 0)
+		if (buf)						/* konnte File geladen werden, Bild handlen */
+		{
+			if (f_loadpic(buf, fullname) == 0)
 			{
-				if(!DraufschmeissBild || DraufschmeissBild == START)
+				if (!DraufschmeissBild || DraufschmeissBild == START)
 					strcpy(loadpath, fullname);
-			}
-			else
+			} else
 				break;
+		}
 
 		t++;
 	}
 
-	DraufschmeissBild = 0;					/* Ja, jetzt erst */
+	DraufschmeissBild = 0;				/* Ja, jetzt erst */
 
 	f_free_filelist();
 }
@@ -127,68 +122,62 @@ void file_load(char *ltext, char **dateien, int mode)
 int file_save(char *stext, char *buf, long length)
 {
 	char desk_name[9];
-
 	int fh;
-	int out1, out2, out3, out4;
-	int mbuf[8], desk_id, drive;
-	int attrib;
-	long dummy, check;
+	WORD out1, out2, out3, out4;
+	WORD mbuf[8], desk_id, drive;
+	WORD attrib;
+	long check;
 
-
-start:
-	if(f_fsbox(savepath, stext, SAVE) == FALSE)
-		return(FALSE);
+  start:
+	if (f_fsbox(savepath, stext, SAVE) == FALSE)
+		return FALSE;
 
 	/* mit einem Trick testen, ob die Datei da ist */
 	/* Ergebnis < 0 wenn die Datei noch nicht vorhanden ist */
-	if(Fattrib(savepath, 0, 0) >= 0)
-		if(Dialog.winAlert.openAlert("Es existiert bereits eine Datei dieses Namens! Soll Sie ersetzt werden?", "Nein", " Ja ", NULL, 2) == 1)
+	if (Fattrib(savepath, 0, 0) >= 0)
+		if (Dialog.winAlert.openAlert("Es existiert bereits eine Datei dieses Namens! Soll Sie ersetzt werden?", "Nein", " Ja ", NULL, 2) == 1) /* FIMXE: translate */
 			goto start;
 
-	if((dummy = Fcreate(savepath, 0)) >= 0)
+	if ((fh = (int)Fcreate(savepath, 0)) >= 0)
 	{
-		fh = (int)dummy;
-
 		check = Fwrite(fh, length, buf);
 		Fclose(fh);
 
-		if(check != length) 
+		if (check != length)
 		{
-			if(check < 0)
-				Dialog.winAlert.openAlert("Es ist ein fataler Schreibfehler aufgetreten! Laufwerk voll, oder schlimmeres.", NULL, NULL, NULL, 1);
+			if (check < 0)
+				Dialog.winAlert.openAlert("Es ist ein fataler Schreibfehler aufgetreten! Laufwerk voll, oder schlimmeres.", NULL, NULL, NULL, 1); /* FIMXE: translate */
 			else
-				Dialog.winAlert.openAlert("Die Datei konnte nicht vollstÑndig geschrieben werden. Wahrscheinlich ist das Laufwerk voll.", NULL, NULL, NULL, 1);
+				Dialog.winAlert.openAlert("Die Datei konnte nicht vollstÑndig geschrieben werden. Wahrscheinlich ist das Laufwerk voll.", NULL, NULL, NULL, 1); /* FIMXE: translate */
 		}
 
 		/*------- "Laufwerksinhalt verÑndert" ans Desktop -------*/
 		/* Erst mal appl_getinfo() fragen, weil das TOS sonst "falscher */
 		/* AES-Funktionsaufruf" bringt - Scheiûe, kann ihm doch egal sein. */
-		if(Sys_info.OSFeatures&GETINFO && appl_getinfo(4, &out1, &out2, &out3, &out4) && out3 == 1)
-			if(appl_search(2, desk_name, &attrib, &desk_id) == 1)
+		if ((Sys_info.OSFeatures & GETINFO) && appl_getinfo(4, &out1, &out2, &out3, &out4) && out3 == 1)
+			if (appl_search(2, desk_name, &attrib, &desk_id) == 1)
 			{
 				mbuf[0] = SH_WDRAW;
 				mbuf[1] = appl_id;
 				mbuf[2] = 0;
 				drive = *savepath;
-				if(drive >= 'a')
+				if (drive >= 'a')
 					drive -= 'a';
-				else 
-					if(drive >= 'A')
-						drive -= 'A';
-					else
-						drive -= '0';
+				else if (drive >= 'A')
+					drive -= 'A';
+				else
+					drive -= '0';
 				mbuf[3] = drive;
 				appl_write(desk_id, 16, mbuf);
 			}
 
-	}
-	else
+	} else
 	{
-		Dialog.winAlert.openAlert("Es ist ein Fehler beim Anlegen der Datei aufgetreten!", NULL, NULL, NULL, 1);
-		return(FALSE);
+		Dialog.winAlert.openAlert("Es ist ein Fehler beim Anlegen der Datei aufgetreten!", NULL, NULL, NULL, 1); /* FIMXE: translate */
+		return FALSE;
 	}
 
-	return(TRUE);
+	return TRUE;
 }
 
 
@@ -204,17 +193,20 @@ start:
  * nach der RÅckkehr aus dem Fileselector behandelt werden.
  * WM_TOPPED-Messages werden nicht an den Message-Callback durchgereicht.
  */
-static void cdecl message_handler(int *msg)
+static void cdecl message_handler(WORD *msg)
 {
-	switch(msg[0])
+	switch (msg[0])
 	{
-		case WM_REDRAW: memcpy(messagebuf, msg, 16);
-						f_handle_message();
-						break;
-		case WM_MOVED:	memcpy(messagebuf, msg, 16);
-						f_handle_message();
-						break;
-		default:		break;
+	case WM_REDRAW:
+		memcpy(messagebuf, msg, 16);
+		f_handle_message();
+		break;
+	case WM_MOVED:
+		memcpy(messagebuf, msg, 16);
+		f_handle_message();
+		break;
+	default:
+		break;
 	}
 }
 
@@ -222,28 +214,26 @@ static void cdecl message_handler(int *msg)
 /* Datei mittels Fileselector îffnen. */
 int f_fsbox(char *Path, char *fbtext, char selectart)
 {
-	char pathname[257], filename[65], *part, *sellist[30];
-
-	int back = 0, t;
-
+	char pathname[257];
+	char filename[65];
+	char *part;
+	char *sellist[30];
+	int back = 0;
+	WORD t;
 	SLCT_STR *slct_str = NULL;
-
 
 	strncpy(pathname, Path, t = strsrchr(Path, '\\') + 1);	/* Pfadteil kopieren */
 	pathname[t] = '\0';										/* und */
 	strcat(pathname, "*.*");								/* Maske auf alles setzen. */
 	part = strrchr(Path, '\\') + 1;							/* Zeiger auf Fileteil holen */
-	if(strcmp(part, "*.*") != 0)							/* und wenn nicht gleich "*.*", */
+	if (strcmp(part, "*.*") != 0)							/* und wenn nicht gleich "*.*", */
 		strcpy(filename, part);								/* Filenamen extrahieren. */
 	else													/* Ansonsten */
 		strcpy(filename, "");								/* leeren Filenamen eintragen */
 
-/*	printf("vor Fsel - pathname: %s, filename: %s\n", pathname, filename);
-	getch(); */
+	get_cookie(0x4653454cL, (unsigned long *)&slct_str);	/* 'FSEL' */
 
-	get_cookie(0x4653454cL, (unsigned long *)&slct_str); /* 'FSEL' */
-
-	if(selectart == LOAD)
+	if (selectart == LOAD)
 		set_multfiles(slct_str, sellist);
 
 	f_set_syspal();
@@ -253,51 +243,51 @@ int f_fsbox(char *Path, char *fbtext, char selectart)
 	/* 1.02 ist Boxkite ab nonmodal */
 	/* 2.0 ist Freedom mit nonmodal */
 	/* Bei NonmodalitÑt keine wind_update()-Klammerung! */
-/*	if(!slct_str || slct_str->id != 0x534c4354L || (slct_str->version <= 0x0110 && slct_str->version!=0x0102))*/
+#if 0
+	if (!slct_str || slct_str->id != 0x534c4354L || (slct_str->version <= 0x0110 && slct_str->version != 0x0102))
+#endif
 		wind_update(BEG_UPDATE);
 
-	if(Sys_info.AES_version >= 0x0140 || (slct_str && slct_str->id == 0x534c4354L))
+	if (Sys_info.AES_version >= 0x0140 || (slct_str && slct_str->id == 0x534c4354L))
 		back = fsel_boxinput(pathname, filename, &t, fbtext, message_handler);
 	else
 		back = fsel_input(pathname, filename, &t);
 
-/*	if(!slct_str || slct_str->id != 0x534c4354L || (slct_str->version <= 0x0110 && slct_str->version!=0x0102))*/
+#if 0
+	if (!slct_str || slct_str->id != 0x534c4354L || (slct_str->version <= 0x0110 && slct_str->version != 0x0102))
+#endif
 		wind_update(END_UPDATE);
 
-	if(back == FALSE)
+	if (back == FALSE)
 	{
-		Dialog.winAlert.openAlert("Fehler beim Aufruf der Dateiauswahl!", NULL, NULL, NULL, 1);
-		return(FALSE);
+		Dialog.winAlert.openAlert("Fehler beim Aufruf der Dateiauswahl!", NULL, NULL, NULL, 1); /* FIMXE: translate */
+		return FALSE;
 	}
 
-/*	printf("nach Fsel - pathname: %s, filename: %s\n", pathname, filename);
-	getch(); */
-
-	if(t == 1 && (strlen(filename)>0 || selectart==PATH))				/* wurde der Selektor erfolgreich verlassen */
+	if (t == 1 && (strlen(filename) > 0 || selectart == PATH))	/* wurde der Selektor erfolgreich verlassen */
 	{
 		/* Dieser Mechanismus beruht darauf, daû bei allen Selektoren mit */
 		/* selectrickompatibler Mehrfachselektion auch bei nur einem selektierten */
 		/* File dieser Name in der Mehrfachliste steht! */
 		/* Sollte dies nicht der Fall sein, hammer verschissen. */
-		if(selectart == LOAD && slct_str && slct_str->config.onoff == 1)	/* Selectric da und an? */
+		if (selectart == LOAD && slct_str && slct_str->config.onoff == 1)	/* Selectric da und an? */
+		{
 			get_multfiles(slct_str, pathname, sellist);
-		else
+		} else
 		{
 			strncpy(Path, pathname, t = strsrchr(pathname, '\\') + 1);
 			Path[t] = '\0';
 
-			if(selectart!=PATH)
+			if (selectart != PATH)
 			{
 				strcat(Path, filename);
 				f_build_filelist(&Path, FSBOX2);
 			}
 		}
-		
 
-		return(TRUE);
+		return TRUE;
 	}
-	else
-		return(FALSE);
+	return FALSE;
 }
 
 
@@ -307,7 +297,7 @@ static void set_multfiles(SLCT_STR *slct_str, char **sellist)
 {
 	int i;
 
-	if(!slct_str || slct_str->config.onoff == 0)	/* Selectric nicht da oder aus? */
+	if (!slct_str || slct_str->config.onoff == 0)	/* Selectric nicht da oder aus? */
 		return;
 
 	/* Mehrfachselektion ein, Array von Zeigern */
@@ -316,15 +306,15 @@ static void set_multfiles(SLCT_STR *slct_str, char **sellist)
 	i = 0;
 	do
 	{
-		if((sellist[i] = (char *)calloc(1, 65)) == NULL)
+		if ((sellist[i] = (char *)calloc(1, 65)) == NULL)
 		{
 			i--;				/* letzter war der Letzte */
 			break;
 		}
-	} while(++i < 30);
+	} while (++i < 30);
 
 	/* konnte zumindest ein Zeiger angefordert werden? */
-	if(i >= 0)
+	if (i >= 0)
 	{
 		/* maximale Anzahl Bilder */
 		slct_str->out_count = i;
@@ -338,11 +328,10 @@ static void set_multfiles(SLCT_STR *slct_str, char **sellist)
 static void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
 {
 	char *part;
+	short i;
+	short sel;
 
-	int i, sel;
-
-
-	if(!slct_str)
+	if (!slct_str)
 		return;
 
 	sel = slct_str->out_count;
@@ -353,12 +342,12 @@ static void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
 
 	/* Liste in die Standardliste Åbertragen */
 	i = 0;
-	while(i < 256 && i < sel)
+	while (i < 256 && i < sel)
 	{
 		strcpy(commpath, pathname);
 		strcpy(part, sellist[i]);
 
-		if((namelist[i] = (char *)calloc(1, strlen(commpath) + 1)) != NULL)
+		if ((namelist[i] = (char *)calloc(1, strlen(commpath) + 1)) != NULL)
 			strcpy(namelist[i++], commpath);
 		else
 			break;
@@ -368,7 +357,7 @@ static void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
 
 	/* angeforderte Zeiger wieder freigeben */
 	i = 0;
-	while(i < 30 && sellist[i])
+	while (i < 30 && sellist[i])
 		free(sellist[i++]);
 
 	/* Mehrfachselektion aus */
@@ -386,43 +375,40 @@ static void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
 static void f_build_filelist(char **param, int mode)
 {
 	char *arg_name;
-
 	int i;
 
-
-	switch(mode)
+	switch (mode)
 	{
-		case START:
-			i = 0;
-			while(i < 256 && (arg_name = (param[i + 1])) != NULL)
-			{	
-				if((namelist[i] = (char *)calloc(1, strlen(arg_name) + 1)) != NULL)
-					strcpy(namelist[i++], arg_name);
-				else
-					break;
-			}			
+	case START:
+		i = 0;
+		while (i < 256 && (arg_name = (param[i + 1])) != NULL)
+		{
+			if ((namelist[i] = (char *)calloc(1, strlen(arg_name) + 1)) != NULL)
+				strcpy(namelist[i++], arg_name);
+			else
+				break;
+		}
+		namelist[i] = NULL;				/* terminieren */
+		break;
 
-			namelist[i] = NULL;		/* terminieren */
-			
-			break;
-		case VA:
-		case ARGS:
-			i = 0;
-			while(i < 256 && (arg_name = strargvtok(*param)) != NULL)
-			{	
-				if((namelist[i] = (char *)calloc(1, strlen(arg_name) + 1)) != NULL)
-					strcpy(namelist[i++], arg_name);
-				else
-					break;
-			}
+	case VA:
+	case ARGS:
+		i = 0;
+		while (i < 256 && (arg_name = strargvtok(*param)) != NULL)
+		{
+			if ((namelist[i] = (char *)calloc(1, strlen(arg_name) + 1)) != NULL)
+				strcpy(namelist[i++], arg_name);
+			else
+				break;
+		}
+		namelist[i] = NULL;				/* terminieren */
+		break;
 
-			namelist[i] = NULL;		/* terminieren */
-			break;
-		case FSBOX2:
-			namelist[0] = (char *)calloc(1, strlen(*param) + 1);
-			strcpy(namelist[0], *param);
-			namelist[1] = NULL;		/* terminieren */
-			break;
+	case FSBOX2:
+		namelist[0] = (char *)calloc(1, strlen(*param) + 1);
+		strcpy(namelist[0], *param);
+		namelist[1] = NULL;				/* terminieren */
+		break;
 	}
 }
 
@@ -433,6 +419,6 @@ static void f_free_filelist(void)
 
 	/* angeforderte Zeiger wieder freigeben */
 	i = 0;
-	while(i < 256 && namelist[i])
+	while (i < 256 && namelist[i])
 		free(namelist[i++]);
 }

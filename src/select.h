@@ -5,7 +5,7 @@
 typedef struct
 {
 	unsigned long	id;				/* Selectric ID (`SLCT') */
-	unsigned int	version;		/* Version (BCD-Format) */
+	unsigned short	version;		/* Version (BCD-Format) */
 	struct
 	{
 		unsigned           : 7;		/* reserviert */
@@ -19,19 +19,19 @@ typedef struct
 		unsigned hidden    : 1;		/* versteckte Dateien */
 		unsigned onoff     : 1;		/* Selectric¿ AN/AUS */
 	} config;
-	int		sort;					/* Sortiermodus (neg. = rev.) */
-	int		num_ext;				/* Anzahl Extensions */
+	short	sort;					/* Sortiermodus (neg. = rev.) */
+	short	num_ext;				/* Anzahl Extensions */
 	char	*(*ext)[];				/* Standard-Extensions */
-	int		num_paths;				/* Anzahl Pfade */
+	short	num_paths;				/* Anzahl Pfade */
 	char	*(*paths)[];			/* Standard-Pfade */
-	int		comm;					/* communication word */
-	int		in_count;				/* input counter */
+	short	comm;					/* communication word */
+	short	in_count;				/* input counter */
 	void	*in_ptr;				/* input pointer */
-	int		out_count;				/* output counter */
+	short	out_count;				/* output counter */
 	void	*out_ptr;				/* output pointer */
-	int		cdecl (*get_first)(DTA *dta, int attrib);
-	int 	cdecl (*get_next)(DTA *dta);
-	int		cdecl (*release_dir)(void);
-	} SLCT_STR;
+	short	cdecl (*get_first)(DTA *dta, short attrib);
+	short	cdecl (*get_next)(DTA *dta);
+	short	cdecl (*release_dir)(void);
+} SLCT_STR;
 
 /* ------------------------------------------------------------------------- */
