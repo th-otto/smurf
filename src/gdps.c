@@ -41,10 +41,10 @@
 
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
-static int send_command(COMSTRUCT *comstruct, int command);
-static int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps);
-static void save_pic(COMSTRUCT *comstruct);
-static int copy_gdpsmemory(SMURF_PIC *smurf_picture, COMSTRUCT *comstruct);
+static int send_command(COMSTRUCT * comstruct, int command);
+static int make_comstruct(COMSTRUCT * comstruct, SMURF_GDPS * smurf_gdps);
+static void save_pic(COMSTRUCT * comstruct);
+static int copy_gdpsmemory(SMURF_PIC * smurf_picture, COMSTRUCT * comstruct);
 
 static GENERAL_GDPS *actual;
 static char firstblock;
@@ -53,13 +53,13 @@ static char firstblock;
 void gdps_main(void)
 {
 	unsigned long *gdpsentry,
-				  oldstack;
+	 oldstack;
 
 	SMURF_GDPS smurf_gdps;
 	COMSTRUCT comstruct;
 
 
-	Goto_pos(1,0);
+	Goto_pos(1, 0);
 
 	/* Laut Gerti nimmt der Anfang der GDPS-Treiber-Kette im vom */
 	/* System ungenutzen Vektor $41C seinen Anfang. */
@@ -68,17 +68,17 @@ void gdps_main(void)
 	/* zweite Long sollte das Magic 'GDPS' ($47445053) enthalten. */
 
 	/* in Supervisormodus schalten */
-	if(!Super((void *)1L))
+	if (!Super((void *) 1L))
 		oldstack = Super(0L);
 
 	/* Zeiger auf Einstiegspunkt der Treiberliste holen */
-	gdpsentry = (unsigned long *)*((unsigned int **)0x41cL);
+	gdpsentry = (unsigned long *) *((unsigned int **) 0x41cL);
 
 	/* Liste der GDPS-Treiberdurchlaufen und ersten Scannertreiber benutzen */
-	actual = (GENERAL_GDPS *)gdpsentry;
-	while(actual != 0L && actual->magic == 'GDPS')
+	actual = (GENERAL_GDPS *) gdpsentry;
+	while (actual != 0L && actual->magic == 'GDPS')
 	{
-		if(actual->type >= 0x0 && actual->type <= 0x0ff)
+		if (actual->type >= 0x0 && actual->type <= 0x0ff)
 		{
 #ifdef DEBUG
 			printf("Magic: %lx\n", actual->magic);
@@ -94,20 +94,20 @@ void gdps_main(void)
 	}
 
 	/* Supervisormodus verlassen */
-	if(oldstack)
-		Super((void *)oldstack);
+	if (oldstack)
+		Super((void *) oldstack);
 
 
 	/* bestimmten Scanner benutzen */
 
-	if(!actual)
+	if (!actual)
 	{
 		f_alert("Kein GDPS-Treiber installiert.", NULL, NULL, NULL, 1);
 		goto End;
 	}
 
 	/* warten bis der Scanner frei (d.h. free auf 0) ist */
-	if(actual->free)
+	if (actual->free)
 	{
 		f_alert("GDPS-Treiber ist momentan nicht frei.", NULL, NULL, NULL, 1);
 		goto End;
@@ -116,8 +116,8 @@ void gdps_main(void)
 	/* und dann reservieren */
 	actual->free = 0xff00;
 
-	if(!actual->desc)								/* Scanner noch nicht initialisiert? */
-		send_command(&comstruct, 0x105);			/* dann tue es jetzt */
+	if (!actual->desc)					/* Scanner noch nicht initialisiert? */
+		send_command(&comstruct, 0x105);	/* dann tue es jetzt */
 
 #ifdef DEBUG
 	printf("Scannerbeschreibung: %x\n", actual->desc);
@@ -133,24 +133,24 @@ void gdps_main(void)
 
 	do
 	{
-		if(make_comstruct(&comstruct, &smurf_gdps) < 0)	/* Fehler aufgetreten, wahrscheinlich nicht genug Speicher */
-			break;										/* Schleife verlassen */
+		if (make_comstruct(&comstruct, &smurf_gdps) < 0)	/* Fehler aufgetreten, wahrscheinlich nicht genug Speicher */
+			break;						/* Schleife verlassen */
 
 		/* Scannvorgang mit Aufruf Benutzerdialog beginnen */
 		send_command(&comstruct, 0x100);
-		if(comstruct.result < 0xfffd)					/* Fehler beim Scannen? */
+		if (comstruct.result < 0xfffd)	/* Fehler beim Scannen? */
 		{
 #ifdef DEBUG
 			printf("Fehler beim Scanvorgang!\n");
 #endif
-			break;										/* Schleife verlassen */
+			break;						/* Schleife verlassen */
 		}
 
 		save_pic(&comstruct);
-	} while(comstruct.result != 0xffff);
+	} while (comstruct.result != 0xffff);
 
 
-End:
+  End:
 
 	SMfree(comstruct.memory);
 
@@ -160,7 +160,7 @@ End:
 
 
 /* sendet ein Kommando an ein GDPS-Device */
-static int send_command(COMSTRUCT *comstruct, int command)
+static int send_command(COMSTRUCT * comstruct, int command)
 {
 	/* Adresse der eigenen Kommandostruktur eintragen */
 	actual->comstruct = comstruct;
@@ -169,37 +169,37 @@ static int send_command(COMSTRUCT *comstruct, int command)
 	actual->command = command;
 
 	/* warten bis Kommando vom Treiber wieder auf 0 */
-	while(actual->command)
+	while (actual->command)
 		evnt_timer(EVNT_TIME(100));
 
-	return(0);
+	return (0);
 }
 
 
 /* fllt die Kommandostruktur aus */
 /* voerst nur nach GDPS 1.00 */
-static int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps)
+static int make_comstruct(COMSTRUCT * comstruct, SMURF_GDPS * smurf_gdps)
 {
-	comstruct->result = 0;						/* Rckgabe initialisieren */
+	comstruct->result = 0;				/* Rckgabe initialisieren */
 
 	/* s/w, Dithering, Multivalue, Multivalue in Farbe, */
 	/* blockweise Rckgabe erlaubt */
 	comstruct->modes = 1 | 2 | 4 | 64 | 512;	/* von Smurf untersttzte Modi ... */
-	comstruct->modes &= smurf_gdps->desc;		/* ... und mit den m”glichen vom Treiber gelieferten abgleichen */
+	comstruct->modes &= smurf_gdps->desc;	/* ... und mit den m”glichen vom Treiber gelieferten abgleichen */
 
-	comstruct->depth = 1 | 4 | 16 | 256;		/* 1, 4, 16 und 256 Graustufen (Farben pro Kanal) ... */
-	comstruct->depth &= smurf_gdps->depth;		/* ... und mit den m”glichen vom Treiber gelieferten abgleichen */
+	comstruct->depth = 1 | 4 | 16 | 256;	/* 1, 4, 16 und 256 Graustufen (Farben pro Kanal) ... */
+	comstruct->depth &= smurf_gdps->depth;	/* ... und mit den m”glichen vom Treiber gelieferten abgleichen */
 
-	if(comstruct->memory == NULL)
+	if (comstruct->memory == NULL)
 	{
 		comstruct->memory = SMalloc(262144L);	/* 256 KB anfordern */
-		if(comstruct->memory == 0)
-			return(-1);
+		if (comstruct->memory == 0)
+			return (-1);
 	}
 
-	comstruct->memlen = 262144L;				/* und das auch explizit mitteilen */
+	comstruct->memlen = 262144L;		/* und das auch explizit mitteilen */
 
-	comstruct->width_byte = 0;					/* und den Rest alles auf 0 */
+	comstruct->width_byte = 0;			/* und den Rest alles auf 0 */
 	comstruct->height = 0;
 	comstruct->mmwidth = 0;
 	comstruct->mmheight = 0;
@@ -211,19 +211,22 @@ static int make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps)
 	comstruct->ser_nr = 0;
 	comstruct->add_bits = 0;
 
-	return(0);	
+	return (0);
 }
 
 
 /* Klabustert die Daten im Zielspeicher auseinander */
 /* und setzt sie zum Bild zusammen */
-static void save_pic(COMSTRUCT *comstruct)
+static void save_pic(COMSTRUCT * comstruct)
 {
-	int width, height, depth;
+	int width,
+	 height,
+	 depth;
 	char *palette;
 
 	int pic_to_make = 1;
-	int tt, index;
+	int tt,
+	 index;
 	int aligned_width;
 
 	long PicLen;
@@ -245,48 +248,48 @@ static void save_pic(COMSTRUCT *comstruct)
 	getch();
 #endif
 
-	if(comstruct->modes&0x1 || comstruct->modes&0x2)
-		width = comstruct->width_byte * 8;				/* Bei Bi-Level und Dithered immer mit 8 Pixel pro Byte */
+	if (comstruct->modes & 0x1 || comstruct->modes & 0x2)
+		width = comstruct->width_byte * 8;	/* Bei Bi-Level und Dithered immer mit 8 Pixel pro Byte */
 	else
 		width = comstruct->width_byte;
 	height = comstruct->height;
 	depth = comstruct->depth;
 
-	if(firstblock)
+	if (firstblock)
 	{
 		firstblock = 0;
 
 		/**************/
-		#if DEMOVERSION
-			if(picthere >= 3)
-			{
-				f_alert(alerts[PREVIEW_ERR].TextCast, NULL, NULL, NULL, 1);
-				return(-1);
-			}
-		#endif
+#if DEMOVERSION
+		if (picthere >= 3)
+		{
+			f_alert(alerts[PREVIEW_ERR].TextCast, NULL, NULL, NULL, 1);
+			return (-1);
+		}
+#endif
 		/**************/
 
 
 		/* erstes freies Bild ermitteln */
-		while(smurf_picture[pic_to_make] != NULL)
+		while (smurf_picture[pic_to_make] != NULL)
 			pic_to_make++;
-		if(pic_to_make > MAX_PIC)
+		if (pic_to_make > MAX_PIC)
 		{
-			f_alert(alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1); 
+			f_alert(alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1);
 			return;
 		}
 
-		smurf_picture[pic_to_make] = (SMURF_PIC *)SMalloc(sizeof(SMURF_PIC));
+		smurf_picture[pic_to_make] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
 
-		if(depth >= 8)
-			PicLen = (long)((long)width *(long)height) * (long)depth / 8L;
+		if (depth >= 8)
+			PicLen = (long) ((long) width * (long) height) * (long) depth / 8L;
 		else
-		{	
+		{
 			aligned_width = (width + 7) >> 3;
-			PicLen = (long)((long)aligned_width * (long)height * (long)depth);
+			PicLen = (long) ((long) aligned_width * (long) height * (long) depth);
 		}
 
-		if((smurf_picture[pic_to_make]->pic_data = SMalloc(PicLen)) == NULL)
+		if ((smurf_picture[pic_to_make]->pic_data = SMalloc(PicLen)) == NULL)
 		{
 			f_alert(alerts[NOMEM_NEWPIC].TextCast, NULL, NULL, NULL, 1);
 			SMfree(smurf_picture[pic_to_make]);
@@ -297,9 +300,9 @@ static void save_pic(COMSTRUCT *comstruct)
 
 	copy_gdpsmemory(smurf_picture[pic_to_make], comstruct);
 
-	if(comstruct->result == 0xffff)
+	if (comstruct->result == 0xffff)
 	{
-		smurf_picture[pic_to_make]->palette = malloc(1025);				/* Paletten-Puffer */
+		smurf_picture[pic_to_make]->palette = malloc(1025);	/* Paletten-Puffer */
 		memset(smurf_picture[pic_to_make]->palette, 0x0, 1025);
 
 		make_smurf_pic(pic_to_make, width, height, depth, smurf_picture[pic_to_make]->pic_data);
@@ -309,26 +312,25 @@ static void save_pic(COMSTRUCT *comstruct)
 		strncpy(smurf_picture[pic_to_make]->format_name, "-", 2);
 		memset(smurf_picture[pic_to_make]->filename, 0x0, 257);
 		strcpy(smurf_picture[pic_to_make]->filename, "C:\\GDPS");
-	
+
 		/*
 		 * pr„ventiv die Systempalette eintragen SMURF_PIC
 		 */
 		palette = smurf_picture[pic_to_make]->palette;
-		if(depth == 1)
+		if (depth == 1)
 		{
 			palette[0] = palette[1] = palette[2] = 255;
 			palette[3] = palette[4] = palette[5] = 0;
-		}
-		else
-			for(tt = 0; tt <= Sys_info.Max_col; tt++)
+		} else
+			for (tt = 0; tt <= Sys_info.Max_col; tt++)
 			{
 				index = planetable[tt];
-				*(palette + 0 + index*3) = (int)((long)(orig_red[tt] * 255L) / 1000L);
-				*(palette + 1 + index*3) = (int)((long)(orig_green[tt] * 255L) / 1000L);
-				*(palette + 2 + index*3) = (int)((long)(orig_blue[tt] * 255L) / 1000L);
+				*(palette + 0 + index * 3) = (int) ((long) (orig_red[tt] * 255L) / 1000L);
+				*(palette + 1 + index * 3) = (int) ((long) (orig_green[tt] * 255L) / 1000L);
+				*(palette + 2 + index * 3) = (int) ((long) (orig_blue[tt] * 255L) / 1000L);
 			}
 
-		if(!Sys_info.realtime_dither)
+		if (!Sys_info.realtime_dither)
 			f_dither(smurf_picture[pic_to_make], &Sys_info, 0, NULL, &Display_Opt);
 		f_open_window(&picture_windows[pic_to_make]);
 		clip_picw2screen(&picture_windows[pic_to_make]);
@@ -337,21 +339,20 @@ static void save_pic(COMSTRUCT *comstruct)
 
 		picthere++;
 	}
-		
-	actualize_ram();	/* wieviel RAM? */
-	actualize_menu();	/* Meneintr„ge ENABLEn / DISABLEn */
+
+	actualize_ram();					/* wieviel RAM? */
+	actualize_menu();					/* Meneintr„ge ENABLEn / DISABLEn */
 }
 
 
-static int copy_gdpsmemory(SMURF_PIC *smurf_picture, COMSTRUCT *comstruct)
+static int copy_gdpsmemory(SMURF_PIC * smurf_picture, COMSTRUCT * comstruct)
 {
 
-	if(comstruct->modes&1 || comstruct->modes&2)
+	if (comstruct->modes & 1 || comstruct->modes & 2)
 		memcpy(smurf_picture->pic_data, comstruct->memory, comstruct->memlen);
-	else
-		if(comstruct->depth&256)
-			if(comstruct->result == 0xff)
-				return(0);
+	else if (comstruct->depth & 256)
+		if (comstruct->result == 0xff)
+			return (0);
 
-	return(0);
+	return (0);
 }

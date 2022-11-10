@@ -34,12 +34,15 @@
 #include "ext_obs.h"
 
 
-int handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object)
+int handle_keyboardevent(WINDOW * wind_s, int scancode, int *sel_object)
 {
 	int keybback;
 	int nextchar;
-	int np_edob, np_nextob, np_edx;
-	int my_code, ret_val;
+	int np_edob,
+	 np_nextob,
+	 np_edx;
+	int my_code,
+	 ret_val;
 	static int old_edob;
 	OBJECT *form;
 
@@ -51,8 +54,8 @@ int handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object)
 
 	my_code = scancode >> 8;
 
-	if(np_edob < 0)
-	{ 
+	if (np_edob < 0)
+	{
 		np_edob = -np_edob;
 		np_nextob = -np_nextob;
 	}
@@ -66,61 +69,59 @@ int handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object)
 	 * sonst wird beim ersten Durchlauf old_edob,
 	 * und damit auch *sel_object auf 0 gesetzt
 	 */
-	 /* verstehe ich nicht, passiert doch gar nicht, bzw. editob wird */
-	 /* doch fr jedes Formular in der init_smurfrsc() initialisiert */
-	 /* testweise raus da sonst nach Benutzung eines Dialogs */
-	 /* mit Editfeldern die Autolocater der Listfelder grundlos anschlugen */
+	/* verstehe ich nicht, passiert doch gar nicht, bzw. editob wird */
+	/* doch fr jedes Formular in der init_smurfrsc() initialisiert */
+	/* testweise raus da sonst nach Benutzung eines Dialogs */
+	/* mit Editfeldern die Autolocater der Listfelder grundlos anschlugen */
 /*	if(old_edob == 0) */
-		old_edob = np_edob;
-		
+	old_edob = np_edob;
+
 	/* ist das Editobjekt disabled? */
-	if(IsDisabled(wind_s->resource_form[np_nextob]))
+	if (IsDisabled(wind_s->resource_form[np_nextob]))
 	{
 		np_nextob = np_edob;
 		np_nextob = -1;
 	}
 
 	/* Haben wir ein neues Editobjekt? */
-	if(np_nextob != 0)
+	if (np_nextob != 0)
 	{
 		*sel_object = np_nextob;
-		if(form[np_nextob].ob_flags&OF_EDITABLE) old_edob = np_nextob;
+		if (form[np_nextob].ob_flags & OF_EDITABLE)
+			old_edob = np_nextob;
 		ret_val = keybback;
-	}
-	else
-	{ 
+	} else
+	{
 		*sel_object = old_edob;
 		ret_val = 1;
 
-		if(IsDisabled(wind_s->resource_form[np_edob]))
+		if (IsDisabled(wind_s->resource_form[np_edob]))
 			np_nextob = -1;
 	}
-		
 
-	if(np_nextob != -1 && !(key_at_event&KEY_SHIFT && (my_code == KEY_DOWN || my_code == KEY_UP)))
+
+	if (np_nextob != -1 && !(key_at_event & KEY_SHIFT && (my_code == KEY_DOWN || my_code == KEY_UP)))
 	{
 		/* anderes edob oder Ende? (Alten Cursor abschalten?) */
-		if(keybback == 0)
+		if (keybback == 0)
 		{
-			if(!IsDisabled(wind_s->resource_form[np_nextob]))
+			if (!IsDisabled(wind_s->resource_form[np_nextob]))
 				objc_edit(wind_s->resource_form, np_edob, 0, &(np_edx), ED_END);
 		}
-	
+
 		/* Hat sich das Editobjekt ge„ndert? (neuen Cursor einschalten?) */
-		if(np_nextob != np_edob && np_nextob != 0 && keybback != 0) 
+		if (np_nextob != np_edob && np_nextob != 0 && keybback != 0)
 		{
-			if(!IsDisabled(wind_s->resource_form[np_nextob]))
+			if (!IsDisabled(wind_s->resource_form[np_nextob]))
 				objc_edit(wind_s->resource_form, np_edob, 0, &(np_edx), ED_END);
 
 			np_edob = np_nextob;
 			np_nextob = 0;
 
-			if(!IsDisabled(wind_s->resource_form[np_edob]))
+			if (!IsDisabled(wind_s->resource_form[np_edob]))
 				objc_edit(wind_s->resource_form, np_edob, 0, &(np_edx), ED_INIT);
-		}
-		else
-			if(nextchar)
-				objc_edit(form, np_edob, nextchar, &np_edx, ED_CHAR);
+		} else if (nextchar)
+			objc_edit(form, np_edob, nextchar, &np_edx, ED_CHAR);
 
 		wind_s->editob = -np_edob;
 		wind_s->nextedit = np_nextob;
@@ -129,21 +130,22 @@ int handle_keyboardevent(WINDOW *wind_s, int scancode, int *sel_object)
 
 	wind_update(END_UPDATE);
 
-	return(ret_val);
+	return (ret_val);
 }
 
 
-void cursor_on(WINDOW *window)
+void cursor_on(WINDOW * window)
 {
 	char tempchar;
 
-	int tophandle, dummy;
+	int tophandle,
+	 dummy;
 
 
 	Window.windGet(window->whandlem, WF_TOP, &tophandle, &dummy, &dummy, &dummy);
 
-	if(window != NULL && window->editob > 0 && window->whandlem == tophandle)
-		if(!IsDisabled(window->resource_form[window->editob]))
+	if (window != NULL && window->editob > 0 && window->whandlem == tophandle)
+		if (!IsDisabled(window->resource_form[window->editob]))
 		{
 			/* Faking editx fr Cursorpositionierung */
 			tempchar = window->resource_form[window->editob].ob_spec.tedinfo->te_ptext[window->editx];
@@ -162,9 +164,9 @@ void cursor_on(WINDOW *window)
 }
 
 
-void cursor_off(WINDOW *window)
+void cursor_off(WINDOW * window)
 {
-	if(window!=NULL && window->editob<0 && !IsDisabled(window->resource_form[-window->editob]))
+	if (window != NULL && window->editob < 0 && !IsDisabled(window->resource_form[-window->editob]))
 	{
 		window->editob = -window->editob;
 		objc_edit(window->resource_form, window->editob, 0, &window->editx, ED_END);

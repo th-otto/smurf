@@ -34,7 +34,7 @@
 #include "smurf_f.h"
 
 
-void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, int dither)
+void make_thumbnail(SMURF_PIC * original_pic, SMURF_PIC * thumbnail, int dither)
 {
 	int zoom;
 
@@ -45,11 +45,11 @@ void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, int dither)
 	/*
 	 * altes Thumbnail freigeben
 	 */
-	if(thumbnail->screen_pic != NULL)
+	if (thumbnail->screen_pic != NULL)
 	{
-		if(thumbnail->screen_pic->fd_addr != 0) 
+		if (thumbnail->screen_pic->fd_addr != 0)
 			SMfree(thumbnail->screen_pic->fd_addr);
-		
+
 		free(thumbnail->screen_pic);
 	}
 

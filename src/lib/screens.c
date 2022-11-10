@@ -72,7 +72,7 @@ bool init_screens(bool doublebuffering, int modecode_rgb, int modecode_vga)
 		modecode = modecode_rgb;
 	doublebuffer = doublebuffering;
 	screen_size = VgetSize(modecode);
-	
+
 	screens[0] = malloc(screen_size);
 	if (screens[0] == NULL)
 	{
@@ -89,7 +89,7 @@ bool init_screens(bool doublebuffering, int modecode_rgb, int modecode_vga)
 		}
 		memset(screens[1], 0, screen_size);
 	}
-	
+
 	orig_mode = VsetMode(-1);
 	orig_logbase = Logbase();
 	orig_physbase = Physbase();
@@ -99,7 +99,7 @@ bool init_screens(bool doublebuffering, int modecode_rgb, int modecode_vga)
 	memset(screens[0], 0, screen_size);
 	if (doublebuffer)
 		memset(screens[1], 0, screen_size);
-	
+
 	return False;
 }
 
@@ -134,7 +134,7 @@ void tc_line_adr(unsigned short *adr, int color, int x1, int y1, int x2, int y2)
 	{
 		if (xdiff == 0)
 		{
-			adr[(long)y1 * 320L + x1] = color;
+			adr[(long) y1 * 320L + x1] = color;
 		} else
 		{
 			if (x2 < x1)
@@ -149,7 +149,7 @@ void tc_line_adr(unsigned short *adr, int color, int x1, int y1, int x2, int y2)
 			ydiff = y2 - y1;
 			for (x = 0; (xdiff + 1) > x; x++)
 			{
-				offset = (long)x;
+				offset = (long) x;
 				offset = offset * ydiff;
 				offset = offset / xdiff;
 				offset += y1;
@@ -158,7 +158,7 @@ void tc_line_adr(unsigned short *adr, int color, int x1, int y1, int x2, int y2)
 		}
 	} else if (ydiff == 0)
 	{
-		adr[(long)y1 * 320L + x1] = color;
+		adr[(long) y1 * 320L + x1] = color;
 	} else
 	{
 		if (y2 < y1)
@@ -173,7 +173,7 @@ void tc_line_adr(unsigned short *adr, int color, int x1, int y1, int x2, int y2)
 		xdiff = x2 - x1;
 		for (x = 0; (ydiff + 1) > x; x++)
 		{
-			offset = (long)x;
+			offset = (long) x;
 			offset = offset * xdiff;
 			offset = offset / ydiff;
 			offset += x1;
@@ -197,7 +197,7 @@ void tc_line(int screen, int color, int x1, int y1, int x2, int y2)
 	{
 		if (xdiff == 0)
 		{
-			screens[screen][(long)y1 * 320L + x1] = color;
+			screens[screen][(long) y1 * 320L + x1] = color;
 		} else
 		{
 			if (x2 < x1)
@@ -212,7 +212,7 @@ void tc_line(int screen, int color, int x1, int y1, int x2, int y2)
 			ydiff = y2 - y1;
 			for (x = 0; (xdiff + 1) > x; x++)
 			{
-				offset = (long)x;
+				offset = (long) x;
 				offset = offset * ydiff;
 				offset = offset / xdiff;
 				offset += y1;
@@ -221,7 +221,7 @@ void tc_line(int screen, int color, int x1, int y1, int x2, int y2)
 		}
 	} else if (ydiff == 0)
 	{
-		screens[screen][(long)y1 * 320L + x1] = color;
+		screens[screen][(long) y1 * 320L + x1] = color;
 	} else
 	{
 		if (y2 < y1)
@@ -236,7 +236,7 @@ void tc_line(int screen, int color, int x1, int y1, int x2, int y2)
 		xdiff = x2 - x1;
 		for (x = 0; (ydiff + 1) > x; x++)
 		{
-			offset = (long)x;
+			offset = (long) x;
 			offset = offset * xdiff;
 			offset = offset / ydiff;
 			offset += x1;
@@ -249,7 +249,7 @@ void tc_line(int screen, int color, int x1, int y1, int x2, int y2)
 coor between(coor p1, coor p2, short pos, short steps)
 {
 	coor p;
-	
+
 	p.x = p2.x - p1.x;
 	p.y = p2.y - p1.y;
 	p.x *= pos;
@@ -268,7 +268,7 @@ void rand_black(void)
 	black = FColor[0];
 	FColor[0] = 0;
 	orig_conterm = conterm;
-	conterm &= 0xf8; /* disable keyclick, repeat and bell */
+	conterm &= 0xf8;					/* disable keyclick, repeat and bell */
 }
 
 
@@ -286,8 +286,8 @@ void tc_screenshot(void *adr, int height)
 	long magic;
 	short w;
 	short h;
-	
-	magic = 0x54525550L; /* 'TRUP' */
+
+	magic = 0x54525550L;				/* 'TRUP' */
 	w = 320;
 	h = height;
 	fd = open("SS.TRP", O_CREAT | O_TRUNC | O_WRONLY);
@@ -296,8 +296,7 @@ void tc_screenshot(void *adr, int height)
 		write(fd, &magic, sizeof(magic));
 		write(fd, &w, sizeof(w));
 		write(fd, &h, sizeof(h));
-		write(fd, adr, (long)h * 320 * 2);
+		write(fd, adr, (long) h * 320 * 2);
 		close(fd);
 	}
 }
-

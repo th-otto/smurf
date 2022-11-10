@@ -53,75 +53,85 @@ static CUTTAB cuttab[128];
 /* SET_MENU_KEY */
 /* menu: Zeiger auf den MenÅbaum */
 
-char set_menu_key(OBJECT *menu)
+char set_menu_key(OBJECT * menu)
 {
-	char *s, j=0, k;
-	int i, ltitle, menu_start;
-	int invisible_box, t, cutpos=0;
+	char *s,
+	 j = 0,
+		k;
+	int i,
+	 ltitle,
+	 menu_start;
+	int invisible_box,
+	 t,
+	 cutpos = 0;
 
-	DEBUG_MSG (( "Set Menu Key...\n" ));
+	DEBUG_MSG(("Set Menu Key...\n"));
 
-	for(k=0; k<128; k++) strncpy(cuttab[k].cut, "   ", 3);
+	for (k = 0; k < 128; k++)
+		strncpy(cuttab[k].cut, "   ", 3);
 
 
-	if(menu != 0L)
+	if (menu != 0L)
 	{
 
-		for(t=3; ; t++)	if(menu[t].ob_type==G_IBOX) break;
+		for (t = 3;; t++)
+			if (menu[t].ob_type == G_IBOX)
+				break;
 
-		invisible_box=t;
-		
+		invisible_box = t;
 
-		menu_start=invisible_box+1;
-		
-		j=menu_start+1;
 
-		ltitle=3;
+		menu_start = invisible_box + 1;
+
+		j = menu_start + 1;
+
+		ltitle = 3;
 		do
 		{
 			do
 			{
-				if((menu[j].ob_type & 0xff) == G_STRING)
+				if ((menu[j].ob_type & 0xff) == G_STRING)
 				{
-					s = menu[j].ob_spec.free_string;			/* MenÅ */
-					i = (int)strlen(s);
+					s = menu[j].ob_spec.free_string;	/* MenÅ */
+					i = (int) strlen(s);
 					if (i > 0 && s[i - 1] == ' ')
 						i--;
 					if (i > 0 && s[i - 1] == ' ')
 						i--;
-					for(; i >= 0 && s[i] != ' '; i--)	/* von hinten her nach dem letzten Leerzeichen suchen */
+					for (; i >= 0 && s[i] != ' '; i--)	/* von hinten her nach dem letzten Leerzeichen suchen */
 						;
 
-					if(i >= 2 && (s[i + 1] == SHIFT_CHAR || s[i + 1] == CTRL_CHAR || s[i + 1] == ALT_CHAR))
+					if (i >= 2 && (s[i + 1] == SHIFT_CHAR || s[i + 1] == CTRL_CHAR || s[i + 1] == ALT_CHAR))
 					{
 						k = 0;
-						if(s[i + 1] != SHIFT_CHAR)
+						if (s[i + 1] != SHIFT_CHAR)
 							k++;
-						while(s[++i] != ' ')
+						while (s[++i] != ' ')
 							cuttab[cutpos].cut[k++] = s[i];
 						cuttab[cutpos].ltitle = ltitle;
 						cuttab[cutpos].litem = j;
 						cutpos++;
-					} /* if */
-				} /* if */
+					}					/* if */
+				}						/* if */
 
 				j++;					/* NÑchster Eintrag */
-			} while(menu[j].ob_type==G_STRING);
+			} while (menu[j].ob_type == G_STRING);
 
-			if(menu[j+1].ob_type==G_STRING) j++;
+			if (menu[j + 1].ob_type == G_STRING)
+				j++;
 			ltitle++;
-			
-		} while(menu[j].ob_type == G_STRING);
 
-	} /* if */
+		} while (menu[j].ob_type == G_STRING);
 
-	return(0);
+	}									/* if */
+
+	return (0);
 }
 
 
-static char is_state(OBJECT *tree, int obj, unsigned int state)
+static char is_state(OBJECT * tree, int obj, unsigned int state)
 {
-	return((tree[obj].ob_state & state) != 0);
+	return ((tree[obj].ob_state & state) != 0);
 }
 
 
@@ -131,70 +141,69 @@ static char is_state(OBJECT *tree, int obj, unsigned int state)
 /* title: Zeiger auf den Index des Titels, falls "is_menu_key" TRUE ist */
 /* item: Zeiger auf den Index des MenÅeintrages, falls "is_menu_key" TRUE ist */
 
-char get_menu_key(OBJECT *menu, KINFO *ki, int *title, int *item)
+char get_menu_key(OBJECT * menu, KINFO * ki, int *title, int *item)
 {
-	char j = 0,	search[3] = "   ";
+	char j = 0,
+		search[3] = "   ";
 	int sc_found;
 
-	if(ki->shift)
+	if (ki->shift)
 		search[0] = SHIFT_CHAR;
-	if(ki->ctrl)
+	if (ki->ctrl)
 		search[1] = CTRL_CHAR;
-	else
-		if(ki->alt)
-			search[1] = ALT_CHAR;
+	else if (ki->alt)
+		search[1] = ALT_CHAR;
 	search[2] = ki->ascii_code;
 
 	j = 0;
-	sc_found=0;
-	while(strnicmp(cuttab[j].cut, "   ", 3) != 0)
+	sc_found = 0;
+	while (strnicmp(cuttab[j].cut, "   ", 3) != 0)
 	{
-		if(strnicmp(cuttab[j].cut, search, 3) == 0)
+		if (strnicmp(cuttab[j].cut, search, 3) == 0)
 		{
 			*title = cuttab[j].ltitle;
 			*item = cuttab[j].litem;
-			sc_found=1;
+			sc_found = 1;
 			break;
-		}
-		else
+		} else
 			j++;
 	}
 
-	if(!is_state(menu, *item, OS_DISABLED) && sc_found)
-	/* RÅckgabe der ausgewÑhlten Werte */
-		return(1);
+	if (!is_state(menu, *item, OS_DISABLED) && sc_found)
+		/* RÅckgabe der ausgewÑhlten Werte */
+		return (1);
 	else
-		return(0);
+		return (0);
 }
 
 
-int scan_2_ascii(int scan,int state)
+int scan_2_ascii(int scan, int state)
 {
-	KEYTAB *keytab = Keytbl((void *) -1l,(void *) -1l,(void *) -1l);
+	KEYTAB *keytab = Keytbl((void *) -1l, (void *) -1l, (void *) -1l);
 
 	if (state)
 	{
-		scan >>=8;
-		if ((scan>=120) && (scan<=131))
+		scan >>= 8;
+		if ((scan >= 120) && (scan <= 131))
 			scan -= 118;
-			
+
 		if (state & 3)
-			scan = (int) *(keytab->shift+scan);
+			scan = (int) *(keytab->shift + scan);
 		else
-			scan = (int) *(keytab->unshift+scan);
+			scan = (int) *(keytab->unshift + scan);
 	}
 
 	scan &= 0xff;
-	if (scan>='a')
+	if (scan >= 'a')
 	{
-		if (scan<='z')
+		if (scan <= 'z')
 			scan -= 32;
-		else if (scan=='Ñ')
-			scan='é';
-		else if (scan=='î')
-			scan='ô';
-		else if (scan=='Å')
-			scan='ö';
+		else if (scan == 'Ñ')
+			scan = 'é';
+		else if (scan == 'î')
+			scan = 'ô';
+		else if (scan == 'Å')
+			scan = 'ö';
 	}
-	return(scan);
+	return (scan);
 }

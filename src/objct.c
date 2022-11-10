@@ -40,15 +40,15 @@
 /*		RADIOBUTTONS (nicht hintergrundbedienbar wg. form_button!) 		*/
 /*	Auûerdem Bildreihenfolge - Modulinfo - Button...					*/
 /* --------------------------------------------------------------------	*/
-void f_handle_radios(OBJECT *tree, int klickobj, int windnum)
+void f_handle_radios(OBJECT * tree, int klickobj, int windnum)
 {
 	int newedit;
 
 
-	if(tree[klickobj].ob_flags&OF_RBUTTON && !(tree[klickobj].ob_state&OS_DISABLED))
+	if (tree[klickobj].ob_flags & OF_RBUTTON && !(tree[klickobj].ob_state & OS_DISABLED))
 	{
 		Window.topNow(&wind_s[windnum]);
-		form_button(wind_s[windnum].resource_form, klickobj, klicks, &newedit);	
+		form_button(wind_s[windnum].resource_form, klickobj, klicks, &newedit);
 	}
 }
 
@@ -58,19 +58,19 @@ void f_handle_radios(OBJECT *tree, int klickobj, int windnum)
 /*	Handled das Setzen des Cursors auf ein neues Editobjekt bei		*/
 /*	Klick darauf.													*/
 /* ----------------------------------------------------------------	*/
-void f_handle_editklicks(WINDOW *window, int object)
+void f_handle_editklicks(WINDOW * window, int object)
 {
 	OBJECT *resource;
 
 
 	resource = window->resource_form;
-	
-	if((resource[object].ob_type == G_FTEXT || resource[object].ob_type == G_FBOXTEXT) &&
-	   !IsDisabled(resource[object]))
+
+	if ((resource[object].ob_type == G_FTEXT || resource[object].ob_type == G_FBOXTEXT) &&
+		!IsDisabled(resource[object]))
 	{
 		Window.cursorOff(window);
 		window->editob = object;
-		Window.cursorOn(window);	
+		Window.cursorOn(window);
 	}
 }
 
@@ -78,94 +78,97 @@ void f_handle_editklicks(WINDOW *window, int object)
 /* ----------------------------------------------------------------	*/
 /*							UDOs feststellen 						*/
 /* ----------------------------------------------------------------	*/
-int UDO_or_not(WINDOW *wind, int klickobj)
+int UDO_or_not(WINDOW * wind, int klickobj)
 {
 	static int mode;
-	int objct, timo, evback, type;
-	int ox,oy, dummy, button;
+	int objct,
+	 timo,
+	 evback,
+	 type;
+	int ox,
+	 oy,
+	 dummy,
+	 button;
 
 	SMURF_PIC *prevpic;
 	OBJECT *ob;
 
-	
+
 	ob = wind->resource_form;
-	if(IsDisabled(ob[klickobj]))
-		return(klickobj);
+	if (IsDisabled(ob[klickobj]))
+		return (klickobj);
 
 	type = ob[klickobj].ob_type >> 8;
 
 	/* Use-Direct-Object? */
-	if(klickobj > 0 && type != PREVIEW_ACTION)
+	if (klickobj > 0 && type != PREVIEW_ACTION)
 	{
-		if(type == UDO || (ob[klickobj].ob_flags&OF_RBUTTON) ||
-		   (ob[klickobj].ob_type&0x00ff) == G_USERDEF)
+		if (type == UDO || (ob[klickobj].ob_flags & OF_RBUTTON) || (ob[klickobj].ob_type & 0x00ff) == G_USERDEF)
 		{
 			objct = klickobj;
 
-			if(type == CHECKBOX)
+			if (type == CHECKBOX)
 				do
 				{
 					graf_mkstate(&dummy, &dummy, &button, &dummy);
-				} while(button != 0);
-			else
-				if(type == CYCLEBUTTON)
-				{
-					evback = evnt_multi(MU_BUTTON|MU_TIMER, 1,3,0, 0,0,0,0,0,0,0,0,0,0,
-					messagebuf, EVNT_TIME(300), &mouse_xpos, &mouse_ypos, &dummy, &key_at_event, &dummy, &klicks);
+				} while (button != 0);
+			else if (type == CYCLEBUTTON)
+			{
+				evback = evnt_multi(MU_BUTTON | MU_TIMER, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+									messagebuf, EVNT_TIME(300), &mouse_xpos, &mouse_ypos, &dummy, &key_at_event, &dummy,
+									&klicks);
 
-					if(evback&MU_TIMER)
-						mode = 1;
-					else
-						if((evback&MU_BUTTON) && mode == 1)
-						{
-							change_object(wind, klickobj, OS_UNSEL, 1);
-							mode = 0;
-							return(-1);
-						}	
+				if (evback & MU_TIMER)
+					mode = 1;
+				else if ((evback & MU_BUTTON) && mode == 1)
+				{
+					change_object(wind, klickobj, OS_UNSEL, 1);
+					mode = 0;
+					return (-1);
 				}
-		}
-		else
+			}
+		} else
 		{
 			objc_offset(ob, klickobj, &ox, &oy);
 
 			wind_update(BEG_UPDATE);
-	
+
 			do
 			{
-				evback = evnt_multi(MU_TIMER, 1,3,0, 0,0,0,0,0,0,0,0,0,0,
-				messagebuf, EVNT_TIME(50), &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &dummy, &klicks);
+				evback = evnt_multi(MU_TIMER, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+									messagebuf, EVNT_TIME(50), &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event,
+									&dummy, &klicks);
 
 				timo = objc_find(ob, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
-			
-				if(timo != klickobj)
+
+				if (timo != klickobj)
 				{
-					if((ob[klickobj].ob_state & OS_SELECTED) && ob[klickobj].ob_flags&OF_SELECTABLE)
+					if ((ob[klickobj].ob_state & OS_SELECTED) && ob[klickobj].ob_flags & OF_SELECTABLE)
 						change_object(wind, klickobj, OS_UNSEL, 1);
-				}
-				else
+				} else
 				{
-					if(!(ob[klickobj].ob_state & OS_SELECTED) && ob[klickobj].ob_flags&OF_SELECTABLE) 
+					if (!(ob[klickobj].ob_state & OS_SELECTED) && ob[klickobj].ob_flags & OF_SELECTABLE)
 						change_object(wind, klickobj, OS_SELECTED, 1);
 				}
-			} while(mouse_button != 0 && evback != MU_BUTTON);
+			} while (mouse_button != 0 && evback != MU_BUTTON);
 
 			wind_update(END_UPDATE);
-		
+
 			objct = timo;
 		}
 	}
 
 
-	if(type == PREVIEW_ACTION)
-	{ 
-		if(!picthere)
+	if (type == PREVIEW_ACTION)
+	{
+		if (!picthere)
 		{
 			wind->picture = NULL;
 			Window.redraw(wind, NULL, klickobj, 0);
-			return(0);
+			return (0);
 		}
-		
-		if(smurf_picture[active_pic]->block == NULL)
+
+		if (smurf_picture[active_pic]->block == NULL)
 			prevpic = smurf_picture[active_pic];
 		else
 			prevpic = smurf_picture[active_pic]->block;
@@ -174,13 +177,13 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 		wind->pic_ypos = ob[klickobj].ob_y;
 		wind->clipwid = ob[klickobj].ob_width - 1;
 		wind->cliphgt = ob[klickobj].ob_height - 1;
-		if(prevpic->pic_width < wind->clipwid)
+		if (prevpic->pic_width < wind->clipwid)
 			wind->clipwid = prevpic->pic_width;
-		if(prevpic->pic_height < wind->cliphgt)
+		if (prevpic->pic_height < wind->cliphgt)
 			wind->cliphgt = prevpic->pic_height;
 
 		/* alte Preview-Bildschirmdarstellung freigeben */
-		if(wind->picture != NULL && wind->picture->changed == 0x80)
+		if (wind->picture != NULL && wind->picture->changed == 0x80)
 		{
 			SMfree(wind->picture->screen_pic->fd_addr);
 			free(wind->picture->screen_pic);
@@ -193,19 +196,19 @@ int UDO_or_not(WINDOW *wind, int klickobj)
 		Window.redraw(wind, NULL, klickobj, 0);
 	}
 
-	return(objct);
+	return (objct);
 }
 
 
 /* ----------------------------------------------------------------	*/
 /*	Kleine Funktion zum deselektieren von 2 Objekten (fÅr Popups)	*/
 /* ----------------------------------------------------------------	*/
-void f_deselect_popup(WINDOW *wind, int ob1, int ob2)
+void f_deselect_popup(WINDOW * wind, int ob1, int ob2)
 {
-	DEBUG_MSG (( "f_deselect_popup...\n" ));
+	DEBUG_MSG(("f_deselect_popup...\n"));
 
 	change_object(wind, ob1, OS_UNSEL, 1);
 	change_object(wind, ob2, OS_UNSEL, 1);
 
-	DEBUG_MSG (( "f_deselect_popup...Ende\n" ));
+	DEBUG_MSG(("f_deselect_popup...Ende\n"));
 }

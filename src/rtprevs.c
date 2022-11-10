@@ -50,15 +50,16 @@
  * werden mu.
  */
 
-SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart)
+SMURF_PIC *previewBlock(SMURF_PIC * picture, GRECT * blockpart)
 {
-	SMURF_PIC *picArea, *blockArea;
+	SMURF_PIC *picArea,
+	*blockArea;
 	SMURF_PIC picCopy;
 	WINDOW dummyPicwindow;
-	
+
 	picArea = SMalloc(sizeof(SMURF_PIC));
-	blockArea = SMalloc(sizeof(SMURF_PIC));	
-	
+	blockArea = SMalloc(sizeof(SMURF_PIC));
+
 	/*
 	 * den Blockbereich aus dem darunterliegenden Bild rauskopieren
 	 * damit liegt in picArea ein Bild mit exakt blockpart ausmaen
@@ -71,7 +72,7 @@ SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart)
 	picArea->pic_width = picCopy.blockwidth = blockpart->g_w;
 	picArea->pic_height = picCopy.blockheight = blockpart->g_h;
 	picArea->pic_data = copyblock(&picCopy);
-	
+
 	/*
 	 * jetzt den Blockbereich aus dem Block genauso rauskopieren
 	 */
@@ -92,7 +93,7 @@ SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart)
 	picArea->blockwidth = blockArea->pic_width;
 	picArea->blockheight = blockArea->pic_height;
 	picArea->block = blockArea;
-	
+
 	/* und jetzt blockArea in picArea einrechnen
 	 */
 	dummyPicwindow.picture = picArea;
@@ -101,5 +102,5 @@ SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart)
 	SMfree(blockArea->pic_data);
 	SMfree(blockArea);
 
-	return(picArea);		/* und picArea an draw_block zurckgeben. */
+	return (picArea);					/* und picArea an draw_block zurckgeben. */
 }

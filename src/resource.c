@@ -55,7 +55,7 @@
 #include "lrud_arr.icn"
 #include "lrud_arr.icm"
 
-int add_flags[40];			/* zusÑtzliche Fensterelemente */
+int add_flags[40];						/* zusÑtzliche Fensterelemente */
 
 /* f_init_popup */
 /* Diese Funktion generiert die Popup-strukturen fÅr jedes
@@ -63,7 +63,7 @@ int add_flags[40];			/* zusÑtzliche Fensterelemente */
 void f_init_popups(void)
 {
 
-	DEBUG_MSG (( "f_init_popups...\n" ));
+	DEBUG_MSG(("f_init_popups...\n"));
 
 /*	Auûenfarbe im Options-MenÅ */
 	popups[POPUP_OUTCOL].popup_tree = OUT_COL_POPUP;
@@ -71,7 +71,7 @@ void f_init_popups(void)
 	popups[POPUP_OUTCOL].display_tree = Dialog.smurfOpt.tree;
 	popups[POPUP_OUTCOL].display_obj = OUTCOL;
 	popups[POPUP_OUTCOL].Cyclebutton = OCOL_CB;
-	
+
 /* Die Ditherpopups fÅrs Displayoptions-Formular */
 	popups[POPUP_DITHER].popup_tree = DITHERPOPUP;
 	popups[POPUP_DITHER].item = 1;
@@ -102,7 +102,7 @@ void f_init_popups(void)
 	popups[POPUP_NPDEPTH].display_tree = newpic_window;
 	popups[POPUP_NPDEPTH].display_obj = NP_DEPTHPOP;
 	popups[POPUP_NPDEPTH].Cyclebutton = NPDEPTH_CB;
-	
+
 	popups[POPUP_KODAK].popup_tree = KODAK_POPUP;
 	popups[POPUP_KODAK].item = 2;
 	popups[POPUP_KODAK].display_tree = Dialog.smurfOpt.tree;
@@ -188,7 +188,7 @@ void f_init_popups(void)
 void f_init_sliders(void)
 {
 
-	DEBUG_MSG (( "f_init_sliders...\n" ));
+	DEBUG_MSG(("f_init_sliders...\n"));
 
 	sliders[PDSLIDER1].regler = S1_R;
 	sliders[PDSLIDER1].schiene = S1_F;
@@ -236,7 +236,9 @@ void f_init_sliders(void)
 /* ------ Resource laden und initialisieren, AES Initial.	---- */
 void init_smurfrsc(char *rscpath)
 {
-	int back, t, dummy;
+	int back,
+	 t,
+	 dummy;
 	GRECT desk;
 
 	/* ----- Startup-Dialog initialisieren --- */
@@ -247,46 +249,47 @@ void init_smurfrsc(char *rscpath)
 	init_xrsrc(Sys_info.vdi_handle, &desk, gl_wchar, gl_hchar);
 	xrsrc_mustexist = TRUE;
 	back = xrsrc_load(rscpath, resource_global);
-	if(back == FALSE)
+	if (back == FALSE)
 	{
-		form_alert(1, "[3][Resource-File SMURF.RSC nicht|gefunden! PrÅfen Sie, ob sich|die Datei im Smurf-Pfad|befindet.][ Ups ]");
+		form_alert(1,
+				   "[3][Resource-File SMURF.RSC nicht|gefunden! PrÅfen Sie, ob sich|die Datei im Smurf-Pfad|befindet.][ Ups ]");
 		exit(-1);
 	}
 
 	xrsrc_gaddr(0, MENU1, &menu_tree, resource_global);
 
-	xrsrc_gaddr(0, DEPTH_POPUP, &form_pop, resource_global);					/* Farbtiefenpopup */
-	xrsrc_gaddr(0, OUT_COL_POPUP, &edit_pop, resource_global);					/* Auûenfarbe */
-	xrsrc_gaddr(0, DITHERPOPUP, &col_pop, resource_global);						/* Ditheralgo */
-	xrsrc_gaddr(0, DISPLAY_OPTIONS, &Dialog.dispOpt.tree, resource_global);		/* Display-Opt-Form */
-	xrsrc_gaddr(0, PIC_WIND_FORM, &pic_form, resource_global);					/* Bildfenster-Form */
-	xrsrc_gaddr(0, IMAGE_INFO, &pic_info_form, resource_global);				/* BildinfoForm */
-	xrsrc_gaddr(0, SMURF_OPTIONS, &Dialog.smurfOpt.tree, resource_global);		/* Options-Form */
-	xrsrc_gaddr(0, WINDOW_ALERT, &alert_form, resource_global);					/* Windowalert */
-	xrsrc_gaddr(0, MOD_FORM, &module_form, resource_global);					/* Preferences-Form */
-	xrsrc_gaddr(0, BUSY_WINDOW, &Dialog.busy.busyTree, resource_global);		/* Busybox */
-	xrsrc_gaddr(0, MODULES, &Dialog.emodList.tree, resource_global);			/* Edit-Modulliste */
-	xrsrc_gaddr(0, SMURF_INFO, &info_window, resource_global);					/* Smurf Info */
-	xrsrc_gaddr(0, NEWPIC_FORM, &newpic_window, resource_global);				/* Neues Bild */
-	xrsrc_gaddr(0, BLOCK_TYPE, &blocktype_window, resource_global);				/* Ordner laden */
-	xrsrc_gaddr(0, EXPORT_MODS, &Dialog.expmodList.tree, resource_global);		/* Export-Modulliste */
-	xrsrc_gaddr(0, PIC_MANAGER, &Dialog.picMan.tree, resource_global);			/* Bildmanager */
-	xrsrc_gaddr(0, EXPORT_FORM, &export_form, resource_global);					/* Export-Formular */
-	xrsrc_gaddr(0, PICORDER_POPUP, &picorder_popup, resource_global);			/* Bildreihenfolge-Popup*/
-	xrsrc_gaddr(0, COL_RED_POPUP, &colred_popup, resource_global);				/* Farbreduktion */
-	xrsrc_gaddr(0, BLOCK_POPUP, &blockpopup, resource_global);					/* Blockpopup */
-	xrsrc_gaddr(0, BLOCK_CONF, &blockmode_window, resource_global);				/* Blockpopup */
-	xrsrc_gaddr(0, EXPORT_DEPTH_POP, &exp_dp_popup, resource_global);			/* Export-Tiefe */
+	xrsrc_gaddr(0, DEPTH_POPUP, &form_pop, resource_global);	/* Farbtiefenpopup */
+	xrsrc_gaddr(0, OUT_COL_POPUP, &edit_pop, resource_global);	/* Auûenfarbe */
+	xrsrc_gaddr(0, DITHERPOPUP, &col_pop, resource_global);	/* Ditheralgo */
+	xrsrc_gaddr(0, DISPLAY_OPTIONS, &Dialog.dispOpt.tree, resource_global);	/* Display-Opt-Form */
+	xrsrc_gaddr(0, PIC_WIND_FORM, &pic_form, resource_global);	/* Bildfenster-Form */
+	xrsrc_gaddr(0, IMAGE_INFO, &pic_info_form, resource_global);	/* BildinfoForm */
+	xrsrc_gaddr(0, SMURF_OPTIONS, &Dialog.smurfOpt.tree, resource_global);	/* Options-Form */
+	xrsrc_gaddr(0, WINDOW_ALERT, &alert_form, resource_global);	/* Windowalert */
+	xrsrc_gaddr(0, MOD_FORM, &module_form, resource_global);	/* Preferences-Form */
+	xrsrc_gaddr(0, BUSY_WINDOW, &Dialog.busy.busyTree, resource_global);	/* Busybox */
+	xrsrc_gaddr(0, MODULES, &Dialog.emodList.tree, resource_global);	/* Edit-Modulliste */
+	xrsrc_gaddr(0, SMURF_INFO, &info_window, resource_global);	/* Smurf Info */
+	xrsrc_gaddr(0, NEWPIC_FORM, &newpic_window, resource_global);	/* Neues Bild */
+	xrsrc_gaddr(0, BLOCK_TYPE, &blocktype_window, resource_global);	/* Ordner laden */
+	xrsrc_gaddr(0, EXPORT_MODS, &Dialog.expmodList.tree, resource_global);	/* Export-Modulliste */
+	xrsrc_gaddr(0, PIC_MANAGER, &Dialog.picMan.tree, resource_global);	/* Bildmanager */
+	xrsrc_gaddr(0, EXPORT_FORM, &export_form, resource_global);	/* Export-Formular */
+	xrsrc_gaddr(0, PICORDER_POPUP, &picorder_popup, resource_global);	/* Bildreihenfolge-Popup */
+	xrsrc_gaddr(0, COL_RED_POPUP, &colred_popup, resource_global);	/* Farbreduktion */
+	xrsrc_gaddr(0, BLOCK_POPUP, &blockpopup, resource_global);	/* Blockpopup */
+	xrsrc_gaddr(0, BLOCK_CONF, &blockmode_window, resource_global);	/* Blockpopup */
+	xrsrc_gaddr(0, EXPORT_DEPTH_POP, &exp_dp_popup, resource_global);	/* Export-Tiefe */
 	xrsrc_gaddr(0, MODULE_INFO, &Dialog.emodList.infoTree, resource_global);	/* Edit-Modul-Info */
-	xrsrc_gaddr(0, EXP_MODULE_INFO, &Dialog.expmodList.infoTree, resource_global);				/* Export-Modul-Info */
-	xrsrc_gaddr(0, TRANSFORM_PIC, &transform_window, resource_global);			/* Bild wandeln */
+	xrsrc_gaddr(0, EXP_MODULE_INFO, &Dialog.expmodList.infoTree, resource_global);	/* Export-Modul-Info */
+	xrsrc_gaddr(0, TRANSFORM_PIC, &transform_window, resource_global);	/* Bild wandeln */
 
 	xrsrc_gaddr(0, ALERT_STRINGS, &Dialog.winAlert.alerts, resource_global);	/* Alertstrings */
-	xrsrc_gaddr(0, WINDOW_TITLES, &Window.titles, resource_global);				/* Fenstertitel */
-	xrsrc_gaddr(0, SAVE_MODCONFIG, &confsave_dialog, resource_global);			/* Modulkonfiguration speichern */
-	xrsrc_gaddr(0, MODCONF_POPUP, &modconf_popup, resource_global);				/* Modulkonfiguration aufpopen */
+	xrsrc_gaddr(0, WINDOW_TITLES, &Window.titles, resource_global);	/* Fenstertitel */
+	xrsrc_gaddr(0, SAVE_MODCONFIG, &confsave_dialog, resource_global);	/* Modulkonfiguration speichern */
+	xrsrc_gaddr(0, MODCONF_POPUP, &modconf_popup, resource_global);	/* Modulkonfiguration aufpopen */
 
-	xrsrc_gaddr(0, BUTTONS, &u_tree, resource_global);							/* Userdefs */
+	xrsrc_gaddr(0, BUTTONS, &u_tree, resource_global);	/* Userdefs */
 
 	f_treewalk(form_pop, 0);
 	f_treewalk(edit_pop, 0);
@@ -310,26 +313,43 @@ void init_smurfrsc(char *rscpath)
 	f_treewalk(modconf_popup, 0);
 
 	/* Formularkoordinaten in Felder eintragen */
-	form_center(Dialog.dispOpt.tree, &(wind_s[WIND_DOPT].wx), &(wind_s[WIND_DOPT].wy), &(wind_s[WIND_DOPT].ww), &(wind_s[WIND_DOPT].wh));
+	form_center(Dialog.dispOpt.tree, &(wind_s[WIND_DOPT].wx), &(wind_s[WIND_DOPT].wy), &(wind_s[WIND_DOPT].ww),
+				&(wind_s[WIND_DOPT].wh));
 
-	form_center(pic_form, &(wind_s[WIND_PIC].wx), &(wind_s[WIND_PIC].wy), &(wind_s[WIND_PIC].ww), &(wind_s[WIND_PIC].wh));
-	form_center(pic_info_form, &(wind_s[WIND_PICINFO].wx), &(wind_s[WIND_PICINFO].wy), &(wind_s[WIND_PICINFO].ww), &(wind_s[WIND_PICINFO].wh));
-	form_center(Dialog.smurfOpt.tree, &(wind_s[WIND_OPTIONS].wx), &(wind_s[WIND_OPTIONS].wy), &(wind_s[WIND_OPTIONS].ww), &(wind_s[WIND_OPTIONS].wh));
-	form_center(alert_form, &(wind_s[WIND_ALERT].wx), &(wind_s[WIND_ALERT].wy), &(wind_s[WIND_ALERT].ww), &(wind_s[WIND_ALERT].wh));
-	form_center(module_form, &(wind_s[WIND_MODFORM].wx), &(wind_s[WIND_MODFORM].wy), &(wind_s[WIND_MODFORM].ww), &(wind_s[WIND_MODFORM].wh));
-	form_center(Dialog.emodList.tree, &(wind_s[WIND_MODULES].wx), &(wind_s[WIND_MODULES].wy), &(wind_s[WIND_MODULES].ww), &(wind_s[WIND_MODULES].wh));
-	form_center(info_window, &(wind_s[WIND_INFO].wx), &(wind_s[WIND_INFO].wy), &(wind_s[WIND_INFO].ww), &(wind_s[WIND_INFO].wh));
-	form_center(newpic_window, &(wind_s[WIND_NEWPIC].wx), &(wind_s[WIND_NEWPIC].wy), &(wind_s[WIND_NEWPIC].ww), &(wind_s[WIND_NEWPIC].wh));
-	form_center(blocktype_window, &(wind_s[WIND_BTYPEIN].wx), &(wind_s[WIND_BTYPEIN].wy), &(wind_s[WIND_BTYPEIN].ww), &(wind_s[WIND_BTYPEIN].wh));
-	form_center(Dialog.expmodList.tree, &(wind_s[WIND_EXPORT].wx), &(wind_s[WIND_EXPORT].wy), &(wind_s[WIND_EXPORT].ww), &(wind_s[WIND_EXPORT].wh));
-	form_center(Dialog.picMan.tree, &(wind_s[WIND_PICMAN].wx), &(wind_s[WIND_PICMAN].wy), &(wind_s[WIND_PICMAN].ww), &(wind_s[WIND_PICMAN].wh));
-	form_center(export_form, &(wind_s[FORM_EXPORT].wx), &(wind_s[FORM_EXPORT].wy), &(wind_s[FORM_EXPORT].ww), &(wind_s[FORM_EXPORT].wh));
-	form_center(Dialog.emodList.infoTree, &(wind_s[WIND_MODULES].wx), &(wind_s[WIND_MODULES].wy), &(wind_s[WIND_MODULES].ww), &(wind_s[WIND_MODULES].wh));
-	form_center(Dialog.expmodList.infoTree, &(wind_s[WIND_EXPORT].wx), &(wind_s[WIND_EXPORT].wy), &(wind_s[WIND_EXPORT].ww), &(wind_s[WIND_EXPORT].wh));
-	form_center(transform_window, &(wind_s[WIND_TRANSFORM].wx), &(wind_s[WIND_TRANSFORM].wy), &(wind_s[WIND_TRANSFORM].ww), &(wind_s[WIND_TRANSFORM].wh));
-	form_center(blockmode_window, &(wind_s[WIND_BLOCKMODE].wx), &(wind_s[WIND_BLOCKMODE].wy), &(wind_s[WIND_BLOCKMODE].ww), &(wind_s[WIND_BLOCKMODE].wh));
-	form_center(confsave_dialog, &dummy,&dummy,&dummy,&dummy);
-	form_center(modconf_popup, &dummy,&dummy,&dummy,&dummy);
+	form_center(pic_form, &(wind_s[WIND_PIC].wx), &(wind_s[WIND_PIC].wy), &(wind_s[WIND_PIC].ww),
+				&(wind_s[WIND_PIC].wh));
+	form_center(pic_info_form, &(wind_s[WIND_PICINFO].wx), &(wind_s[WIND_PICINFO].wy), &(wind_s[WIND_PICINFO].ww),
+				&(wind_s[WIND_PICINFO].wh));
+	form_center(Dialog.smurfOpt.tree, &(wind_s[WIND_OPTIONS].wx), &(wind_s[WIND_OPTIONS].wy),
+				&(wind_s[WIND_OPTIONS].ww), &(wind_s[WIND_OPTIONS].wh));
+	form_center(alert_form, &(wind_s[WIND_ALERT].wx), &(wind_s[WIND_ALERT].wy), &(wind_s[WIND_ALERT].ww),
+				&(wind_s[WIND_ALERT].wh));
+	form_center(module_form, &(wind_s[WIND_MODFORM].wx), &(wind_s[WIND_MODFORM].wy), &(wind_s[WIND_MODFORM].ww),
+				&(wind_s[WIND_MODFORM].wh));
+	form_center(Dialog.emodList.tree, &(wind_s[WIND_MODULES].wx), &(wind_s[WIND_MODULES].wy),
+				&(wind_s[WIND_MODULES].ww), &(wind_s[WIND_MODULES].wh));
+	form_center(info_window, &(wind_s[WIND_INFO].wx), &(wind_s[WIND_INFO].wy), &(wind_s[WIND_INFO].ww),
+				&(wind_s[WIND_INFO].wh));
+	form_center(newpic_window, &(wind_s[WIND_NEWPIC].wx), &(wind_s[WIND_NEWPIC].wy), &(wind_s[WIND_NEWPIC].ww),
+				&(wind_s[WIND_NEWPIC].wh));
+	form_center(blocktype_window, &(wind_s[WIND_BTYPEIN].wx), &(wind_s[WIND_BTYPEIN].wy), &(wind_s[WIND_BTYPEIN].ww),
+				&(wind_s[WIND_BTYPEIN].wh));
+	form_center(Dialog.expmodList.tree, &(wind_s[WIND_EXPORT].wx), &(wind_s[WIND_EXPORT].wy), &(wind_s[WIND_EXPORT].ww),
+				&(wind_s[WIND_EXPORT].wh));
+	form_center(Dialog.picMan.tree, &(wind_s[WIND_PICMAN].wx), &(wind_s[WIND_PICMAN].wy), &(wind_s[WIND_PICMAN].ww),
+				&(wind_s[WIND_PICMAN].wh));
+	form_center(export_form, &(wind_s[FORM_EXPORT].wx), &(wind_s[FORM_EXPORT].wy), &(wind_s[FORM_EXPORT].ww),
+				&(wind_s[FORM_EXPORT].wh));
+	form_center(Dialog.emodList.infoTree, &(wind_s[WIND_MODULES].wx), &(wind_s[WIND_MODULES].wy),
+				&(wind_s[WIND_MODULES].ww), &(wind_s[WIND_MODULES].wh));
+	form_center(Dialog.expmodList.infoTree, &(wind_s[WIND_EXPORT].wx), &(wind_s[WIND_EXPORT].wy),
+				&(wind_s[WIND_EXPORT].ww), &(wind_s[WIND_EXPORT].wh));
+	form_center(transform_window, &(wind_s[WIND_TRANSFORM].wx), &(wind_s[WIND_TRANSFORM].wy),
+				&(wind_s[WIND_TRANSFORM].ww), &(wind_s[WIND_TRANSFORM].wh));
+	form_center(blockmode_window, &(wind_s[WIND_BLOCKMODE].wx), &(wind_s[WIND_BLOCKMODE].wy),
+				&(wind_s[WIND_BLOCKMODE].ww), &(wind_s[WIND_BLOCKMODE].wh));
+	form_center(confsave_dialog, &dummy, &dummy, &dummy, &dummy);
+	form_center(modconf_popup, &dummy, &dummy, &dummy, &dummy);
 
 	wind_s[WIND_MODFORM].wnum = WIND_MODFORM;
 	strcpy(wind_s[WIND_MODFORM].wtitle, Window.titles[WT_MODCONF].TextCast);
@@ -341,7 +361,7 @@ void init_smurfrsc(char *rscpath)
 	wind_s[WIND_MODFORM].nextedit = ED1;
 	wind_s[WIND_MODFORM].editx = 0;
 	wind_s[WIND_MODFORM].pflag = 0;
-	
+
 	wind_s[WIND_ALERT].wnum = WIND_ALERT;
 	strcpy(wind_s[WIND_ALERT].wtitle, Window.titles[WT_ALERT].TextCast);
 	wind_s[WIND_ALERT].resource_form = alert_form;
@@ -350,7 +370,7 @@ void init_smurfrsc(char *rscpath)
 
 	wind_s[WIND_ALERT].editob = 0;
 	wind_s[WIND_ALERT].pflag = 0;
-	
+
 	wind_s[WIND_DOPT].wnum = WIND_DOPT;
 	strcpy(wind_s[WIND_DOPT].wtitle, Window.titles[WT_DISPOPTS].TextCast);
 	wind_s[WIND_DOPT].resource_form = Dialog.dispOpt.tree;
@@ -361,7 +381,7 @@ void init_smurfrsc(char *rscpath)
 	wind_s[WIND_DOPT].nextedit = PAL_TIMER;
 	wind_s[WIND_DOPT].editx = 0;
 	wind_s[WIND_DOPT].pflag = 0;
-	
+
 	wind_s[WIND_PICINFO].wnum = WIND_PICINFO;
 	strcpy(wind_s[WIND_PICINFO].wtitle, Window.titles[WT_PICINFO].TextCast);
 	wind_s[WIND_PICINFO].resource_form = pic_info_form;
@@ -372,7 +392,7 @@ void init_smurfrsc(char *rscpath)
 	wind_s[WIND_PICINFO].nextedit = 0;
 	wind_s[WIND_PICINFO].editx = 0;
 	wind_s[WIND_PICINFO].pflag = 0;
-	
+
 	wind_s[WIND_OPTIONS].wnum = WIND_OPTIONS;
 	strcpy(wind_s[WIND_OPTIONS].wtitle, Window.titles[WT_OPTIONS].TextCast);
 	wind_s[WIND_OPTIONS].resource_form = Dialog.smurfOpt.tree;
@@ -381,7 +401,7 @@ void init_smurfrsc(char *rscpath)
 
 	wind_s[WIND_OPTIONS].editob = 0;
 	wind_s[WIND_OPTIONS].pflag = 0;
-	
+
 	wind_s[WIND_BUSY].wnum = WIND_BUSY;
 	strcpy(wind_s[WIND_BUSY].wtitle, Window.titles[WT_STATUS].TextCast);
 	wind_s[WIND_BUSY].resource_form = Dialog.busy.busyTree;
@@ -390,7 +410,7 @@ void init_smurfrsc(char *rscpath)
 
 	wind_s[WIND_BUSY].editob = 0;
 	wind_s[WIND_BUSY].pflag = 0;
-	
+
 	wind_s[WIND_MODULES].wnum = WIND_MODULES;
 	strcpy(wind_s[WIND_MODULES].wtitle, Window.titles[WT_EDITMODS].TextCast);
 	wind_s[WIND_MODULES].resource_form = Dialog.emodList.tree;
@@ -408,7 +428,7 @@ void init_smurfrsc(char *rscpath)
 
 	wind_s[WIND_EXPORT].editob = 0;
 	wind_s[WIND_EXPORT].pflag = 0;
-	
+
 	wind_s[WIND_INFO].wnum = WIND_INFO;
 	strcpy(wind_s[WIND_INFO].wtitle, Window.titles[WT_INFO].TextCast);
 	wind_s[WIND_INFO].resource_form = info_window;
@@ -417,7 +437,7 @@ void init_smurfrsc(char *rscpath)
 
 	wind_s[WIND_INFO].editob = 0;
 	wind_s[WIND_INFO].pflag = 0;
-	
+
 	wind_s[WIND_NEWPIC].wnum = WIND_NEWPIC;
 	strcpy(wind_s[WIND_NEWPIC].wtitle, Window.titles[WT_NEWPIC].TextCast);
 	wind_s[WIND_NEWPIC].resource_form = newpic_window;
@@ -482,7 +502,7 @@ void init_smurfrsc(char *rscpath)
 
 
 	/*----- Verkettung der Window-Liste vorinitialisieren ----*/
-	for(t = 0; t < 25; t++)
+	for (t = 0; t < 25; t++)
 	{
 		wind_s[t].prev_window = NULL;
 		wind_s[t].next_window = NULL;
@@ -515,7 +535,7 @@ void init_smurfrsc(char *rscpath)
 	lrud_arrow.mf_nplanes = 1;
 	lrud_arrow.mf_fg = 0;
 	lrud_arrow.mf_bg = 1;
-	memcpy(lrud_arrow.mf_mask, lrud_arr_mask, 16 *2);
+	memcpy(lrud_arrow.mf_mask, lrud_arr_mask, 16 * 2);
 	memcpy(lrud_arrow.mf_data, lrud_arr, 16 * 2);
 }
 
@@ -525,10 +545,10 @@ void fix_rsc(void)
 {
 	OBJECT *ob;
 
-	DEBUG_MSG (( "Start Fix RSC...\n" ));
+	DEBUG_MSG(("Start Fix RSC...\n"));
 
 	/*--------------- ObjektfÅllmuster und -farben ----------------*/
-	if(Sys_info.Max_col >= 15)
+	if (Sys_info.Max_col >= 15)
 	{
 		ob = wind_s[WIND_EXPORT].resource_form;
 		ob[EMODSL_PAR].ob_spec.obspec.interiorcol = 9;
@@ -543,7 +563,7 @@ void fix_rsc(void)
 		ob[PMSL_PAR].ob_spec.obspec.fillpattern = 7;
 	}
 
-	if(Sys_info.Max_col == 1)
+	if (Sys_info.Max_col == 1)
 	{
 		ob = pic_form;
 		/* Bits 8-11 auf 0 setzten = Textfarbe auf 0 setzen */
@@ -551,7 +571,7 @@ void fix_rsc(void)
 	}
 
 	/*--------------- Objektrahmen (wenn kein 3D-AES) ----------------*/
-	if(Sys_info.Max_col < 15 || Sys_info.OS&MATSCHIG || !(Sys_info.OSFeatures&AES3D))
+	if (Sys_info.Max_col < 15 || Sys_info.OS & MATSCHIG || !(Sys_info.OSFeatures & AES3D))
 	{
 		ob = wind_s[WIND_EXPORT].resource_form;
 		ob[EMOD_SLIDER].ob_spec.obspec.framesize = -1;
@@ -578,7 +598,7 @@ void fix_rsc(void)
 		ob[HW_BOX].ob_spec.obspec.framesize = -1;
 		ob[PM_OUTER_BOX].ob_spec.obspec.framesize = -1;
 		ob[PMSL_PAR].ob_spec.obspec.framesize = 1;
-		
+
 		ob = wind_s[WIND_OPTIONS].resource_form;
 		ob[MISC_BUTTON].ob_spec.tedinfo->te_thickness = 1;
 		ob[PREVIEWS_BUTTON].ob_spec.tedinfo->te_thickness = 1;
@@ -589,7 +609,7 @@ void fix_rsc(void)
 		Dialog.busy.busyTree[BW_BOX].ob_spec.obspec.framesize = -1;
 	}
 
-	if(!(Sys_info.OS&MATSCHIG))
+	if (!(Sys_info.OS & MATSCHIG))
 	{
 		ob = wind_s[WIND_OPTIONS].resource_form;
 		ob[MISC_BUTTON].ob_spec.tedinfo->te_thickness = 1;

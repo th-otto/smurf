@@ -52,100 +52,103 @@ char *f_do_pcd(char *Path)
 	char *buffer;
 	int file;
 	int imgtype;
-	long DatenOffset, len, back, dummy;
+	long DatenOffset,
+	 len,
+	 back,
+	 dummy;
 	int idummy;
 	int key;
-	
-	
+
+
 	/* Die ersten 3600 Bytes laden ... */
-	if((buffer = SMalloc(3700)) == NULL)
+	if ((buffer = SMalloc(3700)) == NULL)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
 	else
 	{
-		if((dummy = Fopen(Path, FO_READ)) < 0)
+		if ((dummy = Fopen(Path, FO_READ)) < 0)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[FILEOPEN_ERR].TextCast, NULL, NULL, NULL, 1);
 			SMfree(buffer);
-		}
-		else
+		} else
 		{
-			file = (int)dummy;
+			file = (int) dummy;
 			back = Fread(file, 3600, buffer);
 			Fclose(file);
 
-			if(back != 3600)
+			if (back != 3600)
 			{
 				Dialog.winAlert.openAlert("Fehler beim Lesen aus der Photo-CD-Datei!", NULL, NULL, NULL, 1);
 				SMfree(buffer);
-				return(FALSE);
+				return (FALSE);
 			}
 
 			/* isseseins? */
-			if(strcmp(buffer + 2048, "PCD_IPI") != 0)
+			if (strcmp(buffer + 2048, "PCD_IPI") != 0)
 			{
 				SMfree(buffer);
-				return(FALSE);	/* N”! */
-			}
-			else				/* Jupp! */
+				return (FALSE);			/* N”! */
+			} else						/* Jupp! */
 			{
 				SMfree(buffer);
-			
+
 				PCD = 1;
-				
-				imgtype=Sys_info.PCD_Defsize;
+
+				imgtype = Sys_info.PCD_Defsize;
 
 				graf_mkstate(&idummy, &idummy, &idummy, &key);
 
-				if(key&KEY_ALT)
+				if (key & KEY_ALT)
 					imgtype = f_pop(&popups[POPUP_KODAK], 1, PCD_DEF_PB, NULL);
-				
-				switch(imgtype)
+
+				switch (imgtype)
 				{
-					case BASE_D16: DatenOffset = 0x2000;
-								   PCDwidth = 192;
-								   PCDheight = 128;
-								   break;
-					case BASE_D4: DatenOffset = 0xB800;
-								  PCDwidth = 384;
-								  PCDheight = 256;
-								  break;
-					case BASE: DatenOffset = 0x30000L;
-							   PCDwidth = 768;
-							   PCDheight = 512;
-							   break;
-					default: break;
+				case BASE_D16:
+					DatenOffset = 0x2000;
+					PCDwidth = 192;
+					PCDheight = 128;
+					break;
+				case BASE_D4:
+					DatenOffset = 0xB800;
+					PCDwidth = 384;
+					PCDheight = 256;
+					break;
+				case BASE:
+					DatenOffset = 0x30000L;
+					PCDwidth = 768;
+					PCDheight = 512;
+					break;
+				default:
+					break;
 				}
 
 				/* Die Bilddaten laden... */
-				len = (((long)PCDwidth*(long)PCDheight*3L)>>1L);
+				len = (((long) PCDwidth * (long) PCDheight * 3L) >> 1L);
 				f_len = len;
-				if((buffer = SMalloc(len + 1024L)) == 0)
+				if ((buffer = SMalloc(len + 1024L)) == 0)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
 				else
 				{
-					if((dummy = Fopen(Path, FO_READ)) < 0)
+					if ((dummy = Fopen(Path, FO_READ)) < 0)
 					{
 						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[FILEOPEN_ERR].TextCast, NULL, NULL, NULL, 1);
 						SMfree(buffer);
-					}
-					else
+					} else
 					{
-						file = (int)dummy;
-						Fseek(DatenOffset, file, 0);		/* Ab zum DatenOffset */
+						file = (int) dummy;
+						Fseek(DatenOffset, file, 0);	/* Ab zum DatenOffset */
 						back = Fread(file, len, buffer);
 						Fclose(file);
-						if(back != len)
+						if (back != len)
 						{
 							Dialog.winAlert.openAlert("Fehler beim Lesen aus der Photo-CD-Datei!", NULL, NULL, NULL, 1);
 							SMfree(buffer);
-						}
-						else
-							return(buffer);
-					} /* Open fr Bilddaten */
-				} /* Malloc fr Bilddaten */
-			} /* Magic-Vergleich */
-		} /* Open fr Erkennung */
-	} /* Malloc fr Erkennung */
+						} else
+							return (buffer);
+					}					/* Open fr Bilddaten */
+				}						/* Malloc fr Bilddaten */
+			}							/* Magic-Vergleich */
+		}								/* Open fr Erkennung */
+	}									/* Malloc fr Erkennung */
 
-	return(FALSE);
+	return (FALSE);
 }

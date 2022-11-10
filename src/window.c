@@ -43,7 +43,7 @@
 
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
-static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int stripheight);
+static void realtime_dither(GRECT * picbox, WINDOW * window, int *pxy, int *vdiclip, int stripheight);
 
 static char alerttok(char *text, char maxlen);
 
@@ -54,12 +54,19 @@ static char alerttok(char *text, char maxlen);
 /* selbstÑndig, clippt Fenster auf Bildschirmkoordinaten und fÅhrt	*/
 /* eine Erstinitialisierung eines eventuellen Editobjekts durch.	*/
 /* ----------------------------------------------------------------	*/
-int f_open_window(WINDOW *window)
+int f_open_window(WINDOW * window)
 {
 	int m_whandle;
-	int m_wind_x, m_wind_y, m_wind_w, m_wind_h;
-	int flags, dummy;
-	int abx, aby, abw, abh;
+	int m_wind_x,
+	 m_wind_y,
+	 m_wind_w,
+	 m_wind_h;
+	int flags,
+	 dummy;
+	int abx,
+	 aby,
+	 abw,
+	 abh;
 
 
 	m_wind_x = window->wx;
@@ -69,122 +76,118 @@ int f_open_window(WINDOW *window)
 	m_whandle = window->whandlem;
 
 	/* Doppelbedingung notwendig da der if sonst auch auf Bildfenster Nr. 6 anschlÑgt */
-	if(!window->pflag && window->wnum == WIND_ALERT)
-		flags = NAME|MOVER;
+	if (!window->pflag && window->wnum == WIND_ALERT)
+		flags = NAME | MOVER;
 	else
-		flags = CLOSER|NAME|MOVER|SMALLER;
+		flags = CLOSER | NAME | MOVER | SMALLER;
 
-	if(window->pflag && window->picture != NULL) 
-		flags |= FULLER|SIZER|UPARROW|DNARROW|LFARROW|RTARROW|VSLIDE|HSLIDE;
-	else
-		if(!window->pflag)
-			flags |= add_flags[window->wnum];
+	if (window->pflag && window->picture != NULL)
+		flags |= FULLER | SIZER | UPARROW | DNARROW | LFARROW | RTARROW | VSLIDE | HSLIDE;
+	else if (!window->pflag)
+		flags |= add_flags[window->wnum];
 
 
 	/*---- kein Bildfenster? */
-	if(!window->pflag)
+	if (!window->pflag)
 	{
 		/*------ Systempalette einstellen */
-		if(!Startup)
+		if (!Startup)
 			f_set_syspal();
 
 		/*---- Fenster neu, Dialoge zentrieren an? */
-		if(m_whandle <= 0 && Sys_info.center_dialog&OS_SELECTED)
+		if (m_whandle <= 0 && Sys_info.center_dialog & OS_SELECTED)
 		{
-			if((window->wnum != WIND_BUSY) && (Sys_info.dialog_opened[window->wnum] == 0))
-				form_center(window->resource_form, &m_wind_x,&m_wind_y,&m_wind_w,&m_wind_h);
+			if ((window->wnum != WIND_BUSY) && (Sys_info.dialog_opened[window->wnum] == 0))
+				form_center(window->resource_form, &m_wind_x, &m_wind_y, &m_wind_w, &m_wind_h);
 		}
 
 		/*---- Dialoge zentrieren aus oder Startup? */
-		if((!(Sys_info.center_dialog&OS_SELECTED) || Startup == 1) && window->wnum != WIND_ALERT)
+		if ((!(Sys_info.center_dialog & OS_SELECTED) || Startup == 1) && window->wnum != WIND_ALERT)
 		{
 			m_wind_x = Sys_info.dialog_xposition[window->wnum];
 			m_wind_y = Sys_info.dialog_yposition[window->wnum];
 		}
 	}
 
-	if(window->wnum == WIND_MODFORM || window->wnum == WIND_PICORDER ||
-	   window->wnum == WIND_ALERT || window->wnum == WIND_PICINFO)
+	if (window->wnum == WIND_MODFORM || window->wnum == WIND_PICORDER ||
+		window->wnum == WIND_ALERT || window->wnum == WIND_PICINFO)
 		Sys_info.dialog_opened[window->wnum] = 0;
-	else
-		if(!window->pflag && !window->module)
-			Sys_info.dialog_opened[window->wnum] = 1;
+	else if (!window->pflag && !window->module)
+		Sys_info.dialog_opened[window->wnum] = 1;
 
 	/*---------------- Fensterkoordinaten prÅfen und anpassen */
 	Window.windGet(0, WF_WORKXYWH, &abx, &aby, &abw, &abh);
 	abh += aby;
 
 	/* aus Nettokoordinaten Bruttokoordinaten machen */
-	wind_calc(WC_BORDER, flags, m_wind_x,m_wind_y,m_wind_w,m_wind_h, &m_wind_x,&m_wind_y,&m_wind_w,&m_wind_h);
+	wind_calc(WC_BORDER, flags, m_wind_x, m_wind_y, m_wind_w, m_wind_h, &m_wind_x, &m_wind_y, &m_wind_w, &m_wind_h);
 
-	if(!window->pflag)
+	if (!window->pflag)
 	{
-		if(m_wind_x + m_wind_w > abw)
+		if (m_wind_x + m_wind_w > abw)
 			m_wind_x = abw - m_wind_w;
 
-		if(m_wind_y + m_wind_h > abh)
+		if (m_wind_y + m_wind_h > abh)
 			m_wind_y = abh - m_wind_h;
-	}
-	else
+	} else
 	{
-		if(m_wind_x + m_wind_w > abw)
+		if (m_wind_x + m_wind_w > abw)
 			m_wind_w = abw - m_wind_x;
 
-		if(m_wind_y + m_wind_h > abh)
+		if (m_wind_y + m_wind_h > abh)
 			m_wind_h = abh - m_wind_y;
 	}
 
 	/* erst hier, weil obige Berechnungen negative Werte ergeben kînnen */
-	if(m_wind_x < abx)
+	if (m_wind_x < abx)
 		m_wind_x = abx;
 
-	if(m_wind_y < aby)
+	if (m_wind_y < aby)
 		m_wind_y = aby;
 
 	/* Nettokoordinaten in resource_form speichern */
-	wind_calc(WC_WORK, flags, m_wind_x,m_wind_y,m_wind_w,m_wind_h, &window->resource_form->ob_x,&window->resource_form->ob_y, &dummy, &dummy);
+	wind_calc(WC_WORK, flags, m_wind_x, m_wind_y, m_wind_w, m_wind_h, &window->resource_form->ob_x,
+			  &window->resource_form->ob_y, &dummy, &dummy);
 
 	/* ist das gewÅnschte Fenster noch zu? */
-	if(m_whandle <= 0)
+	if (m_whandle <= 0)
 	{
 		window->whandlem = wind_create(flags, m_wind_x, m_wind_y, m_wind_w, m_wind_h);
-		
-		if(window->whandlem < 0) 
+
+		if (window->whandlem < 0)
 		{
-			form_alert(1, "[0][Keine Fenster mehr frei!][ Oh ]"); 
-			return(-1);
+			form_alert(1, "[0][Keine Fenster mehr frei!][ Oh ]");
+			return (-1);
 		}
 
-		if(Sys_info.OSFeatures&BEVT)	
-			Window.windSet(window->whandlem,WF_BEVENT,1,0,0,0);
+		if (Sys_info.OSFeatures & BEVT)
+			Window.windSet(window->whandlem, WF_BEVENT, 1, 0, 0, 0);
 
-		Window.windSet(window->whandlem, WF_NAME, LONG2_2INT(window->wtitle), 0,0);
+		Window.windSet(window->whandlem, WF_NAME, LONG2_2INT(window->wtitle), 0, 0);
 
-		if(add_flags[window->wnum]&INFO) 
+		if (add_flags[window->wnum] & INFO)
 		{
-			if(window->wnum == WIND_MODULES) 
-				Window.windSet(window->whandlem, WF_INFO, LONG2_2INT(Dialog.emodList.modList.autolocator), 0,0);
-			else
-				if(window->wnum == WIND_EXPORT) 
-					Window.windSet(window->whandlem, WF_INFO, LONG2_2INT(Dialog.expmodList.modList.autolocator), 0,0);
+			if (window->wnum == WIND_MODULES)
+				Window.windSet(window->whandlem, WF_INFO, LONG2_2INT(Dialog.emodList.modList.autolocator), 0, 0);
+			else if (window->wnum == WIND_EXPORT)
+				Window.windSet(window->whandlem, WF_INFO, LONG2_2INT(Dialog.expmodList.modList.autolocator), 0, 0);
 		}
 
 		wind_open(window->whandlem, m_wind_x, m_wind_y, m_wind_w, m_wind_h);
 
-		if(window->resource_form != alert_form)
+		if (window->resource_form != alert_form)
 			Window.windowToList(window);
-		
+
 		window->fullx = -1;
 		window->shaded = 0;
 
-		if(window->pflag && Display_Opt.palette_mode == PAL_TOPWIN)
+		if (window->pflag && Display_Opt.palette_mode == PAL_TOPWIN)
 			f_set_picpal(window->picture);
 
-	}
-	else
+	} else
 		Window.top(window->whandlem);
 
-	if(window->pflag == 0)
+	if (window->pflag == 0)
 		Dialog.topDialog = window->whandlem;
 	else
 		imageWindow.topPicwin = window->whandlem;
@@ -206,7 +209,7 @@ int f_open_window(WINDOW *window)
 
 	actualize_menu();
 
-	return(0);
+	return (0);
 }
 
 
@@ -224,24 +227,31 @@ int f_open_window(WINDOW *window)
 /* des kompletten Bildes muû dann noch an den entsprechenden Stellen*/
 /* ausgeschaltet werden, wenn der Online-Dither eingeschaltet ist.	*/
 /*-----------------------------------------------------------------	*/
-void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
+void f_redraw_window(WINDOW * window, GRECT * mwind, int startob, int flags)
 {
-	int	clip[10];								/* Clipping PXYARRAY... */
-	int	vdiclip[10];							/* Clipping PXYARRAY... */
-	int	pxy[10];								/* Clipping PXYARRAY... */
-	int Colindex[3] = {1,0,0};
-	int endwid, endhgt;
+	int clip[10];						/* Clipping PXYARRAY... */
+	int vdiclip[10];					/* Clipping PXYARRAY... */
+	int pxy[10];						/* Clipping PXYARRAY... */
+	int Colindex[3] = { 1, 0, 0 };
+	int endwid,
+	 endhgt;
 	int tophandle;
-	int online = 0, dummy;
-	int wind_x, wind_y, wind_w, wind_h;
+	int online = 0,
+		dummy;
+	int wind_x,
+	 wind_y,
+	 wind_w,
+	 wind_h;
 
-	MFDB	m_screen;
-	MFDB	*disp_pic;
-	OBJECT	*tree;
-	GRECT	picbox, box, work;
+	MFDB m_screen;
+	MFDB *disp_pic;
+	OBJECT *tree;
+	GRECT picbox,
+	 box,
+	 work;
 
 
-	if(window == NULL || window->whandlem <= 0)
+	if (window == NULL || window->whandlem <= 0)
 		return;
 
 	wind_x = window->wx;
@@ -249,7 +259,7 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 	wind_w = window->ww;
 	wind_h = window->wh;
 
-	if(window->pflag)
+	if (window->pflag)
 	{
 		window->resource_form->ob_x = wind_x;
 		window->resource_form->ob_y = wind_y;
@@ -257,8 +267,8 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 	}
 
 	tree = window->resource_form;
-	if(mwind == NULL)
-		mwind = &screen;	
+	if (mwind == NULL)
+		mwind = &screen;
 
 	work.g_x = mwind->g_x;
 	work.g_y = mwind->g_y;
@@ -266,16 +276,16 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 	work.g_h = mwind->g_h;
 	Window.windGet(window->whandlem, WF_FIRSTXYWH, &box.g_x, &box.g_y, &box.g_w, &box.g_h);
 
-	if(!(flags&DRAWNOPICTURE))
+	if (!(flags & DRAWNOPICTURE))
 		graf_mouse(M_OFF, dummy_ptr);
-	if(wind_update(BEG_UPDATE) == 0)
+	if (wind_update(BEG_UPDATE) == 0)
 		return;
 
 	Window.cursorOff(window);
 
-	while(box.g_w > 0 && box.g_h > 0)
+	while (box.g_w > 0 && box.g_h > 0)
 	{
-		if(Window.rcIntersect(&work, &box, &box))
+		if (Window.rcIntersect(&work, &box, &box))
 		{
 			clip[0] = box.g_x;
 			clip[1] = box.g_y;
@@ -287,21 +297,21 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 			vdiclip[2] = clip[2] + vdiclip[0] - 1;
 			vdiclip[3] = clip[3] + vdiclip[1] - 1;
 
-			if(window->shaded&ICONIFIED)
+			if (window->shaded & ICONIFIED)
 				Window.drawIconified(window, vdiclip);
-			else 
+			else
 			{
-				if(tree != NULL && !(flags&DRAWNOTREE))			/* OBJECT-Baum */
+				if (tree != NULL && !(flags & DRAWNOTREE))	/* OBJECT-Baum */
 				{
-					if(window->pflag)							/* Bildfenster? */
+					if (window->pflag)	/* Bildfenster? */
 					{
 						imageWindow.insertZoom(window);
-						if(window->wnum != active_pic)
-							tree[0].ob_state |= OS_SELECTED;		/* nicht aktiv ... */
+						if (window->wnum != active_pic)
+							tree[0].ob_state |= OS_SELECTED;	/* nicht aktiv ... */
 						else
-							tree[0].ob_state &= ~OS_SELECTED;		/* ... oder aktiv? */
+							tree[0].ob_state &= ~OS_SELECTED;	/* ... oder aktiv? */
 
-						if(window->picture->blockwidth || window->picture->blockheight)
+						if (window->picture->blockwidth || window->picture->blockheight)
 						{
 							itoa(window->picture->blockwidth, tree[PW_WID].TextCast, 10);
 							itoa(window->picture->blockheight, tree[PW_HGT].TextCast, 10);
@@ -309,14 +319,14 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 					}
 
 					vs_clip(Sys_info.vdi_handle, 1, vdiclip);
-					objc_draw(tree, startob, MAX_DEPTH, clip[0],clip[1],clip[2],clip[3]);
+					objc_draw(tree, startob, MAX_DEPTH, clip[0], clip[1], clip[2], clip[3]);
 					vs_clip(Sys_info.vdi_handle, 0, vdiclip);
 				}
 
 				/*
 				 * Bild redrawen
 				 */
-				if(window->picture != NULL && !(flags&DRAWNOPICTURE))					/* SMURF_PIC-Bild */
+				if (window->picture != NULL && !(flags & DRAWNOPICTURE))	/* SMURF_PIC-Bild */
 				{
 					endwid = window->picture->pic_width / (window->picture->zoom + 1);
 					endhgt = window->picture->pic_height / (window->picture->zoom + 1);
@@ -333,12 +343,12 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 					 * Nach der rcIntersect-Operation liegt in <picbox> das Rechteck, das
 					 * wirklich redrawed werden muû, in absoluten Bildschirmkoordinaten.
 					 */
-					if(Window.rcIntersect(&box, &picbox, &picbox))		/* fÅr Echtzeitdither auch in Bildfenstern! */
+					if (Window.rcIntersect(&box, &picbox, &picbox))	/* fÅr Echtzeitdither auch in Bildfenstern! */
 					{
 						m_screen.fd_addr = NULL;
 						disp_pic = window->picture->screen_pic;
 
-						if(window->picture->changed == 0x80)
+						if (window->picture->changed == 0x80)
 							pxy[0] = pxy[1] = 0;
 						else
 						{
@@ -356,42 +366,41 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 						/*
 						 * evtl. Clipping anpassen 
 						 */
-						if(!window->pflag)
+						if (!window->pflag)
 						{
 							vdiclip[0] = picbox.g_x;
 							vdiclip[1] = picbox.g_y;
 							vdiclip[2] = vdiclip[0] + picbox.g_w - 1;
 							vdiclip[3] = vdiclip[1] + picbox.g_h - 1;
-						}
-						else
+						} else
 						{
-							if(vdiclip[1] < wind_y + TOOLBAR_HEIGHT - 1)
+							if (vdiclip[1] < wind_y + TOOLBAR_HEIGHT - 1)
 								vdiclip[1] = wind_y + TOOLBAR_HEIGHT - 1;
 						}
-						
+
 						/*
 						 * Wenn es keine Bildschirmdarstellung gibt, muû ich mir hier
 						 * fÅr das aktuelle Clippingrechteck eine erzeugen. 
 						 */
-						if(!(flags&BLOCK_ONLY))
+						if (!(flags & BLOCK_ONLY))
 						{
-							if(disp_pic == NULL || disp_pic->fd_addr == NULL)
+							if (disp_pic == NULL || disp_pic->fd_addr == NULL)
 							{
 								online = 1;
 								realtime_dither(&picbox, window, pxy, vdiclip, 64);
 #if 0
-								disp_pic = window->picture->screen_pic;		/* neu geditherten Ausschnitt einhÑngen */
+								disp_pic = window->picture->screen_pic;	/* neu geditherten Ausschnitt einhÑngen */
 #endif
 							}
-							
+
 							/*
 							 * Bild reinkopieren
 							 */
-							if(!online)
+							if (!online)
 							{
 								vs_clip(Sys_info.vdi_handle, 1, vdiclip);
-								if(disp_pic->fd_nplanes==1) 
-									vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, disp_pic, &m_screen, Colindex);	
+								if (disp_pic->fd_nplanes == 1)
+									vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, disp_pic, &m_screen, Colindex);
 								else
 									vro_cpyfm(Sys_info.vdi_handle, S_ONLY, pxy, disp_pic, &m_screen);
 								vs_clip(Sys_info.vdi_handle, 0, vdiclip);
@@ -400,28 +409,28 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 
 						vs_clip(Sys_info.vdi_handle, 1, vdiclip);
 
-						if(window->pflag && window->picture->block!=NULL && !(flags&DRAWNOBLOCK))
+						if (window->pflag && window->picture->block != NULL && !(flags & DRAWNOBLOCK))
 							imageWindow.drawBlock(window, &picbox);
 
-						vs_clip(Sys_info.vdi_handle, 1, vdiclip);			/* Clipping neu einschalten (wird in draw_block geÑndert!) */
-						
+						vs_clip(Sys_info.vdi_handle, 1, vdiclip);	/* Clipping neu einschalten (wird in draw_block geÑndert!) */
+
 						/*
 						 * Ditherpuffer fÅr Online-Dithering wieder freigeben
 						 */
-						if(online)
+						if (online)
 							window->picture->screen_pic = NULL;
-					
+
 						/* Bildmanager? -> Box fÅr Bildausschnitt */
-						if(window->wnum == WIND_PICMAN)
+						if (window->wnum == WIND_PICMAN)
 							Dialog.picMan.drawPicmanBoxes();
 					}
-					
+
 					/*
 					 * sonstige Bildfensterelemente zeichnen (Blockbox, Fadenkreuz, FensterflÑche...)
 					 * das muû auûerhalb des box-picbox intersects, damit die Boxen nicht
 					 * auf die BildflÑche beschnitten werden.
-					 */	
-					if(window->pflag)
+					 */
+					if (window->pflag)
 					{
 						vs_clip(Sys_info.vdi_handle, 1, vdiclip);
 						vsf_color(Sys_info.vdi_handle, Sys_info.outcol);
@@ -444,7 +453,7 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 						pxy[3] = wind_y + wind_h;
 						vr_recfl(Sys_info.vdi_handle, pxy);
 
-						if(!(flags&NOBLOCKBOX))
+						if (!(flags & NOBLOCKBOX))
 							imageWindow.drawBlockbox(window);
 
 						imageWindow.drawCrosshair(window);
@@ -455,15 +464,15 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 			}
 		}
 
-		Window.windGet( window->whandlem, WF_NEXTXYWH, &box.g_x, &box.g_y, &box.g_w, &box.g_h );
+		Window.windGet(window->whandlem, WF_NEXTXYWH, &box.g_x, &box.g_y, &box.g_w, &box.g_h);
 	}
-	
-	Window.windGet(window->whandlem, WF_TOP, &tophandle, &dummy,&dummy,&dummy);
 
-	Window.cursorOn(window);						/* Editobjekt initialisieren */
+	Window.windGet(window->whandlem, WF_TOP, &tophandle, &dummy, &dummy, &dummy);
+
+	Window.cursorOn(window);			/* Editobjekt initialisieren */
 	wind_update(END_UPDATE);
 
-	if(!(flags&DRAWNOPICTURE))
+	if (!(flags & DRAWNOPICTURE))
 		graf_mouse(M_ON, dummy_ptr);
 }
 
@@ -478,28 +487,31 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, int startob, int flags)
 		- mit gezoomten Bildern funktionierz noch nicht so recht
 		-
 	-----------------------------------------------------------------*/
-static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdiclip, int stripheight)
+static void realtime_dither(GRECT * picbox, WINDOW * window, int *pxy, int *vdiclip, int stripheight)
 {
-	int	partx;
-	int line_blocks, line, block_count;
-	int Colindex[3]={1,0,0};
+	int partx;
+	int line_blocks,
+	 line,
+	 block_count;
+	int Colindex[3] = { 1, 0, 0 };
 	int lineblockHeight;
 	int pxy2[4];
 
 	SMURF_PIC *picture;
 	DISPLAY_MODES old;
-	MFDB m_screen, *disp_pic;
+	MFDB m_screen,
+	*disp_pic;
 	GRECT picpart;
 
 	/*
 	 * Bei Bildfenstern wird in Streifen zu <stripheight> Pixel Hîhe gedithert.
 	 * andere (Previews&Tumbnails) werden auf einmal gedithert.
 	 */
-	if(window->pflag)
+	if (window->pflag)
 		lineblockHeight = stripheight;
 	else
 		lineblockHeight = picbox->g_h + 1;
-	
+
 	picture = window->picture;
 	m_screen.fd_addr = 0;
 
@@ -507,12 +519,12 @@ static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdicli
 	block_count = picbox->g_h;
 
 	Dialog.busy.fullDisable();
-	if(!window->pflag)
+	if (!window->pflag)
 		make_singular_display(&old, Sys_info.PreviewMoveDither, CR_SYSPAL);
 
 	vs_clip(Sys_info.vdi_handle, 1, vdiclip);
 
-	if(window->pflag && picbox->g_w > 128 && picbox->g_h > 128)
+	if (window->pflag && picbox->g_w > 128 && picbox->g_h > 128)
 	{
 		pxy2[0] = picbox->g_x;
 		pxy2[1] = picbox->g_y;
@@ -526,32 +538,36 @@ static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdicli
 		vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
 		vsf_interior(Sys_info.vdi_handle, FIS_SOLID);
 	}
-	
-	for(line = 0; line < line_blocks; line++)
+
+	for (line = 0; line < line_blocks; line++)
 	{
-		picpart.g_x = ((picbox->g_x - window->wx - window->pic_xpos) * (picture->zoom + 1)) + window->xoffset * (picture->zoom + 1);
-		picpart.g_y = (int)(((long)(picbox->g_y - window->pic_ypos - window->wy) + (long)line * lineblockHeight) * (picture->zoom + 1) + window->yoffset * (picture->zoom + 1));
+		picpart.g_x =
+			((picbox->g_x - window->wx - window->pic_xpos) * (picture->zoom + 1)) + window->xoffset * (picture->zoom +
+																									   1);
+		picpart.g_y =
+			(int) (((long) (picbox->g_y - window->pic_ypos - window->wy) +
+					(long) line * lineblockHeight) * (picture->zoom + 1) + window->yoffset * (picture->zoom + 1));
 		picpart.g_w = picbox->g_w * (picture->zoom + 1);
 		picpart.g_h = picbox->g_h * (picture->zoom + 1);
 
-		if(block_count>lineblockHeight)
+		if (block_count > lineblockHeight)
 			picpart.g_h = lineblockHeight * (picture->zoom + 1);
-		else 
+		else
 			picpart.g_h = block_count * (picture->zoom + 1);
-		
-		block_count-=lineblockHeight;
-		
+
+		block_count -= lineblockHeight;
+
 		partx = picpart.g_x;
-	
+
 		/*
 		 * Standardformatbild - also den Ausschnitt alignen
 		 */
-		if(picture->format_type == FORM_STANDARD)
+		if (picture->format_type == FORM_STANDARD)
 		{
-			picpart.g_x = (int)(picpart.g_x / 8) * 8;			/* XPos nach links alignen */
-			picpart.g_w = (int)((picpart.g_w + 8 + 7) / 8) * 8;	/* und die Breite nach rechts. */
-		}	
-		
+			picpart.g_x = (int) (picpart.g_x / 8) * 8;	/* XPos nach links alignen */
+			picpart.g_w = (int) ((picpart.g_w + 8 + 7) / 8) * 8;	/* und die Breite nach rechts. */
+		}
+
 		/*
 		 * und die Quellkoords auf die entsprechenden Werte setzen. Das evtl. Aligning bei
 		 * Standardformatbildern wird durch die Subtraktion picpart.g_n - partn gehandlet.
@@ -560,17 +576,17 @@ static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdicli
 		 */
 		pxy[0] = partx - picpart.g_x;
 		pxy[1] = 0;
-		pxy[2] = picbox->g_w + (partx-picpart.g_x) - 1;
-		pxy[3] = (picpart.g_h/(picture->zoom + 1)) - 1;
+		pxy[2] = picbox->g_w + (partx - picpart.g_x) - 1;
+		pxy[3] = (picpart.g_h / (picture->zoom + 1)) - 1;
 		pxy[4] = picbox->g_x;
 		pxy[5] = picbox->g_y + line * lineblockHeight;
 		pxy[6] = pxy[4] + picbox->g_w - 1;
-		pxy[7] = pxy[5] + (picpart.g_h/(picture->zoom+1)) - 1;
+		pxy[7] = pxy[5] + (picpart.g_h / (picture->zoom + 1)) - 1;
 
 		f_dither(picture, &Sys_info, 0, &picpart, &Display_Opt);
-		disp_pic = window->picture->screen_pic;		/* neu geditherten Ausschnitt einhÑngen */
+		disp_pic = window->picture->screen_pic;	/* neu geditherten Ausschnitt einhÑngen */
 
-		if(disp_pic->fd_nplanes==1)
+		if (disp_pic->fd_nplanes == 1)
 			vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, disp_pic, &m_screen, Colindex);
 		else
 			vro_cpyfm(Sys_info.vdi_handle, S_ONLY, pxy, disp_pic, &m_screen);
@@ -580,7 +596,7 @@ static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdicli
 	}
 
 	Dialog.busy.enable();
-	if(!window->pflag) 
+	if (!window->pflag)
 		restore_display(&old);
 }
 
@@ -589,16 +605,17 @@ static void realtime_dither(GRECT *picbox, WINDOW *window, int *pxy, int *vdicli
 	öbernimmt den Redraw eines Ikonifizierten Fensters window. vdiclip
 	gibt das Clippingrechteck an, das fÅr den objc_draw verwendet werden muû.
 	-----------------------------------------------------------------*/
-void draw_iconified(WINDOW *window, int *vdiclip)
+void draw_iconified(WINDOW * window, int *vdiclip)
 {
-	int pxy[5], icon;
-	
+	int pxy[5],
+	 icon;
+
 
 	Window.windGet(window->whandlem, WF_WORKXYWH, &pxy[0], &pxy[1], &pxy[2], &pxy[3]);
 	pxy[2] += pxy[0];
 	pxy[3] += pxy[1];
 
-	if(window->pflag)
+	if (window->pflag)
 		icon = IMAGE_ICON;
 	else
 		icon = SMURF_ICON;
@@ -608,7 +625,7 @@ void draw_iconified(WINDOW *window, int *vdiclip)
 	vsf_color(Sys_info.vdi_handle, Sys_info.AES_bgcolor);
 	vs_clip(Sys_info.vdi_handle, 1, vdiclip);
 	vr_recfl(Sys_info.vdi_handle, pxy);
-	objc_draw(u_tree, icon, MAX_DEPTH, vdiclip[0],vdiclip[1],vdiclip[2]-vdiclip[0],vdiclip[3]-vdiclip[1]);
+	objc_draw(u_tree, icon, MAX_DEPTH, vdiclip[0], vdiclip[1], vdiclip[2] - vdiclip[0], vdiclip[3] - vdiclip[1]);
 	vs_clip(Sys_info.vdi_handle, 0, vdiclip);
 }
 
@@ -616,20 +633,33 @@ void draw_iconified(WINDOW *window, int *vdiclip)
 /* draw_block ------------------------------------------------
 	zeichnet die Blockbox im Bildfenster window neu.
 	----------------------------------------------------------*/
-void draw_block(WINDOW *window, GRECT *picbox)
+void draw_block(WINDOW * window, GRECT * picbox)
 {
-	int Colindex[3] = {1, 0, 0};
-	int endwid, endhgt;
-	int pxy[10], clip[5];
-	int wrmode, zoom;
-	int pwx, pwy, pww, pwh;
-	int strip, stripHeight, stripNum, stripCount;
+	int Colindex[3] = { 1, 0, 0 };
+	int endwid,
+	 endhgt;
+	int pxy[10],
+	 clip[5];
+	int wrmode,
+	 zoom;
+	int pwx,
+	 pwy,
+	 pww,
+	 pwh;
+	int strip,
+	 stripHeight,
+	 stripNum,
+	 stripCount;
 
-	GRECT picpart, block, *ditherPart;
-	SMURF_PIC *picture = window->picture, *previewedStrip;
-	MFDB *disp_pic, m_screen;
+	GRECT picpart,
+	 block,
+	*ditherPart;
+	SMURF_PIC *picture = window->picture,
+		*previewedStrip;
+	MFDB *disp_pic,
+	 m_screen;
 
-	if(window->picture->block == NULL || (window->picture->blockwidth == 0 && window->picture->blockheight == 0))
+	if (window->picture->block == NULL || (window->picture->blockwidth == 0 && window->picture->blockheight == 0))
 		return;
 
 	/*
@@ -642,8 +672,8 @@ void draw_block(WINDOW *window, GRECT *picbox)
 	endwid = window->picture->block->pic_width / zoom;
 	endhgt = window->picture->block->pic_height / zoom;
 
-	Window.windGet(window->whandlem, WF_WORKXYWH, &pwx,&pwy,&pww,&pwh);
-	
+	Window.windGet(window->whandlem, WF_WORKXYWH, &pwx, &pwy, &pww, &pwh);
+
 	pxy[0] = 0;
 	pxy[1] = 0;
 	pxy[2] = endwid - 1;
@@ -655,18 +685,17 @@ void draw_block(WINDOW *window, GRECT *picbox)
 
 	wrmode = MD_REPLACE;
 
-	if(blockmode_conf.transparent == 2)
+	if (blockmode_conf.transparent == 2)
 		wrmode = MD_TRANS;
-	else
-		if(blockmode_conf.transparent == 1)
-			wrmode = MD_ERASE;
+	else if (blockmode_conf.transparent == 1)
+		wrmode = MD_ERASE;
 
 	/*
 	 * Screendisplay vorhanden
 	 */
-	if(disp_pic)
+	if (disp_pic)
 	{
-		if(disp_pic->fd_nplanes == 1)
+		if (disp_pic->fd_nplanes == 1)
 			vrt_cpyfm(Sys_info.vdi_handle, wrmode, pxy, disp_pic, &m_screen, Colindex);
 		else
 			vro_cpyfm(Sys_info.vdi_handle, S_ONLY, pxy, disp_pic, &m_screen);
@@ -675,12 +704,12 @@ void draw_block(WINDOW *window, GRECT *picbox)
 	/*
 	 * oder Echtzeitdither
 	 */
-	if(!disp_pic)
-	{	
+	if (!disp_pic)
+	{
 		/*
 		 * Schwarzweiûschottenrock zeichnen
 		 */
-		if(window->pflag && (pxy[6] - pxy[4]) > 128 && (pxy[7] - pxy[5]) > 128)
+		if (window->pflag && (pxy[6] - pxy[4]) > 128 && (pxy[7] - pxy[5]) > 128)
 		{
 			vsf_color(Sys_info.vdi_handle, 8);
 			vsf_style(Sys_info.vdi_handle, 23);
@@ -705,9 +734,9 @@ void draw_block(WINDOW *window, GRECT *picbox)
 		block.g_h = picture->block->pic_height;
 		Window.rcIntersect(&block, &picpart, &picpart);
 
-		if(picpart.g_w <= 0 || picpart.g_h <= 0)
+		if (picpart.g_w <= 0 || picpart.g_h <= 0)
 			return;
-		
+
 		picpart.g_x -= picture->blockx;
 		picpart.g_y -= picture->blocky;
 
@@ -724,14 +753,14 @@ void draw_block(WINDOW *window, GRECT *picbox)
 		stripNum = (picpart.g_h + (stripHeight - 1)) / stripHeight;
 		stripCount = picpart.g_h;
 
-		for(strip = 0; strip < stripNum; strip++)
+		for (strip = 0; strip < stripNum; strip++)
 		{
-			if(stripCount>stripHeight)
+			if (stripCount > stripHeight)
 				picpart.g_h = stripHeight;
-			else 
-				picpart.g_h = stripCount/* * zoom*/;
+			else
+				picpart.g_h = stripCount /* * zoom */ ;
 
-			pxy[3] = picpart.g_h/zoom - 1;
+			pxy[3] = picpart.g_h / zoom - 1;
 
 			Dialog.busy.fullDisable();
 
@@ -739,12 +768,12 @@ void draw_block(WINDOW *window, GRECT *picbox)
 			 * ein nicht-ersetzender Modus ist eingestellt oder irgendeine Transparenz
 			 * ->realtime-preview berechnen
 			 */
-			if(blockmode_conf.mode != BCONF_REPLACE || blockmode_conf.opacity != 100 || blockmode_conf.transparent != 0)
+			if (blockmode_conf.mode != BCONF_REPLACE || blockmode_conf.opacity != 100
+				|| blockmode_conf.transparent != 0)
 			{
 				previewedStrip = previewBlock(picture, &picpart);
 				ditherPart = NULL;
-			}
-			else
+			} else
 			{
 				previewedStrip = picture->block;
 				ditherPart = &picpart;
@@ -754,7 +783,7 @@ void draw_block(WINDOW *window, GRECT *picbox)
 			f_dither(previewedStrip, &Sys_info, 0, ditherPart, &Display_Opt);
 			Dialog.busy.enable();
 
-			if(previewedStrip->screen_pic->fd_nplanes == 1)
+			if (previewedStrip->screen_pic->fd_nplanes == 1)
 				vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, previewedStrip->screen_pic, &m_screen, Colindex);
 			else
 				vro_cpyfm(Sys_info.vdi_handle, S_ONLY, pxy, previewedStrip->screen_pic, &m_screen);
@@ -771,7 +800,8 @@ void draw_block(WINDOW *window, GRECT *picbox)
 			 * haben wir oben in Echtzeit previewed?
 			 * dann muû das Preview hier komplett freigegeben werden
 			 */
-			if(blockmode_conf.mode != BCONF_REPLACE || blockmode_conf.opacity!=100 || blockmode_conf.transparent != 0)
+			if (blockmode_conf.mode != BCONF_REPLACE || blockmode_conf.opacity != 100
+				|| blockmode_conf.transparent != 0)
 			{
 				SMfree(previewedStrip->pic_data);
 				SMfree(previewedStrip);
@@ -781,7 +811,7 @@ void draw_block(WINDOW *window, GRECT *picbox)
 		printf("\n%i  %i  %i  %i", picpart.g_x, picpart.g_y, picpart.g_w, picpart.g_h);
 		printf("\n pxy1: %i  %i  %i  %i", pxy[0], pxy[1], pxy[2], pxy[3]);
 		printf("\n pxy2: %i  %i  %i  %i", pxy[4], pxy[5], pxy[6], pxy[7]);
-*/		
+*/
 
 		picture->block->screen_pic = NULL;
 	}
@@ -794,29 +824,36 @@ void draw_block(WINDOW *window, GRECT *picbox)
 	Aktuelle Zoomeinstellung in ein Bildfenster reinkopieren. Wird von
 	f_redraw_window aufgerufen, um die Bildfenstertoolbar zu updaten.
 	----------------------------------------------------------------*/
-void insert_picwinzoom(WINDOW *window)
+void insert_picwinzoom(WINDOW * window)
 {
 	int zoomindex;
 
-	OBJECT *zptree, *tree;
+	OBJECT *zptree,
+	*tree;
 
-	
+
 	tree = window->resource_form;
 
-	switch(window->picture->zoom)
+	switch (window->picture->zoom)
 	{
-		case 1:		zoomindex = DURCH2;
-					break;
-		case 3:		zoomindex = DURCH3;
-					break;
-		case 9:		zoomindex = DURCH4;
-					break;
-		case 19:	zoomindex = DURCH5;
-					break;
-		case 29: 	zoomindex = DURCH6;
-					break;
-		case 0: 	zoomindex = ZOOM1;
-					break;
+	case 1:
+		zoomindex = DURCH2;
+		break;
+	case 3:
+		zoomindex = DURCH3;
+		break;
+	case 9:
+		zoomindex = DURCH4;
+		break;
+	case 19:
+		zoomindex = DURCH5;
+		break;
+	case 29:
+		zoomindex = DURCH6;
+		break;
+	case 0:
+		zoomindex = ZOOM1;
+		break;
 	}
 
 	xrsrc_gaddr(0, ZOOM_POP, &zptree, resource_global);
@@ -829,59 +866,67 @@ void insert_picwinzoom(WINDOW *window)
 /*	Zeichnet nach den Angaben eines Moduls im Fenster window ein Posi-	*/
 /*	tionierungskreuz (oder auch nicht).									*/
 /*---------------------------------------------------------------------	*/
-void f_draw_crosshair(WINDOW *window)
+void f_draw_crosshair(WINDOW * window)
 {
-	int arrnum=-1, dummy;
-	int xpos, ypos;
-	int zoom, all_xoff, all_yoff;
+	int arrnum = -1,
+		dummy;
+	int xpos,
+	 ypos;
+	int zoom,
+	 all_xoff,
+	 all_yoff;
 	int pxy[11];
-	int modwin_handle, top_handle;
-	int minx, miny, maxx, maxy;
+	int modwin_handle,
+	 top_handle;
+	int minx,
+	 miny,
+	 maxx,
+	 maxy;
 
-	
+
 	zoom = window->picture->zoom + 1;
 
 	arrnum = imageWindow.findCrosshair(window);
 
-	if(arrnum == -1)
+	if (arrnum == -1)
 		return;
 
-	if(module.smStruct[arrnum] == NULL)
+	if (module.smStruct[arrnum] == NULL)
 		return;
 
 	/*-------- Ist das dazugehîrige Modulfenster getoppt? -----*/
 	modwin_handle = module.smStruct[arrnum]->wind_struct->whandlem;
-	Window.windGet(0, WF_TOP, &top_handle, &dummy,&dummy,&dummy);
-	if(modwin_handle != top_handle)
+	Window.windGet(0, WF_TOP, &top_handle, &dummy, &dummy, &dummy);
+	if (modwin_handle != top_handle)
 		return;
 
-	if(position_markers[arrnum].mod_pic[0] == -1)
+	if (position_markers[arrnum].mod_pic[0] == -1)
 		return;
-	
+
 	Window.windGet(window->whandlem, WF_WORKXYWH, &minx, &miny, &maxx, &maxy);
 	maxx += minx;
 	maxy += miny;
-	
+
 	all_xoff = minx - window->xoffset;
 	all_yoff = miny + TOOLBAR_HEIGHT - window->yoffset;
 
 	xpos = position_markers[arrnum].xpos[0];
 	ypos = position_markers[arrnum].ypos[0];
-		
+
 	vswr_mode(Sys_info.vdi_handle, MD_XOR);
 	vsf_interior(Sys_info.vdi_handle, 0);
-	
+
 	pxy[0] = minx;
 	pxy[1] = (ypos / zoom) + all_yoff;
 	pxy[2] = maxx;
 	pxy[3] = (ypos / zoom) + all_yoff;
-	v_pline(Sys_info.vdi_handle, 2, pxy);	
+	v_pline(Sys_info.vdi_handle, 2, pxy);
 	pxy[0] = (xpos / zoom) + all_xoff;
 	pxy[1] = miny;
 	pxy[2] = (xpos / zoom) + all_xoff;
 	pxy[3] = maxy;
 	v_pline(Sys_info.vdi_handle, 2, pxy);
-	v_circle(Sys_info.vdi_handle, (xpos/zoom)+all_xoff, (ypos/zoom)+all_yoff, 3);
+	v_circle(Sys_info.vdi_handle, (xpos / zoom) + all_xoff, (ypos / zoom) + all_yoff, 3);
 
 	vsf_interior(Sys_info.vdi_handle, 1);
 	vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
@@ -891,14 +936,19 @@ void f_draw_crosshair(WINDOW *window)
 /*---------------------------------------------------------------------	*/
 /*						Blockbox neu zeichnen							*/
 /*---------------------------------------------------------------------	*/
-void f_draw_blockbox(WINDOW *window)
+void f_draw_blockbox(WINDOW * window)
 {
 	int pxy[11];
-	int bx1, by1, bx2, by2;
-	int zoom, all_xoff, all_yoff;
+	int bx1,
+	 by1,
+	 bx2,
+	 by2;
+	int zoom,
+	 all_xoff,
+	 all_yoff;
 
 
-	if(window->picture->blockwidth!=0 && window->picture->blockheight!=0)
+	if (window->picture->blockwidth != 0 && window->picture->blockheight != 0)
 	{
 		Window.windGet(window->whandlem, WF_WORKXYWH, &pxy[0], &pxy[1], &pxy[2], &pxy[3]);
 
@@ -914,16 +964,16 @@ void f_draw_blockbox(WINDOW *window)
 		bx1 = window->picture->blockx;
 		by1 = window->picture->blocky;
 
-		bx2 = bx1 + window->picture->blockwidth;				
+		bx2 = bx1 + window->picture->blockwidth;
 		/* - 1 weil die Endkoordinate und nicht Breite benîtigt wird */
-		if(window->picture->blockwidth >= 0)
+		if (window->picture->blockwidth >= 0)
 			bx2--;
 		else
 			bx2++;
 
 		/* - 1 weil die Endkoordinate und nicht Breite benîtigt wird */
-		by2 = by1 + window->picture->blockheight;				
-		if(window->picture->blockheight >= 0)
+		by2 = by1 + window->picture->blockheight;
+		if (window->picture->blockheight >= 0)
 			by2--;
 		else
 			by2++;
@@ -931,28 +981,28 @@ void f_draw_blockbox(WINDOW *window)
 		vsl_type(Sys_info.vdi_handle, 1);
 		vswr_mode(Sys_info.vdi_handle, MD_XOR);
 
-		pxy[0] = all_xoff + (bx1/zoom) + 1;			/* x links oben */
-		pxy[1] = all_yoff + (by1/zoom) + 1;			/* y links oben */
-		pxy[2] = all_xoff + (bx2/zoom) - 1;			/* x rechts oben */
-		pxy[3] = pxy[1];							/* y rechts oben */
-		pxy[4] = pxy[2];							/* x rechts unten */
-		pxy[5] = all_yoff + (by2/zoom) - 1;			/* y rechts unten */
-		pxy[6] = pxy[0];							/* x links unten */
-		pxy[7] = pxy[5];							/* y links unten */
-		pxy[8] = pxy[0];							/* x links oben */
-		pxy[9] = pxy[1];							/* y links oben */
+		pxy[0] = all_xoff + (bx1 / zoom) + 1;	/* x links oben */
+		pxy[1] = all_yoff + (by1 / zoom) + 1;	/* y links oben */
+		pxy[2] = all_xoff + (bx2 / zoom) - 1;	/* x rechts oben */
+		pxy[3] = pxy[1];				/* y rechts oben */
+		pxy[4] = pxy[2];				/* x rechts unten */
+		pxy[5] = all_yoff + (by2 / zoom) - 1;	/* y rechts unten */
+		pxy[6] = pxy[0];				/* x links unten */
+		pxy[7] = pxy[5];				/* y links unten */
+		pxy[8] = pxy[0];				/* x links oben */
+		pxy[9] = pxy[1];				/* y links oben */
 		v_pline(Sys_info.vdi_handle, 5, pxy);
 
-		pxy[0] = all_xoff + (bx1/zoom) - 1;			/* x links oben */
-		pxy[1] = all_yoff + (by1/zoom) - 1;			/* y links oben */
-		pxy[2] = all_xoff + (bx2/zoom) + 1;			/* x rechts oben */
-		pxy[3] = pxy[1];							/* y rechts oben */
-		pxy[4] = pxy[2];							/* x rechts unten */
-		pxy[5] = all_yoff + (by2/zoom) + 1;			/* y rechts unten */
-		pxy[6] = pxy[0];							/* x links unten */
-		pxy[7] = pxy[5];							/* y links unten */
-		pxy[8] = pxy[0];							/* x links oben */
-		pxy[9] = pxy[1];							/* y links oben */
+		pxy[0] = all_xoff + (bx1 / zoom) - 1;	/* x links oben */
+		pxy[1] = all_yoff + (by1 / zoom) - 1;	/* y links oben */
+		pxy[2] = all_xoff + (bx2 / zoom) + 1;	/* x rechts oben */
+		pxy[3] = pxy[1];				/* y rechts oben */
+		pxy[4] = pxy[2];				/* x rechts unten */
+		pxy[5] = all_yoff + (by2 / zoom) + 1;	/* y rechts unten */
+		pxy[6] = pxy[0];				/* x links unten */
+		pxy[7] = pxy[5];				/* y links unten */
+		pxy[8] = pxy[0];				/* x links oben */
+		pxy[9] = pxy[1];				/* y links oben */
 		v_pline(Sys_info.vdi_handle, 5, pxy);
 
 		vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
@@ -966,14 +1016,22 @@ void f_draw_blockbox(WINDOW *window)
 	---------------------------------------------------------*/
 void draw_picmanboxes(void)
 {
-	int zoom, piczoom;
-	int absx, absy, xc1, yc1, xc2, yc2;
-	int pxy[20], picnum;
-	int picwid, pichgt;
+	int zoom,
+	 piczoom;
+	int absx,
+	 absy,
+	 xc1,
+	 yc1,
+	 xc2,
+	 yc2;
+	int pxy[20],
+	 picnum;
+	int picwid,
+	 pichgt;
 	int dummy;
 	OBJECT *pmtree;
-	
-	if(picwindthere <= 0)
+
+	if (picwindthere <= 0)
 		return;
 
 	pmtree = Dialog.picMan.tree;
@@ -982,11 +1040,11 @@ void draw_picmanboxes(void)
 	/*
 	 * Bildnummer und Zooms ermitteln
 	 */
-	picnum = f_listfield((long *)Dialog.picMan.window, 0, 0, &Dialog.picMan.pictureList);
+	picnum = f_listfield((long *) Dialog.picMan.window, 0, 0, &Dialog.picMan.pictureList);
 	picnum = Dialog.picMan.picmanList[picnum];
 	zoom = compute_zoom(smurf_picture[picnum], pmtree[PM_PREVBOX].ob_width, pmtree[PM_PREVBOX].ob_height) + 1;
 	piczoom = picture_windows[picnum].picture->zoom + 1;
-	
+
 	Window.windGet(picture_windows[picnum].whandlem, WF_WORKXYWH, &dummy, &dummy, &picwid, &pichgt);
 	pichgt -= TOOLBAR_HEIGHT;
 
@@ -996,14 +1054,19 @@ void draw_picmanboxes(void)
 	 */
 	xc1 = (picture_windows[picnum].xoffset / zoom * piczoom) + absx;
 	yc1 = (picture_windows[picnum].yoffset / zoom * piczoom) + absy;
-	xc2 = xc1 + (picwid / zoom * piczoom) - 1;			/* eins weg weil nicht Breite sondern Endkoordinate benîtigt */
-	yc2 = yc1 + (pichgt / zoom * piczoom) - 1;			/* eins weg weil nicht Breite sondern Endkoordinate benîtigt */
+	xc2 = xc1 + (picwid / zoom * piczoom) - 1;	/* eins weg weil nicht Breite sondern Endkoordinate benîtigt */
+	yc2 = yc1 + (pichgt / zoom * piczoom) - 1;	/* eins weg weil nicht Breite sondern Endkoordinate benîtigt */
 
-	pxy[0] = xc1; pxy[1] = yc1;
-	pxy[2] = xc2; pxy[3] = yc1;
-	pxy[4] = xc2; pxy[5] = yc2;
-	pxy[6] = xc1; pxy[7] = yc2;
-	pxy[8] = xc1; pxy[9] = yc1;
+	pxy[0] = xc1;
+	pxy[1] = yc1;
+	pxy[2] = xc2;
+	pxy[3] = yc1;
+	pxy[4] = xc2;
+	pxy[5] = yc2;
+	pxy[6] = xc1;
+	pxy[7] = yc2;
+	pxy[8] = xc1;
+	pxy[9] = yc1;
 	vsl_type(Sys_info.vdi_handle, 2);
 	vswr_mode(Sys_info.vdi_handle, MD_XOR);
 	v_pline(Sys_info.vdi_handle, 5, pxy);
@@ -1015,20 +1078,30 @@ void draw_picmanboxes(void)
 	Paût die Grîûe eines Fensters an die Bildschirmgrîûe an, falls
 	das Fenster irgendwo Åber den Bildschirmrand heraussteht.
 	-------------------------------------------------------------*/
-void clip_picw2screen(WINDOW *picw)
+void clip_picw2screen(WINDOW * picw)
 {
-	char wid[6], hgt[6], str[12];
+	char wid[6],
+	 hgt[6],
+	 str[12];
 
 	int whlen;
-	int picwid, pichgt;
-	int disppicwid, disppichgt;
-	int abx, aby, abw, abh,
-		m_wind_x, m_wind_y, m_wind_w, m_wind_h;
+	int picwid,
+	 pichgt;
+	int disppicwid,
+	 disppichgt;
+	int abx,
+	 aby,
+	 abw,
+	 abh,
+	 m_wind_x,
+	 m_wind_y,
+	 m_wind_w,
+	 m_wind_h;
 	int flags;
 
 	SMURF_PIC *picture_to_handle;
 
-	if(picw->shaded & ICONIFIED)
+	if (picw->shaded & ICONIFIED)
 		return;
 
 	picture_to_handle = picw->picture;
@@ -1045,11 +1118,11 @@ void clip_picw2screen(WINDOW *picw)
 	strcpy(str, wid);
 	strcat(str, "*");
 	strcat(str, hgt);
-	whlen = (int)strlen(str);
-	strncat(str, "            ", (long)(12 - whlen));
+	whlen = (int) strlen(str);
+	strncat(str, "            ", (long) (12 - whlen));
 	strncpy(picw->wtitle, str, strlen(str) - 1);
 
-	Window.windSet(picw->whandlem, WF_NAME, LONG2_2INT(picw->wtitle), 0,0);
+	Window.windSet(picw->whandlem, WF_NAME, LONG2_2INT(picw->wtitle), 0, 0);
 
 	/*
 	 * Fensterkoordinaten und -ausmaûe clippen 
@@ -1057,27 +1130,28 @@ void clip_picw2screen(WINDOW *picw)
 	Window.windGet(0, WF_WORKXYWH, &abx, &aby, &abw, &abh);
 	abh += aby;
 
-	flags = CLOSER|NAME|MOVER|SMALLER;
-	flags |= FULLER|SIZER|UPARROW|DNARROW|LFARROW|RTARROW|VSLIDE|HSLIDE;
-	wind_calc(WC_BORDER, flags, picw->wx,picw->wy,disppicwid,disppichgt + TOOLBAR_HEIGHT, &m_wind_x,&m_wind_y,&m_wind_w,&m_wind_h);
+	flags = CLOSER | NAME | MOVER | SMALLER;
+	flags |= FULLER | SIZER | UPARROW | DNARROW | LFARROW | RTARROW | VSLIDE | HSLIDE;
+	wind_calc(WC_BORDER, flags, picw->wx, picw->wy, disppicwid, disppichgt + TOOLBAR_HEIGHT, &m_wind_x, &m_wind_y,
+			  &m_wind_w, &m_wind_h);
 
-	if(m_wind_x < abx)
+	if (m_wind_x < abx)
 		m_wind_x = abx;
 
-	if(m_wind_x + m_wind_w > abw)
+	if (m_wind_x + m_wind_w > abw)
 		m_wind_w = abw - m_wind_x;
 
-	if(m_wind_y < aby)
+	if (m_wind_y < aby)
 		m_wind_y = aby;
 
-	if(m_wind_y + m_wind_h > abh)
+	if (m_wind_y + m_wind_h > abh)
 		m_wind_h = abh - m_wind_y;
 
-	wind_calc(WC_WORK, flags, m_wind_x,m_wind_y,m_wind_w,m_wind_h, &m_wind_x,&m_wind_y,&m_wind_w,&m_wind_h);
+	wind_calc(WC_WORK, flags, m_wind_x, m_wind_y, m_wind_w, m_wind_h, &m_wind_x, &m_wind_y, &m_wind_w, &m_wind_h);
 
-	if(m_wind_w < 64)
+	if (m_wind_w < 64)
 		m_wind_w = 64;
-	if(m_wind_h < 64)
+	if (m_wind_h < 64)
 		m_wind_h = 64;
 
 	picw->wx = m_wind_x;
@@ -1085,17 +1159,17 @@ void clip_picw2screen(WINDOW *picw)
 	picw->ww = m_wind_w;
 	picw->wh = m_wind_h;
 
-	if(m_wind_w > disppicwid - picw->xoffset)
+	if (m_wind_w > disppicwid - picw->xoffset)
 		picw->xoffset = disppicwid - m_wind_w;
-	if(picw->xoffset < 0)
+	if (picw->xoffset < 0)
 		picw->xoffset = 0;
 
-	if(m_wind_h - TOOLBAR_HEIGHT > disppichgt - picw->yoffset)
+	if (m_wind_h - TOOLBAR_HEIGHT > disppichgt - picw->yoffset)
 		picw->yoffset = disppichgt - (m_wind_h - TOOLBAR_HEIGHT);
-	if(picw->yoffset < 0)
+	if (picw->yoffset < 0)
 		picw->yoffset = 0;
 
-	wind_calc(WC_BORDER, flags, m_wind_x,m_wind_y,m_wind_w,m_wind_h, &m_wind_x,&m_wind_y,&m_wind_w, &m_wind_h);
+	wind_calc(WC_BORDER, flags, m_wind_x, m_wind_y, m_wind_w, m_wind_h, &m_wind_x, &m_wind_y, &m_wind_w, &m_wind_h);
 	Window.windSet(picw->whandlem, WF_CURRXYWH, m_wind_x, m_wind_y, m_wind_w, m_wind_h);
 
 	imageWindow.setSliders(picw);
@@ -1108,22 +1182,25 @@ void clip_picw2screen(WINDOW *picw)
 	die SchnittflÑche in r3 und gibt als Returnwert zurÅck, ob
 	eine SchnittflÑche Åberhaupt existiert.
 	-------------------------------------------------------------*/
-int f_rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3)
+int f_rc_intersect(GRECT * r1, GRECT * r2, GRECT * r3)
 {
-   int x, y, w, h;
+	int x,
+	 y,
+	 w,
+	 h;
 
 
-   x = max(r2->g_x, r1->g_x);
-   y = max(r2->g_y, r1->g_y);
-   w = min(r2->g_x + r2->g_w, r1->g_x + r1->g_w);
-   h = min(r2->g_y + r2->g_h, r1->g_y + r1->g_h);
+	x = max(r2->g_x, r1->g_x);
+	y = max(r2->g_y, r1->g_y);
+	w = min(r2->g_x + r2->g_w, r1->g_x + r1->g_w);
+	h = min(r2->g_y + r2->g_h, r1->g_y + r1->g_h);
 
-   r3->g_x = x;
-   r3->g_y = y;
-   r3->g_w = w - x;
-   r3->g_h = h - y;
+	r3->g_x = x;
+	r3->g_y = y;
+	r3->g_w = w - x;
+	r3->g_h = h - y;
 
-   return(((w > x) && (h > y)));
+	return (((w > x) && (h > y)));
 }
 
 
@@ -1131,19 +1208,19 @@ int f_rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3)
 int my_window(int handle)
 {
 	int t;
-	
-	if(handle == 0)
-		return(0);			/* hiermit wird das Desktopfenster von vornherein ausgeschlossen */
-	
-	for(t = 0; t < 25; t++)
+
+	if (handle == 0)
+		return (0);						/* hiermit wird das Desktopfenster von vornherein ausgeschlossen */
+
+	for (t = 0; t < 25; t++)
 	{
-		if(handle == wind_s[t].whandlem) 					/* Dialogfenster */
-			return(t);									
-		if(handle == picture_windows[t].whandlem)			/* Bildfenster */
-			return(-t);			
+		if (handle == wind_s[t].whandlem)	/* Dialogfenster */
+			return (t);
+		if (handle == picture_windows[t].whandlem)	/* Bildfenster */
+			return (-t);
 	}
-	
-	return(0);		/* Nicht mein Fenster - Nicht mein Problem! */
+
+	return (0);							/* Nicht mein Fenster - Nicht mein Problem! */
 }
 
 
@@ -1154,196 +1231,211 @@ WINDOW *my_module_window(int handle)
 	int wind_handle;
 	WINDOW *m_window;
 
-	if(handle == 0)
-		return(0);			/* Hiermit wird das Desktopfenster von vornherein ausgeschlossen */
-	
-	for(t = 0; t < 20; t++)
+	if (handle == 0)
+		return (0);						/* Hiermit wird das Desktopfenster von vornherein ausgeschlossen */
+
+	for (t = 0; t < 20; t++)
 	{
-		if(module.smStruct[t] != NULL)
+		if (module.smStruct[t] != NULL)
 		{
 			m_window = module.smStruct[t]->wind_struct;
-			if(m_window)
+			if (m_window)
 			{
 				wind_handle = m_window->whandlem;
-				if(handle == wind_handle)
-					return(m_window);		/* Fenster gehîrt zu Smurf-Modul! */
+				if (handle == wind_handle)
+					return (m_window);	/* Fenster gehîrt zu Smurf-Modul! */
 			}
 		}
 	}
 
-	for(t = 0; t < anzahl_plugins; t++)
+	for (t = 0; t < anzahl_plugins; t++)
 	{
-		if(plg_data[t] != NULL)
+		if (plg_data[t] != NULL)
 		{
 			m_window = plg_data[t]->wind_struct;
-			if(m_window)
+			if (m_window)
 			{
 				wind_handle = m_window->whandlem;
-				if(handle == wind_handle)
-					return(m_window);		/* Fenster gehîrt zu Smurf-Modul! */
+				if (handle == wind_handle)
+					return (m_window);	/* Fenster gehîrt zu Smurf-Modul! */
 			}
 		}
 	}
-	
-	return(0);				/* nicht mein Fenster - nicht mein Problem! */
+
+	return (0);							/* nicht mein Fenster - nicht mein Problem! */
 }
 
 
 /* -------------------------------------------------------------- 	*/
 /*	Window-Slider setzen 											*/
 /* -------------------------------------------------------------- 	*/
-void f_setsliders(WINDOW *wind)
+void f_setsliders(WINDOW * wind)
 {
-	int picw, pich;
-	int slider_w, slider_h, slider_ypos, slider_xpos;
-	int ydivi, xdivi;
-	int oldslider_h, oldslider_w, oldslider_ypos, oldslider_xpos;
+	int picw,
+	 pich;
+	int slider_w,
+	 slider_h,
+	 slider_ypos,
+	 slider_xpos;
+	int ydivi,
+	 xdivi;
+	int oldslider_h,
+	 oldslider_w,
+	 oldslider_ypos,
+	 oldslider_xpos;
 	int dummy;
 
 
 	picw = wind->picture->pic_width / (wind->picture->zoom + 1);
 	pich = wind->picture->pic_height / (wind->picture->zoom + 1);
 
-	if(picw == 0)
+	if (picw == 0)
 		slider_w = 0;
 	else
-		slider_w = (int)((long)wind->ww * 1000L / (long)picw);
+		slider_w = (int) ((long) wind->ww * 1000L / (long) picw);
 
-	if(slider_w < 5)
+	if (slider_w < 5)
 		slider_w = 5;
-	
-	if(pich == 0)
+
+	if (pich == 0)
 		slider_h = 0;
 	else
-		slider_h = (int)((long)(wind->wh - TOOLBAR_HEIGHT) * 1000L / (long)pich);
-	
-	if(slider_h < 5)
+		slider_h = (int) ((long) (wind->wh - TOOLBAR_HEIGHT) * 1000L / (long) pich);
+
+	if (slider_h < 5)
 		slider_h = 5;
-	
+
 	xdivi = picw - wind->ww;
 	ydivi = pich - (wind->wh - TOOLBAR_HEIGHT);
 
-	if(xdivi == 0)
+	if (xdivi == 0)
 		slider_xpos = 0;
 	else
-		slider_xpos = (int)(((long)wind->xoffset * 1000L)  / (long)xdivi);
-	
-	if(ydivi == 0)
+		slider_xpos = (int) (((long) wind->xoffset * 1000L) / (long) xdivi);
+
+	if (ydivi == 0)
 		slider_ypos = 0;
 	else
-		slider_ypos = (int)(((long)wind->yoffset * 1000L) / (long)ydivi);
+		slider_ypos = (int) (((long) wind->yoffset * 1000L) / (long) ydivi);
 
 
-	Window.windGet(wind->whandlem, WF_HSLIDE, &oldslider_xpos, &dummy,&dummy,&dummy);
-	if(slider_xpos != oldslider_xpos)
-		Window.windSet(wind->whandlem, WF_HSLIDE, slider_xpos, 0,0,0);
+	Window.windGet(wind->whandlem, WF_HSLIDE, &oldslider_xpos, &dummy, &dummy, &dummy);
+	if (slider_xpos != oldslider_xpos)
+		Window.windSet(wind->whandlem, WF_HSLIDE, slider_xpos, 0, 0, 0);
 
-	Window.windGet(wind->whandlem, WF_HSLSIZE, &oldslider_w, &dummy,&dummy,&dummy);
-	if(slider_w != oldslider_w)
-		Window.windSet(wind->whandlem, WF_HSLSIZE, slider_w, 0,0,0);
+	Window.windGet(wind->whandlem, WF_HSLSIZE, &oldslider_w, &dummy, &dummy, &dummy);
+	if (slider_w != oldslider_w)
+		Window.windSet(wind->whandlem, WF_HSLSIZE, slider_w, 0, 0, 0);
 
-	Window.windGet(wind->whandlem, WF_VSLIDE, &oldslider_ypos, &dummy,&dummy,&dummy);
-	if(slider_ypos != oldslider_ypos)
-		Window.windSet(wind->whandlem, WF_VSLIDE, slider_ypos, 0,0,0);
+	Window.windGet(wind->whandlem, WF_VSLIDE, &oldslider_ypos, &dummy, &dummy, &dummy);
+	if (slider_ypos != oldslider_ypos)
+		Window.windSet(wind->whandlem, WF_VSLIDE, slider_ypos, 0, 0, 0);
 
-	Window.windGet(wind->whandlem, WF_VSLSIZE, &oldslider_h, &dummy,&dummy,&dummy);
-	if(slider_h != oldslider_h)
-		Window.windSet(wind->whandlem, WF_VSLSIZE, slider_h, 0,0,0);
+	Window.windGet(wind->whandlem, WF_VSLSIZE, &oldslider_h, &dummy, &dummy, &dummy);
+	if (slider_h != oldslider_h)
+		Window.windSet(wind->whandlem, WF_VSLSIZE, slider_h, 0, 0, 0);
 }
 
 
 /* -------------------------------------------------------------- */
 /* ----------------------- Fenster scrollen ----------------------*/
 /* -------------------------------------------------------------- */
-void f_arrow_window(int mode, WINDOW *wind,int amount)
+void f_arrow_window(int mode, WINDOW * wind, int amount)
 {
-	int xscroll=0, yscroll=0;
-	int max_xs, max_ys;
-	int endw, endh;
+	int xscroll = 0,
+		yscroll = 0;
+	int max_xs,
+	 max_ys;
+	int endw,
+	 endh;
 
 	GRECT picwind;
 
-	
+
 	endw = wind->picture->pic_width / (wind->picture->zoom + 1);
 	endh = wind->picture->pic_height / (wind->picture->zoom + 1);
 
 	max_xs = endw - wind->ww;
 	max_ys = endh - (wind->wh - TOOLBAR_HEIGHT);
 
-	if( ((mode==WA_UPLINE || mode==WA_UPPAGE) && wind->yoffset<=0)
-		|| ((mode==WA_DNLINE || mode==WA_DNPAGE) && wind->yoffset>=max_ys)
-		|| ((mode==WA_LFLINE || mode==WA_LFPAGE) && wind->xoffset<=0)
-		|| ((mode==WA_RTLINE || mode==WA_RTPAGE) && wind->xoffset>=max_xs) )
-			return;
-	
-	if(max_ys < 0)
+	if (((mode == WA_UPLINE || mode == WA_UPPAGE) && wind->yoffset <= 0)
+		|| ((mode == WA_DNLINE || mode == WA_DNPAGE) && wind->yoffset >= max_ys)
+		|| ((mode == WA_LFLINE || mode == WA_LFPAGE) && wind->xoffset <= 0)
+		|| ((mode == WA_RTLINE || mode == WA_RTPAGE) && wind->xoffset >= max_xs))
+		return;
+
+	if (max_ys < 0)
 		max_ys = 0;
-	if(max_xs < 0)
+	if (max_xs < 0)
 		max_xs = 0;
 
-	switch(mode)
+	switch (mode)
 	{
-		case WA_DNLINE:	yscroll = amount;
-						break;
-		case WA_UPLINE:	yscroll = -amount;
-						break;
-		case WA_RTLINE:	xscroll = amount;
-						break;
-		case WA_LFLINE:	xscroll = -amount;
-						break;
-		case WA_UPPAGE:	yscroll -= (wind->wh - TOOLBAR_HEIGHT);
-						break;
-		case WA_DNPAGE:	yscroll += (wind->wh - TOOLBAR_HEIGHT);
-						break;
-		case WA_LFPAGE:	xscroll -= wind->ww;
-						break;
-		case WA_RTPAGE:	xscroll += wind->ww;
-						break;
+	case WA_DNLINE:
+		yscroll = amount;
+		break;
+	case WA_UPLINE:
+		yscroll = -amount;
+		break;
+	case WA_RTLINE:
+		xscroll = amount;
+		break;
+	case WA_LFLINE:
+		xscroll = -amount;
+		break;
+	case WA_UPPAGE:
+		yscroll -= (wind->wh - TOOLBAR_HEIGHT);
+		break;
+	case WA_DNPAGE:
+		yscroll += (wind->wh - TOOLBAR_HEIGHT);
+		break;
+	case WA_LFPAGE:
+		xscroll -= wind->ww;
+		break;
+	case WA_RTPAGE:
+		xscroll += wind->ww;
+		break;
 	}
 
 	xscroll *= (wind->picture->zoom + 1);
 	yscroll *= (wind->picture->zoom + 1);
-	
+
 	wind->xoffset += xscroll;
 	wind->yoffset += yscroll;
-	
-	if(wind->yoffset > max_ys)
+
+	if (wind->yoffset > max_ys)
 	{
 		yscroll -= wind->yoffset - max_ys;
 		wind->yoffset = max_ys;
+	} else if (wind->yoffset < 0)
+	{
+		yscroll -= wind->yoffset;
+		wind->yoffset = 0;
 	}
-	else
-		if(wind->yoffset < 0)
-		{
-			yscroll -= wind->yoffset;
-			wind->yoffset = 0;
-		}		
 
-	
-	if(wind->xoffset > max_xs)
+
+	if (wind->xoffset > max_xs)
 	{
 		xscroll -= wind->xoffset - max_xs;
 		wind->xoffset = max_xs;
+	} else if (wind->xoffset < 0)
+	{
+		xscroll -= wind->xoffset;
+		wind->xoffset = 0;
 	}
-	else
-		if(wind->xoffset < 0)
-		{
-			xscroll -= wind->xoffset;
-			wind->xoffset = 0;
-		}
-	
+
 	picwind.g_x = wind->wx;
 	picwind.g_y = wind->wy + TOOLBAR_HEIGHT;
 	picwind.g_w = wind->ww;
 	picwind.g_h = wind->wh;
 
 	imageWindow.setSliders(wind);
-	
-	if(!Sys_info.realtime_dither)
+
+	if (!Sys_info.realtime_dither)
 		Window.redraw(wind, &picwind, 0, 0);
 	else
 	{
-		if(mode == WA_UPPAGE || mode == WA_DNPAGE || mode == WA_DNLINE || mode == WA_UPLINE)
+		if (mode == WA_UPPAGE || mode == WA_DNPAGE || mode == WA_DNLINE || mode == WA_UPLINE)
 			imageWindow.scrollRT(wind, 0, yscroll);
 		else
 			imageWindow.scrollRT(wind, xscroll, 0);
@@ -1357,12 +1449,17 @@ void f_arrow_window(int mode, WINDOW *wind,int amount)
 	Die Blockbox und evtl. Fadenkreuz werden per Rechteckliste nur
 	in den zu redrawenden Bereichen neugezeichnet.
 	--------------------------------------------------------------*/
-void scrollWindowRT(WINDOW *window, int xamount, int yamount)
+void scrollWindowRT(WINDOW * window, int xamount, int yamount)
 {
-	GRECT box, work, redraw;
-	MFDB src, dest;
-	int pxy[10], clip[4], zoom;
-	int Colindex[3] = {1, 0, 0};
+	GRECT box,
+	 work,
+	 redraw;
+	MFDB src,
+	 dest;
+	int pxy[10],
+	 clip[4],
+	 zoom;
+	int Colindex[3] = { 1, 0, 0 };
 
 
 	Window.windGet(window->whandlem, WF_WORKXYWH, &work.g_x, &work.g_y, &work.g_w, &work.g_h);
@@ -1370,9 +1467,9 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 	work.g_h -= TOOLBAR_HEIGHT;
 	Window.windGet(window->whandlem, WF_FIRSTXYWH, &box.g_x, &box.g_y, &box.g_w, &box.g_h);
 
-	if(box.g_x + box.g_w > Sys_info.screen_width)
+	if (box.g_x + box.g_w > Sys_info.screen_width)
 		box.g_w = Sys_info.screen_width - box.g_x;
-	if(box.g_y + box.g_h > Sys_info.screen_height)
+	if (box.g_y + box.g_h > Sys_info.screen_height)
 		box.g_h = Sys_info.screen_height - box.g_y;
 
 	dest.fd_addr = 0;
@@ -1383,9 +1480,9 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 	 * sichtbare Ausschnitte anhand der Rechteckliste verschieben 
 	 */
 	graf_mouse(M_OFF, dummy_ptr);
-	while(box.g_w > 0 && box.g_h > 0)
+	while (box.g_w > 0 && box.g_h > 0)
 	{
-		if(Window.rcIntersect(&work, &box, &box))
+		if (Window.rcIntersect(&work, &box, &box))
 		{
 			pxy[0] = box.g_x;
 			pxy[1] = box.g_y;
@@ -1396,7 +1493,7 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 			pxy[6] = box.g_w + box.g_x - 1;
 			pxy[7] = box.g_h + box.g_y - 1;
 
-			memcpy(clip, pxy, 4*2);
+			memcpy(clip, pxy, 4 * 2);
 			vs_clip(Sys_info.vdi_handle, 1, clip);
 
 			/*
@@ -1404,42 +1501,40 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 			 * das Kopieren unnîtig und fÅhrt u.U. zum Herauskopieren von MÅll aus den
 			 * Fensterelementen.
 			 */
-			if(xamount < box.g_w && yamount < box.g_h)
+			if (xamount < box.g_w && yamount < box.g_h)
 			{
-				if(pxy[0] < 0)
+				if (pxy[0] < 0)
 					pxy[4] = pxy[0] = 0;
-				
-				if(pxy[1] < 0)
+
+				if (pxy[1] < 0)
 					pxy[5] = pxy[1] = 0;
-			
+
 				/*
 				 * hier wird die jeweils relevante Koordinate fÅr das Scrolling
 				 * um amount erhîht/verringert.
 				 */
-				if(xamount > 0)
+				if (xamount > 0)
 					pxy[0] += xamount;
-				else
-					if(xamount < 0)
-						pxy[4] -= xamount;
-				
-				if(yamount > 0)
-					pxy[1] += yamount;
-				else
-					if(yamount < 0)
-						pxy[5] -= yamount;
+				else if (xamount < 0)
+					pxy[4] -= xamount;
 
-				if(pxy[2] > Sys_info.screen_width)
+				if (yamount > 0)
+					pxy[1] += yamount;
+				else if (yamount < 0)
+					pxy[5] -= yamount;
+
+				if (pxy[2] > Sys_info.screen_width)
 					pxy[2] = Sys_info.screen_width;
-				if(pxy[3] > Sys_info.screen_height)
+				if (pxy[3] > Sys_info.screen_height)
 					pxy[3] = Sys_info.screen_height;
 
 				/*
 				 * Sicherheitshalber nicht kopieren, wenn das Rechteck
 				 * Nullgrîsse hat... kînnte u.U. Probleme geben.
 				 */
-				if(pxy[2] - pxy[0] && pxy[3] - pxy[1] && pxy[6] - pxy[4] && pxy[7] - pxy[5])
+				if (pxy[2] - pxy[0] && pxy[3] - pxy[1] && pxy[6] - pxy[4] && pxy[7] - pxy[5])
 				{
-					if(Sys_info.bitplanes == 1)
+					if (Sys_info.bitplanes == 1)
 						vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, &src, &dest, Colindex);
 					else
 						vro_cpyfm(Sys_info.vdi_handle, S_ONLY, pxy, &src, &dest);
@@ -1453,10 +1548,10 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 			 * Åber f_redraw_window() sondern direkt Åber realtime_dither() erledigt,
 			 * erstens zerstîrt f_redraw_window() wahrscheinlich den momentanen Status
 			 * des Rechtecklistenauslesens und zweitens geht es so schneller.
-			 */				
-			if(xamount)
+			 */
+			if (xamount)
 			{
-				if(xamount > 0)
+				if (xamount > 0)
 					redraw.g_x = box.g_x + box.g_w - xamount;
 				else
 					redraw.g_x = box.g_x;
@@ -1467,10 +1562,10 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 				/*
 				 * abschlieûend die Koordinaten nochmal clippen
 				 */
-				if(redraw.g_x < 0)
+				if (redraw.g_x < 0)
 					redraw.g_x = 0;
 
-				if(redraw.g_x < box.g_x)
+				if (redraw.g_x < box.g_x)
 				{
 					redraw.g_w -= box.g_x - redraw.g_x;
 					redraw.g_x = box.g_x;
@@ -1480,7 +1575,7 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 				 * fÅr die rechte Seite muss ich nach Koordinaten umrechnen
 				 * um korrekte Werte rauszubekommen.
 				 */
-				if(redraw.g_w + redraw.g_x > box.g_w + box.g_x)
+				if (redraw.g_w + redraw.g_x > box.g_w + box.g_x)
 					redraw.g_w = box.g_w + box.g_x - redraw.g_x;
 
 				clip[0] = redraw.g_x;
@@ -1489,7 +1584,7 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 				clip[3] = redraw.g_y + redraw.g_h - 1;
 				vs_clip(Sys_info.vdi_handle, 1, clip);
 
-				realtime_dither(&redraw, window, pxy, clip, box.g_h*zoom+1);
+				realtime_dither(&redraw, window, pxy, clip, box.g_h * zoom + 1);
 /*
 				SMfree(window->picture->screen_pic->fd_addr);
 				free(window->picture->screen_pic);
@@ -1500,10 +1595,10 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 				vs_clip(Sys_info.vdi_handle, 1, clip);
 				imageWindow.drawBlockbox(window);
 			}
-			
-			if(yamount)
+
+			if (yamount)
 			{
-				if(yamount > 0)
+				if (yamount > 0)
 					redraw.g_y = box.g_y + box.g_h - yamount;
 				else
 					redraw.g_y = box.g_y;
@@ -1514,7 +1609,7 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 				/*
 				 * abschlieûend die Koordinaten nochmal clippen
 				 */
-				if(redraw.g_y < box.g_y)
+				if (redraw.g_y < box.g_y)
 				{
 					redraw.g_h -= box.g_y - redraw.g_y;
 					redraw.g_y = box.g_y;
@@ -1524,32 +1619,32 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 				 * fÅr die untere Seite muss ich nach Koordinaten umrechnen
 				 * um korrekte Werte rauszubekommen.
 				 */
-				if(redraw.g_h + redraw.g_x > box.g_y + box.g_y)
-					redraw.g_h = box.g_h + box.g_y - redraw.g_y;				
+				if (redraw.g_h + redraw.g_x > box.g_y + box.g_y)
+					redraw.g_h = box.g_h + box.g_y - redraw.g_y;
 /*
 				if(redraw.g_h > box.g_h)
 					redraw.g_h = box.g_h;
-*/				
+*/
 				clip[0] = redraw.g_x;
 				clip[1] = redraw.g_y;
 				clip[2] = redraw.g_x + redraw.g_w - 1;
 				clip[3] = redraw.g_y + redraw.g_h - 1;
 				vs_clip(Sys_info.vdi_handle, 1, clip);
 
-				realtime_dither(&redraw, window, pxy, clip, box.g_h*zoom+1);
+				realtime_dither(&redraw, window, pxy, clip, box.g_h * zoom + 1);
 /*
 				SMfree(window->picture->screen_pic->fd_addr);
 				free(window->picture->screen_pic);
 */
-				window->picture->screen_pic=NULL;
+				window->picture->screen_pic = NULL;
 
 				imageWindow.drawBlock(window, &redraw);
 				vs_clip(Sys_info.vdi_handle, 1, clip);
 				imageWindow.drawBlockbox(window);
 			}
 		}
-	
-		Window.windGet( window->whandlem, WF_NEXTXYWH, &box.g_x, &box.g_y, &box.g_w, &box.g_h );
+
+		Window.windGet(window->whandlem, WF_NEXTXYWH, &box.g_x, &box.g_y, &box.g_w, &box.g_h);
 	}
 
 	graf_mouse(M_ON, dummy_ptr);
@@ -1559,149 +1654,157 @@ void scrollWindowRT(WINDOW *window, int xamount, int yamount)
 /* -------------------------------------------------------------- */
 /* --------------------------- Fenster Sliden ------------------- */
 /* -------------------------------------------------------------- */
-void f_slide_window(int pos, WINDOW *wind, int mode)
+void f_slide_window(int pos, WINDOW * wind, int mode)
 {
-	int endw, endh;
-	int oldx, oldy;
+	int endw,
+	 endh;
+	int oldx,
+	 oldy;
 
 	GRECT picwind;
 
 
 	endw = (wind->picture->pic_width) / (wind->picture->zoom + 1);
 	endh = (wind->picture->pic_height) / (wind->picture->zoom + 1);
-	
+
 	oldx = wind->xoffset;
 	oldy = wind->yoffset;
-	
+
 	picwind.g_x = wind->wx;
 	picwind.g_y = wind->wy + TOOLBAR_HEIGHT;
 	picwind.g_w = wind->ww;
 	picwind.g_h = wind->wh - TOOLBAR_HEIGHT;
-	
-	switch(mode)
+
+	switch (mode)
 	{
-		case 0:	wind->yoffset = (int)(((long)pos * (long)(endh - picwind.g_h)) / 1000L);
-				if(wind->yoffset != oldy && picwind.g_h < endh)
-					if(Sys_info.realtime_dither)
-						imageWindow.scrollRT(wind, 0, wind->yoffset - oldy);
-					else
-						Window.redraw(wind, NULL, 0, DRAWNOTREE);
+	case 0:
+		wind->yoffset = (int) (((long) pos * (long) (endh - picwind.g_h)) / 1000L);
+		if (wind->yoffset != oldy && picwind.g_h < endh)
+			if (Sys_info.realtime_dither)
+				imageWindow.scrollRT(wind, 0, wind->yoffset - oldy);
+			else
+				Window.redraw(wind, NULL, 0, DRAWNOTREE);
 
-				imageWindow.setSliders(wind);
-					
-				break;
-	
-		case 1:	wind->xoffset = (int)(((long)pos * (long)(endw - picwind.g_w)) / 1000L);
-				if(wind->xoffset != oldx && picwind.g_w < endw)
-					if(Sys_info.realtime_dither)
-						imageWindow.scrollRT(wind, wind->xoffset - oldx, 0);
-					else
-						Window.redraw(wind, NULL, 0, DRAWNOTREE);
+		imageWindow.setSliders(wind);
 
-				imageWindow.setSliders(wind);
+		break;
 
-				break;
+	case 1:
+		wind->xoffset = (int) (((long) pos * (long) (endw - picwind.g_w)) / 1000L);
+		if (wind->xoffset != oldx && picwind.g_w < endw)
+			if (Sys_info.realtime_dither)
+				imageWindow.scrollRT(wind, wind->xoffset - oldx, 0);
+			else
+				Window.redraw(wind, NULL, 0, DRAWNOTREE);
+
+		imageWindow.setSliders(wind);
+
+		break;
 	}
 }
 
 
-void toggle_asterisk(WINDOW *picwin, int onoff)
+void toggle_asterisk(WINDOW * picwin, int onoff)
 {
-	if(onoff == 0)
-		picwin->wtitle[11]=' ';
+	if (onoff == 0)
+		picwin->wtitle[11] = ' ';
 	else
-		picwin->wtitle[11]='*';
+		picwin->wtitle[11] = '*';
 
-	Window.windSet(picwin->whandlem, WF_NAME, LONG2_2INT(picwin->wtitle), 0,0);
+	Window.windSet(picwin->whandlem, WF_NAME, LONG2_2INT(picwin->wtitle), 0, 0);
 }
 
 
 #if 0
-static void display_windowlist(WINDOW *window)
+static void display_windowlist(WINDOW * window)
 {
-	int first, last, t, biggest_handle, first_handle, handle;
-	WINDOW *picwin, *firstwin;
+	int first,
+	 last,
+	 t,
+	 biggest_handle,
+	 first_handle,
+	 handle;
+	WINDOW *picwin,
+	*firstwin;
 
 
 	/*--------- Eigenes Fenster mit kleinerem Handle suchen, da jedoch das grîûte */
-	/*			also das zuletzt geîffnete mit anderen Worten.	*/
+	/*          also das zuletzt geîffnete mit anderen Worten.  */
 	biggest_handle = -1;
-	for(t = 0; t < 20; t++)
+	for (t = 0; t < 20; t++)
 	{
-		if(window->pflag)
+		if (window->pflag)
 			handle = &picture_windows[t]->whandlem;
 		else
 			handle = wind_s[t].whandlem;
 
-		if(handle != window->whandlem && handle > biggest_handle && handle != -1)
+		if (handle != window->whandlem && handle > biggest_handle && handle != -1)
 			biggest_handle = handle;
 	}
 
 	/* Handle des ersten Fensters (kleinstes) Åberhaupt suchen */
-		first_handle = 1024;
-		for(t = 0; t < 20; t++)
-		{
-			if(window->pflag)
-				handle = &picture_windows[t]->whandlem;
-			else
-				handle = wind_s[t].whandlem;
-			
-			if(handle < first_handle && handle != -1)
-				first_handle = handle;
-		}
+	first_handle = 1024;
+	for (t = 0; t < 20; t++)
+	{
+		if (window->pflag)
+			handle = &picture_windows[t]->whandlem;
+		else
+			handle = wind_s[t].whandlem;
+
+		if (handle < first_handle && handle != -1)
+			first_handle = handle;
+	}
 
 
-		if(biggest_handle != -1)
-			last = Window.myWindow(biggest_handle);
-		if(first_handle != 1024)
-			first = Window.myWindow(first_handle);
+	if (biggest_handle != -1)
+		last = Window.myWindow(biggest_handle);
+	if (first_handle != 1024)
+		first = Window.myWindow(first_handle);
 
 
 		/*------------ Fensterliste ausgeben -----*/
 /*		Goto_pos(1,0);*/
-		handle = first_handle;
-		first = my_window(handle);
+	handle = first_handle;
+	first = my_window(handle);
 
-		if(first > 0)
-			picwin = &wind_s[first];
-		else
-			if(first < 0)
-				picwin = &picture_windows[first];
-		firstwin = picwin;
+	if (first > 0)
+		picwin = &wind_s[first];
+	else if (first < 0)
+		picwin = &picture_windows[first];
+	firstwin = picwin;
 
-		printf("VorwÑrts:          \n");		
-		if(first_handle != 1024)
+	printf("VorwÑrts:          \n");
+	if (first_handle != 1024)
+	{
+		do
 		{
-			do
-			{
-				printf("   %s  - %i                  \n", picwin->wtitle, picwin->whandlem);
-				picwin = picwin->next_window;
-			} while(picwin != firstwin);
-
 			printf("   %s  - %i                  \n", picwin->wtitle, picwin->whandlem);
-		}
+			picwin = picwin->next_window;
+		} while (picwin != firstwin);
 
-		printf("RÅckwÑrts:         \n");		
+		printf("   %s  - %i                  \n", picwin->wtitle, picwin->whandlem);
+	}
 
-		if(last > 0)
-			picwin = &wind_s[last];
-		else
-			if(last < 0)
-				picwin = &picture_windows[last];
-		firstwin = picwin;
+	printf("RÅckwÑrts:         \n");
 
-		if(last != 0)
+	if (last > 0)
+		picwin = &wind_s[last];
+	else if (last < 0)
+		picwin = &picture_windows[last];
+	firstwin = picwin;
+
+	if (last != 0)
+	{
+		do
 		{
-			do
-			{
-				printf("  %s  - %i                   \n", picwin->wtitle, picwin->whandlem);
-				picwin=picwin->prev_window;
-			} while(picwin!=firstwin);
+			printf("  %s  - %i                   \n", picwin->wtitle, picwin->whandlem);
+			picwin = picwin->prev_window;
+		} while (picwin != firstwin);
 
-			printf("  %s  - %i                    \n", picwin->wtitle, picwin->whandlem);
-		}
+		printf("  %s  - %i                    \n", picwin->wtitle, picwin->whandlem);
+	}
 
-		printf("--------------------------\n");		
+	printf("--------------------------\n");
 }
 #endif
 
@@ -1712,80 +1815,78 @@ static void display_windowlist(WINDOW *window)
 /*	HÑngt ein Fenster *window in die doppelt verkettete List aller Fenster ein		*/
 /*	zwischen Bildfenster und Dialog wird hier selbstÑndig unterschieden! 			*/
 /*----------------------------------------------------------------------------------*/
-void window_to_list(WINDOW *window)
+void window_to_list(WINDOW * window)
 {
-	int t, biggest_handle, first_handle;
-	int first, last;
+	int t,
+	 biggest_handle,
+	 first_handle;
+	int first,
+	 last;
 	int handle;
 
 
-	if(window->whandlem == Dialog.winAlert.winHandle)
+	if (window->whandlem == Dialog.winAlert.winHandle)
 		return;
 
 	/*--------- Eigenes Fenster mit kleinerem Handle suchen, da jedoch das grîûte */
-	/*			also das zuletzt geîffnete mit anderen Worten.	*/
+	/*          also das zuletzt geîffnete mit anderen Worten.  */
 	biggest_handle = -1;
-	for(t = 0; t < 20; t++)
+	for (t = 0; t < 20; t++)
 	{
-		if(window->pflag)
+		if (window->pflag)
 			handle = picture_windows[t].whandlem;
-		else	
+		else
 			handle = wind_s[t].whandlem;
 
-		if(handle != window->whandlem && handle > biggest_handle && handle != -1)
+		if (handle != window->whandlem && handle > biggest_handle && handle != -1)
 			biggest_handle = handle;
 	}
 
 	/* Handle des ersten Fensters (kleinstes) Åberhaupt suchen */
 	first_handle = 1024;
-	for(t = 0; t < 20; t++)
+	for (t = 0; t < 20; t++)
 	{
-		if(window->pflag)
+		if (window->pflag)
 			handle = picture_windows[t].whandlem;
 		else
 			handle = wind_s[t].whandlem;
-			
-		if(handle != window->whandlem && handle < first_handle && handle != -1)
+
+		if (handle != window->whandlem && handle < first_handle && handle != -1)
 			first_handle = handle;
 	}
 
 	/*--------- Fenster in die Liste hÑngen */
-	if(biggest_handle != -1)
+	if (biggest_handle != -1)
 	{
 		last = Window.myWindow(biggest_handle);
-		if(last > 0)
+		if (last > 0)
 		{
 			wind_s[last].next_window = window;
 			window->prev_window = &wind_s[last];
+		} else if (last < 0)
+		{
+			picture_windows[-last].next_window = window;
+			window->prev_window = &picture_windows[-last];
 		}
-		else
-			if(last < 0)
-			{
-				picture_windows[-last].next_window = window;
-				window->prev_window = &picture_windows[-last];
-			}
 	}
 
-	if(first_handle != 1024)
+	if (first_handle != 1024)
 	{
 		first = Window.myWindow(first_handle);
-		if(first > 0)
+		if (first > 0)
 		{
 			window->next_window = &wind_s[first];
 			wind_s[first].prev_window = window;
 			dialwindthere++;
+		} else if (first < 0)
+		{
+			window->next_window = &picture_windows[-first];
+			picture_windows[-first].prev_window = window;
+			picwindthere++;
 		}
-		else
-			if(first < 0)
-			{ 
-				window->next_window = &picture_windows[-first];
-				picture_windows[-first].prev_window=window;
-				picwindthere++;
-		}
-	}
-	else
+	} else
 	{
-		if(window->pflag)
+		if (window->pflag)
 			picwindthere++;
 		else
 			dialwindthere++;
@@ -1804,21 +1905,21 @@ void window_to_list(WINDOW *window)
 /*									REMOVE_WINDOW									*/
 /*	Enfernt ein Fenster aus der Liste, die LÅcke wird ÅberbrÅckt.					*/
 /*----------------------------------------------------------------------------------*/
-void remove_window(WINDOW *window)
+void remove_window(WINDOW * window)
 {
 	WINDOW *previous;
 	WINDOW *next;
 
 
-	if(window->whandlem == Dialog.winAlert.winHandle)
+	if (window->whandlem == Dialog.winAlert.winHandle)
 		return;
 
 	previous = window->prev_window;
 	next = window->next_window;
 
-	if(previous != NULL)
+	if (previous != NULL)
 		previous->next_window = next;
-	if(next != NULL)
+	if (next != NULL)
 		next->prev_window = previous;
 }
 
@@ -1827,47 +1928,47 @@ void remove_window(WINDOW *window)
 /*----------------------------------------------------------------------------------*/
 /*				CROSSHAIR-Struktur zu einem Bildfenster finden 						*/
 /*----------------------------------------------------------------------------------*/
-int find_crosshair(WINDOW *window)
+int find_crosshair(WINDOW * window)
 {
-	int picnum = -1, t, arrnum = -1;
+	int picnum = -1,
+		t,
+		arrnum = -1;
 
-	
+
 	/*----------------- Bildnummer suchen */
-	for(t = 0; t < MAX_PIC; t++)
+	for (t = 0; t < MAX_PIC; t++)
 	{
-		if(&picture_windows[t] == window)
+		if (&picture_windows[t] == window)
 		{
 			picnum = t;
 			break;
 		}
 	}
-	
-	if(picnum == -1)
-		return(-1);
-	
+
+	if (picnum == -1)
+		return (-1);
+
 	/*------------- dazugehîriges Modul suchen */
-	for(t = 0; t < 20; t++)
+	for (t = 0; t < 20; t++)
 	{
-		if(position_markers[t].smurfpic[0] == picnum)
+		if (position_markers[t].smurfpic[0] == picnum)
 		{
-			if(position_markers[t].mod_pic[0] >= 0)
-			{		
-				if(module_pics[t][position_markers[t].mod_pic[0]] == picnum)
+			if (position_markers[t].mod_pic[0] >= 0)
+			{
+				if (module_pics[t][position_markers[t].mod_pic[0]] == picnum)
 				{
 					arrnum = t;
 					break;
 				}
+			} else if (picnum == active_pic && position_markers[t].mod_pic[0] == -2)
+			{
+				arrnum = t;
+				break;
 			}
-			else
-				if(picnum == active_pic && position_markers[t].mod_pic[0] == -2)
-				{
-					arrnum = t;
-					break;
-				}
 		}
 	}
 
-	return(arrnum);
+	return (arrnum);
 }
 
 
@@ -1879,24 +1980,25 @@ int find_crosshair(WINDOW *window)
 /*-----------------------------------------------------------------	*/
 void top_window(int handle)
 {
-	int toph, dummy;
+	int toph,
+	 dummy;
 
-	
-	if(handle)
+
+	if (handle)
 	{
 		/* nur schicken, wenn das Fenster nicht schon getopped ist, */
 		/* sonst kommt die Message u.U. zu spÑt und das Fenster wird */
 		/* wann anders getopped. */
-		Window.windGet(0, WF_TOP, &toph,&dummy,&dummy,&dummy);
-		if(toph != handle)
+		Window.windGet(0, WF_TOP, &toph, &dummy, &dummy, &dummy);
+		if (toph != handle)
 		{
 			messagebuf[0] = WM_TOPPED;
 			messagebuf[1] = Sys_info.app_id;
-			messagebuf[2] = 0;		
+			messagebuf[2] = 0;
 			messagebuf[3] = handle;
-			appl_write(Sys_info.app_id, 16, messagebuf);			/* Message an uns selbst */
+			appl_write(Sys_info.app_id, 16, messagebuf);	/* Message an uns selbst */
 		}
- 	}
+	}
 }
 
 
@@ -1905,21 +2007,22 @@ void top_window(int handle)
 /* selber - manchmal ist es notwendig, daû ein Fenster aufgrund 	*/
 /* irgendeiner Aktion _sofort_ nach vorne geholt werden muû.		*/
 /*-----------------------------------------------------------------	*/
-void top_window_now(WINDOW *window)
+void top_window_now(WINDOW * window)
 {
-	int toph, dummy;
+	int toph,
+	 dummy;
 
 
 	Window.windGet(0, WF_TOP, &toph, &dummy, &dummy, &dummy);
-	if(toph != window->whandlem)									/* nicht schon top? */
+	if (toph != window->whandlem)		/* nicht schon top? */
 	{
 		Window.cursorOff(window);
 		Window.windSet(window->whandlem, WF_TOP, 0, 0, 0, 0);
 		Window.cursorOn(window);
 
-		if(window->pflag)											/* Bildfenster */
+		if (window->pflag)				/* Bildfenster */
 			f_set_picpal(window->picture);
-		else														/* alles andere */
+		else							/* alles andere */
 			f_set_syspal();
 	}
 }
@@ -1927,37 +2030,37 @@ void top_window_now(WINDOW *window)
 
 void top_windowhandle(int handle)
 {
-	int toph, dummy, wnum;
+	int toph,
+	 dummy,
+	 wnum;
 
 	WINDOW *window = NULL;
 
 
-	if(handle <= 0)
+	if (handle <= 0)
 		return;
 
 	Window.windGet(0, WF_TOP, &toph, &dummy, &dummy, &dummy);
-	if(toph != handle)												/* nicht schon top? */
+	if (toph != handle)					/* nicht schon top? */
 	{
 		wnum = Window.myWindow(handle);
-		if(wnum == 0)
+		if (wnum == 0)
 			window = Window.myModuleWindow(handle);
-		else
-			if(wnum < 0)
-				window = &picture_windows[wnum];
-			else
-				if(wnum > 0)
-					window = &wind_s[wnum];
+		else if (wnum < 0)
+			window = &picture_windows[wnum];
+		else if (wnum > 0)
+			window = &wind_s[wnum];
 
-		if(window == NULL)
+		if (window == NULL)
 			return;
-		
+
 		Window.cursorOff(window);
 		Window.windSet(handle, WF_TOP, 0, 0, 0, 0);
 		Window.cursorOn(window);
 
-		if(window->pflag)											/* Bildfenster */
+		if (window->pflag)				/* Bildfenster */
 			f_set_picpal(window->picture);
-		else														/* alles andere */
+		else							/* alles andere */
 			f_set_syspal();
 	}
 }
@@ -1972,7 +2075,7 @@ void top_windowhandle(int handle)
 /*-----------------------------------------------------------------	*/
 void close_window(int handle)
 {
-	if(handle > 0)
+	if (handle > 0)
 		Comm.sendAESMsg(Sys_info.app_id, WM_CLOSED, handle, -1);
 }
 
@@ -1999,12 +2102,25 @@ void close_window(int handle)
 */
 int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 {
-	char t, *olds, lines, alwidth;
+	char t,
+	*olds,
+	 lines,
+	 alwidth;
 	char normal_al1[210] = "[1][";
 	char normal_al2[35] = "][";
-	char tmp[41] = "", *aend;
+	char tmp[41] = "",
+		*aend;
 
-	int windback, back, mouse_xpos, mouse_ypos, key_scancode, klickobj, obj, msg, windhandle, dummy;
+	int windback,
+	 back,
+	 mouse_xpos,
+	 mouse_ypos,
+	 key_scancode,
+	 klickobj,
+	 obj,
+	 msg,
+	 windhandle,
+	 dummy;
 
 	long len;
 
@@ -2012,7 +2128,7 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 
 	graf_mouse(ARROW, dummy_ptr);
 
-	if(Sys_info.window_alert&OS_SELECTED)
+	if (Sys_info.window_alert & OS_SELECTED)
 	{
 		alwidth = 40;
 
@@ -2022,18 +2138,18 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 		memset(alert[ALERTTEXT3].TextCast, 0x0, alwidth);
 		memset(alert[ALERTTEXT4].TextCast, 0x0, alwidth);
 		memset(alert[ALERTTEXT5].TextCast, 0x0, alwidth);
-		
+
 		/*-------------- String tokenisieren --------------------*/
 		olds = alertstring;
 		aend = alertstring + strlen(alertstring);
-		for(t = ALERTTEXT1, lines = 0; t < ALERTTEXT5 && olds < aend; t++)
+		for (t = ALERTTEXT1, lines = 0; t < ALERTTEXT5 && olds < aend; t++)
 		{
-			if(*olds == ' ')					/* Leerzeichen am Zeilenanfang vermeiden */
+			if (*olds == ' ')			/* Leerzeichen am Zeilenanfang vermeiden */
 				olds++;
 
 			strncpy(tmp, olds, alwidth);
 			len = alerttok(tmp, alwidth);
-			
+
 			strncpy(alert[t].TextCast, olds, len);
 			olds += len;
 
@@ -2058,23 +2174,23 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 		/*
 		 * die Texte in die Buttons und aufdecken
 		 */
-		if(b1 || (!b1 && !b2 && !b3))
+		if (b1 || (!b1 && !b2 && !b3))
 		{
-			if(!b1)
+			if (!b1)
 				strcpy(alert[ALBUTTON1].ob_spec.free_string, " OK ");
 			else
 				strcpy(alert[ALBUTTON1].ob_spec.free_string, b1);
 
 			alert[ALBUTTON1].ob_flags &= ~OF_HIDETREE;
 		}
-		
-		if(b2)
+
+		if (b2)
 		{
 			strcpy(alert[ALBUTTON2].ob_spec.free_string, b2);
 			alert[ALBUTTON2].ob_flags &= ~OF_HIDETREE;
 		}
 
-		if(b3)
+		if (b3)
 		{
 			strcpy(alert[ALBUTTON3].ob_spec.free_string, b3);
 			alert[ALBUTTON3].ob_flags &= ~OF_HIDETREE;
@@ -2083,34 +2199,37 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 		/*
 		 * Buttonbreiten berechnen
 		 */
-		alert[ALBUTTON1].ob_width = (int)strlen(alert[ALBUTTON1].ob_spec.free_string) * gl_wchar + gl_wchar;
-		alert[ALBUTTON2].ob_width = (int)strlen(alert[ALBUTTON2].ob_spec.free_string) * gl_wchar + gl_wchar;
-		alert[ALBUTTON3].ob_width = (int)strlen(alert[ALBUTTON3].ob_spec.free_string) * gl_wchar + gl_wchar;
+		alert[ALBUTTON1].ob_width = (int) strlen(alert[ALBUTTON1].ob_spec.free_string) * gl_wchar + gl_wchar;
+		alert[ALBUTTON2].ob_width = (int) strlen(alert[ALBUTTON2].ob_spec.free_string) * gl_wchar + gl_wchar;
+		alert[ALBUTTON3].ob_width = (int) strlen(alert[ALBUTTON3].ob_spec.free_string) * gl_wchar + gl_wchar;
 
 
 		/*
 		 * Buttons positionieren
 		 */
-		alert[ALBUTTON1].ob_y = alert[ALBUTTON2].ob_y = alert[ALBUTTON3].ob_y = alert[ALERTTEXT1].ob_y + (lines * gl_hchar) + gl_hchar;
+		alert[ALBUTTON1].ob_y = alert[ALBUTTON2].ob_y = alert[ALBUTTON3].ob_y =
+			alert[ALERTTEXT1].ob_y + (lines * gl_hchar) + gl_hchar;
 		alert[0].ob_height = alert[ALBUTTON1].ob_y + alert[ALBUTTON1].ob_height + gl_hchar;
 		wind_s[WIND_ALERT].wh = alert[0].ob_height;
 
-		if(!b2 && !b3)
+		if (!b2 && !b3)
 			alert[ALBUTTON1].ob_x = (alert[0].ob_width - alert[ALBUTTON1].ob_width) / 2;
-		else
-			if(!b3)
-			{
-				alert[ALBUTTON1].ob_x = (alert[0].ob_width - (alert[ALBUTTON1].ob_width + 2 * gl_wchar + alert[ALBUTTON2].ob_width)) / 2;
-				alert[ALBUTTON2].ob_x = alert[ALBUTTON1].ob_x + alert[ALBUTTON1].ob_width + 2 * gl_wchar;
-			}
-			else
-			{
-				alert[ALBUTTON1].ob_x = (alert[0].ob_width - (alert[ALBUTTON1].ob_width + 2 * gl_wchar + alert[ALBUTTON2].ob_width + 2 * gl_wchar + alert[ALBUTTON3].ob_width)) / 2;
-				alert[ALBUTTON2].ob_x = alert[ALBUTTON1].ob_x + alert[ALBUTTON1].ob_width + 2 * gl_wchar;
-				alert[ALBUTTON3].ob_x = alert[ALBUTTON2].ob_x + alert[ALBUTTON2].ob_width + 2 * gl_wchar;
-			}
-		
-		if((windback = f_open_window(&wind_s[WIND_ALERT])) != -1)
+		else if (!b3)
+		{
+			alert[ALBUTTON1].ob_x =
+				(alert[0].ob_width - (alert[ALBUTTON1].ob_width + 2 * gl_wchar + alert[ALBUTTON2].ob_width)) / 2;
+			alert[ALBUTTON2].ob_x = alert[ALBUTTON1].ob_x + alert[ALBUTTON1].ob_width + 2 * gl_wchar;
+		} else
+		{
+			alert[ALBUTTON1].ob_x =
+				(alert[0].ob_width -
+				 (alert[ALBUTTON1].ob_width + 2 * gl_wchar + alert[ALBUTTON2].ob_width + 2 * gl_wchar +
+				  alert[ALBUTTON3].ob_width)) / 2;
+			alert[ALBUTTON2].ob_x = alert[ALBUTTON1].ob_x + alert[ALBUTTON1].ob_width + 2 * gl_wchar;
+			alert[ALBUTTON3].ob_x = alert[ALBUTTON2].ob_x + alert[ALBUTTON2].ob_width + 2 * gl_wchar;
+		}
+
+		if ((windback = f_open_window(&wind_s[WIND_ALERT])) != -1)
 		{
 			lock_Smurf();
 			f_redraw_window(&wind_s[WIND_ALERT], NULL, 0, 0);
@@ -2119,69 +2238,67 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 
 			do
 			{
-				back = evnt_multi(MU_BUTTON|MU_KEYBD|MU_MESAG,1,0x1,0x1, 0,0,0,0,0, 1,0,0,0,0,
-								  messagebuf, EVNT_TIME(0), &mouse_xpos, &mouse_ypos, 
+				back = evnt_multi(MU_BUTTON | MU_KEYBD | MU_MESAG, 1, 0x1, 0x1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+								  messagebuf, EVNT_TIME(0), &mouse_xpos, &mouse_ypos,
 								  &dummy, &dummy, &key_scancode, &dummy);
 
 				msg = messagebuf[0];
 
-				if(back == MU_BUTTON)
+				if (back == MU_BUTTON)
 				{
 					windhandle = wind_find(mouse_xpos, mouse_ypos);
-					klickobj = objc_find(wind_s[WIND_ALERT].resource_form, 0,MAX_DEPTH,mouse_xpos,mouse_ypos);
+					klickobj = objc_find(wind_s[WIND_ALERT].resource_form, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
 
-					obj = UDO_or_not(&wind_s[WIND_ALERT], klickobj);		/* UDOs behandeln */
+					obj = UDO_or_not(&wind_s[WIND_ALERT], klickobj);	/* UDOs behandeln */
 
-					if(windhandle == Dialog.winAlert.winHandle && obj == klickobj &&
-					   (obj == ALBUTTON1 || obj == ALBUTTON2 || obj == ALBUTTON3))
+					if (windhandle == Dialog.winAlert.winHandle && obj == klickobj &&
+						(obj == ALBUTTON1 || obj == ALBUTTON2 || obj == ALBUTTON3))
 						break;
 					else
 						Window.windSet(Dialog.winAlert.winHandle, WF_TOP, 0, 0, 0, 0);
-				}
-				else 
-					if(back == MU_MESAG && (msg == WM_MOVED || msg == WM_REDRAW || msg == WM_SIZED || msg == WM_TOPPED))
-					{
-						if(msg == WM_TOPPED)
-							Window.windSet(Dialog.winAlert.winHandle, WF_TOP, 0, 0, 0, 0);
-						else
-							f_handle_message();
-					}
+				} else
+					if (back == MU_MESAG
+						&& (msg == WM_MOVED || msg == WM_REDRAW || msg == WM_SIZED || msg == WM_TOPPED))
+				{
+					if (msg == WM_TOPPED)
+						Window.windSet(Dialog.winAlert.winHandle, WF_TOP, 0, 0, 0, 0);
 					else
-						if(back == MU_KEYBD)
-							key_scancode >>= 8;
-						else
-							key_scancode = 0;
-			} while(key_scancode != SCAN_RETURN && key_scancode != SCAN_ENTER);
+						f_handle_message();
+				} else if (back == MU_KEYBD)
+					key_scancode >>= 8;
+				else
+					key_scancode = 0;
+			} while (key_scancode != SCAN_RETURN && key_scancode != SCAN_ENTER);
 
 			close_alert();
 
 			/*
 			 * RÅckgabewert ermitteln
 			 */
-			if(key_scancode == SCAN_RETURN || key_scancode == SCAN_ENTER)
-				return(defbt);
+			if (key_scancode == SCAN_RETURN || key_scancode == SCAN_ENTER)
+				return (defbt);
 			else
-				return(obj - ALBUTTON1 + 1);
+				return (obj - ALBUTTON1 + 1);
 		}
 	}
 
-	if(!(Sys_info.window_alert&OS_SELECTED) || windback == -1)
+	if (!(Sys_info.window_alert & OS_SELECTED) || windback == -1)
 	{
-		if(Sys_info.OS&MATSCHIG || Sys_info.OS&NAES)
+		if (Sys_info.OS & MATSCHIG || Sys_info.OS & NAES)
 			alwidth = 40;
 		else
 			alwidth = 30;
 
 		olds = alertstring;
 		aend = alertstring + strlen(alertstring);
-		for(lines = 0; lines < 5 && olds < aend; lines++)
+		for (lines = 0; lines < 5 && olds < aend; lines++)
 		{
-			if(*olds == ' ')						/* Leerzeichen am Zeilenanfang vermeiden */
+			if (*olds == ' ')			/* Leerzeichen am Zeilenanfang vermeiden */
 				olds++;
 
 			strncpy(tmp, olds, alwidth);
 			len = alerttok(tmp, alwidth);
-			
+
 			strncat(normal_al1, olds, len);
 			strncat(normal_al1, "|", 1);
 			olds += len;
@@ -2189,20 +2306,20 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 
 		normal_al1[strlen(normal_al1) - 1] = '\0';	/* letztes Pipe abschneiden */
 
-		if(!b1 && !b2 && !b3)
+		if (!b1 && !b2 && !b3)
 			strcat(normal_al2, " OK ");
 		else
 		{
-			if(b1)
+			if (b1)
 				strcat(normal_al2, b1);
 
-			if(b2)
+			if (b2)
 			{
 				strcat(normal_al2, "|");
 				strcat(normal_al2, b2);
 			}
 
-			if(b3)
+			if (b3)
 			{
 				strcat(normal_al2, "|");
 				strcat(normal_al2, b3);
@@ -2212,10 +2329,10 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 		strcat(normal_al2, "]");
 
 		strcat(normal_al1, normal_al2);
-		return(form_alert( defbt, normal_al1));
+		return (form_alert(defbt, normal_al1));
 	}
 
-	return(0);
+	return (0);
 }
 
 
@@ -2226,7 +2343,7 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 	-------------------------------------------------------------*/
 void close_alert(void)
 {
-	if(wind_s[WIND_ALERT].whandlem == -1)				/* ist der Alert ist schon zu? */
+	if (wind_s[WIND_ALERT].whandlem == -1)	/* ist der Alert ist schon zu? */
 		return;
 
 	change_object(&wind_s[WIND_ALERT], ALBUTTON1, OS_UNSEL, 1);
@@ -2246,21 +2363,21 @@ void close_alert(void)
 /* brk abzusÑgen. maxlen gibt die MaximallÑnge an. */
 static char alerttok(char *s, char maxlen)
 {
-	char *brk = " ,;.:-?!";		/* als Trenner fungierende Zeichen */
+	char *brk = " ,;.:-?!";				/* als Trenner fungierende Zeichen */
 	char *jep;
 
 
-	if(strlen(s) < maxlen)
-		return(maxlen);
+	if (strlen(s) < maxlen)
+		return (maxlen);
 
-	strrev(s);					/* String umdrehen */
+	strrev(s);							/* String umdrehen */
 
-	jep = strpbrk(s, brk);		/* und dann ganz normale Suche */
+	jep = strpbrk(s, brk);				/* und dann ganz normale Suche */
 
-	if(jep)
-		return(strlen(jep));
+	if (jep)
+		return (strlen(jep));
 	else
-		return(maxlen);
+		return (maxlen);
 }
 
 
@@ -2269,10 +2386,10 @@ static char alerttok(char *s, char maxlen)
  * wie BIldinfodialog, Picmanpreview sowie Bildmaû- und
  * tiefenanzeige im Picmanager 
  */
-void f_pic_changed(WINDOW *window, int onoff)
+void f_pic_changed(WINDOW * window, int onoff)
 {
-	openmode = 1;				/* sonst geht der Pic-Info-Dialog immer auf */
-								/* keine Ahnung fÅr was openmode eigentlich da ist */
+	openmode = 1;						/* sonst geht der Pic-Info-Dialog immer auf */
+	/* keine Ahnung fÅr was openmode eigentlich da ist */
 	f_pic_info();
 	Dialog.picMan.makeThumbnail(active_pic);
 /*	Dialog.picMan.showWH(smurf_picture[active_pic]); */

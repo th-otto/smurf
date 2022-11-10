@@ -47,26 +47,27 @@
 /* enthaltenen Quotemarks.											*/
 char *quote_arg(char *s)
 {
-	char *t, *ot;
+	char *t,
+	*ot;
 
 	t = calloc(1, 257);
 	ot = t;
 
 	/* eric's file -> 'eric''s file' */
-	*t++ = '\'';		/* ganz vorne ein Quote */
+	*t++ = '\'';						/* ganz vorne ein Quote */
 
-	while(*s)
+	while (*s)
 	{
-		if(*s == '\'')
+		if (*s == '\'')
 			*t++ = '\'';
 
 		*t++ = *s++;
 	}
 
-	*t++ = '\'';		/* und ganz hinten ein Quote */
+	*t++ = '\'';						/* und ganz hinten ein Quote */
 	*t = '\0';
 
-	return(ot);
+	return (ot);
 }
 
 
@@ -74,29 +75,30 @@ char *quote_arg(char *s)
 /* aus Strings (Pfadnamen). 										*/
 char *unquote_arg(char *s)
 {
-	char *t, *os;
+	char *t,
+	*os;
 
 
-    os = s;
+	os = s;
 
 	/* 'eric''s file' -> eric's file */
 	t = s;
-    if(*s != '\'')
-		return(s);
+	if (*s != '\'')
+		return (s);
 
-	s++;				/* ganz vorne ein Quote weg */
+	s++;								/* ganz vorne ein Quote weg */
 
-    while(*s)
+	while (*s)
 	{
-		if(*s == '\'' && *(s + 1) == '\'')
+		if (*s == '\'' && *(s + 1) == '\'')
 			s++;
 
 		*t++ = *s++;
 	}
 
-	*(t - 1) = '\0';	/* und ganz hinten ein Quote weg */
+	*(t - 1) = '\0';					/* und ganz hinten ein Quote weg */
 
-	return(os);
+	return (os);
 }
 
 
@@ -109,61 +111,59 @@ char *strargvtok(char *s)
 {
 	static char *t = NULL;
 	char *back,
-		 in = 0;
+	 in = 0;
 
 
-	if(t == NULL)					/* Nur beim Ersten Aufruf der Fall */
+	if (t == NULL)						/* Nur beim Ersten Aufruf der Fall */
 		t = s;
 
-	if(*t == '\0')					/* Wenn der String zu Ende tokenisiert wurde, */
-	{								/* also nach dem letzten gÅltigen Aufruf. */
-		t = NULL;					/* Und das, damit nachfolgende Strings auch noch */
-		return(NULL);				/* gemacht werden kînnen. */
+	if (*t == '\0')						/* Wenn der String zu Ende tokenisiert wurde, */
+	{									/* also nach dem letzten gÅltigen Aufruf. */
+		t = NULL;						/* Und das, damit nachfolgende Strings auch noch */
+		return (NULL);					/* gemacht werden kînnen. */
 	}
 
 	s = t;
 
 /*	strcpy(mike, "'Parameter 2' 'Paramet'' 4' 'Paramet''5'"); */
-	if(*s == '\'')					/* nîtig, da Parameter mit einem ' nicht gequotet werden */
+	if (*s == '\'')						/* nîtig, da Parameter mit einem ' nicht gequotet werden */
 	{
 		in = 1;
-		strcpy(s, s + 1);			/* alles vorziehen */
+		strcpy(s, s + 1);				/* alles vorziehen */
 	}
 
-	while(*s)
+	while (*s)
 	{
-		if(*s == ' ')
+		if (*s == ' ')
 		{
-			if(!in)
+			if (!in)
 			{
 				*s++ = '\0';
 				break;
 			}
-		}
-		else
-			if(*s == '\'')
+		} else if (*s == '\'')
+		{
+			if (in)
 			{
-				if(in)
-				{
-					strcpy(s, s + 1);			/* alles vorziehen */
+				strcpy(s, s + 1);		/* alles vorziehen */
 
-					if(*s != '\'')
-					{
-						in = 0;
-						if(*s)					/* nur ausfÅhren, wenn nicht */
-							*s++ = '\0';		/* sowieso schon am Ende */
-						break;
-					}
+				if (*s != '\'')
+				{
+					in = 0;
+					if (*s)				/* nur ausfÅhren, wenn nicht */
+						*s++ = '\0';	/* sowieso schon am Ende */
+					break;
 				}
 			}
+		}
 
 		s++;
 	}
 
-	back = t;						/* Eingangsstring wegsichern */
-	t = s;							/* und neuen Anfang setzen */
+	back = t;							/* Eingangsstring wegsichern */
+	t = s;								/* und neuen Anfang setzen */
 
-	return(back);
+	return (back);
 }
 
 
@@ -179,38 +179,37 @@ char *mystrtok(char *s, char c)
 	char *back;
 
 
-	if(s == NULL)					/* manueller Init */
+	if (s == NULL)						/* manueller Init */
 	{
 		t = NULL;
-		return(NULL);
+		return (NULL);
 	}
 
-	if(t == NULL)					/* Nur am Stringanfang der Fall */
+	if (t == NULL)						/* Nur am Stringanfang der Fall */
 		t = s;
 
-	if(*t == '\0')					/* Wenn der String zu Ende tokenisiert wurde, */
-	{								/* also nach dem letzten gÅltigen Aufruf. */
-		t = NULL;					/* Und das, damit nachfolgende Strings auch noch */
-		return(NULL);				/* gemacht werden kînnen. */
+	if (*t == '\0')						/* Wenn der String zu Ende tokenisiert wurde, */
+	{									/* also nach dem letzten gÅltigen Aufruf. */
+		t = NULL;						/* Und das, damit nachfolgende Strings auch noch */
+		return (NULL);					/* gemacht werden kînnen. */
 	}
 
 	s = t;
 
-    while(*s)
+	while (*s)
 	{
-		if(*s == c)
+		if (*s == c)
 		{
 			*s++ = '\0';
 			break;
-		}
-		else
+		} else
 			s++;
 	}
 
-	back = t;						/* Eingangsstring wegsichern */
-	t = s;							/* und neuen Anfang setzen */
+	back = t;							/* Eingangsstring wegsichern */
+	t = s;								/* und neuen Anfang setzen */
 
-	return(back);
+	return (back);
 }
 
 
@@ -222,16 +221,16 @@ int strsrchl(char *s, char c)
 
 
 	i = 0;
-	while(*s != c && *s != '\0')
+	while (*s != c && *s != '\0')
 	{
 		s++;
 		i++;
 	}
 
-	if(*s == '\0')
-		return(-1);
+	if (*s == '\0')
+		return (-1);
 	else
-		return(i);
+		return (i);
 }
 
 
@@ -243,15 +242,15 @@ int strsrchr(char *s, char c)
 	int i;
 
 
-	i = (int)strlen(s) - 1;				/* Index auf letztes Zeichen setzen */
+	i = (int) strlen(s) - 1;			/* Index auf letztes Zeichen setzen */
 	s += i;
-	while(i >= 0 && *s != c)			/* i vor s prÅfen, da *s mîglicherweise ungÅltig! */
+	while (i >= 0 && *s != c)			/* i vor s prÅfen, da *s mîglicherweise ungÅltig! */
 	{
 		s--;
 		i--;
 	}
 
-	return(i);
+	return (i);
 }
 
 
@@ -259,17 +258,17 @@ int strsrchr(char *s, char c)
 /* Falls keines gefunden wurde, wird -1 zurÅckgegeben. */
 void get_tmp_dir(char *tmpdir)
 {
-	char *result;	
+	char *result;
 
 
-	if((result = getenv("TMP")) != NULL)
+	if ((result = getenv("TMP")) != NULL)
 		strcpy(tmpdir, result);
-	if((result = getenv("TEMP")) != NULL)
+	if ((result = getenv("TEMP")) != NULL)
 		strcpy(tmpdir, result);
-	if((result = getenv("TMPDIR")) != NULL)
+	if ((result = getenv("TMPDIR")) != NULL)
 		strcpy(tmpdir, result);
 
-	if(*tmpdir == '\0')
+	if (*tmpdir == '\0')
 		strcpy(tmpdir, Sys_info.standard_path);
 }
 
@@ -280,54 +279,51 @@ void get_tmp_dir(char *tmpdir)
 /* Erweitert um Ssystem(GETCOOKIE) am 2.5.99 */
 int get_cookie(unsigned long cookie, unsigned long *value)
 {
-	long r, val;
+	long r,
+	 val;
 
 	unsigned long *cookiejar;
 
 
 	/* Erst den neuen Weg probieren */
-	if((r = Ssystem(GETCOOKIE, cookie, (long)&val)) != EINVFN)
+	if ((r = Ssystem(GETCOOKIE, cookie, (long) &val)) != EINVFN)
 	{
-		if(r != -1)
+		if (r != -1)
 		{
 			*value = val;
-			return(TRUE);
-		}
-		else
+			return (TRUE);
+		} else
 		{
 			*value = 0L;
-			return(FALSE);
+			return (FALSE);
 		}
-	}
-	else
+	} else
 	{
 		/* Zeiger auf Cookie Jar holen */
-		cookiejar = (unsigned long *)Setexc(0x5a0/4, (void (*)())-1);	
+		cookiejar = (unsigned long *) Setexc(0x5a0 / 4, (void (*)()) -1);
 
 		/* Cookie Jar installiert? */
-		if(cookiejar)
+		if (cookiejar)
 		{
 			/* Keksdose nach cookie durchsuchen */
-			while(*cookiejar && *cookiejar != cookie)
+			while (*cookiejar && *cookiejar != cookie)
 				cookiejar += 2;
 
 			/* wenn cookie gefunden wurde, value auf Cookiewert setzen, */
 			/* ansonsten value auf 0L */
-			if(*cookiejar == cookie)
+			if (*cookiejar == cookie)
 			{
 				*value = *(cookiejar + 1);
-				return(TRUE);
-			}
-			else
+				return (TRUE);
+			} else
 			{
 				*value = 0L;
-				return(FALSE);
+				return (FALSE);
 			}
-		}
-		else
+		} else
 		{
 			*value = 0L;
-			return(FALSE);
+			return (FALSE);
 		}
 	}
 }
@@ -340,38 +336,38 @@ void *SMalloc(long amount)
 	char *buffer;
 
 
-	if((buffer = (char *)Malloc(amount)) == 0)
+	if ((buffer = (char *) Malloc(amount)) == 0)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MALLOC_ERR].TextCast, NULL, NULL, NULL, 1);
 	else
 		memset(buffer, 0x0, amount);
 
-	return(buffer);
+	return (buffer);
 }
 
 
 /* --- Funktion zum Freigeben von Speicher + Kontrolle ------- */
 int SMfree(void *ptr)
 {
-	if(ptr == NULL)
-		return(-1);
+	if (ptr == NULL)
+		return (-1);
 
-	if(Mfree(ptr) != 0)
+	if (Mfree(ptr) != 0)
 	{
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MFREE_ERR].TextCast, NULL, NULL, NULL, 1);
-		return(-1);
+		return (-1);
 	}
 
-	return(0);
+	return (0);
 }
 
 
 /*---- String im Startup-Dialog setzen und redrawen. Nur verwenden, wenn der Dialog offen ist! ---*/
 void set_startupdial(char *string)
 {
-	if(startupdial_exist)
+	if (startupdial_exist)
 	{
 		strcpy(startrsc[STARTUP_TXT].TextCast, string);
-		objc_draw(startrsc, STARTUP_TXT, 1, sx,sy,sw,sh);
+		objc_draw(startrsc, STARTUP_TXT, 1, sx, sy, sw, sh);
 	}
 }
 
@@ -388,103 +384,113 @@ float convert_units(int oldunit, int newunit, float dpi)
 {
 	float conv_factor;
 
-		if(newunit==UNIT_PIXELS)
+	if (newunit == UNIT_PIXELS)
+	{
+		switch (oldunit)
 		{
-			switch(oldunit)
-			{
-				case UNIT_MM:	conv_factor = dpi / 25.4;
-								break;
-				case UNIT_INCH:	conv_factor = dpi;
-								break;
-				case UNIT_POINTS:	conv_factor = dpi / 72.0;
-									break;
-			}
+		case UNIT_MM:
+			conv_factor = dpi / 25.4;
+			break;
+		case UNIT_INCH:
+			conv_factor = dpi;
+			break;
+		case UNIT_POINTS:
+			conv_factor = dpi / 72.0;
+			break;
 		}
-		else if(newunit==UNIT_MM)
+	} else if (newunit == UNIT_MM)
+	{
+		switch (oldunit)
 		{
-			switch(oldunit)
-			{
-				case UNIT_PIXELS:	conv_factor = 25.4 / dpi;
-									break;
-				case UNIT_INCH:		conv_factor = 25.4;
-									break;
-				case UNIT_POINTS:	conv_factor = 25.4 / 72.0;
-									break;
-			}
+		case UNIT_PIXELS:
+			conv_factor = 25.4 / dpi;
+			break;
+		case UNIT_INCH:
+			conv_factor = 25.4;
+			break;
+		case UNIT_POINTS:
+			conv_factor = 25.4 / 72.0;
+			break;
 		}
-		else if(newunit==UNIT_INCH)
+	} else if (newunit == UNIT_INCH)
+	{
+		switch (oldunit)
 		{
-			switch(oldunit)
-			{
-				case UNIT_PIXELS:	conv_factor = 1.0 / dpi;
-									break;
-				case UNIT_MM:		conv_factor = 1.0 / 25.4;
-									break;
-				case UNIT_POINTS:	conv_factor = 1.0 / 72.0;
-									break;
-			}
+		case UNIT_PIXELS:
+			conv_factor = 1.0 / dpi;
+			break;
+		case UNIT_MM:
+			conv_factor = 1.0 / 25.4;
+			break;
+		case UNIT_POINTS:
+			conv_factor = 1.0 / 72.0;
+			break;
 		}
-		else if(newunit==UNIT_POINTS)
+	} else if (newunit == UNIT_POINTS)
+	{
+		switch (oldunit)
 		{
-			switch(oldunit)
-			{
-				case UNIT_PIXELS:	conv_factor = 72.0 / dpi;
-									break;
-				case UNIT_MM:		conv_factor = 72.0 / 25.4;
-									break;
-				case UNIT_INCH:		conv_factor = 72.0;
-									break;
-			}
+		case UNIT_PIXELS:
+			conv_factor = 72.0 / dpi;
+			break;
+		case UNIT_MM:
+			conv_factor = 72.0 / 25.4;
+			break;
+		case UNIT_INCH:
+			conv_factor = 72.0;
+			break;
 		}
+	}
 
-	return(conv_factor);
+	return (conv_factor);
 }
 
 
 char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols)
 {
 	int fsback;
-	int *palbuf, *palcpy;
-	int max_count, t;
+	int *palbuf,
+	*palcpy;
+	int max_count,
+	 t;
 	static char pal_loadpath[256];
 
 	strcpy(pal_loadpath, path);
 	fsback = f_fsbox(pal_loadpath, "Palette laden", 0);
 
-	if(fsback!=FALSE)
+	if (fsback != FALSE)
 	{
-		palbuf=(int*)fload(pal_loadpath, 0);
-		max_count=(int)(f_len/6);
-		if(max_count>max_cols)
+		palbuf = (int *) fload(pal_loadpath, 0);
+		max_count = (int) (f_len / 6);
+		if (max_count > max_cols)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[PAL_DEPTHERR].TextCast, NULL, NULL, NULL, 1);
-			return(NULL);
-		}
-		else
+			return (NULL);
+		} else
 		{
-			palcpy=palbuf;
+			palcpy = palbuf;
 			/* Mit der ersten Farbe im File die Palette ausnullen */
-			for(t=0; t<256; t++)
+			for (t = 0; t < 256; t++)
 			{
-				red[t] = (int)(255L*(long)palcpy[0] / 1000L);
-				green[t] = (int)(255L*(long)palcpy[1] / 1000L);
-				blue[t] = (int)(255L*(long)palcpy[2] / 1000L);
+				red[t] = (int) (255L * (long) palcpy[0] / 1000L);
+				green[t] = (int) (255L * (long) palcpy[1] / 1000L);
+				blue[t] = (int) (255L * (long) palcpy[2] / 1000L);
 			}
 
 			/* und Åbertragen */
-			for(t=0; t<max_count; t++)
+			for (t = 0; t < max_count; t++)
 			{
-				red[t]= (int)(255L*(long)palcpy[t*3] / 1000L);
-				green[t]= (int)(255L*(long)palcpy[t*3+1] / 1000L);
-				blue[t]= (int)(255L*(long)palcpy[t*3+2] / 1000L);
+				red[t] = (int) (255L * (long) palcpy[t * 3] / 1000L);
+				green[t] = (int) (255L * (long) palcpy[t * 3 + 1] / 1000L);
+				blue[t] = (int) (255L * (long) palcpy[t * 3 + 2] / 1000L);
 			}
 		}
 
 		SMfree(palbuf);
-		return(pal_loadpath);
+		return (pal_loadpath);
 	}
 
-	return(NULL);
+	return (NULL);
 }
 
 
@@ -494,18 +500,17 @@ char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols)
 long get_maxnamelen(char *path)
 {
 	long Name_Max;
-	
+
 
 	/* maximale FilenamenlÑnge im Pfad erfragen */
-	if((Name_Max = Dpathconf(path, 3)) >= 0)			/* Funktionsergebnis gÅltig */
+	if ((Name_Max = Dpathconf(path, 3)) >= 0)	/* Funktionsergebnis gÅltig */
 	{
-		if(Name_Max == UNLIMITED)						/* LÑnge unbegrenzt */
+		if (Name_Max == UNLIMITED)		/* LÑnge unbegrenzt */
 			Name_Max = NAME_MAX;
-	}
-	else
-		Name_Max = 12;									/* Funktion nicht vorhanden */
-		
-	return(Name_Max);
+	} else
+		Name_Max = 12;					/* Funktion nicht vorhanden */
+
+	return (Name_Max);
 }
 
 
@@ -514,12 +519,12 @@ long get_maxnamelen(char *path)
 /* Punkt an der richtigen Stelle */
 void BCD2string(char *string, int bcd)
 {
-	if((bcd >> 12) != 0)
+	if ((bcd >> 12) != 0)
 		*string++ = '0' + (bcd >> 12);
-	*string++ = '0' + ((bcd&0x0f00) >> 8);
+	*string++ = '0' + ((bcd & 0x0f00) >> 8);
 	*string++ = '.';
-	*string++ = '0' + ((bcd&0x00f0) >> 4);
-	*string++ = '0' + (bcd&0x000f);
+	*string++ = '0' + ((bcd & 0x00f0) >> 4);
+	*string++ = '0' + (bcd & 0x000f);
 	*string++ = '\0';
 }
 
@@ -535,17 +540,17 @@ char *strrpbrk(char *s1beg, char *s1, char *s2)
 	do
 	{
 		s2 = os2;
-		while(*s2 && *s1 != *s2)
+		while (*s2 && *s1 != *s2)
 			s2++;
 
-		if(*s2)
+		if (*s2)
 			break;
-	} while(s1-- != s1beg);
+	} while (s1-- != s1beg);
 
-	if(*s1 && *s1 == *s2)
-		return(s1);
+	if (*s1 && *s1 == *s2)
+		return (s1);
 	else
-		return(NULL);
+		return (NULL);
 }
 
 
@@ -554,7 +559,7 @@ char *strrpbrk(char *s1beg, char *s1, char *s2)
 	in alle Variablen von Display_Opt, damit alle Farbtiefen nur mit diesen
 	Modi gedithert werden (z.B. fÅr Preview).
 	--------------------------------------------------------------------*/
-void make_singular_display(DISPLAY_MODES *old, int Dither, int Pal)
+void make_singular_display(DISPLAY_MODES * old, int Dither, int Pal)
 {
 	memcpy(old, &Display_Opt, sizeof(DISPLAY_MODES));
 	Display_Opt.dither_24 = Dither;
@@ -569,7 +574,7 @@ void make_singular_display(DISPLAY_MODES *old, int Dither, int Pal)
 	Kopiert die gerettete DISPLAY_MODES *old nach Display_Opt. Zum Restoren von
 	make_singular_display.
 	----------------------------------------------------------------------*/
-void restore_display(DISPLAY_MODES *old)
+void restore_display(DISPLAY_MODES * old)
 {
 	memcpy(&Display_Opt, old, sizeof(DISPLAY_MODES));
 }
@@ -584,12 +589,12 @@ char *shorten_name(char *string, char newlen)
 	static char temp[257];
 
 	/* nichts tun wenn String sowieso passend */
-	if(strlen(string) <= newlen)
-		return(string);
+	if (strlen(string) <= newlen)
+		return (string);
 
 	memset(temp, 0, sizeof(temp));
-	strncpy(temp, string, newlen / 2 - 1);			/* auf die HÑlfte und eines weniger */
-	strcat(temp, "...");							/* LÅckenfÅller rein */
+	strncpy(temp, string, newlen / 2 - 1);	/* auf die HÑlfte und eines weniger */
+	strcat(temp, "...");				/* LÅckenfÅller rein */
 	strcat(temp, string + strlen(string) - (newlen - newlen / 2 - 3));	/* und bis newlen LÑnge mit Originalstring auffÅllen */
 
 	return temp;
@@ -600,24 +605,24 @@ char *shorten_name(char *string, char newlen)
 
 int get_path(char *path, char drive)
 {
-	int 	ret, drive_nr;
+	int ret,
+	 drive_nr;
 
 	if (drive == 0)
 	{
-		drive = 'A' + Dgetdrv();					/* Aktuelles Laufwerk */
+		drive = 'A' + Dgetdrv();		/* Aktuelles Laufwerk */
 		if (drive > 'Z')
 			drive = drive - 'Z' + '0';
-	}
-	else
+	} else
 		drive = toupper(drive);
-	if (drive >= '1' && drive <= '6')			/* Laufwerk nach Z mit Big-DOS oder MetaDOS > 2.60 */
+	if (drive >= '1' && drive <= '6')	/* Laufwerk nach Z mit Big-DOS oder MetaDOS > 2.60 */
 		drive_nr = drive - '1' + 26;
 	else
 		drive_nr = drive - 'A';
 	path[0] = drive;
 	path[1] = ':';
-	ret = Dgetpath (path + 2, drive_nr + 1);
-	strcat (path, "\\");
+	ret = Dgetpath(path + 2, drive_nr + 1);
+	strcat(path, "\\");
 
 #if 0
 	if (fs_case_sens(path) == NO_CASE)
@@ -631,7 +636,8 @@ int get_path(char *path, char drive)
 
 int set_path(char *path)
 {
-	int	drive, ret;
+	int drive,
+	 ret;
 
 	if (path[0] == '\0')
 		return FALSE;

@@ -50,9 +50,9 @@
 #include "ext_rsc.h"
 #include "debug.h"
 
-static int  files_read;
+static int files_read;
 
-static void save_extensions(MOD_INFO *module_info);
+static void save_extensions(MOD_INFO * module_info);
 static void save_import_list(void);
 
 /* ----------------------------------------------------------------	*/
@@ -64,24 +64,32 @@ static void save_import_list(void);
 /* ----------------------------------------------------------------	*/
 void f_scan_edit(void)
 {
-	char *editpath;										/* voller Modulpfad, Original */
-	char *edit_path;									/* voller Modulpfad, editable */
-	char *swapstr, alert[128];
+	char *editpath;						/* voller Modulpfad, Original */
+	char *edit_path;					/* voller Modulpfad, editable */
+	char *swapstr,
+	 alert[128];
 	char *textseg_begin;
-	char edstring[64], strn[4];
+	char edstring[64],
+	 strn[4];
 	long mod_magic;
 
-	int t, tt, biggest, pathlen;
+	int t,
+	 tt,
+	 biggest,
+	 pathlen;
 
-	long ProcLen, entrlen;
-	long temp, lback;
+	long ProcLen,
+	 entrlen;
+	long temp,
+	 lback;
 
 	BASPAG *edit_baspag;
 	MOD_INFO *module_info;
 
-	struct DIRENTRY *filelist, *actual;
+	struct DIRENTRY *filelist,
+	*actual;
 
-	DEBUG_MSG (( "Lade Edit-Module\n" ));
+	DEBUG_MSG(("Lade Edit-Module\n"));
 
 	/*---- Pfade vorbereiten ----*/
 	editpath = calloc(1, strlen(Sys_info.standard_path) + strlen("\\modules\\edit\\") + 1);
@@ -90,16 +98,16 @@ void f_scan_edit(void)
 
 	Name_Max = get_maxnamelen(editpath);
 
-	pathlen = (int)(strlen(editpath) + Name_Max);
-	edit_path = (char *)calloc(1, pathlen + 1);
-	swapstr = (char *)calloc(1, pathlen + 1);
+	pathlen = (int) (strlen(editpath) + Name_Max);
+	edit_path = (char *) calloc(1, pathlen + 1);
+	swapstr = (char *) calloc(1, pathlen + 1);
 
 	filelist = build_up_filelist(editpath, "sem", pathlen);
 
 	Dialog.emodList.anzahl = 0;
 
 	actual = filelist;
-	while(actual != NULL)
+	while (actual != NULL)
 	{
 		/*
 		 * Modul laden und Basepage ermitteln
@@ -108,74 +116,72 @@ void f_scan_edit(void)
 		strcat(edit_path, actual->modname);
 
 		temp = Pexec(3, edit_path, NULL, NULL);
-		if(temp < 0)
+		if (temp < 0)
 		{
-			DEBUG_MSG (( "  Fehler bei %s: %li\n", actual->modname, temp ));
-			if(temp == EACCDN)
+			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
+			if (temp == EACCDN)
 			{
-				sprintf(alert, "[1][Modul|%s|besitzt keine Berechtigung|ausgefhrt zu werden|(Exec-Flag?)!][ OK ]", actual->modname); /* FIMXE: translate */
-			}
-			else
+				sprintf(alert, "[1][Modul|%s|besitzt keine Berechtigung|ausgefhrt zu werden|(Exec-Flag?)!][ OK ]", actual->modname);	/* FIMXE: translate */
+			} else
 			{
-				sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\edit\\!][ OK ]", actual->modname); /* FIMXE: translate */
+				sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\edit\\!][ OK ]", actual->modname);	/* FIMXE: translate */
 			}
 
 			form_alert(1, alert);
-		}
-		else
-		{	
-			edit_baspag = (BASPAG *)temp;
+		} else
+		{
+			edit_baspag = (BASPAG *) temp;
 
-			mod_magic = get_modmagic(edit_baspag);			/* Zeiger auf Magic (muž MOD_MAGIC_EDIT sein!) */
-			if(mod_magic != MOD_MAGIC_EDIT)
+			mod_magic = get_modmagic(edit_baspag);	/* Zeiger auf Magic (muž MOD_MAGIC_EDIT sein!) */
+			if (mod_magic != MOD_MAGIC_EDIT)
 			{
-				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\edit\\|ist kein Editmodul!][ OK ]", actual->modname); /* FIMXE: translate */
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\edit\\|ist kein Editmodul!][ OK ]", actual->modname);	/* FIMXE: translate */
 				form_alert(1, alert);
-			}
-			else
+			} else
 			{
 				/*
 				 * L„nge des gesamten Tochterprozesses ermitteln
 				 */
 				ProcLen = get_proclen(edit_baspag);
-				_Mshrink(edit_baspag, ProcLen);		/* Speicherblock verkrzen */
-				edit_baspag->p_hitpa = (void *)((long)edit_baspag + ProcLen);
+				_Mshrink(edit_baspag, ProcLen);	/* Speicherblock verkrzen */
+				edit_baspag->p_hitpa = (void *) ((long) edit_baspag + ProcLen);
 
-				lback = Pexec(4, 0L, (char *)edit_baspag, 0L);
-				if(lback < 0L)
+				lback = Pexec(4, 0L, (char *) edit_baspag, 0L);
+				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
-				textseg_begin = edit_baspag->p_tbase;			/* Textsegment-Startadresse holen */
+				textseg_begin = edit_baspag->p_tbase;	/* Textsegment-Startadresse holen */
 
-				module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+				module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
 
 				/*
 				 * Modul eintragen
 				 */
-				edit_modules[Dialog.emodList.anzahl] = malloc(pathlen + 1);		/* keine variable L„nge wegen Sortierung! */
+				edit_modules[Dialog.emodList.anzahl] = malloc(pathlen + 1);	/* keine variable L„nge wegen Sortierung! */
 				strcpy(edit_modules[Dialog.emodList.anzahl], edit_path);
 
-				Dialog.emodList.modNames[Dialog.emodList.anzahl] = (char *)calloc(1, 29);
+				Dialog.emodList.modNames[Dialog.emodList.anzahl] = (char *) calloc(1, 29);
 				strncpy(Dialog.emodList.modNames[Dialog.emodList.anzahl], module_info->mod_name, 28);
 
 				entrlen = strlen(Dialog.emodList.modNames[Dialog.emodList.anzahl]);
-				if(entrlen < 28)
-					strncat(Dialog.emodList.modNames[Dialog.emodList.anzahl], "                           ", 28 - entrlen);
+				if (entrlen < 28)
+					strncat(Dialog.emodList.modNames[Dialog.emodList.anzahl], "                           ",
+							28 - entrlen);
 
 				Dialog.emodList.anzahl++;
 
 				/*---- gescante Module im Startupdialog hochz„hlen */
-				if(!(Dialog.emodList.anzahl&3))
+				if (!(Dialog.emodList.anzahl & 3))
 				{
 					strcpy(edstring, itoa(Dialog.emodList.anzahl, strn, 10));
 					strcat(edstring, " Editmodule");
 					set_startupdial(edstring);
 				}
 
-				DEBUG_MSG (( "  --> Name   : %s\n", module_info->mod_name ));
-				DEBUG_MSG (( "      File   : %s\n", actual->modname ));
-				DEBUG_MSG (( "      Version: %x\n", module_info->version ));
-				DEBUG_MSG (( "      Autor  : %s\n", module_info->autor ));
+				DEBUG_MSG(("  --> Name   : %s\n", module_info->mod_name));
+				DEBUG_MSG(("      File   : %s\n", actual->modname));
+				DEBUG_MSG(("      Version: %x\n", module_info->version));
+				DEBUG_MSG(("      Autor  : %s\n", module_info->autor));
 			}
 
 /*			Pexec(102, NULL, edit_baspag, 0L); */
@@ -191,11 +197,11 @@ void f_scan_edit(void)
 	set_startupdial(edstring);
 
 	/*---------------- Liste alphabetisch sortieren -------------*/
-	for(t = 0; t < Dialog.emodList.anzahl; t++)
+	for (t = 0; t < Dialog.emodList.anzahl; t++)
 	{
 		biggest = t;
-		for(tt = t + 1; tt < Dialog.emodList.anzahl; tt++)
-			if(stricmp(Dialog.emodList.modNames[tt], Dialog.emodList.modNames[biggest]) < 0)
+		for (tt = t + 1; tt < Dialog.emodList.anzahl; tt++)
+			if (stricmp(Dialog.emodList.modNames[tt], Dialog.emodList.modNames[biggest]) < 0)
 				biggest = tt;
 
 		strncpy(swapstr, Dialog.emodList.modNames[t], 29);
@@ -226,23 +232,30 @@ void f_scan_edit(void)
 /* ----------------------------------------------------------------	*/
 void f_scan_import(void)
 {
-	char *importpath;									/* voller Modulpfad, Original */
-	char *import_path;									/* voller Modulpfad, editable */
- 	char *textseg_begin;
+	char *importpath;					/* voller Modulpfad, Original */
+	char *import_path;					/* voller Modulpfad, editable */
+	char *textseg_begin;
 	char alert[128];
 	long mod_magic;
 
-	int pathlen, bh, bl, anzahl_extensions, t, tt;
+	int pathlen,
+	 bh,
+	 bl,
+	 anzahl_extensions,
+	 t,
+	 tt;
 
 	long ProcLen;
-	long temp, lback;
+	long temp,
+	 lback;
 
 	BASPAG *import_baspag;
 	MOD_INFO *module_info;
 
-	struct DIRENTRY *filelist, *actual;
+	struct DIRENTRY *filelist,
+	*actual;
 
-	DEBUG_MSG (( "Lade Import-Module...\n" ));
+	DEBUG_MSG(("Lade Import-Module...\n"));
 
 	/*---- Pfade vorbereiten ----*/
 	importpath = calloc(1, strlen(Sys_info.standard_path) + strlen("\\modules\\import\\") + 1);
@@ -251,28 +264,28 @@ void f_scan_import(void)
 
 	Name_Max = get_maxnamelen(importpath);
 
-	pathlen = (int)(strlen(importpath) + Name_Max);
-	import_path = (char *)calloc(1, pathlen + 1);
+	pathlen = (int) (strlen(importpath) + Name_Max);
+	import_path = (char *) calloc(1, pathlen + 1);
 
 	files_read = 0;
 	filelist = build_up_filelist(importpath, "sim", pathlen);
 
 	anzahl_importmods = 0;
 	anzahl_extensions = 0;
-	
+
 	Dialog.busy.reset(0, "Importmodule...");
 
-	bh = files_read / 8;			/* busy-height */
-	bl = 0;							/* busy-length */
+	bh = files_read / 8;				/* busy-height */
+	bl = 0;								/* busy-length */
 
 	/* bisherige Liste freigeben */
 	free(Import_list.imp_mod_list[0]);
 
 	files_read = 0;
 	actual = filelist;
-	while(actual != NULL)
+	while (actual != NULL)
 	{
-		if(!(files_read%bh))
+		if (!(files_read % bh))
 		{
 			Dialog.busy.draw(bl);
 			bl += 16;
@@ -283,56 +296,54 @@ void f_scan_import(void)
 		strcat(import_path, actual->modname);
 
 		temp = Pexec(3, import_path, NULL, NULL);
-		if(temp < 0)
+		if (temp < 0)
 		{
-			DEBUG_MSG (( "  Fehler bei %s: %li\n", actual->modname, temp ));
-			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\import\\!][ OK ]", actual->modname); /* FIMXE: translate */
+			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
+			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\import\\!][ OK ]", actual->modname);	/* FIMXE: translate */
 			form_alert(1, alert);
-		}
-		else
-		{	
-			import_baspag = (BASPAG *)temp;
+		} else
+		{
+			import_baspag = (BASPAG *) temp;
 
-			mod_magic = get_modmagic(import_baspag);		/* Zeiger auf Magic (muž MOD_MAGIC_IMPORT sein!) */
-			if(mod_magic != MOD_MAGIC_IMPORT)
+			mod_magic = get_modmagic(import_baspag);	/* Zeiger auf Magic (muž MOD_MAGIC_IMPORT sein!) */
+			if (mod_magic != MOD_MAGIC_IMPORT)
 			{
-				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\import\\|ist kein importmodul!][ OK ]", actual->modname); /* FIMXE: translate */
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\import\\|ist kein importmodul!][ OK ]", actual->modname);	/* FIMXE: translate */
 				form_alert(1, alert);
-			}
-			else
+			} else
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(import_baspag);
-				_Mshrink(import_baspag, ProcLen);			/* Speicherblock verkrzen */
-				import_baspag->p_hitpa = (void *)((long)import_baspag + ProcLen);		
+				_Mshrink(import_baspag, ProcLen);	/* Speicherblock verkrzen */
+				import_baspag->p_hitpa = (void *) ((long) import_baspag + ProcLen);
 
-				lback = Pexec(4, 0L, (char *)import_baspag, 0L);
-				if(lback < 0L)
+				lback = Pexec(4, 0L, (char *) import_baspag, 0L);
+				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
-				textseg_begin = import_baspag->p_tbase;			/* Textsegment-Startadresse holen */
+				textseg_begin = import_baspag->p_tbase;	/* Textsegment-Startadresse holen */
 
-				module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
-			
+				module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+
 				/*---- Modul eintragen */
 				Import_list.imp_mod_list[anzahl_importmods] = malloc(strlen(actual->modname) + 1);
 				strcpy(Import_list.imp_mod_list[anzahl_importmods], actual->modname);
-				
+
 				/*---- Extensionen merken */
 				save_extensions(module_info);
 
-				for(t = 0; t < 10; t++)
+				for (t = 0; t < 10; t++)
 				{
-					if(strlen(Import_list.mod_exts[t][anzahl_importmods]) != 0)
+					if (strlen(Import_list.mod_exts[t][anzahl_importmods]) != 0)
 						anzahl_extensions++;
 				}
-			
+
 				anzahl_importmods++;
 
-				DEBUG_MSG (( "  --> Name   : %s\n", module_info->mod_name ));
-				DEBUG_MSG (( "      File   : %s\n", actual->modname ));
-				DEBUG_MSG (( "      Version: %x\n", module_info->version ));
-				DEBUG_MSG (( "      Autor  : %s\n", module_info->autor ));
+				DEBUG_MSG(("  --> Name   : %s\n", module_info->mod_name));
+				DEBUG_MSG(("      File   : %s\n", actual->modname));
+				DEBUG_MSG(("      Version: %x\n", module_info->version));
+				DEBUG_MSG(("      Autor  : %s\n", module_info->autor));
 			}
 
 /*			Pexec(102, NULL, import_baspag, 0L); */
@@ -342,9 +353,9 @@ void f_scan_import(void)
 
 		actual = actual->next;
 		files_read++;
-	} /* while(actual != NULL) */
+	}									/* while(actual != NULL) */
 
-	if(filelist == NULL)
+	if (filelist == NULL)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_IMODS_FOUND].TextCast, NULL, NULL, NULL, 1);
 
 	save_import_list();
@@ -357,17 +368,17 @@ void f_scan_import(void)
 	/*
 	 * reservierten Speicher wieder freigeben
 	 */
-	for(t = 0; t < anzahl_importmods; t++)
+	for (t = 0; t < anzahl_importmods; t++)
 	{
 		free(Import_list.imp_mod_list[t]);
 
-		for(tt = 0; tt < 10; tt++)
+		for (tt = 0; tt < 10; tt++)
 			free(Import_list.mod_exts[tt][t]);
 	}
 
 	load_import_list();
 
-	DEBUG_MSG (( "Lade Import-Module...Ende\n" ));
+	DEBUG_MSG(("Lade Import-Module...Ende\n"));
 }
 
 
@@ -375,7 +386,7 @@ void f_scan_import(void)
 /* ----------------------------------------------------------------	*/
 /*		Extensionen eines Importers in Import_list speichern		*/
 /* ----------------------------------------------------------------	*/
-static void save_extensions(MOD_INFO *module_info)
+static void save_extensions(MOD_INFO * module_info)
 {
 	int t;
 
@@ -386,7 +397,7 @@ static void save_extensions(MOD_INFO *module_info)
 		Import_list.mod_exts[t][anzahl_importmods] = malloc(strlen(module_info->ext[t]) + 1);
 		strcpy(Import_list.mod_exts[t][anzahl_importmods], module_info->ext[t]);
 		strupr(Import_list.mod_exts[t][anzahl_importmods]);
-	} while(++t < 10);
+	} while (++t < 10);
 }
 
 
@@ -396,10 +407,16 @@ static void save_extensions(MOD_INFO *module_info)
 /******************************************************************	*/
 static void save_import_list(void)
 {
-	char *string, listpath[256],
-		 len;
+	char *string,
+	 listpath[256],
+	 len;
 
-	int filehandle, t, extnum, werror = 0, bh, bl;
+	int filehandle,
+	 t,
+	 extnum,
+	 werror = 0,
+		bh,
+		bl;
 
 	long dummy;
 
@@ -407,59 +424,58 @@ static void save_import_list(void)
 	strcpy(listpath, Sys_info.home_path);
 	strcat(listpath, "\\ilist.dat");
 
-	if((dummy = Fcreate(listpath, 0)) < 0)
+	if ((dummy = Fcreate(listpath, 0)) < 0)
 	{
 		Dialog.busy.reset(128, "Error");
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[CNF_SAVEERR].TextCast, NULL, NULL, NULL, 1);
-	}
-	else
+	} else
 	{
-		filehandle = (int)dummy;
+		filehandle = (int) dummy;
 
 		Dialog.busy.reset(0, "Liste speichern...");
-	
-		if(Fwrite(filehandle, 2, &anzahl_importmods) != 2)		/* Anzahl speichern */
-			werror = 1;
-			
-		if(!werror)
-		{
-			bh = anzahl_importmods / 6;			/* busy-height */
-			bl = 0;								/* busy-length */
 
-			for(t = 0; t < anzahl_importmods; t++)
+		if (Fwrite(filehandle, 2, &anzahl_importmods) != 2)	/* Anzahl speichern */
+			werror = 1;
+
+		if (!werror)
+		{
+			bh = anzahl_importmods / 6;	/* busy-height */
+			bl = 0;						/* busy-length */
+
+			for (t = 0; t < anzahl_importmods; t++)
 			{
-				if(!(t%bh))
+				if (!(t % bh))
 				{
 					Dialog.busy.draw(bl);
 					bl += 10;
 				}
-	
+
 				/* Modulname speichern */
 				string = Import_list.imp_mod_list[t];
-				len = (char)strlen(string) + 1;
-				if(Fwrite(filehandle, len, string) != len)
+				len = (char) strlen(string) + 1;
+				if (Fwrite(filehandle, len, string) != len)
 				{
 					werror = 1;
 					break;
 				}
 			}
 		}
-		
-		if(!werror)
+
+		if (!werror)
 		{
-			for(t = 0; t < anzahl_importmods; t++)
+			for (t = 0; t < anzahl_importmods; t++)
 			{
-				if(!(t%bh))
+				if (!(t % bh))
 				{
 					Dialog.busy.draw(bl);
 					bl += 11;
-				}		
-		
-				for(extnum = 0; extnum < 10; extnum++)
-				{		
+				}
+
+				for (extnum = 0; extnum < 10; extnum++)
+				{
 					string = Import_list.mod_exts[extnum][t];
-					len = (char)strlen(string) + 1;
-					if(Fwrite(filehandle, len, string) != len)		/* EXT speichern */
+					len = (char) strlen(string) + 1;
+					if (Fwrite(filehandle, len, string) != len)	/* EXT speichern */
 					{
 						werror = 1;
 						break;
@@ -467,11 +483,11 @@ static void save_import_list(void)
 				}
 			}
 		}
-		
+
 		Fclose(filehandle);
 	}
 
-	if(werror)
+	if (werror)
 		Dialog.winAlert.openAlert("Fehler beim Schreiben der Importerliste!", NULL, NULL, NULL, 1);
 	else
 		Dialog.busy.ok();
@@ -483,25 +499,28 @@ static void save_import_list(void)
 /******************************************************************	*/
 int load_import_list(void)
 {
-	char *buf, listpath[256];
+	char *buf,
+	 listpath[256];
 
-	int filehandle, t, extnum;
+	int filehandle,
+	 t,
+	 extnum;
 
-	long dummy, f_len;
+	long dummy,
+	 f_len;
 
-	DEBUG_MSG (( "load_import_list...\n" ));
+	DEBUG_MSG(("load_import_list...\n"));
 
 	strcpy(listpath, Sys_info.home_path);
 	strcat(listpath, "\\ilist.dat");
 
-	if((dummy = Fopen(listpath, FO_READ)) < 0)
+	if ((dummy = Fopen(listpath, FO_READ)) < 0)
 	{
-		DEBUG_MSG (( "load_import_list...Ende -1\n" ));
-		return(-1);
-	}
-	else
+		DEBUG_MSG(("load_import_list...Ende -1\n"));
+		return (-1);
+	} else
 	{
-		filehandle = (int)dummy;
+		filehandle = (int) dummy;
 
 		Dialog.busy.reset(0, "ILIST.DAT laden...");
 
@@ -510,11 +529,11 @@ int load_import_list(void)
 
 		Fread(filehandle, 2, &anzahl_importmods);	/* Anzahl Importer auslesen */
 
-		buf = (char *)malloc(f_len);
+		buf = (char *) malloc(f_len);
 		Fread(filehandle, f_len, buf);
 
 	/*---------------------------------------------- Importer-Pfade laden ------------*/
-		for(t = 0; t < anzahl_importmods; t++)
+		for (t = 0; t < anzahl_importmods; t++)
 		{
 			Import_list.imp_mod_list[t] = buf;
 			buf += strlen(buf) + 1;
@@ -522,9 +541,9 @@ int load_import_list(void)
 
 
 	/*---------------------------------------------- Importer-Extensions laden ------------*/
-		for(t = 0; t < anzahl_importmods; t++)
+		for (t = 0; t < anzahl_importmods; t++)
 		{
-			for(extnum = 0; extnum < 10; extnum++)
+			for (extnum = 0; extnum < 10; extnum++)
 			{
 				Import_list.mod_exts[extnum][t] = buf;
 				buf += strlen(buf) + 1;
@@ -536,9 +555,9 @@ int load_import_list(void)
 
 	Dialog.busy.ok();
 
-	DEBUG_MSG (( "load_import_list...Ende\n" ));
+	DEBUG_MSG(("load_import_list...Ende\n"));
 
-	return(0);
+	return (0);
 }
 
 
@@ -550,22 +569,23 @@ int load_import_list(void)
 /*	Wird '*' als Extension bergeben, werden alle Importer 			*/
 /*	durchlaufen.													*/
 /******************************************************************	*/
-int seek_module(SMURF_PIC *picture, char *extension)
+int seek_module(SMURF_PIC * picture, char *extension)
 {
 	char modpath[257];
 	char new_ext[5];
 
-	int t = 0, seek;
+	int t = 0,
+		seek;
 	int mod_ret = M_INVALID;
 
 
-	if(anzahl_importmods <= 0)
-		return(M_INVALID);
+	if (anzahl_importmods <= 0)
+		return (M_INVALID);
 
 	strncpy(new_ext, extension, 5);
 	strupr(new_ext);
 
-	if(*extension == '*')
+	if (*extension == '*')
 	{
 		t = 0;
 		do
@@ -574,35 +594,34 @@ int seek_module(SMURF_PIC *picture, char *extension)
 			strncpy(modpath, Sys_info.standard_path, 257);
 			strcat(modpath, "\\modules\\import\\");
 			strcat(modpath, Import_list.imp_mod_list[t]);
-			if((mod_ret = module.comm.startImport(modpath, picture)) == M_STARTERR)
+			if ((mod_ret = module.comm.startImport(modpath, picture)) == M_STARTERR)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
-		} while(++t < anzahl_importmods && mod_ret != M_PICDONE && mod_ret != M_DONEEXIT);
-	}
-	else
+		} while (++t < anzahl_importmods && mod_ret != M_PICDONE && mod_ret != M_DONEEXIT);
+	} else
 	{
 		t = 0;
 		do
 		{
-			for(seek = 0; seek < 10; seek++)
+			for (seek = 0; seek < 10; seek++)
 			{
-				if(!Import_list.mod_exts[seek][t])
+				if (!Import_list.mod_exts[seek][t])
 					break;
-				if(strncmp(new_ext, Import_list.mod_exts[seek][t], 4) == 0)
+				if (strncmp(new_ext, Import_list.mod_exts[seek][t], 4) == 0)
 				{
 					Dialog.busy.reset(0, Import_list.imp_mod_list[t]);
 					strncpy(modpath, Sys_info.standard_path, 257);
 					strcat(modpath, "\\modules\\import\\");
 					strcat(modpath, Import_list.imp_mod_list[t]);
 
-					if((mod_ret = module.comm.startImport(modpath, picture)) == M_STARTERR)
+					if ((mod_ret = module.comm.startImport(modpath, picture)) == M_STARTERR)
 						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 					break;
 				}
 			}
-		} while(++t < anzahl_importmods && mod_ret != M_PICDONE && mod_ret != M_DONEEXIT);
+		} while (++t < anzahl_importmods && mod_ret != M_PICDONE && mod_ret != M_DONEEXIT);
 	}
 
-	return(mod_ret);
+	return (mod_ret);
 }
 
 
@@ -612,24 +631,32 @@ int seek_module(SMURF_PIC *picture, char *extension)
 /* ----------------------------------------------------------------	*/
 void f_scan_export(void)
 {
-	char *expath;										/* voller Modulpfad, Original */
-	char *ex_path;										/* voller Modulpfad, editable */
-	char *swapstr, alert[128];
+	char *expath;						/* voller Modulpfad, Original */
+	char *ex_path;						/* voller Modulpfad, editable */
+	char *swapstr,
+	 alert[128];
 	char *textseg_begin;
-	char edstring[64], strn[4];
+	char edstring[64],
+	 strn[4];
 	long mod_magic;
 
-	int t, tt, biggest, pathlen;
+	int t,
+	 tt,
+	 biggest,
+	 pathlen;
 
-	long ProcLen, entrlen;
-	long temp, lback;
+	long ProcLen,
+	 entrlen;
+	long temp,
+	 lback;
 
 	BASPAG *export_baspag;
 	MOD_INFO *module_info;
 
-	struct DIRENTRY *filelist, *actual;
+	struct DIRENTRY *filelist,
+	*actual;
 
-	DEBUG_MSG (( "Lade Export-Module\n" ));
+	DEBUG_MSG(("Lade Export-Module\n"));
 
 	/*---- Pfade vorbereiten ----*/
 	expath = calloc(1, strlen(Sys_info.standard_path) + strlen("\\modules\\export\\") + 1);
@@ -638,77 +665,76 @@ void f_scan_export(void)
 
 	Name_Max = get_maxnamelen(expath);
 
-	pathlen = (int)(strlen(expath) + Name_Max);
-	ex_path = (char *)calloc(1, pathlen + 1);
-	swapstr = (char *)calloc(1, pathlen + 1);
+	pathlen = (int) (strlen(expath) + Name_Max);
+	ex_path = (char *) calloc(1, pathlen + 1);
+	swapstr = (char *) calloc(1, pathlen + 1);
 
 	filelist = build_up_filelist(expath, "sxm", pathlen);
 
 	Dialog.expmodList.anzahl = 0;
 
 	actual = filelist;
-	while(actual != NULL)
+	while (actual != NULL)
 	{
 		/*---- Modul als Overlay laden und Basepage ermitteln */
 		strcpy(ex_path, expath);
 		strcat(ex_path, actual->modname);
 
 		temp = Pexec(3, ex_path, NULL, NULL);
-		if(temp < 0)
+		if (temp < 0)
 		{
-			DEBUG_MSG (( "  Fehler bei %s: %li\n", actual->modname, temp ));
-			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\export\\!][ OK ]", actual->modname); /* FIMXE: translate */
+			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
+			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\export\\!][ OK ]", actual->modname);	/* FIMXE: translate */
 			form_alert(1, alert);
-		}
-		else
-		{	
-			export_baspag = (BASPAG *)temp;
+		} else
+		{
+			export_baspag = (BASPAG *) temp;
 
-			mod_magic = get_modmagic(export_baspag);			/* Zeiger auf Magic (muž MOD_MAGIC_EXPORT sein!) */
-			if(mod_magic != MOD_MAGIC_EXPORT)
+			mod_magic = get_modmagic(export_baspag);	/* Zeiger auf Magic (muž MOD_MAGIC_EXPORT sein!) */
+			if (mod_magic != MOD_MAGIC_EXPORT)
 			{
-				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\export\\|ist kein Exportmodul!][ OK ]", actual->modname); /* FIXME: translate */
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\export\\|ist kein Exportmodul!][ OK ]", actual->modname);	/* FIXME: translate */
 				form_alert(1, alert);
-			}
-			else
+			} else
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(export_baspag);
-				_Mshrink(export_baspag, ProcLen);				/* Speicherblock verkrzen */
-				export_baspag->p_hitpa = (void *)((long)export_baspag + ProcLen);
+				_Mshrink(export_baspag, ProcLen);	/* Speicherblock verkrzen */
+				export_baspag->p_hitpa = (void *) ((long) export_baspag + ProcLen);
 
-				lback = Pexec(4, 0L, (char *)export_baspag, 0L);
-				if(lback < 0L)
+				lback = Pexec(4, 0L, (char *) export_baspag, 0L);
+				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
-				textseg_begin = export_baspag->p_tbase;			/* Textsegment-Startadresse holen */
+				textseg_begin = export_baspag->p_tbase;	/* Textsegment-Startadresse holen */
 
-				module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+				module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
 
 				/*---- Modul eintragen */
-				export_modules[Dialog.expmodList.anzahl] = malloc(pathlen + 1);		/* keine variable L„nge wegen Sortierung! */
+				export_modules[Dialog.expmodList.anzahl] = malloc(pathlen + 1);	/* keine variable L„nge wegen Sortierung! */
 				strcpy(export_modules[Dialog.expmodList.anzahl], ex_path);
-			
-				Dialog.expmodList.modNames[Dialog.expmodList.anzahl] = (char *)calloc(1, 29);
+
+				Dialog.expmodList.modNames[Dialog.expmodList.anzahl] = (char *) calloc(1, 29);
 				strncpy(Dialog.expmodList.modNames[Dialog.expmodList.anzahl], module_info->mod_name, 28);
 				entrlen = strlen(Dialog.expmodList.modNames[Dialog.expmodList.anzahl]);
-				if(entrlen < 28)
-					strncat(Dialog.expmodList.modNames[Dialog.expmodList.anzahl], "                           ", 28 - entrlen);
-		
+				if (entrlen < 28)
+					strncat(Dialog.expmodList.modNames[Dialog.expmodList.anzahl], "                           ",
+							28 - entrlen);
+
 				Dialog.expmodList.anzahl++;
 
 				/*---- gescante Module im Startupdialog hochz„hlen */
-				if(!(Dialog.expmodList.anzahl&3))
+				if (!(Dialog.expmodList.anzahl & 3))
 				{
 					strcpy(edstring, itoa(Dialog.expmodList.anzahl, strn, 10));
 					strcat(edstring, " Exporter");
 					set_startupdial(edstring);
 				}
 
-				DEBUG_MSG (( "  --> Name   : %s\n", module_info->mod_name ));
-				DEBUG_MSG (( "      File   : %s\n", actual->modname ));
-				DEBUG_MSG (( "      Version: %x\n", module_info->version ));
-				DEBUG_MSG (( "      Autor  : %s\n", module_info->autor ));
+				DEBUG_MSG(("  --> Name   : %s\n", module_info->mod_name));
+				DEBUG_MSG(("      File   : %s\n", actual->modname));
+				DEBUG_MSG(("      Version: %x\n", module_info->version));
+				DEBUG_MSG(("      Autor  : %s\n", module_info->autor));
 			}
 
 /*			Pexec(102, NULL, export_baspag, 0L); */
@@ -724,11 +750,11 @@ void f_scan_export(void)
 	set_startupdial(edstring);
 
 	/*---------------- Liste alphabetisch sortieren -------------*/
-	for(t = 0; t < Dialog.expmodList.anzahl; t++)
+	for (t = 0; t < Dialog.expmodList.anzahl; t++)
 	{
 		biggest = t;
-		for(tt = t + 1; tt < Dialog.expmodList.anzahl; tt++)
-			if(stricmp(Dialog.expmodList.modNames[tt], Dialog.expmodList.modNames[biggest]) < 0)
+		for (tt = t + 1; tt < Dialog.expmodList.anzahl; tt++)
+			if (stricmp(Dialog.expmodList.modNames[tt], Dialog.expmodList.modNames[biggest]) < 0)
 				biggest = tt;
 
 		strncpy(swapstr, Dialog.expmodList.modNames[t], 29);
@@ -758,85 +784,86 @@ void f_scan_dither(void)
 {
 	char *ditpath;
 	char *dit_path;
-	char alert[128], string[20] = "";
+	char alert[128],
+	 string[20] = "";
 	char *textseg_begin;
 	long mod_magic;
 
 	int pathlen;
 
 	long ProcLen;
-	long temp, lback;
+	long temp,
+	 lback;
 
 
 	BASPAG *dit_baspag;
 
-	struct DIRENTRY *filelist, *actual;
+	struct DIRENTRY *filelist,
+	*actual;
 
-	DEBUG_MSG (( "Lade Dither-Module\n" ));
+	DEBUG_MSG(("Lade Dither-Module\n"));
 
 	/*---- Pfade vorbereiten ----*/
 	ditpath = calloc(1, strlen(Sys_info.standard_path) + strlen("\\modules\\dither\\") + 1);
 	strcpy(ditpath, Sys_info.standard_path);
 	strcat(ditpath, "\\modules\\dither\\");
 
-	Name_Max = get_maxnamelen(ditpath);	
-	pathlen = (int)(strlen(ditpath) + Name_Max);
-	dit_path = (char *)calloc(1, pathlen + 1);
+	Name_Max = get_maxnamelen(ditpath);
+	pathlen = (int) (strlen(ditpath) + Name_Max);
+	dit_path = (char *) calloc(1, pathlen + 1);
 
 	filelist = build_up_filelist(ditpath, "sdm", pathlen);
 
 	anzahl_dithermods = 0;
 
 	actual = filelist;
-	while(actual != NULL)
+	while (actual != NULL)
 	{
 		/*---- Modul als Overlay laden und Basepage ermitteln */
 		strcpy(dit_path, ditpath);
 		strcat(dit_path, actual->modname);
 
-		DEBUG_MSG (( "  anzahl_dithermods:  %i\n", anzahl_dithermods ));
-		DEBUG_MSG (( "  dit_path:  %s\n", dit_path ));
-		DEBUG_MSG (( "  Speicher %li\n", Malloc (-1) ));
+		DEBUG_MSG(("  anzahl_dithermods:  %i\n", anzahl_dithermods));
+		DEBUG_MSG(("  dit_path:  %s\n", dit_path));
+		DEBUG_MSG(("  Speicher %li\n", Malloc(-1)));
 		;
 
 		temp = Pexec(3, dit_path, NULL, NULL);
 
-		if(temp < 0)
+		if (temp < 0)
 		{
-			DEBUG_MSG (( "  Fehler bei %s: %li\n", actual->modname, temp ));
-			sprintf ( alert, "[1][Fehler '%li' in File|%s|im Ordner|\\modules\\dither\\!][ OK ]", temp, actual->modname ); /* FIXME: translate */
+			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
+			sprintf(alert, "[1][Fehler '%li' in File|%s|im Ordner|\\modules\\dither\\!][ OK ]", temp, actual->modname);	/* FIXME: translate */
 			form_alert(1, alert);
-		}
-		else
+		} else
 		{
-			dit_baspag = (BASPAG *)temp;
-		
-			mod_magic = get_modmagic(dit_baspag);			/* Zeiger auf Magic (muž MOD_MAGIC_DITHER sein!) */
-			if(mod_magic != MOD_MAGIC_DITHER)
+			dit_baspag = (BASPAG *) temp;
+
+			mod_magic = get_modmagic(dit_baspag);	/* Zeiger auf Magic (muž MOD_MAGIC_DITHER sein!) */
+			if (mod_magic != MOD_MAGIC_DITHER)
 			{
-				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\dither\\|ist kein Dithermodul!][ OK ]", actual->modname); /* FIMXE: translate */
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\dither\\|ist kein Dithermodul!][ OK ]", actual->modname);	/* FIMXE: translate */
 				form_alert(1, alert);
-			}
-			else
+			} else
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(dit_baspag);
-				_Mshrink(dit_baspag, ProcLen);			/* Speicherblock verkrzen */
-				dit_baspag->p_hitpa = (void *)((long)dit_baspag + ProcLen);
+				_Mshrink(dit_baspag, ProcLen);	/* Speicherblock verkrzen */
+				dit_baspag->p_hitpa = (void *) ((long) dit_baspag + ProcLen);
 
-				lback = Pexec(4, 0L, (char *)dit_baspag, 0L);
-				if(lback < 0L)
+				lback = Pexec(4, 0L, (char *) dit_baspag, 0L);
+				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
-				textseg_begin = dit_baspag->p_tbase;			/* Textsegment-Startadresse holen */
+				textseg_begin = dit_baspag->p_tbase;	/* Textsegment-Startadresse holen */
 
-				ditmod_info[anzahl_dithermods] = *((DITHER_MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+				ditmod_info[anzahl_dithermods] = *((DITHER_MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
 				Dithermod_Basepage[anzahl_dithermods] = dit_baspag;
 				strncpy(string, ditmod_info[anzahl_dithermods]->algo_name, 15);
 				ditmod_info[anzahl_dithermods]->algo_name[15] = '\0';
 				set_startupdial(string);
 
-				/* Algorithmus ins Popup eintragen und Button einschalten */	
+				/* Algorithmus ins Popup eintragen und Button einschalten */
 				col_pop[anzahl_dithermods + 1].TextCast = ditmod_info[anzahl_dithermods]->algo_name;
 				col_pop[anzahl_dithermods + 1].ob_state &= ~OS_DISABLED;
 
@@ -862,31 +889,36 @@ void f_scan_dither(void)
 struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen)
 {
 	char *mod_path;
-	char *buf, *_buf, *temp;
+	char *buf,
+	*_buf,
+	*temp;
 
 	int buflen;
 
-	long back, dirhandle;
+	long back,
+	 dirhandle;
 
-	DTA *old_dta, *new_dta;
+	DTA *old_dta,
+	*new_dta;
 
-	struct DIRENTRY *begin, *actual;
+	struct DIRENTRY *begin,
+	*actual;
 	struct DIRENTRY Element;
 
 
-	if((back = Dopendir(path, 0)) != EINVFN)		/* Verzeichnis im Normalmodus ”ffnen */
-	{												/* und Test ob Dopendir() existiert */
+	if ((back = Dopendir(path, 0)) != EINVFN)	/* Verzeichnis im Normalmodus ”ffnen */
+	{									/* und Test ob Dopendir() existiert */
 /*		printf("Dopendir()/Dreaddir()\n\n");
 		getch(); */
 
-		Element.next = NULL;						/* Initial auf "keine Dateien enthalten" setzen */
+		Element.next = NULL;			/* Initial auf "keine Dateien enthalten" setzen */
 
-		if((back&0xff000000L) != 0xff000000L)		/* Directory gefunden? */
-		{											/* negativer Backval ist _nicht_ automatisch Fehler! */
-			dirhandle = back;						/* Dopendir-Rckgabe an die richtige Variable geben */
+		if ((back & 0xff000000L) != 0xff000000L)	/* Directory gefunden? */
+		{								/* negativer Backval ist _nicht_ automatisch Fehler! */
+			dirhandle = back;			/* Dopendir-Rckgabe an die richtige Variable geben */
 
 			buflen = 4 + pathlen + 1;
-			buf = (char *)calloc(1, buflen);
+			buf = (char *) calloc(1, buflen);
 
 			actual = &Element;
 			do
@@ -895,27 +927,25 @@ struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen)
 				 * of the list.  This modification isn't perfect but
 				 * does catch the error condition
 				 */
-				if((back = Dreaddir(buflen, dirhandle, buf)) != ENMFIL)	/* Noch eine Datei vorhanden */
+				if ((back = Dreaddir(buflen, dirhandle, buf)) != ENMFIL)	/* Noch eine Datei vorhanden */
 				{
-					_buf = buf + 4;										/* Dateiindex bergehen */
+					_buf = buf + 4;		/* Dateiindex bergehen */
 
-					if((temp = strrchr(_buf, '.')) != NULL)
-						if(stricmp(temp + 1, ext) == 0)						/* Dreaddir beherrscht n„mlich keine Wildcards! */
+					if ((temp = strrchr(_buf, '.')) != NULL)
+						if (stricmp(temp + 1, ext) == 0)	/* Dreaddir beherrscht n„mlich keine Wildcards! */
 						{
-							actual = insert_entry(actual, _buf);		/* neuen Eintrag einh„ngen */
+							actual = insert_entry(actual, _buf);	/* neuen Eintrag einh„ngen */
 							files_read++;
 						}
-				}
-				else
-					break;												/* und wech wenn keine Datei mehr vorhanden */
-			} while(actual != NULL);
+				} else
+					break;				/* und wech wenn keine Datei mehr vorhanden */
+			} while (actual != NULL);
 
-			Dclosedir(dirhandle);										/* Verzeichnis wieder zu */
+			Dclosedir(dirhandle);		/* Verzeichnis wieder zu */
 		}
 
-		begin = Element.next;											/* Zeiger auf den ersten Eintrag holen */
-	}
-	else					/* Fsfirst()/Fsnext() */
+		begin = Element.next;			/* Zeiger auf den ersten Eintrag holen */
+	} else								/* Fsfirst()/Fsnext() */
 	{
 /*		printf("Fsfirst()/Fsnext()\n\n");
 		getch(); */
@@ -925,38 +955,38 @@ struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen)
 		Fsetdta(new_dta);				/* neue DTA setzen */
 
 		/*---- Pfade vorbereiten ----*/
-		mod_path = (char *)calloc(1, strlen(path) + 14);	/* path + Extender */
+		mod_path = (char *) calloc(1, strlen(path) + 14);	/* path + Extender */
 		strcpy(mod_path, path);
 		strcat(mod_path, "*.*");
 
-		Element.next = NULL;						/* Initial auf "keine Dateien enthalten" setzen */
+		Element.next = NULL;			/* Initial auf "keine Dateien enthalten" setzen */
 
 		/*---- erstes File ermitteln ----*/
-		if(Fsfirst(mod_path, 0) == 0)
+		if (Fsfirst(mod_path, 0) == 0)
 		{
 			actual = &Element;
 			do
 			{
-				if((temp = strrchr(new_dta->d_fname, '.')) != NULL)
-					if(stricmp(temp + 1, ext) == 0)
+				if ((temp = strrchr(new_dta->d_fname, '.')) != NULL)
+					if (stricmp(temp + 1, ext) == 0)
 					{
 						actual = insert_entry(actual, new_dta->d_fname);	/* neuen Eintrag einh„ngen */
 						files_read++;
 					}
 
-				/*---- n„chsten Modulpfad ermitteln */
+							  /*---- n„chsten Modulpfad ermitteln */
 				strcpy(mod_path, path);
 				strcat(mod_path, new_dta->d_fname);
-			} while(Fsnext() == 0);					/* und das fr alle Module */
+			} while (Fsnext() == 0);	/* und das fr alle Module */
 		}
 
 		begin = Element.next;
 
-		Fsetdta(old_dta);							/* alte DTA zurcksetzen */
+		Fsetdta(old_dta);				/* alte DTA zurcksetzen */
 		free(new_dta);
 	}
 
-	return(begin);
+	return (begin);
 }
 
 
@@ -969,19 +999,19 @@ struct DIRENTRY *insert_entry(struct DIRENTRY *ende, char *string)
 
 
 	/* Speicher fr Struktur und String anfordern */
-	if((new = (struct DIRENTRY *)malloc(sizeof(struct DIRENTRY))) == 0 ||
-	   (new->modname = (char *)malloc(strlen(string) + 1)) == 0)
+	if ((new = (struct DIRENTRY *) malloc(sizeof(struct DIRENTRY))) == 0 ||
+		(new->modname = (char *) malloc(strlen(string) + 1)) == 0)
 	{
 		free(new);
-		return(NULL);
+		return (NULL);
 	}
 
-	strcpy(new->modname, string);										/* String reinkopieren */
-	new->next = NULL;			/* neue Ende-Markierung */
+	strcpy(new->modname, string);		/* String reinkopieren */
+	new->next = NULL;					/* neue Ende-Markierung */
 
-	ende->next = new;			/* Vorg„nger (also bisher letzter) zeigt auf neues Element */
+	ende->next = new;					/* Vorg„nger (also bisher letzter) zeigt auf neues Element */
 
-	return(new);
+	return (new);
 }
 
 
@@ -993,11 +1023,11 @@ void destroy_filelist(struct DIRENTRY *actual)
 	struct DIRENTRY *next;
 
 
-	while(actual != NULL)
+	while (actual != NULL)
 	{
-		next = actual->next;	/* wegsichern, da nach Freigabe von */
-		free(actual->modname);	/* actual ja nicht mehr darauf */
-		free(actual);			/* zugegriffen werden darf */
+		next = actual->next;			/* wegsichern, da nach Freigabe von */
+		free(actual->modname);			/* actual ja nicht mehr darauf */
+		free(actual);					/* zugegriffen werden darf */
 		actual = next;
 	}
 }

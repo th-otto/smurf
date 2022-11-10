@@ -45,11 +45,13 @@ static int *Cos;
 
 static int old_timer;
 static SMURF_PIC rotoimage;
-static int phi, phi2, phi3;
+static int phi,
+	phi2,
+	phi3;
 
-static int xpos[] = {-100, -100,  100,  100, -100, -100, 100,  100};
-static int ypos[] = {-100,  100,  100, -100, -100,  100, 100, -100};
-static int zpos[] = {-100, -100, -100, -100,  100,  100, 100,  100};
+static int xpos[] = { -100, -100, 100, 100, -100, -100, 100, 100 };
+static int ypos[] = { -100, 100, 100, -100, -100, 100, 100, -100 };
+static int zpos[] = { -100, -100, -100, -100, 100, 100, 100, 100 };
 
 
 static int x2d[100];
@@ -58,7 +60,8 @@ static int y2d[100];
 static int pointNum = 8;
 static int polyNum = 6;
 
-static int polyPointNum[50] = {4, 4, 4, 4, 4, 4};
+static int polyPointNum[50] = { 4, 4, 4, 4, 4, 4 };
+
 static int polyPoints[50][4];
 
 static int offscreenHandle = -1;
@@ -71,19 +74,20 @@ int init_roto(void)
 	long t;
 
 
-	phi=0;
+	phi = 0;
 
 	graf_mouse(BUSYBEE, dummy_ptr);
 
-	Sin=SMalloc((long)370*2);
-	Cos=SMalloc((long)370*2);
+	Sin = SMalloc((long) 370 * 2);
+	Cos = SMalloc((long) 370 * 2);
 
 	/*---- FÅllen der Sin/Cos-Tabelle ----*/
-	for(t=0; t<365; t++)
+	for (t = 0; t < 365; t++)
 	{
-		bog=(float)t*M_PI/180.F;
-		Sin[t]=(int)(sin(bog)*256.F);
-		Cos[t]=(int)(cos(bog)*256.F);
+		bog = (float) t *M_PI / 180.F;
+
+		Sin[t] = (int) (sin(bog) * 256.F);
+		Cos[t] = (int) (cos(bog) * 256.F);
 	}
 
 
@@ -93,7 +97,7 @@ int init_roto(void)
 	polyPoints[0][1] = 1;
 	polyPoints[0][2] = 2;
 	polyPoints[0][3] = 3;
-	
+
 	polyPoints[1][0] = 0;
 	polyPoints[1][1] = 4;
 	polyPoints[1][2] = 5;
@@ -119,19 +123,19 @@ int init_roto(void)
 	polyPoints[5][2] = 7;
 	polyPoints[5][3] = 4;
 
-	rotoimage.pic_data=SMalloc((160L*160L)+1000);
-	rotoimage.screen_pic=SMalloc(sizeof(MFDB));
-	rotoimage.screen_pic->fd_addr=SMalloc((160L*160L)+1000);
+	rotoimage.pic_data = SMalloc((160L * 160L) + 1000);
+	rotoimage.screen_pic = SMalloc(sizeof(MFDB));
+	rotoimage.screen_pic->fd_addr = SMalloc((160L * 160L) + 1000);
 
-	rotoimage.pic_width=160;
-	rotoimage.pic_height=160;
+	rotoimage.pic_width = 160;
+	rotoimage.pic_height = 160;
 	rotoimage.depth = Sys_info.bitplanes;
-	rotoimage.zoom=0;
-	
-	rotoimage.screen_pic->fd_w=160;
-	rotoimage.screen_pic->fd_h=160;
-	rotoimage.screen_pic->fd_wdwidth=160/16;
-	rotoimage.screen_pic->fd_stand=0;
+	rotoimage.zoom = 0;
+
+	rotoimage.screen_pic->fd_w = 160;
+	rotoimage.screen_pic->fd_h = 160;
+	rotoimage.screen_pic->fd_wdwidth = 160 / 16;
+	rotoimage.screen_pic->fd_stand = 0;
 	rotoimage.screen_pic->fd_nplanes = Sys_info.bitplanes;
 
 	memset(rotowork_in, 0x0, 40);
@@ -140,90 +144,102 @@ int init_roto(void)
 	v_opnbm(rotowork_in, rotoimage.screen_pic, &offscreenHandle, rotowork_out);
 
 
-	wind_s[WIND_INFO].picture=&rotoimage;
-	wind_s[WIND_INFO].pic_xpos=wind_s[WIND_INFO].resource_form[ROTOBOX].ob_x;
-	wind_s[WIND_INFO].pic_ypos=wind_s[WIND_INFO].resource_form[ROTOBOX].ob_y;
-	wind_s[WIND_INFO].xoffset=0;
-	wind_s[WIND_INFO].xoffset=0;
-	wind_s[WIND_INFO].clipwid=160;
-	wind_s[WIND_INFO].cliphgt=160;
+	wind_s[WIND_INFO].picture = &rotoimage;
+	wind_s[WIND_INFO].pic_xpos = wind_s[WIND_INFO].resource_form[ROTOBOX].ob_x;
+	wind_s[WIND_INFO].pic_ypos = wind_s[WIND_INFO].resource_form[ROTOBOX].ob_y;
+	wind_s[WIND_INFO].xoffset = 0;
+	wind_s[WIND_INFO].xoffset = 0;
+	wind_s[WIND_INFO].clipwid = 160;
+	wind_s[WIND_INFO].cliphgt = 160;
 
 	/* Timer umschalten
 	 */
 	old_timer = Sys_info.Event_Timer;
 	Sys_info.Event_Timer = 20;
-	
+
 	wind_s[WIND_INFO].resource_form[ROTOBOX].ob_flags &= ~OF_HIDETREE;
-	
+
 	Window.redraw(&wind_s[WIND_INFO], NULL, 0, 0);
 	graf_mouse(ARROW, dummy_ptr);
-	return(0);
+	return (0);
 }
 
 
 
 void roto(void)
 {
-	int pos, t, pxy[5], normvek;
-	long mySin, myCos;
-	int xrot[100], yrot[100], zrot[100];
+	int pos,
+	 t,
+	 pxy[5],
+	 normvek;
+	long mySin,
+	 myCos;
+	int xrot[100],
+	 yrot[100],
+	 zrot[100];
 
 
 	/*---- Jetz' gehts los ----*/
-	phi+=4;
-	if(phi>359) phi=4;
-	phi2+=3;
-	if(phi2>359) phi2=3;
-	phi3+=2;
-	if(phi3>359) phi3=2;
+	phi += 4;
+	if (phi > 359)
+		phi = 4;
+	phi2 += 3;
+	if (phi2 > 359)
+		phi2 = 3;
+	phi3 += 2;
+	if (phi3 > 359)
+		phi3 = 2;
 
 	/* rotieren & projezieren
-	 */	
-	for(t=0; t<pointNum; t++)
+	 */
+	for (t = 0; t < pointNum; t++)
 	{
 		/* y-achse */
 		mySin = Sin[phi];
 		myCos = Cos[phi];
-		xrot[t] = (int)(( ((long)xpos[t]*myCos)-((long)zpos[t]*mySin) ) >>8);
-		zrot[t] = (int)(( ((long)xpos[t]*mySin)+((long)zpos[t]*myCos) ) >>8);
+		xrot[t] = (int) ((((long) xpos[t] * myCos) - ((long) zpos[t] * mySin)) >> 8);
+		zrot[t] = (int) ((((long) xpos[t] * mySin) + ((long) zpos[t] * myCos)) >> 8);
 
 		pos = zrot[t];
 
 		/* x-achse */
 		mySin = Sin[phi2];
 		myCos = Cos[phi2];
-		zrot[t] = (int)(( ((long)zrot[t]*myCos)-((long)ypos[t]*mySin) ) >>8);
-		yrot[t] = (int)(( ((long)pos*mySin)+((long)ypos[t]*myCos) ) >>8);
+		zrot[t] = (int) ((((long) zrot[t] * myCos) - ((long) ypos[t] * mySin)) >> 8);
+		yrot[t] = (int) ((((long) pos * mySin) + ((long) ypos[t] * myCos)) >> 8);
 
 		pos = xrot[t];
 
 		/* z-achse */
 		mySin = Sin[phi3];
 		myCos = Cos[phi3];
-		xrot[t] = (int)(( ((long)xrot[t]*myCos)-((long)yrot[t]*mySin) ) >>8);
-		yrot[t] = (int)(( ((long)pos*mySin)+((long)yrot[t]*myCos) ) >>8);
+		xrot[t] = (int) ((((long) xrot[t] * myCos) - ((long) yrot[t] * mySin)) >> 8);
+		yrot[t] = (int) ((((long) pos * mySin) + ((long) yrot[t] * myCos)) >> 8);
 
 
 		/* projektion
 		 */
-		x2d[t] = (xrot[t]<<7) / (zrot[t]+300) + 80;
-		y2d[t] = (yrot[t]<<7) / (zrot[t]+300) + 80;
+		x2d[t] = (xrot[t] << 7) / (zrot[t] + 300) + 80;
+		y2d[t] = (yrot[t] << 7) / (zrot[t] + 300) + 80;
 	}
 
-	pxy[0]=0; pxy[1]=0;
-	pxy[2]=160; pxy[3]=160;
+	pxy[0] = 0;
+	pxy[1] = 0;
+	pxy[2] = 160;
+	pxy[3] = 160;
 	vsf_interior(offscreenHandle, FIS_SOLID);
 	vswr_mode(offscreenHandle, MD_REPLACE);
 	vsf_color(offscreenHandle, 1);
 	v_bar(offscreenHandle, pxy);
 
-	for(t=0; t<polyNum; t++)
+	for (t = 0; t < polyNum; t++)
 	{
-		normvek = (x2d[polyPoints[t][2]]-x2d[polyPoints[t][0]])*(y2d[polyPoints[t][1]]-y2d[polyPoints[t][0]]) - 
-				(x2d[polyPoints[t][1]]-x2d[polyPoints[t][0]])*(y2d[polyPoints[t][2]]-y2d[polyPoints[t][0]]);
+		normvek = (x2d[polyPoints[t][2]] - x2d[polyPoints[t][0]]) * (y2d[polyPoints[t][1]] - y2d[polyPoints[t][0]]) -
+			(x2d[polyPoints[t][1]] - x2d[polyPoints[t][0]]) * (y2d[polyPoints[t][2]] - y2d[polyPoints[t][0]]);
 
-		if(normvek<0) continue;
-	
+		if (normvek < 0)
+			continue;
+
 		pxy[0] = x2d[polyPoints[t][0]];
 		pxy[1] = y2d[polyPoints[t][0]];
 		pxy[2] = x2d[polyPoints[t][1]];
@@ -232,10 +248,10 @@ void roto(void)
 		pxy[5] = y2d[polyPoints[t][2]];
 		pxy[6] = x2d[polyPoints[t][3]];
 		pxy[7] = y2d[polyPoints[t][3]];
-		vsf_color(offscreenHandle, t+7);
+		vsf_color(offscreenHandle, t + 7);
 		v_fillarea(offscreenHandle, polyPointNum[t], pxy);
 	}
-	Window.redraw(&wind_s[WIND_INFO], NULL, 0, DRAWNOTREE|DRAWNOBLOCK|NOBLOCKBOX);
+	Window.redraw(&wind_s[WIND_INFO], NULL, 0, DRAWNOTREE | DRAWNOBLOCK | NOBLOCKBOX);
 
 }
 
@@ -243,12 +259,12 @@ void roto(void)
 
 void deinit_roto(void)
 {
-	wind_s[WIND_INFO].picture=0;
+	wind_s[WIND_INFO].picture = 0;
 
-	if(rotoimage.pic_data)
+	if (rotoimage.pic_data)
 		SMfree(rotoimage.pic_data);
-	
-	if(rotoimage.screen_pic)
+
+	if (rotoimage.screen_pic)
 	{
 		SMfree(rotoimage.screen_pic->fd_addr);
 		SMfree(rotoimage.screen_pic);
@@ -256,19 +272,19 @@ void deinit_roto(void)
 		rotoimage.screen_pic = NULL;
 	}
 
-	if(Sin)
+	if (Sin)
 	{
 		SMfree(Sin);
 		SMfree(Cos);
 		Sin = Cos = NULL;
 	}
 
-	if(offscreenHandle > 0)
+	if (offscreenHandle > 0)
 	{
 		v_clsbm(offscreenHandle);
 		offscreenHandle = -1;
 	}
-	
+
 	Sys_info.Event_Timer = old_timer;
 	wind_s[WIND_INFO].resource_form[ROTOBOX].ob_flags |= OF_HIDETREE;
 	wind_s[WIND_INFO].resource_form[INFO_YEAH].ob_state &= ~OS_SELECTED;

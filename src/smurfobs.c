@@ -36,8 +36,8 @@
 
 CLASS_MODULE module;
 
-GENERAL_WINDOW	Window;
-IMAGEWINDOW	imageWindow;
+GENERAL_WINDOW Window;
+IMAGEWINDOW imageWindow;
 DIALOGS Dialog;
 COMMUNICATION Comm;
 
@@ -165,15 +165,15 @@ void init_GuiObs(void)
 	/*
 	 * Optionsdialog
 	 */
-	Dialog.smurfOpt.options = f_options;	
-	Dialog.smurfOpt.setEnvconfig = f_set_envconfig;	
+	Dialog.smurfOpt.options = f_options;
+	Dialog.smurfOpt.setEnvconfig = f_set_envconfig;
 
 	/*
 	 * Displayoptions
 	 */
 	Dialog.dispOpt.displayOptions = f_display_opt;
 	Dialog.dispOpt.updateWindow = f_update_dwindow;
-	
+
 
 	/*
 	 * die Window-Alerts

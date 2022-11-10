@@ -62,7 +62,7 @@
 /*
  * lokale Funktionen
  */
-static void insert_to_menu(OBJECT *menu, int entry, char *string);
+static void insert_to_menu(OBJECT * menu, int entry, char *string);
 static void init_structs(void);
 static int load_plugin(int plugin_number);
 static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename);
@@ -73,16 +73,16 @@ static PLUGIN_FUNCTIONS global_functions;
 static SMURF_VARIABLES global_vars;
 
 
-BASPAG	*plugin_bp[11];
+BASPAG *plugin_bp[11];
 PLUGIN_DATA *plg_data[11];
 PLUGIN_INFO *plg_info[11];
 int anzahl_plugins;
 char *plugin_paths[11];
-signed char menu2plugin[128];		/* feste MenÅeintrÑge, in die Plugins eingehÑngt sind */
+signed char menu2plugin[128];			/* feste MenÅeintrÑge, in die Plugins eingehÑngt sind */
 
-EXT_MODCONF	*modconfs[20];			/* Strukturen fÅr Modul-Notifying */
+EXT_MODCONF *modconfs[20];				/* Strukturen fÅr Modul-Notifying */
 
-int printplug_found=0;
+int printplug_found = 0;
 
 /*------------------ Plugins suchen und eintragen ------------------*/
 /* Der Ordner MODULES\\PLUGIN wird nach Files mit der Extension	*/
@@ -91,26 +91,37 @@ int printplug_found=0;
 /* ----------------------------------------------------------------	*/
 void scan_plugins(void)
 {
-	char *editpath;										/* voller Modulpfad, Original */
-	char *edit_path;									/* voller Modulpfad, editable */
-	char *swapstr, alert[256];
-	char newpath[256], *oldpath, *dot_pos;
+	char *editpath;						/* voller Modulpfad, Original */
+	char *edit_path;					/* voller Modulpfad, editable */
+	char *swapstr,
+	 alert[256];
+	char newpath[256],
+	*oldpath,
+	*dot_pos;
 	char *textseg_begin;
-	int pathlen, t, install_flag, install_index, curr_plugin_entry;
-	PLUGIN_INFO *curr_info, *info;
+	int pathlen,
+	 t,
+	 install_flag,
+	 install_index,
+	 curr_plugin_entry;
+	PLUGIN_INFO *curr_info,
+	*info;
 	PLUGIN_INFO installed_infos[20];
 	long mod_magic;
 
 	long ProcLen;
-	long temp, lback;
+	long temp,
+	 lback;
 
-	struct DIRENTRY *actual, *filelist;
+	struct DIRENTRY *actual,
+	*filelist;
 
-	
-	for(t=0; t<11; t++)	plg_data[t]=NULL;
-	
+
+	for (t = 0; t < 11; t++)
+		plg_data[t] = NULL;
+
 	memset(menu2plugin, -1, 128);
-	init_structs();			/* Plugin-Strukturen aufbauen */
+	init_structs();						/* Plugin-Strukturen aufbauen */
 
 	/*---- Pfade vorbereiten ----*/
 	editpath = calloc(1, strlen(Sys_info.standard_path) + strlen("\\modules\\plugin\\") + 1);
@@ -119,7 +130,7 @@ void scan_plugins(void)
 
 	Name_Max = get_maxnamelen(editpath);
 
-	pathlen = (unsigned int)(strlen(editpath) + Name_Max);
+	pathlen = (unsigned int) (strlen(editpath) + Name_Max);
 	edit_path = calloc(1, pathlen + 1);
 	swapstr = calloc(1, pathlen + 1);
 
@@ -129,7 +140,7 @@ void scan_plugins(void)
 	curr_plugin_entry = 0;
 	actual = filelist;
 
-	while(actual != NULL)
+	while (actual != NULL)
 	{
 		/*
 		 * Plugin laden und Basepage ermitteln 
@@ -138,7 +149,7 @@ void scan_plugins(void)
 		strcat(edit_path, actual->modname);
 
 		temp = Pexec(3, edit_path, NULL, NULL);
-		if(temp < 0)
+		if (temp < 0)
 		{
 			strcpy(alert, "[1][Fehler in File|");
 			strcat(alert, actual->modname);
@@ -146,13 +157,12 @@ void scan_plugins(void)
 			strcat(alert, "\\modules\\plugin\\!]");
 			strcat(alert, "[ OK ]");
 			form_alert(1, alert);
-		}
-		else
-		{	
-			plugin_bp[anzahl_plugins] = (BASPAG *)temp;
+		} else
+		{
+			plugin_bp[anzahl_plugins] = (BASPAG *) temp;
 
-			mod_magic = get_modmagic(plugin_bp[anzahl_plugins]);		/* Zeiger auf Magic (muû 'PLGN' sein!) */
-			if(mod_magic != MOD_MAGIC_PLUGIN)
+			mod_magic = get_modmagic(plugin_bp[anzahl_plugins]);	/* Zeiger auf Magic (muû 'PLGN' sein!) */
+			if (mod_magic != MOD_MAGIC_PLUGIN)
 			{
 				strcpy(alert, "[1][ File ");
 				strcat(alert, actual->modname);
@@ -161,29 +171,29 @@ void scan_plugins(void)
 				strcat(alert, " ist kein Smurf-Plugin! ][ OK ]");
 				form_alert(1, alert);
 			}
-			
+
 			/*
 			 * Plugin zur Initialisierung aufrufen 
 			 */
-			else		
+			else
 			{
 				/*---- LÑnge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(plugin_bp[anzahl_plugins]);
-				_Mshrink(plugin_bp[anzahl_plugins], ProcLen);		/* Speicherblock verkÅrzen */
-				plugin_bp[anzahl_plugins]->p_hitpa = (void *)((long)plugin_bp[anzahl_plugins] + ProcLen);
+				_Mshrink(plugin_bp[anzahl_plugins], ProcLen);	/* Speicherblock verkÅrzen */
+				plugin_bp[anzahl_plugins]->p_hitpa = (void *) ((long) plugin_bp[anzahl_plugins] + ProcLen);
 
-				lback = Pexec(4, 0L, (char *)plugin_bp[anzahl_plugins], 0L);
-				if(lback < 0L)
+				lback = Pexec(4, 0L, (char *) plugin_bp[anzahl_plugins], 0L);
+				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
-				textseg_begin = plugin_bp[anzahl_plugins]->p_tbase;			/* Textsegment-Startadresse holen */
+				textseg_begin = plugin_bp[anzahl_plugins]->p_tbase;	/* Textsegment-Startadresse holen */
 
 				install_index = anzahl_plugins;
 				install_flag = 1;
-				
-				curr_info = *((PLUGIN_INFO **)(textseg_begin + PLG_INFO_OFFSET));
 
-				if(curr_info->for_smurf_version != SMURF_VERSION)
+				curr_info = *((PLUGIN_INFO **) (textseg_begin + PLG_INFO_OFFSET));
+
+				if (curr_info->for_smurf_version != SMURF_VERSION)
 				{
 					strcpy(alert, "[2][Das Plugin \"");
 					strcat(alert, curr_info->name);
@@ -191,28 +201,28 @@ void scan_plugins(void)
 					strcat(alert, "Problemen|fÅhren kann, wird das Plugin terminiert.][ OK ]");
 					form_alert(1, alert);
 					install_flag = 0;
-				}
-				else
+				} else
 				{
 					/*
 					 * ist das gleiche Plugin (andere Version?) schon angemeldet?
 					 */
-					for(t = 0; t < anzahl_plugins; t++)
+					for (t = 0; t < anzahl_plugins; t++)
 					{
 						info = &installed_infos[t];
-						if(strcmp(curr_info->name, info->name) == 0)
+						if (strcmp(curr_info->name, info->name) == 0)
 						{
-							if(curr_info->plugin_version == info->plugin_version)		/* gleiche Version */
+							if (curr_info->plugin_version == info->plugin_version)	/* gleiche Version */
 								install_flag = 0;
 							else
 							{
 								strcpy(alert, "[2][Das Plugin \"");
 								strcat(alert, info->name);
 								strcat(alert, "\"|ist zweimal in unterschiedlichen|Versionen installiert! ");
-								strcat(alert, "Nur das|neuere wird eingebunden. Soll das|Ñltere Plugin abgemeldet werden?][ Ja | Nein ]");
-								if(form_alert(1, alert) == 1)
+								strcat(alert,
+									   "Nur das|neuere wird eingebunden. Soll das|Ñltere Plugin abgemeldet werden?][ Ja | Nein ]");
+								if (form_alert(1, alert) == 1)
 								{
-									if(curr_info->plugin_version > info->plugin_version)	/* ist das jetzige neuer als das vorher angemeldete? */
+									if (curr_info->plugin_version > info->plugin_version)	/* ist das jetzige neuer als das vorher angemeldete? */
 										oldpath = plugin_paths[t];
 									else
 										oldpath = edit_path;
@@ -222,8 +232,8 @@ void scan_plugins(void)
 									strcpy(dot_pos + 1, "plx");
 									Frename(0, oldpath, newpath);
 								}
-	
-								if(curr_info->plugin_version > info->plugin_version)	/* ist das jetzige neuer als das vorher angemeldete? */
+
+								if (curr_info->plugin_version > info->plugin_version)	/* ist das jetzige neuer als das vorher angemeldete? */
 								{
 									free(plg_info[t]->name);
 									free(plg_info[t]);
@@ -231,8 +241,7 @@ void scan_plugins(void)
 									plugin_bp[t] = plugin_bp[install_index];
 									plugin_bp[install_index] = NULL;
 									install_index = t;
-								}
-								else
+								} else
 									install_flag = 0;
 							}
 
@@ -240,37 +249,37 @@ void scan_plugins(void)
 						}
 					}
 				}
-		
+
 				/*
 				 * ggfs. Plugin anmelden
 				 */
-				if(install_flag == 1)
+				if (install_flag == 1)
 				{
 					plg_info[install_index] = malloc(sizeof(PLUGIN_INFO));
 					memcpy(plg_info[install_index], curr_info, sizeof(PLUGIN_INFO));
 					plg_info[install_index]->name = malloc(strlen(curr_info->name) + 1);
 					strcpy(plg_info[install_index]->name, curr_info->name);
 					memcpy(&installed_infos[install_index], plg_info[install_index], sizeof(PLUGIN_INFO));
-					
+
 					plugin_paths[install_index] = malloc(strlen(edit_path) + 1);
 					memset(plugin_paths[install_index], 0x0, strlen(edit_path) + 1);
 					strcpy(plugin_paths[install_index], edit_path);
-				
+
 					plg_data[install_index] = malloc(sizeof(PLUGIN_DATA));
 					memset(plg_data[install_index], 0x0, sizeof(PLUGIN_DATA));
 
 					/* Startup-Kommunikation */
 					plugin_startup(install_index, &curr_plugin_entry, actual->modname);
-					
-					if(strcmp(curr_info->name, "GDOS Print-Plugin") == 0)
+
+					if (strcmp(curr_info->name, "GDOS Print-Plugin") == 0)
 						printplug_found = 1;
-					
-					if(!curr_info->resident)
+
+					if (!curr_info->resident)
 						terminate_plugin(install_index);
 
 					/* nur hochzÑhlen, wenn wirklich ein neues eingetragen */
 					/* und nicht nur ausgetauscht wurde */
-					if(!(install_index == t && install_index != anzahl_plugins))
+					if (!(install_index == t && install_index != anzahl_plugins))
 						anzahl_plugins++;
 				}
 				/*
@@ -302,22 +311,24 @@ void scan_plugins(void)
 	Zum Aufrufen eines im Speicher befindlichen Plugins (BASBAG *bp).
 	Die Message <message> wird Åbergeben. Handling ansonsten wie bei Editmodulen
 	---------------------------------------------------------------------------*/
-int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data)
+int start_plugin(BASPAG * bp, int message, int plg_id, PLUGIN_DATA * data)
 {
-	void (*plg_main)(PLUGIN_DATA *data);
+	void (*plg_main)(PLUGIN_DATA * data);
 
 	char *textseg_begin;
 
-	int out_msg, index, curr_notify_index;
+	int out_msg,
+	 index,
+	 curr_notify_index;
 
 	long mod_magic;
 
 
-	textseg_begin = bp->p_tbase;			/* Textsegment-Startadresse holen */
-	mod_magic = get_modmagic(bp);			/* Zeiger auf Magic (muû 'PLGN' sein!) */
-	index = plg_id&0xFF;
+	textseg_begin = bp->p_tbase;		/* Textsegment-Startadresse holen */
+	mod_magic = get_modmagic(bp);		/* Zeiger auf Magic (muû 'PLGN' sein!) */
+	index = plg_id & 0xFF;
 
-	if(mod_magic == MOD_MAGIC_PLUGIN)
+	if (mod_magic == MOD_MAGIC_PLUGIN)
 	{
 		/* PluginData fertigmachen */
 		data->services = &global_services;
@@ -328,71 +339,68 @@ int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data)
 		data->message = message;
 		data->module_object = &module;
 
-		if(message == MSTART)
-			data->id = plg_id;				/* ID eintragen (nur beim Hochfahren) */
+		if (message == MSTART)
+			data->id = plg_id;			/* ID eintragen (nur beim Hochfahren) */
 
-		plg_main = (VOID_FUNCTION)((char *)textseg_begin + MAIN_FUNCTION_OFFSET);
-		if(plg_main != NULL)
+		plg_main = (VOID_FUNCTION) ((char *) textseg_begin + MAIN_FUNCTION_OFFSET);
+		if (plg_main != NULL)
 			plg_main(data);
 
 		/*
-		 * 	RÅckgabe-Messages
-		 *	Jetzt werden Sachen wie z.B. WINDEVENTS gehandlet. Dazu wird nach einer
-		 *	RÅckgabemessage != M_WAITING entsprechend reagiert und solange DONE geschickt,
-		 *	bis ein M_WAITING vom Plugin zurÅckkommt, dieses also endlich zufrieden ist. ;-)
+		 *  RÅckgabe-Messages
+		 *  Jetzt werden Sachen wie z.B. WINDEVENTS gehandlet. Dazu wird nach einer
+		 *  RÅckgabemessage != M_WAITING entsprechend reagiert und solange DONE geschickt,
+		 *  bis ein M_WAITING vom Plugin zurÅckkommt, dieses also endlich zufrieden ist. ;-)
 		 */
 		out_msg = data->message;
 
-		if(out_msg == M_MEMORY)
+		if (out_msg == M_MEMORY)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
-		else
-		if(out_msg == M_EXIT)
+		else if (out_msg == M_EXIT)
 		{
 			terminate_plugin(index);
-			return(M_TERMINATED);
-		}
-		else
-		if(message != MSTART && message != MTERM && out_msg != M_WAITING)
+			return (M_TERMINATED);
+		} else if (message != MSTART && message != MTERM && out_msg != M_WAITING)
 		{
-			if(modconfs[index] == NULL)
+			if (modconfs[index] == NULL)
 			{
 				modconfs[index] = malloc(sizeof(EXT_MODCONF));
 				memset(modconfs[index], 0x0, sizeof(EXT_MODCONF));
 			}
-			
+
 			curr_notify_index = 0;
-			
+
 			do
 			{
-				switch(out_msg)
+				switch (out_msg)
 				{
-					case MBEVT:
-					case MKEVT:
-					case WINDEVENTS:
-					case ALL_MSGS:	modconfs[index]->notify_types[curr_notify_index] = out_msg;
-									modconfs[index]->id = data->id;
-									break;
+				case MBEVT:
+				case MKEVT:
+				case WINDEVENTS:
+				case ALL_MSGS:
+					modconfs[index]->notify_types[curr_notify_index] = out_msg;
+					modconfs[index]->id = data->id;
+					break;
 				}
 
-				if(out_msg == MBEVT || out_msg == MKEVT)
+				if (out_msg == MBEVT || out_msg == MKEVT)
 					modconfs[index]->windhandle = data->event_par[0];
 
 				curr_notify_index++;
-				
+
 				data->message = DONE;
 
 				plg_main(data);
 				out_msg = data->message;
-			} while(out_msg != M_WAITING);
+			} while (out_msg != M_WAITING);
 		}
-	}
-	else
+	} else
 	{
 		Dialog.winAlert.openAlert("Fehler beim Aufrufen des Plugins!", NULL, NULL, NULL, 1);
-		return(-1);
+		return (-1);
 	}
 
-	return(0);
+	return (0);
 }
 
 
@@ -402,10 +410,11 @@ int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data)
 	-----------------------------------------------------------------*/
 void call_plugin(int menuentry)
 {
-	int plugin_number, msgbuf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+	int plugin_number,
+	 msgbuf[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 #if 0
-	if(menuentry >= PLUGIN1 && menuentry <= PLUGIN10)
+	if (menuentry >= PLUGIN1 && menuentry <= PLUGIN10)
 		plugin_number = menuentry - PLUGIN1;
 	else
 		plugin_number = menu2plugin[menuentry];
@@ -413,45 +422,44 @@ void call_plugin(int menuentry)
 
 	plugin_number = menu2plugin[menuentry];
 
-	if(plugin_number >= 0)
+	if (plugin_number >= 0)
 	{
 		/*
 		 * rausfinden, ob das Plugin schon lÑuft, und ggfs. nach vorne holen
 		 */
-		if(plg_data[plugin_number] != NULL)
+		if (plg_data[plugin_number] != NULL)
 		{
-			if(plg_data[plugin_number]->wind_struct != NULL && 
-			   plg_data[plugin_number]->wind_struct->whandlem != -1)
+			if (plg_data[plugin_number]->wind_struct != NULL && plg_data[plugin_number]->wind_struct->whandlem != -1)
 				Window.top(plg_data[plugin_number]->wind_struct->whandlem);
-			else
-			if(modconfs[plugin_number]->windhandle != 0)
+			else if (modconfs[plugin_number]->windhandle != 0)
 			{
 				msgbuf[0] = WM_TOPPED;
 				msgbuf[1] = Sys_info.app_id;
 				msgbuf[3] = modconfs[plugin_number]->windhandle;
 				memcpy(plg_data[plugin_number]->event_par, msgbuf, 16);
-				start_plugin(plugin_bp[plugin_number], SMURF_AES_MESSAGE, plugin_number|0x200, plg_data[plugin_number]);
+				start_plugin(plugin_bp[plugin_number], SMURF_AES_MESSAGE, plugin_number | 0x200,
+							 plg_data[plugin_number]);
 			}
 
 			return;
 		}
 
 		/*
-		 *	oder wirklich neu starten?
+		 *  oder wirklich neu starten?
 		 */
-		if(!plg_info[plugin_number]->resident)			/* wenn nichtresident, Plugin nachladen */
+		if (!plg_info[plugin_number]->resident)	/* wenn nichtresident, Plugin nachladen */
 		{
-			if(load_plugin(plugin_number) < 0)
+			if (load_plugin(plugin_number) < 0)
 				return;
 			plg_data[plugin_number] = malloc(sizeof(PLUGIN_DATA));
 			memset(plg_data[plugin_number], 0x0, sizeof(PLUGIN_DATA));
-			start_plugin(plugin_bp[plugin_number], MSTART, plugin_number|0x200, plg_data[plugin_number]);
+			start_plugin(plugin_bp[plugin_number], MSTART, plugin_number | 0x200, plg_data[plugin_number]);
 		}
 
-		start_plugin(plugin_bp[plugin_number], PLGSELECTED, plugin_number|0x200, plg_data[plugin_number]);
+		start_plugin(plugin_bp[plugin_number], PLGSELECTED, plugin_number | 0x200, plg_data[plugin_number]);
 
 		/* Plugin lÑuft noch und kein M_WAITING? -> wieder weg damit. */
-		if(plg_data[plugin_number] != NULL && plg_data[plugin_number]->message != M_WAITING)
+		if (plg_data[plugin_number] != NULL && plg_data[plugin_number]->message != M_WAITING)
 			terminate_plugin(plugin_number);
 	}
 }
@@ -466,44 +474,46 @@ void call_plugin(int menuentry)
 static int load_plugin(int plugin_number)
 {
 	char alert[128];
-	long temp, lback, ProcLen, mod_magic;
+	long temp,
+	 lback,
+	 ProcLen,
+	 mod_magic;
 
-	
+
 	Dialog.busy.reset(128, "Lade Plugin");
 
 	temp = Pexec(3, plugin_paths[plugin_number], NULL, NULL);
-	if(temp < 0)
+	if (temp < 0)
 	{
 		strcpy(alert, "[1][Fehler beim Nachladen|");
 		strcat(alert, "des Plugins!]");
 		strcat(alert, "[ Oh ]");
 		form_alert(1, alert);
-		return(-1);
-	}
-	else
-	{	
-		plugin_bp[plugin_number] = (BASPAG *)temp;
+		return (-1);
+	} else
+	{
+		plugin_bp[plugin_number] = (BASPAG *) temp;
 
 		/*---- LÑnge des gesamten Tochterprozesses ermitteln */
 		ProcLen = get_proclen(plugin_bp[plugin_number]);
-		_Mshrink(plugin_bp[plugin_number], ProcLen);		/* Speicherblock verkÅrzen */
-		plugin_bp[plugin_number]->p_hitpa = (void *)((long)plugin_bp[plugin_number] + ProcLen);
+		_Mshrink(plugin_bp[plugin_number], ProcLen);	/* Speicherblock verkÅrzen */
+		plugin_bp[plugin_number]->p_hitpa = (void *) ((long) plugin_bp[plugin_number] + ProcLen);
 
-		lback = Pexec(4, 0L, (char *)plugin_bp[plugin_number], 0L);
-		if(lback < 0L)
+		lback = Pexec(4, 0L, (char *) plugin_bp[plugin_number], 0L);
+		if (lback < 0L)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
-		mod_magic = get_modmagic(plugin_bp[plugin_number]);							/* Zeiger auf Magic (muû 'PLGN' sein!) */
+		mod_magic = get_modmagic(plugin_bp[plugin_number]);	/* Zeiger auf Magic (muû 'PLGN' sein!) */
 
-		if(mod_magic != MOD_MAGIC_PLUGIN)
+		if (mod_magic != MOD_MAGIC_PLUGIN)
 		{
 			strcpy(alert, "[1][Plugin-typ ist nicht |registriert!][ Au weia ]");
 			form_alert(1, alert);
-			return(-1);
+			return (-1);
 		}
 	}
 
-	return(0);
+	return (0);
 }
 
 
@@ -514,14 +524,15 @@ static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename
 {
 	char alert[128];
 
-	int message, menuentry;
+	int message,
+	 menuentry;
 
 
-	start_plugin(plugin_bp[index], MSTART, index|0x200, plg_data[index]);
-	
+	start_plugin(plugin_bp[index], MSTART, index | 0x200, plg_data[index]);
+
 	message = plg_data[index]->message;
 
-	if(message != MENU_ENTRY && message != FIXED_PLUGIN && message != INVISIBLE)
+	if (message != MENU_ENTRY && message != FIXED_PLUGIN && message != INVISIBLE)
 	{
 		strcpy(alert, "[1][Plugin|");
 		strcat(alert, plg_filename);
@@ -531,17 +542,16 @@ static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename
 	}
 
 	/*
-	 *	Plugin installieren (MenÅeintrag, unsichtbar, etc.)
+	 *  Plugin installieren (MenÅeintrag, unsichtbar, etc.)
 	 */
-	if(message == MENU_ENTRY)
+	if (message == MENU_ENTRY)
 	{
-		if(plg_data[index]->event_par[0] == 0)			/* ... im Plugin-MenÅ */
+		if (plg_data[index]->event_par[0] == 0)	/* ... im Plugin-MenÅ */
 		{
 			menuentry = PLUGIN1 + *curr_plugin_entry;
 			menu2plugin[menuentry] = index;
 			(*curr_plugin_entry)++;
-		}
-		else
+		} else
 		{
 			menuentry = plg_data[index]->event_par[0];	/* oder einen anderen */
 			menu2plugin[menuentry] = index;
@@ -551,11 +561,11 @@ static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename
 	}
 
 	/*
-	 *	So. Und jetzt die Startup-Konfiguration des Plugins...
-	 *	Es kommt also nur einmal PLG_STARTUP, der Rest wird Åber
-	 *	RÅckgabemessages bzw. die in-Message DONE geregelt. Diese wird nach PLG_STARTUP
-	 *	mit RÅckgabe != M_WAITING wie gehabt solange geschickt, bis ein M_WAITING kommt.
-	 */	
+	 *  So. Und jetzt die Startup-Konfiguration des Plugins...
+	 *  Es kommt also nur einmal PLG_STARTUP, der Rest wird Åber
+	 *  RÅckgabemessages bzw. die in-Message DONE geregelt. Diese wird nach PLG_STARTUP
+	 *  mit RÅckgabe != M_WAITING wie gehabt solange geschickt, bis ein M_WAITING kommt.
+	 */
 	start_plugin(plugin_bp[index], PLG_STARTUP, index, plg_data[index]);
 }
 
@@ -583,7 +593,7 @@ void terminate_plugin(int index)
 	entry als MenÅeintrag ein. string darf nicht lÑnger als der
 	ursprÅngliche MenÅeintrag sein!
 	-----------------------------------------------------------*/
-static void insert_to_menu(OBJECT *menu, int entry, char *string)
+static void insert_to_menu(OBJECT * menu, int entry, char *string)
 {
 	char *dest_str;
 	char shortcut[6];
@@ -597,7 +607,7 @@ static void insert_to_menu(OBJECT *menu, int entry, char *string)
 	string_len = strlen(string);
 
 	strncpy(dest_str + 2, string, string_len);
-	
+
 	menu_ienable(menu, entry, 1);
 }
 
@@ -635,7 +645,7 @@ static void init_structs(void)
 	global_functions.tfm_8_to_24 = tfm_8_to_24;
 	global_functions.tfm_16_to_24 = tfm_16_to_24;
 	global_functions.tfm_24_to_16 = tfm_24_to_16;
-	global_functions.tfm_bgr_to_rgb =  tfm_bgr_to_rgb;
+	global_functions.tfm_bgr_to_rgb = tfm_bgr_to_rgb;
 	global_functions.tfm_cmy_to_rgb = tfm_cmy_to_rgb;
 	global_functions.tfm_rgb_to_grey = tfm_rgb_to_grey;
 
@@ -671,31 +681,31 @@ static void init_structs(void)
 	global_functions.destroy_smurfpic = destroy_smurfpic;
 
 	/*---------- Globale Variablenstruktur zum Zugriff fÅr die Module */
-	global_vars.info_window =info_window;
-	global_vars.form_pop =form_pop;
-	global_vars.edit_pop =edit_pop;
-	global_vars.col_pop =col_pop;
+	global_vars.info_window = info_window;
+	global_vars.form_pop = form_pop;
+	global_vars.edit_pop = edit_pop;
+	global_vars.col_pop = col_pop;
 	global_vars.display_opt = Dialog.dispOpt.tree;
-	global_vars.pic_form =pic_form;
-	global_vars.pic_info_form =pic_info_form;
+	global_vars.pic_form = pic_form;
+	global_vars.pic_info_form = pic_info_form;
 	global_vars.options_form = Dialog.smurfOpt.tree;
-	global_vars.alert_form =alert_form;
-	global_vars.module_form =module_form;
+	global_vars.alert_form = alert_form;
+	global_vars.module_form = module_form;
 	global_vars.busy_window = Dialog.busy.busyTree;
 	global_vars.modules_window = Dialog.emodList.tree;
-	global_vars.newpic_window =newpic_window;
+	global_vars.newpic_window = newpic_window;
 	global_vars.exmod_window = Dialog.expmodList.tree;
 	global_vars.form_picmanager = Dialog.picMan.tree;
-	global_vars.export_form =export_form;
-	global_vars.exp_dp_popup =exp_dp_popup;
-	global_vars.picorder_popup =picorder_popup;
-	global_vars.colred_popup =colred_popup;
-	global_vars.blockpopup =blockpopup;
+	global_vars.export_form = export_form;
+	global_vars.exp_dp_popup = exp_dp_popup;
+	global_vars.picorder_popup = picorder_popup;
+	global_vars.colred_popup = colred_popup;
+	global_vars.blockpopup = blockpopup;
 	global_vars.mod_information = Dialog.emodList.infoTree;
-	global_vars.exmod_info =exmod_info;
-	global_vars.image_order_window =image_order_window;
-	global_vars.transform_window =transform_window;
-	global_vars.blocktype_window =blocktype_window;
+	global_vars.exmod_info = exmod_info;
+	global_vars.image_order_window = image_order_window;
+	global_vars.transform_window = transform_window;
+	global_vars.blocktype_window = blocktype_window;
 
 	global_vars.menu_tree = menu_tree;
 	global_vars.u_tree = u_tree;
@@ -713,35 +723,35 @@ static void init_structs(void)
 	global_vars.smurf_picture = &smurf_picture[0];
 	global_vars.smurf_struct = &module.smStruct[0];
 	global_vars.edit_bp = &module.bp[0];
-	
+
 	global_vars.picwindthere = &picwindthere;
 	global_vars.dialwindthere = &dialwindthere;
 	global_vars.picthere = &picthere;
 	global_vars.active_pic = &active_pic;
-	
+
 	global_vars.export_list = &Dialog.expmodList.modList;
 	global_vars.edit_list = &Dialog.emodList.modList;
 	global_vars.picture_list = &Dialog.picMan.pictureList;
 
 	global_vars.ditmod_info = &ditmod_info[0];
-	
+
 	global_vars.pop_ups = popups;
 
 	global_vars.exp_conf = &exp_conf;
-	global_vars.anzahl_exporter = Dialog.expmodList.anzahl;		/* Anzahl an Export-Modulen */
-	global_vars.anzahl_editmods = Dialog.emodList.anzahl;		/* Anzahl an Edit-Modulen */
+	global_vars.anzahl_exporter = Dialog.expmodList.anzahl;	/* Anzahl an Export-Modulen */
+	global_vars.anzahl_editmods = Dialog.emodList.anzahl;	/* Anzahl an Edit-Modulen */
 	global_vars.anzahl_importmods = anzahl_importmods;	/* Anzahl an Import-Modulen */
 	global_vars.anzahl_dithermods = anzahl_dithermods;	/* Anzahl an Dither-Modulen */
 
-	global_vars.edit_modules = &edit_modules[0];				/* Pfade fÅr bis zu 100 Edit-Module */
-	global_vars.edit_module_names = &Dialog.emodList.modNames[0];		/* Namen fÅr bis zu 100 Edit-Module */
+	global_vars.edit_modules = &edit_modules[0];	/* Pfade fÅr bis zu 100 Edit-Module */
+	global_vars.edit_module_names = &Dialog.emodList.modNames[0];	/* Namen fÅr bis zu 100 Edit-Module */
 
-	global_vars.export_modules = &export_modules[0];			/* Pfade fÅr bis zu 100 Export-Module */
+	global_vars.export_modules = &export_modules[0];	/* Pfade fÅr bis zu 100 Export-Module */
 	global_vars.export_module_names = &Dialog.expmodList.modNames[0];	/* Namen fÅr bis zu 100 Export-Module */
 
-	global_vars.export_cnfblock = &export_cnfblock[0];		/* Konfigurationsblîcke fÅr die Exporter */
+	global_vars.export_cnfblock = &export_cnfblock[0];	/* Konfigurationsblîcke fÅr die Exporter */
 
-	global_vars.export_cnflen = export_cnflen;			/* LÑnge des jeweiligen Blockes */
+	global_vars.export_cnflen = export_cnflen;	/* LÑnge des jeweiligen Blockes */
 
 	global_vars.mouse_xpos = &mouse_xpos;
 	global_vars.mouse_ypos = &mouse_ypos;
