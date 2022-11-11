@@ -34,18 +34,17 @@
 #include "ext_obs.h"
 
 
-int handle_keyboardevent(WINDOW * wind_s, int scancode, int *sel_object)
+WORD handle_keyboardevent(WINDOW *wind_s, WORD scancode, WORD *sel_object)
 {
-	int keybback;
-	int nextchar;
-	int np_edob,
-	 np_nextob,
-	 np_edx;
-	int my_code,
-	 ret_val;
-	static int old_edob;
+	WORD keybback;
+	WORD nextchar;
+	WORD np_edob;
+	WORD np_nextob;
+	WORD np_edx;
+	WORD my_code;
+	WORD ret_val;
+	static WORD old_edob;
 	OBJECT *form;
-
 
 	np_edob = wind_s->editob;
 	np_edx = wind_s->editx;
@@ -73,8 +72,10 @@ int handle_keyboardevent(WINDOW * wind_s, int scancode, int *sel_object)
 	/* doch fr jedes Formular in der init_smurfrsc() initialisiert */
 	/* testweise raus da sonst nach Benutzung eines Dialogs */
 	/* mit Editfeldern die Autolocater der Listfelder grundlos anschlugen */
-/*	if(old_edob == 0) */
-	old_edob = np_edob;
+#if 0
+	if (old_edob == 0)
+#endif
+		old_edob = np_edob;
 
 	/* ist das Editobjekt disabled? */
 	if (IsDisabled(wind_s->resource_form[np_nextob]))
@@ -130,17 +131,15 @@ int handle_keyboardevent(WINDOW * wind_s, int scancode, int *sel_object)
 
 	wind_update(END_UPDATE);
 
-	return (ret_val);
+	return ret_val;
 }
 
 
 void cursor_on(WINDOW * window)
 {
 	char tempchar;
-
-	int tophandle,
-	 dummy;
-
+	WORD tophandle;
+	WORD dummy;
 
 	Window.windGet(window->whandlem, WF_TOP, &tophandle, &dummy, &dummy, &dummy);
 
@@ -152,15 +151,15 @@ void cursor_on(WINDOW * window)
 			window->resource_form[window->editob].ob_spec.tedinfo->te_ptext[window->editx] = '\0';
 
 			objc_edit(window->resource_form, window->editob, 0, &window->editx, ED_INIT);
-/*			if(Sys_info.OS&MATSCHIG)
-				objc_edit(window->resource_form, window->editob, 0, &window->editx, 100); */
+#if 0
+			if(Sys_info.OS&MATSCHIG)
+				objc_edit(window->resource_form, window->editob, 0, &window->editx, 100);
+#endif
 
 			window->resource_form[window->editob].ob_spec.tedinfo->te_ptext[window->editx] = tempchar;
 
 			window->editob = -window->editob;
 		}
-
-	return;
 }
 
 
