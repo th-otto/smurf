@@ -37,27 +37,219 @@
 #include "smurf_f.h"
 #include "globdefs.h"
 #include "gdps.h"
+#include "smurfobs.h"
+#include "ext_obs.h"
 #include "ext_rsc.h"
 
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
-
-static int send_command(COMSTRUCT * comstruct, int command);
-static int make_comstruct(COMSTRUCT * comstruct, SMURF_GDPS * smurf_gdps);
-static void save_pic(COMSTRUCT * comstruct);
-static int copy_gdpsmemory(SMURF_PIC * smurf_picture, COMSTRUCT * comstruct);
 
 static GENERAL_GDPS *actual;
 static char firstblock;
 
 
+/* sendet ein Kommando an ein GDPS-Device */
+static short send_command(COMSTRUCT *comstruct, short command)
+{
+	/* Adresse der eigenen Kommandostruktur eintragen */
+	actual->comstruct = comstruct;
+
+	/* und Kommando eintragen */
+	actual->command = command;
+
+	/* warten bis Kommando vom Treiber wieder auf 0 */
+	while (actual->command)
+		evnt_timer(EVNT_TIME(100));
+
+	return 0;
+}
+
+
+/* fllt die Kommandostruktur aus */
+/* voerst nur nach GDPS 1.00 */
+static short make_comstruct(COMSTRUCT *comstruct, SMURF_GDPS *smurf_gdps)
+{
+	comstruct->result = 0;				/* Rckgabe initialisieren */
+
+	/* s/w, Dithering, Multivalue, Multivalue in Farbe, */
+	/* blockweise Rckgabe erlaubt */
+	comstruct->modes = 1 | 2 | 4 | 64 | 512;	/* von Smurf untersttzte Modi ... */
+	comstruct->modes &= smurf_gdps->desc;	/* ... und mit den m”glichen vom Treiber gelieferten abgleichen */
+
+	comstruct->depth = 1 | 4 | 16 | 256;	/* 1, 4, 16 und 256 Graustufen (Farben pro Kanal) ... */
+	comstruct->depth &= smurf_gdps->depth;	/* ... und mit den m”glichen vom Treiber gelieferten abgleichen */
+
+	if (comstruct->memory == NULL)
+	{
+		comstruct->memory = SMalloc(262144L);	/* 256 KB anfordern */
+		if (comstruct->memory == 0)
+			return -1;
+	}
+
+	comstruct->memlen = 262144L;		/* und das auch explizit mitteilen */
+
+	comstruct->width_byte = 0;			/* und den Rest alles auf 0 */
+	comstruct->height = 0;
+	comstruct->mmwidth = 0;
+	comstruct->mmheight = 0;
+	comstruct->xdpi = 0;
+	comstruct->ydpi = 0;
+	comstruct->modulo = 0;
+	comstruct->start_x = 0;
+	comstruct->start_y = 0;
+	comstruct->ser_nr = 0;
+	comstruct->add_bits = 0;
+
+	return 0;
+}
+
+
+static short copy_gdpsmemory(SMURF_PIC *smurf_picture, COMSTRUCT *comstruct)
+{
+
+	if (comstruct->modes & 1 || comstruct->modes & 2)
+		memcpy(smurf_picture->pic_data, comstruct->memory, comstruct->memlen);
+	else if (comstruct->depth & 256)
+		if (comstruct->result == 0xff)
+			return 0;
+
+	return 0;
+}
+
+
+/* Klabustert die Daten im Zielspeicher auseinander */
+/* und setzt sie zum Bild zusammen */
+static void save_pic(COMSTRUCT *comstruct)
+{
+	WORD width, height, depth;
+	uint8_t *palette;
+	short pic_to_make = 1;
+	short tt;
+	short index;
+	short aligned_width;
+	long PicLen;
+
+#ifdef DEBUG
+	printf("modes: %x\n", comstruct->modes);
+	printf("depth: %x\n", comstruct->depth);
+	printf("memlen: %ld\n", comstruct->memlen);
+	printf("width_byte: %x\n", comstruct->width_byte);
+	printf("height: %x\n", comstruct->height);
+	printf("mmwidth: %x\n", comstruct->mmwidth);
+	printf("mmheight: %x\n", comstruct->mmheight);
+	printf("xdpi: %x\n", comstruct->xdpi);
+	printf("ydpi: %x\n", comstruct->ydpi);
+	printf("modulo: %x\n", comstruct->modulo);
+	printf("start_x: %x\n", comstruct->start_x);
+	printf("start_y: %x\n", comstruct->start_y);
+
+	(void) Cnecin();
+#endif
+
+	if (comstruct->modes & 0x1 || comstruct->modes & 0x2)
+		width = comstruct->width_byte * 8;	/* Bei Bi-Level und Dithered immer mit 8 Pixel pro Byte */
+	else
+		width = comstruct->width_byte;
+	height = comstruct->height;
+	depth = comstruct->depth;
+
+	if (firstblock)
+	{
+		firstblock = 0;
+
+		/**************/
+#if DEMOVERSION
+		if (picthere >= 3)
+		{
+			f_alert(Dialog.winAlert.alerts[PREVIEW_ERR].TextCast, NULL, NULL, NULL, 1);
+			return -1;
+		}
+#endif
+		/**************/
+
+
+		/* erstes freies Bild ermitteln */
+		while (smurf_picture[pic_to_make] != NULL)
+			pic_to_make++;
+		if (pic_to_make > MAX_PIC)
+		{
+			f_alert(Dialog.winAlert.alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1);
+			return;
+		}
+
+		smurf_picture[pic_to_make] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
+
+		if (depth >= 8)
+			PicLen = (long) ((long) width * (long) height) * (long) depth / 8L;
+		else
+		{
+			aligned_width = (width + 7) >> 3;
+			PicLen = (long) ((long) aligned_width * (long) height * (long) depth);
+		}
+
+		if ((smurf_picture[pic_to_make]->pic_data = SMalloc(PicLen)) == NULL)
+		{
+			f_alert(Dialog.winAlert.alerts[NOMEM_NEWPIC].TextCast, NULL, NULL, NULL, 1);
+			SMfree(smurf_picture[pic_to_make]);
+			smurf_picture[pic_to_make] = NULL;
+			return;
+		}
+	}
+
+	copy_gdpsmemory(smurf_picture[pic_to_make], comstruct);
+
+	if (comstruct->result == 0xffff)
+	{
+		smurf_picture[pic_to_make]->palette = malloc(1025);	/* Paletten-Puffer */
+		memset(smurf_picture[pic_to_make]->palette, 0x0, 1025);
+
+		make_smurf_pic(pic_to_make, width, height, depth, smurf_picture[pic_to_make]->pic_data);
+		make_pic_window(pic_to_make, width, height, "GDPS");
+
+		smurf_picture[pic_to_make]->col_format = RGB;
+		strncpy(smurf_picture[pic_to_make]->format_name, "-", 2);
+		memset(smurf_picture[pic_to_make]->filename, 0x0, 257);
+		strcpy(smurf_picture[pic_to_make]->filename, "C:\\GDPS");
+
+		/*
+		 * pr„ventiv die Systempalette eintragen SMURF_PIC
+		 */
+		palette = smurf_picture[pic_to_make]->palette;
+		if (depth == 1)
+		{
+			palette[0] = palette[1] = palette[2] = 255;
+			palette[3] = palette[4] = palette[5] = 0;
+		} else
+		{
+			for (tt = 0; tt <= Sys_info.Max_col; tt++)
+			{
+				index = planetable[tt];
+				*(palette + 0 + index * 3) = (short) ((long) (orig_red[tt] * 255L) / 1000L);
+				*(palette + 1 + index * 3) = (short) ((long) (orig_green[tt] * 255L) / 1000L);
+				*(palette + 2 + index * 3) = (short) ((long) (orig_blue[tt] * 255L) / 1000L);
+			}
+		}
+
+		if (!Sys_info.realtime_dither)
+			f_dither(smurf_picture[pic_to_make], &Sys_info, 0, NULL, &Display_Opt);
+		f_open_window(&picture_windows[pic_to_make]);
+		clip_picw2screen(&picture_windows[pic_to_make]);
+		insert_to_picman(pic_to_make);
+		f_activate_pic(pic_to_make);
+
+		picthere++;
+	}
+
+	actualize_ram();					/* wieviel RAM? */
+	actualize_menu();					/* Meneintr„ge ENABLEn / DISABLEn */
+}
+
+
 void gdps_main(void)
 {
-	unsigned long *gdpsentry,
-	 oldstack;
-
+	unsigned long *gdpsentry;
+	unsigned long oldstack;
 	SMURF_GDPS smurf_gdps;
 	COMSTRUCT comstruct;
-
 
 	Goto_pos(1, 0);
 
@@ -72,11 +264,11 @@ void gdps_main(void)
 		oldstack = Super(0L);
 
 	/* Zeiger auf Einstiegspunkt der Treiberliste holen */
-	gdpsentry = (unsigned long *) *((unsigned int **) 0x41cL);
+	gdpsentry = *((unsigned long **) 0x41cL);
 
 	/* Liste der GDPS-Treiberdurchlaufen und ersten Scannertreiber benutzen */
 	actual = (GENERAL_GDPS *) gdpsentry;
-	while (actual != 0L && actual->magic == 'GDPS')
+	while (actual != NULL && actual->magic == 0x47445053L) /* 'GDPS' */
 	{
 		if (actual->type >= 0x0 && actual->type <= 0x0ff)
 		{
@@ -156,203 +348,4 @@ void gdps_main(void)
 
 	/* Scanner freigeben */
 	actual->free = 0;
-}
-
-
-/* sendet ein Kommando an ein GDPS-Device */
-static int send_command(COMSTRUCT * comstruct, int command)
-{
-	/* Adresse der eigenen Kommandostruktur eintragen */
-	actual->comstruct = comstruct;
-
-	/* und Kommando eintragen */
-	actual->command = command;
-
-	/* warten bis Kommando vom Treiber wieder auf 0 */
-	while (actual->command)
-		evnt_timer(EVNT_TIME(100));
-
-	return (0);
-}
-
-
-/* fllt die Kommandostruktur aus */
-/* voerst nur nach GDPS 1.00 */
-static int make_comstruct(COMSTRUCT * comstruct, SMURF_GDPS * smurf_gdps)
-{
-	comstruct->result = 0;				/* Rckgabe initialisieren */
-
-	/* s/w, Dithering, Multivalue, Multivalue in Farbe, */
-	/* blockweise Rckgabe erlaubt */
-	comstruct->modes = 1 | 2 | 4 | 64 | 512;	/* von Smurf untersttzte Modi ... */
-	comstruct->modes &= smurf_gdps->desc;	/* ... und mit den m”glichen vom Treiber gelieferten abgleichen */
-
-	comstruct->depth = 1 | 4 | 16 | 256;	/* 1, 4, 16 und 256 Graustufen (Farben pro Kanal) ... */
-	comstruct->depth &= smurf_gdps->depth;	/* ... und mit den m”glichen vom Treiber gelieferten abgleichen */
-
-	if (comstruct->memory == NULL)
-	{
-		comstruct->memory = SMalloc(262144L);	/* 256 KB anfordern */
-		if (comstruct->memory == 0)
-			return (-1);
-	}
-
-	comstruct->memlen = 262144L;		/* und das auch explizit mitteilen */
-
-	comstruct->width_byte = 0;			/* und den Rest alles auf 0 */
-	comstruct->height = 0;
-	comstruct->mmwidth = 0;
-	comstruct->mmheight = 0;
-	comstruct->xdpi = 0;
-	comstruct->ydpi = 0;
-	comstruct->modulo = 0;
-	comstruct->start_x = 0;
-	comstruct->start_y = 0;
-	comstruct->ser_nr = 0;
-	comstruct->add_bits = 0;
-
-	return (0);
-}
-
-
-/* Klabustert die Daten im Zielspeicher auseinander */
-/* und setzt sie zum Bild zusammen */
-static void save_pic(COMSTRUCT * comstruct)
-{
-	int width,
-	 height,
-	 depth;
-	char *palette;
-
-	int pic_to_make = 1;
-	int tt,
-	 index;
-	int aligned_width;
-
-	long PicLen;
-
-#ifdef DEBUG
-	printf("modes: %x\n", comstruct->modes);
-	printf("depth: %x\n", comstruct->depth);
-	printf("memlen: %ld\n", comstruct->memlen);
-	printf("width_byte: %x\n", comstruct->width_byte);
-	printf("height: %x\n", comstruct->height);
-	printf("mmwidth: %x\n", comstruct->mmwidth);
-	printf("mmheight: %x\n", comstruct->mmheight);
-	printf("xdpi: %x\n", comstruct->xdpi);
-	printf("ydpi: %x\n", comstruct->ydpi);
-	printf("modulo: %x\n", comstruct->modulo);
-	printf("start_x: %x\n", comstruct->start_x);
-	printf("start_y: %x\n", comstruct->start_y);
-
-	getch();
-#endif
-
-	if (comstruct->modes & 0x1 || comstruct->modes & 0x2)
-		width = comstruct->width_byte * 8;	/* Bei Bi-Level und Dithered immer mit 8 Pixel pro Byte */
-	else
-		width = comstruct->width_byte;
-	height = comstruct->height;
-	depth = comstruct->depth;
-
-	if (firstblock)
-	{
-		firstblock = 0;
-
-		/**************/
-#if DEMOVERSION
-		if (picthere >= 3)
-		{
-			f_alert(alerts[PREVIEW_ERR].TextCast, NULL, NULL, NULL, 1);
-			return (-1);
-		}
-#endif
-		/**************/
-
-
-		/* erstes freies Bild ermitteln */
-		while (smurf_picture[pic_to_make] != NULL)
-			pic_to_make++;
-		if (pic_to_make > MAX_PIC)
-		{
-			f_alert(alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1);
-			return;
-		}
-
-		smurf_picture[pic_to_make] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
-
-		if (depth >= 8)
-			PicLen = (long) ((long) width * (long) height) * (long) depth / 8L;
-		else
-		{
-			aligned_width = (width + 7) >> 3;
-			PicLen = (long) ((long) aligned_width * (long) height * (long) depth);
-		}
-
-		if ((smurf_picture[pic_to_make]->pic_data = SMalloc(PicLen)) == NULL)
-		{
-			f_alert(alerts[NOMEM_NEWPIC].TextCast, NULL, NULL, NULL, 1);
-			SMfree(smurf_picture[pic_to_make]);
-			smurf_picture[pic_to_make] = NULL;
-			return;
-		}
-	}
-
-	copy_gdpsmemory(smurf_picture[pic_to_make], comstruct);
-
-	if (comstruct->result == 0xffff)
-	{
-		smurf_picture[pic_to_make]->palette = malloc(1025);	/* Paletten-Puffer */
-		memset(smurf_picture[pic_to_make]->palette, 0x0, 1025);
-
-		make_smurf_pic(pic_to_make, width, height, depth, smurf_picture[pic_to_make]->pic_data);
-		make_pic_window(pic_to_make, width, height, "GDPS");
-
-		smurf_picture[pic_to_make]->col_format = RGB;
-		strncpy(smurf_picture[pic_to_make]->format_name, "-", 2);
-		memset(smurf_picture[pic_to_make]->filename, 0x0, 257);
-		strcpy(smurf_picture[pic_to_make]->filename, "C:\\GDPS");
-
-		/*
-		 * pr„ventiv die Systempalette eintragen SMURF_PIC
-		 */
-		palette = smurf_picture[pic_to_make]->palette;
-		if (depth == 1)
-		{
-			palette[0] = palette[1] = palette[2] = 255;
-			palette[3] = palette[4] = palette[5] = 0;
-		} else
-			for (tt = 0; tt <= Sys_info.Max_col; tt++)
-			{
-				index = planetable[tt];
-				*(palette + 0 + index * 3) = (int) ((long) (orig_red[tt] * 255L) / 1000L);
-				*(palette + 1 + index * 3) = (int) ((long) (orig_green[tt] * 255L) / 1000L);
-				*(palette + 2 + index * 3) = (int) ((long) (orig_blue[tt] * 255L) / 1000L);
-			}
-
-		if (!Sys_info.realtime_dither)
-			f_dither(smurf_picture[pic_to_make], &Sys_info, 0, NULL, &Display_Opt);
-		f_open_window(&picture_windows[pic_to_make]);
-		clip_picw2screen(&picture_windows[pic_to_make]);
-		insert_to_picman(pic_to_make);
-		f_activate_pic(pic_to_make);
-
-		picthere++;
-	}
-
-	actualize_ram();					/* wieviel RAM? */
-	actualize_menu();					/* Meneintr„ge ENABLEn / DISABLEn */
-}
-
-
-static int copy_gdpsmemory(SMURF_PIC * smurf_picture, COMSTRUCT * comstruct)
-{
-
-	if (comstruct->modes & 1 || comstruct->modes & 2)
-		memcpy(smurf_picture->pic_data, comstruct->memory, comstruct->memlen);
-	else if (comstruct->depth & 256)
-		if (comstruct->result == 0xff)
-			return (0);
-
-	return (0);
 }

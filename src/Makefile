@@ -71,6 +71,7 @@ OBJS = \
 	\
 	$(empty)
 
+#	gdps.o \
 #	dit_read.o \
 #	ditreadp.o \
 

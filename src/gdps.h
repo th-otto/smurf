@@ -27,15 +27,15 @@ typedef struct
 {
     void *next;             /* Zeiger auf nÑchsten Treiber oder 0L */
     long magic;             /* Magic, muû 'GDPS' (0x47445053) sein */
-    int version;            /* Treiberversion * 100 */
-    int type;               /* Treibertyp, interessant ist 0x000-0x0ff fÅr graphische EingabegerÑte */
+    short version;          /* Treiberversion * 100 */
+    short type;             /* Treibertyp, interessant ist 0x000-0x0ff fÅr graphische EingabegerÑte */
     char *info;             /* Zeiger auf Treiberinfo, 0-terminierter String mit max. 32 Zeichen */
     char *info2;            /* Zeiger auf Programmierer/Copyright, 0-terminierter String mit max. 32 Zeichen */
-    int desc;               /* Scannerbeschreibung */
-    int cols;               /* Anzahl Farben */
-    int depth;              /* Mîgliche Multi-Value Bittiefen */
-    int free;               /* Flag ob Scanner frei ist */
-    int command;            /* Kommando an Scanner */
+    short desc;             /* Scannerbeschreibung */
+    short cols;             /* Anzahl Farben */
+    short depth;            /* Mîgliche Multi-Value Bittiefen */
+    short free;             /* Flag ob Scanner frei ist */
+    short command;          /* Kommando an Scanner */
     void *comstruct;        /* Zeiger auf Kommandostruktur */
 } GENERAL_GDPS;
 
@@ -43,38 +43,38 @@ typedef struct
 /* Smurf GDPS-Treiber-Struktur */
 typedef struct
 {
-    int version;            /* Treiberversion * 100 */
+    short version;          /* Treiberversion * 100 */
     char info[33];          /* Zeiger auf Treiberinfo, 0-terminierter String mit max. 32 Zeichen */
-    int desc;               /* Scannerbeschreibung */
-    int cols;               /* Anzahl Farben */
-    int depth;              /* Mîgliche Multi-Value Bittiefen */
+    short desc;             /* Scannerbeschreibung */
+    short cols;             /* Anzahl Farben */
+    short depth;            /* Mîgliche Multi-Value Bittiefen */
 } SMURF_GDPS;
 
 
 /* Kommandostruktur fÅr GDPI-Scanner */
 typedef struct
 {
-    unsigned int result;    /* Ergebnis das Treiber meldet */
-    int modes;              /* erlaubte Scanmodi */
-    int depth;              /* Tiefe des Bildes in Bit/Pixel */
+    unsigned short result;  /* Ergebnis das Treiber meldet */
+    short modes;            /* erlaubte Scanmodi */
+    short depth;            /* Tiefe des Bildes in Bit/Pixel */
     void *memory;           /* dahin soll das Bild gehen */
     long memlen;            /* verfÅgbarer Speicher */
-    int width_byte;         /* Breite einer Zeile in Bytes */
-    int height;             /* Hîhe des Bildes in Zeilen */
-    int mmwidth;            /* Breite in 1/10 Millimetern */
-    int mmheight;           /* Hîhe in 1/10 Millimetern */
-    int xdpi;               /* Auflîsung in x-Richtung in dpi */
-    int ydpi;               /* Auflîsung in y-Richtung in dpi */
-    int modulo;             /* 2 => Bild wird WordbÅndig */
-    int start_x;            /* linke obere Ecke x in 1/10mm */
-    int start_y;            /* linke obere Ecke y in 1/10mm */
+    short width_byte;       /* Breite einer Zeile in Bytes */
+    short height;           /* Hîhe des Bildes in Zeilen */
+    short mmwidth;          /* Breite in 1/10 Millimetern */
+    short mmheight;         /* Hîhe in 1/10 Millimetern */
+    short xdpi;             /* Auflîsung in x-Richtung in dpi */
+    short ydpi;             /* Auflîsung in y-Richtung in dpi */
+    short modulo;           /* 2 => Bild wird WordbÅndig */
+    short start_x;          /* linke obere Ecke x in 1/10mm */
+    short start_y;          /* linke obere Ecke y in 1/10mm */
     long ser_nr;            /* Seriennummer */
 
 /**** 
 der nun folgende Teil ist nur beim Aufruf des Scanners mit
 den Befehlen der 0x2XX Serie definiert
 ******/
-    int add_bits;           /* Angabe, wieviele Bits zusÑtzlich */
+    short add_bits;         /* Angabe, wieviele Bits zusÑtzlich */
                             /* z.B. besitzt CRANACH Studio */
                             /* zu jedem Bild 2 Masken. Wird  */
                             /* eine Bitmap gescant, so benîtigt */
@@ -94,7 +94,7 @@ den Befehlen der 0x2XX Serie definiert
                             /* zusÑtzliche Bits fÅr die Maske */
     void *Dchange_pointer;  /* Zeiger auf diese Funktion */
     void *Dupdate;          /* Zeiger auf jene Funktion */
-    int read;               /* Lesebufferindex virtuell */
-    int write;              /* Schreibbufferindex virtuell */
-    int virt_flag;          /* flag, ob virtuell gearbeitet wird */
+    short read;             /* Lesebufferindex virtuell */
+    short write;            /* Schreibbufferindex virtuell */
+    short virt_flag;        /* flag, ob virtuell gearbeitet wird */
 } COMSTRUCT;
