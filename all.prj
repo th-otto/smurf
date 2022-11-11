@@ -71,6 +71,7 @@ modules\edit\zoom\warp5.prj
 modules\export\bmp\bmp.prj
 modules\export\clipbrd.prj
 modules\export\cmp.prj
+modules\export\esm.prj
 modules\export\gem_img\gem_img.prj
 modules\export\gif\gif.prj
 modules\export\falc_raw\falc8bit.prj
@@ -171,7 +172,6 @@ modules\plugin\print\prntplgw.prj
 ; missing:
 ;modules\edit\bumber.prj
 ;modules\edit\colrun.prj
-;modules\export\esm.prj
 ;modules\import\godpaint.prj
 ;modules\import\jpeg\jpegdspl.prj
 ;modules\import\jpeg\jpegdspn.prj
