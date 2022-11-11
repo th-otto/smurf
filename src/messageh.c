@@ -62,7 +62,7 @@ typedef struct
 } DHSTINFO;
 
 
-int f_handle_message(void)
+WORD f_handle_message(void)
 {
 	char module_name[30];
 	char *textseg,

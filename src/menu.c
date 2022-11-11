@@ -56,34 +56,29 @@ void f_exit_menu(void)
 /*	-------------------------------------------	*/
 /*					Menu Handler				*/
 /*	-------------------------------------------	*/
-int f_handle_menuevent(int *message)
+WORD f_handle_menuevent(WORD *message)
 {
-	int menu_title,
-	 menu_entry;
-	int quit = 0,
-		dummy;
-	int wh,
-	 wnum,
-	 nexthandle,
-	 t;
-
+	WORD menu_entry;
+	WORD quit = 0;
+	WORD dummy;
+	WORD wh;
+	WORD wnum;
+	WORD nexthandle;
+	WORD t;
 	WINDOW *nextwin;
 	SMURF_PIC *picture;
 
-	menu_title = message[3];
 	menu_entry = message[4];
 
 	if (Smurf_locked)					/* GUI gesperrt? */
-		return (0);
+		return 0;
 
 	picture = smurf_picture[active_pic];
 
-/*	printf("\nMenÅ: %i", menu_title);
-	printf("\nEintrag: %i", menu_entry);*/
-/*
-	if(Sys_info.OS&MAG_PC && (key_at_event == KEY_ALT || key_at_event == KEY_CTRL))
+#if 0
+	if ((Sys_info.OS & MAG_PC) && (key_at_event == KEY_ALT || key_at_event == KEY_CTRL))
 		menu_title -= 5;
-*/
+#endif
 
 	openmode = 0;						/* Immer davon ausgehen, daû der Dialog                 */
 	/* (welcher auch immer) noch nicht offen ist,           */
@@ -94,192 +89,224 @@ int f_handle_menuevent(int *message)
 	if (menu2plugin[menu_entry] != -1)	/* ein Plugin hat sich hier eingehÑngt! */
 	{
 		call_plugin(menu_entry);
-		return (0);
+		return 0;
 	}
 
-	switch (menu_title)
+	switch (menu_entry)
 	{
-	case MENU_DESK:
-		if (menu_entry == DESK_INFO)
-			f_info();
+	case DESK_INFO:
+		f_info();
 		break;
 
-	case MENU_FILE:
-		if (menu_entry == MFILE_LOAD)
-			file_load("Bild laden", (char **) &"", 0);
-		else if (menu_entry == FILE_RELOAD)
-			reload_pic(&picture_windows[active_pic]);
-		else if (menu_entry == FILE_SAVEAS)
-			Dialog.expmodList.handleList();
-		else if (menu_entry == FILE_SAVE)
-			save_file();
-		else if (menu_entry == FILE_INFO)
-			f_pic_info();
-/*							else
-							if(menu_entry == FILE_SCAN)
-								gdps_main();
-*/
-		else if (menu_entry == FILE_QUIT)
+	case MFILE_LOAD:
+		file_load("Bild laden", (char **) &"", 0);
+		break;
+	
+	case FILE_RELOAD:
+		reload_pic(&picture_windows[active_pic]);
+		break;
+
+	case FILE_SAVEAS:
+		Dialog.expmodList.handleList();
+		break;
+
+	case FILE_SAVE:
+		save_file();
+		break;
+	
+	case FILE_INFO:
+		f_pic_info();
+		break;
+
+#if 0
+	case FILE_SCAN;
+		gdps_main();
+		break;
+#endif
+
+	case FILE_QUIT:
+		quit = -1;
+		if (picthere)
 		{
-			quit = -1;
-			if (picthere)
+			for (t = 1; t <= picthere; t++)
 			{
-				for (t = 1; t <= picthere; t++)
-				{
-					if (picture_windows[t].wtitle[11] == '*' && !(Sys_info.profi_mode & OS_SELECTED))
-						if (Dialog.winAlert.
-							openAlert(Dialog.winAlert.alerts[QUIT_ALERT].TextCast, "Nein", " Ja ", NULL, 1) == 1)
-							quit = 0;
-				}
+				if (picture_windows[t].wtitle[11] == '*' && !(Sys_info.profi_mode & OS_SELECTED))
+					if (Dialog.winAlert.openAlert(Dialog.winAlert.alerts[QUIT_ALERT].TextCast, "Nein", " Ja ", NULL, 1) == 1) /* FIXME: translate */
+						quit = 0;
 			}
-		} else if (menu_entry == WIND_CLOSE)
+		}
+		break;
+
+	case WIND_CLOSE:
+		Window.windGet(0, WF_TOP, &wh, &dummy, &dummy, &dummy);
+		Window.close(wh);
+		break;
+	
+	case FILE_NEW:
+		f_newpic(0);
+		break;
+
+	case DISP_KONFIG:
+		Dialog.dispOpt.displayOptions();
+		break;
+
+	case DISP_NEXTWIN:
+		/*---- Dialogfenster cyclen -------*/
+		Window.windGet(0, WF_TOP, &wh, &dummy, &dummy, &dummy);
+		wnum = Window.myWindow(wh);
+		if (wnum > 0)
 		{
-			Window.windGet(0, WF_TOP, &wh, &dummy, &dummy, &dummy);
-			Window.close(wh);
+			/*----- ist ein Dialog oben? ---*/
+			nextwin = (WINDOW *) (wind_s[wnum].next_window);
+			if (nextwin != NULL)
+				nexthandle = nextwin->whandlem;
 		} else
 		{
-			if (menu_entry == FILE_NEW)
-				f_newpic(0);
+			/*----- oder ein Bild? */
+			if (Dialog.topDialog != 256)
+				nexthandle = Dialog.topDialog;
+			else
+			{
+				nexthandle = 256;
+				for (t = 0; t < MAX_PIC; t++)
+				{
+					if (wind_s[t].whandlem != -1 && wind_s[t].whandlem < nexthandle)
+						nexthandle = wind_s[t].whandlem;
+				}
+			}
+		}
+
+		if (nexthandle != 256)
+		{
+			Dialog.topDialog = nexthandle;
+			Window.top(nexthandle);
 		}
 		break;
 
-	case MENU_DISP:
-		if (menu_entry == DISP_KONFIG)
-			Dialog.dispOpt.displayOptions();
-							/*---- Dialogfenster cyclen -------*/
-		else if (menu_entry == DISP_NEXTWIN)
+	case DISP_NEXTPIC:
+		/*---- Bildfenster cyclen ---*/
+		Window.windGet(0, WF_TOP, &wh, &dummy, &dummy, &dummy);
+		wnum = Window.myWindow(wh);
+		if (wnum < 0)
 		{
-			Window.windGet(0, WF_TOP, &wh, &dummy, &dummy, &dummy);
-			wnum = Window.myWindow(wh);
-								/*----- ist ein Dialog oben? ---*/
-			if (wnum > 0)
-			{
-				nextwin = (WINDOW *) (wind_s[wnum].next_window);
-				if (nextwin != NULL)
-					nexthandle = nextwin->whandlem;
-			}
-								/*----- oder ein Bild? */
+			/*------ ist ein Bild oben? ---*/
+			nextwin = (WINDOW *) (picture_windows[-wnum].next_window);
+			if (nextwin != NULL)
+				nexthandle = nextwin->whandlem;
+		} else
+		{
+			/*--- oder ein Dialog? ---*/
+			if (imageWindow.topPicwin != 256)
+				nexthandle = imageWindow.topPicwin;
 			else
 			{
-				if (Dialog.topDialog != 256)
-					nexthandle = Dialog.topDialog;
-				else
+				nexthandle = 256;
+				for (t = 0; t < MAX_PIC; t++)
 				{
-					nexthandle = 256;
-					for (t = 0; t < MAX_PIC; t++)
-					{
-						if (wind_s[t].whandlem != -1 && wind_s[t].whandlem < nexthandle)
-							nexthandle = wind_s[t].whandlem;
-					}
+					if (picture_windows[t].whandlem != -1 && picture_windows[t].whandlem < nexthandle)
+						nexthandle = picture_windows[t].whandlem;
 				}
 			}
-
-			if (nexthandle != 256)
-			{
-				Dialog.topDialog = nexthandle;
-				Window.top(nexthandle);
-			}
 		}
-							/*---- Bildfenster cyclen ---*/
-		else if (menu_entry == DISP_NEXTPIC)
+
+		if (nexthandle != 256)
 		{
-			Window.windGet(0, WF_TOP, &wh, &dummy, &dummy, &dummy);
-			wnum = Window.myWindow(wh);
-								/*------ ist ein Bild oben? ---*/
+			imageWindow.topPicwin = nexthandle;
+#if 0
+			Window.top(nexthandle);
+#endif
+			wnum = Window.myWindow(nexthandle);
 			if (wnum < 0)
 			{
-				nextwin = (WINDOW *) (picture_windows[-wnum].next_window);
-				if (nextwin != NULL)
-					nexthandle = nextwin->whandlem;
-			}
-								/*--- oder ein Dialog? ---*/
-			else
-			{
-				if (imageWindow.topPicwin != 256)
-					nexthandle = imageWindow.topPicwin;
-				else
-				{
-					nexthandle = 256;
-					for (t = 0; t < MAX_PIC; t++)
-					{
-						if (picture_windows[t].whandlem != -1 && picture_windows[t].whandlem < nexthandle)
-							nexthandle = picture_windows[t].whandlem;
-					}
-				}
-			}
-
-			if (nexthandle != 256)
-			{
-				imageWindow.topPicwin = nexthandle;
-/*									Window.top(nexthandle); */
-				wnum = Window.myWindow(nexthandle);
-				if (wnum < 0)
-				{
-					Window.topNow(&picture_windows[-wnum]);
-					f_activate_pic(-wnum);
-				} else
-					Window.topNow(&picture_windows[-wnum]);
-			}
+				Window.topNow(&picture_windows[-wnum]);
+				f_activate_pic(-wnum);
+			} else
+				Window.topNow(&picture_windows[-wnum]);
 		}
 		break;
 
-	case MENU_EDIT:
-		if (menu_entry == EDIT_EDIT)
-			f_edit_pop();
-		else if (menu_entry == EDIT_COLORS)
-			color_choose();
-		else if (menu_entry == EDIT_COLRED)
-			transform_pic();
-		else if (menu_entry == DUPLICATE_PIC)
-			duplicate_pic(&picture_windows[active_pic]);
-		else if (menu_entry == SELECT_ALL)
-			block_over_all(&picture_windows[active_pic]);
-		else if (menu_entry == EDIT_COPY)
-			block2clip(picture, 0, NULL);
-		else if (menu_entry == EDIT_INSERT)
+	case EDIT_EDIT:
+		f_edit_pop();
+		break;
+
+	case EDIT_COLORS:
+		color_choose();
+		break;
+
+	case EDIT_COLRED:
+		transform_pic();
+		break;
+
+	case DUPLICATE_PIC:
+		duplicate_pic(&picture_windows[active_pic]);
+		break;
+
+	case SELECT_ALL:
+		block_over_all(&picture_windows[active_pic]);
+		break;
+
+	case EDIT_COPY:
+		block2clip(picture, 0, NULL);
+		break;
+
+	case EDIT_INSERT:
+		clip2block(picture, NULL, -1, -1);
+		Window.redraw(&picture_windows[active_pic], NULL, 0, 0);
+		break;
+
+	case EDIT_CUT:
+		if (block2clip(picture, 1, NULL) != -1)
 		{
-			clip2block(picture, NULL, -1, -1);
+			imageWindow.toggleAsterisk(&picture_windows[active_pic], 1);
+			f_dither(picture, &Sys_info, 1, NULL, &Display_Opt);
 			Window.redraw(&picture_windows[active_pic], NULL, 0, 0);
-		} else if (menu_entry == EDIT_CUT)
-		{
-			if (block2clip(picture, 1, NULL) != -1)
-			{
-				imageWindow.toggleAsterisk(&picture_windows[active_pic], 1);
-				f_dither(picture, &Sys_info, 1, NULL, &Display_Opt);
-				Window.redraw(&picture_windows[active_pic], NULL, 0, 0);
-			}
-		} else if (menu_entry == EDIT_RELEASE)
-		{
-			imageWindow.removeBlock(&picture_windows[active_pic]);
-			blockfunctions_off();
-			Window.redraw(&picture_windows[active_pic], NULL, 0, 0);
-			if (wind_s[WIND_BTYPEIN].whandlem != -1)
-				insert_blockcoords(picture);
-		} else if (menu_entry == EDIT_CROP)
-		{
-			block_freistellen(&picture_windows[active_pic]);
-			blockfunctions_off();
 		}
-
 		break;
 
-	case MENU_OPTIONS:
-		if (menu_entry == OPT_OPTIONS)
-			Dialog.smurfOpt.options();
-		else if (menu_entry == OPT_STATUS)
-			Window.open(&wind_s[WIND_BUSY]);
-		else if (menu_entry == OPT_PICMAN)
-			Window.open(&wind_s[WIND_PICMAN]);
-		else if (menu_entry == OPT_SAVEOPT)
-			save_config();
+	case EDIT_RELEASE:
+		imageWindow.removeBlock(&picture_windows[active_pic]);
+		blockfunctions_off();
+		Window.redraw(&picture_windows[active_pic], NULL, 0, 0);
+		if (wind_s[WIND_BTYPEIN].whandlem != -1)
+			insert_blockcoords(picture);
 		break;
 
-	case MENU_PLUGIN:
+	case EDIT_CROP:
+		block_freistellen(&picture_windows[active_pic]);
+		blockfunctions_off();
+		break;
+
+	case OPT_OPTIONS:
+		Dialog.smurfOpt.options();
+		break;
+
+	case OPT_STATUS:
+		Window.open(&wind_s[WIND_BUSY]);
+		break;
+
+	case OPT_PICMAN:
+		Window.open(&wind_s[WIND_PICMAN]);
+		break;
+
+	case OPT_SAVEOPT:
+		save_config();
+		break;
+
+	case PLUGIN1:
+	case PLUGIN2:
+	case PLUGIN3:
+	case PLUGIN4:
+	case PLUGIN5:
+	case PLUGIN6:
+	case PLUGIN7:
+	case PLUGIN8:
+	case PLUGIN9:
+	case PLUGIN10:
 		call_plugin(menu_entry);
 		break;
 	}
 
-	return (quit);
+	return quit;
 }
 
 

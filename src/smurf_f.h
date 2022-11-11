@@ -72,7 +72,7 @@ void GetSMPath(void);
 /* How to speak AES - Dialog mit dem Betriebssystem u.Ñ.                */
 /* **********************************************************************/
 void f_event(void);              /* Allg. Event-Funktion                 */
-int f_handle_message(void);      /* AES-Message-Handler                  */
+WORD f_handle_message(void);     /* AES-Message-Handler                  */
 
 void check_windclose(int windnum);   /* Auswerten von Windowdialog-AbbrÅchen */
 
@@ -188,7 +188,7 @@ int scan_2_ascii(int scan, int state);
  */
 void f_init_menu(void);          /* MenÅzeile her! */
 void f_exit_menu(void);          /* MenÅzeile weg! */
-int f_handle_menuevent(int *message);
+WORD f_handle_menuevent(WORD *message);
 void actualize_menu(void);       /* MenÅzeile aktualisieren */
 void lock_Smurf(void);
 void unlock_Smurf(void);
