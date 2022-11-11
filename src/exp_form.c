@@ -52,12 +52,110 @@
 
 /*------------- GUI-Kram --------------*/
 MOD_ABILITY export_mod_ability;
-static int dest_colsys;
+static short dest_colsys;
 
-/*------------- lokale Funktionen --------------*/
-static int best_depth(int desired_depth);
-static void get_picform(MOD_ABILITY * dest_mabs, int ed_button);
-static void act_exdither_popups(void);
+
+
+/*------------------------------------------------------------------*/
+/*							best_depth								*/
+/* suchen der qualitativ bestmîglichen Farbtiefe aus den 			*/
+/*	export_depth[n] eines Moduls und der gewÅnschten Farbtiefe		*/
+/*	desired_depth.													*/
+/*------------------------------------------------------------------*/
+static short best_depth(short desired_depth)
+{
+	int t;
+
+	for (t = 0; t < 8 && export_depth[t] != 0; t++)
+	{
+		if (export_depth[t] >= desired_depth)
+			break;
+	}
+
+	if (export_depth[t] == 0)
+		t--;
+
+	return export_depth[t];
+}
+
+
+/**********************************************************************	*/
+/*							get_picform									*/
+/*		Setzt in dest_mabs das zu ed_button (Farbtiefe) passende		*/
+/*		Datenformat und die Farbtiefe aus src_mabs.						*/
+/**********************************************************************	*/
+static void get_picform(MOD_ABILITY *dest_mabs, WORD ed_button)
+{
+	if (ed_button == EXP_D24)
+		dest_mabs->depth1 = 24;
+	else if (ed_button == EXP_D16)
+		dest_mabs->depth1 = 16;
+	else if (ed_button == EXP_D8)
+		dest_mabs->depth1 = 8;
+	else if (ed_button == EXP_D4)
+		dest_mabs->depth1 = 4;
+	else if (ed_button == EXP_D2)
+		dest_mabs->depth1 = 2;
+	else if (ed_button == EXP_D1)
+		dest_mabs->depth1 = 1;
+
+	if (export_depth[0] == dest_mabs->depth1)
+		dest_mabs->form1 = export_format[0];
+	if (export_depth[1] == dest_mabs->depth1)
+		dest_mabs->form1 = export_format[1];
+	if (export_depth[2] == dest_mabs->depth1)
+		dest_mabs->form1 = export_format[2];
+	if (export_depth[3] == dest_mabs->depth1)
+		dest_mabs->form1 = export_format[3];
+	if (export_depth[4] == dest_mabs->depth1)
+		dest_mabs->form1 = export_format[4];
+	if (export_depth[5] == dest_mabs->depth1)
+		dest_mabs->form1 = export_format[5];
+	if (export_depth[6] == dest_mabs->depth1)
+		dest_mabs->form1 = export_format[6];
+	if (export_depth[7] == dest_mabs->depth1)
+		dest_mabs->form1 = export_format[7];
+
+	exp_conf.exp_depth = dest_mabs->depth1;
+	exp_conf.exp_form = dest_mabs->form1;
+}
+
+
+/*----------------------------------------------------------------	*/
+/*			Ditherpopups im Exportformular aktualisieren 			*/
+/*	Baut die Popups um und redrawed sie, je nach den Einstellungen	*/
+/*	und den Spezifikationen des Exporters.							*/
+/*----------------------------------------------------------------	*/
+static void act_exdither_popups(void)
+{
+	WORD enablemode;
+
+	if (export_mod_ability.depth1 > smurf_picture[active_pic]->depth || dest_colsys == GREY)
+	{
+		if (dest_colsys == GREY)
+		{
+			strcpy(export_form[EXP_DITHER].TextCast, "Graustufen");
+			strcpy(export_form[EXP_COLRED].TextCast, "feste Palette");
+		} else
+		{
+			strcpy(export_form[EXP_DITHER].TextCast, "-");
+			strcpy(export_form[EXP_COLRED].TextCast, "-");
+		}
+
+		enablemode = OS_DISABLED;
+	} else
+	{
+		strcpy(export_form[EXP_DITHER].TextCast, col_pop[exp_conf.exp_dither].TextCast);
+		strcpy(export_form[EXP_COLRED].TextCast, colred_popup[exp_conf.exp_colred].TextCast);
+
+		enablemode = OS_ENABLED;
+	}
+
+	change_object(&wind_s[FORM_EXPORT], EXP_DITHER, enablemode, 1);
+	change_object(&wind_s[FORM_EXPORT], EXP_DITHERC, enablemode, 1);
+	change_object(&wind_s[FORM_EXPORT], EXP_COLRED, enablemode, 1);
+	change_object(&wind_s[FORM_EXPORT], EXP_COLREDC, enablemode, 1);
+}
 
 
 /**********************************************************************	*/
@@ -65,22 +163,21 @@ static void act_exdither_popups(void);
 /**********************************************************************	*/
 void f_export_formular(void)
 {
-	int pop_button,
-	 button,
-	 enablemode;
-	int old_display_obj,
-	 old_cycle;
-	OBJECT *old_display_tree,
-	*exp_form;
-	int ed_pop;
-	int bdepth,
-	 bestdepth;
-	int old_picdepth;
+	WORD pop_button;
+	WORD button;
+	WORD enablemode;
+	WORD old_display_obj;
+	WORD old_cycle;
+	OBJECT *old_display_tree;
+	OBJECT *exp_form;
+	WORD ed_pop;
+	short bdepth, bestdepth;
+	short old_picdepth;
 	MOD_INFO *export_modinfo;
 	MOD_ABILITY *embs;
 	char *textseg_begin;
-	static char export_filepal_name[32] = "feste Palette";
-	int exp_index;
+	static char export_filepal_name[32] = "feste Palette"; /* FIXME: translate */
+	short exp_index;
 	char *pal_loadpath;
 
 	exp_index = exp_conf.export_mod_num & 0xFF;
@@ -124,8 +221,7 @@ void f_export_formular(void)
 		 */
 		old_picdepth = smurf_picture[active_pic]->depth;
 		smurf_picture[active_pic]->depth = bestdepth;
-		module.comm.startExport(export_path, MCOLSYS, smurf_picture[active_pic], module.bp[exp_index],
-								module.smStruct[exp_index], exp_conf.export_mod_num);
+		module.comm.startExport(export_path, MCOLSYS, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
 		if (module.smStruct[exp_index]->module_mode == M_COLSYS)
 			dest_colsys = module.smStruct[exp_index]->event_par[0];
 		smurf_picture[active_pic]->depth = old_picdepth;
@@ -176,8 +272,7 @@ void f_export_formular(void)
 			 */
 			old_picdepth = smurf_picture[active_pic]->depth;
 			smurf_picture[active_pic]->depth = export_mod_ability.depth1;
-			module.comm.startExport(export_path, MCOLSYS, smurf_picture[active_pic], module.bp[exp_index],
-									module.smStruct[exp_index], exp_conf.export_mod_num);
+			module.comm.startExport(export_path, MCOLSYS, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
 			if (module.smStruct[exp_index]->module_mode == M_COLSYS)
 				dest_colsys = module.smStruct[exp_index]->event_par[0];
 			smurf_picture[active_pic]->depth = old_picdepth;
@@ -271,8 +366,7 @@ void f_export_formular(void)
 
 	case EXPORT_MORE:
 		change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, OS_UNSEL, 1);
-		module.comm.startExport(export_path, MMORE, smurf_picture[active_pic], module.bp[exp_index],
-								module.smStruct[exp_index], exp_conf.export_mod_num);
+		module.comm.startExport(export_path, MMORE, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
 		break;
 
 	case START_EXPORT:
@@ -281,9 +375,7 @@ void f_export_formular(void)
 		break;
 
 	case LOAD_EXPPAL:
-		pal_loadpath =
-			load_palfile(Sys_info.standard_path, exp_conf.exp_fix_red, exp_conf.exp_fix_green, exp_conf.exp_fix_blue,
-						 (1 << export_mod_ability.depth1));
+		pal_loadpath = load_palfile(Sys_info.standard_path, exp_conf.exp_fix_red, exp_conf.exp_fix_green, exp_conf.exp_fix_blue, (1 << export_mod_ability.depth1));
 		if (pal_loadpath != NULL)
 		{
 			strcpy(export_filepal_name, strrchr(pal_loadpath, '\\') + 1);
@@ -298,110 +390,6 @@ void f_export_formular(void)
 
 
 
-/**********************************************************************	*/
-/*							get_picform									*/
-/*		Setzt in dest_mabs das zu ed_button (Farbtiefe) passende		*/
-/*		Datenformat und die Farbtiefe aus src_mabs.						*/
-/**********************************************************************	*/
-static void get_picform(MOD_ABILITY * dest_mabs, int ed_button)
-{
-	if (ed_button == EXP_D24)
-		dest_mabs->depth1 = 24;
-	else if (ed_button == EXP_D16)
-		dest_mabs->depth1 = 16;
-	else if (ed_button == EXP_D8)
-		dest_mabs->depth1 = 8;
-	else if (ed_button == EXP_D4)
-		dest_mabs->depth1 = 4;
-	else if (ed_button == EXP_D2)
-		dest_mabs->depth1 = 2;
-	else if (ed_button == EXP_D1)
-		dest_mabs->depth1 = 1;
-
-	if (export_depth[0] == dest_mabs->depth1)
-		dest_mabs->form1 = export_format[0];
-	if (export_depth[1] == dest_mabs->depth1)
-		dest_mabs->form1 = export_format[1];
-	if (export_depth[2] == dest_mabs->depth1)
-		dest_mabs->form1 = export_format[2];
-	if (export_depth[3] == dest_mabs->depth1)
-		dest_mabs->form1 = export_format[3];
-	if (export_depth[4] == dest_mabs->depth1)
-		dest_mabs->form1 = export_format[4];
-	if (export_depth[5] == dest_mabs->depth1)
-		dest_mabs->form1 = export_format[5];
-	if (export_depth[6] == dest_mabs->depth1)
-		dest_mabs->form1 = export_format[6];
-	if (export_depth[7] == dest_mabs->depth1)
-		dest_mabs->form1 = export_format[7];
-
-	exp_conf.exp_depth = dest_mabs->depth1;
-	exp_conf.exp_form = dest_mabs->form1;
-}
-
-
-/*------------------------------------------------------------------*/
-/*							best_depth								*/
-/* suchen der qualitativ bestmîglichen Farbtiefe aus den 			*/
-/*	export_depth[n] eines Moduls und der gewÅnschten Farbtiefe		*/
-/*	desired_depth.													*/
-/*------------------------------------------------------------------*/
-static int best_depth(int desired_depth)
-{
-	int t;
-
-
-	for (t = 0; t < 8 && export_depth[t] != 0; t++)
-	{
-		if (export_depth[t] >= desired_depth)
-			break;
-	}
-
-	if (export_depth[t] == 0)
-		t--;
-
-	return (export_depth[t]);
-}
-
-
-/*----------------------------------------------------------------	*/
-/*			Ditherpopups im Exportformular aktualisieren 			*/
-/*	Baut die Popups um und redrawed sie, je nach den Einstellungen	*/
-/*	und den Spezifikationen des Exporters.							*/
-/*----------------------------------------------------------------	*/
-static void act_exdither_popups(void)
-{
-	int enablemode;
-
-
-	if (export_mod_ability.depth1 > smurf_picture[active_pic]->depth || dest_colsys == GREY)
-	{
-		if (dest_colsys == GREY)
-		{
-			strcpy(export_form[EXP_DITHER].TextCast, "Graustufen");
-			strcpy(export_form[EXP_COLRED].TextCast, "feste Palette");
-		} else
-		{
-			strcpy(export_form[EXP_DITHER].TextCast, "-");
-			strcpy(export_form[EXP_COLRED].TextCast, "-");
-		}
-
-		enablemode = OS_DISABLED;
-	} else
-	{
-		strcpy(export_form[EXP_DITHER].TextCast, col_pop[exp_conf.exp_dither].TextCast);
-		strcpy(export_form[EXP_COLRED].TextCast, colred_popup[exp_conf.exp_colred].TextCast);
-
-		enablemode = OS_ENABLED;
-	}
-
-	change_object(&wind_s[FORM_EXPORT], EXP_DITHER, enablemode, 1);
-	change_object(&wind_s[FORM_EXPORT], EXP_DITHERC, enablemode, 1);
-	change_object(&wind_s[FORM_EXPORT], EXP_COLRED, enablemode, 1);
-	change_object(&wind_s[FORM_EXPORT], EXP_COLREDC, enablemode, 1);
-}
-
-
 /* prepare_depthpopup -------------------------------
 	Bereitet das Farbtiefenpopup im Exportdialog vor:
 	Die Buttons werden nach den EintrÑgen in export_depth[8]
@@ -409,8 +397,8 @@ static void act_exdither_popups(void)
 	-------------------------------------------------*/
 void prepare_depthpopup(void)
 {
-	int t,
-	 ob;
+	WORD t;
+	WORD ob;
 
 	/*
 	 * Depth-Popup vorbereiten

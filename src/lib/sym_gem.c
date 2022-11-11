@@ -1285,7 +1285,7 @@ void f_generate_listfield(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sl
 /* OS_ENABLED | OS_DISABLED											*/
 /* Redraw = 1->gleich neu zeichnen.									*/
 /* **************************************************************** */
-void change_object(WINDOW * window, int objct, int status, int redraw)
+void change_object(WINDOW *window, WORD objct, WORD status, int redraw)
 {
 	GRECT gred;
 	OBJECT *tree;
