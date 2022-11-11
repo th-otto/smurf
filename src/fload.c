@@ -31,27 +31,25 @@
 char *fload(char *Path, int header)
 {
 	char *buf;
-
 	int fh;
-
 	long dummy;
 
-
-	if ((dummy = Fopen(Path, FO_READ)) >= 0)	/* Datei îffnen */
+	if ((fh = (int) Fopen(Path, FO_READ)) >= 0)	/* Datei îffnen */
 	{
-		fh = (int) dummy;
-
 		f_len = Fseek(0, fh, 2) - header;	/* FilelÑnge ermitteln */
 		Fseek(header, fh, 0);			/* und Dateizeiger wieder auf Anfang */
 
 		if ((buf = SMalloc(f_len)) == NULL)
+		{
+			/* FIXME: translate */
 			f_alert("Nicht genÅgend Speicher zum Laden der Datei!", NULL, NULL, NULL, 1);
-		else
+		} else
 		{
 			dummy = Fread(fh, f_len, buf);
 
 			if (dummy < f_len)
 			{
+				/* FIXME: translate */
 				f_alert("Fehler beim Laden der Datei!", NULL, NULL, NULL, 1);
 				Mfree(buf);
 				buf = NULL;
@@ -62,5 +60,5 @@ char *fload(char *Path, int header)
 	} else
 		buf = NULL;
 
-	return (buf);
-}										/* fload */
+	return buf;
+}
