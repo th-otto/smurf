@@ -95,17 +95,17 @@
 typedef struct
 {
 	/*
-	*	Funktionen zum Starten der Module 
-	*/
-	int			(*start_imp_module)(char *modpath, SMURF_PIC *imp_pic);
-	EXPORT_PIC* (*start_exp_module)(char *modpath, int message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, int mod_id);
-	BASPAG*		(*start_edit_module)(char *modpath, BASPAG *edit_basepage, int mode, int mod_anz, GARGAMEL *smurf_struct);
-	BASPAG*		(*start_dither_module)(int mode, int mod_id, DITHER_DATA *ditherdata);
-	void 		(*check_and_terminate)(int mode, int module_number);
+	 *	Funktionen zum Starten der Module 
+	 */
+	short			(*start_imp_module)(char *modpath, SMURF_PIC *imp_pic);
+	EXPORT_PIC* (*start_exp_module)(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, short mod_id);
+	BASPAG*		(*start_edit_module)(char *modpath, BASPAG *edit_basepage, short mode, short mod_anz, GARGAMEL *smurf_struct);
+	BASPAG*		(*start_dither_module)(short mode, short mod_id, DITHER_DATA *ditherdata);
+	void 		(*check_and_terminate)(short mode, short module_number);
 
 	/*
-	*	Transformers und Ditherroutinen
-	*/
+	 *	Transformers und Ditherroutinen
+	 */
 	int		(*tfm_std_to_std)(SMURF_PIC *smurf_pic, char dst_depth, char mode);
 	int		(*tfm_std_to_pp)(SMURF_PIC *picture, char dst_depth, char mode);
 	int		(*tfm_pp_to_std8)(SMURF_PIC *picture, char mode);
@@ -200,10 +200,10 @@ typedef struct
 typedef struct
 {
 	/*------- Funktionen zum Starten der Module ----------------*/
-	int			(*start_imp_module)(char *modpath, SMURF_PIC *imp_pic);
-	EXPORT_PIC*	(*start_exp_module)(char *modpath, int message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, int mod_id);
-	BASPAG*		(*start_edit_module)(char *modpath, BASPAG *edit_basepage, int mode, int mod_anz, GARGAMEL *smurf_struct);
-	BASPAG*		(*start_dither_module)(int mode, int mod_id, DITHER_DATA *ditherdata);
+	short		(*start_imp_module)(char *modpath, SMURF_PIC *imp_pic);
+	EXPORT_PIC*	(*start_exp_module)(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, short mod_id);
+	BASPAG*		(*start_edit_module)(char *modpath, BASPAG *edit_basepage, short mode, short mod_anz, GARGAMEL *smurf_struct);
+	BASPAG*		(*start_dither_module)(short mode, short mod_id, DITHER_DATA *ditherdata);
 } ADD_FUNCTIONS;
 
 

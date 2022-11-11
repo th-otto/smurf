@@ -853,8 +853,7 @@ void f_mpref_change(void)
 			if (key_at_event & KEY_ALT)
 				close_me = 1;
 
-			module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC,
-								  module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
+			module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
 			f_handle_modmessage(module.smStruct[edit_mod_num]);
 
 			Dialog.busy.ok();
@@ -1185,8 +1184,7 @@ static void f_make_preview(int redraw_flag)
 		for (t = 0; t < mod_inf->how_many_pix; t++)
 		{
 			module.smStruct[edit_mod_num]->event_par[0] = t;
-			module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICS,
-								  module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
+			module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICS, module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
 
 			if (module.smStruct[edit_mod_num]->module_mode == M_PICTURE)
 			{
@@ -1221,8 +1219,7 @@ static void f_make_preview(int redraw_flag)
 
 				smurf_st.event_par[0] = t;
 				smurf_st.smurf_pic = add_pix[t];
-				module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICTURE,
-									  module.smStruct[edit_mod_num]->module_number, &smurf_st);
+				module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICTURE, module.smStruct[edit_mod_num]->module_number, &smurf_st);
 				if (smurf_st.module_mode != M_WAITING)
 					break;
 			}
@@ -1235,8 +1232,7 @@ static void f_make_preview(int redraw_flag)
 	Dialog.busy.reset(0, "Preview...");
 	graf_mouse(BUSYBEE, dummy_ptr);
 
-	module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC,
-						  module.smStruct[edit_mod_num]->module_number, &smurf_st);
+	module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, &smurf_st);
 
 	/*-------- ver„ndertes Bild kopieren -----*/
 	if (mod_inf->how_many_pix > 1)

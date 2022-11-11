@@ -85,7 +85,7 @@ LIB_OBJS = \
 all: $(DISTDIR)/smurf.prg
 
 
-smurf.prg: lib/demolib.a $(OBJS)
+$(DISTDIR)/smurf.prg: lib/demolib.a $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS) lib/demolib.a $(LIBS)
 
 lib/demolib.a: $(LIB_OBJS)

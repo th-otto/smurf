@@ -80,7 +80,7 @@ static char stdpal4bit[] = { 0xff, 0xff, 0xff,
 /*-----------------------------------------------------------------	*/
 /* 				Startfunktion fr Import-Modul						*/
 /*-----------------------------------------------------------------	*/
-int start_imp_module(char *modpath, SMURF_PIC * imp_pic)
+short start_imp_module(char *modpath, SMURF_PIC * imp_pic)
 {
 	char *textseg_begin;
 	long mod_magic;
@@ -152,7 +152,7 @@ int start_imp_module(char *modpath, SMURF_PIC * imp_pic)
 /*-----------------------------------------------------------------	*/
 /* 				Startfunktion fr Edit-Modul						*/
 /*-----------------------------------------------------------------	*/
-BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, int mode, int mod_id, GARGAMEL * sm_struct)
+BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, short mode, short mod_id, GARGAMEL * sm_struct)
 {
 	void (*module_main)(GARGAMEL * smurf_struct);
 	char *textseg_begin;
@@ -264,8 +264,8 @@ BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, int mode, int m
 /*-----------------------------------------------------------------	*/
 /* 				Startfunktion fr Export-Modul						*/
 /*-----------------------------------------------------------------	*/
-EXPORT_PIC *start_exp_module(char *modpath, int message, SMURF_PIC * pic_to_export, BASPAG * exbase,
-							 GARGAMEL * sm_struct, int mod_id)
+EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC * pic_to_export, BASPAG * exbase,
+							 GARGAMEL * sm_struct, short module_number)
 {
 	char *textseg_begin;
 
@@ -326,7 +326,7 @@ EXPORT_PIC *start_exp_module(char *modpath, int message, SMURF_PIC * pic_to_expo
 
 		sm_struct->services = &global_services;
 		sm_struct->smurf_pic = pic_to_export;
-		sm_struct->module_number = mod_id;
+		sm_struct->module_number = module_number;
 		sm_struct->module_mode = message;
 
 		/*
@@ -361,14 +361,14 @@ EXPORT_PIC *start_exp_module(char *modpath, int message, SMURF_PIC * pic_to_expo
 
 		if (message == MQUERY || message == MEXTEND)
 		{
-			module.bp[mod_id & 0xFF] = export_basepage;
+			module.bp[module_number & 0xFF] = export_basepage;
 			mod_abs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
-			return ((EXPORT_PIC *) mod_abs);
+			return (EXPORT_PIC *) mod_abs;
 		}
 	}
 
 	if (sm_struct->module_mode == M_WAITING)
-		return ((EXPORT_PIC *) export_basepage);
+		return (EXPORT_PIC *) export_basepage;
 	else
 		return (encoded_pic);
 }
@@ -531,12 +531,10 @@ void f_handle_modmessage(GARGAMEL * smurf_struct)
 /*	-----------------------------------------------------------	*/
 /*				Importmodulmessage analysieren					*/
 /*	-----------------------------------------------------------	*/
-int analyze_message(int module_ret, int picture_to_load)
+short analyze_message(short module_ret, short picture_to_load)
 {
 	char alertstr[40];
-
 	int picerror = 0;
-
 
 	switch (module_ret)
 	{
@@ -738,16 +736,16 @@ int give_free_module(void)
 /* --------------------------------------------------------------------------------	*/
 /*	  Terminiert nach Prfung von Message und Strukturen das Modul module_number	*/
 /* --------------------------------------------------------------------------------	*/
-void check_and_terminate(int mode, int module_number)
+void check_and_terminate(short mode, short module_number)
 {
-
-
 	/* MTERM: Programmodul-Speicher freigeben */
 	if (module.smStruct[module_number]
 		&& (mode == MTERM || module.smStruct[module_number]->module_mode == M_DONEEXIT
 			|| module.smStruct[module_number]->module_mode == M_EXIT))
 	{
-/*		Pexec(102, NULL, module.bp[module_number], ""); */
+#if 0
+		Pexec(102, NULL, module.bp[module_number], "");
+#endif
 		SMfree(module.bp[module_number]->p_env);
 		SMfree(module.bp[module_number]);
 		module.bp[module_number] = NULL;
@@ -762,7 +760,7 @@ void check_and_terminate(int mode, int module_number)
 /*	mode = Message ans Modul										*/
 /*	mod_id = Nummer des Dithermoduls (index auf BASPAG-Array)		*/
 /*-----------------------------------------------------------------	*/
-BASPAG *start_dither_module(int mode, int mod_id, DITHER_DATA * ditherdata)
+BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA * ditherdata)
 {
 	char *textseg_begin;
 
@@ -1083,7 +1081,7 @@ SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO * mod_info, WORD depth, int 
 /*	best„tigen. In event_par[0] wird die lfd. Nummer des bergebenen Bildes	*/
 /*	abgelegt, beginnend mit 0.												*/
 /* ------------------------------------------------------------------------	*/
-int f_give_pics(MOD_INFO * mod_info, MOD_ABILITY * mod_abs, int module_number)
+int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 {
 	char alertstr[257];
 
@@ -1103,8 +1101,7 @@ int f_give_pics(MOD_INFO * mod_info, MOD_ABILITY * mod_abs, int module_number)
 			current_pic = current_pic->block;
 
 		module.smStruct[module_number]->event_par[0] = t;
-		module.comm.startEdit(edit_modules[module_number], module.bp[module_number], MPICS, module_number,
-							  module.smStruct[module_number]);
+		module.comm.startEdit(edit_modules[module_number], module.bp[module_number], MPICS, module_number, module.smStruct[module_number]);
 
 		if (module.smStruct[module_number]->module_mode == M_PICTURE)
 		{
@@ -1139,8 +1136,7 @@ int f_give_pics(MOD_INFO * mod_info, MOD_ABILITY * mod_abs, int module_number)
 					return (back);
 				module.smStruct[module_number]->smurf_pic = current_pic;
 				module.smStruct[module_number]->event_par[0] = t;
-				module.comm.startEdit(edit_modules[module_number], module.bp[module_number], MPICTURE, module_number,
-									  module.smStruct[module_number]);
+				module.comm.startEdit(edit_modules[module_number], module.bp[module_number], MPICTURE, module_number, module.smStruct[module_number]);
 			}
 		}
 	}
@@ -1155,12 +1151,10 @@ int f_give_pics(MOD_INFO * mod_info, MOD_ABILITY * mod_abs, int module_number)
 	Das Bild *picture wird in der Kommunikationsstruktur des Moduls 
 	mitgeschickt.
 	----------------------------------------------------------------------*/
-int inform_modules(int message, SMURF_PIC * picture)
+short inform_modules(short message, SMURF_PIC * picture)
 {
 	int t;
-
 	long mod_magic;
-
 	BASPAG *curr_baspag;
 
 	/*
@@ -1272,7 +1266,6 @@ void AESmsg_to_modules(int *msgbuf)
 
 			f_handle_modmessage(module.smStruct[t]);
 		}
-
 	}
 
 	/*
@@ -1388,8 +1381,7 @@ void make_modpreview(WINDOW * wind)
 		for (t = 0; t < mod_inf->how_many_pix; t++)
 		{
 			module.smStruct[mod_index]->event_par[0] = t;
-			module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MPICS,
-								  module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
+			module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MPICS, module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
 
 			if (module.smStruct[mod_index]->module_mode == M_PICTURE)
 			{
@@ -1421,8 +1413,7 @@ void make_modpreview(WINDOW * wind)
 
 				module.smStruct[mod_index]->event_par[0] = t;
 				module.smStruct[mod_index]->smurf_pic = add_pix[t];
-				module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MPICTURE,
-									  module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
+				module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MPICTURE, module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
 				if (module.smStruct[mod_index]->module_mode != M_WAITING)
 					break;
 			}
@@ -1437,8 +1428,7 @@ void make_modpreview(WINDOW * wind)
 	module.smStruct[mod_index]->event_par[1] = position_markers[mod_index].ypos[0] - wind->yoffset;
 	module.comm.startEdit("", module.bp[mod_index], MCH_COORDS, mod_num, module.smStruct[mod_index]);
 	module.smStruct[mod_index]->smurf_pic = wind->picture;
-	module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MEXEC,
-						  module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
+	module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MEXEC, module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
 
 	/*-------- ver„ndertes Bild kopieren -----*/
 	if (mod_inf->how_many_pix > 1)

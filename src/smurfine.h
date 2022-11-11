@@ -30,10 +30,10 @@
 #include "dit_mod.h"
 
 
-int start_imp_module(char *modpath, SMURF_PIC *imp_pic);
-EXPORT_PIC *start_exp_module(char *modpath, int message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, int mod_id);
-BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, int mode, int mod_anz, GARGAMEL *smurf_struct);
-BASPAG *start_dither_module(int mode, int mod_id, DITHER_DATA *ditherdata);
+short start_imp_module(char *modpath, SMURF_PIC *imp_pic);
+EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, short mod_id);
+BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, short mod_anz, GARGAMEL *smurf_struct);
+BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA *ditherdata);
 
 
 /*

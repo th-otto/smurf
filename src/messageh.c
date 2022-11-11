@@ -606,8 +606,7 @@ int f_handle_message(void)
 					 * und weg mit dem Modul.
 					 */
 					window_to_handle->module = 0;
-					module.comm.startEdit("", module.bp[edit_mod_num], MTERM, edit_mod_num,
-										  module.smStruct[edit_mod_num]);
+					module.comm.startEdit("", module.bp[edit_mod_num], MTERM, edit_mod_num, module.smStruct[edit_mod_num]);
 					if (module.smStruct[edit_mod_num]->module_mode != M_EXIT)
 						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_TERM_ERR].TextCast, NULL, NULL, NULL, 1);
 					check_and_terminate(MTERM, edit_mod_num);
@@ -688,11 +687,9 @@ int f_handle_message(void)
 					else
 					{
 						window_to_handle->module = 0;
-						module.comm.startEdit("", module.bp[module_num], MTERM, module_num,
-											  module.smStruct[module_num]);
+						module.comm.startEdit("", module.bp[module_num], MTERM, module_num, module.smStruct[module_num]);
 						if (module.smStruct[module_num]->module_mode != M_EXIT)
-							Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_TERM_ERR].TextCast, NULL, NULL, NULL,
-													  1);
+							Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_TERM_ERR].TextCast, NULL, NULL, NULL, 1);
 
 
 						check_and_terminate(MTERM, module_num);

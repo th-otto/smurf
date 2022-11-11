@@ -50,20 +50,20 @@
     -----------------------------------------------------*/
 typedef struct modComm
 {
-    int (*startImport)(char *modpath, SMURF_PIC *imp_pic);
-    BASPAG *(*startEdit)(char *modpath, BASPAG *edit_basepage, int mode, int mod_id, GARGAMEL *sm_struct);
-    EXPORT_PIC * (*startExport)(char *modpath, int message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, int mod_id);
-    BASPAG *(*startDither)(int mode, int mod_id, DITHER_DATA *ditherdata);
-    void (*checkTerminate)(int mode, int module_number);
+    short (*startImport)(char *modpath, SMURF_PIC *imp_pic);
+    BASPAG *(*startEdit)(char *modpath, BASPAG *edit_basepage, short mode, short mod_id, GARGAMEL *sm_struct);
+    EXPORT_PIC *(*startExport)(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, short mod_id);
+    BASPAG *(*startDither)(short mode, short mod_id, DITHER_DATA *ditherdata);
+    void (*checkTerminate)(short mode, short module_number);
 
-    int (*analyzeMessage)(int module_ret, int picture_to_load);
+    short (*analyzeMessage)(short module_ret, short picture_to_load);
     void (*handleMessage)(GARGAMEL *smurf_struct);
 
-    SMURF_PIC *(*getPic)(int num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
-    int (*givePics)(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, int module_number);
+    SMURF_PIC *(*getPic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
+    int (*givePics)(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number);
 
-    int (*inform)(int message, SMURF_PIC *picture);
-    void (*transmitAESmsg)(int *msgbuf);
+    short (*inform)(short message, SMURF_PIC *picture);
+    void (*transmitAESmsg)(WORD *msgbuf);
 } MODCOMM;
 
 
@@ -111,16 +111,16 @@ typedef struct generalWindow
     void (*removeWindow) (WINDOW *window);
     void (*top) (int handle);
     void (*topNow) (WINDOW *window);
-    void (*topHandle) (int handle);
-    void (*close) (int handle);
+    void (*topHandle) (WORD handle);
+    void (*close) (WORD handle);
 
     void (*cursorOn)(WINDOW *window);
     void (*cursorOff)(WINDOW *window);
 
     /* diese beiden sind Bindings - mÅssen vielleicht woanders hin
      */
-    int (*windSet)(int wi_ghandle, int wi_gfield, int wi_gw1, int wi_gw2, int wi_gw3, int wi_gw4);
-    int (*windGet)(int wi_ghandle, int wi_gfield, int *wi_gw1, int *wi_gw2, int *wi_gw3, int *wi_gw4);
+    int (*windSet)(int wi_ghandle, WORD wi_gfield, WORD wi_gw1, WORD wi_gw2, WORD wi_gw3, WORD wi_gw4);
+    int (*windGet)(int wi_ghandle, WORD wi_gfield, WORD *wi_gw1, WORD *wi_gw2, WORD *wi_gw3, WORD *wi_gw4);
 
     OBJECT *titles;
 } GENERAL_WINDOW;
@@ -225,7 +225,7 @@ typedef struct editmodList
 {
     void (*handleList)(void);
     void (*infoOff)(void);
-    void (*infoOn)(int mod_index);
+    void (*infoOn)(short mod_index);
 
     char *modNames[100];            /* Namen fÅr bis zu 100 Edit-Module */
     LIST_FIELD  modList;
@@ -241,7 +241,7 @@ typedef struct editmodList
 typedef struct exportList
 {
     void (*handleList)(void);
-    void (*infoOn)(int mod_index);
+    void (*infoOn)(short mod_index);
     void (*infoOff)(void);
 
     char *modNames[100];            /* Namen fÅr bis zu 100 Edit-Module */

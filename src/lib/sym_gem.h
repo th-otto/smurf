@@ -90,28 +90,28 @@ extern short _app;
 
 typedef struct
 {
-    int number_entries;     /* Anzahl an Eintr„gen          */
+    WORD number_entries;    /* Anzahl an Eintr„gen          */
     char *entry;            /* Zeiger auf ein Feld von Eintr„gen */
-    int max_entries;        /* Anzahl an maximal auf einmal darzustellenden Eintr„gen */
-    int parent_obj;         /* Index des Vaterobjektes der Listeneintr„ge */
-    int slider_parent;      /* Parentobjekt des Sliders     */
-    int slider_obj;         /* Sliderobjekt                 */
-    int slar_up;            /* Slider-Arrow hoch            */
-    int slar_dn;            /* Slider-Arrow runter          */
-    int scroll_offset;      /* Scrolloffset der Liste       */
+    WORD max_entries;       /* Anzahl an maximal auf einmal darzustellenden Eintr„gen */
+    WORD parent_obj;        /* Index des Vaterobjektes der Listeneintr„ge */
+    WORD slider_parent;     /* Parentobjekt des Sliders     */
+    WORD slider_obj;        /* Sliderobjekt                 */
+    WORD slar_up;           /* Slider-Arrow hoch            */
+    WORD slar_dn;           /* Slider-Arrow runter          */
+    WORD scroll_offset;     /* Scrolloffset der Liste       */
     char *autolocator;      /* Zeiger auf Autolocator-String */
-    int auto_len;
+    short auto_len;
 } LIST_FIELD;
 
 
 /* Popup-Struktur zu Verwaltung von Popups durch f_pop */
 typedef struct
 {
-    int popup_tree;     /* Objektbaum des Popups */
-    int item;               /* Item (=letzter Eintrag)      */
+    WORD popup_tree;        /* Objektbaum des Popups */
+    WORD item;              /* Item (=letzter Eintrag)      */
     OBJECT *display_tree;   /* Tree, in dems dargestellt werden soll */
-    int display_obj;        /* Objekt in display_tree, bei dems dargestellt werden soll */
-    int Cyclebutton;        /* Index des Cyclebuttons */
+    WORD display_obj;       /* Objekt in display_tree, bei dems dargestellt werden soll */
+    WORD Cyclebutton;       /* Index des Cyclebuttons */
 } POP_UP;
 
 
@@ -126,21 +126,21 @@ WORD objc_sysvar(WORD ob_smode, WORD ob_swhich, WORD ob_sival1, WORD ob_sival2, 
 #endif
 
 
-int     button_ev(OBJECT *tree);                                /* Evnt-button-Erweiterung. */
+WORD button_ev(OBJECT *tree);                                /* Evnt-button-Erweiterung. */
 
-int     f_numedit(int obj, OBJECT *tree, int deflt);            /* Editpopup zum einfacheren Editieren von FTEXTs. */
-int     f_schiebe(int regler, int fhr, OBJECT *tree);           
-int     f_pop(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree); /* Popupmanager */
-void    f_drag(int obj, int parent, OBJECT *tree);          	/* Usergesteuertes Draggen von Objekten in einem Formular. */
-void    f_hidetree(OBJECT *tree, int object);               	/* Verstecken eines Objektes mit allen Kindern */
-void    f_showtree(OBJECT *tree, int object);                   /* Wiederanzeigen eines versteckten Objekts mit allen Kindern */
+short f_numedit(WORD obj, OBJECT *tree, WORD deflt);            /* Editpopup zum einfacheren Editieren von FTEXTs. */
+WORD f_schiebe(WORD regler, WORD fhr, OBJECT *tree);           
+WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree); /* Popupmanager */
+void f_drag(WORD obj, WORD parent, OBJECT *tree);          	/* Usergesteuertes Draggen von Objekten in einem Formular. */
+void f_hidetree(OBJECT *tree, WORD object);               	/* Verstecken eines Objektes mit allen Kindern */
+void f_showtree(OBJECT *tree, WORD object);                   /* Wiederanzeigen eines versteckten Objekts mit allen Kindern */
 
-int     get_selected_object(OBJECT *tree, int first_entry, int last_entry);
+WORD get_selected_object(OBJECT *tree, WORD first_entry, WORD last_entry);
 
-void f_generate_listfield(int uparrow, int dnarrow,int sliderparent, 
-            int sliderobject, int listparent, char *listentries, 
-            int num_entries, int max_entries, LIST_FIELD *listfield, int autoloc);
+void f_generate_listfield(WORD uparrow, WORD dnarrow, WORD sliderparent, 
+            WORD sliderobject, WORD listparent, char *listentries, 
+            WORD num_entries, WORD max_entries, LIST_FIELD *listfield, WORD autoloc);
 
-int f_listfield(long *pwindow, int klick_obj, int key_scancode, LIST_FIELD *lfstruct);
+WORD f_listfield(long *pwindow, WORD klick_obj, WORD key_scancode, LIST_FIELD *lfstruct);
 
 #endif

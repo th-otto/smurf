@@ -45,19 +45,17 @@ void f_edit_pop(void)
 	char alert[128];
 	char *mpath;
 	char *textseg_begin;
-
-	int button = 0,
-		back = 0;
-	int mod_num = 0,
-		mod_index;
-	int oldwid,
-	 oldhgt,
-	 oldtop;
-	int info = 0;
-	int pic_needed;
-	int my_scancode;
-	int message;
-
+	WORD button = 0;
+	WORD back = 0;
+	short mod_num = 0;
+	short mod_index;
+	WORD oldwid;
+	WORD oldhgt;
+	WORD oldtop;
+	WORD info;
+	short pic_needed;
+	WORD my_scancode;
+	WORD message;
 	MOD_INFO *module_info;
 	MOD_INFO *mod_info;
 	MOD_ABILITY *mod_abs;
@@ -130,8 +128,9 @@ void f_edit_pop(void)
 		check_and_terminate(MTERM, 20);
 
 		if (!picthere && pic_needed > 0)
+		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_PIC_LOADED].TextCast, NULL, NULL, NULL, 1);
-		else
+		} else
 		{
 			/*
 			 * freie Modulstruktur ermitteln
@@ -181,8 +180,7 @@ void f_edit_pop(void)
 
 						if (form_alert(1, alert) == 2)
 						{
-							module.comm.startEdit(edit_modules[mod_num], module.bp[mod_num], MTERM, mod_num,
-												  module.smStruct[mod_num]);
+							module.comm.startEdit(edit_modules[mod_num], module.bp[mod_num], MTERM, mod_num, module.smStruct[mod_num]);
 							check_and_terminate(module.smStruct[mod_num]->module_mode, mod_num);
 							return;
 						}
@@ -215,16 +213,15 @@ void f_edit_pop(void)
 					if (back == 0)
 					{
 						Dialog.busy.reset(0, mod_info->mod_name);
-						module.comm.startEdit(edit_modules[mod_num], module.bp[mod_num], MEXEC, mod_num,
-											  module.smStruct[mod_num]);
+						module.comm.startEdit(edit_modules[mod_num], module.bp[mod_num], MEXEC, mod_num, module.smStruct[mod_num]);
 						Dialog.busy.ok();
 					}
 
 					/*
 					 * Modul ist fertig - neu dithern, etc.
 					 */
-					if ((module.smStruct[mod_num]->module_mode == M_DONEEXIT
-						 || module.smStruct[mod_num]->module_mode == M_PICDONE) && (picthere || pic_needed))
+					if ((module.smStruct[mod_num]->module_mode == M_DONEEXIT ||
+						module.smStruct[mod_num]->module_mode == M_PICDONE) && (picthere || pic_needed))
 					{
 						/* damit bei Bild„nderungen im Fall von Median-Cut */
 						/* auch die Palette neu berechnet wird und sowieso */
@@ -251,12 +248,11 @@ void f_edit_pop(void)
 							Window.redraw(&picture_windows[active_pic], NULL, 0, 0);
 
 						f_pic_changed(&picture_windows[active_pic], 1);
-					}
-					/*
-					 * Modul wartet - Infostruktur auslesen
-					 */
-					else if (module.bp[mod_num] != NULL && module.smStruct[mod_num]->module_mode == M_WAITING)
+					} else if (module.bp[mod_num] != NULL && module.smStruct[mod_num]->module_mode == M_WAITING)
 					{
+						/*
+						 * Modul wartet - Infostruktur auslesen
+						 */
 						textseg_begin = (char *) module.bp[mod_num]->p_tbase;	/* Zeiger auf Modulinfostruktur */
 						module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
 						sn1 = module_info->smin1;
@@ -271,13 +267,11 @@ void f_edit_pop(void)
 
 					Dialog.busy.ok();
 					Window.topHandle(oldtop);
-				}
-
-				/*
-				 * Modul hat einen Dialog angefordert und wartet
-				 */
-				else if (module.smStruct[mod_num]->module_mode == M_WAITING)
+				} else if (module.smStruct[mod_num]->module_mode == M_WAITING)
 				{
+					/*
+					 * Modul hat einen Dialog angefordert und wartet
+					 */
 					module.comm.startEdit(mpath, module.bp[mod_num], MCROSSHAIR, mod_num, garg_st);
 					if (module.smStruct[mod_num]->module_mode == M_CROSSHAIR)
 					{
@@ -325,21 +319,17 @@ void f_edit_pop(void)
 }
 
 
-void emod_info_on(int mod_index)
+void emod_info_on(short mod_index)
 {
-	char str[10],
-	*filename;
+	char str[10];
+	char *filename;
 	char *textseg_begin;
-
 	MOD_INFO *info_mi;
 	MOD_ABILITY *info_mabs;
 
-
 	module.smStruct[20] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
 	memset(module.smStruct[20], 0x0, sizeof(GARGAMEL));
-	if ((info_mabs =
-		 (MOD_ABILITY *) module.comm.startEdit(edit_modules[mod_index], module.bp[20], MQUERY, 20,
-											   module.smStruct[20])) == NULL)
+	if ((info_mabs = (MOD_ABILITY *) module.comm.startEdit(edit_modules[mod_index], module.bp[20], MQUERY, 20, module.smStruct[20])) == NULL)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
 
 	textseg_begin = module.bp[20]->p_tbase;

@@ -804,7 +804,7 @@ int dither_for_export(MOD_ABILITY * mod_abs, int max_expdepth, int dest_format, 
 /*	Baut den Dialog fÅr die Exportmodulinfo des Modules mod_index	*/
 /*	aus dem Exporter-Listfeld auf									*/
 /*-----------------------------------------------------------------	*/
-void init_exmod_info(int mod_index)
+void init_exmod_info(short mod_index)
 {
 	char *textseg_begin;
 	char str[10],

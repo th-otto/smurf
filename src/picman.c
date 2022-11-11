@@ -235,8 +235,7 @@ void f_picman(void)
 						{
 							/* Defaultkoordinaten erfragen */
 							module.smStruct[mwindow->module]->smurf_pic = picture_windows[picture_num].picture;
-							module.comm.startEdit("", module.bp[mwindow->module], MCH_DEFCOO, mwindow->module,
-												  module.smStruct[mwindow->module]);
+							module.comm.startEdit("", module.bp[mwindow->module], MCH_DEFCOO, mwindow->module, module.smStruct[mwindow->module]);
 							if (module.smStruct[mwindow->module]->module_mode == M_CHDEFCOO)
 							{
 								position_markers[mwindow->module].xpos[0] =

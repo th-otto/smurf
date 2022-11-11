@@ -109,7 +109,7 @@ int scrwd,
  scrht;									/* Screen Breite+H”he */
 int mouse_xpos,
  mouse_ypos;							/* Mausposition */
-int key_scancode;						/* Scancode beim letzten Keyboard-Event */
+WORD key_scancode;						/* Scancode beim letzten Keyboard-Event */
 int key_ascii;
 int obj;								/* Objekt beim loslassen des Buttons */
 
@@ -1809,8 +1809,7 @@ static int do_MBEVT(int module_number, WINDOW * mod_win, int mode)
 			/*
 			 * Default-Konfigurationsblock anfordern und merken
 			 */
-			module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], GETCONFIG, mod_index,
-								  module.smStruct[mod_index]);
+			module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], GETCONFIG, mod_index, module.smStruct[mod_index]);
 			if (module.smStruct[mod_index]->module_mode == M_CONFIG)
 				memorize_emodConfig(module.bp[mod_index], module.smStruct[mod_index]);
 
@@ -1834,8 +1833,7 @@ static int do_MBEVT(int module_number, WINDOW * mod_win, int mode)
 				Window.redraw(&wind_s[WIND_BUSY], NULL, 0, 0);
 				Dialog.busy.reset(0, mod_win->wtitle);
 				module.smStruct[mod_index]->event_par[0] = 0;
-				module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MEXEC, mod_index,
-									  module.smStruct[mod_index]);
+				module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MEXEC, mod_index, module.smStruct[mod_index]);
 			}
 		}
 

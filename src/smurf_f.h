@@ -72,7 +72,7 @@ void GetSMPath(void);
 /* How to speak AES - Dialog mit dem Betriebssystem u.Ñ.                */
 /* **********************************************************************/
 void f_event(void);              /* Allg. Event-Funktion                 */
-int  f_handle_message(void);     /* AES-Message-Handler                  */
+int f_handle_message(void);      /* AES-Message-Handler                  */
 
 void check_windclose(int windnum);   /* Auswerten von Windowdialog-AbbrÅchen */
 
@@ -244,16 +244,16 @@ void call_stguide(WORD topwin_handle);
 /* **********************************************************************/
 int handle_modevent(int event_type, WINDOW *mod_window);    /* Handling eines Events im Modulfenster */
 void f_handle_modmessage(GARGAMEL *smurf_struct);
-int analyze_message(int module_ret, int picture_to_load);   /* Analyse eines Modul-Returns */
+short analyze_message(short module_ret, short picture_to_load);   /* Analyse eines Modul-Returns */
 int f_open_module_window(WINDOW *module_window);        /* Modulfenster îffnen */
 int give_free_module(void);     /* Ermittelt Strukturindex fÅr freies Modul und gibt diesen zurÅck */
-void check_and_terminate(int mode, int module_number);
+void check_and_terminate(short mode, short module_number);
 void walk_module_tree(WINDOW *wind, int start);
 void init_modtree(OBJECT *tree, int index);
 void convert_icon(OBJECT *tree, int index);
 SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
-int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, int module_number);       /* mehrere Bilder ans Modul Åbergeben */
-int inform_modules(int message, SMURF_PIC *picture);    /* Informiert alle Module und Plugins Åber message */
+int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number);       /* mehrere Bilder ans Modul Åbergeben */
+short inform_modules(short message, SMURF_PIC *picture);    /* Informiert alle Module und Plugins Åber message */
 long get_proclen(BASPAG *baspag);
 long get_modmagic(BASPAG *basepage);
 void AESmsg_to_modules(int *msgbuf);
@@ -399,7 +399,7 @@ extern int PCDwidth, PCDheight;			/* Hîhe und Breite des PCD-Bildes */
 extern int handle;						/* VDI-Hendl */
 extern int scrwd, scrht;				/* Screen Breite+Hîhe */
 extern int mouse_xpos, mouse_ypos;		/* Mausposition */
-extern int key_scancode;				/* Scancode beim letzten Keyboard-Event */
+extern WORD key_scancode;				/* Scancode beim letzten Keyboard-Event */
 extern int key_ascii;
 extern int obj;							/* Objekt beim loslassen des Buttons */
 extern int mouse_button, key_at_event;
@@ -505,7 +505,7 @@ void f_set_envconfig(void);          /* Environment-Konfiguration Åbernehmen */
  * edit.c
  */
 void f_edit_pop(void);               /* Edit-Modul-Fenster */
-void emod_info_on(int mod_index);
+void emod_info_on(short mod_index);
 void emod_info_off(void);
 
 
@@ -518,7 +518,7 @@ void f_export_pic(void);                                 /* Bild exportieren */
 int f_save_pic(MOD_ABILITY *export_mabs);
 void save_file(void);
 int dither_for_export(MOD_ABILITY *mod_abs, int max_expdepth, int dest_format, SMURF_PIC *converted_pic);
-void init_exmod_info(int mod_index);
+void init_exmod_info(short mod_index);
 void exmod_info_off(void);
 int loadNCT(int loadplanes, SYSTEM_INFO *sysinfo);
 

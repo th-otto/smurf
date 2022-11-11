@@ -75,11 +75,11 @@ static char empty_entry[128];
 /* EVNT_BUTTON-Erweiterung. Das angeklickte Objekt wird zurÅck-		*/
 /* gegeben, Buttons selektiert. Klicks mit links werden Åberwacht.	*/
 /* **************************************************************** */
-int button_ev(OBJECT * tree)
+WORD button_ev(OBJECT *tree)
 {
-	int ob_number;
-	int newedit;
-	int scancode;
+	WORD ob_number;
+	WORD newedit;
+	WORD scancode;
 
 
 	evnt_multi(MU_BUTTON | MU_MESAG, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, messagebuf, EVNT_TIME(0), &mouse_xpos,
@@ -101,7 +101,7 @@ int button_ev(OBJECT * tree)
 /* und wartet auf Texteingabe und Return-Druck. Die eingegebene		*/
 /* Zahl wird zurÅckgegeben. 										*/
 /* ****************************************************************	*/
-int f_numedit(int obj, OBJECT * tree, int deflt)
+short f_numedit(WORD obj, OBJECT *tree, WORD deflt)
 {
 	char defstr[10];
 	static int editx = 1;
@@ -153,7 +153,7 @@ int f_numedit(int obj, OBJECT * tree, int deflt)
 	if (event_type == MU_BUTTON || (key_scancode >> 8) == KEY_UNDO)
 		return (deflt);
 
-	return (atoi(u_tree[NUMEDIT].TextCast));
+	return atoi(u_tree[NUMEDIT].TextCast);
 }
 
 
@@ -170,7 +170,7 @@ int f_numedit(int obj, OBJECT * tree, int deflt)
 /* ZurÅckgegeben wird der Index des Popup-Buttons, der angeklickt	*/
 /* wurde. Wird -1 zurÅckgegeben, wurde das Popup geschlossen!		*/
 /******************************************************************	*/
-int f_pop(POP_UP * popup_struct, int mouseflag, int button, OBJECT * poptree)
+WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree)
 {
 	int xpos,
 	 ypos;
@@ -420,7 +420,6 @@ int f_pop(POP_UP * popup_struct, int mouseflag, int button, OBJECT * poptree)
 
 		return (pop_button);
 	}
-
 }
 
 
@@ -438,7 +437,7 @@ int f_pop(POP_UP * popup_struct, int mouseflag, int button, OBJECT * poptree)
 #if 0									/* unused */
 static int moveable;
 
-void f_drag(int obj, int parent, OBJECT * tree)
+void f_drag(WORD obj, WORD parent, OBJECT *tree)
 {
 	int xkoo,
 	 ykoo;
@@ -499,7 +498,7 @@ void f_drag(int obj, int parent, OBJECT * tree)
 /* Wandelt eine Zahl in einen String und fÅgt sie ins Objekt txt_obj*/
 /* im Baum *tree ein (muû TEDINFO sein) und redrawed es wenn nîtig.	*/
 /* ****************************************************************	*/
-void f_txtinsert(int num, OBJECT * tree, WORD txt_obj, WINDOW * ws)
+void f_txtinsert(short num, OBJECT *tree, WORD txt_obj, WINDOW *ws)
 {
 	char vol_disp[10];
 
@@ -518,7 +517,7 @@ void f_txtinsert(int num, OBJECT * tree, WORD txt_obj, WINDOW * ws)
 /* *tree ist der Baum, in dem und object das parentobjekt, das		*/
 /* versteckt werden soll. 											*/
 /* ****************************************************************	*/
-void f_hidetree(OBJECT * tree, int object)
+void f_hidetree(OBJECT *tree, WORD object)
 {
 	int startob,
 	 endob,
@@ -542,7 +541,7 @@ void f_hidetree(OBJECT * tree, int object)
 /* *tree ist der Baum, in dem und object das parentobjekt, das		*/
 /* aufgedeckt werden soll. 											*/
 /* ****************************************************************	*/
-void f_showtree(OBJECT * tree, int object)
+void f_showtree(OBJECT *tree, WORD object)
 {
 	OBJECT *treepointer;
 	int startob,
@@ -569,7 +568,7 @@ void f_showtree(OBJECT * tree, int object)
 /* Die Funktion Åbernimmt das Ziehen des Reglers mit der Maus und	*/
 /* gibt seine neue Position zurÅck (0=ganz oben, 1000=ganz unten)	*/
 /* ****************************************************************	*/
-int f_rslid(SLIDER * slider_struct)
+int f_rslid(SLIDER *slider_struct)
 {
 	int regler,
 	 fhr,
@@ -778,7 +777,7 @@ void setslider(SLIDER * sliderstruct, long value)
 /*************************************************************	*/
 /*--------------------- Listenfeld-Funktion -------------------	*/
 /*************************************************************	*/
-int f_listfield(long *pwindow, int klick_obj, int key_scancode, LIST_FIELD * lfstruct)
+WORD f_listfield(long *pwindow, WORD klick_obj, WORD key_scancode, LIST_FIELD *lfstruct)
 {
 	int listparent;
 	int first_entry,
@@ -1226,7 +1225,7 @@ static void f_update_listfield(LIST_FIELD * lfstruct, OBJECT * tree)
 /* ermittelt im tree *tree von Objekt first_entry bis last_entry	*/
 /* das erste selektierte Objekt.									*/
 /******************************************************************	*/
-int get_selected_object(OBJECT * tree, int first_entry, int last_entry)
+WORD get_selected_object(OBJECT *tree, WORD first_entry, WORD last_entry)
 {
 	int entryc;
 
@@ -1252,9 +1251,9 @@ int get_selected_object(OBJECT * tree, int first_entry, int last_entry)
 /******************************************************************	*/
 /*--------------------- Listenfeld generieren ----------------------*/
 /******************************************************************	*/
-void f_generate_listfield(int uparrow, int dnarrow, int sliderparent, int sliderobject,
-						  int listparent, char *listentries, int num_entries, int max_entries, LIST_FIELD * listfield,
-						  int autoloc)
+void f_generate_listfield(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
+						  WORD listparent, char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield,
+						  WORD autoloc)
 {
 	if (listfield == NULL)
 		listfield = malloc(sizeof(LIST_FIELD));

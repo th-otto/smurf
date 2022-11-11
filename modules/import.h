@@ -428,7 +428,7 @@ void rearrange_line2(uint8_t *src, uint8_t *dst, long bytes, unsigned short pixe
 
 int f_rslid(SLIDER *slider_struct);
 void setslider(SLIDER *sliderstruct, long value);
-void f_txtinsert(int num, OBJECT *tree, WORD txt_obj, WINDOW *ws); /* EinfÅgen von Zahlen in Textobjekte */
+void f_txtinsert(short num, OBJECT *tree, WORD txt_obj, WINDOW *ws); /* EinfÅgen von Zahlen in Textobjekte */
 
 extern MOD_INFO module_info ASM_NAME("module_info");
 extern MOD_ABILITY module_ability ASM_NAME("module_ability");
