@@ -256,7 +256,7 @@ int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number); 
 short inform_modules(short message, SMURF_PIC *picture);    /* Informiert alle Module und Plugins Åber message */
 long get_proclen(BASPAG *baspag);
 long get_modmagic(BASPAG *basepage);
-void AESmsg_to_modules(int *msgbuf);
+void AESmsg_to_modules(WORD *msgbuf);
 void make_modpreview(WINDOW *wind);
 
 
@@ -309,8 +309,8 @@ void f_draw_blockbox(WINDOW *window);
 void draw_picmanboxes(void);
 void clip_picw2screen(WINDOW *picw);
 int f_rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3);     /* Zum Redraw. */
-int my_window(int handle);                              /* Fenster identifizieren */
-WINDOW *my_module_window(int handle);                      /* Modulfenster identif. */
+short my_window(WORD handle);                              /* Fenster identifizieren */
+WINDOW *my_module_window(WORD handle);                      /* Modulfenster identif. */
 void f_setsliders(WINDOW *wind);                         /* Slider setzen */
 void f_arrow_window(int mode, WINDOW *window, int amount);   /* Pfeilbedienung im Bildfenster */
 void scrollWindowRT(WINDOW *window, int xamount, int yamount);
@@ -407,7 +407,7 @@ extern int mouse_button, key_at_event;
 extern MFORM *dummy_ptr;				/* Dummymouse fÅr Maus-Form */
 extern MFORM lr_arrow, ud_arrow, lrud_arrow;
 extern long f_len;						/* LÑnge des letzten geladenen Files */
-extern int *messagebuf;
+extern WORD *messagebuf;
 extern int klicks;						/* Anzahl Mausklicks beim letzten Buttonevent */
 extern char *stpath;					/* Smurf-Standardpfad */
 extern char loadpath[257];				/* voller Pfad der zuletzt geladenen Datei */

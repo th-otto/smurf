@@ -1205,7 +1205,7 @@ int f_rc_intersect(GRECT * r1, GRECT * r2, GRECT * r3)
 
 
 /*--------------------- DurchlÑuft die Windowhandleliste ------------------*/
-int my_window(int handle)
+short my_window(WORD handle)
 {
 	int t;
 
@@ -1225,7 +1225,7 @@ int my_window(int handle)
 
 
 /*----------------- DurchlÑuft die Windowhandleliste fÅr Module ------------------*/
-WINDOW *my_module_window(int handle)
+WINDOW *my_module_window(WORD handle)
 {
 	int t;
 	int wind_handle;

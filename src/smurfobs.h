@@ -104,8 +104,8 @@ typedef struct generalWindow
     void (*drawIconified) (WINDOW *window, int *vdiclip);
 
     int (*rcIntersect) (GRECT *r1, GRECT *r2, GRECT *r3);
-    int (*myWindow) (int handle);
-    WINDOW *(*myModuleWindow)(int handle);
+    short (*myWindow) (WORD handle);
+    WINDOW *(*myModuleWindow)(WORD handle);
     
     void (*windowToList) (WINDOW *window);
     void (*removeWindow) (WINDOW *window);

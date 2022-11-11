@@ -146,7 +146,7 @@ MFORM lr_arrow,
  ud_arrow,
  lrud_arrow;
 long f_len = 0x4b444100L;				/* L„nge des letzten geladenen Files 'KDA\0' */
-int *messagebuf;						/* Zeiger fr Messageevents */
+WORD *messagebuf;						/* Zeiger fr Messageevents */
 int klicks;								/* Anzahl Mausklicks beim letzten Buttonevent */
 
 char *stpath;							/* Smurf-Standardpfad */

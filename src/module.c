@@ -1238,12 +1238,10 @@ long get_modmagic(BASPAG * basepage)
 	Kennung fr eine AES-msg ist 255 in GARGAMEL->module_mode, der
 	messagebuffer wird komplett in event_par[0-15] kopiert.
 	----------------------------------------------------------------*/
-void AESmsg_to_modules(int *msgbuf)
+void AESmsg_to_modules(WORD *msgbuf)
 {
 	int t;
-
 	long magic;
-
 	BASPAG *curr_bp;
 
 	/*

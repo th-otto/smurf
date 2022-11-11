@@ -55,46 +55,40 @@
 
 typedef struct
 {
-	char *appname,
-	*apppath,
-	*docname,
-	*docpath;
+	char *appname;
+	char *apppath;
+	char *docname;
+	char *docpath;
 } DHSTINFO;
 
 
 WORD f_handle_message(void)
 {
 	char module_name[30];
-	char *textseg,
-	*ext_com_ptr;
-
-	int wind_num = 0,
-		wn = 0;
-	register int t;
-	int back;
-	int wxp,
-	 wyp,
-	 wwp,
-	 whp;
-	int ismodule = 0,
-		module_num,
-		dummy,
-		owner;
-	int last_loaded_pic = 0,
-		biggest_handle = 0;
-	int picnum,
-	 tophandle;
-	int flags,
-	 innerwid,
-	 innerhgt;
-
+	char *textseg;
+	char *ext_com_ptr;
+	short wind_num = 0;
+	short wn = 0;
+	short t;
+	WORD back;
+	WORD wxp, wyp, wwp, whp;
+	short ismodule = 0;
+	short module_num;
+	WORD dummy;
+	WORD owner;
+	short last_loaded_pic = 0;
+	short biggest_handle = 0;
+	short picnum;
+	WORD tophandle;
+	WORD flags;
+	WORD innerwid;
+	WORD innerhgt;
 	long argback;
-
 	MOD_INFO *modinfo;
 	GRECT aes_red;
 	WINDOW *window_to_handle;
 	WINDOW *picwindow;
-	int topwin;
+	WORD topwin;
 	OBJECT *ob;
 
 	aes_red.g_x = 0;
@@ -156,7 +150,7 @@ WORD f_handle_message(void)
 
 	case AP_ARGSTART:
 		DraufschmeissBild = START;
-		file_load("", (char **) *(long *) (messagebuf + 4), START);
+		file_load("", *(char ***) (messagebuf + 4), START);
 		break;
 
 	/*------------------------- Men Messages -------------------------- */
@@ -415,8 +409,7 @@ WORD f_handle_message(void)
 			window_to_handle->fullx = -1;
 
 			/* und deren Nettokoordinaten ermitteln */
-			Window.windGet(messagebuf[3], WF_WORKXYWH, &window_to_handle->wx, &window_to_handle->wy, &innerwid,
-						   &innerhgt);
+			Window.windGet(messagebuf[3], WF_WORKXYWH, &window_to_handle->wx, &window_to_handle->wy, &innerwid, &innerhgt);
 
 
 			if (window_to_handle->pflag)
@@ -579,7 +572,7 @@ WORD f_handle_message(void)
 					/*
 					 * Moduleinstellungen merken ...
 					 */
-/*
+#if 0
 					ob = wind_s[WIND_MODFORM].resource_form;
 					cnfblock = malloc(50);
 					cnfblock[0] = sy1;
@@ -595,12 +588,12 @@ WORD f_handle_message(void)
 					cnfblock[10] = atol(ob[ED3].TextCast);
 					cnfblock[11] = atol(ob[ED4].TextCast);
 					w1 = (long)cnfblock>>16;
-					w2 = (int)cnfblock;
+					w2 = (WORD)cnfblock;
 					module.smStruct[edit_mod_num]->event_par[0] = w1;
 					module.smStruct[edit_mod_num]->event_par[1] = w2;
 					module.smStruct[edit_mod_num]->event_par[2] = 12 * 4;
 					memorize_emodConfig(module.bp[edit_mod_num], module.smStruct[edit_mod_num]);
-*/
+#endif
 
 					/*
 					 * und weg mit dem Modul.
@@ -632,8 +625,7 @@ WORD f_handle_message(void)
 					/*---- Plugin? -----*/
 					if (module_num & 0x200)
 					{
-						start_plugin(plugin_bp[module_num & 0xFF], MWINDCLOSED, module_num & 0xFF,
-									 plg_data[module_num & 0xFF]);
+						start_plugin(plugin_bp[module_num & 0xFF], MWINDCLOSED, module_num & 0xFF, plg_data[module_num & 0xFF]);
 
 						if (plg_info[module_num & 0xFF]->resident == 0)	/* nichtresident? ->terminieren! */
 							terminate_plugin(module_num & 0xFF);
@@ -665,8 +657,7 @@ WORD f_handle_message(void)
 
 						*((long *) module.smStruct[module_num & 0xFF]->event_par) = (long) export_cnfblock[t];
 						module.smStruct[module_num & 0xFF]->event_par[2] = export_cnflen[t];
-						module.comm.startExport("", MMORECANC, smurf_picture[active_pic], module.bp[module_num & 0xFF],
-												module.smStruct[module_num & 0xFF], module_num);
+						module.comm.startExport("", MMORECANC, smurf_picture[active_pic], module.bp[module_num & 0xFF], module.smStruct[module_num & 0xFF], module_num);
 						window_to_handle->module = 0;
 
 						/*
@@ -730,8 +721,7 @@ WORD f_handle_message(void)
 		if (wind_num || ismodule == 1)
 		{
 			Window.windSet(messagebuf[3], WF_ICONIFY, messagebuf[4], messagebuf[5], messagebuf[6], messagebuf[7]);
-			Window.windGet(messagebuf[3], WF_WORKXYWH, &window_to_handle->wx, &window_to_handle->wy,
-						   &window_to_handle->ww, &window_to_handle->wh);
+			Window.windGet(messagebuf[3], WF_WORKXYWH, &window_to_handle->wx, &window_to_handle->wy, &window_to_handle->ww, &window_to_handle->wh);
 
 			window_to_handle->shaded |= ICONIFIED;
 		}
@@ -745,8 +735,7 @@ WORD f_handle_message(void)
 		{
 			Window.windSet(messagebuf[3], WF_UNICONIFY, messagebuf[4], messagebuf[5], messagebuf[6], messagebuf[7]);
 
-			Window.windGet(messagebuf[3], WF_WORKXYWH, &window_to_handle->wx, &window_to_handle->wy,
-						   &window_to_handle->ww, &window_to_handle->wh);
+			Window.windGet(messagebuf[3], WF_WORKXYWH, &window_to_handle->wx, &window_to_handle->wy, &window_to_handle->ww, &window_to_handle->wh);
 
 			window_to_handle->shaded &= ~ICONIFIED;
 		}
@@ -813,13 +802,7 @@ WORD f_handle_message(void)
 		} else
 		{
 #if 0
-			Dialog.winAlert.openAlrt("Nur auf Desk-Ordner, Laufwerke, Papierkorb und andere Programme!", NULL, NULL,
-									 NULL, 1);
-#if 0
-			printf("\nZielobjekt: %i", messagebuf[4]);
-			if ((char *) *((long *) (&messagebuf[5])) != NULL)
-				printf("\nName %s", (char *) *((long *) (&messagebuf[5])));
-#endif
+			Dialog.winAlert.openAlrt("Nur auf Desk-Ordner, Laufwerke, Papierkorb und andere Programme!", NULL, NULL, NULL, 1);
 #endif
 		}
 

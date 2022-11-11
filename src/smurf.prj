@@ -73,7 +73,7 @@ smurfobs.c
 module.c			; Module starten, beenden, Modulfenster
 modconf.c			; Funktionen um die Modulkonfigurationen zu sichern
 ;------- Plugin-Schnittstelle
-plugin\plugin.c [-Z]
+plugin\plugin.c
 ;
 ;----------------- GEM & AES - Handling ----------------
 ;
