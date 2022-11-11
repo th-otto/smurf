@@ -117,8 +117,8 @@ typedef struct
 	int		(*tfm_cmy_to_rgb)(SMURF_PIC *picture, char mode);
 	int		(*tfm_rgb_to_grey)(SMURF_PIC *picture, char mode);
 
-	int		(*dither_for_export)(MOD_ABILITY *mod_abs, int max_expdepth, int dest_format, SMURF_PIC *converted_pic);
-/*	int		(*dither)(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed); */
+	short	(*dither_for_export)(MOD_ABILITY *mod_abs, short max_expdepth, short dest_format, SMURF_PIC *converted_pic);
+/*	short	(*dither)(SMURF_PIC *dest, SYSTEM_INFO *sys_info, short pic_changed); */
 	int 	(*f_convert)(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mode, char automatic);
 
 

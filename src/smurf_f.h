@@ -517,10 +517,10 @@ extern EXPORT_CONFIG exp_conf;
 void f_export_pic(void);                                 /* Bild exportieren */
 int f_save_pic(MOD_ABILITY *export_mabs);
 void save_file(void);
-int dither_for_export(MOD_ABILITY *mod_abs, int max_expdepth, int dest_format, SMURF_PIC *converted_pic);
+short dither_for_export(MOD_ABILITY *mod_abs, short max_expdepth, short dest_format, SMURF_PIC *converted_pic);
 void init_exmod_info(short mod_index);
 void exmod_info_off(void);
-int loadNCT(int loadplanes, SYSTEM_INFO *sysinfo);
+short loadNCT(short loadplanes, SYSTEM_INFO *sysinfo);
 
 
 /*

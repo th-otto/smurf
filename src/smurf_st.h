@@ -55,8 +55,8 @@ typedef struct
 
 typedef struct
 {
-    int ascii_code;
-    int scan_code;
+    WORD ascii_code;
+    WORD scan_code;
     char shift;
     char ctrl;
     char alt;
@@ -66,8 +66,8 @@ typedef struct
 typedef struct
 {
     char cut[3];
-    int ltitle;
-    int litem;
+    WORD ltitle;
+    WORD litem;
 } CUTTAB;
 
 #ifndef _DOSVARS
@@ -75,19 +75,19 @@ typedef struct
 typedef struct
 {
     char    *in_dos;                 /* Adresse der DOS- Semaphore */
-    int     *dos_time;               /* Adresse der DOS- Zeit      */
-    int     *dos_date;               /* Adresse des DOS- Datums    */
+    short   *dos_time;               /* Adresse der DOS- Zeit      */
+    short   *dos_date;               /* Adresse des DOS- Datums    */
     long    res1;                    /*                            */
     long    res2;                    /*                            */
     long    res3;                    /* ist 0L                     */
     void    *act_pd;                 /* Laufendes Programm         */
     long    res4;                    /*                            */
-    int     res5;                    /*                            */
+    short   res5;                    /*                            */
     void    *res6;                   /*                            */
     void    *res7;                   /* interne DOS- Speicherliste */
-    void    (*resv_intmem)();        /* DOS- Speicher erweitern    */
-    long    (*etv_critic)();         /* etv_critic des GEMDOS      */
-    char    *((*err_to_str)(char e)); /* Umrechnung Code->Klartext  */
+    void    (*resv_intmem)(void);    /* DOS- Speicher erweitern    */
+    long    (*etv_critic)(void);     /* etv_critic des GEMDOS      */
+    char    *((*err_to_str)(signed char e)); /* Umrechnung Code->Klartext  */
     long    res8;                    /*                            */
     long    res9;                    /*                            */
     long    res10;                   /*                            */
@@ -104,15 +104,15 @@ typedef struct
     void *aes_start;              /* Startadresse               */
     long magic2;                  /* ist 'MAGX'                 */
     long date;                    /* Erstelldatum               */
-    void (*chgres)(int res, int txt);  /* Auflîsung Ñndern    */
+    void (*chgres)(short res, short txt);  /* Auflîsung Ñndern    */
     long (**shel_vector)(void);   /* residentes Desktop         */
     char *aes_bootdrv;            /* von hieraus wurde gebootet */
-    int *vdi_device;             /* vom AES benutzter Treiber  */
+    short *vdi_device;            /* vom AES benutzter Treiber  */
     void *reservd1;               /* reserviert                 */
     void *reservd2;               /* reserviert                 */
     void *reservd3;               /* reserviert                 */
-    int version;                 /* Version ($0201 ist V2.1)   */
-    int release;                 /* 0=alpha..3=release         */
+    short version;                /* Version ($0201 ist V2.1)   */
+    short release;                /* 0=alpha..3=release         */
 } AESVARS;
 #endif
 
@@ -129,7 +129,7 @@ typedef struct
 
 typedef struct
 {
-    int header_length;
+    short header_length;
     long data_type;
     long data_length;
     char data_name[65];
@@ -140,18 +140,18 @@ typedef struct
 /*------------- Fadenkreuz-Struktur ---------*/ 
 typedef struct
 {
-    char anzahl;            /* Anzahl an Positionsmarkern - max. 6 */
-    int xpos[6], ypos[6];   /* Position im Bild */
-    int mod_pic[6];         /* Bildnummer (Modul, 1-6) fÅr jeden Marker */
-    int smurfpic[6];        /* Smurf-Bildnummer fÅr jeden Marker */
+    short anzahl;            /* Anzahl an Positionsmarkern - max. 6 */
+    WORD xpos[6], ypos[6];   /* Position im Bild */
+    short mod_pic[6];        /* Bildnummer (Modul, 1-6) fÅr jeden Marker */
+    short smurfpic[6];       /* Smurf-Bildnummer fÅr jeden Marker */
 } CROSSHAIR;
 
 /*------------ Blockmodus-Konfiguration ------*/
 typedef struct 
 {
-    int mode;
+    short mode;
     long opacity;
-    int transparent;    /* Bit 0=s, bit 1=w */
+    short transparent;    /* Bit 0=s, bit 1=w */
 } BLOCKMODE;
 
 /*------------AV_COMM-Struktur, Semaphoren fÅr die Kommunikation
@@ -161,27 +161,27 @@ typedef struct
 
 typedef struct
 {
-    int type;           /* Typ der gedraggten Daten (0= Bild, 1=Block) */
-    int windowhandle;   /* Handle des Smurf-Fensters, aus dem die Daten kommen */
-    int keystate;       /* Zustand der Sondertasten beim Auslîsen der Aktion */
+    short type;          /* Typ der gedraggten Daten (0= Bild, 1=Block) */
+    WORD windowhandle;   /* Handle des Smurf-Fensters, aus dem die Daten kommen */
+    WORD keystate;       /* Zustand der Sondertasten beim Auslîsen der Aktion */
 } AV_COMM;
 
 
 
 typedef struct export_config
 {
-    int export_mod_num;             /* ID des laufenden Exporters */
-    int exp_depth, exp_form, exp_align, exp_colsys;
-    int exp_colred, exp_dither;     /* Dither/Palettenkonfiguration fÅr den Export */
-    int exp_fix_red[256],           /* Palette fÅr FIXPAL-Palettenmodus */
-        exp_fix_green[256],
-        exp_fix_blue[256];
+    short export_mod_num;             /* ID des laufenden Exporters */
+    short exp_depth, exp_form, exp_align, exp_colsys;
+    short exp_colred, exp_dither;     /* Dither/Palettenkonfiguration fÅr den Export */
+    WORD exp_fix_red[256];           /* Palette fÅr FIXPAL-Palettenmodus */
+    WORD exp_fix_green[256];
+    WORD exp_fix_blue[256];
 } EXPORT_CONFIG;
 
 
 typedef struct extend_module_config
 {
-    int id;                 /* vollstÑndige Modul-ID (alle 16 Bits!) */
-    int notify_types[10];   /* bis zu 10 Ereignisarten, Åber die das Modul informiert werden will */
-    int windhandle;         /* windowhandle fÅr Eventweiterleitung */
+    short id;                /* vollstÑndige Modul-ID (alle 16 Bits!) */
+    short notify_types[10];  /* bis zu 10 Ereignisarten, Åber die das Modul informiert werden will */
+    WORD windhandle;         /* windowhandle fÅr Eventweiterleitung */
 } EXT_MODCONF;
