@@ -50,10 +50,7 @@
 #include "ext_rsc.h"
 #include "debug.h"
 
-static int files_read;
-
-static void save_extensions(MOD_INFO * module_info);
-static void save_import_list(void);
+static short files_read;
 
 /* ----------------------------------------------------------------	*/
 /*----------------- Edit-Module suchen und eintragen ---------------*/
@@ -66,28 +63,24 @@ void f_scan_edit(void)
 {
 	char *editpath;						/* voller Modulpfad, Original */
 	char *edit_path;					/* voller Modulpfad, editable */
-	char *swapstr,
-	 alert[128];
+	char *swapstr;
+	char alert[128];
 	char *textseg_begin;
-	char edstring[64],
-	 strn[4];
+	char edstring[64];
+	char strn[4];
 	long mod_magic;
-
-	int t,
-	 tt,
-	 biggest,
-	 pathlen;
-
-	long ProcLen,
-	 entrlen;
-	long temp,
-	 lback;
-
+	short t;
+	short tt;
+	short biggest;
+	short pathlen;
+	long ProcLen;
+	long entrlen;
+	long temp;
+	long lback;
 	BASPAG *edit_baspag;
 	MOD_INFO *module_info;
-
-	struct DIRENTRY *filelist,
-	*actual;
+	struct DIRENTRY *filelist;
+	struct DIRENTRY *actual;
 
 	DEBUG_MSG(("Lade Edit-Module\n"));
 
@@ -98,7 +91,7 @@ void f_scan_edit(void)
 
 	Name_Max = get_maxnamelen(editpath);
 
-	pathlen = (int) (strlen(editpath) + Name_Max);
+	pathlen = (short) (strlen(editpath) + Name_Max);
 	edit_path = (char *) calloc(1, pathlen + 1);
 	swapstr = (char *) calloc(1, pathlen + 1);
 
@@ -165,8 +158,7 @@ void f_scan_edit(void)
 
 				entrlen = strlen(Dialog.emodList.modNames[Dialog.emodList.anzahl]);
 				if (entrlen < 28)
-					strncat(Dialog.emodList.modNames[Dialog.emodList.anzahl], "                           ",
-							28 - entrlen);
+					strncat(Dialog.emodList.modNames[Dialog.emodList.anzahl], "                           ", 28 - entrlen);
 
 				Dialog.emodList.anzahl++;
 
@@ -221,6 +213,110 @@ void f_scan_edit(void)
 
 
 /* ----------------------------------------------------------------	*/
+/*		Extensionen eines Importers in Import_list speichern		*/
+/* ----------------------------------------------------------------	*/
+static void save_extensions(MOD_INFO *module_info)
+{
+	int t;
+
+	t = 0;
+	do
+	{
+		Import_list.mod_exts[t][anzahl_importmods] = malloc(strlen(module_info->ext[t]) + 1);
+		strcpy(Import_list.mod_exts[t][anzahl_importmods], module_info->ext[t]);
+		strupr(Import_list.mod_exts[t][anzahl_importmods]);
+	} while (++t < 10);
+}
+
+
+
+/******************************************************************	*/
+/*					Importerliste speichern							*/
+/******************************************************************	*/
+static void save_import_list(void)
+{
+	char *string;
+	char listpath[256];
+	short len;
+	int filehandle;
+	short t;
+	short extnum;
+	short werror = 0;
+	short bh;
+	short bl;
+
+	strcpy(listpath, Sys_info.home_path);
+	strcat(listpath, "\\ilist.dat");
+
+	if ((filehandle = (int) Fcreate(listpath, 0)) < 0)
+	{
+		Dialog.busy.reset(128, "Error");
+		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[CNF_SAVEERR].TextCast, NULL, NULL, NULL, 1);
+	} else
+	{
+		Dialog.busy.reset(0, "Liste speichern...");
+
+		if (Fwrite(filehandle, 2, &anzahl_importmods) != 2)	/* Anzahl speichern */
+			werror = 1;
+
+		if (!werror)
+		{
+			bh = anzahl_importmods / 6;	/* busy-height */
+			bl = 0;						/* busy-length */
+
+			for (t = 0; t < anzahl_importmods; t++)
+			{
+				if (!(t % bh))
+				{
+					Dialog.busy.draw(bl);
+					bl += 10;
+				}
+
+				/* Modulname speichern */
+				string = Import_list.imp_mod_list[t];
+				len = (short) strlen(string) + 1;
+				if (Fwrite(filehandle, len, string) != len)
+				{
+					werror = 1;
+					break;
+				}
+			}
+		}
+
+		if (!werror)
+		{
+			for (t = 0; t < anzahl_importmods; t++)
+			{
+				if (!(t % bh))
+				{
+					Dialog.busy.draw(bl);
+					bl += 11;
+				}
+
+				for (extnum = 0; extnum < 10; extnum++)
+				{
+					string = Import_list.mod_exts[extnum][t];
+					len = (char) strlen(string) + 1;
+					if (Fwrite(filehandle, len, string) != len)	/* EXT speichern */
+					{
+						werror = 1;
+						break;
+					}
+				}
+			}
+		}
+
+		Fclose(filehandle);
+	}
+
+	if (werror)
+		Dialog.winAlert.openAlert("Fehler beim Schreiben der Importerliste!", NULL, NULL, NULL, 1);
+	else
+		Dialog.busy.ok();
+}
+
+
+/* ----------------------------------------------------------------	*/
 /*----------------- Import-Module suchen und eintragen -------------*/
 /*	Durchsucht den Ordner MODULES\\IMPORT nach allen Importmodulen	*/
 /*	und tr„gt diese mit deren untersttzten Extensionen in die ent- */
@@ -237,23 +333,19 @@ void f_scan_import(void)
 	char *textseg_begin;
 	char alert[128];
 	long mod_magic;
-
-	int pathlen,
-	 bh,
-	 bl,
-	 anzahl_extensions,
-	 t,
-	 tt;
-
+	short pathlen;
+	short bh;
+	short bl;
+	short anzahl_extensions;
+	short t;
+	short tt;
 	long ProcLen;
-	long temp,
-	 lback;
-
+	long temp;
+	long lback;
 	BASPAG *import_baspag;
 	MOD_INFO *module_info;
-
-	struct DIRENTRY *filelist,
-	*actual;
+	struct DIRENTRY *filelist;
+	struct DIRENTRY *actual;
 
 	DEBUG_MSG(("Lade Import-Module...\n"));
 
@@ -264,7 +356,7 @@ void f_scan_import(void)
 
 	Name_Max = get_maxnamelen(importpath);
 
-	pathlen = (int) (strlen(importpath) + Name_Max);
+	pathlen = (short) (strlen(importpath) + Name_Max);
 	import_path = (char *) calloc(1, pathlen + 1);
 
 	files_read = 0;
@@ -346,7 +438,9 @@ void f_scan_import(void)
 				DEBUG_MSG(("      Autor  : %s\n", module_info->autor));
 			}
 
-/*			Pexec(102, NULL, import_baspag, 0L); */
+#if 0
+			Pexec(102, NULL, import_baspag, 0L);
+#endif
 			SMfree(import_baspag->p_env);
 			SMfree(import_baspag);
 		}
@@ -383,145 +477,29 @@ void f_scan_import(void)
 
 
 
-/* ----------------------------------------------------------------	*/
-/*		Extensionen eines Importers in Import_list speichern		*/
-/* ----------------------------------------------------------------	*/
-static void save_extensions(MOD_INFO * module_info)
-{
-	int t;
-
-
-	t = 0;
-	do
-	{
-		Import_list.mod_exts[t][anzahl_importmods] = malloc(strlen(module_info->ext[t]) + 1);
-		strcpy(Import_list.mod_exts[t][anzahl_importmods], module_info->ext[t]);
-		strupr(Import_list.mod_exts[t][anzahl_importmods]);
-	} while (++t < 10);
-}
-
-
-
-/******************************************************************	*/
-/*					Importerliste speichern							*/
-/******************************************************************	*/
-static void save_import_list(void)
-{
-	char *string,
-	 listpath[256],
-	 len;
-
-	int filehandle,
-	 t,
-	 extnum,
-	 werror = 0,
-		bh,
-		bl;
-
-	long dummy;
-
-
-	strcpy(listpath, Sys_info.home_path);
-	strcat(listpath, "\\ilist.dat");
-
-	if ((dummy = Fcreate(listpath, 0)) < 0)
-	{
-		Dialog.busy.reset(128, "Error");
-		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[CNF_SAVEERR].TextCast, NULL, NULL, NULL, 1);
-	} else
-	{
-		filehandle = (int) dummy;
-
-		Dialog.busy.reset(0, "Liste speichern...");
-
-		if (Fwrite(filehandle, 2, &anzahl_importmods) != 2)	/* Anzahl speichern */
-			werror = 1;
-
-		if (!werror)
-		{
-			bh = anzahl_importmods / 6;	/* busy-height */
-			bl = 0;						/* busy-length */
-
-			for (t = 0; t < anzahl_importmods; t++)
-			{
-				if (!(t % bh))
-				{
-					Dialog.busy.draw(bl);
-					bl += 10;
-				}
-
-				/* Modulname speichern */
-				string = Import_list.imp_mod_list[t];
-				len = (char) strlen(string) + 1;
-				if (Fwrite(filehandle, len, string) != len)
-				{
-					werror = 1;
-					break;
-				}
-			}
-		}
-
-		if (!werror)
-		{
-			for (t = 0; t < anzahl_importmods; t++)
-			{
-				if (!(t % bh))
-				{
-					Dialog.busy.draw(bl);
-					bl += 11;
-				}
-
-				for (extnum = 0; extnum < 10; extnum++)
-				{
-					string = Import_list.mod_exts[extnum][t];
-					len = (char) strlen(string) + 1;
-					if (Fwrite(filehandle, len, string) != len)	/* EXT speichern */
-					{
-						werror = 1;
-						break;
-					}
-				}
-			}
-		}
-
-		Fclose(filehandle);
-	}
-
-	if (werror)
-		Dialog.winAlert.openAlert("Fehler beim Schreiben der Importerliste!", NULL, NULL, NULL, 1);
-	else
-		Dialog.busy.ok();
-}
-
-
 /******************************************************************	*/
 /*						Importerliste laden							*/
 /******************************************************************	*/
 int load_import_list(void)
 {
-	char *buf,
-	 listpath[256];
-
-	int filehandle,
-	 t,
-	 extnum;
-
-	long dummy,
-	 f_len;
+	char *buf;
+	char listpath[256];
+	int filehandle;
+	short t;
+	short extnum;
+	long f_len;
 
 	DEBUG_MSG(("load_import_list...\n"));
 
 	strcpy(listpath, Sys_info.home_path);
 	strcat(listpath, "\\ilist.dat");
 
-	if ((dummy = Fopen(listpath, FO_READ)) < 0)
+	if ((filehandle = (int) Fopen(listpath, FO_READ)) < 0)
 	{
 		DEBUG_MSG(("load_import_list...Ende -1\n"));
-		return (-1);
+		return -1;
 	} else
 	{
-		filehandle = (int) dummy;
-
 		Dialog.busy.reset(0, "ILIST.DAT laden...");
 
 		f_len = Fseek(0, filehandle, 2) - 2;
@@ -532,15 +510,14 @@ int load_import_list(void)
 		buf = (char *) malloc(f_len);
 		Fread(filehandle, f_len, buf);
 
-	/*---------------------------------------------- Importer-Pfade laden ------------*/
+		/*---------------------------------------------- Importer-Pfade laden ------------*/
 		for (t = 0; t < anzahl_importmods; t++)
 		{
 			Import_list.imp_mod_list[t] = buf;
 			buf += strlen(buf) + 1;
 		}
 
-
-	/*---------------------------------------------- Importer-Extensions laden ------------*/
+		/*---------------------------------------------- Importer-Extensions laden ------------*/
 		for (t = 0; t < anzahl_importmods; t++)
 		{
 			for (extnum = 0; extnum < 10; extnum++)
@@ -557,7 +534,7 @@ int load_import_list(void)
 
 	DEBUG_MSG(("load_import_list...Ende\n"));
 
-	return (0);
+	return 0;
 }
 
 
@@ -569,18 +546,16 @@ int load_import_list(void)
 /*	Wird '*' als Extension bergeben, werden alle Importer 			*/
 /*	durchlaufen.													*/
 /******************************************************************	*/
-int seek_module(SMURF_PIC * picture, char *extension)
+int seek_module(SMURF_PIC *picture, char *extension)
 {
 	char modpath[257];
 	char new_ext[5];
-
-	int t = 0,
-		seek;
-	int mod_ret = M_INVALID;
-
+	short t = 0;
+	short seek;
+	short mod_ret = M_INVALID;
 
 	if (anzahl_importmods <= 0)
-		return (M_INVALID);
+		return M_INVALID;
 
 	strncpy(new_ext, extension, 5);
 	strupr(new_ext);
@@ -621,7 +596,7 @@ int seek_module(SMURF_PIC * picture, char *extension)
 		} while (++t < anzahl_importmods && mod_ret != M_PICDONE && mod_ret != M_DONEEXIT);
 	}
 
-	return (mod_ret);
+	return mod_ret;
 }
 
 
@@ -633,28 +608,24 @@ void f_scan_export(void)
 {
 	char *expath;						/* voller Modulpfad, Original */
 	char *ex_path;						/* voller Modulpfad, editable */
-	char *swapstr,
-	 alert[128];
+	char *swapstr;
+	char alert[128];
 	char *textseg_begin;
-	char edstring[64],
-	 strn[4];
+	char edstring[64];
+	char strn[4];
 	long mod_magic;
-
-	int t,
-	 tt,
-	 biggest,
-	 pathlen;
-
-	long ProcLen,
-	 entrlen;
-	long temp,
-	 lback;
-
+	short t;
+	short tt;
+	short biggest;
+	short pathlen;
+	long ProcLen;
+	long entrlen;
+	long temp;
+	long lback;
 	BASPAG *export_baspag;
 	MOD_INFO *module_info;
-
-	struct DIRENTRY *filelist,
-	*actual;
+	struct DIRENTRY *filelist;
+	struct DIRENTRY *actual;
 
 	DEBUG_MSG(("Lade Export-Module\n"));
 
@@ -665,7 +636,7 @@ void f_scan_export(void)
 
 	Name_Max = get_maxnamelen(expath);
 
-	pathlen = (int) (strlen(expath) + Name_Max);
+	pathlen = (short) (strlen(expath) + Name_Max);
 	ex_path = (char *) calloc(1, pathlen + 1);
 	swapstr = (char *) calloc(1, pathlen + 1);
 
@@ -718,8 +689,7 @@ void f_scan_export(void)
 				strncpy(Dialog.expmodList.modNames[Dialog.expmodList.anzahl], module_info->mod_name, 28);
 				entrlen = strlen(Dialog.expmodList.modNames[Dialog.expmodList.anzahl]);
 				if (entrlen < 28)
-					strncat(Dialog.expmodList.modNames[Dialog.expmodList.anzahl], "                           ",
-							28 - entrlen);
+					strncat(Dialog.expmodList.modNames[Dialog.expmodList.anzahl], "                           ", 28 - entrlen);
 
 				Dialog.expmodList.anzahl++;
 
@@ -784,22 +754,17 @@ void f_scan_dither(void)
 {
 	char *ditpath;
 	char *dit_path;
-	char alert[128],
-	 string[20] = "";
+	char alert[128];
+	char string[20] = "";
 	char *textseg_begin;
 	long mod_magic;
-
-	int pathlen;
-
+	short pathlen;
 	long ProcLen;
-	long temp,
-	 lback;
-
-
+	long temp;
+	long lback;
 	BASPAG *dit_baspag;
-
-	struct DIRENTRY *filelist,
-	*actual;
+	struct DIRENTRY *filelist;
+	struct DIRENTRY *actual;
 
 	DEBUG_MSG(("Lade Dither-Module\n"));
 
@@ -809,7 +774,7 @@ void f_scan_dither(void)
 	strcat(ditpath, "\\modules\\dither\\");
 
 	Name_Max = get_maxnamelen(ditpath);
-	pathlen = (int) (strlen(ditpath) + Name_Max);
+	pathlen = (short) (strlen(ditpath) + Name_Max);
 	dit_path = (char *) calloc(1, pathlen + 1);
 
 	filelist = build_up_filelist(ditpath, "sdm", pathlen);
@@ -886,31 +851,23 @@ void f_scan_dither(void)
 /* Bevorzugt werden hierfr die MiNT-Funktionen Dopendir() und Dxreaddir() verwendet. */
 /* Nur wenn diese nicht vorhanden sind, wird auf Fsfirst()/Fsnext() ausgewichen. */
 /* Die Extensions werden jetzt auch bei Fsfirst()/Fsnext() manuell getestet! */
-struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen)
+struct DIRENTRY *build_up_filelist(char *path, char *ext, short pathlen)
 {
 	char *mod_path;
-	char *buf,
-	*_buf,
-	*temp;
-
-	int buflen;
-
-	long back,
-	 dirhandle;
-
-	DTA *old_dta,
-	*new_dta;
-
-	struct DIRENTRY *begin,
-	*actual;
+	char *buf;
+	char *_buf;
+	char *temp;
+	short buflen;
+	long back;
+	long dirhandle;
+	DTA *old_dta;
+	DTA *new_dta;
+	struct DIRENTRY *begin;
+	struct DIRENTRY *actual;
 	struct DIRENTRY Element;
-
 
 	if ((back = Dopendir(path, 0)) != EINVFN)	/* Verzeichnis im Normalmodus ”ffnen */
 	{									/* und Test ob Dopendir() existiert */
-/*		printf("Dopendir()/Dreaddir()\n\n");
-		getch(); */
-
 		Element.next = NULL;			/* Initial auf "keine Dateien enthalten" setzen */
 
 		if ((back & 0xff000000L) != 0xff000000L)	/* Directory gefunden? */
@@ -947,9 +904,6 @@ struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen)
 		begin = Element.next;			/* Zeiger auf den ersten Eintrag holen */
 	} else								/* Fsfirst()/Fsnext() */
 	{
-/*		printf("Fsfirst()/Fsnext()\n\n");
-		getch(); */
-
 		old_dta = Fgetdta();			/* DTA holen */
 		new_dta = malloc(sizeof(DTA));
 		Fsetdta(new_dta);				/* neue DTA setzen */
@@ -986,7 +940,7 @@ struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen)
 		free(new_dta);
 	}
 
-	return (begin);
+	return begin;
 }
 
 
@@ -997,13 +951,12 @@ struct DIRENTRY *insert_entry(struct DIRENTRY *ende, char *string)
 {
 	struct DIRENTRY *new;				/* zeigt auf den neuen Speicherblock */
 
-
 	/* Speicher fr Struktur und String anfordern */
 	if ((new = (struct DIRENTRY *) malloc(sizeof(struct DIRENTRY))) == 0 ||
 		(new->modname = (char *) malloc(strlen(string) + 1)) == 0)
 	{
 		free(new);
-		return (NULL);
+		return NULL;
 	}
 
 	strcpy(new->modname, string);		/* String reinkopieren */
@@ -1011,7 +964,7 @@ struct DIRENTRY *insert_entry(struct DIRENTRY *ende, char *string)
 
 	ende->next = new;					/* Vorg„nger (also bisher letzter) zeigt auf neues Element */
 
-	return (new);
+	return new;
 }
 
 
@@ -1021,7 +974,6 @@ struct DIRENTRY *insert_entry(struct DIRENTRY *ende, char *string)
 void destroy_filelist(struct DIRENTRY *actual)
 {
 	struct DIRENTRY *next;
-
 
 	while (actual != NULL)
 	{

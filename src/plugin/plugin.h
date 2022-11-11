@@ -160,7 +160,7 @@ typedef struct
 	/*
 	* Fileroutinen
 	*/
-	struct DIRENTRY*	(*build_up_filelist)(char *path, char *ext, int pathlen);
+	struct DIRENTRY*	(*build_up_filelist)(char *path, char *ext, short pathlen);
 	struct DIRENTRY*	(*insert_entry)(struct DIRENTRY *ende, char *string);
 	void				(*destroy_filelist)(struct DIRENTRY *begin);
 

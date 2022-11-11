@@ -147,7 +147,7 @@ int load_import_list(void);                                 /* Extensionsliste l
 int seek_module(SMURF_PIC *picture, char *extension);       /* Modul aus Extensionsliste suchen */
 void f_scan_export(void);                /* Edit Modules scannen */
 void f_scan_dither(void);                /* Dither Modules scannen */
-struct DIRENTRY *build_up_filelist(char *path, char *ext, int pathlen);
+struct DIRENTRY *build_up_filelist(char *path, char *ext, short pathlen);
 struct DIRENTRY *insert_entry(struct DIRENTRY *ende, char *string);
 void destroy_filelist(struct DIRENTRY *begin);
 
