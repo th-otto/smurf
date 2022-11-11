@@ -37,24 +37,80 @@
 #include "ext_obs.h"
 
 
-static void set_multfiles(SLCT_STR * slct_str, char **selliste);
-static void get_multfiles(SLCT_STR * slct_str, char *pathname, char **selliste);
-static void f_build_filelist(char **param, int mode);
-static void f_free_filelist(void);
-
 #define LOAD	1
 #define SAVE	2
 
 static char *namelist[257];
 
+
+
+/* Packt eine Fileliste des jeweiligen Typs in eine Liste des */
+/* Standardformates fÅr file_load() und gibt einen Zeiger darauf zurÅck */
+/* FSBOX = Liste von Selectric, Array von Zeigern - wird eigentlich in get_multfiles() gemacht */
+/* FSBOX2 = Ein einzelner Filename in einem String */
+/* ARGS = Liste von D&D-Type ARGS, String mit gequoteten Namen */
+/* START = Liste vom ARGV-Verfahren, Array von Zeigern */
+/* VA = Liste von VA_START, String mit gequoteten Namen */
+static void f_build_filelist(char **param, int mode)
+{
+	char *arg_name;
+	int i;
+
+	switch (mode)
+	{
+	case START:
+		i = 0;
+		while (i < 256 && (arg_name = (param[i + 1])) != NULL)
+		{
+			if ((namelist[i] = (char *) calloc(1, strlen(arg_name) + 1)) != NULL)
+				strcpy(namelist[i++], arg_name);
+			else
+				break;
+		}
+		namelist[i] = NULL;				/* terminieren */
+		break;
+
+	case VA:
+	case ARGS:
+		i = 0;
+		while (i < 256 && (arg_name = strargvtok(*param)) != NULL)
+		{
+			if ((namelist[i] = (char *) calloc(1, strlen(arg_name) + 1)) != NULL)
+				strcpy(namelist[i++], arg_name);
+			else
+				break;
+		}
+		namelist[i] = NULL;				/* terminieren */
+		break;
+
+	case FSBOX2:
+		namelist[0] = (char *) calloc(1, strlen(*param) + 1);
+		strcpy(namelist[0], *param);
+		namelist[1] = NULL;				/* terminieren */
+		break;
+	}
+}
+
+
+static void f_free_filelist(void)
+{
+	int i;
+
+	/* angeforderte Zeiger wieder freigeben */
+	i = 0;
+	while (i < 256 && namelist[i])
+		free(namelist[i++]);
+}
+
+
 /* Ist nun die Hauptladefunktion und wird nicht mehr */
 /* von f_loadpic() aufgerufen, sondern andersherum. */
 void file_load(char *ltext, char **dateien, int mode)
 {
-	char *buf,
-	*fullname,
-	*ext;
-	int t;
+	char *buf;
+	char *fullname;
+	char *ext;
+	short t;
 	int fh;
 	long dummy;
 
@@ -88,8 +144,7 @@ void file_load(char *ltext, char **dateien, int mode)
 
 					if (dummy < f_len)
 					{
-						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[PICLOAD_READERR].TextCast, NULL, NULL, NULL,
-												  1);
+						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[PICLOAD_READERR].TextCast, NULL, NULL, NULL, 1);
 						SMfree(buf);
 						buf = NULL;
 					}
@@ -126,13 +181,10 @@ int file_save(char *stext, char *buf, long length)
 {
 	char desk_name[9];
 	int fh;
-	WORD out1,
-	 out2,
-	 out3,
-	 out4;
-	WORD mbuf[8],
-	 desk_id,
-	 drive;
+	WORD out1, out2, out3, out4;
+	WORD mbuf[8];
+	WORD desk_id;
+	WORD drive;
 	WORD attrib;
 	long check;
 
@@ -201,7 +253,7 @@ int file_save(char *stext, char *buf, long length)
  * nach der RÅckkehr aus dem Fileselector behandelt werden.
  * WM_TOPPED-Messages werden nicht an den Message-Callback durchgereicht.
  */
-static void cdecl message_handler(WORD * msg)
+static void cdecl message_handler(WORD *msg)
 {
 	switch (msg[0])
 	{
@@ -219,6 +271,80 @@ static void cdecl message_handler(WORD * msg)
 }
 
 
+/* Anlegen und initialisieren der Filenamenliste, welche durch den */
+/* Fileselektor bei einer Mehrfachselektion dann gefÅllt wird. */
+static void set_multfiles(SLCT_STR *slct_str, char **sellist)
+{
+	int i;
+
+	if (!slct_str || slct_str->config.onoff == 0)	/* Selectric nicht da oder aus? */
+		return;
+
+	/* Mehrfachselektion ein, Array von Zeigern */
+	slct_str->comm = 0x01;
+
+	i = 0;
+	do
+	{
+		if ((sellist[i] = (char *) calloc(1, 65)) == NULL)
+		{
+			i--;						/* letzter war der Letzte */
+			break;
+		}
+	} while (++i < 30);
+
+	/* konnte zumindest ein Zeiger angefordert werden? */
+	if (i >= 0)
+	{
+		/* maximale Anzahl Bilder */
+		slct_str->out_count = i;
+		slct_str->out_ptr = sellist;
+	}
+}
+
+
+/* Alle Files der Liste werden direkt Åber die f_loadpic() geladen */
+/* und der Laderoutine dann ein Abbruch vorgegaukelt. */
+static void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
+{
+	char *part;
+	short i;
+	short sel;
+
+	if (!slct_str)
+		return;
+
+	sel = slct_str->out_count;
+
+	/* initial holen, Position bleibt in der Schleife gleich */
+	strcpy(commpath, pathname);
+	part = strrchr(commpath, '\\') + 1;
+
+	/* Liste in die Standardliste Åbertragen */
+	i = 0;
+	while (i < 256 && i < sel)
+	{
+		strcpy(commpath, pathname);
+		strcpy(part, sellist[i]);
+
+		if ((namelist[i] = (char *) calloc(1, strlen(commpath) + 1)) != NULL)
+			strcpy(namelist[i++], commpath);
+		else
+			break;
+	}
+
+	namelist[i] = NULL;					/* Ende markieren */
+
+	/* angeforderte Zeiger wieder freigeben */
+	i = 0;
+	while (i < 30 && sellist[i])
+		free(sellist[i++]);
+
+	/* Mehrfachselektion aus */
+	slct_str->comm = 0x0;
+}
+
+
 /* Datei mittels Fileselector îffnen. */
 int f_fsbox(char *Path, char *fbtext, char selectart)
 {
@@ -226,7 +352,7 @@ int f_fsbox(char *Path, char *fbtext, char selectart)
 	char filename[65];
 	char *part;
 	char *sellist[30];
-	int back = 0;
+	WORD back;
 	WORD t;
 	SLCT_STR *slct_str = NULL;
 
@@ -296,137 +422,4 @@ int f_fsbox(char *Path, char *fbtext, char selectart)
 		return TRUE;
 	}
 	return FALSE;
-}
-
-
-/* Anlegen und initialisieren der Filenamenliste, welche durch den */
-/* Fileselektor bei einer Mehrfachselektion dann gefÅllt wird. */
-static void set_multfiles(SLCT_STR * slct_str, char **sellist)
-{
-	int i;
-
-	if (!slct_str || slct_str->config.onoff == 0)	/* Selectric nicht da oder aus? */
-		return;
-
-	/* Mehrfachselektion ein, Array von Zeigern */
-	slct_str->comm = 0x01;
-
-	i = 0;
-	do
-	{
-		if ((sellist[i] = (char *) calloc(1, 65)) == NULL)
-		{
-			i--;						/* letzter war der Letzte */
-			break;
-		}
-	} while (++i < 30);
-
-	/* konnte zumindest ein Zeiger angefordert werden? */
-	if (i >= 0)
-	{
-		/* maximale Anzahl Bilder */
-		slct_str->out_count = i;
-		slct_str->out_ptr = sellist;
-	}
-}
-
-
-/* Alle Files der Liste werden direkt Åber die f_loadpic() geladen */
-/* und der Laderoutine dann ein Abbruch vorgegaukelt. */
-static void get_multfiles(SLCT_STR * slct_str, char *pathname, char **sellist)
-{
-	char *part;
-	short i;
-	short sel;
-
-	if (!slct_str)
-		return;
-
-	sel = slct_str->out_count;
-
-	/* initial holen, Position bleibt in der Schleife gleich */
-	strcpy(commpath, pathname);
-	part = strrchr(commpath, '\\') + 1;
-
-	/* Liste in die Standardliste Åbertragen */
-	i = 0;
-	while (i < 256 && i < sel)
-	{
-		strcpy(commpath, pathname);
-		strcpy(part, sellist[i]);
-
-		if ((namelist[i] = (char *) calloc(1, strlen(commpath) + 1)) != NULL)
-			strcpy(namelist[i++], commpath);
-		else
-			break;
-	}
-
-	namelist[i] = NULL;					/* Ende markieren */
-
-	/* angeforderte Zeiger wieder freigeben */
-	i = 0;
-	while (i < 30 && sellist[i])
-		free(sellist[i++]);
-
-	/* Mehrfachselektion aus */
-	slct_str->comm = 0x0;
-}
-
-
-/* Packt eine Fileliste des jeweiligen Typs in eine Liste des */
-/* Standardformates fÅr file_load() und gibt einen Zeiger darauf zurÅck */
-/* FSBOX = Liste von Selectric, Array von Zeigern - wird eigentlich in get_multfiles() gemacht */
-/* FSBOX2 = Ein einzelner Filename in einem String */
-/* ARGS = Liste von D&D-Type ARGS, String mit gequoteten Namen */
-/* START = Liste vom ARGV-Verfahren, Array von Zeigern */
-/* VA = Liste von VA_START, String mit gequoteten Namen */
-static void f_build_filelist(char **param, int mode)
-{
-	char *arg_name;
-	int i;
-
-	switch (mode)
-	{
-	case START:
-		i = 0;
-		while (i < 256 && (arg_name = (param[i + 1])) != NULL)
-		{
-			if ((namelist[i] = (char *) calloc(1, strlen(arg_name) + 1)) != NULL)
-				strcpy(namelist[i++], arg_name);
-			else
-				break;
-		}
-		namelist[i] = NULL;				/* terminieren */
-		break;
-
-	case VA:
-	case ARGS:
-		i = 0;
-		while (i < 256 && (arg_name = strargvtok(*param)) != NULL)
-		{
-			if ((namelist[i] = (char *) calloc(1, strlen(arg_name) + 1)) != NULL)
-				strcpy(namelist[i++], arg_name);
-			else
-				break;
-		}
-		namelist[i] = NULL;				/* terminieren */
-		break;
-
-	case FSBOX2:
-		namelist[0] = (char *) calloc(1, strlen(*param) + 1);
-		strcpy(namelist[0], *param);
-		namelist[1] = NULL;				/* terminieren */
-		break;
-	}
-}
-
-
-static void f_free_filelist(void)
-{
-	int i;
-
-	/* angeforderte Zeiger wieder freigeben */
-	i = 0;
-	while (i < 256 && namelist[i])
-		free(namelist[i++]);
 }
