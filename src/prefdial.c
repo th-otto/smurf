@@ -38,48 +38,84 @@
 
 #define	ABS(i)	(i>0? i : -i)
 
-static void f_make_preview(int redraw_flag);
-static void f_insert_prefs(GARGAMEL * smurf_st, SMURF_PIC * picture);
-static void check_prevzoom(void);
-static void check_clipping(void);
-static void applyConfig(long *loadcnf);
-
 int prev_zoom = 1;
 SMURF_PIC move_prev;
 static SMURF_PIC *module_preview = NULL;
 static SMURF_PIC *oldpic;
-static int oldxoff,
- oldyoff;
+static WORD oldxoff, oldyoff;
+
+
+/* ------------------------------------------------------------------------	*/
+/*	En-/Disablen der Preview-Zoom-Buttons nach PrÅfung der Grîûen			*/
+/* ------------------------------------------------------------------------	*/
+static void check_prevzoom(void)
+{
+	OBJECT *modtree;
+	SMURF_PIC *pic;
+
+	pic = smurf_picture[active_pic];
+	if (pic->block != NULL)
+		pic = pic->block;
+
+	modtree = wind_s[WIND_MODFORM].resource_form;
+
+	if ((modtree[PREV_BOX].ob_width) * (prev_zoom + 1) >= pic->pic_width &&
+		(modtree[PREV_BOX].ob_height) * (prev_zoom + 1) >= pic->pic_height)
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, OS_DISABLED, 1);
+	else
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, OS_ENABLED, 1);
+
+	if (prev_zoom <= 1)
+	{
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, OS_DISABLED, 1);
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, OS_DISABLED, 1);
+	} else
+	{
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, OS_ENABLED, 1);
+		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, OS_ENABLED, 1);
+	}
+}
+
+
+static void applyConfig(long *loadcnf)
+{
+	OBJECT *modtree;
+
+	modtree = wind_s[WIND_MODFORM].resource_form;
+
+	sy1 = (WORD) loadcnf[0];
+	sy2 = (WORD) loadcnf[1];
+	sy3 = (WORD) loadcnf[2];
+	sy4 = (WORD) loadcnf[3];
+	modtree[CHECK1].ob_state = (WORD) loadcnf[4];
+	modtree[CHECK2].ob_state = (WORD) loadcnf[5];
+	modtree[CHECK3].ob_state = (WORD) loadcnf[6];
+	modtree[CHECK4].ob_state = (WORD) loadcnf[7];
+	ltoa(loadcnf[8], modtree[ED1].TextCast, 10);
+	ltoa(loadcnf[9], modtree[ED2].TextCast, 10);
+	ltoa(loadcnf[10], modtree[ED3].TextCast, 10);
+	ltoa(loadcnf[11], modtree[ED4].TextCast, 10);
+}
+
 
 /*------------------- Modul-Einstell-Formular îffnen ------------------	*/
 /* Vom Modul aufgerufen: mod_id (GARGAMEL->module_number) ist			*/
 /* Die Nummer des Moduls, das gerade das Einstellformular benutzt.		*/
 /*---------------------------------------------------------------------	*/
-void f_module_prefs(MOD_INFO * infostruct, short mod_id)
+void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 {
 	char edd[6];
 	char cmp_modname[30];
-
-	int sd1,
-	 sd2,
-	 sd3,
-	 sd4;
-	int min_val,
-	 max_val,
-	 redraw_me = 0,
-		back;
-	int t;
-	int endwidth,
-	 endheight,
-	 zoom,
-	 index;
-
-	long editval1,
-	 editval2,
-	 editval3,
-	 editval4,
-	*cnfblock;
-
+	WORD sd1, sd2, sd3, sd4;
+	WORD min_val, max_val;
+	BOOLEAN redraw_me = FALSE;
+	WORD back;
+	short t;
+	WORD endwidth, endheight;
+	WORD zoom;
+	WORD index;
+	long editval1, editval2, editval3, editval4;
+	long *cnfblock;
 	OBJECT *pref_form;
 
 	/* evtl. altes Modul terminieren */
@@ -92,7 +128,7 @@ void f_module_prefs(MOD_INFO * infostruct, short mod_id)
 
 		edit_mod_num = -1;
 		Dialog.busy.dispRAM();
-		redraw_me = 1;
+		redraw_me = TRUE;
 	}
 
 	if (mod_id < 0 || mod_id > 20)
@@ -264,28 +300,28 @@ void f_module_prefs(MOD_INFO * infostruct, short mod_id)
 	strcpy(pref_form[CHECK4_TEXT].TextCast, infostruct->check4);
 
 	/*------------------------------ Slider-Mins / Maxs auslesen */
-	max_val = (int) infostruct->smax1;
-	min_val = (int) infostruct->smin1;
+	max_val = (WORD) infostruct->smax1;
+	min_val = (WORD) infostruct->smin1;
 	sliders[PDSLIDER1].max_val = max_val;
 	sliders[PDSLIDER1].min_val = min_val;
-	max_val = (int) infostruct->smax2;
-	min_val = (int) infostruct->smin2;
+	max_val = (WORD) infostruct->smax2;
+	min_val = (WORD) infostruct->smin2;
 	sliders[PDSLIDER2].max_val = max_val;
 	sliders[PDSLIDER2].min_val = min_val;
-	max_val = (int) infostruct->smax3;
-	min_val = (int) infostruct->smin3;
+	max_val = (WORD) infostruct->smax3;
+	min_val = (WORD) infostruct->smin3;
 	sliders[PDSLIDER3].max_val = max_val;
 	sliders[PDSLIDER3].min_val = min_val;
-	max_val = (int) infostruct->smax4;
-	min_val = (int) infostruct->smin4;
+	max_val = (WORD) infostruct->smax4;
+	min_val = (WORD) infostruct->smin4;
 	sliders[PDSLIDER4].max_val = max_val;
 	sliders[PDSLIDER4].min_val = min_val;
 
 	/*------------------------------- Slider-Defaults auslesen */
-	sy1 = sd1 = (int) infostruct->sdef1;
-	sy2 = sd2 = (int) infostruct->sdef2;
-	sy3 = sd3 = (int) infostruct->sdef3;
-	sy4 = sd4 = (int) infostruct->sdef4;
+	sy1 = sd1 = (WORD) infostruct->sdef1;
+	sy2 = sd2 = (WORD) infostruct->sdef2;
+	sy3 = sd3 = (WORD) infostruct->sdef3;
+	sy4 = sd4 = (WORD) infostruct->sdef4;
 
 	/*--------------------------------- Edit-Defaults setzen */
 	editval1 = infostruct->edef1;
@@ -412,10 +448,10 @@ void f_module_prefs(MOD_INFO * infostruct, short mod_id)
 	{
 		cnfblock = (long *) edit_cnfblock[index];
 		applyConfig(cnfblock);
-		sd1 = (int) cnfblock[0];
-		sd2 = (int) cnfblock[1];
-		sd3 = (int) cnfblock[2];
-		sd4 = (int) cnfblock[3];
+		sd1 = (WORD) cnfblock[0];
+		sd2 = (WORD) cnfblock[1];
+		sd3 = (WORD) cnfblock[2];
+		sd4 = (WORD) cnfblock[3];
 	}
 
 	/*
@@ -467,7 +503,7 @@ void f_module_prefs(MOD_INFO * infostruct, short mod_id)
 	check_prevzoom();					/* Zoombuttons fÅrs Preview ein/ausschalten */
 
 	if (wind_s[WIND_MODFORM].whandlem <= 0)	/* Fenster neu? -> kein weiterer Redraw nîtig. */
-		redraw_me = 0;
+		redraw_me = FALSE;
 
 	back = Window.open(&wind_s[WIND_MODFORM]);
 
@@ -490,36 +526,279 @@ void f_module_prefs(MOD_INFO * infostruct, short mod_id)
 
 
 /* ------------------------------------------------------------------------	*/
+/*				PD-Parameter in GARGAMEL-Struktur einfÅgen					*/
+/* ------------------------------------------------------------------------	*/
+static void f_insert_prefs(GARGAMEL *smurf_st, SMURF_PIC *picture)
+{
+	OBJECT *modtree;
+
+
+	modtree = wind_s[WIND_MODFORM].resource_form;
+
+	smurf_st->smurf_pic = picture;
+	smurf_st->picwind_x = picture_windows[active_pic].wx;
+	smurf_st->picwind_y = picture_windows[active_pic].wy;
+	smurf_st->picwind_w = picture_windows[active_pic].ww;
+	smurf_st->picwind_h = picture_windows[active_pic].wh;
+	smurf_st->slide1 = (long) sy1;
+	smurf_st->slide2 = (long) sy2;
+	smurf_st->slide3 = (long) sy3;
+	smurf_st->slide4 = (long) sy4;
+	smurf_st->edit1 = atol(modtree[ED1].TextCast);
+	smurf_st->edit2 = atol(modtree[ED2].TextCast);
+	smurf_st->edit3 = atol(modtree[ED3].TextCast);
+	smurf_st->edit4 = atol(modtree[ED4].TextCast);
+	smurf_st->check1 = modtree[CHECK1].ob_state & OS_SELECTED;
+	smurf_st->check2 = modtree[CHECK2].ob_state & OS_SELECTED;
+	smurf_st->check3 = modtree[CHECK3].ob_state & OS_SELECTED;
+	smurf_st->check4 = modtree[CHECK4].ob_state & OS_SELECTED;
+}
+
+
+
+/* ------------------------------------------------------------------------	*/
+/*								Preview erzeugen							*/
+/* ------------------------------------------------------------------------	*/
+static void f_make_preview(short redraw_flag)
+{
+	SMURF_PIC *source_pic;
+	SMURF_PIC *add_pix[7];
+	GARGAMEL smurf_st;
+	char alertstr[70];
+	char helpstr[3];
+	long PicLen;
+	long Awidth;
+	short t;
+	WORD w, h;
+	short picnum;
+	short piccol;
+	MOD_ABILITY *mod_abs;
+	MOD_ABILITY new_mod;
+	MOD_INFO *mod_inf;
+	char *textbeg;
+	DISPLAY_MODES thisDisplay;
+
+	textbeg = module.bp[edit_mod_num]->p_tbase;
+	mod_abs = *((MOD_ABILITY **)(textbeg + MOD_ABS_OFFSET));
+	mod_inf = *((MOD_INFO **) (textbeg + MOD_INFO_OFFSET));
+
+
+	/*
+	 * und jetzt prÅfen, ob alle vom Modul benîtigten Bilder 
+	 * vorhanden sind.
+	 */
+	for (t = 0; t < mod_inf->how_many_pix; t++)
+	{
+		picnum = module_pics[edit_mod_num][t];
+
+		if (mod_inf->how_many_pix > 1 && picture_windows[picnum].whandlem == -1)
+		{
+			strcpy(alertstr, "Modul braucht ");
+			strncat(alertstr, itoa(mod_inf->how_many_pix, helpstr, 10), 4);
+			strcat(alertstr, " Bilder!");
+			Dialog.winAlert.openAlert(alertstr, NULL, NULL, NULL, 1);
+			return;
+		}
+	}
+
+
+	/* ------------- Preview-Pic-Struktur vorbereiten ----------- */
+	source_pic = smurf_picture[active_pic];
+	if (source_pic->block != NULL)
+		source_pic = source_pic->block;
+
+	/* ---alte Bildschirmdarstellung freigeben--- */
+	if (module_preview != NULL)
+	{
+		SMfree(module_preview->screen_pic->fd_addr);
+		free(module_preview->screen_pic);
+		free(module_preview->palette);
+		SMfree(module_preview);
+	}
+
+	module_preview = SMalloc(sizeof(SMURF_PIC));
+	memcpy(module_preview, source_pic, sizeof(SMURF_PIC));
+	module_preview->palette = malloc(1025);
+	memcpy(module_preview->palette, source_pic->palette, 1025);
+	module_preview->pic_width = wind_s[WIND_MODFORM].clipwid;
+	module_preview->pic_height = wind_s[WIND_MODFORM].cliphgt;
+	Awidth = ((((long) module_preview->pic_width + 7) / 8) << 3);
+	PicLen = (Awidth * (long) module_preview->pic_height * (long) module_preview->depth) / 8L;
+	module_preview->pic_data = SMalloc(PicLen);
+	module_preview->local_nct = NULL;
+
+	Dialog.busy.disable();
+
+	/*----------- Bildausschnitt kopieren -------------------------------*/
+	copy_preview(source_pic, module_preview, &wind_s[WIND_MODFORM]);
+	f_convert(module_preview, mod_abs, RGB, SAME, 0);
+
+	/*
+	 * jetzt die Bilder ans Modul Åbergeben
+	 */
+	if (mod_inf->how_many_pix > 1)
+	{
+		for (t = 0; t < mod_inf->how_many_pix; t++)
+		{
+			module.smStruct[edit_mod_num]->event_par[0] = t;
+			module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICS, module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
+
+			if (module.smStruct[edit_mod_num]->module_mode == M_PICTURE)
+			{
+				picnum = module_pics[edit_mod_num][t];
+				if (picture_windows[picnum].whandlem == -1)
+				{
+					/* FIXME: translate */
+					Dialog.winAlert.openAlert("Fehler: zu verwendendes Bild existiert nicht! Weisen Sie die Bilder durch Drag&Drop aus dem Bildmanager neu zu.", NULL, NULL, NULL, 1);
+					continue;
+				}
+
+				source_pic = picture_windows[picnum].picture;
+				add_pix[t] = SMalloc(sizeof(SMURF_PIC));
+				memcpy(add_pix[t], source_pic, sizeof(SMURF_PIC));
+				add_pix[t]->palette = malloc(1025);
+				memcpy(add_pix[t]->palette, source_pic->palette, 1025);
+				add_pix[t]->pic_width = wind_s[WIND_MODFORM].clipwid;
+				add_pix[t]->pic_height = wind_s[WIND_MODFORM].cliphgt;
+				Awidth = ((((long) module_preview->pic_width + 7) / 8) << 3);
+				PicLen = (Awidth * (long) add_pix[t]->pic_height * (long) add_pix[t]->depth) / 8L;
+				add_pix[t]->pic_data = SMalloc(PicLen);
+
+				copy_preview(source_pic, add_pix[t], &wind_s[WIND_MODFORM]);
+
+				memset(&new_mod, 0x0, sizeof(MOD_ABILITY));
+				new_mod.depth1 = module.smStruct[edit_mod_num]->event_par[0];
+				new_mod.form1 = module.smStruct[edit_mod_num]->event_par[1];
+				piccol = module.smStruct[edit_mod_num]->event_par[2];
+				f_convert(add_pix[t], &new_mod, piccol, SAME, 0);
+
+				smurf_st.event_par[0] = t;
+				smurf_st.smurf_pic = add_pix[t];
+				module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICTURE, module.smStruct[edit_mod_num]->module_number, &smurf_st);
+				if (smurf_st.module_mode != M_WAITING)
+					break;
+			}
+		}
+	}
+
+
+	f_insert_prefs(&smurf_st, module_preview);
+
+	Dialog.busy.reset(0, "Preview...");
+	graf_mouse(BUSYBEE, dummy_ptr);
+
+	module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, &smurf_st);
+
+	/*-------- verÑndertes Bild kopieren -----*/
+	if (mod_inf->how_many_pix > 1)
+	{
+		picnum = smurf_st.event_par[0];
+		w = add_pix[picnum]->pic_width;
+		h = add_pix[picnum]->pic_height;
+		PicLen = (w * (long) h * (long) add_pix[picnum]->depth) / 8L;
+
+		SMfree(module_preview->pic_data);
+		module_preview->pic_data = SMalloc(PicLen);
+		memcpy(module_preview->pic_data, add_pix[picnum]->pic_data, PicLen);
+
+		module_preview->pic_width = add_pix[picnum]->pic_width;
+		module_preview->pic_height = add_pix[picnum]->pic_height;
+		module_preview->depth = add_pix[picnum]->depth;
+		module_preview->format_type = add_pix[picnum]->format_type;
+		module_preview->col_format = add_pix[picnum]->col_format;
+		memcpy(module_preview->palette, add_pix[picnum]->palette, 1025);
+	}
+
+	module_preview->zoom = 0;
+
+	/* -------- Display-Options temporÑr umbauen --------- */
+	/* (Preview wird nur nach SysPal gedithert) */
+	thisDisplay.dither_24 = Sys_info.PreviewDither;
+	thisDisplay.dither_8 = Sys_info.PreviewDither;
+	thisDisplay.dither_4 = Sys_info.PreviewDither;
+	thisDisplay.syspal_24 = CR_SYSPAL;
+	thisDisplay.syspal_8 = CR_SYSPAL;
+	thisDisplay.syspal_4 = CR_SYSPAL;
+
+	f_dither(module_preview, &Sys_info, 0, NULL, &thisDisplay);
+
+	Dialog.busy.enable();
+
+	oldxoff = wind_s[WIND_MODFORM].xoffset;
+	oldyoff = wind_s[WIND_MODFORM].yoffset;
+	oldpic = wind_s[WIND_MODFORM].picture;
+
+	wind_s[WIND_MODFORM].xoffset = 0;
+	wind_s[WIND_MODFORM].yoffset = 0;
+	wind_s[WIND_MODFORM].picture = module_preview;
+
+	Window.redraw(&wind_s[WIND_MODFORM], NULL, PREV_OUTER, redraw_flag);
+
+	graf_mouse(ARROW, dummy_ptr);
+
+	if (mod_inf->how_many_pix == 1)
+	{
+		SMfree(module_preview->pic_data);
+		free(module_preview->palette);
+	} else
+		for (t = 0; t < mod_inf->how_many_pix; t++)
+		{
+			if (add_pix[t])
+			{
+				SMfree(add_pix[t]->pic_data);
+				free(add_pix[t]->palette);
+				SMfree(add_pix[t]);
+			}
+		}
+
+	Dialog.busy.ok();
+	Dialog.busy.dispRAM();
+}
+
+
+/* ----------------------------------------------------------------------------	*/
+/*	öberprÅft das Clipping des Previewausschnittes im Module-Preferences-Dialog	*/
+/*	anhand Bildbreite, Zoom und PrevBox-Abmessungen und paût es ggfs. an.		*/
+/* ----------------------------------------------------------------------------	*/
+static void check_clipping(void)
+{
+	OBJECT *modtree = wind_s[WIND_MODFORM].resource_form;
+
+
+	wind_s[WIND_MODFORM].clipwid = modtree[PREV_BOX].ob_width;
+	wind_s[WIND_MODFORM].cliphgt = modtree[PREV_BOX].ob_height;
+
+	if (smurf_picture[active_pic]->pic_width / prev_zoom < modtree[PREV_BOX].ob_width)
+		wind_s[WIND_MODFORM].clipwid = smurf_picture[active_pic]->pic_width / prev_zoom;
+	if (smurf_picture[active_pic]->pic_height / prev_zoom < modtree[PREV_BOX].ob_height)
+		wind_s[WIND_MODFORM].cliphgt = smurf_picture[active_pic]->pic_height / prev_zoom;
+}
+
+
+/* ------------------------------------------------------------------------	*/
 /* --------------------------- MODUL- FORMULAR ----------------------------	*/
 /* Nimmt Einstellungen im Modulformular vor und Åbergibt ggfs. ans Modul 	*/
 /* ------------------------------------------------------------------------ */
 void f_mpref_change(void)
 {
-	char str[10],
-	 confname[33] = "";
+	char str[10];
+	char confname[33] = "";
 	char *textbeg;
-
-	int button,
-	 back,
-	 picnum,
-	 oldtop;
-	int oldw,
-	 oldh;
-	int newwid,
-	 newhgt;
-	int clip,
-	 close_me = 0,
-		mem = 0,
-		dummy,
-		staste;
-	unsigned int w2;
-
-	long editval1,
-	 editval2,
-	 editval3,
-	 editval4;
-	long cnfblock[12],
-	*loadcnf;
+	WORD button;
+	WORD back;
+	short picnum;
+	WORD oldtop;
+	WORD oldw, oldh;
+	WORD newwid, newhgt;
+	short clip = 0;
+	BOOLEAN close_me = FALSE;
+	BOOLEAN mem = FALSE;
+	WORD dummy;
+	WORD staste;
+	uint16_t w2;
+	long editval1, editval2, editval3, editval4;
+	long cnfblock[12];
+	long *loadcnf;
 	long *cnf_save;
 	unsigned long w1;
 
@@ -585,7 +864,6 @@ void f_mpref_change(void)
 			clip = 4;
 		}
 
-
 		if (clip == 1)
 		{
 			ltoa(editval1, str, 10);
@@ -614,7 +892,7 @@ void f_mpref_change(void)
 	case PREVZOOM_DEC:
 		prev_zoom++;
 		check_clipping();
-		f_make_preview(0);
+		f_make_preview(FALSE);
 		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, OS_UNSEL, 1);
 		break;
 
@@ -622,14 +900,14 @@ void f_mpref_change(void)
 		if (prev_zoom > 1)
 			prev_zoom--;
 		check_clipping();
-		f_make_preview(0);
+		f_make_preview(FALSE);
 		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, OS_UNSEL, 1);
 		break;
 
 	case PREVZOOM_RESET:
 		prev_zoom = 1;
 		check_clipping();
-		f_make_preview(0);
+		f_make_preview(FALSE);
 		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, OS_UNSEL, 1);
 		break;
 
@@ -655,33 +933,33 @@ void f_mpref_change(void)
 	case S1_A:
 		sy1 = f_numedit(S1_A, modtree, sy1);
 		if (sy1 > sliders[PDSLIDER1].max_val)
-			sy1 = (int) sliders[PDSLIDER1].max_val;
+			sy1 = (WORD) sliders[PDSLIDER1].max_val;
 		else if (sy1 < sliders[PDSLIDER1].min_val)
-			sy1 = (int) sliders[PDSLIDER1].min_val;
+			sy1 = (WORD) sliders[PDSLIDER1].min_val;
 		setslider(&sliders[PDSLIDER1], sy1);
 		break;
 	case S2_A:
 		sy2 = f_numedit(S2_A, modtree, sy2);
 		if (sy2 > sliders[PDSLIDER2].max_val)
-			sy2 = (int) sliders[PDSLIDER2].max_val;
+			sy2 = (WORD) sliders[PDSLIDER2].max_val;
 		else if (sy2 < sliders[PDSLIDER2].min_val)
-			sy2 = (int) sliders[PDSLIDER2].min_val;
+			sy2 = (WORD) sliders[PDSLIDER2].min_val;
 		setslider(&sliders[PDSLIDER2], sy2);
 		break;
 	case S3_A:
 		sy3 = f_numedit(S3_A, modtree, sy3);
 		if (sy3 > sliders[PDSLIDER3].max_val)
-			sy3 = (int) sliders[PDSLIDER3].max_val;
+			sy3 = (WORD) sliders[PDSLIDER3].max_val;
 		else if (sy3 < sliders[PDSLIDER3].min_val)
-			sy3 = (int) sliders[PDSLIDER3].min_val;
+			sy3 = (WORD) sliders[PDSLIDER3].min_val;
 		setslider(&sliders[PDSLIDER3], sy3);
 		break;
 	case S4_A:
 		sy4 = f_numedit(S4_A, modtree, sy4);
 		if (sy4 > sliders[PDSLIDER4].max_val)
-			sy4 = (int) sliders[PDSLIDER4].max_val;
+			sy4 = (WORD) sliders[PDSLIDER4].max_val;
 		else if (sy4 < sliders[PDSLIDER4].min_val)
-			sy4 = (int) sliders[PDSLIDER4].min_val;
+			sy4 = (WORD) sliders[PDSLIDER4].min_val;
 		setslider(&sliders[PDSLIDER4], sy4);
 		break;
 
@@ -794,7 +1072,7 @@ void f_mpref_change(void)
 		cnf_save[11] = editval4;
 		w1 = (long) cnf_save >> 16;
 		w2 = (short) (long) cnf_save;
-		module.smStruct[edit_mod_num]->event_par[0] = (int) w1;
+		module.smStruct[edit_mod_num]->event_par[0] = (WORD) w1;
 		module.smStruct[edit_mod_num]->event_par[1] = w2;
 		module.smStruct[edit_mod_num]->event_par[2] = 12 * 4;
 		memorize_emodConfig(module.bp[edit_mod_num], module.smStruct[edit_mod_num]);
@@ -825,13 +1103,13 @@ void f_mpref_change(void)
 			back = f_convert(pic, mod_abs, RGB, SAME, 0);
 			if (back == M_MEMORY)
 			{
-				mem = 1;
+				mem = TRUE;
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
 				Dialog.busy.reset(128, "Speicher ...");
 			}
 		}
 
-		if (mem == 0)
+		if (mem == FALSE)
 		{
 			f_insert_prefs(module.smStruct[edit_mod_num], pic);
 
@@ -851,7 +1129,7 @@ void f_mpref_change(void)
 
 			Dialog.busy.reset(0, "Modul arbeitet...");
 			if (key_at_event & KEY_ALT)
-				close_me = 1;
+				close_me = TRUE;
 
 			module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
 			f_handle_modmessage(module.smStruct[edit_mod_num]);
@@ -931,58 +1209,6 @@ void f_mpref_change(void)
 }
 
 
-/* ------------------------------------------------------------------------	*/
-/*	En-/Disablen der Preview-Zoom-Buttons nach PrÅfung der Grîûen			*/
-/* ------------------------------------------------------------------------	*/
-static void check_prevzoom(void)
-{
-	OBJECT *modtree;
-	SMURF_PIC *pic;
-
-
-	pic = smurf_picture[active_pic];
-	if (pic->block != NULL)
-		pic = pic->block;
-
-	modtree = wind_s[WIND_MODFORM].resource_form;
-
-	if ((modtree[PREV_BOX].ob_width) * (prev_zoom + 1) >= pic->pic_width &&
-		(modtree[PREV_BOX].ob_height) * (prev_zoom + 1) >= pic->pic_height)
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, OS_DISABLED, 1);
-	else
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, OS_ENABLED, 1);
-
-	if (prev_zoom <= 1)
-	{
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, OS_DISABLED, 1);
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, OS_DISABLED, 1);
-	} else
-	{
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, OS_ENABLED, 1);
-		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, OS_ENABLED, 1);
-	}
-}
-
-
-/* ----------------------------------------------------------------------------	*/
-/*	öberprÅft das Clipping des Previewausschnittes im Module-Preferences-Dialog	*/
-/*	anhand Bildbreite, Zoom und PrevBox-Abmessungen und paût es ggfs. an.		*/
-/* ----------------------------------------------------------------------------	*/
-static void check_clipping(void)
-{
-	OBJECT *modtree = wind_s[WIND_MODFORM].resource_form;
-
-
-	wind_s[WIND_MODFORM].clipwid = modtree[PREV_BOX].ob_width;
-	wind_s[WIND_MODFORM].cliphgt = modtree[PREV_BOX].ob_height;
-
-	if (smurf_picture[active_pic]->pic_width / prev_zoom < modtree[PREV_BOX].ob_width)
-		wind_s[WIND_MODFORM].clipwid = smurf_picture[active_pic]->pic_width / prev_zoom;
-	if (smurf_picture[active_pic]->pic_height / prev_zoom < modtree[PREV_BOX].ob_height)
-		wind_s[WIND_MODFORM].cliphgt = smurf_picture[active_pic]->pic_height / prev_zoom;
-}
-
-
 /* ------------------------------------------------------------------------		*/
 /*							Preview bewegen										*/
 /* Handled das Verschieben des Previews von bild orig_pic im Fenster			*/
@@ -1001,22 +1227,17 @@ static void check_clipping(void)
 /* Darstellung. Also wird immer nur das in die Darstellung reingedithert, was	*/
 /* verschoben wurde.															*/
 /* ------------------------------------------------------------------------		*/
-void f_move_preview(WINDOW * window, SMURF_PIC * orig_pic, WORD redraw_object)
+void f_move_preview(WINDOW *window, SMURF_PIC *orig_pic, WORD redraw_object)
 {
-	int dummy,
-	 mbutt;
-	int mx,
-	 my,
-	 omx,
-	 omy;
-	int max_xoff,
-	 max_yoff;
-
-	SMURF_PIC move_pic,
-	*old_pic;
+	WORD dummy;
+	WORD mbutt;
+	WORD mx, my;
+	WORD omx, omy;
+	WORD max_xoff, max_yoff;
+	SMURF_PIC move_pic;
+	SMURF_PIC *old_pic;
 	GRECT redraw;
 	DISPLAY_MODES old;
-
 
 	graf_mkstate(&omx, &omy, &mbutt, &dummy);	/* immer noch gedrÅckt? */
 
@@ -1063,8 +1284,8 @@ void f_move_preview(WINDOW * window, SMURF_PIC * orig_pic, WORD redraw_object)
 
 		if (mx != omx || my != omy)
 		{
-			window->xoffset += (omx - mx) /**prev_zoom*/  * 2;
-			window->yoffset += (omy - my) /**prev_zoom*/  * 2;
+			window->xoffset += (omx - mx) /* *prev_zoom */ * 2;
+			window->yoffset += (omy - my) /* *prev_zoom */ * 2;
 
 			if (window->xoffset < 0)
 				window->xoffset = 0;
@@ -1097,267 +1318,25 @@ void f_move_preview(WINDOW * window, SMURF_PIC * orig_pic, WORD redraw_object)
 }
 
 
-/* ------------------------------------------------------------------------	*/
-/*								Preview erzeugen							*/
-/* ------------------------------------------------------------------------	*/
-static void f_make_preview(int redraw_flag)
+void copy_preview(SMURF_PIC *source_pic, SMURF_PIC *preview, WINDOW *prev_window)
 {
-	SMURF_PIC *source_pic;
-	SMURF_PIC *add_pix[7];
-	GARGAMEL smurf_st;
-	char alertstr[70];
-	char helpstr[3];
-	long PicLen;
-	long Awidth;
-	int t,
-	 w,
-	 h,
-	 picnum,
-	 piccol;
-	MOD_ABILITY *mod_abs,
-	 new_mod;
-	MOD_INFO *mod_inf;
-	char *textbeg;
-	DISPLAY_MODES thisDisplay;
-
-
-	textbeg = module.bp[edit_mod_num]->p_tbase;
-	mod_abs = *((MOD_ABILITY * *)(textbeg + MOD_ABS_OFFSET));
-	mod_inf = *((MOD_INFO **) (textbeg + MOD_INFO_OFFSET));
-
-
-	/*
-	 * und jetzt prÅfen, ob alle vom Modul benîtigten Bilder 
-	 * vorhanden sind.
-	 */
-	for (t = 0; t < mod_inf->how_many_pix; t++)
-	{
-		picnum = module_pics[edit_mod_num][t];
-
-		if (mod_inf->how_many_pix > 1 && picture_windows[picnum].whandlem == -1)
-		{
-			strcpy(alertstr, "Modul braucht ");
-			strncat(alertstr, itoa(mod_inf->how_many_pix, helpstr, 10), 4);
-			strcat(alertstr, " Bilder!");
-			Dialog.winAlert.openAlert(alertstr, NULL, NULL, NULL, 1);
-			return;
-		}
-	}
-
-
-	/* ------------- Preview-Pic-Struktur vorbereiten ----------- */
-	source_pic = smurf_picture[active_pic];
-	if (source_pic->block != NULL)
-		source_pic = source_pic->block;
-
-	/* ---alte Bildschirmdarstellung freigeben--- */
-	if (module_preview != NULL)
-	{
-		SMfree(module_preview->screen_pic->fd_addr);
-		free(module_preview->screen_pic);
-		free(module_preview->palette);
-		SMfree(module_preview);
-	}
-
-	module_preview = SMalloc(sizeof(SMURF_PIC));
-	memcpy(module_preview, source_pic, sizeof(SMURF_PIC));
-	module_preview->palette = malloc(1025);
-	memcpy(module_preview->palette, source_pic->palette, 1025);
-	module_preview->pic_width = wind_s[WIND_MODFORM].clipwid;
-	module_preview->pic_height = wind_s[WIND_MODFORM].cliphgt;
-	Awidth = ((((long) module_preview->pic_width + 7) / 8) << 3);
-	PicLen = (Awidth * (long) module_preview->pic_height * (long) module_preview->depth) / 8L;
-	module_preview->pic_data = SMalloc(PicLen);
-	module_preview->local_nct = NULL;
-
-	Dialog.busy.disable();
-
-	/*----------- Bildausschnitt kopieren -------------------------------*/
-	copy_preview(source_pic, module_preview, &wind_s[WIND_MODFORM]);
-	f_convert(module_preview, mod_abs, RGB, SAME, 0);
-
-	/*
-	 * jetzt die Bilder ans Modul Åbergeben
-	 */
-	if (mod_inf->how_many_pix > 1)
-	{
-		for (t = 0; t < mod_inf->how_many_pix; t++)
-		{
-			module.smStruct[edit_mod_num]->event_par[0] = t;
-			module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICS, module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
-
-			if (module.smStruct[edit_mod_num]->module_mode == M_PICTURE)
-			{
-				picnum = module_pics[edit_mod_num][t];
-				if (picture_windows[picnum].whandlem == -1)
-				{
-					Dialog.winAlert.
-						openAlert
-						("Fehler: zu verwendendes Bild existiert nicht! Weisen Sie die Bilder durch Drag&Drop aus dem Bildmanager neu zu.",
-						 NULL, NULL, NULL, 1);
-					continue;
-				}
-
-				source_pic = picture_windows[picnum].picture;
-				add_pix[t] = SMalloc(sizeof(SMURF_PIC));
-				memcpy(add_pix[t], source_pic, sizeof(SMURF_PIC));
-				add_pix[t]->palette = malloc(1025);
-				memcpy(add_pix[t]->palette, source_pic->palette, 1025);
-				add_pix[t]->pic_width = wind_s[WIND_MODFORM].clipwid;
-				add_pix[t]->pic_height = wind_s[WIND_MODFORM].cliphgt;
-				Awidth = ((((long) module_preview->pic_width + 7) / 8) << 3);
-				PicLen = (Awidth * (long) add_pix[t]->pic_height * (long) add_pix[t]->depth) / 8L;
-				add_pix[t]->pic_data = SMalloc(PicLen);
-
-				copy_preview(source_pic, add_pix[t], &wind_s[WIND_MODFORM]);
-
-				memset(&new_mod, 0x0, sizeof(MOD_ABILITY));
-				new_mod.depth1 = module.smStruct[edit_mod_num]->event_par[0];
-				new_mod.form1 = module.smStruct[edit_mod_num]->event_par[1];
-				piccol = module.smStruct[edit_mod_num]->event_par[2];
-				f_convert(add_pix[t], &new_mod, piccol, SAME, 0);
-
-				smurf_st.event_par[0] = t;
-				smurf_st.smurf_pic = add_pix[t];
-				module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICTURE, module.smStruct[edit_mod_num]->module_number, &smurf_st);
-				if (smurf_st.module_mode != M_WAITING)
-					break;
-			}
-		}
-	}
-
-
-	f_insert_prefs(&smurf_st, module_preview);
-
-	Dialog.busy.reset(0, "Preview...");
-	graf_mouse(BUSYBEE, dummy_ptr);
-
-	module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, &smurf_st);
-
-	/*-------- verÑndertes Bild kopieren -----*/
-	if (mod_inf->how_many_pix > 1)
-	{
-		picnum = smurf_st.event_par[0];
-		w = add_pix[picnum]->pic_width;
-		h = add_pix[picnum]->pic_height;
-		PicLen = (w * (long) h * (long) add_pix[picnum]->depth) / 8L;
-
-		SMfree(module_preview->pic_data);
-		module_preview->pic_data = SMalloc(PicLen);
-		memcpy(module_preview->pic_data, add_pix[picnum]->pic_data, PicLen);
-
-		module_preview->pic_width = add_pix[picnum]->pic_width;
-		module_preview->pic_height = add_pix[picnum]->pic_height;
-		module_preview->depth = add_pix[picnum]->depth;
-		module_preview->format_type = add_pix[picnum]->format_type;
-		module_preview->col_format = add_pix[picnum]->col_format;
-		memcpy(module_preview->palette, add_pix[picnum]->palette, 1025);
-	}
-
-	module_preview->zoom = 0;
-
-	/* -------- Display-Options temporÑr umbauen --------- */
-	/* (Preview wird nur nach SysPal gedithert) */
-	thisDisplay.dither_24 = Sys_info.PreviewDither;
-	thisDisplay.dither_8 = Sys_info.PreviewDither;
-	thisDisplay.dither_4 = Sys_info.PreviewDither;
-	thisDisplay.syspal_24 = CR_SYSPAL;
-	thisDisplay.syspal_8 = CR_SYSPAL;
-	thisDisplay.syspal_4 = CR_SYSPAL;
-
-	f_dither(module_preview, &Sys_info, 0, NULL, &thisDisplay);
-
-	Dialog.busy.enable();
-
-	oldxoff = wind_s[WIND_MODFORM].xoffset;
-	oldyoff = wind_s[WIND_MODFORM].yoffset;
-	oldpic = wind_s[WIND_MODFORM].picture;
-
-	wind_s[WIND_MODFORM].xoffset = 0;
-	wind_s[WIND_MODFORM].yoffset = 0;
-	wind_s[WIND_MODFORM].picture = module_preview;
-
-	Window.redraw(&wind_s[WIND_MODFORM], NULL, PREV_OUTER, redraw_flag);
-
-	graf_mouse(ARROW, dummy_ptr);
-
-	if (mod_inf->how_many_pix == 1)
-	{
-		SMfree(module_preview->pic_data);
-		free(module_preview->palette);
-	} else
-		for (t = 0; t < mod_inf->how_many_pix; t++)
-		{
-			if (add_pix[t])
-			{
-				SMfree(add_pix[t]->pic_data);
-				free(add_pix[t]->palette);
-				SMfree(add_pix[t]);
-			}
-		}
-
-	Dialog.busy.ok();
-	Dialog.busy.dispRAM();
-}
-
-
-/* ------------------------------------------------------------------------	*/
-/*				PD-Parameter in GARGAMEL-Struktur einfÅgen					*/
-/* ------------------------------------------------------------------------	*/
-static void f_insert_prefs(GARGAMEL * smurf_st, SMURF_PIC * picture)
-{
-	OBJECT *modtree;
-
-
-	modtree = wind_s[WIND_MODFORM].resource_form;
-
-	smurf_st->smurf_pic = picture;
-	smurf_st->picwind_x = picture_windows[active_pic].wx;
-	smurf_st->picwind_y = picture_windows[active_pic].wy;
-	smurf_st->picwind_w = picture_windows[active_pic].ww;
-	smurf_st->picwind_h = picture_windows[active_pic].wh;
-	smurf_st->slide1 = (long) sy1;
-	smurf_st->slide2 = (long) sy2;
-	smurf_st->slide3 = (long) sy3;
-	smurf_st->slide4 = (long) sy4;
-	smurf_st->edit1 = atol(modtree[ED1].TextCast);
-	smurf_st->edit2 = atol(modtree[ED2].TextCast);
-	smurf_st->edit3 = atol(modtree[ED3].TextCast);
-	smurf_st->edit4 = atol(modtree[ED4].TextCast);
-	smurf_st->check1 = modtree[CHECK1].ob_state & OS_SELECTED;
-	smurf_st->check2 = modtree[CHECK2].ob_state & OS_SELECTED;
-	smurf_st->check3 = modtree[CHECK3].ob_state & OS_SELECTED;
-	smurf_st->check4 = modtree[CHECK4].ob_state & OS_SELECTED;
-}
-
-
-
-void copy_preview(SMURF_PIC * source_pic, SMURF_PIC * preview, WINDOW * prev_window)
-{
-	long CutOff,
-	 BPP;
-	long SrcPlanelen,
-	 DestPlanelen;
-	long SrcLineLen,
-	 DestLineLen;
-	long Soff = 0,
-		Doff = 0;
-	int y,
-	 plane,
-	 x;
-	char *Destdata,
-	*Srcdata,
-	*sptr,
-	*dptr,
-	*linebuf,
-	*src,
-	*dest;
-	int *sptr16,
-	*dptr16;
-	int prev_endhgt,
-	 prev_endwid,
-	 desty_count,
-	 destx_count;
+	long CutOff, BPP;
+	long SrcPlanelen, DestPlanelen;
+	long SrcLineLen, DestLineLen;
+	long Soff = 0;
+	long Doff = 0;
+	WORD y, plane, x;
+	uint8_t *Destdata;
+	uint8_t *Srcdata;
+	uint8_t *sptr;
+	uint8_t *dptr;
+	uint8_t *linebuf;
+	uint8_t *src;
+	uint8_t *dest;
+	int16_t *sptr16;
+	int16_t *dptr16;
+	WORD prev_endhgt, prev_endwid;
+	WORD desty_count, destx_count;
 
 	Srcdata = source_pic->pic_data;
 	Destdata = preview->pic_data;
@@ -1412,8 +1391,8 @@ void copy_preview(SMURF_PIC * source_pic, SMURF_PIC * preview, WINDOW * prev_win
 			{
 				for (x = 0; x < prev_endwid; x += prev_zoom)
 				{
-					dptr16 = (int *) (Destdata + Doff + destx_count);
-					sptr16 = (int *) (Srcdata + Soff + CutOff + x + x);
+					dptr16 = (int16_t *) (Destdata + Doff + destx_count);
+					sptr16 = (int16_t *) (Srcdata + Soff + CutOff + x + x);
 					*(dptr16) = *(sptr16);
 					destx_count += 2;
 				}
@@ -1464,8 +1443,7 @@ void copy_preview(SMURF_PIC * source_pic, SMURF_PIC * preview, WINDOW * prev_win
 			for (y = 0; y < preview->pic_height; y++)
 			{
 				memset(linebuf, 0, preview->pic_width * prev_zoom + 32);
-				getpix_std_line(Srcdata + Soff + CutOff, linebuf, source_pic->depth, SrcPlanelen,
-								preview->pic_width * prev_zoom);
+				getpix_std_line(Srcdata + Soff + CutOff, linebuf, source_pic->depth, SrcPlanelen, preview->pic_width * prev_zoom);
 
 				src = linebuf;
 				dest = linebuf;
@@ -1483,26 +1461,5 @@ void copy_preview(SMURF_PIC * source_pic, SMURF_PIC * preview, WINDOW * prev_win
 
 			SMfree(linebuf);
 		}
-	}									/* Standardformat */
-}
-
-
-static void applyConfig(long *loadcnf)
-{
-	OBJECT *modtree;
-
-	modtree = wind_s[WIND_MODFORM].resource_form;
-
-	sy1 = (int) loadcnf[0];
-	sy2 = (int) loadcnf[1];
-	sy3 = (int) loadcnf[2];
-	sy4 = (int) loadcnf[3];
-	modtree[CHECK1].ob_state = (int) loadcnf[4];
-	modtree[CHECK2].ob_state = (int) loadcnf[5];
-	modtree[CHECK3].ob_state = (int) loadcnf[6];
-	modtree[CHECK4].ob_state = (int) loadcnf[7];
-	ltoa(loadcnf[8], modtree[ED1].TextCast, 10);
-	ltoa(loadcnf[9], modtree[ED2].TextCast, 10);
-	ltoa(loadcnf[10], modtree[ED3].TextCast, 10);
-	ltoa(loadcnf[11], modtree[ED4].TextCast, 10);
+	}
 }
