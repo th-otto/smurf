@@ -53,17 +53,17 @@ static CUTTAB cuttab[128];
 /* SET_MENU_KEY */
 /* menu: Zeiger auf den MenÅbaum */
 
-char set_menu_key(OBJECT * menu)
+void set_menu_key(OBJECT *menu)
 {
-	char *s,
-	 j = 0,
-		k;
-	int i,
-	 ltitle,
-	 menu_start;
-	int invisible_box,
-	 t,
-	 cutpos = 0;
+	char *s;
+	WORD j;
+	WORD k;
+	WORD i;
+	WORD ltitle;
+	WORD menu_start;
+	WORD invisible_box;
+	WORD t;
+	WORD cutpos = 0;
 
 	DEBUG_MSG(("Set Menu Key...\n"));
 
@@ -73,7 +73,6 @@ char set_menu_key(OBJECT * menu)
 
 	if (menu != 0L)
 	{
-
 		for (t = 3;; t++)
 			if (menu[t].ob_type == G_IBOX)
 				break;
@@ -93,7 +92,7 @@ char set_menu_key(OBJECT * menu)
 				if ((menu[j].ob_type & 0xff) == G_STRING)
 				{
 					s = menu[j].ob_spec.free_string;	/* MenÅ */
-					i = (int) strlen(s);
+					i = (WORD) strlen(s);
 					if (i > 0 && s[i - 1] == ' ')
 						i--;
 					if (i > 0 && s[i - 1] == ' ')
@@ -111,8 +110,8 @@ char set_menu_key(OBJECT * menu)
 						cuttab[cutpos].ltitle = ltitle;
 						cuttab[cutpos].litem = j;
 						cutpos++;
-					}					/* if */
-				}						/* if */
+					}
+				}
 
 				j++;					/* NÑchster Eintrag */
 			} while (menu[j].ob_type == G_STRING);
@@ -122,16 +121,13 @@ char set_menu_key(OBJECT * menu)
 			ltitle++;
 
 		} while (menu[j].ob_type == G_STRING);
-
-	}									/* if */
-
-	return (0);
+	}
 }
 
 
-static char is_state(OBJECT * tree, int obj, unsigned int state)
+static BOOLEAN is_state(OBJECT *tree, WORD obj, UWORD state)
 {
-	return ((tree[obj].ob_state & state) != 0);
+	return (tree[obj].ob_state & state) != 0;
 }
 
 
@@ -141,11 +137,11 @@ static char is_state(OBJECT * tree, int obj, unsigned int state)
 /* title: Zeiger auf den Index des Titels, falls "is_menu_key" TRUE ist */
 /* item: Zeiger auf den Index des MenÅeintrages, falls "is_menu_key" TRUE ist */
 
-char get_menu_key(OBJECT * menu, KINFO * ki, WORD *title, WORD *item)
+BOOLEAN get_menu_key(OBJECT *menu, KINFO *ki, WORD *title, WORD *item)
 {
-	char j = 0,
-		search[3] = "   ";
-	int sc_found;
+	WORD j;
+	char search[3] = "   ";
+	BOOLEAN sc_found;
 
 	if (ki->shift)
 		search[0] = SHIFT_CHAR;
@@ -156,14 +152,14 @@ char get_menu_key(OBJECT * menu, KINFO * ki, WORD *title, WORD *item)
 	search[2] = ki->ascii_code;
 
 	j = 0;
-	sc_found = 0;
+	sc_found = FALSE;
 	while (strnicmp(cuttab[j].cut, "   ", 3) != 0)
 	{
 		if (strnicmp(cuttab[j].cut, search, 3) == 0)
 		{
 			*title = cuttab[j].ltitle;
 			*item = cuttab[j].litem;
-			sc_found = 1;
+			sc_found = TRUE;
 			break;
 		} else
 			j++;
@@ -171,26 +167,25 @@ char get_menu_key(OBJECT * menu, KINFO * ki, WORD *title, WORD *item)
 
 	if (!is_state(menu, *item, OS_DISABLED) && sc_found)
 		/* RÅckgabe der ausgewÑhlten Werte */
-		return (1);
-	else
-		return (0);
+		return TRUE;
+	return FALSE;
 }
 
 
-int scan_2_ascii(int scan, int state)
+WORD scan_2_ascii(UWORD scan, WORD state)
 {
 	KEYTAB *keytab = Keytbl((void *) -1l, (void *) -1l, (void *) -1l);
 
 	if (state)
 	{
 		scan >>= 8;
-		if ((scan >= 120) && (scan <= 131))
+		if (scan >= 120 && scan <= 131)
 			scan -= 118;
 
 		if (state & 3)
-			scan = (int) *(keytab->shift + scan);
+			scan = *(keytab->shift + scan);
 		else
-			scan = (int) *(keytab->unshift + scan);
+			scan = *(keytab->unshift + scan);
 	}
 
 	scan &= 0xff;
@@ -205,5 +200,5 @@ int scan_2_ascii(int scan, int state)
 		else if (scan == 'Å')
 			scan = 'ö';
 	}
-	return (scan);
+	return scan;
 }

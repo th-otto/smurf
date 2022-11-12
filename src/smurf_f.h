@@ -178,9 +178,9 @@ void fix_rsc(void);              /* RSC-Anpassung an OS, Farbtiefe, AES, etc... 
 /*
  * shortc2.c
  */
-char set_menu_key(OBJECT *menu);
-char get_menu_key(OBJECT *menu, KINFO *ki, WORD *title, WORD *item);
-int scan_2_ascii(int scan, int state);
+void set_menu_key(OBJECT *menu);
+BOOLEAN get_menu_key(OBJECT *menu, KINFO *ki, WORD *title, WORD *item);
+WORD scan_2_ascii(UWORD scan, WORD state);
 
 
 

@@ -1402,7 +1402,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 /*----------------------------------------------------------------------*/
 void f_event(void)
 {
-	char itsok;
+	BOOLEAN itsok;
 	WORD bb_icon;
 	WORD back;
 	WORD message_back;
@@ -1654,7 +1654,7 @@ void f_event(void)
 						ki.alt = key_at_event & 0x008;
 						ki.shift = key_at_event & 0x003;
 
-						if ((itsok = get_menu_key(menu_tree, &ki, &title, &item)) != 0)
+						if ((itsok = get_menu_key(menu_tree, &ki, &title, &item)) != FALSE)
 						{
 							messagebuf[3] = title;
 							messagebuf[4] = item;
