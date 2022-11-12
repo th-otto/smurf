@@ -40,10 +40,9 @@
 /*		RADIOBUTTONS (nicht hintergrundbedienbar wg. form_button!) 		*/
 /*	Auûerdem Bildreihenfolge - Modulinfo - Button...					*/
 /* --------------------------------------------------------------------	*/
-void f_handle_radios(OBJECT * tree, int klickobj, int windnum)
+void f_handle_radios(OBJECT *tree, WORD klickobj, short windnum)
 {
-	int newedit;
-
+	WORD newedit;
 
 	if (tree[klickobj].ob_flags & OF_RBUTTON && !(tree[klickobj].ob_state & OS_DISABLED))
 	{
@@ -58,10 +57,9 @@ void f_handle_radios(OBJECT * tree, int klickobj, int windnum)
 /*	Handled das Setzen des Cursors auf ein neues Editobjekt bei		*/
 /*	Klick darauf.													*/
 /* ----------------------------------------------------------------	*/
-void f_handle_editklicks(WINDOW * window, int object)
+void f_handle_editklicks(WINDOW *window, WORD object)
 {
 	OBJECT *resource;
-
 
 	resource = window->resource_form;
 
@@ -78,21 +76,18 @@ void f_handle_editklicks(WINDOW * window, int object)
 /* ----------------------------------------------------------------	*/
 /*							UDOs feststellen 						*/
 /* ----------------------------------------------------------------	*/
-WORD UDO_or_not(WINDOW * wind, WORD klickobj)
+WORD UDO_or_not(WINDOW *wind, WORD klickobj)
 {
-	static int mode;
-	int objct,
-	 timo,
-	 evback,
-	 type;
-	int ox,
-	 oy,
-	 dummy,
-	 button;
-
+	static short mode;
+	WORD objct;
+	WORD timo;
+	WORD evback;
+	WORD type;
+	WORD ox, oy;
+	WORD dummy;
+	WORD button;
 	SMURF_PIC *prevpic;
 	OBJECT *ob;
-
 
 	ob = wind->resource_form;
 	if (IsDisabled(ob[klickobj]))
@@ -108,11 +103,12 @@ WORD UDO_or_not(WINDOW * wind, WORD klickobj)
 			objct = klickobj;
 
 			if (type == CHECKBOX)
+			{
 				do
 				{
 					graf_mkstate(&dummy, &dummy, &button, &dummy);
 				} while (button != 0);
-			else if (type == CYCLEBUTTON)
+			} else if (type == CYCLEBUTTON)
 			{
 				evback = evnt_multi(MU_BUTTON | MU_TIMER, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 									messagebuf, EVNT_TIME(300), &mouse_xpos, &mouse_ypos, &dummy, &key_at_event, &dummy,
@@ -203,7 +199,7 @@ WORD UDO_or_not(WINDOW * wind, WORD klickobj)
 /* ----------------------------------------------------------------	*/
 /*	Kleine Funktion zum deselektieren von 2 Objekten (fÅr Popups)	*/
 /* ----------------------------------------------------------------	*/
-void f_deselect_popup(WINDOW * wind, WORD ob1, WORD ob2)
+void f_deselect_popup(WINDOW *wind, WORD ob1, WORD ob2)
 {
 	DEBUG_MSG(("f_deselect_popup...\n"));
 

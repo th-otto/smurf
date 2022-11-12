@@ -528,8 +528,8 @@ short loadNCT(short loadplanes, SYSTEM_INFO *sysinfo);
 /*
  * objct.c
  */
-void f_handle_radios(OBJECT *tree, int klickobj, int windnum);
-void f_handle_editklicks(WINDOW *window, int object);
+void f_handle_radios(OBJECT *tree, WORD klickobj, short windnum);
+void f_handle_editklicks(WINDOW *window, WORD object);
 WORD UDO_or_not(WINDOW *wind, WORD klickobj);
 void f_deselect_popup(WINDOW *wind, WORD ob1, WORD ob2);
 

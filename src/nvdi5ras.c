@@ -32,26 +32,19 @@
 #include "nvdi5ras.h"
 
 
-void nvdi5_raster(SMURF_PIC * picture, char *ziel, int zoom)
+void nvdi5_raster(SMURF_PIC *picture, char *ziel, short zoom)
 {
 	char *pal;
-
-	int src_rect[4],
-	 dst_rect[4],
-	 i,
-	 cols;
-	unsigned int width,
-	 height,
-	 endwid,
-	 endhgt;
-
-	unsigned long scrnformat,
-	 picformat;
-
-	GCBITMAP src_bm,
-	 dst_bm;
+	WORD src_rect[4];
+	WORD dst_rect[4];
+	WORD i;
+	WORD cols;
+	uint16_t width, height, endwid, endhgt;
+	unsigned long scrnformat;
+	unsigned long picformat;
+	GCBITMAP src_bm;
+	GCBITMAP dst_bm;
 	COLOR_TAB256 ctab;
-
 
 	/* src */
 	if (picture->format_type == FORM_STANDARD)
@@ -78,17 +71,17 @@ void nvdi5_raster(SMURF_PIC * picture, char *ziel, int zoom)
 
 		ctab.magic = 'ctab';			/* Kennung */
 		ctab.length = sizeof(COLOR_TAB) + (cols * sizeof(COLOR_ENTRY));	/* L„nge */
-		ctab.format = 0L;				/* Format 0 */
-		ctab.reserved = 0L;
+		ctab.format = 0;				/* Format 0 */
+		ctab.reserved = 0;
 		ctab.map_id = v_get_ctab_id(handle);	/* Kennung der Farbtabelle */
 		ctab.color_space = CSPACE_RGB;	/* Farbraum */
 		ctab.flags = CSPACE_3COMPONENTS;	/* Anzahl der Komponenten angeben */
 		ctab.no_colors = cols;			/* Anzahl der Farbeintr„ge */
 
-		ctab.reserved1 = 0L;
-		ctab.reserved2 = 0L;
-		ctab.reserved3 = 0L;
-		ctab.reserved4 = 0L;
+		ctab.reserved1 = 0;
+		ctab.reserved2 = 0;
+		ctab.reserved3 = 0;
+		ctab.reserved4 = 0;
 
 		pal = picture->palette;
 		for (i = 0; i < cols; i++)
@@ -107,14 +100,13 @@ void nvdi5_raster(SMURF_PIC * picture, char *ziel, int zoom)
 
 	src_bm.magic = CBITMAP_MAGIC;
 	src_bm.length = 64;
-	src_bm.format = 0L;
-	src_bm.reserved = 0L;
+	src_bm.format = 0;
+	src_bm.reserved = 0;
 	src_bm.addr = picture->pic_data;
 	if (picture->format_type == FORM_PIXELPAK)
-		src_bm.width = (long) width *(long) picture->depth / 8L;
-
+		src_bm.width = (long) width * (long) picture->depth / 8L;
 	else
-	src_bm.width = (long) (width + 7) / 8L * picture->depth;
+		src_bm.width = (long) (width + 7) / 8L * picture->depth;
 	src_bm.bits = picture->depth;
 	src_bm.px_format = picformat;
 	src_bm.xmin = 0;
@@ -122,13 +114,12 @@ void nvdi5_raster(SMURF_PIC * picture, char *ziel, int zoom)
 	src_bm.xmax = width;
 	src_bm.ymax = height;
 	if (picture->depth <= 8)
-		src_bm.ctab = (COLOR_TAB *) & ctab;
+		src_bm.ctab = (COLOR_TAB *) &ctab;
 	else
-		src_bm.ctab = 0L;
-	src_bm.itab = 0L;
-	src_bm.reserved0 = 0L;
-	src_bm.reserved0 = 0L;
-
+		src_bm.ctab = 0;
+	src_bm.itab = 0;
+	src_bm.reserved0 = 0;
+	src_bm.reserved0 = 0;
 
 	/* dst */
 	vq_px_format(handle, &scrnformat);
@@ -150,12 +141,10 @@ void nvdi5_raster(SMURF_PIC * picture, char *ziel, int zoom)
 	dst_bm.ymin = 0;
 	dst_bm.xmax = endwid;
 	dst_bm.ymax = endhgt;
-	dst_bm.ctab = 0L;
-	dst_bm.itab = 0L;
-	dst_bm.reserved0 = 0L;
-	dst_bm.reserved0 = 0L;
+	dst_bm.ctab = 0;
+	dst_bm.itab = 0;
+	dst_bm.reserved0 = 0;
+	dst_bm.reserved0 = 0;
 
 	vr_transfer_bits(handle, &src_bm, &dst_bm, src_rect, dst_rect, T_REPLACE);
-
-	return;
-}										/* nvdi5_raster */
+}
