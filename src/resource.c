@@ -55,24 +55,23 @@
 #include "lrud_arr.icn"
 #include "lrud_arr.icm"
 
-int add_flags[40];						/* zusÑtzliche Fensterelemente */
+short add_flags[40];						/* zusÑtzliche Fensterelemente */
 
 /* f_init_popup */
 /* Diese Funktion generiert die Popup-strukturen fÅr jedes
 	einzelne POPUP, das in Smurf irgendwo vorkommt */
 void f_init_popups(void)
 {
-
 	DEBUG_MSG(("f_init_popups...\n"));
 
-/*	Auûenfarbe im Options-MenÅ */
+	/*	Auûenfarbe im Options-MenÅ */
 	popups[POPUP_OUTCOL].popup_tree = OUT_COL_POPUP;
 	popups[POPUP_OUTCOL].item = 2;
 	popups[POPUP_OUTCOL].display_tree = Dialog.smurfOpt.tree;
 	popups[POPUP_OUTCOL].display_obj = OUTCOL;
 	popups[POPUP_OUTCOL].Cyclebutton = OCOL_CB;
 
-/* Die Ditherpopups fÅrs Displayoptions-Formular */
+	/* Die Ditherpopups fÅrs Displayoptions-Formular */
 	popups[POPUP_DITHER].popup_tree = DITHERPOPUP;
 	popups[POPUP_DITHER].item = 1;
 	popups[POPUP_DITHER].display_tree = Dialog.dispOpt.tree;
@@ -187,7 +186,6 @@ void f_init_popups(void)
 
 void f_init_sliders(void)
 {
-
 	DEBUG_MSG(("f_init_sliders...\n"));
 
 	sliders[PDSLIDER1].regler = S1_R;
@@ -234,11 +232,11 @@ void f_init_sliders(void)
 
 
 /* ------ Resource laden und initialisieren, AES Initial.	---- */
-void init_smurfrsc(char *rscpath)
+void init_smurfrsc(const char *rscpath)
 {
-	int back,
-	 t,
-	 dummy;
+	WORD back;
+	short t;
+	WORD dummy;
 	GRECT desk;
 
 	/* ----- Startup-Dialog initialisieren --- */
@@ -251,8 +249,7 @@ void init_smurfrsc(char *rscpath)
 	back = xrsrc_load(rscpath, resource_global);
 	if (back == FALSE)
 	{
-		form_alert(1,
-				   "[3][Resource-File SMURF.RSC nicht|gefunden! PrÅfen Sie, ob sich|die Datei im Smurf-Pfad|befindet.][ Ups ]");
+		form_alert(1, "[3][Resource-File SMURF.RSC nicht|gefunden! PrÅfen Sie, ob sich|die Datei im Smurf-Pfad|befindet.][ Ups ]");
 		exit(-1);
 	}
 
@@ -313,41 +310,23 @@ void init_smurfrsc(char *rscpath)
 	f_treewalk(modconf_popup, 0);
 
 	/* Formularkoordinaten in Felder eintragen */
-	form_center(Dialog.dispOpt.tree, &(wind_s[WIND_DOPT].wx), &(wind_s[WIND_DOPT].wy), &(wind_s[WIND_DOPT].ww),
-				&(wind_s[WIND_DOPT].wh));
-
-	form_center(pic_form, &(wind_s[WIND_PIC].wx), &(wind_s[WIND_PIC].wy), &(wind_s[WIND_PIC].ww),
-				&(wind_s[WIND_PIC].wh));
-	form_center(pic_info_form, &(wind_s[WIND_PICINFO].wx), &(wind_s[WIND_PICINFO].wy), &(wind_s[WIND_PICINFO].ww),
-				&(wind_s[WIND_PICINFO].wh));
-	form_center(Dialog.smurfOpt.tree, &(wind_s[WIND_OPTIONS].wx), &(wind_s[WIND_OPTIONS].wy),
-				&(wind_s[WIND_OPTIONS].ww), &(wind_s[WIND_OPTIONS].wh));
-	form_center(alert_form, &(wind_s[WIND_ALERT].wx), &(wind_s[WIND_ALERT].wy), &(wind_s[WIND_ALERT].ww),
-				&(wind_s[WIND_ALERT].wh));
-	form_center(module_form, &(wind_s[WIND_MODFORM].wx), &(wind_s[WIND_MODFORM].wy), &(wind_s[WIND_MODFORM].ww),
-				&(wind_s[WIND_MODFORM].wh));
-	form_center(Dialog.emodList.tree, &(wind_s[WIND_MODULES].wx), &(wind_s[WIND_MODULES].wy),
-				&(wind_s[WIND_MODULES].ww), &(wind_s[WIND_MODULES].wh));
-	form_center(info_window, &(wind_s[WIND_INFO].wx), &(wind_s[WIND_INFO].wy), &(wind_s[WIND_INFO].ww),
-				&(wind_s[WIND_INFO].wh));
-	form_center(newpic_window, &(wind_s[WIND_NEWPIC].wx), &(wind_s[WIND_NEWPIC].wy), &(wind_s[WIND_NEWPIC].ww),
-				&(wind_s[WIND_NEWPIC].wh));
-	form_center(blocktype_window, &(wind_s[WIND_BTYPEIN].wx), &(wind_s[WIND_BTYPEIN].wy), &(wind_s[WIND_BTYPEIN].ww),
-				&(wind_s[WIND_BTYPEIN].wh));
-	form_center(Dialog.expmodList.tree, &(wind_s[WIND_EXPORT].wx), &(wind_s[WIND_EXPORT].wy), &(wind_s[WIND_EXPORT].ww),
-				&(wind_s[WIND_EXPORT].wh));
-	form_center(Dialog.picMan.tree, &(wind_s[WIND_PICMAN].wx), &(wind_s[WIND_PICMAN].wy), &(wind_s[WIND_PICMAN].ww),
-				&(wind_s[WIND_PICMAN].wh));
-	form_center(export_form, &(wind_s[FORM_EXPORT].wx), &(wind_s[FORM_EXPORT].wy), &(wind_s[FORM_EXPORT].ww),
-				&(wind_s[FORM_EXPORT].wh));
-	form_center(Dialog.emodList.infoTree, &(wind_s[WIND_MODULES].wx), &(wind_s[WIND_MODULES].wy),
-				&(wind_s[WIND_MODULES].ww), &(wind_s[WIND_MODULES].wh));
-	form_center(Dialog.expmodList.infoTree, &(wind_s[WIND_EXPORT].wx), &(wind_s[WIND_EXPORT].wy),
-				&(wind_s[WIND_EXPORT].ww), &(wind_s[WIND_EXPORT].wh));
-	form_center(transform_window, &(wind_s[WIND_TRANSFORM].wx), &(wind_s[WIND_TRANSFORM].wy),
-				&(wind_s[WIND_TRANSFORM].ww), &(wind_s[WIND_TRANSFORM].wh));
-	form_center(blockmode_window, &(wind_s[WIND_BLOCKMODE].wx), &(wind_s[WIND_BLOCKMODE].wy),
-				&(wind_s[WIND_BLOCKMODE].ww), &(wind_s[WIND_BLOCKMODE].wh));
+	form_center(Dialog.dispOpt.tree, &(wind_s[WIND_DOPT].wx), &(wind_s[WIND_DOPT].wy), &(wind_s[WIND_DOPT].ww), &(wind_s[WIND_DOPT].wh));
+	form_center(pic_form, &(wind_s[WIND_PIC].wx), &(wind_s[WIND_PIC].wy), &(wind_s[WIND_PIC].ww), &(wind_s[WIND_PIC].wh));
+	form_center(pic_info_form, &(wind_s[WIND_PICINFO].wx), &(wind_s[WIND_PICINFO].wy), &(wind_s[WIND_PICINFO].ww), &(wind_s[WIND_PICINFO].wh));
+	form_center(Dialog.smurfOpt.tree, &(wind_s[WIND_OPTIONS].wx), &(wind_s[WIND_OPTIONS].wy), &(wind_s[WIND_OPTIONS].ww), &(wind_s[WIND_OPTIONS].wh));
+	form_center(alert_form, &(wind_s[WIND_ALERT].wx), &(wind_s[WIND_ALERT].wy), &(wind_s[WIND_ALERT].ww), &(wind_s[WIND_ALERT].wh));
+	form_center(module_form, &(wind_s[WIND_MODFORM].wx), &(wind_s[WIND_MODFORM].wy), &(wind_s[WIND_MODFORM].ww), &(wind_s[WIND_MODFORM].wh));
+	form_center(Dialog.emodList.tree, &(wind_s[WIND_MODULES].wx), &(wind_s[WIND_MODULES].wy), &(wind_s[WIND_MODULES].ww), &(wind_s[WIND_MODULES].wh));
+	form_center(info_window, &(wind_s[WIND_INFO].wx), &(wind_s[WIND_INFO].wy), &(wind_s[WIND_INFO].ww), &(wind_s[WIND_INFO].wh));
+	form_center(newpic_window, &(wind_s[WIND_NEWPIC].wx), &(wind_s[WIND_NEWPIC].wy), &(wind_s[WIND_NEWPIC].ww), &(wind_s[WIND_NEWPIC].wh));
+	form_center(blocktype_window, &(wind_s[WIND_BTYPEIN].wx), &(wind_s[WIND_BTYPEIN].wy), &(wind_s[WIND_BTYPEIN].ww), &(wind_s[WIND_BTYPEIN].wh));
+	form_center(Dialog.expmodList.tree, &(wind_s[WIND_EXPORT].wx), &(wind_s[WIND_EXPORT].wy), &(wind_s[WIND_EXPORT].ww), &(wind_s[WIND_EXPORT].wh));
+	form_center(Dialog.picMan.tree, &(wind_s[WIND_PICMAN].wx), &(wind_s[WIND_PICMAN].wy), &(wind_s[WIND_PICMAN].ww), &(wind_s[WIND_PICMAN].wh));
+	form_center(export_form, &(wind_s[FORM_EXPORT].wx), &(wind_s[FORM_EXPORT].wy), &(wind_s[FORM_EXPORT].ww), &(wind_s[FORM_EXPORT].wh));
+	form_center(Dialog.emodList.infoTree, &(wind_s[WIND_MODULES].wx), &(wind_s[WIND_MODULES].wy), &(wind_s[WIND_MODULES].ww), &(wind_s[WIND_MODULES].wh));
+	form_center(Dialog.expmodList.infoTree, &(wind_s[WIND_EXPORT].wx), &(wind_s[WIND_EXPORT].wy), &(wind_s[WIND_EXPORT].ww), &(wind_s[WIND_EXPORT].wh));
+	form_center(transform_window, &(wind_s[WIND_TRANSFORM].wx), &(wind_s[WIND_TRANSFORM].wy), &(wind_s[WIND_TRANSFORM].ww), &(wind_s[WIND_TRANSFORM].wh));
+	form_center(blockmode_window, &(wind_s[WIND_BLOCKMODE].wx), &(wind_s[WIND_BLOCKMODE].wy), &(wind_s[WIND_BLOCKMODE].ww), &(wind_s[WIND_BLOCKMODE].wh));
 	form_center(confsave_dialog, &dummy, &dummy, &dummy, &dummy);
 	form_center(modconf_popup, &dummy, &dummy, &dummy, &dummy);
 
@@ -571,7 +550,7 @@ void fix_rsc(void)
 	}
 
 	/*--------------- Objektrahmen (wenn kein 3D-AES) ----------------*/
-	if (Sys_info.Max_col < 15 || Sys_info.OS & MATSCHIG || !(Sys_info.OSFeatures & AES3D))
+	if (Sys_info.Max_col < 15 || (Sys_info.OS & MATSCHIG) || !(Sys_info.OSFeatures & AES3D))
 	{
 		ob = wind_s[WIND_EXPORT].resource_form;
 		ob[EMOD_SLIDER].ob_spec.obspec.framesize = -1;

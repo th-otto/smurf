@@ -67,16 +67,16 @@
 
 typedef struct
 {
-	int x,y,w,h;
-	int x1,y1,x2,y2;
+	WORD x, y, w, h;
+	WORD x1, y1, x2, y2;
 } OLGA_GRECT;
 
 
 typedef struct
 {
 	long         magic;
-	unsigned int version;
-	unsigned int skip;
+	unsigned short version;
+	unsigned short skip;
 } OLGAInfHeader;
 
 
@@ -89,34 +89,34 @@ typedef struct
 
 typedef struct
 {
-	int Red;
-	int Green;
-	int Blue;
+	WORD Red;
+	WORD Green;
+	WORD Blue;
 } OLGA_RGB;
 
 
 typedef struct
 {
-	int Count;
+	WORD Count;
 	OLGA_RGB Colors[];
 } OLGAColorTable;
 
-/*
+#if 0
 typedef struct ObjectInfo
 {
 	char           *Filename;
 	AESPB          *ClientGEMPB;
 	long            ClientData;
 	long            ServerData;
-	int             CBLock;
-	int             CBCount;
-	void            cdecl (*CBDraw)(ObjectInfo *objectinfo, int outScreen, int outHandle, int outDevID, GRECT *Size, GRECT *Clip);
+	short           CBLock;
+	short           CBCount;
+	void            cdecl (*CBDraw)(ObjectInfo *objectinfo, short outScreen, short outHandle, short outDevID, GRECT *Size, GRECT *Clip);
 	void            cdecl (*CBUnembed)(ObjectInfo *objectinfo);
-	void            cdecl (*CBXDraw)(ObjectInfo *objectinfo, int outScreen, int outHandle, int outDevID, GRECT *Size, GRECT *Clip, long Width_mm1000, long Height_mm1000, long Scale);
+	void            cdecl (*CBXDraw)(ObjectInfo *objectinfo, short outScreen, short outHandle, short outDevID, GRECT *Size, GRECT *Clip, long Width_mm1000, long Height_mm1000, long Scale);
 	OLGAColorTable *cbColorTable;
-	int             cbClientID;
-	int             cbServerID;
+	WORD            cbClientID;
+	WORD            cbServerID;
 } OLGAObjectInfo;
-*/
+#endif
 
 #endif
