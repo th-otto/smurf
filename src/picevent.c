@@ -49,16 +49,9 @@
 #define IOREC _IOREC
 #endif
 
-static int lastmousex = 0;
-static int lastmousey = 0;
+static WORD lastmousex = 0;
+static WORD lastmousey = 0;
 
-/*----------- lokale Funktionen -----------------------------*/
-static int crosshair_mouse(WINDOW * window, int mx, int my);
-static void move_crosshair(WINDOW * window);
-static void pic_popup(WINDOW * picwindow);
-static void drop_block(WINDOW * picwindow, int mx, int my);
-static int mouse_block_position(WINDOW * picwindow, int mx, int my, int *hmode, int *vmode);
-static void do_block_box(WINDOW * picwindow, int mx, int my);
 
 
 BLOCKMODE blockmode_conf = {
@@ -68,271 +61,92 @@ BLOCKMODE blockmode_conf = {
 };
 
 
-/* ----------------------------------------------------------------	*/
-/*				Auswertung eines Events im Bildfenster				*/
-/* ----------------------------------------------------------------	*/
-void f_pic_event(WINDOW * picwindow, int event_type, int windnum)
+/*-------------------------------------------------------------------------------------
+	int	mouse_block_position
+	Legt in *hmode / *vmode anhand der Mauskoordinaten mx/my fest, an welcher Kante der 
+	Block in picwindow angefaût wurde. Wenn hierbei ein neuer Block aufgezogen wird,
+	ist der RÅckgabewert 1, und 0, wenn ein bereits vorhandener Block geÑndert wird.
+	-----------------------------------------------------------------------------------	*/
+static BOOLEAN mouse_block_position(WINDOW *picwindow, WORD mx, WORD my, WORD *hmode, WORD *vmode)
 {
-	int backbutton,
-	 back,
-	 dummy,
-	 mstate;
-	int w_x,
-	 w_y,
-	 w_w,
-	 w_h;
-	int oldzoom;
-	int hmode,
-	 vmode,
-	 out_block,
-	 chmouse;
-	static int oldwindnum,
-	 outpos;
-	static int mouse_type;
-
+	WORD n_mx, n_my;
+	WORD bx1, by1, bx2, by2;
+	BOOLEAN new_block = TRUE;
+	short zoom;
+	WORD windx, windy, dummy, xoff, yoff;
 	SMURF_PIC *picture;
-	OBJECT *pic_form;
-	static WINDOW *oldwindow;
 
 	picture = picwindow->picture;
-	pic_form = picwindow->resource_form;
 
-	Window.windGet(picwindow->whandlem, WF_WORKXYWH, &w_x, &w_y, &w_w, &w_h);
+	/* ist Åberhaupt ein Block aufgezogen? */
+	if (picture->blockheight == 0 || picture->blockwidth == 0)
+		return TRUE;
 
-	obj = -1;
+	zoom = picwindow->picture->zoom + 1;
 
-	if (windnum != oldwindnum)
+	*(hmode) = *(vmode) = 0;
+
+	Window.windGet(picwindow->whandlem, WF_WORKXYWH, &windx, &windy, &dummy, &dummy);
+
+	/*--- relative Position des Mauszeigers zum Fenster */
+	n_mx = mx - windx;
+	n_my = my - (windy + TOOLBAR_HEIGHT);
+
+	n_mx *= zoom;
+	n_my *= zoom;
+	n_mx -= 1;
+
+	bx1 = picture->blockx;
+	by1 = picture->blocky;
+	bx2 = picture->blockwidth + bx1;
+	by2 = picture->blockheight + by1;
+
+	xoff = picwindow->xoffset * zoom;
+	yoff = picwindow->yoffset * zoom;
+
+	/* ---------------Mauszeiger irgendwo im Block? ---------------------- */
+	if (n_mx >= bx1 - 2 - xoff && n_mx <= bx2 + 2 - xoff && n_my >= by1 - 2 - yoff && n_my <= by2 + 2 - yoff)
 	{
-		outpos = 0;
-		imageWindow.nullCoords(oldwindow);
+		new_block = FALSE;
+
+		if (n_mx <= bx1 - xoff + 4)
+			*(hmode) = LEFT;			/* H-Modus: links */
+		else if (n_mx >= bx2 - xoff - 4)
+			*(hmode) = RIGHT;			/* H-Modus: rechts */
+
+		if (n_my <= by1 - yoff + 4)
+			*vmode = TOP;				/* V-Modus: oben */
+		else if (n_my >= by2 - yoff - 4)
+			*(vmode) = BOTTOM;			/* V-Modus: unten */
 	}
 
-	/*--------- Mauszeiger im Bild? */
-	if (mouse_xpos >= w_x && mouse_xpos < w_x + w_w && mouse_ypos >= w_y + TOOLBAR_HEIGHT && mouse_ypos < w_y + w_h &&
-		mouse_ypos < w_y + (picture->pic_height / (picture->zoom + 1)) + TOOLBAR_HEIGHT &&
-		mouse_xpos < w_x + (picture->pic_width / (picture->zoom + 1)))
-	{
-		if (event_type == MU_TIMER)
-		{
-			if (windnum == oldwindnum && picwindow->picture->own_pal && syspalset || windnum != oldwindnum)
-			{
-				if (Display_Opt.palette_mode == PAL_MOUSE)
-				{
-					f_set_picpal(picwindow->picture);
-					if (Sys_info.OS & MAG_PC)
-						Window.redraw(picwindow, NULL, 0, DRAWNOTREE);
-				}
-			}
-
-			if (lastmousex != mouse_xpos || lastmousey != mouse_ypos)
-				imageWindow.displayCoords(picwindow, mouse_xpos, mouse_ypos, 0);
-
-			chmouse = crosshair_mouse(picwindow, mouse_xpos, mouse_ypos);
-
-			if (!chmouse)
-			{
-				hmode = vmode = 0;
-				out_block = mouse_block_position(picwindow, mouse_xpos, mouse_ypos, &hmode, &vmode);
-				if (out_block)
-				{
-					graf_mouse(OUTLN_CROSS, dummy_ptr);
-					mouse_type = OUTLN_CROSS;
-				} else
-				{
-					if (hmode && !vmode)
-						graf_mouse(USER_DEF, &lr_arrow);
-					else if (!hmode && vmode)
-						graf_mouse(USER_DEF, &ud_arrow);
-					else if (hmode && vmode)
-						graf_mouse(USER_DEF, &lrud_arrow);
-					else if (!hmode && !vmode)
-						graf_mouse(FLAT_HAND, dummy_ptr);
-				}
-			} else
-			{
-				graf_mouse(THIN_CROSS, dummy_ptr);
-				mouse_type = THIN_CROSS;
-			}
-		} else if (event_type == MU_BUTTON)
-		{
-			if (mouse_button == 0x1 &&
-				mouse_ypos < w_y + (picture->pic_height / (picture->zoom + 1)) + TOOLBAR_HEIGHT &&
-				mouse_xpos < w_x + (picture->pic_width / (picture->zoom + 1)))
-			{
-				graf_mkstate(&dummy, &dummy, &mstate, &dummy);
-
-				if (klicks == 1)
-				{
-					if (mstate == 0)
-					{
-						if (&picture_windows[active_pic] != picwindow)
-						{
-#if 0
-							/* Testweise raus da anscheinend Åberhaupt nicht benîtigt */
-							Dialog.picMan.makeThumbnail(picwindow->wnum);
-							obj = 0;
-							Dialog.picMan.handlePicman();
-#endif
-							Window.top(picwindow->whandlem);
-						}
-					} else
-					{
-						if (crosshair_mouse(picwindow, mouse_xpos, mouse_ypos))
-							move_crosshair(picwindow);
-						else
-						{
-							do_block_box(picwindow, mouse_xpos, mouse_ypos);
-							if (picwindow->picture->blockwidth && picwindow->picture->blockheight)
-								blockfunctions_on();
-						}
-					}
-				} else if (klicks == 2)
-				{
-					out_block = mouse_block_position(picwindow, mouse_xpos, mouse_ypos, &hmode, &vmode);
-					if (out_block == 0)
-						block_dklick(picwindow);
-				}
-			} else if (mouse_button == 0x2)
-			{
-				f_activate_pic(picwindow->wnum);
-				openmode = 0;
-				popups[POPUP_PIC].item = 0;
-
-				out_block = mouse_block_position(picwindow, mouse_xpos, mouse_ypos, &hmode, &vmode);
-
-				/* OutBlock + kein Shift oder InBlock und Shift */
-				if ((out_block != 0 && !(key_at_event & KEY_SHIFT)) || (out_block == 0 && (key_at_event & KEY_SHIFT)))
-					pic_popup(picwindow);
-
-				/* OutBlock + Shift oder InBlock und kein Shift */
-				else if ((out_block == 0 && !(key_at_event & KEY_SHIFT)) ||
-						 (out_block != 0 && (key_at_event & KEY_SHIFT)))
-					imageWindow.blockPop(picwindow);
-			}
-		}
-
-		outpos = 0;
-	}
-	/*--------- Mauszeiger auûerhalb des Bildes */
-	else
-	{
-		if (!outpos)
-		{
-			graf_mouse(ARROW, dummy_ptr);
-			imageWindow.nullCoords(picwindow);
-
-			if (!syspalset)
-				if (Display_Opt.palette_mode == PAL_MOUSE)
-					f_set_syspal();
-
-			outpos = 1;
-		}
-
-		if (!(event_type & MU_TIMER))
-		{
-			if (mouse_button == 0x02)
-			{
-				if (mouse_ypos < w_y + TOOLBAR_HEIGHT)
-					Comm.bubbleGem(-(picwindow->wnum), mouse_xpos, mouse_ypos, 0);
-				else
-					pic_popup(picwindow);
-			} else
-			{
-				f_activate_pic(picwindow->wnum);
-
-				pic_form->ob_x = w_x;
-				pic_form->ob_y = w_y;
-				backbutton = objc_find(pic_form, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
-				if (backbutton == ZOOM_FACTOR)
-				{
-					back = f_pop(&popups[POPUP_ZOOM], 0, 0, NULL);
-					oldzoom = picture->zoom;
-
-					switch (back)
-					{
-					case DURCH2:
-						picture->zoom = 1;
-						break;
-					case DURCH3:
-						picture->zoom = 3;
-						break;
-					case DURCH4:
-						picture->zoom = 9;
-						break;
-					case DURCH5:
-						picture->zoom = 19;
-						break;
-					case DURCH6:
-						picture->zoom = 29;
-						break;
-					case ZOOM1:
-						picture->zoom = 0;
-						break;
-					}
-
-					if (oldzoom != picture->zoom)
-					{
-						if (!Sys_info.realtime_dither)
-							f_dither(picture, &Sys_info, 1, NULL, &Display_Opt);
-
-						picwindow->clipwid = (picture->pic_width) / (picture->zoom + 1);
-						picwindow->cliphgt = (picture->pic_height) / (picture->zoom + 1);
-
-						if (picture->block)
-						{
-							picture->block->zoom = picture->zoom;
-							if (!Sys_info.realtime_dither)
-								f_dither(picture->block, &Sys_info, 1, NULL, &Display_Opt);
-						}
-
-						imageWindow.clipPicwin(picwindow);
-						Window.redraw(picwindow, NULL, 0, 0);
-						wind_s[WIND_MODFORM].xoffset = 0;
-						wind_s[WIND_MODFORM].yoffset = 0;
-						Window.redraw(&wind_s[WIND_MODFORM], NULL, 0, 0);
-						imageWindow.setSliders(picwindow);
-						Dialog.busy.ok();
-					}
-				} else if (backbutton == PICWIND_INFO)
-				{
-					openmode = 0;
-					f_pic_info();
-				}
-			}
-		}
-	}
-
-	oldwindow = picwindow;
-	oldwindnum = windnum;
+	return new_block;
 }
 
 
-static int crosshair_mouse(WINDOW * window, int mx, int my)
+static BOOLEAN crosshair_mouse(WINDOW *window, WORD mx, WORD my)
 {
-	int arrnum = -1,
-		x,
-		y,
-		dummy;
-	int all_yoff,
-	 all_xoff;
-	int modwin_handle,
-	 top_handle;
-
+	WORD arrnum = -1;
+	WORD x,	y;
+	WORD dummy;
+	WORD all_yoff, all_xoff;
+	WORD modwin_handle;
+	WORD top_handle;
 
 	arrnum = imageWindow.findCrosshair(window);
 
 	if (arrnum == -1)
-		return (0);
+		return FALSE;
 	if (position_markers[arrnum].mod_pic[0] == -1)
-		return (0);
+		return FALSE;
 	if (module.smStruct[arrnum] == NULL)
-		return (0);
+		return FALSE;
 
 	/*-------- Ist das dazugehîrige Modulfenster getoppt? -----*/
 	modwin_handle = module.smStruct[arrnum]->wind_struct->whandlem;
 	Window.windGet(0, WF_TOP, &top_handle, &dummy, &dummy, &dummy);
 	if (modwin_handle != top_handle)
-		return (0);
+		return FALSE;
 
 	/* absolute Fensterkoordinaten (BildflÑche) ausrechnen */
 	Window.windGet(window->whandlem, WF_WORKXYWH, &all_xoff, &all_yoff, &dummy, &dummy);
@@ -343,34 +157,28 @@ static int crosshair_mouse(WINDOW * window, int mx, int my)
 	y = position_markers[arrnum].ypos[0] + all_yoff;
 
 	if (my > y - 3 && my < y + 3 && mx > x - 3 && mx < x + 3)
-		return (1);
+		return TRUE;
 	else
-		return (0);
+		return FALSE;
 }
 
 
-static void move_crosshair(WINDOW * window)
+static void move_crosshair(WINDOW *window)
 {
-	int arrnum = -1;
-	int all_yoff,
-	 all_xoff;
-	int move_x,
-	 move_y,
-	 omx = 0,
-		omy = 0,
-		mbutton,
-		dummy;
-	int windx,
-	 windy,
-	 windx2,
-	 windy2;
-	int clip[6];
-	int window_redraw = 0,
-		scroll;
-	int modwin_handle,
-	 top_handle;
-	int save;
-
+	WORD arrnum = -1;
+	WORD all_yoff, all_xoff;
+	WORD move_x, move_y;
+	WORD omx = 0;
+	WORD omy = 0;
+	WORD mbutton;
+	WORD dummy;
+	WORD windx, windy, windx2, windy2;
+	WORD clip[6];
+	WORD window_redraw = 0;
+	WORD scroll;
+	WORD modwin_handle;
+	WORD top_handle;
+	short save;
 
 	arrnum = imageWindow.findCrosshair(window);
 
@@ -491,14 +299,12 @@ static void move_crosshair(WINDOW * window)
 }
 
 
-static void pic_popup(WINDOW * picwindow)
+static void pic_popup(WINDOW *picwindow)
 {
-	int back,
-	 dummy,
-	 kstate;
-
+	WORD back;
+	WORD dummy;
+	WORD kstate;
 	SMURF_PIC *picture = picwindow->picture;
-
 
 	back = f_pop(&popups[POPUP_PIC], 1, 0, NULL);
 	switch (back)
@@ -579,128 +385,227 @@ static void pic_popup(WINDOW * picwindow)
 }
 
 
-/* ----------------------------------------------------------------	*/
-/*							Block-Popup								*/
-/* ----------------------------------------------------------------	*/
-void f_block_popup(WINDOW * picwindow)
+/*-------------------------------------------------------------------------------------
+	void drop_block
+	Der Block aus picwindow wurde an den Mauskoordinaten mx/my auûerhalb von picwindow
+	abgelegt. Diese Funktion handelt alle weiteren Aktionen wie öbertragung mittels 
+	Drag&Drop-Protokoll, Speichern mit AV-Protokoll, öbertragen in ein anderes Smurf-
+	Bildfenster, etc.
+	-----------------------------------------------------------------------------------	*/
+static void drop_block(WINDOW *picwindow, WORD mx, WORD my)
 {
-	int back;
+	char newPicName[256];
+	WORD dest_whandle;
+	WORD my_wnum;
+	WORD key;
+	WORD dummy;
+	short newPic = 1;
+	WINDOW *dest_picwindow;
+	SMURF_PIC *dest_picture;
+	SMURF_PIC *srcpic;
+	GRECT redraw;
 
-	SMURF_PIC *picture;
+	dest_whandle = wind_find(mx, my);
+	my_wnum = Window.myWindow(dest_whandle);
 
 
-	picture = picwindow->picture;
-
-	/*------- ist Åberhaupt ein Block aufgezogen und ein Clipboardpfad vorhanden? */
-	if (picture->blockheight == 0 || picture->blockwidth == 0 || Sys_info.scrp_path == NULL)
-		blockfunctions_off();
-	else
-		blockfunctions_on();
-
-	back = f_pop(&popups[POPUP_BLOCK], 1, 0, NULL);
-
-	switch (back)
+	/*
+	 * smurfeigenes Bildfenster? -> Block verschieben
+	 */
+	if (my_wnum < 0)
 	{
-	case BLOCK_RELEASE:
-		imageWindow.removeBlock(picwindow);
-		blockfunctions_off();
-		if (wind_s[WIND_BTYPEIN].whandlem != -1)
-			insert_blockcoords(picture);
-		break;
+		my_wnum = -my_wnum;
+		dest_picwindow = &picture_windows[my_wnum];
+		dest_picture = dest_picwindow->picture;
+		srcpic = picwindow->picture;
 
-	case BLOCK_FREE:
-		block_freistellen(picwindow);
-		if (wind_s[WIND_BTYPEIN].whandlem != -1)
-			insert_blockcoords(picture);
-		break;
-
-	case BLOCK_TYPEIN:
-		block_type_in();
-		break;
-
-	case BLOCK_COPY:
-		block2clip(picture, 0, NULL);
-		break;
-
-	case BLOCK_INSERT:
-		clip2block(picture, NULL, -1, -1);
-		Window.redraw(picwindow, NULL, 0, 0);
-		break;
-
-	case BLOCK_CUT:
-		if (block2clip(picture, 1, NULL) != -1)
+		if (dest_picture->block != NULL)
 		{
-			imageWindow.toggleAsterisk(picwindow, 1);
-			f_dither(picture, &Sys_info, 1, NULL, &Display_Opt);
-			Window.redraw(picwindow, NULL, 0, 0);
+			f_set_syspal();
+			if (Dialog.winAlert.
+				openAlert("Bereits vorhandenen Block im Zielbild entfernen?", "Nein", " Ja ", NULL, 1) == 1)
+				return;
+			else
+				remove_block(dest_picwindow);
 		}
-		break;
 
-	case BLOCK_MODE:
-		blockmode();
-		break;
+		dest_picture->block = srcpic->block;
+
+		/*
+		 * Hier muû u.U. eine leere LNCT angefordert werden, denn sonst gibt es Probleme, wenn das
+		 * Bild mit MedianCut gedithert wird und keine da ist - dann gibt es fÅrs Blockdithering
+		 * nÑmlich auch keine. Das ist z.B. der Fall, wenn Zielbild=Bildschirmfarbtiefe und mit
+		 * MedianCut gedithert, denn dann wird keine NCT fÅr dieses Bild angelegt.
+		 */
+#if 0
+		if (dest_picture->local_nct == NULL)
+		{
+			dest_picture->not_in_nct = 0;
+			dest_picture->local_nct = SMalloc(32768L);
+			memset(dest_picture->local_nct, 0x0, 32768L);
+		}
+#endif
+		dest_picture->block->local_nct = dest_picture->local_nct;
+
+		memcpy(dest_picture->block->red, dest_picture->red, 256 * 2);
+		memcpy(dest_picture->block->grn, dest_picture->grn, 256 * 2);
+		memcpy(dest_picture->block->blu, dest_picture->blu, 256 * 2);
+
+		dest_picture->blockx = (mx - dest_picwindow->wx) - (srcpic->blockwidth / 2);
+		dest_picture->blocky = (my - dest_picwindow->wy - TOOLBAR_HEIGHT) - (srcpic->blockheight / 2);
+		dest_picture->blockwidth = picwindow->picture->blockwidth;
+		dest_picture->blockheight = picwindow->picture->blockheight;
+
+		redraw.g_x = srcpic->blockx - picwindow->xoffset + picwindow->wx;
+		redraw.g_y = srcpic->blocky - picwindow->yoffset + picwindow->wy;
+		redraw.g_w = srcpic->blockwidth;
+		redraw.g_h = srcpic->blockheight;
+		Window.redraw(picwindow, &redraw, 0, DRAWNOBLOCK | NOBLOCKBOX);
+
+		/*
+		 * Vor remove_block mÅssen die Koordinaten im Quellbild auf 0 gesetzt werden,
+		 * damit der Blockspeicher nicht freigegeben wird - der wird im Zielbild 
+		 * noch benîtigt!
+		 */
+		picwindow->picture->blockx = 0;
+		picwindow->picture->blocky = 0;
+		picwindow->picture->blockwidth = 0;
+		picwindow->picture->blockheight = 0;
+		picwindow->picture->block = NULL;
+
+		if (!Sys_info.realtime_dither)
+			f_dither(dest_picwindow->picture->block, &Sys_info, 1, NULL, &Display_Opt);
+
+		Window.redraw(dest_picwindow, NULL, 0, BLOCK_ONLY);
 	}
+	/*
+	 * smurfeigenes Dialogfenster? -> Block in neues Bild verschieben
+	 */
+	else if (my_wnum > 0)
+	{
+		/*
+		 * erstes freies Bild ermitteln 
+		 */
+		while (smurf_picture[newPic] != NULL)
+			newPic++;
+		if (newPic > MAX_PIC)
+		{
+			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1);
+			return;
+		}
+
+		/*
+		 * neues Bild + Fenster anlegen
+		 */
+		smurf_picture[newPic] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
+		memcpy(smurf_picture[newPic], picwindow->picture->block, sizeof(SMURF_PIC));
+
+		smurf_picture[newPic]->changed = 0;
+
+		memset(newPicName, 0x0, 256);
+		strcpy(newPicName, "Block aus ");
+		strcat(newPicName, (picwindow->wtitle) + 12);
+		make_pic_window(newPic, picwindow->picture->block->pic_width, picwindow->picture->block->pic_height, newPicName);
+
+		/*
+		 * Block aus dem Originalbild entfernen und Bildschirmdarstellung lîschen
+		 */
+		if (picwindow->picture->block->screen_pic)
+		{
+			SMfree(picwindow->picture->block->screen_pic->fd_addr);
+			free(picwindow->picture->block->screen_pic);
+		}
+
+		picwindow->picture->block->local_nct = NULL;	/* nicht freigeben!, da das nur eine Referenz auf die lnct im Quellbild ist */
+
+		picwindow->picture->blockx = 0;
+		picwindow->picture->blocky = 0;
+		picwindow->picture->blockwidth = 0;
+		picwindow->picture->blockheight = 0;
+		SMfree(picwindow->picture->block);
+		picwindow->picture->block = NULL;
+
+
+		/*
+		 * Dither/Redraw des neuen Fensters
+		 */
+		if (!Sys_info.realtime_dither)
+			f_dither(smurf_picture[newPic], &Sys_info, 1, NULL, &Display_Opt);
+
+		Window.open(&picture_windows[newPic]);
+		picthere++;
+		imageWindow.clipPicwin(&picture_windows[newPic]);
+		Dialog.picMan.insertPic(newPic);
+		f_activate_pic(newPic);
+
+		Window.redraw(&picture_windows[newPic], NULL, 0, 0);
+
+		Dialog.busy.dispRAM();			/* wieviel Ram? */
+		actualize_menu();				/* MenÅeintrÑge ENABLEn / DISABLEn */
+	}
+
+	/*
+	 * geht D&D schief mit AV-Protokoll versuchen
+	 */
+	else if (Comm.sendDragdrop(picwindow->picture->block, dest_whandle, mx, my) < 0)
+		/*
+		 *  Desktop?
+		 */
+		if (dest_whandle == 0)
+		{
+			graf_mkstate(&dummy, &dummy, &dummy, &key);
+			Comm.avComm.type = AV_BLOCK;
+			Comm.avComm.windowhandle = picwindow->whandlem;
+			Comm.avComm.keystate = key;
+			Comm.sendAESMsg(AV_WHAT_IZIT, mx, my, -1);
+		}
 }
 
 
-/* ----------------------------------------------------------------	*/
-/*				Blockbox mit der Maus aufziehen/Ñndern							*/
-/* Die Monsterfunktion																*/
-/*	Der Frame kann in allen Ecken und Kanten mit der Maus gezogen 		*/
-/*	werden, wird innerhalb des Frames geklickt, kann er bewegt 			*/
-/*	werden.																				*/
-/* ----------------------------------------------------------------	*/
-static void do_block_box(WINDOW * picwindow, int mx, int my)
-{
-	int n_mx,
-	 n_my,
-	 new_block,
-	 oldblock = 0;
-	int mbutton,
-	 move_x,
-	 move_y,
-	 dummy;
-	int xoff,
-	 yoff;
-	int windx,
-	 windy,
-	 windx2,
-	 windy2;
-	int omx,
-	 omy;
-	int window_redraw = 0;
-	int clip[6],
-	 iconclip[6],
-	 savepxy[10];
-	int scroll;
-	int hmode,
-	 vmode,
-	 oldheight,
-	 oldwidth;
-	int display_mode = 0;
-	int zoom;
-	int movxdif = 0,
-		movydif = 0;
-	int newx = 0,
-		newy = 0,
-		newwid,
-		newhgt;
-	int ow,
-	 oh;
-	int merkxoffset,
-	 merkyoffset;
-	int temp;
-	int old_iconxpos,
-	 old_iconypos;
-	int old_xpos,
-	 old_ypos,
-	 old_wid,
-	 old_hgt;
-	int mouse_wnum,
-	 done;
 
-	MFDB screenm,
-	 buffer;
+/* ----------------------------------------------------------------	*/
+/*				Blockbox mit der Maus aufziehen/Ñndern				*/
+/* Die Monsterfunktion												*/
+/*	Der Frame kann in allen Ecken und Kanten mit der Maus gezogen 	*/
+/*	werden, wird innerhalb des Frames geklickt, kann er bewegt 		*/
+/*	werden.															*/
+/* ----------------------------------------------------------------	*/
+static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
+{
+	WORD n_mx, n_my;
+	BOOLEAN new_block;
+	BOOLEAN oldblock = FALSE;
+	WORD mbutton;
+	WORD move_x, move_y;
+	WORD dummy;
+	WORD xoff, yoff;
+	WORD windx, windy, windx2, windy2;
+	WORD omx, omy;
+	WORD window_redraw = 0;
+	WORD clip[6];
+	WORD iconclip[6];
+	WORD savepxy[10];
+	WORD scroll;
+	WORD hmode, vmode;
+	WORD oldheight, oldwidth;
+	short display_mode = 0;
+	short zoom;
+	WORD movxdif = 0;
+	WORD movydif = 0;
+	WORD newx = 0;
+	WORD newy = 0;
+	WORD newwid, newhgt;
+	WORD ow, oh;
+	WORD merkxoffset, merkyoffset;
+	WORD temp;
+	WORD old_iconxpos, old_iconypos;
+	WORD old_xpos, old_ypos;
+	WORD old_wid, old_hgt;
+	WORD mouse_wnum;
+	BOOLEAN done;
+
+	MFDB screenm;
+	MFDB buffer;
 	WINDOW *mouse_window;
 	GRECT redraw;
 	SMURF_PIC *picture;
@@ -744,21 +649,21 @@ static void do_block_box(WINDOW * picwindow, int mx, int my)
 	movxdif = n_mx - (picwindow->picture->blockx / zoom - picwindow->xoffset);
 	movydif = n_my - (picwindow->picture->blocky / zoom - picwindow->yoffset);
 
-	new_block = 1;
+	new_block = TRUE;
 	vmode = -1;
 	hmode = -1;
 
 	if (picture->block != NULL)
-		oldblock = 1;
+		oldblock = TRUE;
 
 	new_block = mouse_block_position(picwindow, mx, my, &hmode, &vmode);
 	if (vmode == -1 && hmode == -1)
-		new_block = 1;
+		new_block = TRUE;
 
 	/*
 	 * neuer Block - Anfangsposition setzen 
 	 */
-	if (new_block == 1)
+	if (new_block == TRUE)
 	{
 		imageWindow.removeBlock(picwindow);
 
@@ -1141,7 +1046,7 @@ static void do_block_box(WINDOW * picwindow, int mx, int my)
 		 */
 		if (!new_block)
 		{
-			done = 0;
+			done = FALSE;
 
 			/*
 			 * rechtes/linkes Rechteck
@@ -1156,7 +1061,7 @@ static void do_block_box(WINDOW * picwindow, int mx, int my)
 				{
 					redraw.g_x = old_xpos / zoom + windx - picwindow->xoffset;
 					redraw.g_w = old_wid / zoom;
-					done = 1;
+					done = TRUE;
 				}
 			} else if (picture->blockx > old_xpos)
 			{
@@ -1167,7 +1072,7 @@ static void do_block_box(WINDOW * picwindow, int mx, int my)
 				else
 				{
 					redraw.g_w = old_wid / zoom;
-					done = 1;
+					done = TRUE;
 				}
 			}
 
@@ -1180,7 +1085,7 @@ static void do_block_box(WINDOW * picwindow, int mx, int my)
 			/*
 			 * oberes/unteres Rechteck
 			 */
-			if (done == 0)
+			if (done == FALSE)
 			{
 				if (picture->blocky < old_ypos)
 					redraw.g_y = (picture->blocky + picture->blockheight) / zoom + windy - picwindow->yoffset;
@@ -1252,257 +1157,302 @@ static void do_block_box(WINDOW * picwindow, int mx, int my)
 }
 
 
-/*-------------------------------------------------------------------------------------
-	void drop_block
-	Der Block aus picwindow wurde an den Mauskoordinaten mx/my auûerhalb von picwindow
-	abgelegt. Diese Funktion handelt alle weiteren Aktionen wie öbertragung mittels 
-	Drag&Drop-Protokoll, Speichern mit AV-Protokoll, öbertragen in ein anderes Smurf-
-	Bildfenster, etc.
-	-----------------------------------------------------------------------------------	*/
-static void drop_block(WINDOW * picwindow, int mx, int my)
+/* ----------------------------------------------------------------	*/
+/*				Auswertung eines Events im Bildfenster				*/
+/* ----------------------------------------------------------------	*/
+void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 {
-	char newPicName[256];
+	WORD backbutton;
+	short back;
+	WORD dummy;
+	WORD mstate;
+	WORD w_x, w_y, w_w, w_h;
+	short oldzoom;
+	WORD hmode;
+	WORD vmode;
+	BOOLEAN out_block;
+	BOOLEAN chmouse;
+	SMURF_PIC *picture;
+	OBJECT *pic_form;
 
-	int dest_whandle,
-	 my_wnum,
-	 key,
-	 dummy,
-	 newPic = 1;
+	static WORD oldwindnum;
+	static WORD outpos;
+	static WORD mouse_type;
+	static WINDOW *oldwindow;
 
-	WINDOW *dest_picwindow;
-	SMURF_PIC *dest_picture,
-	*srcpic;
-	GRECT redraw;
+	picture = picwindow->picture;
+	pic_form = picwindow->resource_form;
 
-	dest_whandle = wind_find(mx, my);
-	my_wnum = Window.myWindow(dest_whandle);
+	Window.windGet(picwindow->whandlem, WF_WORKXYWH, &w_x, &w_y, &w_w, &w_h);
 
+	obj = -1;
 
-	/*
-	 * smurfeigenes Bildfenster? -> Block verschieben
-	 */
-	if (my_wnum < 0)
+	if (windnum != oldwindnum)
 	{
-		my_wnum = -my_wnum;
-		dest_picwindow = &picture_windows[my_wnum];
-		dest_picture = dest_picwindow->picture;
-		srcpic = picwindow->picture;
+		outpos = 0;
+		imageWindow.nullCoords(oldwindow);
+	}
 
-		if (dest_picture->block != NULL)
+	/*--------- Mauszeiger im Bild? */
+	if (mouse_xpos >= w_x && mouse_xpos < w_x + w_w && mouse_ypos >= w_y + TOOLBAR_HEIGHT && mouse_ypos < w_y + w_h &&
+		mouse_ypos < w_y + (picture->pic_height / (picture->zoom + 1)) + TOOLBAR_HEIGHT &&
+		mouse_xpos < w_x + (picture->pic_width / (picture->zoom + 1)))
+	{
+		if (event_type == MU_TIMER)
 		{
-			f_set_syspal();
-			if (Dialog.winAlert.
-				openAlert("Bereits vorhandenen Block im Zielbild entfernen?", "Nein", " Ja ", NULL, 1) == 1)
-				return;
-			else
-				remove_block(dest_picwindow);
-		}
+			if (windnum == oldwindnum && picwindow->picture->own_pal && syspalset || windnum != oldwindnum)
+			{
+				if (Display_Opt.palette_mode == PAL_MOUSE)
+				{
+					f_set_picpal(picwindow->picture);
+					if (Sys_info.OS & MAG_PC)
+						Window.redraw(picwindow, NULL, 0, DRAWNOTREE);
+				}
+			}
 
-		dest_picture->block = srcpic->block;
+			if (lastmousex != mouse_xpos || lastmousey != mouse_ypos)
+				imageWindow.displayCoords(picwindow, mouse_xpos, mouse_ypos, 0);
 
-		/*
-		 * Hier muû u.U. eine leere LNCT angefordert werden, denn sonst gibt es Probleme, wenn das
-		 * Bild mit MedianCut gedithert wird und keine da ist - dann gibt es fÅrs Blockdithering
-		 * nÑmlich auch keine. Das ist z.B. der Fall, wenn Zielbild=Bildschirmfarbtiefe und mit
-		 * MedianCut gedithert, denn dann wird keine NCT fÅr dieses Bild angelegt.
-		 */
+			chmouse = crosshair_mouse(picwindow, mouse_xpos, mouse_ypos);
+
+			if (!chmouse)
+			{
+				hmode = vmode = 0;
+				out_block = mouse_block_position(picwindow, mouse_xpos, mouse_ypos, &hmode, &vmode);
+				if (out_block)
+				{
+					graf_mouse(OUTLN_CROSS, dummy_ptr);
+					mouse_type = OUTLN_CROSS;
+				} else
+				{
+					if (hmode && !vmode)
+						graf_mouse(USER_DEF, &lr_arrow);
+					else if (!hmode && vmode)
+						graf_mouse(USER_DEF, &ud_arrow);
+					else if (hmode && vmode)
+						graf_mouse(USER_DEF, &lrud_arrow);
+					else if (!hmode && !vmode)
+						graf_mouse(FLAT_HAND, dummy_ptr);
+				}
+			} else
+			{
+				graf_mouse(THIN_CROSS, dummy_ptr);
+				mouse_type = THIN_CROSS;
+			}
+		} else if (event_type == MU_BUTTON)
+		{
+			if (mouse_button == 0x1 &&
+				mouse_ypos < w_y + (picture->pic_height / (picture->zoom + 1)) + TOOLBAR_HEIGHT &&
+				mouse_xpos < w_x + (picture->pic_width / (picture->zoom + 1)))
+			{
+				graf_mkstate(&dummy, &dummy, &mstate, &dummy);
+
+				if (klicks == 1)
+				{
+					if (mstate == 0)
+					{
+						if (&picture_windows[active_pic] != picwindow)
+						{
 #if 0
-		if (dest_picture->local_nct == NULL)
-		{
-			dest_picture->not_in_nct = 0;
-			dest_picture->local_nct = SMalloc(32768L);
-			memset(dest_picture->local_nct, 0x0, 32768L);
-		}
+							/* Testweise raus da anscheinend Åberhaupt nicht benîtigt */
+							Dialog.picMan.makeThumbnail(picwindow->wnum);
+							obj = 0;
+							Dialog.picMan.handlePicman();
 #endif
-		dest_picture->block->local_nct = dest_picture->local_nct;
+							Window.top(picwindow->whandlem);
+						}
+					} else
+					{
+						if (crosshair_mouse(picwindow, mouse_xpos, mouse_ypos))
+						{
+							move_crosshair(picwindow);
+						} else
+						{
+							do_block_box(picwindow, mouse_xpos, mouse_ypos);
+							if (picwindow->picture->blockwidth && picwindow->picture->blockheight)
+								blockfunctions_on();
+						}
+					}
+				} else if (klicks == 2)
+				{
+					out_block = mouse_block_position(picwindow, mouse_xpos, mouse_ypos, &hmode, &vmode);
+					if (out_block == FALSE)
+						block_dklick(picwindow);
+				}
+			} else if (mouse_button == 0x2)
+			{
+				f_activate_pic(picwindow->wnum);
+				openmode = 0;
+				popups[POPUP_PIC].item = 0;
 
-		memcpy(dest_picture->block->red, dest_picture->red, 256 * 2);
-		memcpy(dest_picture->block->grn, dest_picture->grn, 256 * 2);
-		memcpy(dest_picture->block->blu, dest_picture->blu, 256 * 2);
+				out_block = mouse_block_position(picwindow, mouse_xpos, mouse_ypos, &hmode, &vmode);
 
-		dest_picture->blockx = (mx - dest_picwindow->wx) - (srcpic->blockwidth / 2);
-		dest_picture->blocky = (my - dest_picwindow->wy - TOOLBAR_HEIGHT) - (srcpic->blockheight / 2);
-		dest_picture->blockwidth = picwindow->picture->blockwidth;
-		dest_picture->blockheight = picwindow->picture->blockheight;
+				/* OutBlock + kein Shift oder InBlock und Shift */
+				if ((out_block != FALSE && !(key_at_event & KEY_SHIFT)) || (out_block == FALSE && (key_at_event & KEY_SHIFT)))
+					pic_popup(picwindow);
 
-		redraw.g_x = srcpic->blockx - picwindow->xoffset + picwindow->wx;
-		redraw.g_y = srcpic->blocky - picwindow->yoffset + picwindow->wy;
-		redraw.g_w = srcpic->blockwidth;
-		redraw.g_h = srcpic->blockheight;
-		Window.redraw(picwindow, &redraw, 0, DRAWNOBLOCK | NOBLOCKBOX);
+				/* OutBlock + Shift oder InBlock und kein Shift */
+				else if ((out_block == FALSE && !(key_at_event & KEY_SHIFT)) ||
+						 (out_block != FALSE && (key_at_event & KEY_SHIFT)))
+					imageWindow.blockPop(picwindow);
+			}
+		}
 
-		/*
-		 * Vor remove_block mÅssen die Koordinaten im Quellbild auf 0 gesetzt werden,
-		 * damit der Blockspeicher nicht freigegeben wird - der wird im Zielbild 
-		 * noch benîtigt!
-		 */
-		picwindow->picture->blockx = 0;
-		picwindow->picture->blocky = 0;
-		picwindow->picture->blockwidth = 0;
-		picwindow->picture->blockheight = 0;
-		picwindow->picture->block = NULL;
-
-		if (!Sys_info.realtime_dither)
-			f_dither(dest_picwindow->picture->block, &Sys_info, 1, NULL, &Display_Opt);
-
-		Window.redraw(dest_picwindow, NULL, 0, BLOCK_ONLY);
+		outpos = 0;
 	}
-	/*
-	 * smurfeigenes Dialogfenster? -> Block in neues Bild verschieben
-	 */
-	else if (my_wnum > 0)
+	/*--------- Mauszeiger auûerhalb des Bildes */
+	else
 	{
-		/*
-		 * erstes freies Bild ermitteln 
-		 */
-		while (smurf_picture[newPic] != NULL)
-			newPic++;
-		if (newPic > MAX_PIC)
+		if (!outpos)
 		{
-			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1);
-			return;
+			graf_mouse(ARROW, dummy_ptr);
+			imageWindow.nullCoords(picwindow);
+
+			if (!syspalset)
+				if (Display_Opt.palette_mode == PAL_MOUSE)
+					f_set_syspal();
+
+			outpos = 1;
 		}
 
-		/*
-		 * neues Bild + Fenster anlegen
-		 */
-		smurf_picture[newPic] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
-		memcpy(smurf_picture[newPic], picwindow->picture->block, sizeof(SMURF_PIC));
-
-		smurf_picture[newPic]->changed = 0;
-
-		memset(newPicName, 0x0, 256);
-		strcpy(newPicName, "Block aus ");
-		strcat(newPicName, (picwindow->wtitle) + 12);
-		make_pic_window(newPic, picwindow->picture->block->pic_width,
-						picwindow->picture->block->pic_height, newPicName);
-
-		/*
-		 * Block aus dem Originalbild entfernen und Bildschirmdarstellung lîschen
-		 */
-		if (picwindow->picture->block->screen_pic)
+		if (!(event_type & MU_TIMER))
 		{
-			SMfree(picwindow->picture->block->screen_pic->fd_addr);
-			free(picwindow->picture->block->screen_pic);
+			if (mouse_button == 0x02)
+			{
+				if (mouse_ypos < w_y + TOOLBAR_HEIGHT)
+					Comm.bubbleGem(-(picwindow->wnum), mouse_xpos, mouse_ypos, 0);
+				else
+					pic_popup(picwindow);
+			} else
+			{
+				f_activate_pic(picwindow->wnum);
+
+				pic_form->ob_x = w_x;
+				pic_form->ob_y = w_y;
+				backbutton = objc_find(pic_form, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
+				if (backbutton == ZOOM_FACTOR)
+				{
+					back = f_pop(&popups[POPUP_ZOOM], 0, 0, NULL);
+					oldzoom = picture->zoom;
+
+					switch (back)
+					{
+					case DURCH2:
+						picture->zoom = 1;
+						break;
+					case DURCH3:
+						picture->zoom = 3;
+						break;
+					case DURCH4:
+						picture->zoom = 9;
+						break;
+					case DURCH5:
+						picture->zoom = 19;
+						break;
+					case DURCH6:
+						picture->zoom = 29;
+						break;
+					case ZOOM1:
+						picture->zoom = 0;
+						break;
+					}
+
+					if (oldzoom != picture->zoom)
+					{
+						if (!Sys_info.realtime_dither)
+							f_dither(picture, &Sys_info, 1, NULL, &Display_Opt);
+
+						picwindow->clipwid = (picture->pic_width) / (picture->zoom + 1);
+						picwindow->cliphgt = (picture->pic_height) / (picture->zoom + 1);
+
+						if (picture->block)
+						{
+							picture->block->zoom = picture->zoom;
+							if (!Sys_info.realtime_dither)
+								f_dither(picture->block, &Sys_info, 1, NULL, &Display_Opt);
+						}
+
+						imageWindow.clipPicwin(picwindow);
+						Window.redraw(picwindow, NULL, 0, 0);
+						wind_s[WIND_MODFORM].xoffset = 0;
+						wind_s[WIND_MODFORM].yoffset = 0;
+						Window.redraw(&wind_s[WIND_MODFORM], NULL, 0, 0);
+						imageWindow.setSliders(picwindow);
+						Dialog.busy.ok();
+					}
+				} else if (backbutton == PICWIND_INFO)
+				{
+					openmode = 0;
+					f_pic_info();
+				}
+			}
 		}
-
-		picwindow->picture->block->local_nct = NULL;	/* nicht freigeben!, da das nur eine Referenz auf die lnct im Quellbild ist */
-
-		picwindow->picture->blockx = 0;
-		picwindow->picture->blocky = 0;
-		picwindow->picture->blockwidth = 0;
-		picwindow->picture->blockheight = 0;
-		SMfree(picwindow->picture->block);
-		picwindow->picture->block = NULL;
-
-
-		/*
-		 * Dither/Redraw des neuen Fensters
-		 */
-		if (!Sys_info.realtime_dither)
-			f_dither(smurf_picture[newPic], &Sys_info, 1, NULL, &Display_Opt);
-
-		Window.open(&picture_windows[newPic]);
-		picthere++;
-		imageWindow.clipPicwin(&picture_windows[newPic]);
-		Dialog.picMan.insertPic(newPic);
-		f_activate_pic(newPic);
-
-		Window.redraw(&picture_windows[newPic], NULL, 0, 0);
-
-		Dialog.busy.dispRAM();			/* wieviel Ram? */
-		actualize_menu();				/* MenÅeintrÑge ENABLEn / DISABLEn */
 	}
 
-	/*
-	 * geht D&D schief mit AV-Protokoll versuchen
-	 */
-	else if (Comm.sendDragdrop(picwindow->picture->block, dest_whandle, mx, my) < 0)
-		/*
-		 *  Desktop?
-		 */
-		if (dest_whandle == 0)
-		{
-			graf_mkstate(&dummy, &dummy, &dummy, &key);
-			Comm.avComm.type = AV_BLOCK;
-			Comm.avComm.windowhandle = picwindow->whandlem;
-			Comm.avComm.keystate = key;
-			Comm.sendAESMsg(AV_WHAT_IZIT, mx, my, -1);
-		}
+	oldwindow = picwindow;
+	oldwindnum = windnum;
 }
 
 
-
-/*-------------------------------------------------------------------------------------
-	int	mouse_block_position
-	Legt in *hmode / *vmode anhand der Mauskoordinaten mx/my fest, an welcher Kante der 
-	Block in picwindow angefaût wurde. Wenn hierbei ein neuer Block aufgezogen wird,
-	ist der RÅckgabewert 1, und 0, wenn ein bereits vorhandener Block geÑndert wird.
-	-----------------------------------------------------------------------------------	*/
-static int mouse_block_position(WINDOW * picwindow, int mx, int my, int *hmode, int *vmode)
+/* ----------------------------------------------------------------	*/
+/*							Block-Popup								*/
+/* ----------------------------------------------------------------	*/
+void f_block_popup(WINDOW *picwindow)
 {
-	int n_mx,
-	 n_my;
-	int bx1,
-	 by1,
-	 bx2,
-	 by2;
-	int new_block = 1,
-		zoom;
-	int windx,
-	 windy,
-	 dummy,
-	 xoff,
-	 yoff;
-
+	WORD back;
 	SMURF_PIC *picture;
-
 
 	picture = picwindow->picture;
 
-	/* ist Åberhaupt ein Block aufgezogen? */
-	if (picture->blockheight == 0 || picture->blockwidth == 0)
-		return (1);
+	/*------- ist Åberhaupt ein Block aufgezogen und ein Clipboardpfad vorhanden? */
+	if (picture->blockheight == 0 || picture->blockwidth == 0 || Sys_info.scrp_path == NULL)
+		blockfunctions_off();
+	else
+		blockfunctions_on();
 
-	zoom = picwindow->picture->zoom + 1;
+	back = f_pop(&popups[POPUP_BLOCK], 1, 0, NULL);
 
-	*(hmode) = *(vmode) = 0;
-
-	Window.windGet(picwindow->whandlem, WF_WORKXYWH, &windx, &windy, &dummy, &dummy);
-
-	/*--- relative Position des Mauszeigers zum Fenster */
-	n_mx = mx - windx;
-	n_my = my - (windy + TOOLBAR_HEIGHT);
-
-	n_mx *= zoom;
-	n_my *= zoom;
-	n_mx -= 1;
-
-	bx1 = picture->blockx;
-	by1 = picture->blocky;
-	bx2 = picture->blockwidth + bx1;
-	by2 = picture->blockheight + by1;
-
-	xoff = picwindow->xoffset * zoom;
-	yoff = picwindow->yoffset * zoom;
-
-	/* ---------------Mauszeiger irgendwo im Block? ---------------------- */
-	if (n_mx >= bx1 - 2 - xoff && n_mx <= bx2 + 2 - xoff && n_my >= by1 - 2 - yoff && n_my <= by2 + 2 - yoff)
+	switch (back)
 	{
-		new_block = 0;
+	case BLOCK_RELEASE:
+		imageWindow.removeBlock(picwindow);
+		blockfunctions_off();
+		if (wind_s[WIND_BTYPEIN].whandlem != -1)
+			insert_blockcoords(picture);
+		break;
 
-		if (n_mx <= bx1 - xoff + 4)
-			*(hmode) = LEFT;			/* H-Modus: links */
-		else if (n_mx >= bx2 - xoff - 4)
-			*(hmode) = RIGHT;			/* H-Modus: rechts */
+	case BLOCK_FREE:
+		block_freistellen(picwindow);
+		if (wind_s[WIND_BTYPEIN].whandlem != -1)
+			insert_blockcoords(picture);
+		break;
 
-		if (n_my <= by1 - yoff + 4)
-			*vmode = TOP;				/* V-Modus: oben */
-		else if (n_my >= by2 - yoff - 4)
-			*(vmode) = BOTTOM;			/* V-Modus: unten */
+	case BLOCK_TYPEIN:
+		block_type_in();
+		break;
+
+	case BLOCK_COPY:
+		block2clip(picture, 0, NULL);
+		break;
+
+	case BLOCK_INSERT:
+		clip2block(picture, NULL, -1, -1);
+		Window.redraw(picwindow, NULL, 0, 0);
+		break;
+
+	case BLOCK_CUT:
+		if (block2clip(picture, 1, NULL) != -1)
+		{
+			imageWindow.toggleAsterisk(picwindow, 1);
+			f_dither(picture, &Sys_info, 1, NULL, &Display_Opt);
+			Window.redraw(picwindow, NULL, 0, 0);
+		}
+		break;
+
+	case BLOCK_MODE:
+		blockmode();
+		break;
 	}
-
-	return (new_block);
 }
 
 
@@ -1510,7 +1460,7 @@ static int mouse_block_position(WINDOW * picwindow, int mx, int my, int *hmode, 
 	Resetted die Anzeigen in der Bild-Toolbar. Wird z.B. aufgerufen, wenn ein
 	Bildfenster in den Hintergrund gelegt wird.
 	---------------------------------------------------------------------------	*/
-void set_nullcoord(WINDOW * picwindow)
+void set_nullcoord(WINDOW *picwindow)
 {
 	OBJECT *pic_formular;
 
@@ -1544,37 +1494,25 @@ void set_nullcoord(WINDOW * picwindow)
 	Aktualisiert die Koordinaten- und Farbanzeigen im Bildfenster pic_window bei den
 	Mauskoordinaten mx/my.
 	-------------------------------------------------------------------------------*/
-void f_display_coords(WINDOW * pic_window, int mx, int my, char blockflag)
+void f_display_coords(WINDOW *pic_window, WORD mx, WORD my, BOOLEAN blockflag)
 {
-	char red,
-	 green,
-	 blue,
-	 index = 0;
+	uint8_t red, green, blue;
+	uint8_t index = 0;
 	char numstr[5];
-	char *pic,
-	*pal;
-	unsigned int *pic16,
-	 pixel16;
-	int wx,
-	 wy,
-	 ww,
-	 wh;
-	int maxx,
-	 maxy,
-	 minx,
-	 miny;
-	int xcoo,
-	 ycoo,
-	 xoff,
-	 yoff;
+	uint8_t *pic;
+	uint8_t *pal;
+	uint16_t *pic16;
+	uint16_t pixel16;
+	WORD wx, wy, ww, wh;
+	WORD maxx, maxy, minx, miny;
+	WORD xcoo, ycoo, xoff, yoff;
 	short picval;
-	int depth,
-	 form;
-	int width,
-	 height;
-	int zoom;
-	int byte_width,
-	 byte_xpos;
+	short depth;
+	short form;
+	WORD width, height;
+	short zoom;
+	WORD byte_width;
+	WORD byte_xpos;
 	long planelen;
 	long pic_offset;
 
@@ -1605,7 +1543,7 @@ void f_display_coords(WINDOW * pic_window, int mx, int my, char blockflag)
 		if (!blockflag)
 		{
 			pic = pic_window->picture->pic_data;
-			pic16 = (unsigned int *) pic;
+			pic16 = (uint16_t *) pic;
 			width = pic_window->picture->pic_width;
 			height = pic_window->picture->pic_height;
 			depth = pic_window->picture->depth;
@@ -1679,19 +1617,21 @@ void f_display_coords(WINDOW * pic_window, int mx, int my, char blockflag)
 
 		if (!blockflag && (mx >= minx && mx <= maxx && my >= miny && my <= maxy))
 		{
-			itoa((int) red, numstr, 10);
+			itoa(red, numstr, 10);
 			strcpy(pic_formular[RED_VAL].TextCast, numstr);
-			itoa((int) green, numstr, 10);
+			itoa(green, numstr, 10);
 			strcpy(pic_formular[GREEN_VAL].TextCast, numstr);
-			itoa((int) blue, numstr, 10);
+			itoa(blue, numstr, 10);
 			strcpy(pic_formular[BLUE_VAL].TextCast, numstr);
 
 			if (depth < 16)
 			{
-				itoa((int) index, numstr, 10);
+				itoa(index, numstr, 10);
 				strcpy(pic_formular[COL_IDX].TextCast, numstr);
 			} else
+			{
 				strcpy(pic_formular[COL_IDX].TextCast, "");
+			}
 		} else
 		{
 			strcpy(pic_formular[COL_IDX].TextCast, "");
@@ -1711,17 +1651,12 @@ void f_display_coords(WINDOW * pic_window, int mx, int my, char blockflag)
 /* display_bwh -----------------------------------------------------
 	Stellt Blockbreite und -hîhe im Bildfenster pic_window neu dar.
 	-----------------------------------------------------------------*/
-void f_display_bwh(WINDOW * pic_window)
+void f_display_bwh(WINDOW *pic_window)
 {
 	char numstr[10];
-
-	int bw,
-	 bh;
-	static int obw,
-	 obh;
-
+	WORD bw, bh;
+	static WORD obw, obh;
 	OBJECT *pic_formular;
-
 
 	pic_formular = pic_window->resource_form;
 
@@ -1758,9 +1693,9 @@ void f_display_bwh(WINDOW * pic_window)
 	Bild Åberladen - verschickt zum Neuladen an Smurf selbst eine VA_START-
 	Message mit dem Dateinamen.
 	-----------------------------------------------------------------------	*/
-void reload_pic(WINDOW * picwindow)
+void reload_pic(WINDOW *picwindow)
 {
-	int back;
+	WORD back;
 
 	/*
 	 * gibt es die Datei Åberhaupt (noch)?
@@ -1777,8 +1712,7 @@ void reload_pic(WINDOW * picwindow)
 			imageWindow.toggleAsterisk(picwindow, 0);
 		else
 		{
-			back =
-				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[WCLOSE_ALERT].TextCast, "Abbruch", "Nein", " Ja ", 1);
+			back = Dialog.winAlert.openAlert(Dialog.winAlert.alerts[WCLOSE_ALERT].TextCast, "Abbruch", "Nein", " Ja ", 1);
 			if (back == 1)
 				return;
 			else if (back == 2)
@@ -1817,10 +1751,10 @@ void reload_pic(WINDOW * picwindow)
 	die Blockfunktionen en- oder disabled und alle Module Åber die Aktivierung des neuen
 	Bildes informiert.
 	----------------------------------------------------------------------------------------*/
-void f_activate_pic(int windnum)
+void f_activate_pic(short windnum)
 {
-	int t,
-	 old_active;
+	short t;
+	short old_active;
 
 	OBJECT *pref_form;
 	DISPLAY_MODES old;
@@ -1965,15 +1899,13 @@ void f_activate_pic(int windnum)
 	Handled das Scrollen in Bildfenstern, inklusive Zusammenfassen oder lîschen
 	der Keyboardevents (je nach Einstellung im Optionsdialog).
 	-----------------------------------------------------------------------------*/
-void picwin_keyboard(int key_scancode, int key_at_event, WINDOW * picwin)
+void picwin_keyboard(WORD key_scancode, WORD key_at_event, WINDOW *picwin)
 {
-	int keyboard_back,
-	 dummy,
-	 evback,
-	 amount;
-	int innerwid,
-	 innerhgt;
-
+	WORD keyboard_back;
+	WORD dummy;
+	WORD evback;
+	WORD amount;
+	WORD innerwid, innerhgt;
 
 	/*
 	 * ggfs. Tastaturevents zusammenfassen

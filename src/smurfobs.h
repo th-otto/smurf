@@ -150,7 +150,7 @@ typedef struct picWindow
 
     void (*clipPicwin) (WINDOW *picw);
     void (*toggleAsterisk) (WINDOW *picwin, int onoff);
-    void (*displayCoords)(WINDOW *pic_window, int mx, int my, char blockflag);
+    void (*displayCoords)(WINDOW *pic_window, WORD mx, WORD my, BOOLEAN blockflag);
     void (*nullCoords)(WINDOW *picwindow);
     void (*removeBlock)(WINDOW *picwindow);
     void (*blockPop)(WINDOW *picwindow);

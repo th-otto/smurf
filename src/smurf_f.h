@@ -548,14 +548,14 @@ void prepare_depthpopup(void);
  */
 extern BLOCKMODE blockmode_conf;
 
-void f_pic_event(WINDOW *picwindow, int event_type, int windnum);            /* Auswertung von Events im Bildfenster */
+void f_pic_event(WINDOW *picwindow, short event_type, short windnum);            /* Auswertung von Events im Bildfenster */
 void f_block_popup(WINDOW *picwindow);
 void set_nullcoord(WINDOW *picwindow);
-void f_display_coords(WINDOW *pic_window, int mx, int my, char blockflag);
+void f_display_coords(WINDOW *pic_window, WORD mx, WORD my, BOOLEAN blockflag);
 void f_display_bwh(WINDOW *pic_window);
 void reload_pic(WINDOW *picwindow);
-void f_activate_pic(int windnum);
-void picwin_keyboard(int key_scancode, int key_at_event, WINDOW *picwin);
+void f_activate_pic(short windnum);
+void picwin_keyboard(WORD key_scancode, WORD key_at_event, WINDOW *picwin);
 
 
 /*

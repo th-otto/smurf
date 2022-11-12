@@ -127,7 +127,7 @@ typedef struct
 	*/
 	void	(*f_event)(void);				/* Allg. Event-Funktion */
 	WORD	(*f_handle_message)(void);		/* AES-Message-Handler	*/
-	void 	(*f_pic_event)(WINDOW *picwindow, int event_type, int windnum);
+	void 	(*f_pic_event)(WINDOW *picwindow, short event_type, short windnum);
 
 	/*
 	* Dialogfunktionen
