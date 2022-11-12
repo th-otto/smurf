@@ -29,10 +29,10 @@
 /*
 *   OLGA-Funktionen ---------------------------------
 */
-int init_OLGA(void);
-int deinit_OLGA(void);
-int rename_OLGA(char *oldname, char *newname);
-int update_OLGA(char *filename);
+short init_OLGA(void);
+short deinit_OLGA(void);
+short rename_OLGA(char *oldname, char *newname);
+short update_OLGA(char *filename);
 
 
 

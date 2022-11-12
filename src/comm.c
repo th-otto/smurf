@@ -60,7 +60,7 @@ typedef struct
 
 
 /*------------------------- Drag&Drop - Empfangshandling --------------*/
-int get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf)
+short get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf)
 {
 	char pipe_name[] = "U:\\PIPE\\DRAGDROP.AA";
 	char *namename;
@@ -227,7 +227,7 @@ int get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf)
 
 
 /*------------ D&D-Header einlesen ----------*/
-int dd_getheader(DD_HEADER *dd_header, WORD pipe_handle)
+short dd_getheader(DD_HEADER *dd_header, WORD pipe_handle)
 {
 	char buf[33];
 	char *read_dd_string;
@@ -309,7 +309,7 @@ int dd_getheader(DD_HEADER *dd_header, WORD pipe_handle)
 
 
 /*---------------------------- Drag&Drop - Sendehandling --------------*/
-int send_dragdrop(SMURF_PIC *picture, WORD dest_whandle, WORD mx, WORD my)
+short send_dragdrop(SMURF_PIC *picture, WORD dest_whandle, WORD mx, WORD my)
 {
 	static char pipe_name[] = "U:\\PIPE\\DRAGDROP.AA";
 	char *data = 0;
@@ -512,7 +512,7 @@ int send_dragdrop(SMURF_PIC *picture, WORD dest_whandle, WORD mx, WORD my)
 
 
 /*----------- D&D-Header verschicken --------*/
-int dd_sendheader(WORD pipe_handle, long ext, long size, char *data_name, char *file_name)
+short dd_sendheader(WORD pipe_handle, long ext, long size, char *data_name, char *file_name)
 {
 	short hdrlen;
 

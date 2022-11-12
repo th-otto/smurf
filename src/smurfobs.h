@@ -300,15 +300,15 @@ typedef struct dialogHandlers
 
 typedef struct commHandlers
 {
-    int (*initOLGA)(void);
-    int (*deinitOLGA)(void);
-    int (*updateOLGA)(char *filename);
-    int (*renameOLGA)(char *oldname, char *newname);
+    short (*initOLGA)(void);
+    short (*deinitOLGA)(void);
+    short (*updateOLGA)(char *filename);
+    short (*renameOLGA)(char *oldname, char *newname);
     
-    int (*getDragdrop)(WINDOW *window_to_handle, WORD *messagebuf);
-    int (*sendDragdrop)(SMURF_PIC *picture, WORD dest_whandle, WORD mx, WORD my);
-    int (*ddGetheader)(DD_HEADER *dd_header, WORD pipe_handle);
-    int (*ddSendheader)(WORD pipe_handle, long ext, long size, char *data_name, char *file_name);
+    short (*getDragdrop)(WINDOW *window_to_handle, WORD *messagebuf);
+    short (*sendDragdrop)(SMURF_PIC *picture, WORD dest_whandle, WORD mx, WORD my);
+    short (*ddGetheader)(DD_HEADER *dd_header, WORD pipe_handle);
+    short (*ddSendheader)(WORD pipe_handle, long ext, long size, char *data_name, char *file_name);
     
     void (*updateDhst)(char *path);
 

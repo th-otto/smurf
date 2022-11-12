@@ -152,7 +152,7 @@ void cursor_on(WINDOW * window)
 
 			objc_edit(window->resource_form, window->editob, 0, &window->editx, ED_INIT);
 #if 0
-			if(Sys_info.OS&MATSCHIG)
+			if (Sys_info.OS & MATSCHIG)
 				objc_edit(window->resource_form, window->editob, 0, &window->editx, 100);
 #endif
 

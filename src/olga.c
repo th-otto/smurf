@@ -47,15 +47,14 @@
 /*-------------------------------------------------------------------
 	Initialisieren des OLGA-Protokolls, wie von Th. Much beschrieben.
 	----------------------------------------------------------------*/
-int init_OLGA(void)
+short init_OLGA(void)
 {
-	char *path,
-	*path_name,
-	*dot;
+	char *path;
+	char *path_name;
+	char *dot;
 	char name[9] = "";
 	char old[257];
-
-	int id;
+	WORD id;
 
 	DEBUG_MSG(("init_OLGA...\n"));
 
@@ -92,7 +91,7 @@ int init_OLGA(void)
 			 */
 			if (id < 0)
 			{
-				if (Sys_info.OS & MINT || Sys_info.OS & MATSCHIG)
+				if ((Sys_info.OS & MINT) || (Sys_info.OS & MATSCHIG))
 				{
 					if (Fattrib(path, 0, 0) >= 0)
 					{
@@ -100,10 +99,8 @@ int init_OLGA(void)
 						set_path(path);
 						if (Sys_info.OS & MINT)
 							id = shel_write(0, 1, 0, path, "");
-/*							id = shel_write(0, 1, 0, path, NULL); */
 						else if (Sys_info.OS & MATSCHIG)
 							id = shel_write(1, 1, 100, path, "");
-/*								id = shel_write(1, 1, 100, path, NULL); */
 						set_path(old);
 
 						if (id == 0)
@@ -118,7 +115,7 @@ int init_OLGA(void)
 	if (id < 0)
 	{
 		DEBUG_MSG(("init_OLGA... Ende ohne OLGA-Manager\n"));
-		return (-1);
+		return -1;
 	}
 
 	/* Die ID wird hier negativ eingetragen, daran erkennen die Funktionen
@@ -137,7 +134,7 @@ int init_OLGA(void)
 
 	DEBUG_MSG(("init_OLGA... Ende \n"));
 
-	return (0);
+	return 0;
 }
 
 
@@ -145,12 +142,12 @@ int init_OLGA(void)
 /*-------------------------------------------------------------------
 	Und hiermit verabschieden wir uns wieder von Olga:
 	----------------------------------------------------------------*/
-int deinit_OLGA(void)
+short deinit_OLGA(void)
 {
 	if (Sys_info.olgaman_ID >= 0)
 		Comm.sendAESMsg(Sys_info.olgaman_ID, OLE_EXIT, -1);
 
-	return (0);
+	return 0;
 }
 
 
@@ -158,19 +155,15 @@ int deinit_OLGA(void)
 	OLGA_UPDATE verschicken. Der Dateiname wird kopiert, falls sich *filename
 	„ndert, bevor die Clients die Update-Message vom Manager kriegen.
 	----------------------------------------------------------------*/
-int update_OLGA(char *filename)
+short update_OLGA(char *filename)
 {
 	char *new_filename;
 
-
 	if (Sys_info.olgaman_ID < 0)
-		return (-1);
-
-/*	printf("\nnew filename: %s", filename); */
-
+		return -1;
 
 	/*-------- Block wenn m”glich als global anfordern? */
-	if (Ssystem(FEATURES, 0L, 0L) != EINVFN || Sys_info.OS & MINT || Sys_info.OS & MATSCHIG)
+	if (Ssystem(FEATURES, 0L, 0L) != EINVFN || (Sys_info.OS & MINT) || (Sys_info.OS & MATSCHIG))
 		new_filename = (char *) Mxalloc(strlen(filename) + 1, 0x20);	/* plus ein Byte frs Nullbyte */
 	else
 		new_filename = (char *) SMalloc(strlen(filename) + 1);	/* plus ein Byte frs Nullbyte */
@@ -182,7 +175,7 @@ int update_OLGA(char *filename)
 	/* auf keinen Fall hier schon new_filename freigeben! */
 	/* das wird nach Antwort von Olga durch OLGA_ACK gemacht */
 
-	return (0);
+	return 0;
 }
 
 
@@ -191,18 +184,17 @@ int update_OLGA(char *filename)
 	gespeichert wurde. Danach muž noch ein OLGA_UPDATE mit newname folgen
 	wenn der Dateiinhalt ver„ndert wurde!
 	-------------------------------------------------------------------*/
-int rename_OLGA(char *oldname, char *newname)
+short rename_OLGA(char *oldname, char *newname)
 {
-	char *old_filename,
-	*new_filename;
-
+	char *old_filename;
+	char *new_filename;
 
 	if (Sys_info.olgaman_ID < 0)
-		return (-1);
+		return -1;
 
 
 	/*-------- Block wenn m”glich als global anfordern? */
-	if (Ssystem(FEATURES, 0L, 0L) != EINVFN || Sys_info.OS & MINT || Sys_info.OS & MATSCHIG)
+	if (Ssystem(FEATURES, 0L, 0L) != EINVFN || (Sys_info.OS & MINT) || (Sys_info.OS & MATSCHIG))
 	{
 		old_filename = (char *) Mxalloc(strlen(oldname) + 1, 0x20);	/* plus ein Byte frs Nullbyte */
 		new_filename = (char *) Mxalloc(strlen(newname) + 1, 0x20);	/* plus ein Byte frs Nullbyte */
@@ -220,6 +212,5 @@ int rename_OLGA(char *oldname, char *newname)
 	/* auf keinen Fall hier schon old_filename oder new_filename freigeben! */
 	/* das wird nach Antwort von Olga durch OLGA_ACK gemacht */
 
-
-	return (0);
+	return 0;
 }
