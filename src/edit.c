@@ -86,9 +86,9 @@ void f_edit_pop(void)
 	 * selektiertes Eintrags-Objekt ermitteln! 
 	 */
 	if (!info)
-		mod_index = f_listfield((long *) &wind_s[WIND_MODULES], button, key_scancode, &Dialog.emodList.modList);
+		mod_index = f_listfield(&wind_s[WIND_MODULES], button, key_scancode, &Dialog.emodList.modList);
 	else
-		mod_index = f_listfield((long *) &wind_s[WIND_MODULES], 0, 0, &Dialog.emodList.modList);
+		mod_index = f_listfield(&wind_s[WIND_MODULES], 0, 0, &Dialog.emodList.modList);
 
 	if (key_scancode && my_scancode != KEY_UP && my_scancode != KEY_DOWN || !openmode)
 		Window.windSet(wind_s[WIND_MODULES].whandlem, WF_INFO, LONG2_2INT(Dialog.emodList.modList.autolocator), 0, 0);

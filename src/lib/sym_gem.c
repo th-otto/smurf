@@ -780,14 +780,13 @@ void setslider(SLIDER * sliderstruct, long value)
 /*************************************************************	*/
 /*--------------------- Listenfeld-Funktion -------------------	*/
 /*************************************************************	*/
-WORD f_listfield(long *pwindow, WORD klick_obj, WORD key_scancode, LIST_FIELD *lfstruct)
+WORD f_listfield(WINDOW *window, WORD klick_obj, WORD key_scancode, LIST_FIELD *lfstruct)
 {
 	int listparent;
 	int first_entry,
 	 last_entry,
 	 entryc = 0;
 	OBJECT *tree;
-	WINDOW *window;
 	char **entries;
 	char *myentry;
 	int sl_parent,
@@ -814,8 +813,6 @@ WORD f_listfield(long *pwindow, WORD klick_obj, WORD key_scancode, LIST_FIELD *l
 	char *al_string,
 	*al_last,
 	 len;
-
-	window = (WINDOW *) pwindow;
 
 	tree = window->resource_form;
 
@@ -1339,7 +1336,7 @@ void change_object(WINDOW *window, WORD objct, WORD status, int redraw)
 /*				das automatische Mitscrollen des Bildmanagers erledigt.		*/
 /*																			*/
 /* ------------------------------------------------------------------------	*/
-void f_drag_object(WINDOW * wind, int objct, int *dex, int *dey, int call, int (*call_me)(int mx, int my))
+void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call, BOOLEAN (*call_me)(WORD mx, WORD my))
 {
 	int obx,
 	 oby,

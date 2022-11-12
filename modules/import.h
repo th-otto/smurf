@@ -48,6 +48,9 @@
 #define ltoa(val, str, base) _itoa(val, str, base, 0)
 #define ftoa(val, str, ndig, format, decpnt, sign) strcpy(str, (format == 0 ? ecvt : fcvt)(*(val), ndig, decpnt, sign))
 #endif
+
+typedef struct _window WINDOW;
+
 #include "sym_gem.h"
 
 #ifdef __GNUC__
@@ -160,7 +163,7 @@ typedef struct smurfpic
 
 /* Allgemeine Windowstruktur zur internen Verwaltung von Fenstern */
 /*  101 Bytes */
-typedef struct
+struct _window
 {
     WORD whandlem;          /* AES-Handle des Windows */
     short module;           /* Modul, dem das Fenster gehîrt */
@@ -178,10 +181,10 @@ typedef struct
     WORD clipwid, cliphgt;  /* Breite und Hîhe des Ausschnittes von *picture */
     short pflag;            /* reines Bildfenster: 1, ansonsten 0 */
 
-    void *prev_window;      /* vorheriges Fenster (WINDOW*) */
-    void *next_window;      /* nÑxtes Fenster (WINDOW*) */
+    WINDOW *prev_window;     /* vorheriges Fenster */
+    WINDOW *next_window;     /* nÑxtes Fenster */
     WORD fullx,fully,fullw,fullh;    /* zum RÅckspeichern der Koordinaten bei WM_FULLED */
-} WINDOW;
+};
 
 
 /* Slider-Struktur zur Verwaltung von Slidern durch f_rslid */
@@ -255,7 +258,7 @@ typedef struct
     /*  24 */ short (*slider)(SLIDER *slider_struct);
     /*  28 */ void (*set_slider)(SLIDER *sliderstruct, long value);
 
-    /*  32 */ WORD (*listfield)(long *window, WORD klick_obj, WORD keyscan, LIST_FIELD *lfstruct);
+    /*  32 */ WORD (*listfield)(WINDOW *window, WORD klick_obj, WORD keyscan, LIST_FIELD *lfstruct);
     /*  36 */ void (*generate_listfield)(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
                 WORD listparent, char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield, WORD autoloc);
 

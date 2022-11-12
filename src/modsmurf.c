@@ -2773,11 +2773,11 @@ short f_init_system(void)
 	DEBUG_MSG(("Editmodule, "));
 
 	/* Listfelder Initialisieren    */
-	f_listfield((long *) &wind_s[WIND_MODULES], F_REDRAW, 0, &Dialog.emodList.modList);
+	f_listfield(&wind_s[WIND_MODULES], F_REDRAW, 0, &Dialog.emodList.modList);
 	DEBUG_MSG(("Exporter, "));
-	f_listfield((long *) &wind_s[WIND_EXPORT], F_REDRAW, 0, &Dialog.expmodList.modList);
+	f_listfield(&wind_s[WIND_EXPORT], F_REDRAW, 0, &Dialog.expmodList.modList);
 	DEBUG_MSG(("Bildmanager 2.\n"));
-	f_listfield((long *) &wind_s[WIND_PICMAN], F_REDRAW, 0, &Dialog.picMan.pictureList);
+	f_listfield(&wind_s[WIND_PICMAN], F_REDRAW, 0, &Dialog.picMan.pictureList);
 
 	DEBUG_MSG(("Statusfenster\n"));
 

@@ -194,9 +194,9 @@ void plugin_main(PLUGIN_DATA *data)
                             services->f_module_window(&window);
                             dialog_open = 1;
 
-                            services->listfield((long *)&window, 99, 99, &exporter_list);
+                            services->listfield(&window, 99, 99, &exporter_list);
 
-                            exp_index = services->listfield((long *)&window, 0, 0, &exporter_list);
+                            exp_index = services->listfield(&window, 0, 0, &exporter_list);
                             export_path = smurf_vars->export_modules[exp_index];
                             analyze_module(&expmabs, export_path, mod_num);
                             ready_depth_popup(&expmabs);
@@ -435,7 +435,7 @@ void handle_dialog(PLUGIN_DATA *data)
                 smurf_functions->check_and_terminate(MTERM, mod_num&0xFF);
             }
             
-            exp_index = services->listfield((long *)&window, button, 0, &exporter_list);
+            exp_index = services->listfield(&window, button, 0, &exporter_list);
             export_path = smurf_vars->export_modules[exp_index];
             analyze_module(&expmabs, export_path, mod_num);
             ready_depth_popup(&expmabs);

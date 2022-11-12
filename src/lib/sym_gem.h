@@ -144,6 +144,6 @@ void f_generate_listfield(WORD uparrow, WORD dnarrow, WORD sliderparent,
             WORD sliderobject, WORD listparent, char *listentries, 
             WORD num_entries, WORD max_entries, LIST_FIELD *listfield, WORD autoloc);
 
-WORD f_listfield(long *pwindow, WORD klick_obj, WORD key_scancode, LIST_FIELD *lfstruct);
+WORD f_listfield(WINDOW *pwindow, WORD klick_obj, WORD key_scancode, LIST_FIELD *lfstruct);
 
 #endif

@@ -71,7 +71,7 @@ void f_export_pic(void)
 	exp_form = Dialog.expmodList.tree;
 
 	/* aktuelles Listen-Objekt vor Žnderung ermittelten */
-	omod_index = f_listfield((long *) &wind_s[WIND_EXPORT], 0, 0, &Dialog.expmodList.modList);
+	omod_index = f_listfield(&wind_s[WIND_EXPORT], 0, 0, &Dialog.expmodList.modList);
 
 	if (my_scancode != KEY_DOWN && my_scancode != KEY_UP)
 	{
@@ -90,9 +90,9 @@ void f_export_pic(void)
 	 * der Index im Feld wird hier zurckgegeben, nicht der Objektindex!
 	 */
 	if (!info)
-		mod_index = f_listfield((long *) &wind_s[WIND_EXPORT], button, key_scancode, &Dialog.expmodList.modList);
+		mod_index = f_listfield(&wind_s[WIND_EXPORT], button, key_scancode, &Dialog.expmodList.modList);
 	else
-		mod_index = f_listfield((long *) &wind_s[WIND_EXPORT], 0, 0, &Dialog.expmodList.modList);
+		mod_index = f_listfield(&wind_s[WIND_EXPORT], 0, 0, &Dialog.expmodList.modList);
 
 	if (key_scancode && my_scancode != KEY_UP && my_scancode != KEY_DOWN || !openmode)
 		Window.windSet(wind_s[WIND_EXPORT].whandlem, WF_INFO, LONG2_2INT(Dialog.expmodList.modList.autolocator), 0, 0);
@@ -644,7 +644,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 					while (Dialog.picMan.picmanList[t] != active_pic)
 						t++;
 					picnames[t] = saved_window->wtitle + 12;
-					f_listfield((long *) Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
+					f_listfield(Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
 				}
 			}
 

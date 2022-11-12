@@ -167,12 +167,12 @@ typedef struct picWindow
 typedef struct picManager
 {
     void (*handlePicman)(void);
-    void (*insertPic)(int pic_to_insert);
+    void (*insertPic)(short pic_to_insert);
     void (*showWH)(SMURF_PIC *pic);
     void (*cleanupList)(void);
     void (*navigateWindow)(void);
-    int (*autoScroll)(int mx, int my);
-    void (*makeThumbnail)(int picture_num);
+    BOOLEAN (*autoScroll)(WORD mx, WORD my);
+    void (*makeThumbnail)(short picture_num);
     void (*drawPicmanBoxes) (void);
 
     OBJECT *tree;

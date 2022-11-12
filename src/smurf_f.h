@@ -569,14 +569,14 @@ void f_update_dwindow(int mode, int redraw);
  * picman.c
  */
 void f_picman(void);
-void insert_to_picman(int pic_to_insert);
+void insert_to_picman(short pic_to_insert);
 void show_picman_wh(SMURF_PIC *pic);
-int pm_autoscroll(int mx, int my);
+BOOLEAN pm_autoscroll(WORD mx, WORD my);
 void f_resort_piclist(void);
 MOD_INFO *ready_modpics_popup(WINDOW *mwindow);     /* Modul-Bildreihenfolge-Popup vorbereiten */
-void make_picman_thumbnail(int picture_num);
+void make_picman_thumbnail(short picture_num);
 void picman_windowmove(void);
-int compute_zoom(SMURF_PIC *picture, int twid, int thgt);
+WORD compute_zoom(SMURF_PIC *picture, WORD twid, WORD thgt);
 
 
 
@@ -605,7 +605,7 @@ void restore_display(DISPLAY_MODES *old);
 char *shorten_name(char *string, char newlen);
 int get_path(char *path, char drive);
 int set_path(char *path);
-void f_drag_object ( WINDOW *wind, int objct, int *dex, int *dey, int call, int (*call_me)(int mx, int my) );
+void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call, BOOLEAN (*call_me)(WORD mx, WORD my));
 
 
 

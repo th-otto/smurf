@@ -1041,7 +1041,7 @@ void draw_picmanboxes(void)
 	/*
 	 * Bildnummer und Zooms ermitteln
 	 */
-	picnum = f_listfield((long *) Dialog.picMan.window, 0, 0, &Dialog.picMan.pictureList);
+	picnum = f_listfield(Dialog.picMan.window, 0, 0, &Dialog.picMan.pictureList);
 	picnum = Dialog.picMan.picmanList[picnum];
 	zoom = compute_zoom(smurf_picture[picnum], pmtree[PM_PREVBOX].ob_width, pmtree[PM_PREVBOX].ob_height) + 1;
 	piczoom = picture_windows[picnum].picture->zoom + 1;

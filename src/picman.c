@@ -47,45 +47,38 @@
 void f_picman(void)
 {
 	char *ptr;
-	char *swapstr,
-	*namestr,
-	 pathstr[256],
-	 avname[66];
-
-	int button = 0,
-		popbutton = 0;
-	int lf_back;
-	int picture_num = -1;
-	int drag_beginx,
-	 drag_beginy;
-	int drag_endx,
-	 drag_endy;
-	int xc,
-	 yc;
-	int endwh,
-	 endwind,
-	 endob,
-	 swapnum;
-	int buttonnum,
-	 endobnum,
-	 pathlen;
-	int old_scroll_offset;
-	int old_sel,
-	 new_sel;
-	int newmb,
-	 dummy,
-	 ap_buf[16];
-	int my_word1,
-	 my_word2;
-	int my_word3,
-	 my_word4;
-	int my_scancode;
-	int dest_whandle;
+	char *swapstr;
+	char *namestr;
+	char pathstr[256];
+	char avname[66];
+	WORD button = 0;
+	WORD popbutton = 0;
+	WORD lf_back;
+	short picture_num = -1;
+	WORD drag_beginx, drag_beginy;
+	WORD drag_endx, drag_endy;
+	WORD xc, yc;
+	WORD endwh;
+	WORD endwind;
+	WORD endob;
+	WORD swapnum;
+	WORD buttonnum;
+	WORD endobnum;
+	short pathlen;
+	WORD old_scroll_offset;
+	WORD old_sel, new_sel;
+	WORD newmb;
+	WORD dummy;
+	WORD ap_buf[16];
+	WORD my_word1, my_word2;
+	WORD my_word3, my_word4;
+	WORD my_scancode;
+	WORD dest_whandle;
 
 	OBJECT *ob;
 	SMURF_PIC *pic;
-	WINDOW *mod_wind = 0,
-		*mwindow = 0;
+	WINDOW *mod_wind = 0;
+	WINDOW *mwindow = 0;
 	MOD_INFO *minf;
 
 
@@ -97,8 +90,8 @@ void f_picman(void)
 		button = Dialog.init(WIND_PICMAN, 0);
 
 	/* Bildmanager aktualisieren */
-	old_sel = f_listfield((long *) Dialog.picMan.window, 0, 0, &Dialog.picMan.pictureList);
-	lf_back = f_listfield((long *) Dialog.picMan.window, button, key_scancode, &Dialog.picMan.pictureList);
+	old_sel = f_listfield(Dialog.picMan.window, 0, 0, &Dialog.picMan.pictureList);
+	lf_back = f_listfield(Dialog.picMan.window, button, key_scancode, &Dialog.picMan.pictureList);
 
 	new_sel = lf_back;
 	lf_back = lf_back - Dialog.picMan.pictureList.scroll_offset + PM_PIC1;
@@ -137,7 +130,7 @@ void f_picman(void)
 				if (key_at_event == KEY_ALT)
 				{
 					namestr = strrchr(picture_windows[picture_num].picture->filename, '\\') + 1;
-					pathlen = (int) (namestr - picture_windows[picture_num].picture->filename);
+					pathlen = (short) (namestr - picture_windows[picture_num].picture->filename);
 					strncpy(pathstr, picture_windows[picture_num].picture->filename, pathlen);
 					strcpy(avname, namestr);
 					pathstr[pathlen] = 0;
@@ -164,8 +157,8 @@ void f_picman(void)
 				else if (key_at_event == KEY_CTRL)
 				{
 					ptr = picture_windows[picture_num].picture->filename;
-					my_word1 = (int) ((long) ptr >> 16);
-					my_word2 = (int) (long) ptr;
+					my_word1 = (WORD) ((long) ptr >> 16);
+					my_word2 = (WORD) (long) ptr;
 					Comm.sendAESMsg(Sys_info.ENV_avserver, AV_STARTPROG, my_word1, my_word2, 0, 0, PM_VIEWCALL, -1);
 				}
 			}
@@ -212,7 +205,7 @@ void f_picman(void)
 							swapstr = picnames[endobnum];
 							picnames[endobnum] = picnames[buttonnum];
 							picnames[buttonnum] = swapstr;
-							f_listfield((long *) Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
+							f_listfield(Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
 							Window.redraw(Dialog.picMan.window, NULL, 0, 0);
 						}
 					}
@@ -316,20 +309,18 @@ void f_picman(void)
 /* ----------------------------------------------------------------	*/
 /*					Bild in Bildmanager einfgen					*/
 /* ----------------------------------------------------------------	*/
-void insert_to_picman(int pic_to_insert)
+void insert_to_picman(short pic_to_insert)
 {
-	int pmentry,
-	 sc_off,
-	 max_entr;
-	int action,
-	 t,
-	 first,
-	 last;
-	int scrolled = 0,
-		entry_to_select;
-
+	short pmentry;
+	WORD sc_off;
+	WORD max_entr;
+	short action;
+	short t;
+	WORD first;
+	WORD last;
+	BOOLEAN scrolled = FALSE;
+	WORD entry_to_select;
 	OBJECT *res;
-
 
 	pmentry = 0;
 	while (picnames[pmentry] != NULL)
@@ -354,7 +345,7 @@ void insert_to_picman(int pic_to_insert)
 	if (pmentry > (max_entr + sc_off - 1))
 	{
 		action = Dialog.picMan.pictureList.slar_dn;
-		scrolled = 1;
+		scrolled = TRUE;
 	} else
 		action = F_REDRAW;
 
@@ -371,7 +362,7 @@ void insert_to_picman(int pic_to_insert)
 
 	Dialog.picMan.makeThumbnail(pic_to_insert);
 
-	f_listfield((long *) Dialog.picMan.window, action, 0, &Dialog.picMan.pictureList);
+	f_listfield(Dialog.picMan.window, action, 0, &Dialog.picMan.pictureList);
 
 	Dialog.picMan.selectedPic = pic_to_insert;
 }
@@ -380,12 +371,10 @@ void insert_to_picman(int pic_to_insert)
 /* ----------------------------------------------------------------	*/
 /*			H”he und Breite im Bildmanager updaten					*/
 /* ----------------------------------------------------------------	*/
-void show_picman_wh(SMURF_PIC * pic)
+void show_picman_wh(SMURF_PIC *pic)
 {
 	char string[10];
-
 	OBJECT *ob;
-
 
 	if (pic)
 	{
@@ -407,11 +396,10 @@ void show_picman_wh(SMURF_PIC * pic)
 /* ----------------------------------------------------------------	*/
 /*			Picman-Autoscroll beim Draggen eines Eintrags			*/
 /* ----------------------------------------------------------------	*/
-int pm_autoscroll(int mx, int my)
+BOOLEAN pm_autoscroll(WORD mx, WORD my)
 {
-	int objct;
-	int redraw = 0;
-
+	WORD objct;
+	BOOLEAN redraw = FALSE;
 
 	objct = objc_find(Dialog.picMan.tree, 0, MAX_DEPTH, mx, my);
 
@@ -419,14 +407,14 @@ int pm_autoscroll(int mx, int my)
 	{
 	case PM_UP:
 	case PM_DN:
-		f_listfield((long *) Dialog.picMan.window, objct, 0, &Dialog.picMan.pictureList);
-		redraw = 1;						/* Drag-Bereich neu holen/zeichnen */
+		f_listfield(Dialog.picMan.window, objct, 0, &Dialog.picMan.pictureList);
+		redraw = TRUE;						/* Drag-Bereich neu holen/zeichnen */
 		break;
 	default:
 		break;
 	}
 
-	return (redraw);
+	return redraw;
 }
 
 
@@ -437,8 +425,7 @@ int pm_autoscroll(int mx, int my)
 /* ----------------------------------------------------------------	*/
 void f_resort_piclist(void)
 {
-	int t;
-
+	short t;
 
 	for (t = 0; t < MAX_PIC - 1; t++)
 	{
@@ -460,20 +447,17 @@ void f_resort_piclist(void)
 /*		und gibt dessen MOD_INFO zurck.							*/
 /* ----------------------------------------------------------------	*/
 
-MOD_INFO *ready_modpics_popup(WINDOW * mwindow)
+MOD_INFO *ready_modpics_popup(WINDOW *mwindow)
 {
 	char *textbase;
-	char *dest_str,
-	*src_str,
-	*miptr[8],
-	*src_str2,
-	*dest_str2;
-
-	int t;
-
+	char *dest_str;
+	char *src_str;
+	char *miptr[8];
+	char *src_str2;
+	char *dest_str2;
+	short t;
 	MOD_INFO *minf;
 	BASPAG *modbp;
-
 
 	modbp = module.bp[mwindow->module];
 	textbase = modbp->p_tbase;
@@ -512,18 +496,17 @@ MOD_INFO *ready_modpics_popup(WINDOW * mwindow)
 		}
 	}
 
-	return (minf);
+	return minf;
 }
 
 
 /* ----------------------------------------------------------------	*/
 /*					Thumbnail im Bildmanager erzeugen 				*/
 /* ----------------------------------------------------------------	*/
-void make_picman_thumbnail(int picture_num)
+void make_picman_thumbnail(short picture_num)
 {
-	int t,
-	 first_sel;
-
+	short t;
+	WORD first_sel;
 	SMURF_PIC *pic;
 	OBJECT *ob;
 
@@ -565,7 +548,7 @@ void make_picman_thumbnail(int picture_num)
 
 	ob[(t - Dialog.picMan.pictureList.scroll_offset + PM_PIC1)].ob_state = OS_SELECTED;
 
-	f_listfield((long *) Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
+	f_listfield(Dialog.picMan.window, F_REDRAW, 0, &Dialog.picMan.pictureList);
 
 	pic = smurf_picture[picture_num];
 
@@ -589,26 +572,16 @@ void make_picman_thumbnail(int picture_num)
 
 void picman_windowmove(void)
 {
-	int x,
-	 y,
-	 mbutton,
-	 dummy;
-	int endx,
-	 endy,
-	 xc1,
-	 yc1,
-	 xc2,
-	 yc2;
-	int zoom,
-	 piczoom,
-	 picnum,
-	 picwid,
-	 pichgt;
-	int outx,
-	 outy,
-	 outw,
-	 outh;
-
+	WORD x, y;
+	WORD mbutton;
+	WORD dummy;
+	WORD endx, endy;
+	WORD xc1, yc1, xc2, yc2;
+	short zoom;
+	short piczoom;
+	short picnum;
+	WORD picwid, pichgt;
+	WORD outx, outy, outw, outh;
 	OBJECT *pmtree;
 
 	if (picwindthere == 0)
@@ -618,7 +591,7 @@ void picman_windowmove(void)
 
 	if (mbutton == 0x01)
 	{
-		picnum = f_listfield((long *) Dialog.picMan.window, 0, 0, &Dialog.picMan.pictureList);
+		picnum = f_listfield(Dialog.picMan.window, 0, 0, &Dialog.picMan.pictureList);
 		picnum = Dialog.picMan.picmanList[picnum];
 
 		pmtree = Dialog.picMan.tree;
@@ -667,15 +640,13 @@ void picman_windowmove(void)
 }
 
 
-int compute_zoom(SMURF_PIC * picture, int twid, int thgt)
+WORD compute_zoom(SMURF_PIC *picture, WORD twid, WORD thgt)
 {
-	int owid,
-	 ohgt;
-	int zoom;
-
+	WORD owid, ohgt;
+	WORD zoom;
 
 	if (picture == NULL)
-		return (-1);
+		return -1;
 
 	owid = picture->pic_width;
 	ohgt = picture->pic_height;
@@ -687,5 +658,5 @@ int compute_zoom(SMURF_PIC * picture, int twid, int thgt)
 	else
 		zoom = 0;
 
-	return (zoom);
+	return zoom;
 }
