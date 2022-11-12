@@ -48,22 +48,19 @@
 void f_options(void)
 {
 	char pstr[3];
-
-	int button = 0,
-		popbut,
-		item;
-	int oldenv;
-	int t;
-	static short NPCD,
-	 NOUTCOL,
-	 NPREVDIT,
-	 NPICMANDIT,
-	 NMOVEDIT,
-	 NAUTOPAL,
-	 NAUTODIT;
-
+	WORD button = 0;
+	WORD popbut;
+	WORD item;
+	WORD oldenv;
+	WORD t;
 	OBJECT *infowindow;
-
+	static short NPCD;
+	static short NOUTCOL;
+	static short NPREVDIT;
+	static short NPICMANDIT;
+	static short NMOVEDIT;
+	static short NAUTOPAL;
+	static short NAUTODIT;
 
 	infowindow = Dialog.smurfOpt.tree;
 
@@ -217,7 +214,6 @@ void f_options(void)
 			for (t = DIT1; t <= DIT5; t++)
 				if (ditmod_info[t - 1])
 					col_pop[t].ob_state &= ~OS_DISABLED;
-
 			break;
 
 		case PICMANDIT_PB:
@@ -238,7 +234,6 @@ void f_options(void)
 			for (t = DIT1; t <= DIT5; t++)
 				if (ditmod_info[t - 1])
 					col_pop[t].ob_state &= ~OS_DISABLED;
-
 			break;
 
 		case MOVE_PREVDIT_PB:
@@ -259,7 +254,6 @@ void f_options(void)
 			for (t = DIT1; t <= DIT5; t++)
 				if (ditmod_info[t - 1])
 					col_pop[t].ob_state &= ~OS_DISABLED;
-
 			break;
 
 		case AUTODIT_PB:
