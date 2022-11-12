@@ -137,7 +137,7 @@ void f_scan_edit(void)
 				 */
 				ProcLen = get_proclen(edit_baspag);
 				_Mshrink(edit_baspag, ProcLen);	/* Speicherblock verkrzen */
-				edit_baspag->p_hitpa = (void *) ((long) edit_baspag + ProcLen);
+				edit_baspag->p_hitpa = (void *) ((char *) edit_baspag + ProcLen);
 
 				lback = Pexec(4, 0L, (char *) edit_baspag, 0L);
 				if (lback < 0L)
@@ -407,7 +407,7 @@ void f_scan_import(void)
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(import_baspag);
 				_Mshrink(import_baspag, ProcLen);	/* Speicherblock verkrzen */
-				import_baspag->p_hitpa = (void *) ((long) import_baspag + ProcLen);
+				import_baspag->p_hitpa = (void *) ((char *) import_baspag + ProcLen);
 
 				lback = Pexec(4, 0L, (char *) import_baspag, 0L);
 				if (lback < 0L)
@@ -569,7 +569,7 @@ int seek_module(SMURF_PIC *picture, char *extension)
 			strncpy(modpath, Sys_info.standard_path, 257);
 			strcat(modpath, "\\modules\\import\\");
 			strcat(modpath, Import_list.imp_mod_list[t]);
-			if ((mod_ret = module.comm.startImport(modpath, picture)) == M_STARTERR)
+			if ((mod_ret = module.comm.start_imp_module(modpath, picture)) == M_STARTERR)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 		} while (++t < anzahl_importmods && mod_ret != M_PICDONE && mod_ret != M_DONEEXIT);
 	} else
@@ -588,7 +588,7 @@ int seek_module(SMURF_PIC *picture, char *extension)
 					strcat(modpath, "\\modules\\import\\");
 					strcat(modpath, Import_list.imp_mod_list[t]);
 
-					if ((mod_ret = module.comm.startImport(modpath, picture)) == M_STARTERR)
+					if ((mod_ret = module.comm.start_imp_module(modpath, picture)) == M_STARTERR)
 						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 					break;
 				}
@@ -671,7 +671,7 @@ void f_scan_export(void)
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(export_baspag);
 				_Mshrink(export_baspag, ProcLen);	/* Speicherblock verkrzen */
-				export_baspag->p_hitpa = (void *) ((long) export_baspag + ProcLen);
+				export_baspag->p_hitpa = (void *) ((char *) export_baspag + ProcLen);
 
 				lback = Pexec(4, 0L, (char *) export_baspag, 0L);
 				if (lback < 0L)
@@ -814,7 +814,7 @@ void f_scan_dither(void)
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(dit_baspag);
 				_Mshrink(dit_baspag, ProcLen);	/* Speicherblock verkrzen */
-				dit_baspag->p_hitpa = (void *) ((long) dit_baspag + ProcLen);
+				dit_baspag->p_hitpa = (void *) ((char *) dit_baspag + ProcLen);
 
 				lback = Pexec(4, 0L, (char *) dit_baspag, 0L);
 				if (lback < 0L)

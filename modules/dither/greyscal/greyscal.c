@@ -51,7 +51,7 @@ void setpix162(char *source, char *paddr, int num_plane, long bitplanelen);
 
 static short (*set16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany);
 
-int (*busybox)(int pos);
+static short (*busybox)(short pos);
 
 long planelengthw;
 
@@ -71,7 +71,7 @@ DITHER_MOD_INFO dith_module_info =
 /*      Hingeschmiert von Christian Eyrich 10/96    */
 /*--------------------------------------------------*/
 /*--------------------------------------------------*/
-int dither_module_main(DITHER_DATA *dither)
+short dither_module_main(DITHER_DATA *dither)
 {
     char *ziel; 
     char *plane_table, *palette;
@@ -96,8 +96,6 @@ int dither_module_main(DITHER_DATA *dither)
 
     busybox = dither->services->busybox;
     
-    dither->services->reset_busybox(0, TEXT2 );
-
 /* Struktur auslesen */
     pic_todit = dither->picture;
     ziel = dither->dest_mem;
@@ -247,7 +245,7 @@ int dither_module_main(DITHER_DATA *dither)
         {
             if(!(y%bh))
             {
-                busybox(bl);
+                dither->services->busybox(bl);
                 bl += 12;
             }
     
@@ -319,7 +317,7 @@ int dither_module_main(DITHER_DATA *dither)
         do
         {
             if(!(y%bh)){
-                busybox(bl);
+                dither->services->busybox(bl);
                 bl += 12;
             }
             memset(pixbuf, 0x0, width);

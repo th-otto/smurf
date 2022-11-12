@@ -45,8 +45,6 @@
 #include "ext_obs.h"
 #include "ext_rsc.h"
 
-#define	AP_ARGSTART		0x5001
-
 #define	BUBBLEGEM_REQUEST	0xBABA
 #define	BUBBLEGEM_ACK	0xBABC
 #define DHST_ACK 0xdade
@@ -599,7 +597,7 @@ WORD f_handle_message(void)
 					 * und weg mit dem Modul.
 					 */
 					window_to_handle->module = 0;
-					module.comm.startEdit("", module.bp[edit_mod_num], MTERM, edit_mod_num, module.smStruct[edit_mod_num]);
+					module.comm.start_edit_module("", module.bp[edit_mod_num], MTERM, edit_mod_num, module.smStruct[edit_mod_num]);
 					if (module.smStruct[edit_mod_num]->module_mode != M_EXIT)
 						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_TERM_ERR].TextCast, NULL, NULL, NULL, 1);
 					check_and_terminate(MTERM, edit_mod_num);
@@ -657,7 +655,7 @@ WORD f_handle_message(void)
 
 						*((char **) module.smStruct[module_num & 0xFF]->event_par) = export_cnfblock[t];
 						module.smStruct[module_num & 0xFF]->event_par[2] = export_cnflen[t];
-						module.comm.startExport("", MMORECANC, smurf_picture[active_pic], module.bp[module_num & 0xFF], module.smStruct[module_num & 0xFF], module_num);
+						module.comm.start_exp_module("", MMORECANC, smurf_picture[active_pic], module.bp[module_num & 0xFF], module.smStruct[module_num & 0xFF], module_num);
 						window_to_handle->module = 0;
 
 						/*
@@ -678,7 +676,7 @@ WORD f_handle_message(void)
 					else
 					{
 						window_to_handle->module = 0;
-						module.comm.startEdit("", module.bp[module_num], MTERM, module_num, module.smStruct[module_num]);
+						module.comm.start_edit_module("", module.bp[module_num], MTERM, module_num, module.smStruct[module_num]);
 						if (module.smStruct[module_num]->module_mode != M_EXIT)
 							Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_TERM_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -757,7 +755,7 @@ WORD f_handle_message(void)
 	case VA_START:
 		argback = *(long *) (messagebuf + 3);
 
-		if (!Smurf_locked && *(char **) (messagebuf + 3) != NULL)
+		if (!Smurf_locked && *((char **) (messagebuf + 3)) != NULL)
 		{
 			DraufschmeissBild = VA;
 			file_load("", (char **) (messagebuf + 3), VA);

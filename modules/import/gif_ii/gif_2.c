@@ -65,8 +65,8 @@
 #define TIMER	0
 
 void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
-static void (*reset_busybox)(int lft, const char *string);
+void (*SMfree)(void *ptr);
+static void (*reset_busybox)(short lft, const char *string);
 
 char *check_header(char *file, int *version);
 char *read_lscrdes(char *file);
@@ -138,7 +138,7 @@ int PROCESSOR = 0;
 /*		1-8 Bit, LZW								*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *file, *current_file;
 

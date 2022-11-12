@@ -62,10 +62,10 @@
 #undef random
 #define random( x ) (rand() % (x))
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
-int (*busybox)(int pos);
+short (*busybox)(short pos);
 
 MOD_INFO module_info = {"Scatman's World",
 						0x0030,

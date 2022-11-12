@@ -85,7 +85,7 @@ void f_module_prefs(MOD_INFO * infostruct, short mod_id)
 	/* evtl. altes Modul terminieren */
 	if (edit_mod_num != -1)
 	{
-		module.comm.startEdit("", module.bp[edit_mod_num], MTERM, edit_mod_num, module.smStruct[edit_mod_num]);
+		module.comm.start_edit_module("", module.bp[edit_mod_num], MTERM, edit_mod_num, module.smStruct[edit_mod_num]);
 		check_and_terminate(module.smStruct[edit_mod_num]->module_mode, edit_mod_num);
 		for (t = 0; t < 7; t++)
 			module_pics[edit_mod_num][t] = 0;
@@ -847,13 +847,13 @@ void f_mpref_change(void)
 
 			module.smStruct[edit_mod_num]->event_par[0] = position_markers[edit_mod_num & 0xFF].xpos[0];
 			module.smStruct[edit_mod_num]->event_par[1] = position_markers[edit_mod_num & 0xFF].ypos[0];
-			module.comm.startEdit("", module.bp[edit_mod_num], MCH_COORDS, edit_mod_num, module.smStruct[edit_mod_num]);
+			module.comm.start_edit_module("", module.bp[edit_mod_num], MCH_COORDS, edit_mod_num, module.smStruct[edit_mod_num]);
 
 			Dialog.busy.reset(0, "Modul arbeitet...");
 			if (key_at_event & KEY_ALT)
 				close_me = 1;
 
-			module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
+			module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
 			f_handle_modmessage(module.smStruct[edit_mod_num]);
 
 			Dialog.busy.ok();
@@ -1001,7 +1001,7 @@ static void check_clipping(void)
 /* Darstellung. Also wird immer nur das in die Darstellung reingedithert, was	*/
 /* verschoben wurde.															*/
 /* ------------------------------------------------------------------------		*/
-void f_move_preview(WINDOW * window, SMURF_PIC * orig_pic, int redraw_object)
+void f_move_preview(WINDOW * window, SMURF_PIC * orig_pic, WORD redraw_object)
 {
 	int dummy,
 	 mbutt;
@@ -1184,7 +1184,7 @@ static void f_make_preview(int redraw_flag)
 		for (t = 0; t < mod_inf->how_many_pix; t++)
 		{
 			module.smStruct[edit_mod_num]->event_par[0] = t;
-			module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICS, module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
+			module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICS, module.smStruct[edit_mod_num]->module_number, module.smStruct[edit_mod_num]);
 
 			if (module.smStruct[edit_mod_num]->module_mode == M_PICTURE)
 			{
@@ -1219,7 +1219,7 @@ static void f_make_preview(int redraw_flag)
 
 				smurf_st.event_par[0] = t;
 				smurf_st.smurf_pic = add_pix[t];
-				module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICTURE, module.smStruct[edit_mod_num]->module_number, &smurf_st);
+				module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MPICTURE, module.smStruct[edit_mod_num]->module_number, &smurf_st);
 				if (smurf_st.module_mode != M_WAITING)
 					break;
 			}
@@ -1232,7 +1232,7 @@ static void f_make_preview(int redraw_flag)
 	Dialog.busy.reset(0, "Preview...");
 	graf_mouse(BUSYBEE, dummy_ptr);
 
-	module.comm.startEdit(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, &smurf_st);
+	module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, &smurf_st);
 
 	/*-------- ver„ndertes Bild kopieren -----*/
 	if (mod_inf->how_many_pix > 1)

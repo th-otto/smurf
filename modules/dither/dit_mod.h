@@ -85,4 +85,4 @@ extern DITHER_MOD_INFO *ditmod_info[10];		/* Ditherinfostrukturen fÅr Dithermodu
 /* exported by modules */
 extern DITHER_MOD_INFO dith_module_info ASM_NAME("dith_module_info");
 
-int dither_module_main(DITHER_DATA *dither) ASM_NAME("dither_module_main");
+short dither_module_main(DITHER_DATA *dither) ASM_NAME("dither_module_main");

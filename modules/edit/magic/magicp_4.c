@@ -104,15 +104,13 @@ MOD_ABILITY  module_ability =
 	0,
 };
 
-SERVICE_FUNCTIONS *service;
-int (*busybox)(int lft);
-void (*reset_busybox)(int lft, const char *string);
+static SERVICE_FUNCTIONS *service;
+short (*busybox)(short lft);
+void (*reset_busybox)(short lft, const char *string);
 
-typedef unsigned char uchar;
-typedef unsigned int uint;
-typedef unsigned long ulong;
-
-SMURF_PIC *picture, *text_pic, *deep_pic;
+static SMURF_PIC *picture;
+static SMURF_PIC *text_pic;
+static SMURF_PIC *deep_pic;
 
 extern int berechne_no_inter(int sposch,int ART,int SPALTE,
 		SMURF_PIC *picture,SMURF_PIC *text_pic,SMURF_PIC *deep_pic);
@@ -120,7 +118,7 @@ extern int berechne_no_inter(int sposch,int ART,int SPALTE,
 extern int berechne_inter(int sposch,int ART,int SPALTE,
 		SMURF_PIC *picture,SMURF_PIC *text_pic,SMURF_PIC *deep_pic);
 */
-extern unsigned char fuck_tab[256];
+extern unsigned char fuck_tab[256] ASM_NAME("fuck_tab");
 
 OBJECT *my_tree;
 WINDOW my_window;

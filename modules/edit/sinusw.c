@@ -70,10 +70,10 @@
 #define HORIZONTAL	1
 #define VERTIKAL	2
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
-int (*busybox)(int pos);
+short (*busybox)(short pos);
 
 char *sinus_vertikal(char *buffer, long *sinustab, unsigned int width, unsigned int height, unsigned int sinheight, char BitsPerPixel);
 char *sinus_vertikal2(char *buffer, long *sinustab, unsigned int width, unsigned int height, char BitsPerPixel);

@@ -78,7 +78,7 @@ void f_handle_editklicks(WINDOW * window, int object)
 /* ----------------------------------------------------------------	*/
 /*							UDOs feststellen 						*/
 /* ----------------------------------------------------------------	*/
-int UDO_or_not(WINDOW * wind, int klickobj)
+WORD UDO_or_not(WINDOW * wind, WORD klickobj)
 {
 	static int mode;
 	int objct,
@@ -96,7 +96,7 @@ int UDO_or_not(WINDOW * wind, int klickobj)
 
 	ob = wind->resource_form;
 	if (IsDisabled(ob[klickobj]))
-		return (klickobj);
+		return klickobj;
 
 	type = ob[klickobj].ob_type >> 8;
 
@@ -203,7 +203,7 @@ int UDO_or_not(WINDOW * wind, int klickobj)
 /* ----------------------------------------------------------------	*/
 /*	Kleine Funktion zum deselektieren von 2 Objekten (fÅr Popups)	*/
 /* ----------------------------------------------------------------	*/
-void f_deselect_popup(WINDOW * wind, int ob1, int ob2)
+void f_deselect_popup(WINDOW * wind, WORD ob1, WORD ob2)
 {
 	DEBUG_MSG(("f_deselect_popup...\n"));
 

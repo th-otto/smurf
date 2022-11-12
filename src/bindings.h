@@ -50,3 +50,5 @@ void v_opnbm(WORD *work_in, MFDB *bitmap, WORD *handle, WORD *work_out);
 # define FEAT_MP   		1   /* memory protection enabled */
 # define FEAT_VM    	2   /* virtual memory manager enabled */
 # define GCJARSIZE 0
+
+void v_ext_opnwk(WORD *work_in, WORD *handle, WORD *work_out);

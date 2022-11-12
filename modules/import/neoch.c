@@ -66,7 +66,7 @@ MOD_INFO module_info = {"Neochrome-Importer",
 /*      Neochrome Dekomprimierer (neo)              */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer, *smpal, *paddr, *opaddr;
 char mdummy[3], impmessag[21];

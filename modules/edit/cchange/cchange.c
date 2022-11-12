@@ -50,7 +50,7 @@ void do_16Bit(SMURF_PIC *smurf_pic, PIXEL *dst, PIXEL *src);
 void do_pal(SMURF_PIC *smurf_pic, PIXEL *dst, PIXEL *src);
 void evaluate_color(SMURF_PIC *smurf_pic, PIXEL *dst, PIXEL *src, unsigned int sx, unsigned int sy, unsigned int dx, unsigned int dy, int type);
 
-void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
+static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 
 MOD_INFO module_info = {"Farbe „ndern",
 						0x0010,

@@ -57,8 +57,8 @@
 #define	PCX		1
 #define SCR		2
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 void read_1Bit(char *ziel, char *buffer, int w, int height, char v);
 char *read_8and24Bit(char *ziel, char *buffer, int w, int height, char Planes, char v);
@@ -109,7 +109,7 @@ MOD_INFO module_info = {"PCX/SCR-Importer",
 /*	  1-8, 24 Bit, unkomprimiert und RLE			*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel, *pal, *ppal, *back,
 		 v, v0, v1, comp, BitsPerPixel, Planes;

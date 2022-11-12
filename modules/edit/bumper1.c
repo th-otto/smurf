@@ -130,8 +130,8 @@ void (*set_slider)(SLIDER *sliderstruct, long value);  /* Funktion deklarieren *
 
 void *(*mconfLoad)(MOD_INFO *modinfo, int mod_id, char *name);
 void (*mconfSave)(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *name);
-void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
-int (*SMfree)(void *ptr);
+void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
+static void (*SMfree)(void *ptr);
 
 void save_setting(void);
 void load_setting(void);
@@ -142,8 +142,7 @@ void write_setting(BUMP_CONFIG *myConfig);
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-    int (*get_window)(WINDOW *wind_struct);
-    int (*slider)(SLIDER *slider_struct);       /* Funktion deklarieren */
+    short (*slider)(SLIDER *slider_struct);       /* Funktion deklarieren */
     int SmurfMessage;
     int t;
     int next_edit;
@@ -155,7 +154,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
     
     SmurfMessage=smurf_struct->module_mode;
     
-    get_window = smurf_struct->services->f_module_window;
     slider = smurf_struct->services->slider;
     set_slider = smurf_struct->services->set_slider;
     mconfLoad = smurf_struct->services->mconfLoad;
@@ -179,7 +177,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
     
         smurf_struct->wind_struct=my_window;
     
-        get_window(my_window);
+        smurf_struct->services->f_module_window(my_window);
     
         f_default_sliders();
         strcpy(main_form[LOAD_SET].TextCast, "Laden");

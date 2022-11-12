@@ -39,6 +39,7 @@
 #include "../../../src/plugin/plugin.h"
 #include "../../../src/bindings.h"
 #include "../../../src/smurfobs.h"
+#include "wdialog.h"
 #include "gdos.h"
 
 #include "country.h"
@@ -50,26 +51,9 @@
 #elif COUNTRY==2
 	#include "englisch.rsc/print.h" /* missing french resource */
 #endif
-#include "wdialog.h"
 
-
-extern void v_ext_opnwk(WORD *work_in, WORD *handle, WORD *work_out);
-extern PLUGIN_FUNCTIONS *smurf_functions;
-extern SMURF_VARIABLES *smurf_vars;
-extern OBJECT *alerts;
 
 int get_cookie(unsigned long cookie, unsigned long *value);
-
-int scan_devs(void);                            /* sucht nach GDOS-Ausgabedevices */
-int print_with_GDOS(void);
-int f_d_dither(SMURF_PIC *smurf_pic, char *ziel, unsigned int stripoffset, unsigned int stripheight, char dest_depth);
-void set_MFDB(MFDB *srcform, MFDB *dstform, char *srcpic, char BitsPerPixel);
-int actualize_DevParam(int gdos_dev, DevParamS *DevParam);
-int get_DevInfo(char devID, DevInfoS *DevInfo);
-
-extern SERVICE_FUNCTIONS *services;
-extern SMURF_PIC * *smurf_picture;
-extern int *active_pic;
 
 int work_out[57];
 
@@ -82,7 +66,7 @@ OutParamS OutParam;
 
 
 /* Gedruckt wird immer das aktive Bild. */
-int print_with_GDOS(void)
+int print_with_GDOS(PRN_SETTINGS *prn_settings)
 {
     char *srcpic,
          can_scale;
@@ -96,6 +80,7 @@ int print_with_GDOS(void)
 
     MFDB srcform, dstform;
 
+	(void)prn_settings;
 
     /* Daten extrahieren */
     swidth = smurf_picture[*active_pic]->pic_width;

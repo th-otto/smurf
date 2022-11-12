@@ -46,6 +46,7 @@
 #undef NUM_TREE
 #undef COL8 /* conflicts with smurf.h */
 #undef ALERT_STRINGS /* conflicts with smurf.h */
+#include "wdialog.h"
 #include "gdos.h"
 
 #include "../../../src/smurfobs.h"
@@ -73,7 +74,7 @@
 
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
-void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
+static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 
 void init_rsh(void);
 void init_driver_popup(void);
@@ -93,11 +94,7 @@ void actualize_xywh(void);
 char *shorten_name(char *string, char newlen);
 
 
-extern  int actualize_DevParam(int gdos_dev, DevParamS *DevParam);
-extern  int scan_devs(void);
 extern  int set_DevParam(int gdos_dev, DevParamS *DevParam);
-extern  int print_with_GDOS(void);
-extern  int get_DevInfo(char devID, DevInfoS *DevInfo);
 
 char name_string[]="GDOS Print-Plugin";
 
@@ -128,7 +125,7 @@ SMURF_PIC *pic_active;
 int Button2DevID[30];
 
 SMURF_PIC * *smurf_picture;
-int *active_pic;
+short *active_pic;
 
 int curr_deviceID = 91;
 float scale, temp;
@@ -635,7 +632,7 @@ void handle_print_dialog(PLUGIN_DATA *data)
                                     else
                                     {
                                         OutParam.advance = 1;                                       /* Vorschub nach Seite? */
-                                        print_with_GDOS();
+                                        print_with_GDOS(NULL);
                                     }
                                 break;
 
@@ -705,7 +702,7 @@ void handle_print_dialog(PLUGIN_DATA *data)
             else
             {
                 OutParam.advance = 1;                           /* Vorschub nach Seite? */
-                print_with_GDOS();
+                print_with_GDOS(NULL);
             }
         }
     }

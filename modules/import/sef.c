@@ -64,7 +64,7 @@ MOD_INFO module_info = {"SEF-Importer",
 /*      SEF-Importer                                */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer, *Out, *Merk, *buf, *m1, *m2;
 int     x,y, width, height;

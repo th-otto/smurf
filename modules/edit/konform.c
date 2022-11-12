@@ -58,7 +58,7 @@
 #define VDI		1
 #define HARD	2
 
-int (*busybox)(int pos);
+short (*busybox)(short pos);
 
 MOD_INFO module_info = {TEXT1,
 						0x0020,

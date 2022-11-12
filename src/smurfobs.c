@@ -46,10 +46,10 @@ void init_moduleObs(void)
 	/*
 	 * Modulkommunikation
 	 */
-	module.comm.startImport = start_imp_module;
-	module.comm.startEdit = start_edit_module;
-	module.comm.startExport = start_exp_module;
-	module.comm.startDither = start_dither_module;
+	module.comm.start_imp_module = start_imp_module;
+	module.comm.start_edit_module = start_edit_module;
+	module.comm.start_exp_module = start_exp_module;
+	module.comm.start_dither_module = start_dither_module;
 	module.comm.checkTerminate = check_and_terminate;
 	module.comm.analyzeMessage = analyze_message;
 	module.comm.handleMessage = f_handle_modmessage;

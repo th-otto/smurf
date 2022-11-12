@@ -117,10 +117,10 @@ void invert_1Bit(char *data, long length);
 
 #if !PRG
 void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+void (*SMfree)(void *ptr);
 #else
 void *SMalloc(long amount);
-int SMfree(void *ptr);
+void SMfree(void *ptr);
 #endif
 
 
@@ -169,7 +169,7 @@ MOD_INFO module_info = {"TIFF-Importer",
 /*		Min-is-black/whit, RGB, CMY, CMYK			*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer;
 	char *Palette24, *NewBuf, *help;
@@ -954,13 +954,11 @@ void *SMalloc(long amount)
 
 
 /* --- Funktion zum Freigeben von Speicher + Kontrolle ------- */
-int SMfree(void *ptr)
+void SMfree(void *ptr)
 {
 	if(ptr == NULL)
-		return(-1);
+		return;
 
 	Mfree(ptr);
-
-	return(0);
 }
 #endif

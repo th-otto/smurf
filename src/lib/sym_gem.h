@@ -59,6 +59,9 @@ extern short _app;
 #define FALSE   0
 #define TRUE    1
 #endif
+#ifndef BOOLEAN
+#define BOOLEAN int
+#endif
 
 #ifndef WF_ICONIFY
 #define WF_ICONIFY			26

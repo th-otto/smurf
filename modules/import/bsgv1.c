@@ -68,7 +68,7 @@ MOD_INFO module_info = {"BSG-Importer",
 /*      BSG Fontasy Monochrom Format                */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer, *retbuf;
 int width=0, height=0, bperz=0;

@@ -87,8 +87,8 @@
 #define CF_PALETTE	9
 #define CF_BITMAP2	0xff
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 char *decodeRLE8(char *buffer, unsigned int width, unsigned int height, unsigned long bperz, unsigned long w);
 char *decodeRLE4(char *buffer, unsigned int width, unsigned int height, unsigned long bperz);
@@ -145,7 +145,7 @@ char *globpal;
 /*		unkomprimiert, RLE4 und RLE8				*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *ziel, *buffer, *pal, *palbuf, winstdpal[] =
 		{

@@ -83,7 +83,7 @@
 void noise_grey(char *data, int width, int height, int amountgrey);
 void noise_color(char *data, int width, int height, int amountr, int amountg, int amountb);
 
-int (*busybox)(int pos);
+short (*busybox)(short pos);
 
 MOD_INFO module_info = {TEXT1,
 						0x0040,

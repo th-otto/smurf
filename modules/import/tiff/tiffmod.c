@@ -65,7 +65,7 @@ void decode_difference(char *data, long width, long height, char BitsPerPixel);
 void invert_1Bit(char *data, long length);
 
 extern void *(*SMalloc)(long amount);
-extern int	(*SMfree)(void *ptr);
+extern void (*SMfree)(void *ptr);
 
 /* Dies bastelt direct ein rol.w #8,d0 inline ein. */
 unsigned int swap_word(unsigned int w)

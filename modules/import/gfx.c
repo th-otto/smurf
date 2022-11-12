@@ -143,7 +143,7 @@ void convertiere_bild(unsigned short *sc1,unsigned short *sc2,unsigned int x,uns
 /*		GFX Format (by Sage) 				.GFX	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *bs, *locbuffer;
 	int fmode=1, fe=4, *head;

@@ -243,39 +243,39 @@ typedef struct
 /*----------------- SERVICE_FUNCTIONS - die Dienstfunktionen */
 typedef struct
 {
-    /*   0 */ int (*busybox)(int lft);
-    /*   4 */ void (*reset_busybox)(int lft, const char *string);
+    /*   0 */ short (*busybox)(short lft);
+    /*   4 */ void (*reset_busybox)(short lft, const char *string);
 
-    /*   8 */ int (*f_module_window)(WINDOW *mod_window);
+    /*   8 */ short (*f_module_window)(WINDOW *mod_window);
     /*  12 */ void (*f_module_prefs)(MOD_INFO *infostruct, short mod_id);
 
-    /*  16 */ int (*popup)(POP_UP *popup_struct, int mouseflag, WORD button, OBJECT *poptree);
+    /*  16 */ WORD (*popup)(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree);
     /*  20 */ void (*deselect_popup)(WINDOW *wind, WORD ob1, WORD ob2);
 
-    /*  24 */ int (*slider)(SLIDER *slider_struct);
+    /*  24 */ short (*slider)(SLIDER *slider_struct);
     /*  28 */ void (*set_slider)(SLIDER *sliderstruct, long value);
 
-    /*  32 */ int (*listfield)(long *window, WORD klick_obj, int keyscan, LIST_FIELD *lfstruct);
+    /*  32 */ WORD (*listfield)(long *window, WORD klick_obj, WORD keyscan, LIST_FIELD *lfstruct);
     /*  36 */ void (*generate_listfield)(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
                 WORD listparent, char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield, WORD autoloc);
 
     /*  40 */ SMURF_PIC *(*new_pic)(WORD wid, WORD hgt, WORD depth);
 
-    /*  44 */ void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, int flags);
+    /*  44 */ void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 
     /*  48 */ void (*f_move_preview)(WINDOW *window, SMURF_PIC *orig_pic, WORD redraw_object);
     /*  52 */ void (*copy_preview)(SMURF_PIC *source_pic, SMURF_PIC *module_preview, WINDOW *prev_window);
 
     /*  56 */ void *(*SMalloc)(long amount);
-    /*  60 */ int (*SMfree)(void *ptr);
+    /*  60 */ void (*SMfree)(void *ptr);
     
     /*  64 */ short CPU_type;
     /*  66 */ short (*seek_nearest_col)(long *par, short maxcol);
-    /*  70 */ SMURF_PIC* (*get_pic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
+    /*  70 */ SMURF_PIC* (*get_pic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short form, short col);
 
-    /*  74 */ int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
-    /*  78 */ int (*f_fsbox)(char *Path, char *fbtext, char selectart);
-    /*  82 */ float (*convert_units)(int oldunit, int newunit, float dpi);
+    /*  74 */ WORD (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
+    /*  78 */ BOOLEAN (*f_fsbox)(char *Path, char *fbtext, char selectart);
+    /*  82 */ float (*convert_units)(short oldunit, short newunit, float dpi);
 
     /*  86 */ void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
     /*  90 */ void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
@@ -426,7 +426,7 @@ short setpix_std_line16(uint8_t *buf, uint8_t *dest, short depth, long planelen,
 void rearrange_line2(uint8_t *src, uint8_t *dst, long bytes, unsigned short pixels) ASM_NAME("_rearrange_line2");
 
 
-int f_rslid(SLIDER *slider_struct);
+short f_rslid(SLIDER *slider_struct);
 void setslider(SLIDER *sliderstruct, long value);
 void f_txtinsert(short num, OBJECT *tree, WORD txt_obj, WINDOW *ws); /* EinfÅgen von Zahlen in Textobjekte */
 
@@ -434,7 +434,7 @@ extern MOD_INFO module_info ASM_NAME("module_info");
 extern MOD_ABILITY module_ability ASM_NAME("module_ability");
 
 EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct) ASM_NAME("exp_module_main");
-int imp_module_main(GARGAMEL *smurf_struct) ASM_NAME("imp_module_main");
+short imp_module_main(GARGAMEL *smurf_struct) ASM_NAME("imp_module_main");
 void edit_module_main(GARGAMEL *smurf_struct) ASM_NAME("edit_module_main");
 
 

@@ -132,7 +132,7 @@ int black[]={0,0,0};
 XFNT_INFO font_info;
 
 void 	(*set_slider)(SLIDER *sliderstruct, long value);
-void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
+void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 void f_doit(GARGAMEL *smurfstruct, SMURF_PIC *picture, FONT_INFO *font);
 void compute_preview(void);
 
@@ -141,8 +141,6 @@ void compute_preview(void);
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-int (*get_window)(WINDOW *wind);		/* Funktion deklarieren */
-
 int t, back;
 int mod_id;
 int wind_num=1;
@@ -161,7 +159,6 @@ static FONT_INFO font;
 	/*
 	 * Hier werden die Funktionen aus der GARGAMEL-Struktur geholt.
 	 */
-	get_window=smurf_struct->services->f_module_window;			/* Windowfunktion	*/
 	set_slider = smurf_struct->services->set_slider;
 	redraw_window = smurf_struct->services->redraw_window;
 
@@ -280,7 +277,7 @@ static FONT_INFO font;
 		strcpy(maintree[TEXT_OB].ob_spec.tedinfo->te_ptext, "The quick blue Smurf jumps over the lazy pic");
 		strcpy(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext, "24");
 
-		back = get_window(mwindow);						/* Gib mir 'n Fenster! */
+		back = smurf_struct->services->f_module_window(mwindow);						/* Gib mir 'n Fenster! */
 		if(back==-1)									/* keins mehr da? */
 		{
 			smurf_struct->module_mode=M_EXIT;

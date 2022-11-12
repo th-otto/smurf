@@ -32,11 +32,15 @@
 #include <string.h>
 #include <math.h>
 #include "../../import.h"
+#define MAX_MODS 21
 #include "../../../src/smurf_st.h"
 #include "../../../src/globdefs.h"
 #include "../../../src/smurfine.h"
-#include "gdos.h"
+#include "../../../src/plugin/plugin.h"
+#include "../../../src/bindings.h"
+#include "../../../src/smurfobs.h"
 #include "wdialog.h"
+#include "gdos.h"
 
 #include "country.h"
 
@@ -48,20 +52,8 @@
 	#include "englisch.rsc/print.h" /* missing french resource */
 #endif
 
-void v_ext_opnwk(WORD *work_in, WORD *handle, WORD *work_out);
-
 int get_cookie(unsigned long cookie, unsigned long *value);
 
-int print_with_GDOS(PRN_SETTINGS *prn_settings);
-int f_d_dither(SMURF_PIC *smurf_pic, char *ziel, unsigned int stripoffset, unsigned int stripheight, char dest_depth);
-void set_MFDB(MFDB *srcform, MFDB *dstform, char *srcpic, char BitsPerPixel);
-int actualize_DevParam(int gdos_dev, DevParamS *DevParam);
-
-extern SERVICE_FUNCTIONS *services;
-extern SMURF_PIC * *smurf_picture;
-extern int *active_pic;
-extern PRN_SETTINGS *prn_settings;
-extern OBJECT *alerts;
 
 int work_out[57];
 

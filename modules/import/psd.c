@@ -51,8 +51,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Photoshop 3.0",
@@ -93,7 +93,7 @@ MOD_INFO module_info = {"Photoshop 3.0",
 /*		unkomprimiert, RLE							*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char v1, v2;
 	char *buffer, *obuffer, *ziel, *oziel, *pal, *ppal, 

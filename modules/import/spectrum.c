@@ -87,7 +87,7 @@ int FindIndex(int x, int c);
 void *decompress_SPC(char *picdata, char *dest_data, long decompressed_bytes);
 void decode_palettes(unsigned short *picdata);
 
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char *picdata, *pdcopy;
 char *dest_data, *DecodedPic, *EndPic;
@@ -101,7 +101,7 @@ unsigned int C, x,y;
 unsigned int red,green,blue;
 long planelen;
 
-void (*reset_busybox)(int lft, const char *txt);
+void (*reset_busybox)(short lft, const char *txt);
 
     reset_busybox=smurf_struct->services->reset_busybox;
 

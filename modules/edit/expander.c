@@ -42,7 +42,7 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
-int (*busybox)(int pos);
+short (*busybox)(short pos);
 
 MOD_INFO module_info = {"Expander",
 						0x0030,

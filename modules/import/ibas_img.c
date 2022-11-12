@@ -73,7 +73,7 @@ MOD_INFO module_info = {"IBAS Image-Modul",
 /*		8 Bit: Graustufen							*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel, *pal, BitsPerPixel;
 

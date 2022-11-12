@@ -217,7 +217,7 @@ ulong unpack(uchar *s, uchar *d,ulong ls)
 /*		MIM Format (by Sage) 				.MIM	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char *buffer, t[32];
 unsigned int width, height, feb;

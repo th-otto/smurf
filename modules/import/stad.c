@@ -67,7 +67,7 @@ MOD_INFO module_info = {"Atari Stad-Grafik",
 /*      PAC Atari STAD Grafik                       */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer;
 int width=0, height=0, ID_Byte, Pack_Byte, Special_Byte;

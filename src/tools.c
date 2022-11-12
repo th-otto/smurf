@@ -360,6 +360,10 @@ int SMfree(void *ptr)
 	return (0);
 }
 
+void exported_SMfree(void *ptr)
+{
+	SMfree(ptr);
+}
 
 /*---- String im Startup-Dialog setzen und redrawen. Nur verwenden, wenn der Dialog offen ist! ---*/
 void set_startupdial(char *string)
@@ -380,7 +384,7 @@ void set_startupdial(char *string)
 /*	RÅckgabewert ist ein Konvertierungsfaktor (Multiplikator) fÅr	*/
 /*	den alten Wert im 64Bit-Flieûkommaformat.						*/
 /*-----------------------------------------------------------------	*/
-float convert_units(int oldunit, int newunit, float dpi)
+float convert_units(short oldunit, short newunit, float dpi)
 {
 	float conv_factor;
 

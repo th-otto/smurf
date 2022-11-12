@@ -70,51 +70,32 @@ SERVICE_FUNCTIONS global_services;
 #define LOW_POOL 1
 #define HIGH_POOL 999
 
-#define	AP_ARGSTART		0x5001
-
-/* ------------------------------------------------------------	*/
-/*				lokale Funktionsdeklarationen					*/
-/* ------------------------------------------------------------	*/
-static int open_vwork(void);			/* Virt. Workstation */
-static int copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic);
-static void insert_float(OBJECT * tree, int object, float val);
-static int do_MBEVT(int module_number, WINDOW * mod_win, int mode);
-
-
 /* ------------------------------------------------------------*/
 /*		 			Globale Variablendeklaration			   */
 /* ------------------------------------------------------------*/
 static unsigned char *mononct;			/* monochrome NCT (32KByte) */
 
 WORD resource_global[100];
-int nullcoordset,
- syspalset = 0;
+BOOLEAN nullcoordset;
+BOOLEAN syspalset;
+WORD gl_hchar, gl_wchar, gl_hbox, gl_wbox;
+short picwindthere;
+short dialwindthere;
+short picthere;
 
-int gl_hchar,
- gl_wchar,
- gl_hbox,
- gl_wbox;
-int picwindthere = 0,
-	dialwindthere = 0,
-	picthere = 0;
+short openmode;							/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
+BOOLEAN PCD;							/* PCD-Kennung fÅr aktuell zu ladendes Bild */
+WORD PCDwidth, PCDheight;				/* Hîhe und Breite des PCD-Bildes */
 
-int openmode;							/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
-int PCD;								/* PCD-Kennung fÅr aktuell zu ladendes Bild */
-int PCDwidth,
- PCDheight;								/* Hîhe und Breite des PCD-Bildes */
-
-int handle;								/* VDI-Hendl */
-static int work_out[57];
-int scrwd,
- scrht;									/* Screen Breite+Hîhe */
-int mouse_xpos,
- mouse_ypos;							/* Mausposition */
+WORD handle;							/* VDI-Hendl */
+static WORD work_out[57];
+WORD scrwd, scrht;						/* Screen Breite+Hîhe */
+WORD mouse_xpos, mouse_ypos;			/* Mausposition */
 WORD key_scancode;						/* Scancode beim letzten Keyboard-Event */
-int key_ascii;
-int obj;								/* Objekt beim loslassen des Buttons */
+WORD key_ascii;
+WORD obj;								/* Objekt beim loslassen des Buttons */
 
-int mouse_button,
- key_at_event;
+WORD mouse_button, key_at_event;
 
 OBJECT *info_window;					/* Zeiger auf Resource  */
 OBJECT *form_pop;						/* Zeiger auf Resource  */
@@ -142,12 +123,10 @@ OBJECT *menu_tree;
 OBJECT *u_tree;							/* Zeiger auf Radiobutton/Checkbox-Formular */
 
 MFORM *dummy_ptr;						/* Dummymouse fÅr Maus-Form */
-MFORM lr_arrow,
- ud_arrow,
- lrud_arrow;
+MFORM lr_arrow, ud_arrow, lrud_arrow;
 long f_len = 0x4b444100L;				/* LÑnge des letzten geladenen Files 'KDA\0' */
 WORD *messagebuf;						/* Zeiger fÅr Messageevents */
-int klicks;								/* Anzahl Mausklicks beim letzten Buttonevent */
+WORD klicks;							/* Anzahl Mausklicks beim letzten Buttonevent */
 
 char *stpath;							/* Smurf-Standardpfad */
 char loadpath[257];						/* voller Pfad der zuletzt geladenen Datei */
@@ -159,17 +138,17 @@ SYSTEM_INFO Sys_info;					/* Systemkonfiguration */
 IMPORT_LIST Import_list;				/* Importmodul-Liste */
 
 /* 15Bit-Systempalette aus NCT - werden in Sys_info eingehÑngt!*/
-static int red[257];
-static int grn[257];
-static int blu[257];
+static WORD red[257];
+static WORD grn[257];
+static WORD blu[257];
 
 /* die Original-Systempalette, wird bei Systemstart ausgelesen und
    danach nie mehr verÑndert */
-int orig_red[256];
-int orig_green[256];
-int orig_blue[256];
+WORD orig_red[256];
+WORD orig_green[256];
+WORD orig_blue[256];
 
-char planetable[260];
+uint8_t planetable[260];
 
 char *edit_modules[100];				/* Pfade fÅr bis zu 100 Edit-Module */
 char *export_modules[100];				/* Pfade fÅr bis zu 100 Export-Module */
@@ -181,8 +160,8 @@ CROSSHAIR position_markers[20];			/* Positionsmarker fÅr die Editmodule */
 
 char *picnames[100];					/* BILDMANAGER: Namen fÅr bis zu 100 Bilder */
 
-int anzahl_importmods = 0;				/* Anzahl an Import-Modulen */
-int anzahl_dithermods = 0;				/* Anzahl an Dither-Modulen */
+int16_t anzahl_importmods = 0;			/* Anzahl an Import-Modulen */
+int16_t anzahl_dithermods = 0;			/* Anzahl an Dither-Modulen */
 
 long Name_Max;
 
@@ -194,66 +173,81 @@ POP_UP popups[25];
 SLIDER sliders[15];
 char module_pics[MAX_MODS][7];
 
-int Radio = RADIO,
-	SelectedRadio = RADIO_SEL;
-int Check = CHECK,
-	SelectedCheck = CHECK_SEL;
-int Cycle = CYCLE,
-	SelectedCycle = CYCLE_SEL;
-static long oldtim,
- tim;
+WORD Radio = RADIO;
+WORD SelectedRadio = RADIO_SEL;
+WORD Check = CHECK;
+WORD SelectedCheck = CHECK_SEL;
+WORD Cycle = CYCLE;
+WORD SelectedCycle = CYCLE_SEL;
+static long oldtim, tim;
 
 
 GRECT screen;
 
-int appl_id,
- menu_id;
+WORD appl_id, menu_id;
 SMURF_PIC *smurf_picture[MAX_PIC];
-int active_pic;
+short active_pic;
 
 BASPAG *Dithermod_Basepage[10];			/* Basepages fÅr Dithermodule */
 DITHER_MOD_INFO *ditmod_info[10];		/* Ditherinfostrukturen fÅr Dithermodule */
 
 /*--------------	Slidergrenzen fÅr Modulformular */
-long sx1,
- sx2,
- sx3,
- sx4;									/* Maxima */
-long sn1,
- sn2,
- sn3,
- sn4;									/* Minima */
-int sy1,
- sy2,
- sy3,
- sy4;									/* eingestellte Sliderwerte */
-int edit_mod_num = -1;					/* Modul-ID des Moduls, das das Einstellformular benutzt */
+long sx1, sx2, sx3, sx4;				/* Maxima */
+long sn1, sn2, sn3, sn4;				/* Minima */
+short sy1, sy2, sy3, sy4;					/* eingestellte Sliderwerte */
+short edit_mod_num = -1;					/* Modul-ID des Moduls, das das Einstellformular benutzt */
 char *export_path;						/* Pfad des Export-Modules  */
-int export_depth[8];
-int export_format[8];
+short export_depth[8];
+short export_format[8];
 
-int TOOLBAR_HEIGHT;
+WORD TOOLBAR_HEIGHT;
 
 char Smurf_locked;
 char Startup;							/* Hochfahren des ganzen Monster-Systems */
 char startupdial_exist = 0;
 
-int num_of_pics;
+short num_of_pics;
 
 static long timer_fx_counter[10];
 long timer_fx_max[10];
 static void *timer_fx_rout[10];
 
-int fix_red[256];
-int fix_blue[256];
-int fix_green[256];
+WORD fix_red[256];
+WORD fix_blue[256];
+WORD fix_green[256];
 
-int sx,
- sy,
- sw,
- sh;
+WORD sx, sy, sw, sh;
 OBJECT *startrsc;
-static int startuprsc_global[10];
+static WORD startuprsc_global[10];
+
+/* --------------------------------------------------------------   */
+/*  Funktion zum ôffnen einer virtuellen Bildschirmworkstation      */
+/* --------------------------------------------------------------   */
+static BOOLEAN open_vwork(void)
+{
+	WORD phys_handle;
+	WORD work_in[16];
+	int i;
+
+	if ((appl_id = appl_init()) != -1)
+	{
+		for (i = 0; i < 16; work_in[i++] = 1)
+			;
+		work_in[10] = 2;
+		work_in[11] = 0;
+		work_in[12] = 0;
+		work_in[13] = 0;
+		work_in[14] = 0;
+		work_in[15] = 0;
+		phys_handle = graf_handle(&gl_wchar, &gl_hchar, &gl_wbox, &gl_hbox);
+		handle = phys_handle;
+		v_opnvwk(work_in, &handle, work_out);
+		if (handle > 0)
+			return TRUE;
+	}
+	return FALSE;
+}
+
 
 /* ------------------------------------------------------------*/
 /* ------------------------------------------------------------*/
@@ -263,13 +257,11 @@ static int startuprsc_global[10];
 int main(int argc, const char *argv[])
 {
 	char timer[4] = "___";
-	int t,
-	 tt,
-	 back;
+	short t;
+	short tt;
+	short back;
 	char *rsc_path;
-
 	GRECT desk;
-
 
 	/*
 	 * Virtuelle Workstation îffnen
@@ -324,7 +316,7 @@ int main(int argc, const char *argv[])
 
 	if (startupdial_exist)
 	{
-		xrsrc_gaddr(0, 0, &startrsc, startuprsc_global);
+		xrsrc_gaddr(R_TREE, 0, &startrsc, startuprsc_global);
 		form_center(startrsc, &sx, &sy, &sw, &sh);
 		form_dial(FMD_START, sx, sy, sw, sh, sx, sy, sw, sh);
 		wind_update(BEG_UPDATE);
@@ -634,14 +626,13 @@ int main(int argc, const char *argv[])
 
 	if (load_import_list() != 0)		/* keine da? */
 	{
+		/* FIXME: translate */
 		t = Dialog.winAlert.openAlert("Keine Importmodul-Liste gefunden. Jetzt generieren?", " Ja ", "Nein", NULL, 1);
 		if (t == 1)
 			f_scan_import();
 		else
-			Dialog.winAlert.
-				openAlert
-				("Ohne eine Importerliste wird das Laden von Bildern deutlich lÑnger dauern. Generieren Sie im Optionsdialog die Liste.",
-				 NULL, NULL, NULL, 1);
+			/* FIXME: translate */
+			Dialog.winAlert.openAlert("Ohne eine Importerliste wird das Laden von Bildern deutlich lÑnger dauern. Generieren Sie im Optionsdialog die Liste.", NULL, NULL, NULL, 1);
 	}
 
 	Startup = 0;
@@ -665,45 +656,14 @@ int main(int argc, const char *argv[])
 }
 
 
-/* --------------------------------------------------------------   */
-/*  Funktion zum ôffnen einer virtuellen Bildschirmworkstation      */
-/* --------------------------------------------------------------   */
-static int open_vwork(void)
-{
-	int phys_handle;
-	int work_in[16];
-	int i;
-
-	if ((appl_id = appl_init()) != -1)
-	{
-		for (i = 0; i < 16; work_in[i++] = 1) ;
-		work_in[10] = 2;
-		work_in[11] = 0;
-		work_in[12] = 0;
-		work_in[13] = 0;
-		work_in[14] = 0;
-		work_in[15] = 0;
-		phys_handle = graf_handle(&gl_wchar, &gl_hchar, &gl_wbox, &gl_hbox);
-		handle = phys_handle;
-		v_opnvwk(work_in, &handle, work_out);
-		if (handle > 0)
-			return (TRUE);
-		else
-			return (FALSE);
-	} else
-		return (FALSE);
-}
-
-
 /* ----------------------------------------------------------------	*/
 /* --------------------- Systempalette setzen ---------------------	*/
 /* ----------------------------------------------------------------	*/
 void f_set_syspal(void)
 {
-	int t,
-	 maxcol,
-	 rgb[3];
-
+	short t;
+	short maxcol;
+	WORD rgb[3];
 
 	if (!syspalset && Sys_info.bitplanes <= 8)
 	{
@@ -720,7 +680,7 @@ void f_set_syspal(void)
 			vs_color(handle, t, rgb);
 		}
 
-		syspalset = 1;
+		syspalset = TRUE;
 
 		wind_update(END_UPDATE);
 	}
@@ -732,10 +692,9 @@ void f_set_syspal(void)
 /* ----------------------------------------------------------------	*/
 void f_set_picpal(SMURF_PIC * pic)
 {
-	int t,
-	 maxcol,
-	 rgb[3];
-
+	short t;
+	short maxcol;
+	WORD rgb[3];
 
 	if (Sys_info.bitplanes <= 8 && Display_Opt.palette_mode != PAL_SYSTEM)
 	{
@@ -746,13 +705,13 @@ void f_set_picpal(SMURF_PIC * pic)
 
 		for (t = 0; t <= maxcol; t++)
 		{
-			rgb[0] = (int) ((long) pic->red[t] * 1000 / 255);
-			rgb[1] = (int) ((long) pic->grn[t] * 1000 / 255);
-			rgb[2] = (int) ((long) pic->blu[t] * 1000 / 255);
+			rgb[0] = (WORD) ((long) pic->red[t] * 1000 / 255);
+			rgb[1] = (WORD) ((long) pic->grn[t] * 1000 / 255);
+			rgb[2] = (WORD) ((long) pic->blu[t] * 1000 / 255);
 			vs_color(handle, t, rgb);
 		}
 
-		syspalset = 0;
+		syspalset = FALSE;
 
 		wind_update(END_UPDATE);
 	}
@@ -766,13 +725,10 @@ void f_pic_info(void)
 {
 	char *file;
 	char dummy[30] = "";
-
-	int picdepth;
-
+	short picdepth;
 	static SMURF_PIC infoprev;
 	SMURF_PIC *pic;
 	OBJECT *infowindow;
-
 
 	if (wind_s[WIND_PICINFO].whandlem == -1 && openmode)	/* wenn Infofenster zu, nix zu tun */
 		return;
@@ -883,27 +839,58 @@ void f_pic_info(void)
 
 
 
+/*---------------------------------------------------------------------------------	*/
+/* insert_float																	*/
+/*	fÅgt eine 64Bit-Flieûkommazahl val als Text in den Objektbaum tree, TEXTobjekt	*/
+/*	ein. Der String hat hinterher grundsÑtzlich 9 Stellen, bei variabler Mantisse.	*/
+/*---------------------------------------------------------------------------------	*/
+static void insert_float(OBJECT * tree, WORD object, float val)
+{
+	char str[40];
+	char str2[40];
+	int dec, sign;
+	double fval;
+
+	memset(str, 0, sizeof(str));
+	memset(str2, 0, sizeof(str2));
+	fval = val;
+
+	ftoa(&fval, str, 10, 1, &dec, &sign);
+
+	if (dec > 0)
+		strncpy(str2, str, dec);
+	else
+		strcpy(str2, "0");
+
+	if (dec < 0)
+		dec = 0;
+	strcat(str2, ".");
+
+	strcat(str2, str + dec);
+
+	strncpy(tree[object].TextCast, str2, 9);
+}
+
+
+
 /*----------------------------------------------------------------------*/
 /*						Formular "Neues Bild"							*/
 /*----------------------------------------------------------------------*/
-void f_newpic(int scancode)
+void f_newpic(WORD scancode)
 {
 	char strn[10];
-
-	static int unit = UNIT_PIXELS;
-	int button;
-	int wid,
-	 hgt,
-	 dep,
-	 dpi;
-	int newunit;
-
-	float oldwid,
-	 oldhgt,
-	 newwid,
-	 newhgt,
-	 conv_factor;
-
+	static WORD unit = UNIT_PIXELS;
+	WORD button;
+	WORD wid;
+	WORD hgt;
+	WORD dep;
+	WORD dpi;
+	WORD newunit;
+	float oldwid;
+	float oldhgt;
+	float newwid;
+	float newhgt;
+	float conv_factor;
 	OBJECT *new_form;
 
 	new_form = wind_s[WIND_NEWPIC].resource_form;
@@ -992,11 +979,11 @@ void f_newpic(int scancode)
 			} else
 			{
 				memset(strn, 0x0, 10);
-				itoa((int) newwid, strn, 10);
+				itoa(newwid, strn, 10);
 				strcpy(new_form[NEWPIC_WID].TextCast, strn);
 
 				memset(strn, 0x0, 10);
-				itoa((int) newhgt, strn, 10);
+				itoa(newhgt, strn, 10);
 				strcpy(new_form[NEWPIC_HGT].TextCast, strn);
 			}
 
@@ -1007,55 +994,16 @@ void f_newpic(int scancode)
 }
 
 
-/*---------------------------------------------------------------------------------	*/
-/* insert_float																	*/
-/*	fÅgt eine 64Bit-Flieûkommazahl val als Text in den Objektbaum tree, TEXTobjekt	*/
-/*	ein. Der String hat hinterher grundsÑtzlich 9 Stellen, bei variabler Mantisse.	*/
-/*---------------------------------------------------------------------------------	*/
-static void insert_float(OBJECT * tree, int object, float val)
-{
-	char str[40];
-	char str2[40];
-	int dec,
-	 dummy;
-	double fval;
-
-	memset(str, 0, sizeof(str));
-	memset(str2, 0, sizeof(str2));
-	fval = val;
-
-	ftoa(&fval, str, 10, 1, &dec, &dummy);
-
-	if (dec > 0)
-		strncpy(str2, str, dec);
-	else
-		strcpy(str2, "0");
-
-	if (dec < 0)
-		dec = 0;
-	strcat(str2, ".");
-
-	strcat(str2, str + dec);
-
-	strncpy(tree[object].TextCast, str2, 9);
-}
-
-
-
 /*----------------------------------------------------------------------*/
 /*						Neues Bild generieren 							*/
 /*----------------------------------------------------------------------*/
-SMURF_PIC *f_generate_newpic(int wid, int hgt, int depth)
+SMURF_PIC *f_generate_newpic(WORD wid, WORD hgt, WORD depth)
 {
 	char *palette;
-
-	int pic_to_make = 1;
-	int tt,
-	 index;
-	int aligned_width;
-
+	short pic_to_make = 1;
+	short tt, index;
+	short aligned_width;
 	long PicLen;
-
 
 	/* erstes freies Bild ermitteln */
 	while (smurf_picture[pic_to_make] != NULL)
@@ -1063,7 +1011,7 @@ SMURF_PIC *f_generate_newpic(int wid, int hgt, int depth)
 	if (pic_to_make > MAX_PIC)
 	{
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1);
-		return (0);
+		return 0;
 	}
 
 	smurf_picture[pic_to_make] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
@@ -1111,9 +1059,9 @@ SMURF_PIC *f_generate_newpic(int wid, int hgt, int depth)
 			for (tt = 0; tt <= Sys_info.Max_col; tt++)
 			{
 				index = planetable[tt];
-				*(palette + 0 + index * 3) = (int) ((long) (orig_red[tt] * 255L) / 1000L);
-				*(palette + 1 + index * 3) = (int) ((long) (orig_green[tt] * 255L) / 1000L);
-				*(palette + 2 + index * 3) = (int) ((long) (orig_blue[tt] * 255L) / 1000L);
+				*(palette + 0 + index * 3) = (WORD) ((long) (orig_red[tt] * 255L) / 1000L);
+				*(palette + 1 + index * 3) = (WORD) ((long) (orig_green[tt] * 255L) / 1000L);
+				*(palette + 2 + index * 3) = (WORD) ((long) (orig_blue[tt] * 255L) / 1000L);
 			}
 
 		if (!Sys_info.realtime_dither)
@@ -1130,7 +1078,7 @@ SMURF_PIC *f_generate_newpic(int wid, int hgt, int depth)
 		actualize_menu();				/* MenÅeintrÑge ENABLEn / DISABLEn */
 	}
 
-	return (smurf_picture[pic_to_make]);
+	return smurf_picture[pic_to_make];
 }
 
 
@@ -1138,10 +1086,9 @@ SMURF_PIC *f_generate_newpic(int wid, int hgt, int depth)
 /*------------------------ Generieren und FÅllen von Strukturen ---------------------------	*/
 /*					WINDOW und SMURF_PIC fÅr neues oder geladenes Bild						*/
 
-void make_smurf_pic(int pic_to_make, int wid, int hgt, int depth, char *picdata)
+void make_smurf_pic(short pic_to_make, WORD wid, WORD hgt, WORD depth, char *picdata)
 {
 	long PicLen;
-
 
 	PicLen = (long) ((long) wid * (long) hgt * (long) depth) / 8L;
 
@@ -1170,23 +1117,19 @@ void make_smurf_pic(int pic_to_make, int wid, int hgt, int depth, char *picdata)
 	mit der Grîûe wid/hgt und dem Namen name. Ein Fenstertitel wird
 	erzeugt, das Bild eingehÑngt und pflag auf 1 gesetzt.
 	----------------------------------------------------------------*/
-void make_pic_window(int pic_to_make, int wid, int hgt, char *name)
+void make_pic_window(short pic_to_make, WORD wid, WORD hgt, char *name)
 {
 	char widstr[6];
 	char hgtstr[6];
-	int whlen;
-	int abx,
-	 aby,
-	 abw,
-	 abh;
-	int flags,
-	 dummy;
+	short whlen;
+	WORD abx, aby, abw, abh;
+	WORD flags;
+	WORD dummy;
 
 	picture_windows[pic_to_make].editob = 0;
 	picture_windows[pic_to_make].editx = 0;
 	picture_windows[pic_to_make].nextedit = 0;
 	picture_windows[pic_to_make].module = 0;
-
 
 	itoa(wid, widstr, 10);
 	itoa(hgt, hgtstr, 10);
@@ -1194,10 +1137,9 @@ void make_pic_window(int pic_to_make, int wid, int hgt, char *name)
 	strncat(picture_windows[pic_to_make].wtitle, "*", 1);
 	strncat(picture_windows[pic_to_make].wtitle, hgtstr, 5);
 
-	whlen = (int) strlen(picture_windows[pic_to_make].wtitle);
+	whlen = (short) strlen(picture_windows[pic_to_make].wtitle);
 	strncat(picture_windows[pic_to_make].wtitle, "            ", 12 - whlen);
-	strcat(picture_windows[pic_to_make].wtitle,
-		   shorten_name(name, 41 - (char) strlen(picture_windows[pic_to_make].wtitle)));
+	strcat(picture_windows[pic_to_make].wtitle, shorten_name(name, 41 - (char) strlen(picture_windows[pic_to_make].wtitle)));
 #if 0
 	strncat(picture_windows[pic_to_make].wtitle, name, 40);
 #endif
@@ -1214,7 +1156,7 @@ void make_pic_window(int pic_to_make, int wid, int hgt, char *name)
 	flags = CLOSER | NAME | MOVER | SMALLER;
 	flags |= FULLER | SIZER | UPARROW | DNARROW | LFARROW | RTARROW | VSLIDE | HSLIDE;
 	wind_calc(WC_WORK, flags, picture_windows[pic_to_make].wx, picture_windows[pic_to_make].wy, 100, 100,
-			  &picture_windows[pic_to_make].wx, &picture_windows[pic_to_make].wy, &dummy, &dummy);
+		&picture_windows[pic_to_make].wx, &picture_windows[pic_to_make].wy, &dummy, &dummy);
 
 	picture_windows[pic_to_make].ww = wid;
 	picture_windows[pic_to_make].wh = hgt + TOOLBAR_HEIGHT;
@@ -1240,6 +1182,217 @@ void make_pic_window(int pic_to_make, int wid, int hgt, char *name)
 
 
 
+/* ------------------------------------------------------------------------	*/
+/*					Buttonevent im Modulfenster behandeln					*/
+/*	Verarbeitet B/K-Events in Modulfenstern. MBEVT/MKEVT wird ans Modul		*/
+/*	Åbergeben, bei Return von M_STARTED werden die vom Modul benîtigten		*/
+/*	Bilder ans Modul Åbergeben bzw. konvertiert und das Modul gestartet.	*/
+/* ------------------------------------------------------------------------	*/
+static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
+{
+	char *textseg_begin;
+	char *picture;
+	long mod_magic;
+	WORD back;
+	WORD oldtop = 0;
+	short hm_pix;
+	short picnum;
+	short mod_index;
+	long len;
+	MOD_INFO *mod_info;
+	MOD_ABILITY *mod_abs;
+	EXPORT_PIC *pic_to_save;
+	SMURF_PIC *edited_pic;
+
+	mod_index = module_number & 0xFF;
+
+	/*
+	 * Modulanalyse
+	 */
+	if (!(module_number & 0x200))		/* kein Plugin? */
+	{
+		textseg_begin = module.bp[mod_index]->p_tbase;
+		mod_magic = get_modmagic(module.bp[mod_index]);
+		mod_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+		mod_abs = *((MOD_ABILITY * *)(textseg_begin + MOD_ABS_OFFSET));
+		hm_pix = mod_info->how_many_pix;
+
+		module.smStruct[mod_index]->smurf_pic = smurf_picture[active_pic];
+
+		if (smurf_picture[active_pic])
+			if (smurf_picture[active_pic]->block != NULL)
+				module.smStruct[mod_index]->smurf_pic = smurf_picture[active_pic]->block;
+	} else
+	{
+		textseg_begin = plugin_bp[mod_index]->p_tbase;
+		mod_magic = MOD_MAGIC_PLUGIN;
+	}
+
+
+	/*
+	 * Edit-Modul?
+	 */
+	if (mod_magic == MOD_MAGIC_EDIT)
+	{
+		/* Buttonevent Åbergeben --- */
+		module.comm.start_edit_module("", module.bp[mod_index], mode, mod_index, module.smStruct[mod_index]);
+
+		if (module.smStruct[mod_index]->module_mode == M_STARTED && (picthere || mod_info->how_many_pix == 0))
+		{
+			/*
+			 * Default-Konfigurationsblock anfordern und merken
+			 */
+			module.comm.start_edit_module(edit_modules[mod_index], module.bp[mod_index], GETCONFIG, mod_index, module.smStruct[mod_index]);
+			if (module.smStruct[mod_index]->module_mode == M_CONFIG)
+				memorize_emodConfig(module.bp[mod_index], module.smStruct[mod_index]);
+
+			module.smStruct[mod_index]->event_par[0] = position_markers[module_number & 0xFF].xpos[0];
+			module.smStruct[mod_index]->event_par[1] = position_markers[module_number & 0xFF].ypos[0];
+			module.comm.start_edit_module("", module.bp[mod_index], MCH_COORDS, mod_index, module.smStruct[mod_index]);
+
+			back = 0;
+			if (mod_info->how_many_pix > 1)
+				back = f_give_pics(mod_info, mod_abs, module_number);
+			else
+				f_convert(smurf_picture[active_pic], mod_abs, RGB, SAME, 0);
+
+			if (back == 0)
+			{
+				/*
+				 * Bilder Åbergeben, -> karierte Flagge fÅrs Modul
+				 */
+				Window.windGet(0, WF_TOP, &oldtop, 0, 0, 0);
+				Window.topNow(&wind_s[WIND_BUSY]);
+				Window.redraw(&wind_s[WIND_BUSY], NULL, 0, 0);
+				Dialog.busy.reset(0, mod_win->wtitle);
+				module.smStruct[mod_index]->event_par[0] = 0;
+				module.comm.start_edit_module(edit_modules[mod_index], module.bp[mod_index], MEXEC, mod_index, module.smStruct[mod_index]);
+			}
+		}
+
+		back = 0;
+	}
+
+	/*
+	 * Export-Modul?
+	 */
+	else if (mod_magic == MOD_MAGIC_EXPORT)
+	{
+		pic_to_save = module.comm.start_exp_module("", mode, smurf_picture[active_pic], module.bp[mod_index], module.smStruct[mod_index], module_number);
+
+		if (module.smStruct[mod_index]->module_mode == M_DONEEXIT
+			|| module.smStruct[mod_index]->module_mode == M_PICDONE)
+		{
+
+			picture = (char *) pic_to_save->pic_data;
+			len = pic_to_save->f_len;
+			file_save("Bild Speichern", picture, len);
+			SMfree(pic_to_save);
+			SMfree(picture);
+			Dialog.busy.dispRAM();
+		}
+	}
+
+	/*
+	 * Plugin?
+	 */
+	else if (mod_magic == MOD_MAGIC_PLUGIN)
+	{
+		plg_data[mod_index]->event_par[0] = obj;
+
+		if (mode == MBEVT)
+		{
+			plg_data[mod_index]->mousex = mouse_xpos;
+			plg_data[mod_index]->mousey = mouse_ypos;
+			plg_data[mod_index]->klicks = klicks;
+			plg_data[mod_index]->event_par[1] = mouse_button;
+		}
+
+		if (mode == MKEVT)
+		{
+			plg_data[mod_index]->event_par[1] = key_scancode;
+			plg_data[mod_index]->event_par[2] = key_ascii;
+		}
+
+		plg_data[mod_index]->event_par[3] = key_at_event;
+
+		return start_plugin(plugin_bp[mod_index], mode, mod_index | 0x200, plg_data[mod_index]);
+	}
+
+	if ((mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT) && module.smStruct[mod_index])
+		f_handle_modmessage(module.smStruct[mod_index]);	/* handlen von MBEVT-Antworten */
+
+	/*
+	 * das Edit-Modul ist fertig mit dem Bildbearbeiten und Smurf muû entsprechend reagieren
+	 */
+	if (mod_magic == MOD_MAGIC_EDIT
+		&& (module.smStruct[mod_index]->module_mode == M_PICDONE
+			|| module.smStruct[mod_index]->module_mode == M_DONEEXIT))
+	{
+		Dialog.busy.dispRAM();
+
+		/*
+		 * wenn mehrere Bilder Åbergeben wurden, welches wurde bearbeitet?
+		 */
+		if (hm_pix > 1)
+		{
+			picnum = module.smStruct[mod_index]->event_par[0];
+			picnum = module_pics[mod_index][picnum];
+			edited_pic = smurf_picture[picnum];
+		} else
+		{
+			picnum = active_pic;
+			edited_pic = smurf_picture[active_pic];
+		}
+
+		if (edited_pic->block != NULL)
+		{
+			/*
+			 * fÅr den Fall, daû das Modul einen Block erzeugt oder bearbeitet hat: 
+			 */
+			edited_pic->blockwidth = edited_pic->block->pic_width;
+			edited_pic->blockheight = edited_pic->block->pic_height;
+			edited_pic->block->zoom = edited_pic->zoom;
+			edited_pic->block->changed = 255;
+
+			edited_pic = edited_pic->block;
+		}
+
+		Window.topNow(&wind_s[WIND_BUSY]);
+		Window.redraw(&wind_s[WIND_BUSY], NULL, 0, 0);
+
+		imageWindow.clipPicwin(&picture_windows[picnum]);
+		picture_windows[picnum].clipwid = smurf_picture[picnum]->pic_width;
+		picture_windows[picnum].cliphgt = smurf_picture[picnum]->pic_height;
+
+		/* damit bei BildÑnderungen im Fall von Median-Cut */
+		/* auch die Palette neu berechnet wird und sowieso */
+		if (edited_pic->local_nct)
+		{
+			SMfree(edited_pic->local_nct);
+			edited_pic->local_nct = NULL;
+		}
+
+		if (!Sys_info.realtime_dither)
+			if (f_dither(edited_pic, &Sys_info, 1, NULL, &Display_Opt) == -1)
+				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[DIT_ERROR].TextCast, NULL, NULL, NULL, 1);
+
+		Window.redraw(&picture_windows[picnum], NULL, 0, 0);
+		f_pic_changed(&picture_windows[picnum], 1);
+		Dialog.busy.dispRAM();
+		inform_modules(MPIC_UPDATE, smurf_picture[active_pic]);
+	}
+
+	if ((mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT) && module.smStruct[mod_index])
+		check_and_terminate(module.smStruct[mod_index]->module_mode, mod_index);
+
+	Window.topHandle(oldtop);
+	Dialog.busy.dispRAM();
+	return 0;
+}
+
+
+
 /*----------------------------------------------------------------------*/
 /*								Eventhandler							*/
 /*	Das Hirn des Hauptprogramms. Hier werden alle Events aufgenommen,	*/
@@ -1250,36 +1403,35 @@ void make_pic_window(int pic_to_make, int wid, int hgt, char *name)
 void f_event(void)
 {
 	char itsok;
-	int bb_icon;
-
-	int back,
-	 message_back;
-	int newedit;
-	int topwin,
-	 windownum;
-	int klickobj = 0;
-	int windnum = 0,
-		windh,
-		topw_num;
-	int ev_flags;
-	int old_mx = -1,
-		old_my = -1;
-	int mex = 0,
-		mey = 0,
-		mex2 = 0,
-		mey2 = 0;
-	int module_number;
-	int title,
-	 item;
-	int keyboard_back,
-	 key_object;
-	int klickhandle;
-	int timer_event,
-	 t,
-	 tt,
-	 mbutton,
-	 dummy,
-	 pm_to_redraw = 0;
+	WORD bb_icon;
+	WORD back;
+	WORD message_back;
+	WORD newedit;
+	WORD topwin;
+	short windownum;
+	WORD klickobj = 0;
+	short windnum = 0;
+	WORD windh;
+	WORD topw_num;
+	WORD ev_flags;
+	WORD old_mx = -1;
+	WORD old_my = -1;
+	WORD mex = 0;
+	WORD mey = 0;
+	WORD mex2 = 0;
+	WORD mey2 = 0;
+	short module_number;
+	WORD title;
+	WORD item;
+	WORD keyboard_back;
+	WORD key_object;
+	WORD klickhandle;
+	WORD timer_event;
+	short t;
+	short tt;
+	WORD mbutton;
+	WORD dummy;
+	BOOLEAN pm_to_redraw = FALSE;
 
 	void (*timerrout)(void);
 
@@ -1288,10 +1440,9 @@ void f_event(void)
 	WINDOW *picwin;
 	WINDOW *mod_win;
 	static WINDOW *oldpicwin;
-	static int oldwindnum;
-
-	int mod_desire,
-	 mod_index;
+	static short oldwindnum;
+	short mod_desire;
+	short mod_index;
 
 	DEBUG_MSG(("f_event...\n"));
 
@@ -1324,14 +1475,14 @@ void f_event(void)
 		}
 
 		/**/
-/*		EVENT-Schleife 			*/
-			 /**/
+		/*		EVENT-Schleife 			*/
+		/**/
 		do
 		{
 			back = evnt_multi(ev_flags, 0x102, 0x3, 0x0, 0, mex, mey, mex2, mey2, 1, mex, mey, mex2, mey2,
-							  messagebuf,
-							  EVNT_TIME(Sys_info.Event_Timer),
-							  &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &key_scancode, &klicks);
+				messagebuf,
+				EVNT_TIME(Sys_info.Event_Timer),
+				&mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &key_scancode, &klicks);
 
 			klickhandle = wind_find(mouse_xpos, mouse_ypos);
 
@@ -1439,10 +1590,12 @@ void f_event(void)
 								memcpy(plg_data[mod_index]->event_par, messagebuf, 16);
 								start_plugin(plugin_bp[mod_index], SMURF_AES_MESSAGE, 0, plg_data[mod_index]);
 							} else if (back & MU_BUTTON && mod_desire == MBEVT && modconfs[t]->windhandle == windh)
+							{
 								back = do_MBEVT(modconfs[t]->id, NULL, MBEVT);
-							else if (back & MU_KEYBD && mod_desire == MKEVT && modconfs[t]->windhandle == topwin)
+							} else if (back & MU_KEYBD && mod_desire == MKEVT && modconfs[t]->windhandle == topwin)
+							{
 								back = do_MBEVT(modconfs[t]->id, NULL, MKEVT);
-
+							}
 							if (back == M_TERMINATED)
 								break;
 						}
@@ -1746,229 +1899,12 @@ void f_event(void)
 
 
 
-/* ------------------------------------------------------------------------	*/
-/*					Buttonevent im Modulfenster behandeln					*/
-/*	Verarbeitet B/K-Events in Modulfenstern. MBEVT/MKEVT wird ans Modul		*/
-/*	Åbergeben, bei Return von M_STARTED werden die vom Modul benîtigten		*/
-/*	Bilder ans Modul Åbergeben bzw. konvertiert und das Modul gestartet.	*/
-/* ------------------------------------------------------------------------	*/
-static int do_MBEVT(int module_number, WINDOW * mod_win, int mode)
-{
-	char *textseg_begin;
-	char *picture;
-	long mod_magic;
-
-	int back,
-	 oldtop = 0;
-	int hm_pix;
-	int picnum;
-	int mod_index;
-
-	long len;
-
-	MOD_INFO *mod_info;
-	MOD_ABILITY *mod_abs;
-	EXPORT_PIC *pic_to_save;
-	SMURF_PIC *edited_pic;
-
-	mod_index = module_number & 0xFF;
-
-	/*
-	 * Modulanalyse
-	 */
-	if (!(module_number & 0x200))		/* kein Plugin? */
-	{
-		textseg_begin = module.bp[mod_index]->p_tbase;
-		mod_magic = get_modmagic(module.bp[mod_index]);
-		mod_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
-		mod_abs = *((MOD_ABILITY * *)(textseg_begin + MOD_ABS_OFFSET));
-		hm_pix = mod_info->how_many_pix;
-
-		module.smStruct[mod_index]->smurf_pic = smurf_picture[active_pic];
-
-		if (smurf_picture[active_pic])
-			if (smurf_picture[active_pic]->block != NULL)
-				module.smStruct[mod_index]->smurf_pic = smurf_picture[active_pic]->block;
-	} else
-	{
-		textseg_begin = plugin_bp[mod_index]->p_tbase;
-		mod_magic = MOD_MAGIC_PLUGIN;
-	}
-
-
-	/*
-	 * Edit-Modul?
-	 */
-	if (mod_magic == MOD_MAGIC_EDIT)
-	{
-		/* Buttonevent Åbergeben --- */
-		module.comm.startEdit("", module.bp[mod_index], mode, mod_index, module.smStruct[mod_index]);
-
-		if (module.smStruct[mod_index]->module_mode == M_STARTED && (picthere || mod_info->how_many_pix == 0))
-		{
-			/*
-			 * Default-Konfigurationsblock anfordern und merken
-			 */
-			module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], GETCONFIG, mod_index, module.smStruct[mod_index]);
-			if (module.smStruct[mod_index]->module_mode == M_CONFIG)
-				memorize_emodConfig(module.bp[mod_index], module.smStruct[mod_index]);
-
-			module.smStruct[mod_index]->event_par[0] = position_markers[module_number & 0xFF].xpos[0];
-			module.smStruct[mod_index]->event_par[1] = position_markers[module_number & 0xFF].ypos[0];
-			module.comm.startEdit("", module.bp[mod_index], MCH_COORDS, mod_index, module.smStruct[mod_index]);
-
-			back = 0;
-			if (mod_info->how_many_pix > 1)
-				back = f_give_pics(mod_info, mod_abs, module_number);
-			else
-				f_convert(smurf_picture[active_pic], mod_abs, RGB, SAME, 0);
-
-			if (back == 0)
-			{
-				/*
-				 * Bilder Åbergeben, -> karierte Flagge fÅrs Modul
-				 */
-				Window.windGet(0, WF_TOP, &oldtop, 0, 0, 0);
-				Window.topNow(&wind_s[WIND_BUSY]);
-				Window.redraw(&wind_s[WIND_BUSY], NULL, 0, 0);
-				Dialog.busy.reset(0, mod_win->wtitle);
-				module.smStruct[mod_index]->event_par[0] = 0;
-				module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MEXEC, mod_index, module.smStruct[mod_index]);
-			}
-		}
-
-		back = 0;
-	}
-
-	/*
-	 * Export-Modul?
-	 */
-	else if (mod_magic == MOD_MAGIC_EXPORT)
-	{
-		pic_to_save =
-			module.comm.startExport("", mode, smurf_picture[active_pic], module.bp[mod_index],
-									module.smStruct[mod_index], module_number);
-
-		if (module.smStruct[mod_index]->module_mode == M_DONEEXIT
-			|| module.smStruct[mod_index]->module_mode == M_PICDONE)
-		{
-
-			picture = (char *) pic_to_save->pic_data;
-			len = pic_to_save->f_len;
-			file_save("Bild Speichern", picture, len);
-			SMfree(pic_to_save);
-			SMfree(picture);
-			Dialog.busy.dispRAM();
-		}
-	}
-
-	/*
-	 * Plugin?
-	 */
-	else if (mod_magic == MOD_MAGIC_PLUGIN)
-	{
-		plg_data[mod_index]->event_par[0] = obj;
-
-		if (mode == MBEVT)
-		{
-			plg_data[mod_index]->mousex = mouse_xpos;
-			plg_data[mod_index]->mousey = mouse_ypos;
-			plg_data[mod_index]->klicks = klicks;
-			plg_data[mod_index]->event_par[1] = mouse_button;
-		}
-
-		if (mode == MKEVT)
-		{
-			plg_data[mod_index]->event_par[1] = key_scancode;
-			plg_data[mod_index]->event_par[2] = key_ascii;
-		}
-
-		plg_data[mod_index]->event_par[3] = key_at_event;
-
-		return (start_plugin(plugin_bp[mod_index], mode, mod_index | 0x200, plg_data[mod_index]));
-	}
-
-	if ((mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT) && module.smStruct[mod_index])
-		f_handle_modmessage(module.smStruct[mod_index]);	/* handlen von MBEVT-Antworten */
-
-	/*
-	 * das Edit-Modul ist fertig mit dem Bildbearbeiten und Smurf muû entsprechend reagieren
-	 */
-	if (mod_magic == MOD_MAGIC_EDIT
-		&& (module.smStruct[mod_index]->module_mode == M_PICDONE
-			|| module.smStruct[mod_index]->module_mode == M_DONEEXIT))
-	{
-		Dialog.busy.dispRAM();
-
-		/*
-		 * wenn mehrere Bilder Åbergeben wurden, welches wurde bearbeitet?
-		 */
-		if (hm_pix > 1)
-		{
-			picnum = module.smStruct[mod_index]->event_par[0];
-			picnum = module_pics[mod_index][picnum];
-			edited_pic = smurf_picture[picnum];
-		} else
-		{
-			picnum = active_pic;
-			edited_pic = smurf_picture[active_pic];
-		}
-
-		if (edited_pic->block != NULL)
-		{
-			/*
-			 * fÅr den Fall, daû das Modul einen Block erzeugt oder bearbeitet hat: 
-			 */
-			edited_pic->blockwidth = edited_pic->block->pic_width;
-			edited_pic->blockheight = edited_pic->block->pic_height;
-			edited_pic->block->zoom = edited_pic->zoom;
-			edited_pic->block->changed = 255;
-
-			edited_pic = edited_pic->block;
-		}
-
-		Window.topNow(&wind_s[WIND_BUSY]);
-		Window.redraw(&wind_s[WIND_BUSY], NULL, 0, 0);
-
-		imageWindow.clipPicwin(&picture_windows[picnum]);
-		picture_windows[picnum].clipwid = smurf_picture[picnum]->pic_width;
-		picture_windows[picnum].cliphgt = smurf_picture[picnum]->pic_height;
-
-		/* damit bei BildÑnderungen im Fall von Median-Cut */
-		/* auch die Palette neu berechnet wird und sowieso */
-		if (edited_pic->local_nct)
-		{
-			SMfree(edited_pic->local_nct);
-			edited_pic->local_nct = NULL;
-		}
-
-		if (!Sys_info.realtime_dither)
-			if (f_dither(edited_pic, &Sys_info, 1, NULL, &Display_Opt) == -1)
-				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[DIT_ERROR].TextCast, NULL, NULL, NULL, 1);
-
-		Window.redraw(&picture_windows[picnum], NULL, 0, 0);
-		f_pic_changed(&picture_windows[picnum], 1);
-		Dialog.busy.dispRAM();
-		inform_modules(MPIC_UPDATE, smurf_picture[active_pic]);
-	}
-
-	if ((mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT) && module.smStruct[mod_index])
-		check_and_terminate(module.smStruct[mod_index]->module_mode, mod_index);
-
-	Window.topHandle(oldtop);
-	Dialog.busy.dispRAM();
-	return (0);
-}
-
-
-
 /* --------------------------------------------------------------------	*/
 /*					Dialogdispatcher									*/
 /* --------------------------------------------------------------------	*/
-int CallDialog(int topwin)
+BOOLEAN CallDialog(WORD topwin)
 {
-	int wnum;
-
+	short wnum;
 
 	wnum = Window.myWindow(topwin);
 
@@ -2001,10 +1937,10 @@ int CallDialog(int topwin)
 		else if (topwin == wind_s[WIND_BLOCKMODE].whandlem)
 			blockmode();
 		else
-			return (0);
+			return FALSE;
 	}
 
-	return (1);
+	return TRUE;
 }
 
 
@@ -2014,8 +1950,7 @@ int CallDialog(int topwin)
 /* -----------------------------------------------------------------*/
 void f_info(void)
 {
-	int button;
-
+	WORD button;
 	OBJECT *ob;
 
 	ob = wind_s[WIND_INFO].resource_form;
@@ -2058,18 +1993,15 @@ void f_info(void)
 /*	(was in Smurf einem Abbruch-Button gleichkommt) und setzt dessen		*/
 /*	eventuelle Optionen zurÅck.												*/
 /*-------------------------------------------------------------------------	*/
-void check_windclose(int windnum)
+void check_windclose(short windnum)
 {
 	char str[4];
-
-	int module_number;
-	int whandle;
-	int sel_option;
-
+	short module_number;
+	WORD whandle;
+	WORD sel_option;
 	WINDOW *window_to_handle;
-	OBJECT *rsc,
-	*rsc2;
-
+	OBJECT *rsc;
+	OBJECT *rsc2;
 
 	switch (windnum)
 	{
@@ -2095,7 +2027,7 @@ void check_windclose(int windnum)
 
 		itoa(Sys_info.outcol, str, 10);
 		strncpy(rsc[OUTCOL].TextCast, str, 2);
-		xrsrc_gaddr(0, KODAK_POPUP, &rsc2, resource_global);
+		xrsrc_gaddr(R_TREE, KODAK_POPUP, &rsc2, resource_global);
 		strncpy(rsc[PCD_DEF_PB].TextCast, rsc2[Sys_info.PCD_Defsize].TextCast, 9);
 
 		switch (Sys_info.environment)
@@ -2218,21 +2150,19 @@ void check_windclose(int windnum)
 /* -------		 			Bild laden						---- */
 /* ------------------------------------------------------------- */
 /* ------------------------------------------------------------- */
-int f_loadpic(char *pic, char *picpath)
+short f_loadpic(char *pic, char *picpath)
 {
 	char PCDmodpath[257];
-	char *namename,
-	*nameext,
-	 ext[5] = "";
-
-	int module_ret,
-	 init_zoom,
-	 dummy,
-	 key;
-	int picture_to_load = 1,
-		free_pic = 1,
-		back = 0;
-
+	char *namename;
+	char *nameext;
+	char ext[5] = "";
+	short module_ret;
+	short init_zoom;
+	WORD dummy;
+	WORD key;
+	short picture_to_load = 1;
+	short free_pic = 1;
+	short back = 0;
 
 	strcpy(PCDmodpath, Sys_info.standard_path);
 	strcat(PCDmodpath, "\\modules\\pcd.sim");
@@ -2243,7 +2173,7 @@ int f_loadpic(char *pic, char *picpath)
 	if (free_pic > MAX_PIC)
 	{
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1);
-		return (-1);
+		return -1;
 	}
 
 	/*
@@ -2276,7 +2206,7 @@ int f_loadpic(char *pic, char *picpath)
 		smurf_picture[picture_to_load]->file_len = f_len;
 		smurf_picture[picture_to_load]->palette = malloc(1025);	/* Paletten-Puffer */
 
-		if ((module_ret = module.comm.startImport(PCDmodpath, smurf_picture[picture_to_load])) == -1)
+		if ((module_ret = module.comm.start_imp_module(PCDmodpath, smurf_picture[picture_to_load])) == -1)
 		{
 			Dialog.winAlert.openAlert("PhotoCD-Modul nicht gefunden: \\SMURF\\MODULES\\PCD.SIM", NULL, NULL, NULL, 1);
 			module_ret = M_MODERR;
@@ -2350,27 +2280,24 @@ int f_loadpic(char *pic, char *picpath)
 	timer_fx_counter[1] = 0;
 	timer_fx_rout[1] = (void (*)()) Dialog.busy.ok;
 
-	return (back);						/* und zurÅck */
+	return back;						/* und zurÅck */
 }
 
 
 /* --------------------------------------------------------------- */
 /* -------		 			Formaterkennung					------ */
 /* --------------------------------------------------------------- */
-int f_formhandle(int picture_to_load, int module_ret, char *namename)
+short f_formhandle(short picture_to_load, short module_ret, char *namename)
 {
 	char times[20];
 	char stats[21];
 	char *palette;
-
-	int tt,
-	 dec,
-	 sign,
-	 back = 0;
-	int picerror = 0;					/* Fehler in Bildabmessungen, Farbtiefe, etc. */
-
+	short tt;
+	int dec;
+	int sign;
+	short back = 0;
+	BOOLEAN picerror = 0;					/* Fehler in Bildabmessungen, Farbtiefe, etc. */
 	double timer_val;
-
 
 	/*-- Auswertung der Modulmessage --*/
 	picerror = analyze_message(module_ret, picture_to_load);
@@ -2454,8 +2381,7 @@ int f_formhandle(int picture_to_load, int module_ret, char *namename)
 			Dialog.busy.reset(128, stats);
 
 			/* Bildstruktur aufbauen */
-			make_pic_window(picture_to_load, smurf_picture[picture_to_load]->pic_width,
-							smurf_picture[picture_to_load]->pic_height, namename);
+			make_pic_window(picture_to_load, smurf_picture[picture_to_load]->pic_width, smurf_picture[picture_to_load]->pic_height, namename);
 
 			/*------------ Bildnummer in den Fenstertitel - zum EntkÑfern ---- */
 #if 0
@@ -2481,32 +2407,28 @@ int f_formhandle(int picture_to_load, int module_ret, char *namename)
 		}
 	}
 
-	return (back);
+	return back;
 }
 
 
 /* ************************************************************** */
 /* ************************************************************** */
-int f_import_pic(SMURF_PIC * smurf_picture, char *extension)
+short f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 {
 	char *ice_depack_buf;
 	char no_ext = 0;
 	char *modpath;						/* voller Modulpfad, Original */
 	char *mod_path;						/* voller Modulpfad, editable */
 	char alertstr[128];
-
-	int module_ret = M_INVALID;
-	int alertback = 0;
-	int pathlen;
-
-	long oldmem,
-	 newmem;
-	long ice_unpack_len,
-	*icebuf;
-
-	struct DIRENTRY *filelist,
-	*actual;
-
+	short module_ret = M_INVALID;
+	WORD alertback = 0;
+	short pathlen;
+	long oldmem;
+	long newmem;
+	long ice_unpack_len;
+	long *icebuf;
+	struct DIRENTRY *filelist;
+	struct DIRENTRY *actual;
 
 	if (extension == NULL || strlen(extension) == 0)
 		no_ext = 1;
@@ -2523,8 +2445,9 @@ int f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 		Dialog.busy.reset(128, len_str);
 #endif
 		if ((ice_depack_buf = SMalloc(ice_unpack_len)) == 0)
+		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOMEM_ICE].TextCast, NULL, NULL, NULL, 1);
-		else
+		} else
 		{
 			Dialog.busy.reset(128, "ICE-Decrunching...");
 
@@ -2565,8 +2488,7 @@ int f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 		if (!no_ext)
 		{
 			Dialog.busy.reset(0, strrchr(smurf_picture->filename, '\\') + 1);
-			alertback =
-				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_ILIST_MATCH].TextCast, "Nein", "Ja", NULL, 2);
+			alertback = Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_ILIST_MATCH].TextCast, "Nein", "Ja", NULL, 2);
 		}
 
 		if (alertback == 2 || no_ext)
@@ -2581,7 +2503,7 @@ int f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 
 				Name_Max = get_maxnamelen(modpath);
 
-				pathlen = (int) (strlen(modpath) + Name_Max);
+				pathlen = (short) (strlen(modpath) + Name_Max);
 				mod_path = (char *) calloc(1, pathlen + 1);
 
 				filelist = build_up_filelist(modpath, "sim", pathlen);
@@ -2602,7 +2524,7 @@ int f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 					/*-------- Modul starten */
 					oldmem = (long) Malloc(-1);
 					oldtim = clock();
-					if ((module_ret = module.comm.startImport(mod_path, smurf_picture)) == M_STARTERR)
+					if ((module_ret = module.comm.start_imp_module(mod_path, smurf_picture)) == M_STARTERR)
 						Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
 					newmem = (long) Malloc(-1);
@@ -2610,12 +2532,11 @@ int f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 					if (oldmem != newmem && module_ret != M_PICDONE && module_ret != M_DONEEXIT)
 					{
 						/* FIXME: translate */
-						sprintf(alertstr, "[3][ Modul %s | hat %ld | Bytes Speicher verbraten!][ Oh! ]",
-								actual->modname, oldmem - newmem);
+						sprintf(alertstr, "[3][ Modul %s | hat %ld | Bytes Speicher verbraten!][ Oh! ]", actual->modname, oldmem - newmem);
 						form_alert(1, alertstr);
 					}
 
-			/*-------- Return-Message prÅfen */
+					/*-------- Return-Message prÅfen */
 					if (module_ret == M_PICDONE || module_ret == M_DONEEXIT)
 					{
 						Dialog.busy.reset(128, "loaded...");
@@ -2637,10 +2558,12 @@ int f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 				free(mod_path);
 			}
 		} else if (alertback == 1)
+		{
 			module_ret = M_SILENT_ERR;	/* Meldung "Bild bitte an uns schicken" vermeiden */
+		}
 	}
 
-	return (module_ret);
+	return module_ret;
 }
 
 
@@ -2649,10 +2572,9 @@ int f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 /*	Handled Radiobuttons und setzt globale Variable button beim		*/
 /*	DrÅcken von RETURN, îffnet oder toppt das Dialogfenster.		*/
 /* ******************************************************************/
-int init_dialog(int DialogNumber, int DialogOK)
+WORD init_dialog(short DialogNumber, WORD DialogOK)
 {
-	int button;
-
+	WORD button;
 
 	if (!openmode)
 	{
@@ -2667,7 +2589,7 @@ int init_dialog(int DialogNumber, int DialogOK)
 	if (openmode)
 		f_handle_radios(wind_s[DialogNumber].resource_form, button, DialogNumber);
 
-	return (button);
+	return button;
 }
 
 
@@ -2707,10 +2629,10 @@ void close_dialog(short windnum)
 /* ----------------------------------------------------------------	*/
 /*	System-Init: Farbtabellen, Systemkonfigurationsvariablen, etc.	*/
 /* ----------------------------------------------------------------	*/
-int f_init_system(void)
+short f_init_system(void)
 {
 	OBJECT *tree;
-	int pxy[8] = { 0, 0, 0, 0 };
+	WORD pxy[8] = { 0, 0, 0, 0 };
 
 	scrwd = Sys_info.screen_width;
 	scrht = Sys_info.screen_height;
@@ -2759,7 +2681,7 @@ int f_init_system(void)
 	global_services.f_move_preview = f_move_preview;
 	global_services.copy_preview = copy_preview;
 	global_services.SMalloc = SMalloc;
-	global_services.SMfree = SMfree;
+	global_services.SMfree = exported_SMfree;
 	global_services.seek_nearest_col = seek_nearest_col;
 	global_services.get_pic = get_pic;
 	global_services.f_alert = Dialog.winAlert.openAlert;
@@ -2777,21 +2699,19 @@ int f_init_system(void)
 	if (anzahl_dithermods == 0)
 	{
 		DEBUG_MSG(("***** Keine Dithermodule!\n"));
-		Dialog.winAlert.
-			openAlert
-			("Keine Dithermodule gefunden! öberprÅfen Sie die Pfade, ohne Dithermodule kann Smurf nicht arbeiten. Smurf wird deshalb beendet",
-			 NULL, NULL, NULL, 1);
-		return (-1);
+		/* FIXME: translate */
+		Dialog.winAlert.openAlert("Keine Dithermodule gefunden! öberprÅfen Sie die Pfade, ohne Dithermodule kann Smurf nicht arbeiten. Smurf wird deshalb beendet", NULL, NULL, NULL, 1);
+		return -1;
 	}
 
 	DEBUG_MSG(("Dithermodule: %i\n", anzahl_dithermods));
 	DEBUG_MSG(("  %s, %s, %s, %s, %s \n", col_pop[1].TextCast, col_pop[2].TextCast,
-			   col_pop[3].TextCast, col_pop[4].TextCast, col_pop[5].TextCast));
+		col_pop[3].TextCast, col_pop[4].TextCast, col_pop[5].TextCast));
 
 	set_startupdial("Lade Editmodule...");
 	f_scan_edit();
 	f_generate_listfield(UP_MODULE, DN_MODULE, SBACK_MODULE, SLID_MODULE, ENTRYPARENT,
-						 (char *) Dialog.emodList.modNames, Dialog.emodList.anzahl, 9, &Dialog.emodList.modList, 24);
+		(char *) Dialog.emodList.modNames, Dialog.emodList.anzahl, 9, &Dialog.emodList.modList, 24);
 	if (Dialog.emodList.anzahl == 0)
 	{
 		DEBUG_MSG(("***** Keine Editmodule!\n"));
@@ -2799,7 +2719,7 @@ int f_init_system(void)
 		change_object(&wind_s[WIND_MODULES], START_MODULE, OS_DISABLED, 1);
 		change_object(&wind_s[WIND_MODULES], INFO_MODULE, OS_DISABLED, 1);
 
-		xrsrc_gaddr(0, PIC_POPUP, &tree, resource_global);
+		xrsrc_gaddr(R_TREE, PIC_POPUP, &tree, resource_global);
 		tree[PIC_EDIT].ob_state |= OS_DISABLED;
 	}
 
@@ -2808,8 +2728,7 @@ int f_init_system(void)
 	set_startupdial("Lade Exportmodule...");
 	f_scan_export();
 	f_generate_listfield(EMOD_UP, EMOD_DN, EMODSL_PAR, EMOD_SLIDER, EMODULES_BOX,
-						 (char *) Dialog.expmodList.modNames, Dialog.expmodList.anzahl, 9, &Dialog.expmodList.modList,
-						 24);
+		(char *) Dialog.expmodList.modNames, Dialog.expmodList.anzahl, 9, &Dialog.expmodList.modList, 24);
 	if (Dialog.expmodList.anzahl == 0)
 	{
 		DEBUG_MSG(("***** Keine Exportmodule!\n"));
@@ -2818,9 +2737,9 @@ int f_init_system(void)
 		change_object(&wind_s[WIND_EXPORT], START_EMOD, OS_DISABLED, 1);
 		change_object(&wind_s[WIND_EXPORT], EXMOD_INFO, OS_DISABLED, 1);
 
-		xrsrc_gaddr(0, BLOCK_POPUP, &tree, resource_global);
+		xrsrc_gaddr(R_TREE, BLOCK_POPUP, &tree, resource_global);
 		tree[BLOCK_EXPORT].ob_state |= OS_DISABLED;
-		xrsrc_gaddr(0, PIC_POPUP, &tree, resource_global);
+		xrsrc_gaddr(R_TREE, PIC_POPUP, &tree, resource_global);
 		tree[PIC_EXPORT].ob_state |= OS_DISABLED;
 	}
 
@@ -2834,7 +2753,7 @@ int f_init_system(void)
 
 	set_startupdial("Initialisiere Listen...");
 	f_generate_listfield(PM_UP, PM_DN, PMSL_PAR, PM_SLIDER, PM_BOX,
-						 (char *) picnames, 0, 8, &Dialog.picMan.pictureList, -1);
+		(char *) picnames, 0, 8, &Dialog.picMan.pictureList, -1);
 
 	if (startupdial_exist)
 	{
@@ -2880,7 +2799,7 @@ int f_init_system(void)
 	DEBUG_MSG(("Systeminitialisierung abgeschlossen.\n"));
 
 	Dialog.busy.ok();
-	return (0);
+	return 0;
 }
 
 
@@ -2889,9 +2808,8 @@ int f_init_system(void)
 /* ----------------------------------------------------------------	*/
 void f_init_palette(void)
 {
-	int rgb[3];
-	int t;
-
+	WORD rgb[3];
+	WORD t;
 
 	for (t = 0; t <= Sys_info.Max_col; t++)
 	{
@@ -2903,14 +2821,14 @@ void f_init_palette(void)
 		Sys_info.pal_green[t] = rgb[1];
 		Sys_info.pal_blue[t] = rgb[2];
 
-		red[t] = (int) (rgb[0] * 31L / 1000L);
-		fix_red[t] = (int) (rgb[0] * 255L / 1000L);
+		red[t] = (WORD) (rgb[0] * 31L / 1000L);
+		fix_red[t] = (WORD) (rgb[0] * 255L / 1000L);
 
-		grn[t] = (int) (rgb[1] * 31L / 1000L);
-		fix_green[t] = (int) (rgb[1] * 255L / 1000L);
+		grn[t] = (WORD) (rgb[1] * 31L / 1000L);
+		fix_green[t] = (WORD) (rgb[1] * 255L / 1000L);
 
-		blu[t] = (int) (rgb[2] * 31L / 1000L);
-		fix_blue[t] = (int) (rgb[2] * 255L / 1000L);
+		blu[t] = (WORD) (rgb[2] * 31L / 1000L);
+		fix_blue[t] = (WORD) (rgb[2] * 255L / 1000L);
 	}
 }
 
@@ -2918,35 +2836,32 @@ void f_init_palette(void)
 /* ----------------------------------------------------------------	*/
 /*--------------- NC-Table laden oder ggfs. generieren -------------*/
 /* ----------------------------------------------------------------	*/
-char *f_init_table(void)
+uint8_t *f_init_table(void)
 {
-	char tablename[256],
-	 bpstring[8];
-	char *palbuf,
-	*access_table,
-	*pltab;
-
-	int redcomp[256];
-	int grncomp[256];
-	int blucomp[256];
-	int rgb[3];
-	int *palette,
-	*pal_control;
-	int t;
-	int idx;
-	int different = 0;
+	char tablename[256];
+	char bpstring[8];
+	uint8_t *palbuf;
+	uint8_t *access_table;
+	uint8_t *pltab;
+	WORD redcomp[256];
+	WORD grncomp[256];
+	WORD blucomp[256];
+	WORD rgb[3];
+	WORD *palette;
+	WORD *pal_control;
+	short t;
+	short idx;
+	short different = 0;
 	int fil = 0;
-	int maxc,
-	 button = 0;
-	int loadplanes;
-	unsigned int tt,
-	 ttcount = 0;
-	long write_len,
-	 dummy;
+	short maxc;
+	WORD button = 0;
+	short loadplanes;
+	unsigned short tt;
+	unsigned short ttcount = 0;
+	long write_len;
 	long par[6];
-
-	int monopal[6];
-	int monopal_nct[6];
+	WORD monopal[6];
+	WORD monopal_nct[6];
 
 	DEBUG_MSG(("f_init_table...\n"));
 
@@ -2971,7 +2886,7 @@ char *f_init_table(void)
 
 		mononct = (char *) SMalloc((2 * 6) + 256 + 32768L);
 
-		palette = (int *) mononct;
+		palette = (WORD *) mononct;
 		for (t = 0; t < 6; t++)			/* Palette */
 			palette[t] = monopal[t];
 		*(mononct + 12) = 0;			/* VDI-Umsetzung (in diesem Fall keine...) */
@@ -2981,19 +2896,17 @@ char *f_init_table(void)
 		par[3] = (long) mononct + (2 * 6) + 256;
 		makeNCT(par, 2);
 
-		if ((dummy = Fcreate(tablename, 0)) >= 0)
+		if ((fil = (int) Fcreate(tablename, 0)) >= 0)
 		{
-			fil = (int) dummy;
-
 			write_len = Fwrite(fil, (2 * 6) + 256 + 32768L, mononct);	/* Tabelle schreiben */
 			Fclose(fil);				/* Datei schlieûen */
 			if (write_len != (2 * 6) + 256 + 32768L)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NCT_SAVEERROR].TextCast, NULL, NULL, NULL, 1);
 		} else
-			Dialog.winAlert.
-				openAlert
-				("Fehler beim Anlegen der monochromen NCT-Datei! Das Dithering auf s/w wird u.U. nicht richtig funktionieren.",
-				 NULL, NULL, NULL, 1);
+		{
+			/* FIXME: translate */
+			Dialog.winAlert.openAlert("Fehler beim Anlegen der monochromen NCT-Datei! Das Dithering auf s/w wird u.U. nicht richtig funktionieren.", NULL, NULL, NULL, 1);
+		}
 
 		SMfree(mononct);
 	}
@@ -3006,7 +2919,7 @@ char *f_init_table(void)
 	loadplanes = Sys_info.bitplanes;
 
 	if (loadplanes > 8)
-		return (NULL);
+		return NULL;
 
 	/* Tabellen-Filename zusammenbasteln */
 	strcpy(tablename, Sys_info.home_path);
@@ -3018,10 +2931,10 @@ char *f_init_table(void)
 	if (Fattrib(tablename, 0, 0) >= 0)
 	{
 		if ((palbuf = fload(tablename, 0)) == NULL)
-			return (NULL);
+			return NULL;
 
 		access_table = palbuf + maxc * 6 + 256;
-		pal_control = (int *) palbuf;
+		pal_control = (WORD *) palbuf;
 
 		for (t = 0; t < maxc; t++)
 		{
@@ -3043,9 +2956,9 @@ char *f_init_table(void)
 			/* Systempalette an gespeicherte anpassen */
 			for (t = 0; t < maxc; t++)
 			{
-				red[t] = (int) (redcomp[t] * 31L / 1000L);
-				grn[t] = (int) (grncomp[t] * 31L / 1000L);
-				blu[t] = (int) (blucomp[t] * 31L / 1000L);
+				red[t] = (WORD) (redcomp[t] * 31L / 1000L);
+				grn[t] = (WORD) (grncomp[t] * 31L / 1000L);
+				blu[t] = (WORD) (blucomp[t] * 31L / 1000L);
 				Sys_info.pal_red[t] = rgb[0] = redcomp[t];
 				Sys_info.pal_green[t] = rgb[1] = grncomp[t];
 				Sys_info.pal_blue[t] = rgb[2] = blucomp[t];
@@ -3053,7 +2966,7 @@ char *f_init_table(void)
 				vs_color(handle, t, rgb);
 			}
 
-			return (access_table);
+			return access_table;
 		}
 	} else
 	{
@@ -3068,7 +2981,7 @@ char *f_init_table(void)
 		Dialog.busy.reset(0, "NCT erzeugen");
 
 		/* Palette schreiben */
-		palette = (int *) palbuf;
+		palette = (WORD *) palbuf;
 		for (t = 0; t < maxc; t++)
 		{
 			*palette++ = Sys_info.pal_red[t];
@@ -3101,10 +3014,8 @@ char *f_init_table(void)
 
 		Dialog.busy.reset(128, "NCT speichern...");
 
-		if ((dummy = Fcreate(tablename, 0)) >= 0)
+		if ((fil = (int) Fcreate(tablename, 0)) >= 0)
 		{
-			fil = (int) dummy;
-
 			Fwrite(fil, (maxc * 6) + 256, palbuf);	/* Palette und Planetable schreiben */
 			write_len = Fwrite(fil, 32768L, access_table);	/* NCT schreiben */
 			Fclose(fil);				/* Datei schlieûen */
@@ -3115,12 +3026,12 @@ char *f_init_table(void)
 
 		SMfree(palbuf);
 
-		Dialog.busy.reset((int) (tt * 128L >> 15L), "OK");
+		Dialog.busy.reset((int) (tt * 128L >> 15L), "OK"); /* FIXME: translate */
 	}
 
 	DEBUG_MSG(("f_init_table...Ende\n"));
 
-	return (access_table);
+	return access_table;
 }
 
 
@@ -3135,12 +3046,11 @@ char *f_init_table(void)
 /* ----------------------------------------------------------------	*/
 void f_init_bintable(OBJECT * rsc)
 {
-	int col,
-	 maxc,
-	 pel,
-	 index;
-	int pxy[4] = { 0, 0, 0, 0 };
-
+	WORD col;
+	WORD maxc;
+	WORD pel;
+	WORD index;
+	WORD pxy[4] = { 0, 0, 0, 0 };
 
 	graf_mouse(M_OFF, dummy_ptr);
 
@@ -3170,10 +3080,9 @@ void f_init_bintable(OBJECT * rsc)
 
 void shutdown_smurf(char while_startup)
 {
-	int t,
-	 maxcol;
-	int rgb[4];
-
+	WORD t;
+	WORD maxcol;
+	WORD rgb[4];
 	long mod_magic;
 
 	Comm.sendAESMsg(Sys_info.ENV_avserver, AV_EXIT, Sys_info.app_id, -1);
@@ -3184,7 +3093,6 @@ void shutdown_smurf(char while_startup)
 
 	if (while_startup)
 		goto End_Only;
-
 
 	Dialog.busy.reset(0, "See you...");
 
@@ -3211,7 +3119,7 @@ void shutdown_smurf(char while_startup)
 			mod_magic = get_modmagic(module.bp[t]);
 
 			if (mod_magic == MOD_MAGIC_EDIT)
-				module.comm.startEdit("", module.bp[t], MTERM, t, module.smStruct[t]);
+				module.comm.start_edit_module("", module.bp[t], MTERM, t, module.smStruct[t]);
 
 			check_and_terminate(MTERM, t);
 		}
@@ -3303,59 +3211,13 @@ void shutdown_smurf(char while_startup)
 }
 
 
-/* Legt eine Kopie des Åbergebenen Bildes an */
-int duplicate_pic(WINDOW * window)
-{
-	int pic_to_make = 1;
-
-
-	/* erstes freies Bild ermitteln */
-	while (smurf_picture[pic_to_make] != NULL)
-		pic_to_make++;
-	if (pic_to_make > MAX_PIC)
-	{
-		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1);
-		return (0);
-	}
-
-	if (copy_smurfpic(window->picture, &smurf_picture[pic_to_make]) == -1)
-	{
-		destroy_smurfpic(smurf_picture[pic_to_make]);
-		smurf_picture[pic_to_make] = NULL;
-		return (-1);
-	}
-
-	make_pic_window(pic_to_make, window->picture->pic_width, window->picture->pic_height, "Namenlos");
-	picture_windows[pic_to_make].wtitle[11] = '*';
-
-	Window.open(&picture_windows[pic_to_make]);
-	imageWindow.clipPicwin(&picture_windows[pic_to_make]);
-	imageWindow.setSliders(&picture_windows[pic_to_make]);
-	Dialog.picMan.insertPic(pic_to_make);
-	f_activate_pic(pic_to_make);
-
-	picthere++;
-
-	Dialog.busy.dispRAM();				/* Wieviel Ram? */
-	actualize_menu();					/* MenÅeintrÑge ENABLEn / DISABLEn */
-
-	active_pic = pic_to_make;
-
-	return (0);
-}
-
-
 /* kopiert eine in picture Åbergebene SMURF_PIC-Struktur. */
 /* Achtung, ein eventuell enthaltener Block wird nicht mitkopiert! */
-static int copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic)
+static short copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic)
 {
-	char BitsPerPixel;
-
-	unsigned int width,
-	 height;
-
+	uint8_t BitsPerPixel;
+	unsigned short width, height;
 	long data_len;
-
 
 	*new_pic = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
 	memcpy(*new_pic, picture, sizeof(SMURF_PIC));
@@ -3369,15 +3231,16 @@ static int copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic)
 
 	if (picture->format_type == FORM_STANDARD)
 		data_len = (long) (width + 7) / 8 * (long) height *BitsPerPixel;
-
 	else
 		data_len = ((long) width * (long) height * BitsPerPixel) >> 3;
 	if (((*new_pic)->pic_data = (char *) SMalloc(data_len)) == NULL)
 	{
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOMEM_NEWPIC].TextCast, NULL, NULL, NULL, 1);
-		return (-1);
+		return -1;
 	} else
+	{
 		memcpy((*new_pic)->pic_data, picture->pic_data, data_len);
+	}
 
 	/*
 	 * Bildschirmdarstellung kopieren wenn das Bild mit Realtimedither
@@ -3397,7 +3260,7 @@ static int copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic)
 		if (((*new_pic)->screen_pic->fd_addr = (char *) SMalloc(data_len)) == NULL)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[DISPLAY_NOMEM].TextCast, NULL, NULL, NULL, 1);
-			return (-1);
+			return -1;
 		} else
 			memcpy((*new_pic)->screen_pic->fd_addr, picture->screen_pic->fd_addr, data_len);
 	} else
@@ -3423,7 +3286,7 @@ static int copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic)
 		if (((*new_pic)->local_nct = (char *) SMalloc(32768L)) == NULL)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOMEM_NEWPIC].TextCast, NULL, NULL, NULL, 1);
-			return (-1);
+			return -1;
 		}
 
 		memcpy((*new_pic)->local_nct, picture->local_nct, 32768L);
@@ -3432,5 +3295,46 @@ static int copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic)
 	(*new_pic)->prev_picture = NULL;
 	(*new_pic)->next_picture = NULL;
 
-	return (0);
+	return 0;
+}
+
+
+/* Legt eine Kopie des Åbergebenen Bildes an */
+short duplicate_pic(WINDOW * window)
+{
+	short pic_to_make = 1;
+
+	/* erstes freies Bild ermitteln */
+	while (smurf_picture[pic_to_make] != NULL)
+		pic_to_make++;
+	if (pic_to_make > MAX_PIC)
+	{
+		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_PIC_FREE].TextCast, NULL, NULL, NULL, 1);
+		return 0;
+	}
+
+	if (copy_smurfpic(window->picture, &smurf_picture[pic_to_make]) == -1)
+	{
+		destroy_smurfpic(smurf_picture[pic_to_make]);
+		smurf_picture[pic_to_make] = NULL;
+		return -1;
+	}
+
+	make_pic_window(pic_to_make, window->picture->pic_width, window->picture->pic_height, "Namenlos");
+	picture_windows[pic_to_make].wtitle[11] = '*';
+
+	Window.open(&picture_windows[pic_to_make]);
+	imageWindow.clipPicwin(&picture_windows[pic_to_make]);
+	imageWindow.setSliders(&picture_windows[pic_to_make]);
+	Dialog.picMan.insertPic(pic_to_make);
+	f_activate_pic(pic_to_make);
+
+	picthere++;
+
+	Dialog.busy.dispRAM();				/* Wieviel Ram? */
+	actualize_menu();					/* MenÅeintrÑge ENABLEn / DISABLEn */
+
+	active_pic = pic_to_make;
+
+	return 0;
 }

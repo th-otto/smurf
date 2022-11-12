@@ -59,10 +59,10 @@
 #include "../../../src/smurfine.h"
 #include "demolib.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
-int (*busybox)(int pos);
+short (*busybox)(short pos);
 
 void xshear_normal(char *buffer, char *ziel, unsigned int width, unsigned int height, unsigned int newwidth, float xangle, float xshearfac, char bytes);
 void xshear_antialias(char *buffer, char *ziel, unsigned int width, unsigned int height, unsigned int newwidth, float xangle, float xshearfac);

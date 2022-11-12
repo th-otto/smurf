@@ -68,7 +68,7 @@ MOD_INFO module_info = {"MTV Raytracer",
 /*      MTV Raytracer                               */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char *buffer, *retbuf;
 unsigned int width, height;

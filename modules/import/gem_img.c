@@ -105,8 +105,8 @@
 #define PA	2
 #define GC	3
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 char *fileext(char *filename);
 
@@ -157,7 +157,7 @@ MOD_INFO module_info = {"GEM-(X)IMG Importer",
 /*		eigene Komprimierungen						*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel, *fname,
 		 BitsPerPixel, Planes, PattLength, imgtype, tcmode, colmodel;

@@ -56,7 +56,7 @@ typedef unsigned long ulong;
 /*		TruepaintFormat (by Sage) 			.TPI	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char head[8];
 	char *smbuffer;

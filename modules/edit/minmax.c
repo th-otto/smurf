@@ -55,13 +55,13 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 void min_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height, char radius, long realwidth);
 void max_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height, char radius, long realwidth);
 
-int (*busybox)(int pos);
+static short (*busybox)(short pos);
 
 MOD_INFO module_info = {TEXT1,
 						0x0020,

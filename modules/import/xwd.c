@@ -51,8 +51,8 @@
 #define LSB 0
 #define MSB 1
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 char *fileext(char *filename);
  
@@ -94,7 +94,7 @@ MOD_INFO module_info = {"X Window Dump-Format",
 /*		1, 4, 8 und 24 Bit, unkomprimiert			*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *pixbuf, *opixbuf, *pal, *ppal, *fname,
 		 BitsPerPixel, version, ByteOrder,

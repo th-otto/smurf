@@ -180,7 +180,7 @@ void scan_plugins(void)
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				ProcLen = get_proclen(plugin_bp[anzahl_plugins]);
 				_Mshrink(plugin_bp[anzahl_plugins], ProcLen);	/* Speicherblock verkrzen */
-				plugin_bp[anzahl_plugins]->p_hitpa = (void *) ((long) plugin_bp[anzahl_plugins] + ProcLen);
+				plugin_bp[anzahl_plugins]->p_hitpa = (void *) ((char *) plugin_bp[anzahl_plugins] + ProcLen);
 
 				lback = Pexec(4, 0L, (char *) plugin_bp[anzahl_plugins], 0L);
 				if (lback < 0L)
@@ -342,7 +342,7 @@ int start_plugin(BASPAG * bp, int message, int plg_id, PLUGIN_DATA * data)
 		if (message == MSTART)
 			data->id = plg_id;			/* ID eintragen (nur beim Hochfahren) */
 
-		plg_main = (VOID_FUNCTION) ((char *) textseg_begin + MAIN_FUNCTION_OFFSET);
+		plg_main = (void (*)(PLUGIN_DATA * data)) (textseg_begin + MAIN_FUNCTION_OFFSET);
 		if (plg_main != NULL)
 			plg_main(data);
 
@@ -497,7 +497,7 @@ static int load_plugin(int plugin_number)
 		/*---- L„nge des gesamten Tochterprozesses ermitteln */
 		ProcLen = get_proclen(plugin_bp[plugin_number]);
 		_Mshrink(plugin_bp[plugin_number], ProcLen);	/* Speicherblock verkrzen */
-		plugin_bp[plugin_number]->p_hitpa = (void *) ((long) plugin_bp[plugin_number] + ProcLen);
+		plugin_bp[plugin_number]->p_hitpa = (void *) ((char *) plugin_bp[plugin_number] + ProcLen);
 
 		lback = Pexec(4, 0L, (char *) plugin_bp[plugin_number], 0L);
 		if (lback < 0L)

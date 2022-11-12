@@ -37,13 +37,13 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 void paint_8Bit(char *ziel, char *buffer, unsigned int width, unsigned int height, char *pal, unsigned int *histogram, char radius, unsigned int realwidth);
 void paint_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height, unsigned int *histogram, char radius, unsigned int realwidth);
 
-int (*busybox)(int pos);
+static short (*busybox)(short pos);
 
 MOD_INFO module_info = {"Painting",
 						0x0020,

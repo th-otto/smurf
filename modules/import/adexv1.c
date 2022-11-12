@@ -70,7 +70,7 @@ MOD_INFO module_info = {"Adex ChromaGraph Bitmap",
 /*  ADEX ChromaGraph Bitmap                         */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char *buffer=smurf_struct->smurf_pic->pic_data;
 int BitsPerPixel=0, width=0, height=0, CodeFlag=0;

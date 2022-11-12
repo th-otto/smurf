@@ -346,7 +346,7 @@ static void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
 
 
 /* Datei mittels Fileselector ”ffnen. */
-int f_fsbox(char *Path, char *fbtext, char selectart)
+BOOLEAN f_fsbox(char *Path, char *fbtext, char selectart)
 {
 	char pathname[257];
 	char filename[65];

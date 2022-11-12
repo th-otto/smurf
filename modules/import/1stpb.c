@@ -70,7 +70,7 @@ MOD_INFO module_info = {"First Publisher",
 /*  First Publisher Bitmap Format                   */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char *buffer=smurf_struct->smurf_pic->pic_data;
 char *retbuf;

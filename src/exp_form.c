@@ -221,7 +221,7 @@ void f_export_formular(void)
 		 */
 		old_picdepth = smurf_picture[active_pic]->depth;
 		smurf_picture[active_pic]->depth = bestdepth;
-		module.comm.startExport(export_path, MCOLSYS, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
+		module.comm.start_exp_module(export_path, MCOLSYS, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
 		if (module.smStruct[exp_index]->module_mode == M_COLSYS)
 			dest_colsys = module.smStruct[exp_index]->event_par[0];
 		smurf_picture[active_pic]->depth = old_picdepth;
@@ -272,7 +272,7 @@ void f_export_formular(void)
 			 */
 			old_picdepth = smurf_picture[active_pic]->depth;
 			smurf_picture[active_pic]->depth = export_mod_ability.depth1;
-			module.comm.startExport(export_path, MCOLSYS, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
+			module.comm.start_exp_module(export_path, MCOLSYS, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
 			if (module.smStruct[exp_index]->module_mode == M_COLSYS)
 				dest_colsys = module.smStruct[exp_index]->event_par[0];
 			smurf_picture[active_pic]->depth = old_picdepth;
@@ -366,7 +366,7 @@ void f_export_formular(void)
 
 	case EXPORT_MORE:
 		change_object(&wind_s[FORM_EXPORT], EXPORT_MORE, OS_UNSEL, 1);
-		module.comm.startExport(export_path, MMORE, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
+		module.comm.start_exp_module(export_path, MMORE, smurf_picture[active_pic], module.bp[exp_index], module.smStruct[exp_index], exp_conf.export_mod_num);
 		break;
 
 	case START_EXPORT:

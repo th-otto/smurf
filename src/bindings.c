@@ -344,13 +344,13 @@ int cdecl fsel_boxinput(char *path, char *name, int *button, char *label, void *
 #endif
 
 
-int	SM_wind_get(int wi_ghandle, int wi_gfield, int *wi_gw1, int *wi_gw2, int *wi_gw3, int *wi_gw4)
+WORD SM_wind_get(WORD wi_ghandle, WORD wi_gfield, WORD *wi_gw1, WORD *wi_gw2, WORD *wi_gw3, WORD *wi_gw4)
 {
 	return wind_get(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
 }
 
 
-int	SM_wind_set(int wi_ghandle, int wi_gfield, int wi_gw1, int wi_gw2, int wi_gw3, int wi_gw4)
+WORD SM_wind_set(WORD wi_ghandle, WORD wi_gfield, WORD wi_gw1, WORD wi_gw2, WORD wi_gw3, WORD wi_gw4)
 {
 	return wind_set(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
 }

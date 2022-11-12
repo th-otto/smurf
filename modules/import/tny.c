@@ -48,8 +48,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 char *fileext(char *filename);
 
@@ -91,7 +91,7 @@ MOD_INFO module_info = {"Tiny-Format",
 /*		1, 2 und 4 Bit, RLE							*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer1, *pal, *fname,
 		 BitsPerPixel, DatenOffset, v1, Planes;

@@ -134,8 +134,7 @@ void (*set_slider)(SLIDER *sliderstruct, long value);  /* Funktion deklarieren *
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-int (*get_window)(WINDOW *wind_struct);
-int (*slider)(SLIDER *slider_struct);       /* Funktion deklarieren */
+short (*slider)(SLIDER *slider_struct);       /* Funktion deklarieren */
 static int module_id;
 int SmurfMessage;
 int t;
@@ -147,7 +146,6 @@ int mousex, mousey;
 
 SmurfMessage=smurf_struct->module_mode;
 
-get_window = smurf_struct->services->f_module_window;
 slider = smurf_struct->services->slider;
 set_slider = smurf_struct->services->set_slider;
 
@@ -168,7 +166,7 @@ if(SmurfMessage == MSTART)
 
     smurf_struct->wind_struct=my_window;
 
-    get_window(my_window);
+    smurf_struct->services->f_module_window(my_window);
 
     f_default_sliders();
     

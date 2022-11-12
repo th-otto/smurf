@@ -115,7 +115,7 @@ void f_export_pic(void)
 		mod_num |= 0x100;				/* als Exporter kennzeichnen */
 		module.smStruct[mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
 		memset(module.smStruct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
-		export_mabs = (MOD_ABILITY *) module.comm.startExport(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+		export_mabs = (MOD_ABILITY *) module.comm.start_exp_module(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
 
 		if (export_mabs->ext_flag & M_MORE)
 			change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_ENABLED, 1);
@@ -167,7 +167,7 @@ void f_export_pic(void)
 		module.smStruct[mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
 		memset(module.smStruct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
 
-		module.comm.startExport(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+		module.comm.start_exp_module(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
 
 		txtbeg = module.bp[exp_conf.export_mod_num & 0xFF]->p_tbase;
 		modinfo = *((MOD_INFO **) (txtbeg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
@@ -186,8 +186,8 @@ void f_export_pic(void)
 
 
 		export_path = export_modules[mod_index];
-		module.bp[mod_num & 0xFF] = (BASPAG *) module.comm.startExport(export_path, MSTART, smurf_picture[active_pic], module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
-		module.comm.startExport(export_path, MMORE, smurf_picture[active_pic], module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+		module.bp[mod_num & 0xFF] = (BASPAG *) module.comm.start_exp_module(export_path, MSTART, smurf_picture[active_pic], module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+		module.comm.start_exp_module(export_path, MMORE, smurf_picture[active_pic], module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
 
 		change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_UNSEL, 1);
 	}
@@ -224,7 +224,7 @@ void f_export_pic(void)
 			 * Modul analysieren
 			 */
 			export_path = export_modules[mod_index];
-			export_mabs = (MOD_ABILITY *) module.comm.startExport(export_path, MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+			export_mabs = (MOD_ABILITY *) module.comm.start_exp_module(export_path, MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
 			memcpy(&expmabs, export_mabs, sizeof(MOD_ABILITY));
 
 			txtbeg = module.bp[exp_conf.export_mod_num & 0xFF]->p_tbase;
@@ -337,7 +337,7 @@ void save_file(void)
 		/*
 		 * Modul analysieren
 		 */
-		export_mabs = (MOD_ABILITY *) module.comm.startExport(export_path, MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+		export_mabs = (MOD_ABILITY *) module.comm.start_exp_module(export_path, MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
 		memcpy(&expmabs, export_mabs, sizeof(MOD_ABILITY));
 
 		txtbeg = module.bp[exp_conf.export_mod_num & 0xFF]->p_tbase;
@@ -563,7 +563,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	/*  
 	 * Extension ermitteln, Exporter aufrufen 
 	 */
-	module.comm.startExport(export_path, MEXTEND, converted_pic, exp_bp, exp_gstruct, exp_conf.export_mod_num);
+	module.comm.start_exp_module(export_path, MEXTEND, converted_pic, exp_bp, exp_gstruct, exp_conf.export_mod_num);
 	txtbeg = exp_bp->p_tbase;
 	modinfo = *((MOD_INFO **) (txtbeg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
 
@@ -593,7 +593,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	Dialog.busy.reset(0, "codiere Bild...");
 
 	pic_to_save =
-		module.comm.startExport(export_path, MEXEC, converted_pic, exp_bp, exp_gstruct, exp_conf.export_mod_num);
+		module.comm.start_exp_module(export_path, MEXEC, converted_pic, exp_bp, exp_gstruct, exp_conf.export_mod_num);
 
 	saved_window = &picture_windows[active_pic];
 
@@ -794,7 +794,7 @@ void init_exmod_info(short mod_index)
 	mod_num |= 0x100;					/* als Exporter kennzeichnen */
 	module.smStruct[mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
 	memset(module.smStruct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
-	if ((info_mabs = (MOD_ABILITY *) module.comm.startExport(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num)) == NULL)
+	if ((info_mabs = (MOD_ABILITY *) module.comm.start_exp_module(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num)) == NULL)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
 
 	textseg_begin = (char *) module.bp[mod_num & 0xFF]->p_tbase;

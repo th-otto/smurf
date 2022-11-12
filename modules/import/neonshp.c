@@ -81,7 +81,7 @@ long number_of_points;					/* Punkte im ganzen File? */
 long number_of_polys;					/* Wieviele Polygone? */
 
 
-int imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL * smurf_struct)
 {
 	long *pointx;						/* X-Positionen */
 	long *pointy;						/* Y-Positionen */

@@ -36,8 +36,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Vivid-Format",
@@ -77,7 +77,7 @@ MOD_INFO module_info = {"Vivid-Format",
 /*		24 Bit, RLE									*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel,
 		 n, v1, v2, v3, BitsPerPixel, DatenOffset;

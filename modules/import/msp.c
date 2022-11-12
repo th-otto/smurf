@@ -37,8 +37,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 /* Dies bastelt direct ein rol.w #8,d0 inline ein. */
 unsigned int swap_word(unsigned int w)
@@ -82,7 +82,7 @@ MOD_INFO module_info = {"Microsoft Paint",
 /*		1 Bit, unkomprimiert, RLE					*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *pal,
 		 version, i, vpos = 0, v1, v2, n;

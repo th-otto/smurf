@@ -48,8 +48,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int (*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 unsigned int getval(void);
 
@@ -95,7 +95,7 @@ char *buffer;
 /*      Speicherformen bin„r und ASCII              */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
     char *obuffer, *pal, *ziel, *oziel,
          type, typeASC[4], BitsPerPixel, scaletab[256], j;

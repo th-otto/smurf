@@ -41,10 +41,10 @@
 #include "../../../src/smurfine.h"
 #include "demolib.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
-int (*busybox)(int pos);
+short (*busybox)(short pos);
 
 char *rotate_normal(char *buffer, unsigned int width, unsigned int height, unsigned int newwidth, unsigned int newheight, unsigned int tempwidth, float angle, float xshearfac, float yshearfac, int xshearjunk, int yshearjunk, char bytes);
 char *rotate_antialias(char *buffer, unsigned int width, unsigned int height, unsigned int newwidth, unsigned int newheight, unsigned int tempwidth, float angle, float xshearfac, float yshearfac, int xshearjunk, int yshearjunk);

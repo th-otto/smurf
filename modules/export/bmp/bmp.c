@@ -83,11 +83,10 @@ typedef struct
 	char format;	/* Win 2.x, Win 3.x, OS/2 1.x oder OS/2 2.x */
 } CONFIG;
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
-int (*f_module_window)(WINDOW *mod_window);
-void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
+static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 
 long writeBMPdata1(char *ziel, char *buffer, unsigned long w, unsigned int height);
 long writeBMPdata(char *ziel, char *buffer, unsigned long w, unsigned int height);
@@ -237,8 +236,6 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 					win_form[RLE].ob_state &= ~OS_DISABLED;
 				}
 
-			f_module_window = smurf_struct->services->f_module_window;	/* Windowfunktion */
-
 			redraw_window = smurf_struct->services->redraw_window;		/* Redrawfunktion */
 	
 			window.whandlem = 0;				/* evtl. Handle l”schen */
@@ -257,7 +254,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 			smurf_struct->wind_struct = &window;  /* und die Fensterstruktur in die Gargamel */
 
-			if(f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
+			if(smurf_struct->services->f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
 				smurf_struct->module_mode = M_EXIT;		/* keins mehr da? */
 			else 
 				smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */

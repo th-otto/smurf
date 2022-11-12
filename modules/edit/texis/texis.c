@@ -66,12 +66,11 @@
 
 
 /*---------- Blinddeklarationen fr Smurf-Funktionen -----------------*/
-    int     (*get_window)(WINDOW *wind);        
-    int     (*popup)(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree);         
-    int     (*slider)(SLIDER *slider_struct);       
+    WORD     (*popup)(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree);         
+    short     (*slider)(SLIDER *slider_struct);       
     void    (*set_slider)(SLIDER *sliderstruct, long value);
     void    (*listfield)(OBJECT *tree, int klick_obj, LIST_FIELD *lfstruct);
-    int     (*busybox)(int lft);
+    short     (*busybox)(short lft);
     char *  (*file_load)(char *ppath, char *ltext);
     BITBLK *prev(GARGAMEL *prev_struct);        /* Previewfunktion */
 
@@ -183,7 +182,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
     SmurfMessage=smurf_struct->module_mode;
 
 /* Funktionen holen ----------------------------------------    */
-    get_window=smurf_struct->services->f_module_window;   
     popup=smurf_struct->services->popup;  
     slider=smurf_struct->services->slider;    
     set_slider=smurf_struct->services->set_slider;    
@@ -215,7 +213,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
         make_popups();
         fill_colourtable();
 
-        back=get_window(mwindow);
+        back=smurf_struct->services->f_module_window(mwindow);
 
         set_slider(&xscale_slider, 100);
         set_slider(&yscale_slider, 100);

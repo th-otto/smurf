@@ -1536,7 +1536,7 @@ void set_nullcoord(WINDOW * picwindow)
 		lastmousex = lastmousey = -1;
 	}
 
-	nullcoordset = 1;
+	nullcoordset = TRUE;
 }
 
 
@@ -1703,7 +1703,7 @@ void f_display_coords(WINDOW * pic_window, int mx, int my, char blockflag)
 		Window.redraw(pic_window, NULL, COL_REDRAW, DRAWNOPICTURE);	/* Farbanzeige redrawen */
 	}
 
-	nullcoordset = 0;
+	nullcoordset = FALSE;
 }
 
 

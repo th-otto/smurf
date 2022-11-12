@@ -154,8 +154,7 @@ char *expdata;      /* Output Arrays */
 long org_length;
 long datalength;    /* LÑnge der RÅckgabedaten in Bytes */                                          
 int quality;
-int (*get_window)(WINDOW *wind_struct);
-int (*slider)(SLIDER *slider_struct);
+shhort (*slider)(SLIDER *slider_struct);
 void (*setslider)(SLIDER *slider_struct, int value);
 int module_id, t, button;
 
@@ -164,7 +163,6 @@ main_form=rs_trindex[THERAPY_GFX];
 for(t=0; t<NUM_OBS; t++)
     rsrc_obfix(&rs_object[t], 0);
 
-get_window=smurf_struct->f_module_window;
 slider=smurf_struct->slider;
 setslider=smurf_struct->setslider;
 if(smurf_struct->module_mode == MSTART)
@@ -195,7 +193,7 @@ if(smurf_struct->module_mode == MSTART)
     quality_slider.min_val=0;
     quality_slider.max_val=30;
 
-    get_window(&my_window);
+    smurf_struct->services->f_module_window(&my_window);
     setslider(&quality_slider, 0);
     smurf_struct->module_mode=M_WAITING;
     return(0);

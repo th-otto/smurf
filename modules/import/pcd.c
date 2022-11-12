@@ -61,10 +61,10 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
-int (*busybox)(int pos);
+short (*busybox)(short pos);
 SERVICE_FUNCTIONS *Services;
 
 static void initctable(void);
@@ -158,7 +158,7 @@ const char PCDMap[512] =
 
 static long T_L[256],T_R2[256],T_G1[256],T_G2[256],T_B1[256]; 
 
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *ziel, *ziely, *zielcb, *zielcb1, *zielcb2,
 		 *zielcr, *zielcr1, *zielcr2, *buffer, *obuffer;

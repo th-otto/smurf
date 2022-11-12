@@ -70,7 +70,7 @@ MOD_INFO module_info = {"EGA Paint/ColorRIX Bitmap",
 /*      EGA Paint COLORRIX Bitmap                   */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char dummy[3], impmessag[17];
 char *buffer=smurf_struct->smurf_pic->pic_data;

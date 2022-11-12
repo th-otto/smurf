@@ -64,8 +64,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 char *fileext(char *filename);
 void *fload(char *Path, int header);
@@ -112,7 +112,7 @@ MOD_INFO module_info = {"Dr. Halo Import-Modul",
 /*		8 Bit, RLE									*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *pal, *ppal, *fname,
 		 n, name[257];

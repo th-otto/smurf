@@ -88,7 +88,7 @@ MOD_INFO module_info = {"DCX-CAS-Fax Importer",
 /*      CAS FAX Standard                            */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer, *GetBuf, *out2;
 int width=0, height=0, PicCnt,x;

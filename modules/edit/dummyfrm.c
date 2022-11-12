@@ -35,8 +35,8 @@
 #include "../../../src/smurfine.h"
 #include "demolib.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 MOD_INFO module_info = {"Dummy mit Formular",
 						0x0010,

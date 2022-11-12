@@ -100,7 +100,7 @@ MOD_INFO module_info = {"JPEG",
 /*		8 und 24 Bit								*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel, *pal;
 

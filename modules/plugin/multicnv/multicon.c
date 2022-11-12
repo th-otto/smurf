@@ -120,7 +120,7 @@ SMURF_PIC *pic_active;
 SMURF_PIC * *smurf_picture;
 GARGAMEL * *smurf_struct;
 BASPAG * *edit_bp;
-int *active_pic;
+static short *active_pic;
 
 PLUGIN_FUNCTIONS    *smurf_functions;
 SMURF_VARIABLES *smurf_vars;

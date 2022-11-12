@@ -37,7 +37,7 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
-int (*busybox)(int pos);
+static short (*busybox)(short pos);
 
 MOD_INFO module_info = {"Equalizer",
 						0x0010,

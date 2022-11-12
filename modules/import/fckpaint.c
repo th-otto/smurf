@@ -72,7 +72,7 @@ static void convertiere_bild(unsigned short *sc1,unsigned short *sc2)
 /*		Fuckpaint Format (by Sage)			.PI9	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *smbuffer, *buf;
 

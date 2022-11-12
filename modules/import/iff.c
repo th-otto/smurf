@@ -69,8 +69,8 @@
 #define HAM			0x800
 #define HALFBRITE	0x80
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 /* Get 16 Pixel (Interleaved Standard Format) Assembler-Rout */
 void get_IBPLine(char *dest, char *src, long lineplanelen);
@@ -83,7 +83,7 @@ char *decodePBM(char *buffer, unsigned int w, unsigned int height, char BitsPerP
 char *decodeTCIFF(char *buffer, unsigned int width, unsigned int height, char comp);
 char *decodeHAM(char *buffer, unsigned int width, unsigned int height, char *palette, char Planes, char comp);
 
-int (*busybox)(int pos);
+short (*busybox)(short pos);
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Amiga-IFF Importer",
@@ -126,7 +126,7 @@ char *obuf;
 /*		1, 4, 5, 6, 8, 24 Bit, RLE					*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *pal, *ppal,
 		 BitsPerPixel, comp, imgtype, HAMmode = FALSE, Planes, mask;

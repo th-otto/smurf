@@ -33,8 +33,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Edsun Labs-Format",
@@ -74,7 +74,7 @@ MOD_INFO module_info = {"Edsun Labs-Format",
 /*		24 Bit										*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel,
 		 BitsPerPixel, DatenOffset;

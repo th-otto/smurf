@@ -50,17 +50,17 @@
     -----------------------------------------------------*/
 typedef struct modComm
 {
-    short (*startImport)(char *modpath, SMURF_PIC *imp_pic);
-    BASPAG *(*startEdit)(char *modpath, BASPAG *edit_basepage, short mode, short mod_id, GARGAMEL *sm_struct);
-    EXPORT_PIC *(*startExport)(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, short mod_id);
-    BASPAG *(*startDither)(short mode, short mod_id, DITHER_DATA *ditherdata);
+    short (*start_imp_module)(char *modpath, SMURF_PIC *imp_pic);
+    BASPAG *(*start_edit_module)(char *modpath, BASPAG *edit_basepage, short mode, short mod_id, GARGAMEL *sm_struct);
+    EXPORT_PIC *(*start_exp_module)(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, short mod_id);
+    BASPAG *(*start_dither_module)(short mode, short mod_id, DITHER_DATA *ditherdata);
     void (*checkTerminate)(short mode, short module_number);
 
     short (*analyzeMessage)(short module_ret, short picture_to_load);
     void (*handleMessage)(GARGAMEL *smurf_struct);
 
-    SMURF_PIC *(*getPic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, int form, int col);
-    int (*givePics)(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number);
+    SMURF_PIC *(*getPic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short form, short col);
+    short (*givePics)(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number);
 
     short (*inform)(short message, SMURF_PIC *picture);
     void (*transmitAESmsg)(WORD *msgbuf);
@@ -72,11 +72,11 @@ typedef struct modComm
     ----------------------------------------------------*/
 typedef struct modGUI
 {
-    int (*openWindow)(WINDOW *module_window);
-    int (*handleEvent)(int event_type, WINDOW *mod_window);
-    void (*walkTree)(WINDOW *wind, int start);
-    void (*initTree)(OBJECT *tree, int index);
-    void (*convertIcon)(OBJECT *tree, int index);
+    short (*openWindow)(WINDOW *module_window);
+    short (*handleEvent)(short event_type, WINDOW *mod_window);
+    void (*walkTree)(WINDOW *wind, WORD start);
+    void (*initTree)(OBJECT *tree, WORD index);
+    void (*convertIcon)(OBJECT *tree, WORD index);
     void (*makePreview)(WINDOW *wind);
 } MODGUI;
 
@@ -99,9 +99,9 @@ typedef struct moduleObj
     --------------------------------------------------*/
 typedef struct generalWindow
 {
-    int (*open) (WINDOW *window);
-    void (*redraw) (WINDOW *window, GRECT *mwind, int startob, int flags);
-    void (*drawIconified) (WINDOW *window, int *vdiclip);
+    short (*open) (WINDOW *window);
+    void (*redraw) (WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
+    void (*drawIconified) (WINDOW *window, WORD *vdiclip);
 
     int (*rcIntersect) (GRECT *r1, GRECT *r2, GRECT *r3);
     short (*myWindow) (WORD handle);
@@ -109,7 +109,7 @@ typedef struct generalWindow
     
     void (*windowToList) (WINDOW *window);
     void (*removeWindow) (WINDOW *window);
-    void (*top) (int handle);
+    void (*top) (WORD handle);
     void (*topNow) (WINDOW *window);
     void (*topHandle) (WORD handle);
     void (*close) (WORD handle);
@@ -119,8 +119,8 @@ typedef struct generalWindow
 
     /* diese beiden sind Bindings - mÅssen vielleicht woanders hin
      */
-    int (*windSet)(int wi_ghandle, WORD wi_gfield, WORD wi_gw1, WORD wi_gw2, WORD wi_gw3, WORD wi_gw4);
-    int (*windGet)(int wi_ghandle, WORD wi_gfield, WORD *wi_gw1, WORD *wi_gw2, WORD *wi_gw3, WORD *wi_gw4);
+    WORD (*windSet)(WORD wi_ghandle, WORD wi_gfield, WORD wi_gw1, WORD wi_gw2, WORD wi_gw3, WORD wi_gw4);
+    WORD (*windGet)(WORD wi_ghandle, WORD wi_gfield, WORD *wi_gw1, WORD *wi_gw2, WORD *wi_gw3, WORD *wi_gw4);
 
     OBJECT *titles;
 } GENERAL_WINDOW;
@@ -189,11 +189,12 @@ typedef struct picManager
     -------------------------------------------------*/
 typedef struct windowAlert
 {
-    int (*openAlert)(char *alertstring, char *b1, char *b2, char *b3, int defbt);
+    WORD (*openAlert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
     void (*closeAlert)(void);
 
     OBJECT  *alerts;
-    int isTop, winHandle;
+    BOOLEAN isTop;
+    WORD winHandle;
 } WIN_ALERT;
 
 
@@ -202,8 +203,8 @@ typedef struct windowAlert
     -----------------------------------------*/
 typedef struct busyBox
 {
-    int (*draw)(int lft);
-    void (*reset)(int lft, const char *txt);
+    short (*draw)(short lft);
+    void (*reset)(short lft, const char *txt);
     void (*ok)(void);
     void (*dispRAM)(void);
 
@@ -292,7 +293,7 @@ typedef struct dialogHandlers
 
     WORD topDialog;
 
-    WORD (*init)(WORD DialogNumber, WORD DialogOK);
+    WORD (*init)(short DialogNumber, WORD DialogOK);
     void (*close)(short windnum);
 } DIALOGS;
 

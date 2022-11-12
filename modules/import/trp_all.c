@@ -108,7 +108,7 @@ typedef struct
     char text[64];          /* Text, z.B. zu Beschreibung ect. */                                                       
 } bitmap_struct;    
 
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char *input, *output, *retbuf, *GetBuf;
 long xc,yc,len,gox,goy,calc;

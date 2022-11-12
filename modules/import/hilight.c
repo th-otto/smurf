@@ -85,7 +85,7 @@ MOD_INFO module_info=
 
 
 
-int     imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 int width=0, height=0, depth=0;
 char *picdata;

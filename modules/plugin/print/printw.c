@@ -46,8 +46,8 @@
 #undef NUM_TREE
 #undef COL8 /* conflicts with smurf.h */
 #undef ALERT_STRINGS /* conflicts with smurf.h */
-#include "gdos.h"
 #include "wdialog.h"
+#include "gdos.h"
 
 #include "../../../src/smurfobs.h"
 
@@ -72,8 +72,6 @@
 void init_rsh(void);
 int handle_print_dialog(EVNT *events);
 void close_print_dialog(char with_free);
-extern int print_with_GDOS(PRN_SETTINGS *prn_settings);
-extern int actualize_DevParam(int gdos_dev, DevParamS *DevParam);
 
 extern DevParamS DevParam;
 extern OutParamS OutParam;
@@ -95,7 +93,7 @@ OBJECT *alerts;
 SMURF_PIC *pic_active;
 
 SMURF_PIC * *smurf_picture;
-int *active_pic;
+short *active_pic;
 
 SMURF_VARIABLES *smurf_vars;
 SERVICE_FUNCTIONS *services;

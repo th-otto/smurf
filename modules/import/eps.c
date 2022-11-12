@@ -66,7 +66,7 @@ MOD_INFO module_info = { "EPS-Importer",
 /*      Encapsulated Post Script .EPS               */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL * smurf_struct)
 {
 	char *buffer,
 	*obuf,

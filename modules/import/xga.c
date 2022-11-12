@@ -87,7 +87,7 @@ MOD_INFO module_info = {"XGA-Format",
 /*		16 Bit, unkomprimiert						*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	signed char i;
 	char *fname;

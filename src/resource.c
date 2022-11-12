@@ -256,40 +256,40 @@ void init_smurfrsc(char *rscpath)
 		exit(-1);
 	}
 
-	xrsrc_gaddr(0, MENU1, &menu_tree, resource_global);
+	xrsrc_gaddr(R_TREE, MENU1, &menu_tree, resource_global);
 
-	xrsrc_gaddr(0, DEPTH_POPUP, &form_pop, resource_global);	/* Farbtiefenpopup */
-	xrsrc_gaddr(0, OUT_COL_POPUP, &edit_pop, resource_global);	/* Auženfarbe */
-	xrsrc_gaddr(0, DITHERPOPUP, &col_pop, resource_global);	/* Ditheralgo */
-	xrsrc_gaddr(0, DISPLAY_OPTIONS, &Dialog.dispOpt.tree, resource_global);	/* Display-Opt-Form */
-	xrsrc_gaddr(0, PIC_WIND_FORM, &pic_form, resource_global);	/* Bildfenster-Form */
-	xrsrc_gaddr(0, IMAGE_INFO, &pic_info_form, resource_global);	/* BildinfoForm */
-	xrsrc_gaddr(0, SMURF_OPTIONS, &Dialog.smurfOpt.tree, resource_global);	/* Options-Form */
-	xrsrc_gaddr(0, WINDOW_ALERT, &alert_form, resource_global);	/* Windowalert */
-	xrsrc_gaddr(0, MOD_FORM, &module_form, resource_global);	/* Preferences-Form */
-	xrsrc_gaddr(0, BUSY_WINDOW, &Dialog.busy.busyTree, resource_global);	/* Busybox */
-	xrsrc_gaddr(0, MODULES, &Dialog.emodList.tree, resource_global);	/* Edit-Modulliste */
-	xrsrc_gaddr(0, SMURF_INFO, &info_window, resource_global);	/* Smurf Info */
-	xrsrc_gaddr(0, NEWPIC_FORM, &newpic_window, resource_global);	/* Neues Bild */
-	xrsrc_gaddr(0, BLOCK_TYPE, &blocktype_window, resource_global);	/* Ordner laden */
-	xrsrc_gaddr(0, EXPORT_MODS, &Dialog.expmodList.tree, resource_global);	/* Export-Modulliste */
-	xrsrc_gaddr(0, PIC_MANAGER, &Dialog.picMan.tree, resource_global);	/* Bildmanager */
-	xrsrc_gaddr(0, EXPORT_FORM, &export_form, resource_global);	/* Export-Formular */
-	xrsrc_gaddr(0, PICORDER_POPUP, &picorder_popup, resource_global);	/* Bildreihenfolge-Popup */
-	xrsrc_gaddr(0, COL_RED_POPUP, &colred_popup, resource_global);	/* Farbreduktion */
-	xrsrc_gaddr(0, BLOCK_POPUP, &blockpopup, resource_global);	/* Blockpopup */
-	xrsrc_gaddr(0, BLOCK_CONF, &blockmode_window, resource_global);	/* Blockpopup */
-	xrsrc_gaddr(0, EXPORT_DEPTH_POP, &exp_dp_popup, resource_global);	/* Export-Tiefe */
-	xrsrc_gaddr(0, MODULE_INFO, &Dialog.emodList.infoTree, resource_global);	/* Edit-Modul-Info */
-	xrsrc_gaddr(0, EXP_MODULE_INFO, &Dialog.expmodList.infoTree, resource_global);	/* Export-Modul-Info */
-	xrsrc_gaddr(0, TRANSFORM_PIC, &transform_window, resource_global);	/* Bild wandeln */
+	xrsrc_gaddr(R_TREE, DEPTH_POPUP, &form_pop, resource_global);	/* Farbtiefenpopup */
+	xrsrc_gaddr(R_TREE, OUT_COL_POPUP, &edit_pop, resource_global);	/* Auženfarbe */
+	xrsrc_gaddr(R_TREE, DITHERPOPUP, &col_pop, resource_global);	/* Ditheralgo */
+	xrsrc_gaddr(R_TREE, DISPLAY_OPTIONS, &Dialog.dispOpt.tree, resource_global);	/* Display-Opt-Form */
+	xrsrc_gaddr(R_TREE, PIC_WIND_FORM, &pic_form, resource_global);	/* Bildfenster-Form */
+	xrsrc_gaddr(R_TREE, IMAGE_INFO, &pic_info_form, resource_global);	/* BildinfoForm */
+	xrsrc_gaddr(R_TREE, SMURF_OPTIONS, &Dialog.smurfOpt.tree, resource_global);	/* Options-Form */
+	xrsrc_gaddr(R_TREE, WINDOW_ALERT, &alert_form, resource_global);	/* Windowalert */
+	xrsrc_gaddr(R_TREE, MOD_FORM, &module_form, resource_global);	/* Preferences-Form */
+	xrsrc_gaddr(R_TREE, BUSY_WINDOW, &Dialog.busy.busyTree, resource_global);	/* Busybox */
+	xrsrc_gaddr(R_TREE, MODULES, &Dialog.emodList.tree, resource_global);	/* Edit-Modulliste */
+	xrsrc_gaddr(R_TREE, SMURF_INFO, &info_window, resource_global);	/* Smurf Info */
+	xrsrc_gaddr(R_TREE, NEWPIC_FORM, &newpic_window, resource_global);	/* Neues Bild */
+	xrsrc_gaddr(R_TREE, BLOCK_TYPE, &blocktype_window, resource_global);	/* Ordner laden */
+	xrsrc_gaddr(R_TREE, EXPORT_MODS, &Dialog.expmodList.tree, resource_global);	/* Export-Modulliste */
+	xrsrc_gaddr(R_TREE, PIC_MANAGER, &Dialog.picMan.tree, resource_global);	/* Bildmanager */
+	xrsrc_gaddr(R_TREE, EXPORT_FORM, &export_form, resource_global);	/* Export-Formular */
+	xrsrc_gaddr(R_TREE, PICORDER_POPUP, &picorder_popup, resource_global);	/* Bildreihenfolge-Popup */
+	xrsrc_gaddr(R_TREE, COL_RED_POPUP, &colred_popup, resource_global);	/* Farbreduktion */
+	xrsrc_gaddr(R_TREE, BLOCK_POPUP, &blockpopup, resource_global);	/* Blockpopup */
+	xrsrc_gaddr(R_TREE, BLOCK_CONF, &blockmode_window, resource_global);	/* Blockpopup */
+	xrsrc_gaddr(R_TREE, EXPORT_DEPTH_POP, &exp_dp_popup, resource_global);	/* Export-Tiefe */
+	xrsrc_gaddr(R_TREE, MODULE_INFO, &Dialog.emodList.infoTree, resource_global);	/* Edit-Modul-Info */
+	xrsrc_gaddr(R_TREE, EXP_MODULE_INFO, &Dialog.expmodList.infoTree, resource_global);	/* Export-Modul-Info */
+	xrsrc_gaddr(R_TREE, TRANSFORM_PIC, &transform_window, resource_global);	/* Bild wandeln */
 
-	xrsrc_gaddr(0, ALERT_STRINGS, &Dialog.winAlert.alerts, resource_global);	/* Alertstrings */
-	xrsrc_gaddr(0, WINDOW_TITLES, &Window.titles, resource_global);	/* Fenstertitel */
-	xrsrc_gaddr(0, SAVE_MODCONFIG, &confsave_dialog, resource_global);	/* Modulkonfiguration speichern */
-	xrsrc_gaddr(0, MODCONF_POPUP, &modconf_popup, resource_global);	/* Modulkonfiguration aufpopen */
+	xrsrc_gaddr(R_TREE, ALERT_STRINGS, &Dialog.winAlert.alerts, resource_global);	/* Alertstrings */
+	xrsrc_gaddr(R_TREE, WINDOW_TITLES, &Window.titles, resource_global);	/* Fenstertitel */
+	xrsrc_gaddr(R_TREE, SAVE_MODCONFIG, &confsave_dialog, resource_global);	/* Modulkonfiguration speichern */
+	xrsrc_gaddr(R_TREE, MODCONF_POPUP, &modconf_popup, resource_global);	/* Modulkonfiguration aufpopen */
 
-	xrsrc_gaddr(0, BUTTONS, &u_tree, resource_global);	/* Userdefs */
+	xrsrc_gaddr(R_TREE, BUTTONS, &u_tree, resource_global);	/* Userdefs */
 
 	f_treewalk(form_pop, 0);
 	f_treewalk(edit_pop, 0);

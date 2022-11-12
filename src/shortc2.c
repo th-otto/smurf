@@ -141,7 +141,7 @@ static char is_state(OBJECT * tree, int obj, unsigned int state)
 /* title: Zeiger auf den Index des Titels, falls "is_menu_key" TRUE ist */
 /* item: Zeiger auf den Index des MenÅeintrages, falls "is_menu_key" TRUE ist */
 
-char get_menu_key(OBJECT * menu, KINFO * ki, int *title, int *item)
+char get_menu_key(OBJECT * menu, KINFO * ki, WORD *title, WORD *item)
 {
 	char j = 0,
 		search[3] = "   ";

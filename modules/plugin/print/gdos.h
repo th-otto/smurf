@@ -81,3 +81,18 @@ typedef struct
     int picheight;          /* effektive Bildh”he */
     char advance;           /* Vorschub nach Seite? */
 } OutParamS;
+
+extern SERVICE_FUNCTIONS *services;
+extern SMURF_PIC * *smurf_picture;
+extern short *active_pic;
+extern PRN_SETTINGS *prn_settings;
+extern OBJECT *alerts;
+extern PLUGIN_FUNCTIONS *smurf_functions;
+extern SMURF_VARIABLES *smurf_vars;
+
+int print_with_GDOS(PRN_SETTINGS *prn_settings);
+int actualize_DevParam(int gdos_dev, DevParamS *DevParam);
+int scan_devs(void);                            /* sucht nach GDOS-Ausgabedevices */
+int get_DevInfo(char devID, DevInfoS *DevInfo);
+void set_MFDB(MFDB *srcform, MFDB *dstform, char *srcpic, char BitsPerPixel);
+int f_d_dither(SMURF_PIC *smurf_pic, char *ziel, unsigned int stripoffset, unsigned int stripheight, char dest_depth);

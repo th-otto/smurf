@@ -89,9 +89,9 @@
 #include "demolib.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
-int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, int defbt);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
+static WORD (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
 
 char *fileext(char *filename);
 void read_1Bit(char *buffer, char *ziel, unsigned int w, unsigned int height);
@@ -146,7 +146,7 @@ MOD_INFO module_info = {"TGA Bitmap Importer",
 /*		1, 8, 16, 24 und 32 Bit, unkomprimiert, RLE	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *pal, *ppal, *fname,
 		 IDLength, ImageType, Descriptor,

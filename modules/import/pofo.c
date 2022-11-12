@@ -58,10 +58,10 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
-int (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, int defbt);
+static WORD (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
 
 static char *fileext(char *filename);
 
@@ -104,7 +104,7 @@ MOD_INFO module_info = {"Portfolio PGF",
 /*		PGF files Importer														*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main ( GARGAMEL *smurf_struct)
+short imp_module_main ( GARGAMEL *smurf_struct)
 {
 	char *buffer, *pal, *fname, *ziel;
 	char index, data, BitsPerPixel;

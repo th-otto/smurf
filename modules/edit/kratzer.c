@@ -94,9 +94,8 @@ static void (*set_slider)(SLIDER *sliderstruct, long value);
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-int (*get_window)(WINDOW *wind);        /* Funktion deklarieren */
-int (*popup)(POP_UP *popup_struct, int mouseflag, int button);          /* Funktion deklarieren */
-int (*slider)(SLIDER *slider_struct);       /* Funktion deklarieren */
+WORD (*popup)(POP_UP *popup_struct, WORD mouseflag, WORD button);          /* Funktion deklarieren */
+short (*slider)(SLIDER *slider_struct);       /* Funktion deklarieren */
 void (*generate_listfield)(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
     WORD listparent,  char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield);
 void (*listfield)(OBJECT *tree, int klick_obj, LIST_FIELD *lfstruct);
@@ -112,7 +111,6 @@ int Button, Mousex, Mousey, next;
 SmurfMessage=smurf_struct->module_mode;
 
 /* Hier werden die Funktionen aus der GARGAMEL-Struktur geholt. */
-get_window=smurf_struct->services->f_module_window;   /* Windowfunktion   */
 slider=smurf_struct->services->slider;                /* Sliderfunktion   */
 set_slider=smurf_struct->services->set_slider;
 
@@ -179,7 +177,7 @@ if(SmurfMessage==MSTART){
     SliderStrength->max_val=255;
     SliderStrength->window=mwindow;
 
-    back=get_window(mwindow);       /* Gib mir 'n Fenster! */
+    back=smurf_struct->services->f_module_window(mwindow);       /* Gib mir 'n Fenster! */
 
     /* Slider auf Defaults setzen */
     set_slider(SliderStrength, 90);

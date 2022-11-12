@@ -53,7 +53,7 @@ typedef unsigned long ulong;
 /*		GRA Format (by Sage) 				.GRA	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *smbuffer;
 	long x, y;

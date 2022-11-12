@@ -42,8 +42,8 @@
 #define START	'{'
 #define END		'}'
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 char *fileext(char *filename);
 
@@ -85,7 +85,7 @@ MOD_INFO module_info = {"X BitMap-Format",
 /*		Bilder 1 Bit unkomprimiert					*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *pal, *helpstr, *fname, name_and_type[256],
 		 BitsPerPixel, version, hexTable[256],

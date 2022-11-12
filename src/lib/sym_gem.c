@@ -210,7 +210,7 @@ WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree)
 	obj = popup_struct->display_obj;
 
 	if (poptree == NULL)
-		xrsrc_gaddr(0, popup, &popup_form, resource_global);	/* Popup-Formular holen */
+		xrsrc_gaddr(R_TREE, popup, &popup_form, resource_global);	/* Popup-Formular holen */
 	else
 		popup_form = poptree;
 
@@ -512,6 +512,7 @@ void f_txtinsert(short num, OBJECT *tree, WORD txt_obj, WINDOW *ws)
 }
 
 
+#if 0 /* unused and buggy */
 /* ****************************************************************	*/
 /* -- Verstecken eines ganzen Objektbaums inklusive aller Kinder --	*/
 /* *tree ist der Baum, in dem und object das parentobjekt, das		*/
@@ -519,13 +520,12 @@ void f_txtinsert(short num, OBJECT *tree, WORD txt_obj, WINDOW *ws)
 /* ****************************************************************	*/
 void f_hidetree(OBJECT *tree, WORD object)
 {
-	int startob,
-	 endob,
-	 ob_t;
+	WORD startob;
+	WORD endob;
+	WORD ob_t;
 	OBJECT *treepointer;
 
-
-	xrsrc_gaddr(1, object, &treepointer, resource_global);
+	xrsrc_gaddr(R_OBJECT, object, &treepointer, resource_global);
 	startob = treepointer->ob_head;
 	endob = treepointer->ob_tail;
 
@@ -534,8 +534,10 @@ void f_hidetree(OBJECT *tree, WORD object)
 	for (ob_t = startob; ob_t <= endob; ob_t++)
 		tree[ob_t].ob_flags |= OF_HIDETREE;
 }
+#endif
 
 
+#if 0 /* unused and buggy */
 /* ****************************************************************	*/
 /* --- Aufdecken eines ganzen Objektbaums inklusive aller Kinder --	*/
 /* *tree ist der Baum, in dem und object das parentobjekt, das		*/
@@ -544,12 +546,11 @@ void f_hidetree(OBJECT *tree, WORD object)
 void f_showtree(OBJECT *tree, WORD object)
 {
 	OBJECT *treepointer;
-	int startob,
-	 endob,
-	 ob_t;
+	WORD startob;
+	WORD endob;
+	WORD ob_t;
 
-
-	xrsrc_gaddr(1, object, &treepointer, resource_global);
+	xrsrc_gaddr(R_OBJECT, object, &treepointer, resource_global);
 	startob = treepointer->ob_head;
 	endob = treepointer->ob_tail;
 
@@ -558,6 +559,8 @@ void f_showtree(OBJECT *tree, WORD object)
 	for (ob_t = startob; ob_t <= endob; ob_t++)
 		tree[ob_t].ob_flags &= ~OF_HIDETREE;
 }
+#endif
+
 
 /* ****************************************************************	*/
 /* ------------ Funktion zum Bedienen von Schiebereglern ----------	*/
@@ -568,7 +571,7 @@ void f_showtree(OBJECT *tree, WORD object)
 /* Die Funktion bernimmt das Ziehen des Reglers mit der Maus und	*/
 /* gibt seine neue Position zurck (0=ganz oben, 1000=ganz unten)	*/
 /* ****************************************************************	*/
-int f_rslid(SLIDER *slider_struct)
+short f_rslid(SLIDER *slider_struct)
 {
 	int regler,
 	 fhr,
@@ -611,7 +614,7 @@ int f_rslid(SLIDER *slider_struct)
 	wsize.g_h = windst->wh;
 
 	if (rtree[regler].ob_state & OS_DISABLED)
-		return (0);
+		return 0;
 
 	wind_update(BEG_UPDATE);
 	wind_update(BEG_MCTRL);
@@ -689,7 +692,7 @@ int f_rslid(SLIDER *slider_struct)
 	wind_update(END_UPDATE);
 	wind_update(END_MCTRL);
 
-	return ((int) slidval);
+	return slidval;
 }
 
 

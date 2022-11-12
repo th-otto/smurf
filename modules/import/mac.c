@@ -67,7 +67,7 @@ MOD_INFO module_info = {"MacPaint-Importer",
 /*      Mac Mac-Paint Format                        */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char *extend, ext[4];
 char    *buffer;

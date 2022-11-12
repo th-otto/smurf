@@ -64,7 +64,7 @@ MOD_INFO    module_info={"Speichertestmodul",
 /*      nach PEXEC 3/4 ohne unsauberen Sprung       */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char *buffer;
 long free_mem;

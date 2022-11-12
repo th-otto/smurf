@@ -41,8 +41,6 @@
 
 void *(*SMalloc)(long amount);
 
-int (*f_module_window)(WINDOW *mod_window);
-
 unsigned long write_RGB(char *buffer, char *ziel, unsigned long w, char v, unsigned int height);
 unsigned long write_Plane(char *buffer, char *ziel, unsigned long w, unsigned int height, char BitsPerPixel);
 

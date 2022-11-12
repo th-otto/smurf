@@ -72,7 +72,7 @@ MOD_INFO module_info = {"HSI File-Format",
 /*		8, 24 Bit, keine Kodierung					*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel, *pal, *ppal,
 		 BitsPerPixel, DatenOffset, cols;

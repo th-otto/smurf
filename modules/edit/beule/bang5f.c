@@ -39,7 +39,7 @@ typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef unsigned long ulong;
 
-extern int (*busybox)(int lft);
+extern short (*busybox)(short lft);
 
 int bang_inter_FPU(SMURF_PIC *bild,int mx,int my,int HOEHE,int RADIUS,int RANDS)
 {

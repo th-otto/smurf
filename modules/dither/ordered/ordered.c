@@ -50,7 +50,7 @@ void make_pal(SMURF_PIC *picture, char *tab);
 
 short (*set16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany);
 
-int (*busybox)(int pos);
+static short (*busybox)(short pos);
 
 DITHER_MOD_INFO dith_module_info =
 {
@@ -98,7 +98,7 @@ static  MATRIX defmatrix = {0x00, 0xc0, 0x30, 0xf0, 0x0c, 0xcc, 0x3c, 0xfc, 0x03
 /* ---------------------------------------------------------------- */
 /*                          Ordered Dither                          */
 /* ---------------------------------------------------------------- */
-int dither_module_main(DITHER_DATA *dither)
+short dither_module_main(DITHER_DATA *dither)
 {
     char *ziel;
 

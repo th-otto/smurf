@@ -68,7 +68,7 @@ MOD_INFO    module_info={"Indypaint-Importer",
 /*      IndyPaint (by Lazer)            .tru        */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 int *buffer;
 unsigned int width, height;

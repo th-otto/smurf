@@ -37,8 +37,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 char *fileext(char *filename);
 void nulltospace(char *string, char length);
@@ -81,7 +81,7 @@ MOD_INFO module_info = {"Alpha BMP-Format",
 /*		1, 4, 8 und 24 Bit, wahlweise RLE			*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel, *pal, *ppal, *fname,
 		 n, v1, v2, comp, ifpal, BitsPerPixel,

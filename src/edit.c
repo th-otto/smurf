@@ -117,7 +117,7 @@ void f_edit_pop(void)
 		module.smStruct[20] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
 		memset(module.smStruct[20], 0x0, sizeof(GARGAMEL));
 		if ((mod_abs =
-			 (MOD_ABILITY *) module.comm.startEdit(mpath, module.bp[20], MQUERY, 20, module.smStruct[20])) == NULL)
+			 (MOD_ABILITY *) module.comm.start_edit_module(mpath, module.bp[20], MQUERY, 20, module.smStruct[20])) == NULL)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
 
 		textseg_begin = module.bp[20]->p_tbase;
@@ -156,7 +156,7 @@ void f_edit_pop(void)
 				garg_st->smurf_pic = picture_to_handle;
 
 				Dialog.busy.reset(0, Dialog.emodList.modNames[mod_index]);
-				module.bp[mod_num] = module.comm.startEdit(mpath, module.bp[mod_num], MSTART, mod_num, garg_st);
+				module.bp[mod_num] = module.comm.start_edit_module(mpath, module.bp[mod_num], MSTART, mod_num, garg_st);
 
 				if (module.bp[mod_num] == NULL)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
@@ -180,7 +180,7 @@ void f_edit_pop(void)
 
 						if (form_alert(1, alert) == 2)
 						{
-							module.comm.startEdit(edit_modules[mod_num], module.bp[mod_num], MTERM, mod_num, module.smStruct[mod_num]);
+							module.comm.start_edit_module(edit_modules[mod_num], module.bp[mod_num], MTERM, mod_num, module.smStruct[mod_num]);
 							check_and_terminate(module.smStruct[mod_num]->module_mode, mod_num);
 							return;
 						}
@@ -213,7 +213,7 @@ void f_edit_pop(void)
 					if (back == 0)
 					{
 						Dialog.busy.reset(0, mod_info->mod_name);
-						module.comm.startEdit(edit_modules[mod_num], module.bp[mod_num], MEXEC, mod_num, module.smStruct[mod_num]);
+						module.comm.start_edit_module(edit_modules[mod_num], module.bp[mod_num], MEXEC, mod_num, module.smStruct[mod_num]);
 						Dialog.busy.ok();
 					}
 
@@ -272,7 +272,7 @@ void f_edit_pop(void)
 					/*
 					 * Modul hat einen Dialog angefordert und wartet
 					 */
-					module.comm.startEdit(mpath, module.bp[mod_num], MCROSSHAIR, mod_num, garg_st);
+					module.comm.start_edit_module(mpath, module.bp[mod_num], MCROSSHAIR, mod_num, garg_st);
 					if (module.smStruct[mod_num]->module_mode == M_CROSSHAIR)
 					{
 						position_markers[mod_num].anzahl = module.smStruct[mod_num]->event_par[0];
@@ -280,7 +280,7 @@ void f_edit_pop(void)
 						module.smStruct[mod_num]->module_mode = M_WAITING;
 
 						/* Defaultkoordinaten erfragen */
-						module.comm.startEdit("", module.bp[mod_num], MCH_DEFCOO, mod_num, garg_st);
+						module.comm.start_edit_module("", module.bp[mod_num], MCH_DEFCOO, mod_num, garg_st);
 						if (module.smStruct[mod_num]->module_mode == M_CHDEFCOO)
 						{
 							position_markers[mod_num].xpos[0] = module.smStruct[mod_num]->event_par[0];
@@ -329,7 +329,7 @@ void emod_info_on(short mod_index)
 
 	module.smStruct[20] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
 	memset(module.smStruct[20], 0x0, sizeof(GARGAMEL));
-	if ((info_mabs = (MOD_ABILITY *) module.comm.startEdit(edit_modules[mod_index], module.bp[20], MQUERY, 20, module.smStruct[20])) == NULL)
+	if ((info_mabs = (MOD_ABILITY *) module.comm.start_edit_module(edit_modules[mod_index], module.bp[20], MQUERY, 20, module.smStruct[20])) == NULL)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
 
 	textseg_begin = module.bp[20]->p_tbase;

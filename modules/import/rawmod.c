@@ -64,7 +64,7 @@ MOD_INFO    module_info={".RAW Modul",
 /*      raw hsi Dekomprimierer                      */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer, *Daten;
 int width=0, height=0, BitsPerPixel, colors;

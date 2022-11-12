@@ -53,8 +53,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Truepaint Image-Format",
@@ -94,7 +94,7 @@ MOD_INFO module_info = {"Truepaint Image-Format",
 /*		1, 2, 4, 8 und 16 Bit, unkomprimiert		*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *pal, *plane_table,
 		 p, v, Planes, BitsPerPixel;

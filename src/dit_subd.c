@@ -189,7 +189,7 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, 
 #endif
 
 	/********* Und Dithermodul starten! ************/
-	module.comm.startDither(MSTART, dithermode - 1, &ditherdata);
+	module.comm.start_dither_module(MSTART, dithermode - 1, &ditherdata);
 
 #if TIMER
 	/* wie schnell waren wir? */

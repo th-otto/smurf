@@ -85,8 +85,8 @@ short start_imp_module(char *modpath, SMURF_PIC * imp_pic)
 	char *textseg_begin;
 	long mod_magic;
 
-	int (*module_main)(GARGAMEL * smurf_struct);
-	int module_return;
+	short (*module_main)(GARGAMEL * smurf_struct);
+	short module_return;
 	int back;
 	long ProcLen;
 	long temp,
@@ -120,7 +120,7 @@ short start_imp_module(char *modpath, SMURF_PIC * imp_pic)
 		if (back != 0)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
 
-		mod_basepage->p_hitpa = (void *) ((long) mod_basepage + ProcLen);
+		mod_basepage->p_hitpa = (void *) ((char *) mod_basepage + ProcLen);
 
 		lback = Pexec(4, 0L, (char *) mod_basepage, 0L);
 		if (lback < 0L)
@@ -135,7 +135,7 @@ short start_imp_module(char *modpath, SMURF_PIC * imp_pic)
 		sm_struct.smurf_pic = imp_pic;
 		sm_struct.services = &global_services;
 
-		module_main = (INT_FUNCTION) (textseg_begin + MAIN_FUNCTION_OFFSET);
+		module_main = (short (*)(GARGAMEL *)) (textseg_begin + MAIN_FUNCTION_OFFSET);
 		module_return = module_main(&sm_struct);
 
 #if 0
@@ -198,7 +198,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, short mode, sho
 			if (back != 0)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
 
-			edit_basepage->p_hitpa = (void *) ((long) edit_basepage + ProcLen);
+			edit_basepage->p_hitpa = (void *) ((char *) edit_basepage + ProcLen);
 
 			lback = Pexec(4, 0L, (char *) edit_basepage, 0L);
 			if (lback < 0L)
@@ -243,7 +243,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, short mode, sho
 			if (mode == MEXEC)
 				graf_mouse(BUSYBEE, dummy_ptr);
 
-			module_main = (VOID_FUNCTION) (textseg_begin + MAIN_FUNCTION_OFFSET);
+			module_main = (void (*)(GARGAMEL * smurf_struct)) (textseg_begin + MAIN_FUNCTION_OFFSET);
 			module_main(sm_struct);
 
 			graf_mouse(ARROW, dummy_ptr);
@@ -312,7 +312,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC * pic_to_ex
 			if (back != 0)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
 
-			export_basepage->p_hitpa = (void *) ((long) export_basepage + ProcLen);
+			export_basepage->p_hitpa = (void *) ((char *) export_basepage + ProcLen);
 
 			lback = Pexec(4, 0L, (char *) export_basepage, 0L);
 			if (lback < 0L)
@@ -377,7 +377,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC * pic_to_ex
 /*	-----------------------------------------------------------	*/
 /*					Modulevent bearbeiten						*/
 /*	-----------------------------------------------------------	*/
-int handle_modevent(int event_type, WINDOW * mod_window)
+short handle_modevent(short event_type, WINDOW * mod_window)
 {
 	int which_object;
 
@@ -465,7 +465,7 @@ void f_handle_modmessage(GARGAMEL * smurf_struct)
 			Dialog.winAlert.openAlert("Fehler beim Dithern des Previews!", NULL, NULL, NULL, 1);
 
 		/* jetzt dem Modul sagen, daž fertig gedietert ist. */
-		module.comm.startEdit("", module.bp[mod_num], MDITHER_READY, 0, smurf_struct);
+		module.comm.start_edit_module("", module.bp[mod_num], MDITHER_READY, 0, smurf_struct);
 
 		/* Dialog.busy.reset(128, smurf_struct->wind_struct->wtitle); */
 		break;
@@ -500,7 +500,7 @@ void f_handle_modmessage(GARGAMEL * smurf_struct)
 		position_markers[mod_num & 0xFF].mod_pic[0] = smurf_struct->event_par[1];
 
 		/* Defaultkoordinaten erfragen */
-		module.comm.startEdit("", module.bp[mod_num & 0xFF], MCH_DEFCOO, mod_num, smurf_struct);
+		module.comm.start_edit_module("", module.bp[mod_num & 0xFF], MCH_DEFCOO, mod_num, smurf_struct);
 		if (smurf_struct->module_mode == M_CHDEFCOO)
 		{
 			position_markers[mod_num & 0xFF].xpos[0] = smurf_struct->event_par[0];
@@ -638,7 +638,7 @@ short analyze_message(short module_ret, short picture_to_load)
 /* ----- Fenster fr Modul ”ffnen	--------------------------*/
 /* -----------------------------------------------------------*/
 /*------------------------------------------------------------*/
-int f_open_module_window(WINDOW * module_window)
+short f_open_module_window(WINDOW * module_window)
 {
 	int m_whandle;
 	int m_wind_x,
@@ -764,7 +764,7 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA * ditherdata)
 {
 	char *textseg_begin;
 
-	int (*module_main)(DITHER_DATA * smurf_struct);
+	short (*module_main)(DITHER_DATA * smurf_struct);
 
 	BASPAG *dither_basepage;
 
@@ -783,7 +783,7 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA * ditherdata)
 		/* Funktionen einh„ngen */
 		ditherdata->services = &global_services;
 
-		module_main = (INT_FUNCTION) (textseg_begin + MAIN_FUNCTION_OFFSET);
+		module_main = (short (*)(DITHER_DATA *)) (textseg_begin + MAIN_FUNCTION_OFFSET);
 		if (mode != MQUERY)
 			module_main(ditherdata);
 
@@ -800,7 +800,7 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA * ditherdata)
 /*	Durchl„uft rekursiv einen Objektbaum (Modulresource) und initialisiert	*/
 /*	die darin enthaltenen Farbicons mit init_modtree();						*/
 /* ------------------------------------------------------------------------	*/
-void walk_module_tree(WINDOW * wind, int start)
+void walk_module_tree(WINDOW * wind, WORD start)
 {
 	int index = 0;
 
@@ -843,7 +843,7 @@ void walk_module_tree(WINDOW * wind, int start)
 /*	Diese wird dann direkt bei tree[index].ob_spec.iconblk->mainlist		*/
 /*	eingeh„ngt, damit das AES sie zuallererst findet.						*/
 /*------------------------------------------------------------------------	*/
-void init_modtree(OBJECT * tree, int index)
+void init_modtree(OBJECT * tree, WORD index)
 {
 	CICON *img,
 	*best_img;
@@ -892,7 +892,7 @@ void init_modtree(OBJECT * tree, int index)
 	Format, weil die Icons in den Modul-RSHs nicht von rsrc_load gewandelt 
 	werden k”nnen. Nur unter nicht MagiC-Systemen n”tig!
 	---------------------------------------------------------------------*/
-void convert_icon(OBJECT * tree, int index)
+void convert_icon(OBJECT * tree, WORD index)
 {
 	char *pixbuf,
 	*line,
@@ -1026,7 +1026,7 @@ void convert_icon(OBJECT * tree, int index)
 /*	Dienstfunktion, die es einem Edit-Modul erm”glicht, seine Bilder (wenn	*/
 /*	mehrere) ohne den Umweg ber die Message zu holen.						*/
 /*------------------------------------------------------------------------	*/
-SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO * mod_info, WORD depth, int form, int col)
+SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO * mod_info, WORD depth, short form, short col)
 {
 	char alertstr[128];
 
@@ -1081,7 +1081,7 @@ SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO * mod_info, WORD depth, int 
 /*	best„tigen. In event_par[0] wird die lfd. Nummer des bergebenen Bildes	*/
 /*	abgelegt, beginnend mit 0.												*/
 /* ------------------------------------------------------------------------	*/
-int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
+short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 {
 	char alertstr[257];
 
@@ -1101,7 +1101,7 @@ int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 			current_pic = current_pic->block;
 
 		module.smStruct[module_number]->event_par[0] = t;
-		module.comm.startEdit(edit_modules[module_number], module.bp[module_number], MPICS, module_number, module.smStruct[module_number]);
+		module.comm.start_edit_module(edit_modules[module_number], module.bp[module_number], MPICS, module_number, module.smStruct[module_number]);
 
 		if (module.smStruct[module_number]->module_mode == M_PICTURE)
 		{
@@ -1136,7 +1136,7 @@ int f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 					return (back);
 				module.smStruct[module_number]->smurf_pic = current_pic;
 				module.smStruct[module_number]->event_par[0] = t;
-				module.comm.startEdit(edit_modules[module_number], module.bp[module_number], MPICTURE, module_number, module.smStruct[module_number]);
+				module.comm.start_edit_module(edit_modules[module_number], module.bp[module_number], MPICTURE, module_number, module.smStruct[module_number]);
 			}
 		}
 	}
@@ -1169,7 +1169,7 @@ short inform_modules(short message, SMURF_PIC * picture)
 			if (mod_magic == MOD_MAGIC_EDIT)
 			{
 				module.smStruct[t]->smurf_pic = picture;
-				module.comm.startEdit("", curr_baspag, message, 0, module.smStruct[t]);
+				module.comm.start_edit_module("", curr_baspag, message, 0, module.smStruct[t]);
 			}
 		}
 	}
@@ -1258,7 +1258,7 @@ void AESmsg_to_modules(WORD *msgbuf)
 			memcpy(module.smStruct[t]->event_par, msgbuf, 16);
 
 			if (magic == MOD_MAGIC_EDIT)
-				module.comm.startEdit(NULL, curr_bp, SMURF_AES_MESSAGE, 0, module.smStruct[t]);
+				module.comm.start_edit_module(NULL, curr_bp, SMURF_AES_MESSAGE, 0, module.smStruct[t]);
 			else if (magic == MOD_MAGIC_EXPORT)
 				start_exp_module(NULL, SMURF_AES_MESSAGE, NULL, curr_bp, module.smStruct[t], 0);
 
@@ -1379,7 +1379,7 @@ void make_modpreview(WINDOW * wind)
 		for (t = 0; t < mod_inf->how_many_pix; t++)
 		{
 			module.smStruct[mod_index]->event_par[0] = t;
-			module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MPICS, module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
+			module.comm.start_edit_module(edit_modules[mod_index], module.bp[mod_index], MPICS, module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
 
 			if (module.smStruct[mod_index]->module_mode == M_PICTURE)
 			{
@@ -1411,7 +1411,7 @@ void make_modpreview(WINDOW * wind)
 
 				module.smStruct[mod_index]->event_par[0] = t;
 				module.smStruct[mod_index]->smurf_pic = add_pix[t];
-				module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MPICTURE, module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
+				module.comm.start_edit_module(edit_modules[mod_index], module.bp[mod_index], MPICTURE, module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
 				if (module.smStruct[mod_index]->module_mode != M_WAITING)
 					break;
 			}
@@ -1424,9 +1424,9 @@ void make_modpreview(WINDOW * wind)
 
 	module.smStruct[mod_index]->event_par[0] = position_markers[mod_index].xpos[0] - wind->xoffset;
 	module.smStruct[mod_index]->event_par[1] = position_markers[mod_index].ypos[0] - wind->yoffset;
-	module.comm.startEdit("", module.bp[mod_index], MCH_COORDS, mod_num, module.smStruct[mod_index]);
+	module.comm.start_edit_module("", module.bp[mod_index], MCH_COORDS, mod_num, module.smStruct[mod_index]);
 	module.smStruct[mod_index]->smurf_pic = wind->picture;
-	module.comm.startEdit(edit_modules[mod_index], module.bp[mod_index], MEXEC, module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
+	module.comm.start_edit_module(edit_modules[mod_index], module.bp[mod_index], MEXEC, module.smStruct[mod_index]->module_number, module.smStruct[mod_index]);
 
 	/*-------- ver„ndertes Bild kopieren -----*/
 	if (mod_inf->how_many_pix > 1)

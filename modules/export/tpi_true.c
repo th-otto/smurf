@@ -41,8 +41,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Truepaint Image",

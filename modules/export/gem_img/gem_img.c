@@ -69,10 +69,8 @@
 #define IMG		0
 #define XIMG	1
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
-
-int (*f_module_window)(WINDOW *mod_window);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 unsigned long write_RGB(char *buffer, char *ziel, unsigned long w, char v, unsigned int height, unsigned int strings);
 unsigned long write_Plane(char *buffer, char *ziel, unsigned long w, unsigned int height, char BitsPerPixel, unsigned int strings);
@@ -229,8 +227,6 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			else
 				win_form[FORMAT].ob_state &= ~OS_SELECTED;
 
-			f_module_window = smurf_struct->services->f_module_window;	/* Windowfunktion */
-	
 			window.whandlem = 0;				/* evtl. Handle l”schen */
 			window.module = module_id;			/* ID in die Fensterstruktur eintragen  */
 			window.wnum = 1;					/* Fenster nummer 1...  */
@@ -247,7 +243,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 			smurf_struct->wind_struct = &window;  /* und die Fensterstruktur in die Gargamel */
 
-			if(f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
+			if(smurf_struct->services->f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
 				smurf_struct->module_mode = M_EXIT;		/* keins mehr da? */
 			else 
 				smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */

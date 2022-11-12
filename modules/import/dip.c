@@ -42,8 +42,8 @@
 #define ZANFANG	1
 #define ZMITTE	2
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"DA's Layout Preview",
@@ -83,7 +83,7 @@ MOD_INFO module_info = {"DA's Layout Preview",
 /*		24 Bit, eigene Kompression					*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel,
 		 BitsPerPixel, DatenOffset, align, status, pos, pix, run, pixel;

@@ -89,7 +89,7 @@ MOD_INFO module_info = {"Cubicomb Import-Modul",
 /*	richtig fÅr fÅr User mit dicker Platte.			*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, name[128];
 

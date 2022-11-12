@@ -65,7 +65,7 @@ MOD_INFO module_info = {"QRT .RAW Modul",
 /*      raw qrt Modul                               */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char *extend, ext[4], *retbuf;
 char    *buffer;

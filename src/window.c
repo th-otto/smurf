@@ -54,7 +54,7 @@ static char alerttok(char *text, char maxlen);
 /* selbst„ndig, clippt Fenster auf Bildschirmkoordinaten und fhrt	*/
 /* eine Erstinitialisierung eines eventuellen Editobjekts durch.	*/
 /* ----------------------------------------------------------------	*/
-int f_open_window(WINDOW * window)
+short f_open_window(WINDOW * window)
 {
 	int m_whandle;
 	int m_wind_x,
@@ -156,8 +156,9 @@ int f_open_window(WINDOW * window)
 
 		if (window->whandlem < 0)
 		{
+			/* FIXME: translate */
 			form_alert(1, "[0][Keine Fenster mehr frei!][ Oh ]");
-			return (-1);
+			return -1;
 		}
 
 		if (Sys_info.OSFeatures & BEVT)
@@ -209,7 +210,7 @@ int f_open_window(WINDOW * window)
 
 	actualize_menu();
 
-	return (0);
+	return 0;
 }
 
 
@@ -227,7 +228,7 @@ int f_open_window(WINDOW * window)
 /* des kompletten Bildes muž dann noch an den entsprechenden Stellen*/
 /* ausgeschaltet werden, wenn der Online-Dither eingeschaltet ist.	*/
 /*-----------------------------------------------------------------	*/
-void f_redraw_window(WINDOW * window, GRECT * mwind, int startob, int flags)
+void f_redraw_window(WINDOW * window, GRECT * mwind, WORD startob, WORD flags)
 {
 	int clip[10];						/* Clipping PXYARRAY... */
 	int vdiclip[10];					/* Clipping PXYARRAY... */
@@ -605,7 +606,7 @@ static void realtime_dither(GRECT * picbox, WINDOW * window, int *pxy, int *vdic
 	šbernimmt den Redraw eines Ikonifizierten Fensters window. vdiclip
 	gibt das Clippingrechteck an, das fr den objc_draw verwendet werden muž.
 	-----------------------------------------------------------------*/
-void draw_iconified(WINDOW * window, int *vdiclip)
+void draw_iconified(WINDOW * window, WORD *vdiclip)
 {
 	int pxy[5],
 	 icon;
@@ -856,7 +857,7 @@ void insert_picwinzoom(WINDOW * window)
 		break;
 	}
 
-	xrsrc_gaddr(0, ZOOM_POP, &zptree, resource_global);
+	xrsrc_gaddr(R_TREE, ZOOM_POP, &zptree, resource_global);
 	strncpy(tree[ZOOM_FACTOR].TextCast, zptree[zoomindex].TextCast, 4);
 }
 
@@ -1978,7 +1979,7 @@ int find_crosshair(WINDOW * window)
 /* handle an Smurf selbst. Immer anstatt wind_set verwenden, da		*/
 /* hiermit der Cursor richtig an- und ausgeschaltet wird!			*/
 /*-----------------------------------------------------------------	*/
-void top_window(int handle)
+void top_window(WORD handle)
 {
 	int toph,
 	 dummy;
@@ -2028,7 +2029,7 @@ void top_window_now(WINDOW * window)
 }
 
 
-void top_windowhandle(int handle)
+void top_windowhandle(WORD handle)
 {
 	int toph,
 	 dummy,
@@ -2073,7 +2074,7 @@ void top_windowhandle(int handle)
 /* hiermit der Cursor richtig an- und ausgeschaltet wird und alle	*/
 /* Optionsbernahmen etc. richtig laufen!							*/
 /*-----------------------------------------------------------------	*/
-void close_window(int handle)
+void close_window(WORD handle)
 {
 	if (handle > 0)
 		Comm.sendAESMsg(Sys_info.app_id, WM_CLOSED, handle, -1);
@@ -2100,7 +2101,7 @@ void close_window(int handle)
 	12345678901234567890123456789012345678901234567890123456789012345678901
 	0         1         2         3         4        5          6         7
 */
-int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
+WORD f_alert(char *alertstring, char *b1, char *b2, char *b3, WORD defbt)
 {
 	char t,
 	*olds,
@@ -2233,7 +2234,7 @@ int f_alert(char *alertstring, char *b1, char *b2, char *b3, int defbt)
 		{
 			lock_Smurf();
 			f_redraw_window(&wind_s[WIND_ALERT], NULL, 0, 0);
-			Dialog.winAlert.isTop = 1;
+			Dialog.winAlert.isTop = TRUE;
 			Dialog.winAlert.winHandle = wind_s[WIND_ALERT].whandlem;
 
 			do
@@ -2354,7 +2355,7 @@ void close_alert(void)
 	wind_s[WIND_ALERT].whandlem = -1;
 	unlock_Smurf();
 	Dialog.winAlert.winHandle = -1;
-	Dialog.winAlert.isTop = 0;
+	Dialog.winAlert.isTop = FALSE;
 }
 
 

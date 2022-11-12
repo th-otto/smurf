@@ -83,8 +83,8 @@
 #define RGB_LEN		(6)
 #define NA			(0)
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 void Dispatch(struct pixMap *p);
 char *readunpacked(unsigned int width, unsigned int height, char BitsPerPixel, char packType);
@@ -378,7 +378,7 @@ struct pixMap p;
 /*		1, 4, 8, 16, 24 Bit, RLE					*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	int plus, res;
 	unsigned int opcode, version, len, PictSize;

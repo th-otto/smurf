@@ -99,8 +99,8 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 void backcolor(SMURF_PIC *picture, char *data, char *buf, unsigned int newwidth, unsigned int newheight);
 

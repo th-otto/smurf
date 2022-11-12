@@ -45,7 +45,7 @@
 /* ---------------------------------------------------------------- */
 /*					Status-Box setzen und Text rein				  	*/
 /* ----------------------------------------------------------------	*/
-void reset_busybox(int lft, const char *txt)
+void reset_busybox(short lft, const char *txt)
 {
 	char *busytxt;
 	GRECT busy_form;
@@ -83,7 +83,7 @@ void ok_busybox(void)
 /* ----------------------------------------------------------------	*/
 /*			Statusbox setzen und redrawen (incl. Eventabarbeitung)	*/
 /* ---------------------------------------------------------------- */
-int draw_busybox(int lft)
+short draw_busybox(short lft)
 {
 	WORD dummy;
 	WORD ev_type;
@@ -160,7 +160,7 @@ void actualize_ram(void)
 	Aufruf > 1s ist, wird die Busybox wieder angeschaltet (z.B. um
 	bei langsamen Modulen das Preview beobachten zu k”nnen.
 	------------------------------------------------------------*/
-static int empty_bb(int lft)
+static short empty_bb(short lft)
 {
 	(void) lft;
 	if (clock() - Dialog.busy.resetClock > 200)
@@ -172,7 +172,7 @@ static int empty_bb(int lft)
 /* fullempty_bb --------------------------------------------------
 	wirklich leere draw_busybox
 	------------------------------------------------------------*/
-static int fullempty_bb(int lft)
+static short fullempty_bb(short lft)
 {
 	(void) lft;
 	return 0;
@@ -182,7 +182,7 @@ static int fullempty_bb(int lft)
 /* empty_rbb --------------------------------------------------
 	leere reset_busybox
 	------------------------------------------------------------*/
-static void empty_rbb(int lft, const char *txt)
+static void empty_rbb(short lft, const char *txt)
 {
 	(void) lft;
 	(void) txt;

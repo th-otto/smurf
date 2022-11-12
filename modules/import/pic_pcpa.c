@@ -62,8 +62,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 int switch_orient(char *buffer, unsigned int width, unsigned int height, char BitsPerPixel, char Planes);
 char *tfm_pp_to_std(char *buffer, unsigned int width, unsigned int height, char BitsPerPixel);
@@ -109,7 +109,7 @@ MOD_INFO module_info = {"Pictor PC Paint",
 /*		1, 2, 4, 8, 16, 24 Bit, ungepackt, RLE		*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *pal, *ppal, *temp,
 		 BitsPerPixel, Planes, palflag,

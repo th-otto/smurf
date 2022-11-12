@@ -42,7 +42,7 @@
 
 #include "mirror.rsh"
 
-int (*popup)(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree);
+WORD (*popup)(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree);
 
 MOD_INFO module_info = {"Spiegeln",
 						0x0030,

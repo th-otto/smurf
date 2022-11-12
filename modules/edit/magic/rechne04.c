@@ -52,8 +52,8 @@ extern void fcopypointTC16(void *a,void *b);
 extern void fcopypointTC24(void *a,void *b);
 extern void	(*fcopypoint)(void *a,void *b);
 
-extern void (*reset_busybox)(int lft, const char *string);
-extern int (*busybox)(int lft);
+extern void (*reset_busybox)(short lft, const char *string);
+extern short (*busybox)(short lft);
 
 struct fcpypnt
 {

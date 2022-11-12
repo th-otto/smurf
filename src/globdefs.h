@@ -247,14 +247,7 @@
 #define PLANELEN16(w, h) ( ((long)(w+15)>>4)*(long)h )
 
 
-
-/* Blind-Funktionsdeklarationen */
-#define VOID_FUNCTION   void(*)()
-#define VOIDP_FUNCTION  void(*)()   
-#define INT_FUNCTION    int(*)()
-#define INTP_FUNCTION   int(*)()        
-
-
+/* Drag&Drop */
 #define DD_OK         0    /* Ok, - weitermachen                */
 #define DD_NAK        1    /* Drag&Drop abbrechen               */
 #define DD_EXT        2    /* Datenformat wird nicht akzeptiert */

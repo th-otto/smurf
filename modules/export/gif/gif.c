@@ -79,11 +79,10 @@ typedef struct
 } CONFIG;
 
 void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+void (*SMfree)(void *ptr);
 
-int (*f_module_window)(WINDOW *mod_window);
-void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
-static void (*reset_busybox)(int lft, const char *string);
+static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
+static void (*reset_busybox)(short lft, const char *string);
 
 char *write_header(char *file, char typ);
 char *write_lscrdes(char *file, char *pal, unsigned int width, unsigned int height, char BitsPerPixel);
@@ -238,8 +237,6 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 			itoa(config.transparent, win_form[TINDEX].ob_spec.tedinfo->te_ptext, 10);
 
-			f_module_window = smurf_struct->services->f_module_window;	/* Windowfunktion */
-
 			redraw_window = smurf_struct->services->redraw_window;		/* Redrawfunktion */
 	
 			window.whandlem = 0;				/* evtl. Handle l”schen */
@@ -258,7 +255,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 			smurf_struct->wind_struct = &window;  /* und die Fensterstruktur in die Gargamel */
 
-			if(f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
+			if(smurf_struct->services->f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
 				smurf_struct->module_mode = M_EXIT;		/* keins mehr da? */
 			else 
 				smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */

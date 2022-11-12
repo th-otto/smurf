@@ -93,9 +93,9 @@ typedef struct
 
 static int handle_bevt(unsigned int Button);
 static int make_sliders(void);
-static int (*busybox)(int pos);
-static int	(*SMfree)(void *ptr);
-static void (*redraw_window)(WINDOW *window, GRECT *mwind, int startob, int flags);
+static short (*busybox)(short pos);
+static void (*SMfree)(void *ptr);
+static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 static void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
 static void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
 static SERVICE_FUNCTIONS *service;

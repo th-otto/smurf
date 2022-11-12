@@ -74,7 +74,7 @@ MOD_INFO module_info = {"RAW",
 /*	  1, 8 und 24 Bit, unkomprimiert				*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *obuffer, *ziel, *oziel, *pal,
 		 BitsPerPixel;

@@ -46,8 +46,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 char *fileext(char *filename);
 void *fload(char *Path, int header);
@@ -90,7 +90,7 @@ MOD_INFO module_info = {"Q0 Japan Image",
 /*	24 Bit, unkomprimiert							*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *ziel, *oziel, *buffer, *obuffer, *fname,
 		 name[257], bf[12], c;

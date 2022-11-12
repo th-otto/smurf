@@ -40,7 +40,7 @@
 void do_tachyon(char *data, unsigned int width, unsigned int height);
 extern void tachyon_pixel(char *data, char *cliptab, unsigned int width);
 
-int (*busybox)(int pos);
+static short (*busybox)(short pos);
 
 MOD_INFO module_info = {"Tachyon",
 						0x0010,

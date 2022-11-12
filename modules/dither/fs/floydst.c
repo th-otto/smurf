@@ -58,9 +58,9 @@ int not_in_nct;
 /*  --------------------------------------------------------------  */
 /*  --------------------- 8-24-Bit Bild -------------------------   */
 /*  --------------------------------------------------------------  */
-int dither_module_main(DITHER_DATA *dither)
+short dither_module_main(DITHER_DATA *dither)
 {
-    int back;
+    short back;
 
     service=dither->services;
     

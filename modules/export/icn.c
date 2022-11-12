@@ -39,7 +39,7 @@
 #define TIMER 0
 
 static void *(*SMalloc)(long amount);
-static int (*SMfree)(void *ptr);
+static void (*SMfree)(void *ptr);
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {

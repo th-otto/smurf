@@ -59,7 +59,7 @@ MOD_INFO    module_info={"WinClip-Importer",
 /*      Windows Clipboard Dekomprimierer (CLP)      */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer;
 #if 0

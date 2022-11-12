@@ -70,7 +70,7 @@ MOD_INFO module_info = {"Compuserve Vidtex RLE",
 /*  COMPUSERVE VIDTEX RLE Bitmap                    */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 char    *buffer=smurf_struct->smurf_pic->pic_data;
 int     mag1, mag2,mag3;

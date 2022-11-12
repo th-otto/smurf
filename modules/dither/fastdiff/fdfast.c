@@ -47,7 +47,7 @@ DITHER_MOD_INFO dith_module_info =
 /*  --------------------------------------------------------------  */
 /*  --------------------- 8-24-Bit Bild -------------------------   */
 /*  --------------------------------------------------------------  */
-int dither_module_main(DITHER_DATA *dither)
+short dither_module_main(DITHER_DATA *dither)
 {
 char    *pix, *pic, *nct;
 int     rgbtab[2048];

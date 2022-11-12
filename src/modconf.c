@@ -979,7 +979,7 @@ void transmitConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 		smurf_struct->event_par[1] = (short) ((long) edit_cnfblock[index] & 0xFFFF);
 		smurf_struct->event_par[2] = edit_cnflen[index];
 
-		module.comm.startEdit("", modbase, CONFIG_TRANSMIT, smurf_struct->module_number, smurf_struct);
+		module.comm.start_edit_module("", modbase, CONFIG_TRANSMIT, smurf_struct->module_number, smurf_struct);
 		f_handle_modmessage(smurf_struct);
 	}
 }

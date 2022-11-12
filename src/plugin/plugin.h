@@ -126,21 +126,21 @@ typedef struct
 	* Systemfunktionen (Eventhandler u.Ñ.)
 	*/
 	void	(*f_event)(void);				/* Allg. Event-Funktion */
-	int		(*f_handle_message)(void);		/* AES-Message-Handler	*/
+	WORD	(*f_handle_message)(void);		/* AES-Message-Handler	*/
 	void 	(*f_pic_event)(WINDOW *picwindow, int event_type, int windnum);
 
 	/*
 	* Dialogfunktionen
 	*/
-	void	(*check_windclose)(int windnum);	/* Auswerten von Windowdialog-AbbrÅchen */
-	int		(*CallDialog)(int topwin);			/* Dialogdispatcher */
-	int		(*init_dialog)(int DialogNumber, int DialogOK);
+	void	(*check_windclose)(short windnum);	/* Auswerten von Windowdialog-AbbrÅchen */
+	BOOLEAN	(*CallDialog)(WORD topwin);			/* Dialogdispatcher */
+	WORD	(*init_dialog)(short DialogNumber, WORD DialogOK);
 	void	(*close_dialog)(short windnum);
 
 	void	(*f_module_prefs)(MOD_INFO *infostruct, short mod_id);	/* Modulformular aufrufen */
 	void	(*f_mpref_change)(void);								/* Eingabe im Modulformular */
 	void 	(*transform_pic)(void);
-	void	(*close_window)(int handle);
+	void	(*close_window)(WORD handle);
 
 	/*
 	* Resource-Funktionen
@@ -175,8 +175,8 @@ typedef struct
 	/* 
 	*	Bild importieren und was dazugehîrt
 	*/
-	int		(*f_import_pic)(SMURF_PIC *smurf_picture, char *filename);
-	int 	(*f_formhandle)(int picture_to_load, int module_ret, char *namename);
+	short (*f_import_pic)(SMURF_PIC *smurf_picture, char *filename);
+	short (*f_formhandle)(short picture_to_load, short module_ret, char *namename);
 	uint8_t *(*f_do_pcd)(const char *Path);
 
 	/*
@@ -254,12 +254,14 @@ typedef struct
 
 	WINDOW *wind_s;
 	WINDOW *picture_windows;
-	SMURF_PIC * *smurf_picture;
-	GARGAMEL * *smurf_struct;			/* öbergabestrukturen der Edit-Module */
-	BASPAG * *edit_bp;
+	SMURF_PIC **smurf_picture;
+	GARGAMEL **smurf_struct;			/* öbergabestrukturen der Edit-Module */
+	BASPAG **edit_bp;
 
-	int *picwindthere, *dialwindthere, *picthere;
-	int *active_pic;
+	short *picwindthere;
+	short *dialwindthere;
+	short *picthere;
+	short *active_pic;
 	
 	LIST_FIELD *export_list;
 	LIST_FIELD *edit_list;
@@ -269,18 +271,27 @@ typedef struct
 	DITHER_MOD_INFO * *ditmod_info;
 
 	EXPORT_CONFIG *exp_conf;
-	int	anzahl_importmods, anzahl_editmods, anzahl_exporter, anzahl_dithermods;
+	short anzahl_importmods;
+	short anzahl_editmods;
+	short anzahl_exporter;
+	short anzahl_dithermods;
 
-	char * *edit_modules;			/* Pfade fÅr bis zu 100 Edit-Module */
-	char * *edit_module_names;		/* Namen fÅr bis zu 100 Edit-Module */
-	char * *export_modules;			/* Pfade fÅr bis zu 100 Export-Module */
-	char * *export_module_names;	/* Namen fÅr bis zu 100 Export-Module */
+	char **edit_modules;			/* Pfade fÅr bis zu 100 Edit-Module */
+	char **edit_module_names;		/* Namen fÅr bis zu 100 Edit-Module */
+	char **export_modules;			/* Pfade fÅr bis zu 100 Export-Module */
+	char **export_module_names;		/* Namen fÅr bis zu 100 Export-Module */
 
-	char * *export_cnfblock;		/* Konfigurationsblîcke fÅr die Exporter */
+	char **export_cnfblock;			/* Konfigurationsblîcke fÅr die Exporter */
 	short *export_cnflen;			/* LÑnge des jeweiligen Blockes */
 
-	int *mouse_xpos,*mouse_ypos,*mouse_button,*klicks,
-		*obj,*key_scancode,*key_ascii,*key_at_event;
+	WORD *mouse_xpos;
+	WORD *mouse_ypos;
+	WORD *mouse_button;
+	WORD *klicks;
+	WORD *obj;
+	WORD *key_scancode;
+	WORD *key_ascii;
+	WORD *key_at_event;
 } SMURF_VARIABLES;
 
 

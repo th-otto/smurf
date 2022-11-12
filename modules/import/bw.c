@@ -65,7 +65,7 @@ typedef unsigned long ulong;
 /*		BW Format (by Sage) 				.B_W	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *smbuffer;
 	unsigned int x, y, defekt=0;

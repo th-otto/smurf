@@ -60,8 +60,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
 void decode_1bpc(char *ziel, char *buffer, unsigned int width, unsigned int height, unsigned long *table, char Planes, char comp);
 void decode_2bpc(char *ziel, unsigned int *buffer, unsigned int width, unsigned int height, unsigned long *table, char Planes, char comp);
@@ -108,7 +108,7 @@ MOD_INFO module_info = {"SGI-Format",
 /*		ohne Komprimierung/RLE						*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-int imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer, *ziel,
 		 comp, Planes, BitsPerPixel, ColorMap, Bpc;

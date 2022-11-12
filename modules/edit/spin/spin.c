@@ -39,10 +39,10 @@
 
 #include "spin90.rsh"
 
-void *(*SMalloc)(long amount);
-int	(*SMfree)(void *ptr);
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
 
-int (*popup)(POP_UP *popup_struct, int mouseflag, int button, OBJECT *poptree);
+WORD (*popup)(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree);
 
 MOD_INFO module_info = {"Drehen 90ø",
 						0x0020,
