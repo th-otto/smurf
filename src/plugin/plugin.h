@@ -167,7 +167,7 @@ typedef struct
 	/*
 	*	Dateihandling mit Fileselector 
 	*/
-	int		(*file_save)(char *stext, char *buf, long length);
+	int		(*file_save)(char *stext, uint8_t *buf, long length);
 	void	(*file_load)(char *ltext, char **dateien, int mode);
 	int		(*f_fsbox)(char *Path, char *fbtext, char selectart);
 	char *	(*fload)(char *Path, int header);

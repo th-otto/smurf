@@ -48,17 +48,20 @@ static char modname[25];
 
 /* Standardpaletten im VDI-Format fr TC-Iconwandlung */
 #if 0									/* unused */
-static char stdpal1bit[] = { 0xff, 0xff, 0xff,
+static char stdpal1bit[] = {
+	0xff, 0xff, 0xff,
 	0x00, 0x00, 0x00
 };
 
-static char stdpal2bit[] = { 0xff, 0xff, 0xff,
+static char stdpal2bit[] = {
+	0xff, 0xff, 0xff,
 	0xff, 0x00, 0x00,
 	0x00, 0xff, 0x00,
 	0x00, 0x00, 0x00
 };
 #endif
-static char stdpal4bit[] = { 0xff, 0xff, 0xff,
+static char stdpal4bit[] = {
+	0xff, 0xff, 0xff,
 	0xff, 0x00, 0x00,
 	0x00, 0xff, 0x00,
 	0xff, 0xff, 0x00,
@@ -80,17 +83,16 @@ static char stdpal4bit[] = { 0xff, 0xff, 0xff,
 /*-----------------------------------------------------------------	*/
 /* 				Startfunktion fr Import-Modul						*/
 /*-----------------------------------------------------------------	*/
-short start_imp_module(char *modpath, SMURF_PIC * imp_pic)
+short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 {
 	char *textseg_begin;
 	long mod_magic;
-
-	short (*module_main)(GARGAMEL * smurf_struct);
+	short (*module_main)(GARGAMEL *smurf_struct);
 	short module_return;
-	int back;
+	short back;
 	long ProcLen;
-	long temp,
-	 lback;
+	long temp;
+	long lback;
 	char alstring[80];
 
 	BASPAG *mod_basepage;
@@ -112,7 +114,7 @@ short start_imp_module(char *modpath, SMURF_PIC * imp_pic)
 
 		mod_magic = get_modmagic(mod_basepage);	/* Zeiger auf Magic (muž MOD_MAGIC_IMPORT sein!) */
 		if (mod_magic != MOD_MAGIC_IMPORT)
-			return (M_MODERR);
+			return M_MODERR;
 
 		/* L„nge des gesamten Tochterprozesses ermitteln */
 		ProcLen = get_proclen(mod_basepage);
@@ -145,23 +147,21 @@ short start_imp_module(char *modpath, SMURF_PIC * imp_pic)
 		SMfree(mod_basepage);			/* Modul-Basepage freigeben */
 	}
 
-	return (module_return);
+	return module_return;
 }
 
 
 /*-----------------------------------------------------------------	*/
 /* 				Startfunktion fr Edit-Modul						*/
 /*-----------------------------------------------------------------	*/
-BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, short mode, short mod_id, GARGAMEL * sm_struct)
+BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, short mod_id, GARGAMEL *sm_struct)
 {
-	void (*module_main)(GARGAMEL * smurf_struct);
+	void (*module_main)(GARGAMEL *smurf_struct);
 	char *textseg_begin;
-
-	int back;
-
+	short back;
 	long ProcLen;
-	long temp,
-	 lback;
+	long temp;
+	long lback;
 	long mod_magic;
 
 	MOD_ABILITY *mod_abs;
@@ -180,7 +180,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, short mode, sho
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 			sm_struct->module_mode = M_STARTERR;
-			return (NULL);
+			return NULL;
 		} else
 		{
 			edit_basepage = (BASPAG *) temp;
@@ -189,7 +189,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, short mode, sho
 			if (mod_magic != MOD_MAGIC_EDIT)
 			{
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
-				return (NULL);
+				return NULL;
 			}
 
 			/* L„nge des gesamten Tochterprozesses ermitteln */
@@ -243,7 +243,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, short mode, sho
 			if (mode == MEXEC)
 				graf_mouse(BUSYBEE, dummy_ptr);
 
-			module_main = (void (*)(GARGAMEL * smurf_struct)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+			module_main = (void (*)(GARGAMEL *smurf_struct)) (textseg_begin + MAIN_FUNCTION_OFFSET);
 			module_main(sm_struct);
 
 			graf_mouse(ARROW, dummy_ptr);
@@ -257,30 +257,25 @@ BASPAG *start_edit_module(char *modpath, BASPAG * edit_basepage, short mode, sho
 		}
 	}
 
-	return (edit_basepage);
+	return edit_basepage;
 }
 
 
 /*-----------------------------------------------------------------	*/
 /* 				Startfunktion fr Export-Modul						*/
 /*-----------------------------------------------------------------	*/
-EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC * pic_to_export, BASPAG * exbase,
-							 GARGAMEL * sm_struct, short module_number)
+EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, short module_number)
 {
 	char *textseg_begin;
-
-	int back;
-
+	short back;
 	long ProcLen;
-	long temp,
-	 lback;
+	long temp;
+	long lback;
 	long mod_magic;
-
 	MOD_ABILITY *mod_abs;
 	EXPORT_PIC *encoded_pic;
-	EXPORT_PIC *(*export_module_main)(GARGAMEL * smurf_struct);
+	EXPORT_PIC *(*export_module_main)(GARGAMEL *smurf_struct);
 	BASPAG *export_basepage;
-
 
 	export_basepage = (BASPAG *) exbase;
 
@@ -294,7 +289,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC * pic_to_ex
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 			sm_struct->module_mode = M_MODERR;
-			return (NULL);
+			return NULL;
 		} else
 		{
 			export_basepage = (BASPAG *) temp;
@@ -303,7 +298,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC * pic_to_ex
 			if (mod_magic != MOD_MAGIC_EXPORT)
 			{
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
-				return (NULL);
+				return NULL;
 			}
 
 			/* L„nge des gesamten Tochterprozesses ermitteln */
@@ -315,7 +310,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC * pic_to_ex
 			export_basepage->p_hitpa = (void *) ((char *) export_basepage + ProcLen);
 
 			lback = Pexec(4, 0L, (char *) export_basepage, 0L);
-			if (lback < 0L)
+			if (lback < 0)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 		}
 	}
@@ -353,7 +348,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC * pic_to_ex
 			if (message == MEXEC)
 				graf_mouse(BUSYBEE, dummy_ptr);
 
-			export_module_main = (EXPORT_PIC * (*)())(textseg_begin + MAIN_FUNCTION_OFFSET);	/* Main-Funktion holen...   */
+			export_module_main = (EXPORT_PIC *(*)(GARGAMEL *))(textseg_begin + MAIN_FUNCTION_OFFSET);	/* Main-Funktion holen...   */
 			encoded_pic = export_module_main(sm_struct);	/* ...und aufrufen  */
 
 			graf_mouse(ARROW, dummy_ptr);
@@ -370,19 +365,17 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC * pic_to_ex
 	if (sm_struct->module_mode == M_WAITING)
 		return (EXPORT_PIC *) export_basepage;
 	else
-		return (encoded_pic);
+		return encoded_pic;
 }
 
 
 /*	-----------------------------------------------------------	*/
 /*					Modulevent bearbeiten						*/
 /*	-----------------------------------------------------------	*/
-short handle_modevent(short event_type, WINDOW * mod_window)
+short handle_modevent(short event_type, WINDOW *mod_window)
 {
-	int which_object;
-
+	WORD which_object;
 	OBJECT *mod_resource;
-
 
 	if (event_type & MU_BUTTON)
 	{
@@ -415,10 +408,10 @@ short handle_modevent(short event_type, WINDOW * mod_window)
 		if (which_object != -1 && mod_resource[which_object].ob_flags & OF_RBUTTON)
 			Window.topNow(mod_window);
 
-		return (which_object);
+		return which_object;
 	}
 
-	return (0);
+	return 0;
 }
 
 
@@ -426,14 +419,12 @@ short handle_modevent(short event_type, WINDOW * mod_window)
 /*				Handler fr EDIT-MODUL-MESSAGES					*/
 /*	Diese MSGs kommen normalerweise als Reaktion auf MBEVT		*/
 /*	-----------------------------------------------------------	*/
-void f_handle_modmessage(GARGAMEL * smurf_struct)
+void f_handle_modmessage(GARGAMEL *smurf_struct)
 {
 	char *textseg_begin;
-
-	int message;
-	int back,
-	 mod_num;
-
+	short message;
+	short back;
+	short mod_num;
 	WINDOW *window_to_handle;
 	DISPLAY_MODES thisDisplay;
 	BASPAG *bsp;
@@ -462,7 +453,7 @@ void f_handle_modmessage(GARGAMEL * smurf_struct)
 		}
 		back = f_dither(smurf_struct->wind_struct->picture, &Sys_info, 0, NULL, &thisDisplay);
 		if (back != 0)
-			Dialog.winAlert.openAlert("Fehler beim Dithern des Previews!", NULL, NULL, NULL, 1);
+			Dialog.winAlert.openAlert("Fehler beim Dithern des Previews!", NULL, NULL, NULL, 1); /* FIXME: translate */
 
 		/* jetzt dem Modul sagen, daž fertig gedietert ist. */
 		module.comm.start_edit_module("", module.bp[mod_num], MDITHER_READY, 0, smurf_struct);
@@ -534,7 +525,7 @@ void f_handle_modmessage(GARGAMEL * smurf_struct)
 short analyze_message(short module_ret, short picture_to_load)
 {
 	char alertstr[40];
-	int picerror = 0;
+	short picerror = 0;
 
 	switch (module_ret)
 	{
@@ -629,7 +620,7 @@ short analyze_message(short module_ret, short picture_to_load)
 		break;
 	}
 
-	return (picerror);
+	return picerror;
 }
 
 
@@ -638,15 +629,11 @@ short analyze_message(short module_ret, short picture_to_load)
 /* ----- Fenster fr Modul ”ffnen	--------------------------*/
 /* -----------------------------------------------------------*/
 /*------------------------------------------------------------*/
-short f_open_module_window(WINDOW * module_window)
+short f_open_module_window(WINDOW *module_window)
 {
-	int m_whandle;
-	int m_wind_x,
-	 m_wind_y,
-	 m_wind_w,
-	 m_wind_h;
-	int flags;
-
+	WORD m_whandle;
+	WORD m_wind_x, m_wind_y, m_wind_w, m_wind_h;
+	WORD flags;
 
 	module_window->pflag = 0;
 
@@ -679,7 +666,7 @@ short f_open_module_window(WINDOW * module_window)
 		if (module_window->whandlem < 0)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MODULE_WINDERR].TextCast, NULL, NULL, NULL, 1);
-			return (-1);
+			return -1;
 		}
 
 		if (Sys_info.OSFeatures & BEVT)
@@ -708,17 +695,16 @@ short f_open_module_window(WINDOW * module_window)
 
 	f_set_syspal();
 
-	return (0);
+	return 0;
 }
 
 
 /* --------------------------------------------------------------------------------	*/
 /*	Ermittelt ID fr freies Modul und gibt diese oder -1 (keins mehr frei) zurck	*/
 /* --------------------------------------------------------------------------------	*/
-int give_free_module(void)
+short give_free_module(void)
 {
-	int mod_num;
-
+	short mod_num;
 
 	/* freie Modulstruktur ermitteln */
 	mod_num = 0;
@@ -727,9 +713,9 @@ int give_free_module(void)
 	if (mod_num > 20)
 	{
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MORE_MODULES].TextCast, NULL, NULL, NULL, 1);
-		return (-1);
-	} else
-		return (mod_num);
+		return -1;
+	}
+	return mod_num;
 }
 
 
@@ -760,11 +746,11 @@ void check_and_terminate(short mode, short module_number)
 /*	mode = Message ans Modul										*/
 /*	mod_id = Nummer des Dithermoduls (index auf BASPAG-Array)		*/
 /*-----------------------------------------------------------------	*/
-BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA * ditherdata)
+BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA *ditherdata)
 {
 	char *textseg_begin;
 
-	short (*module_main)(DITHER_DATA * smurf_struct);
+	short (*module_main)(DITHER_DATA *smurf_struct);
 
 	BASPAG *dither_basepage;
 
@@ -788,10 +774,10 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA * ditherdata)
 			module_main(ditherdata);
 
 		if (mode == MQUERY)
-			return (dither_basepage);
+			return dither_basepage;
 	}
 
-	return (dither_basepage);
+	return dither_basepage;
 }
 
 
@@ -800,12 +786,10 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA * ditherdata)
 /*	Durchl„uft rekursiv einen Objektbaum (Modulresource) und initialisiert	*/
 /*	die darin enthaltenen Farbicons mit init_modtree();						*/
 /* ------------------------------------------------------------------------	*/
-void walk_module_tree(WINDOW * wind, WORD start)
+void walk_module_tree(WINDOW *wind, WORD start)
 {
-	int index = 0;
-
+	WORD index;
 	OBJECT *tree;
-
 
 	tree = wind->resource_form;
 
@@ -843,10 +827,10 @@ void walk_module_tree(WINDOW * wind, WORD start)
 /*	Diese wird dann direkt bei tree[index].ob_spec.iconblk->mainlist		*/
 /*	eingeh„ngt, damit das AES sie zuallererst findet.						*/
 /*------------------------------------------------------------------------	*/
-void init_modtree(OBJECT * tree, WORD index)
+void init_modtree(OBJECT *tree, WORD index)
 {
-	CICON *img,
-	*best_img;
+	CICON *img;
+	CICON *best_img;
 
 #if 0
 	/* nur unter MagiC n”tig */
@@ -892,27 +876,20 @@ void init_modtree(OBJECT * tree, WORD index)
 	Format, weil die Icons in den Modul-RSHs nicht von rsrc_load gewandelt 
 	werden k”nnen. Nur unter nicht MagiC-Systemen n”tig!
 	---------------------------------------------------------------------*/
-void convert_icon(OBJECT * tree, WORD index)
+void convert_icon(OBJECT *tree, WORD index)
 {
-	char *pixbuf,
-	*line,
-	 get,
-	 set;
-
+	uint8_t *pixbuf;
+	uint8_t *line;
+	uint8_t get;
+	uint8_t set;
 	WORD *imgdata;
 	WORD **img_data[2];
-	int t,
-	 icon_bitplanes,
-	 icon_w,
-	 icon_w16,
-	 icon_h,
-	 x,
-	 y;
-
+	short t;
+	WORD icon_bitplanes;
+	WORD icon_w, icon_w16, icon_h, x, y;
 	long icon_planelength;
-
-	MFDB icon_data,
-	 dest_data;
+	MFDB icon_data;
+	MFDB dest_data;
 	CICONBLK *ciconblk;
 	SMURF_PIC smpic;
 
@@ -930,7 +907,7 @@ void convert_icon(OBJECT * tree, WORD index)
 	icon_w = ciconblk->monoblk.ib_wicon;
 	icon_w16 = (icon_w + 15) / 16;
 	icon_h = ciconblk->monoblk.ib_hicon;
-	icon_planelength = (long) icon_w16 *2L * (long) icon_h;
+	icon_planelength = (long) icon_w16 * 2L * (long) icon_h;
 
 	for (t = 0; t < 2; t++)
 	{
@@ -957,8 +934,8 @@ void convert_icon(OBJECT * tree, WORD index)
 					y = 0;
 					do
 					{
-						memset(pixbuf, 0x0, icon_w);
-						getpix_std_line((char *) imgdata, pixbuf, icon_bitplanes, icon_planelength, icon_w);
+						memset(pixbuf, 0, icon_w);
+						getpix_std_line((uint8_t *) imgdata, pixbuf, icon_bitplanes, icon_planelength, icon_w);
 						line = pixbuf;
 
 						x = 0;
@@ -970,10 +947,7 @@ void convert_icon(OBJECT * tree, WORD index)
 							line++;
 						} while (++x < icon_w);
 
-						imgdata =
-							(WORD *) ((char *) imgdata +
-									  setpix_std_line(pixbuf, (char *) imgdata, icon_bitplanes, icon_planelength,
-													  icon_w));
+						imgdata = (WORD *) ((char *) imgdata + setpix_std_line(pixbuf, (uint8_t *) imgdata, icon_bitplanes, icon_planelength, icon_w));
 					} while (++y < icon_h);
 
 					SMfree(pixbuf);
@@ -1026,16 +1000,13 @@ void convert_icon(OBJECT * tree, WORD index)
 /*	Dienstfunktion, die es einem Edit-Modul erm”glicht, seine Bilder (wenn	*/
 /*	mehrere) ohne den Umweg ber die Message zu holen.						*/
 /*------------------------------------------------------------------------	*/
-SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO * mod_info, WORD depth, short form, short col)
+SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short form, short col)
 {
 	char alertstr[128];
-
-	int piccol,
-	 back;
-
+	WORD piccol;
+	short back;
 	SMURF_PIC *current_pic;
 	MOD_ABILITY new_mod;
-
 
 	current_pic = smurf_picture[module_pics[mod_id][num]];
 
@@ -1054,10 +1025,10 @@ SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO * mod_info, WORD depth, shor
 		else if (num == 5)
 			strcpy(alertstr, mod_info->pic_descr6);
 
-		strcat(alertstr, " wird noch ben”tigt!");
+		strcat(alertstr, " wird noch ben”tigt!"); /* FIXME: translate */
 		Dialog.winAlert.openAlert(alertstr, NULL, NULL, NULL, 1);
 
-		return (NULL);
+		return NULL;
 	} else
 	{
 		memset(&new_mod, 0x0, sizeof(MOD_ABILITY));
@@ -1067,10 +1038,10 @@ SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO * mod_info, WORD depth, shor
 
 		back = f_convert(current_pic, &new_mod, piccol, SAME, 0);
 		if (back != 0)
-			return (NULL);
+			return NULL;
 	}
 
-	return (current_pic);
+	return current_pic;
 }
 
 
@@ -1084,11 +1055,9 @@ SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO * mod_info, WORD depth, shor
 short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 {
 	char alertstr[257];
-
-	int t,
-	 back;
-	int piccol;
-
+	short t;
+	short back;
+	WORD piccol;
 	MOD_ABILITY new_mod;
 	SMURF_PIC *current_pic;
 
@@ -1120,11 +1089,11 @@ short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 				else if (t == 5)
 					strcpy(alertstr, mod_info->pic_descr6);
 
-				strcat(alertstr,
-					   " muž noch zugewiesen werden! Ziehen Sie das gewnschte Bild aus dem Bildmanager auf das Modul");
+				/* FIXME: translate */
+				strcat(alertstr, " muž noch zugewiesen werden! Ziehen Sie das gewnschte Bild aus dem Bildmanager auf das Modul");
 				Dialog.winAlert.openAlert(alertstr, NULL, NULL, NULL, 1);
 
-				return (-1);
+				return -1;
 			} else
 			{
 				memset(&new_mod, 0x0, sizeof(MOD_ABILITY));
@@ -1133,7 +1102,7 @@ short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 				piccol = module.smStruct[module_number]->event_par[2];
 				back = f_convert(current_pic, &new_mod, piccol, SAME, 0);
 				if (back != 0)
-					return (back);
+					return back;
 				module.smStruct[module_number]->smurf_pic = current_pic;
 				module.smStruct[module_number]->event_par[0] = t;
 				module.comm.start_edit_module(edit_modules[module_number], module.bp[module_number], MPICTURE, module_number, module.smStruct[module_number]);
@@ -1141,7 +1110,7 @@ short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 		}
 	}
 
-	return (0);
+	return 0;
 }
 
 
@@ -1151,9 +1120,9 @@ short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 	Das Bild *picture wird in der Kommunikationsstruktur des Moduls 
 	mitgeschickt.
 	----------------------------------------------------------------------*/
-short inform_modules(short message, SMURF_PIC * picture)
+short inform_modules(short message, SMURF_PIC *picture)
 {
-	int t;
+	short t;
 	long mod_magic;
 	BASPAG *curr_baspag;
 
@@ -1191,20 +1160,19 @@ short inform_modules(short message, SMURF_PIC * picture)
 		}
 	}
 
-	return (0);
+	return 0;
 }
 
 
 /* get_proclen -------------------------------------------------
 	Ermittelt die Gesamtl„nge des Prozesses mit der Basepage baspag.
 	----------------------------------------------------------------*/
-long get_proclen(BASPAG * baspag)
+long get_proclen(BASPAG *baspag)
 {
-	long TextLen,
-	 BSSLen,
-	 DataLen,
-	 ProcLen;
-
+	long TextLen;
+	long BSSLen;
+	long DataLen;
+	long ProcLen;
 
 	TextLen = baspag->p_tlen;
 	BSSLen = baspag->p_blen;
@@ -1212,19 +1180,19 @@ long get_proclen(BASPAG * baspag)
 	/* BASEPAGE + Textsegment + Datensegment + BSS + Stack */
 	ProcLen = sizeof(BASPAG) + TextLen + DataLen + BSSLen + 1024L;
 
-	return (ProcLen);
+	return ProcLen;
 }
 
 
 /* get_modmagic -------------------------------------------------
 	Ermittelt das Magic eines Moduls (4 Bytes) und gibt dieses zurck.
 	----------------------------------------------------------------*/
-long get_modmagic(BASPAG * basepage)
+long get_modmagic(BASPAG *basepage)
 {
 	char *textseg_begin;
 
 	if (basepage == NULL)
-		return (0L);
+		return 0;
 
 	textseg_begin = basepage->p_tbase;
 	return (*((long *) (textseg_begin + MAGIC_OFFSET)));
@@ -1240,7 +1208,7 @@ long get_modmagic(BASPAG * basepage)
 	----------------------------------------------------------------*/
 void AESmsg_to_modules(WORD *msgbuf)
 {
-	int t;
+	short t;
 	long magic;
 	BASPAG *curr_bp;
 
@@ -1290,27 +1258,22 @@ void AESmsg_to_modules(WORD *msgbuf)
 /* ------------------------------------------------------------------------	*/
 /*								Preview erzeugen							*/
 /* ------------------------------------------------------------------------	*/
-void make_modpreview(WINDOW * wind)
+void make_modpreview(WINDOW *wind)
 {
 	char *textbeg;
-
-	int mod_num,
-	 t,
-	 w,
-	 h,
-	 picnum,
-	 mod_index,
-	 piccol;
-
-	long PicLen,
-	 Awidth;
-
-	SMURF_PIC *source_pic,
-	*add_pix[7];
-	MOD_ABILITY *mod_abs,
-	 new_mod;
+	short mod_num;
+	short t;
+	WORD w, h;
+	short picnum;
+	short mod_index;
+	short piccol;
+	long PicLen;
+	long Awidth;
+	SMURF_PIC *source_pic;
+	SMURF_PIC *add_pix[7];
+	MOD_ABILITY *mod_abs;
+	MOD_ABILITY new_mod;
 	MOD_INFO *mod_inf;
-
 	DISPLAY_MODES thisDisplay;
 
 	mod_num = wind->module;
@@ -1328,6 +1291,7 @@ void make_modpreview(WINDOW * wind)
 
 		if (mod_inf->how_many_pix > 1 && picture_windows[picnum].whandlem == -1)
 		{
+			/* FIXME: translate */
 			strcpy(alertstr, "Das Modul braucht ");
 			strncat(alertstr, itoa(mod_inf->how_many_pix, helpstr, 10), 4);
 			strcat(alertstr, " Bilder!");
@@ -1386,6 +1350,7 @@ void make_modpreview(WINDOW * wind)
 				picnum = module_pics[mod_index][t];
 				if (picture_windows[picnum].whandlem == -1)
 				{
+					/* FIXME: translate */
 					Dialog.winAlert.openAlert("Fehler: zu verwendendes Bild nicht zugewiesen!", NULL, NULL, NULL, 1);
 					return;
 				}

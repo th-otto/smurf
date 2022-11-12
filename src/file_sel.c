@@ -177,7 +177,7 @@ void file_load(char *ltext, char **dateien, int mode)
 }
 
 
-int file_save(char *stext, char *buf, long length)
+int file_save(char *stext, uint8_t *buf, long length)
 {
 	char desk_name[9];
 	int fh;

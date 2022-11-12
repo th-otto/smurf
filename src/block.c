@@ -1782,7 +1782,7 @@ int save_block(EXPORT_PIC *pic_to_save, const char *path)
 {
 	char *dest_pic;
 	char clipexp_path[256];
-	WORD ap_buf[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	WORD ap_buf[8];
 	int fhandle;
 	WORD ok;
 	WORD dummy2;
@@ -1825,21 +1825,19 @@ int save_block(EXPORT_PIC *pic_to_save, const char *path)
 				ap_buf[1] = Sys_info.app_id;
 				ap_buf[2] = 0;
 				ap_buf[3] = 0x0008;
-				*(char **) &ap_buf[4] = ".IMG";
+				*((int32_t *) &ap_buf[4]) = 0x2e494d57L; /* '.IMG' */
 				ap_buf[6] = 0;
 				ap_buf[7] = 0;
 
-				shel_write(SHW_BROADCAST, 0, 0, (char *) ap_buf, NULL);
+				shel_write(SHW_BROADCAST, 0, 0, (void *) ap_buf, NULL);
 			}
 		}
 		Fclose(fhandle);
 	}
 
   set_free:
-	if (Mfree(pic_to_save->pic_data) != 0)
-		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EXP_MFREE_ERR].TextCast, NULL, NULL, NULL, 1);
-	if (Mfree(pic_to_save) != 0)
-		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EXP_MFREE_ERR].TextCast, NULL, NULL, NULL, 1);
+	SMfree(pic_to_save->pic_data);
+	SMfree(pic_to_save);
 
 	return 0;
 }

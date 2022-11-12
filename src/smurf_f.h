@@ -41,7 +41,7 @@
 
 /* Dateihandling mit Fileselector */
 void file_load(char *ltext, char **dateien, int mode);
-int file_save(char *stext, char *buf, long length);
+int file_save(char *stext, uint8_t *buf, long length);
 int f_fsbox(char *Path, char *fbtext, char selectart);
 
 /*  File laden */
@@ -248,7 +248,7 @@ short handle_modevent(short event_type, WINDOW *mod_window);    /* Handling eine
 void f_handle_modmessage(GARGAMEL *smurf_struct);
 short analyze_message(short module_ret, short picture_to_load);   /* Analyse eines Modul-Returns */
 short f_open_module_window(WINDOW *module_window);        /* Modulfenster îffnen */
-int give_free_module(void);     /* Ermittelt Strukturindex fÅr freies Modul und gibt diesen zurÅck */
+short give_free_module(void);     /* Ermittelt Strukturindex fÅr freies Modul und gibt diesen zurÅck */
 void check_and_terminate(short mode, short module_number);
 void walk_module_tree(WINDOW *wind, WORD start);
 void init_modtree(OBJECT *tree, WORD index);

@@ -257,19 +257,17 @@ void f_export_pic(void)
 			 * Dann kann sich das Modul initialisieren, z.B. Rsrc-fix u.„.
 			 */
 			module.smStruct[exp_conf.export_mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
-			memset(module.smStruct[exp_conf.export_mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
+			memset(module.smStruct[exp_conf.export_mod_num & 0xFF], 0, sizeof(GARGAMEL));
 
 			if (export_cnfblock[mod_index] == NULL)
 			{
 				export_cnflen[mod_index] = 0;
-				export_cnfblock[mod_index] =
-					load_from_modconf(modinfo, "", &export_cnflen[mod_index], MOD_MAGIC_EXPORT);
+				export_cnfblock[mod_index] = load_from_modconf(modinfo, "", &export_cnflen[mod_index], MOD_MAGIC_EXPORT);
 			}
 
 			if (export_cnfblock[mod_index] != NULL)
 			{
-				*((long *) module.smStruct[exp_conf.export_mod_num & 0xFF]->event_par) =
-					(long) export_cnfblock[mod_index];
+				*((char **) module.smStruct[exp_conf.export_mod_num & 0xFF]->event_par) = export_cnfblock[mod_index];
 				module.smStruct[exp_conf.export_mod_num & 0xFF]->event_par[2] = export_cnflen[mod_index];
 			}
 
@@ -426,7 +424,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	char module_name[30];
 	char *txtbeg;
 	char titleString[64];
-	char *picture;
+	uint8_t *picture;
 	short max_expdepth;
 	short dest_format;
 	short ext_number;
@@ -590,10 +588,10 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 		strncat(savepath, expext, 4);	/* neuen Extender an Filenamen ohne Extender h„ngen */
 	}
 
+	/* FIXME: translate */
 	Dialog.busy.reset(0, "codiere Bild...");
 
-	pic_to_save =
-		module.comm.start_exp_module(export_path, MEXEC, converted_pic, exp_bp, exp_gstruct, exp_conf.export_mod_num);
+	pic_to_save = module.comm.start_exp_module(export_path, MEXEC, converted_pic, exp_bp, exp_gstruct, exp_conf.export_mod_num);
 
 	saved_window = &picture_windows[active_pic];
 
@@ -607,7 +605,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 		strcpy(savepath, savepathback);
 	} else if (exp_gstruct->module_mode == M_DONEEXIT)
 	{
-		picture = (char *) pic_to_save->pic_data;
+		picture = pic_to_save->pic_data;
 		len = pic_to_save->f_len;
 		f_set_syspal();
 		Dialog.busy.reset(0, "speichere Bild...");
