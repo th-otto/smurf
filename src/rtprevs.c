@@ -50,10 +50,10 @@
  * werden mu.
  */
 
-SMURF_PIC *previewBlock(SMURF_PIC * picture, GRECT * blockpart)
+SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart)
 {
-	SMURF_PIC *picArea,
-	*blockArea;
+	SMURF_PIC *picArea;
+	SMURF_PIC *blockArea;
 	SMURF_PIC picCopy;
 	WINDOW dummyPicwindow;
 
@@ -102,5 +102,5 @@ SMURF_PIC *previewBlock(SMURF_PIC * picture, GRECT * blockpart)
 	SMfree(blockArea->pic_data);
 	SMfree(blockArea);
 
-	return (picArea);					/* und picArea an draw_block zurckgeben. */
+	return picArea;					/* und picArea an draw_block zurckgeben. */
 }
