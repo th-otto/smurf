@@ -281,7 +281,7 @@ extern OBJECT *modconf_popup;
 
 void *mconfLoad(MOD_INFO *modinfo, short mod_id, char *name);
 void mconfSave(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
-void *load_from_modconf(MOD_INFO *modinfo, char *name, int *num, long type);
+void *load_from_modconf(MOD_INFO *modinfo, char *name, short *num, long type);
 void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct);
 void memorize_expmodConfig(BASPAG *modbase, GARGAMEL *smurf_struct, char save);
 void transmitConfig(BASPAG *modbase, GARGAMEL *smurf_struct);
@@ -426,7 +426,7 @@ extern char planetable[260];
 extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
 extern char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
 extern char *export_cnfblock[50];		/* Konfigurationsblîcke fÅr die Exporter */
-extern int export_cnflen[50];			/* LÑnge des jeweiligen Blockes */
+extern short export_cnflen[50];			/* LÑnge des jeweiligen Blockes */
 
 extern CROSSHAIR position_markers[20];	/* Positionsmarker fÅr die Editmodule */
 extern char *picnames[100];				/* BILDMANAGER: Namen fÅr bis zu 100 Bilder */

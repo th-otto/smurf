@@ -175,7 +175,7 @@ char *edit_modules[100];				/* Pfade fÅr bis zu 100 Edit-Module */
 char *export_modules[100];				/* Pfade fÅr bis zu 100 Export-Module */
 
 char *export_cnfblock[50];				/* Konfigurationsblîcke fÅr die Exporter */
-int export_cnflen[50];					/* LÑnge des jeweiligen Blockes */
+short export_cnflen[50];				/* LÑnge des jeweiligen Blockes */
 
 CROSSHAIR position_markers[20];			/* Positionsmarker fÅr die Editmodule */
 

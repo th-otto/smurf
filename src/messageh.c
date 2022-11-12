@@ -655,7 +655,7 @@ WORD f_handle_message(void)
 								break;
 						}
 
-						*((long *) module.smStruct[module_num & 0xFF]->event_par) = (long) export_cnfblock[t];
+						*((char **) module.smStruct[module_num & 0xFF]->event_par) = export_cnfblock[t];
 						module.smStruct[module_num & 0xFF]->event_par[2] = export_cnflen[t];
 						module.comm.startExport("", MMORECANC, smurf_picture[active_pic], module.bp[module_num & 0xFF], module.smStruct[module_num & 0xFF], module_num);
 						window_to_handle->module = 0;

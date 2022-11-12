@@ -77,15 +77,6 @@
 #define SEEKBUF_SIZE 2048
 
 
-static long Idxtab(unsigned char *s1, unsigned char *s2, long len);
-static void save_to_modconf(MOD_INFO * modinfo, void *confblock, long len, char *name, long type);
-static int open_modconf_popup(MOD_INFO * modinfo);
-static long seek_modconf(int filehandle, MOD_INFO * modinfo);
-static void expandFile(int handle, long len);
-static int overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char *name, int num, long type);
-static long seekInFile(int filehandle, char *SeekString);
-static int nametest(MOD_INFO * modinfo, char *name);
-
 OBJECT *confsave_dialog;
 OBJECT *modconf_popup;
 
@@ -94,118 +85,117 @@ OBJECT *modconf_popup;
  * die Default-Konfigurationen fÅr die Editmodule
  */
 void *edit_cnfblock[100];
-static int edit_cnflen[100];
+static short edit_cnflen[100];
 
 
-/* mconfLoad --------------------------------------------
-	ôffnet das Pseudopopup und lÑdt eine Konfiguration. Diese wird
-	an das Modul zurÅckgegeben.
-	------------------------------------------------------*/
-void *mconfLoad(MOD_INFO * modinfo, short mod_id, char *name)
+/* Schnelle Suchroutine nach Boyer-Moore */
+/* implementiert 24.5.95 - 10.6.95 von Christian Eyrich */
+/* sucht m in n */
+static long Idxtab(unsigned char *n, unsigned char *m, long len)
 {
-	char cnfname[33];
+	unsigned char skiptab[256];
+	short t;
+	short lenofm;
+	short lenofm2;
+	short j;
+	long i;
+	long lenofn = len;
 
-	int back;
+	lenofm = strlen(m);
+	lenofm2 = lenofm - 1;
 
-	void *block = NULL;
+	for (i = 0; i < 256; i++)			/* initialisieren der Tabelle */
+		skiptab[i] = lenofm;			/* mit der LÑnge des Suchstrings */
 
-	(void) mod_id;
-	(void) name;
+	for (i = 0; i < lenofm; i++)
+		skiptab[m[i]] = lenofm - i - 1;
 
-	modconf_popup[NEW_CONF].ob_state |= OS_DISABLED;
-	back = open_modconf_popup(modinfo);	/* erstmal das Popup auf */
-	modconf_popup[NEW_CONF].ob_state &= ~OS_DISABLED;
-	if (back <= 0)
-		return (NULL);
-
-	if (back == NEW_CONF)
-		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_NOCONF].TextCast, NULL, NULL, NULL, 1);
-	else
+	/* die eigentliche Suchroutine */
+	for (i = j = lenofm2; j > 0; i--, j--)
 	{
-		strcpy(cnfname, modconf_popup[back].TextCast);
-		block = load_from_modconf(modinfo, cnfname, &back, MOD_MAGIC_EDIT);
+		while (n[i] != m[j] && i < lenofn)
+		{
+			t = skiptab[n[i]];
+			i += (lenofm - j > t) ? lenofm - j : t;
+			j = lenofm2;
+		}
+
+		if (i > lenofn)					/* wurde nichts gefunden */
+			return -1;				/* wird -1 zurÅckgegeben */
 	}
 
-	return (block);
+	return i;							/* wurde die Routine fÅndig, */
+}										/* wird die Fundstelle zurÅckgegeben */
+
+
+/* seekInFile --------------------------------------------------------------
+	Sucht den String SeekString in der Datei filehandle ab der aktuellen
+	Position und gibt relativ zur Dateiposition beim Aufruf den Abstand des
+	gefundenen Strings in der Datei zurÅck, bzw. -1, wenn nix gefunden wurde.
+	-------------------------------------------------------------------------*/
+static long seekInFile(int filehandle, char *SeekString)
+{
+	char *seekbuffer;
+	long pos;
+	long filepos = 0;
+	long read_bytes;
+	long oldpos;
+	long seekLen;
+
+	seekLen = strlen(SeekString);
+	oldpos = Fseek(0, filehandle, 1);
+
+	/*
+	 * jetzt wird die Datei 2K-blockweise nach SeekString durchsucht
+	 */
+	seekbuffer = malloc(SEEKBUF_SIZE + 8);
+	memset(seekbuffer, 0x0, SEEKBUF_SIZE + 8);
+	filepos = 0;
+	do
+	{
+		read_bytes = Fread(filehandle, SEEKBUF_SIZE, seekbuffer);
+
+		if ((pos = Idxtab(seekbuffer, SeekString, SEEKBUF_SIZE)) != -1)	/* versuchen, SeekString zu finden */
+			break;
+
+		Fseek(-seekLen, filehandle, 1);	/* SeekLen zurÅck */
+		filepos += SEEKBUF_SIZE - seekLen;
+	} while (read_bytes == SEEKBUF_SIZE);
+
+	free(seekbuffer);
+
+	Fseek(oldpos, filehandle, 0);
+
+	if (pos != -1)
+		filepos += pos;
+	else
+		filepos = -1;
+
+	return filepos;
 }
 
 
-/* mconfSave --------------------------------------------
-	Die Dienstfunktion, die vom Modul aufgerufen wird.
-	ôffnet das Pseudopopup mit den Modulkonfigs und dann ggfs. den
-	Dialog zur Eingabe eines neuen Namens, dann wird die Konfig
-	in die MONDCONF.CNF gespeichert. ZurÅckgegeben wird ein Zeiger
-	auf den vom User eingegebenen Namen (max. 32 Zeichen).
-	------------------------------------------------------*/
-void mconfSave(MOD_INFO * modinfo, short mod_id, void *confblock, long len, char *name)
+/* seek_modconf -----------------------------------------------
+	Sucht eine MCA (Module Config Area, gekennzeichnet durch 'MCAB')
+	zum Modul modinfo in der Datei filehandle (MODCONF.CNF) und positioniert 
+	den Dateipointer auf das 'MCAB'.
+	ZurÅckgegeben wird die neue Position relativ zur alten vor dem Aufruf.
+	-------------------------------------------------------------*/
+static long seek_modconf(int filehandle, MOD_INFO * modinfo)
 {
-	char cnfname[33];
-
-	int back;
-	int x,
-	 y,
-	 w,
-	 h;
-
-	(void) mod_id;
-	(void) name;
-
-	back = open_modconf_popup(modinfo);	/* Erstmal das Popup auf */
-	if (back <= 0)
-		return;
+	char SeekString[128] = "MCAB";
+	long filepos;
 
 	/*
-	 * Es soll eine neue Konfiguration gesichert werden?
-	 * (-1 heiût, es gibt noch gar keine, also auf jeden Fall eine neue) 
+	 * Suchstring zusammenbasteln 
 	 */
-	if (back == NEW_CONF)
-	{
-	  again:
-		x = confsave_dialog->ob_x - 2;
-		y = confsave_dialog->ob_y - 2;
-		w = confsave_dialog->ob_width + 4;
-		h = confsave_dialog->ob_height + 4;
+	strcat(SeekString, modinfo->mod_name);
 
-		wind_update(BEG_UPDATE);
-		wind_update(BEG_MCTRL);
-		form_dial(FMD_START, x, y, w, h, x, y, w, h);
+	/* lossuchen, RÅckgabe ist -1 wenn nicht gefunden */
+	filepos = seekInFile(filehandle, SeekString);
+	Fseek(filepos, filehandle, 1);
 
-		/* damit das Feld leer ist und der Cursor vorne steht */
-		strcpy(confsave_dialog[MODCONF_NAME].TextCast, "");
-
-		do
-		{
-			objc_draw(confsave_dialog, 0, MAX_DEPTH, x, y, w, h);
-			back = form_do(confsave_dialog, MODCONF_NAME);
-			confsave_dialog[back].ob_state &= ~OS_SELECTED;
-		} while ((back != MODCONF_SAVE || strlen(confsave_dialog[MODCONF_NAME].TextCast) == 0) &&
-				 back != MODCONF_CANCEL);
-
-		form_dial(FMD_FINISH, x, y, w, h, x, y, w, h);
-		wind_update(END_MCTRL);
-		wind_update(END_UPDATE);
-
-
-		if (back == MODCONF_SAVE)
-		{
-			strcpy(cnfname, confsave_dialog[MODCONF_NAME].TextCast);
-
-			if (nametest(modinfo, cnfname))
-			{
-				back =
-					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_EXISTS].TextCast, "Nein", " Ja ", NULL, 1);
-				if (back == 1)			/* nicht Åberschreiben */
-					goto again;
-				else					/* Åberschreiben */
-					overwriteMCNF(modinfo, confblock, len, cnfname, 0, MOD_MAGIC_EDIT);
-			} else
-				save_to_modconf(modinfo, confblock, len, cnfname, MOD_MAGIC_EDIT);
-		}
-	} else
-	{
-		strcpy(cnfname, modconf_popup[back].TextCast);
-		overwriteMCNF(modinfo, confblock, len, cnfname, back, MOD_MAGIC_EDIT);
-	}
+	return filepos;
 }
 
 
@@ -216,32 +206,23 @@ void mconfSave(MOD_INFO * modinfo, short mod_id, void *confblock, long len, char
 	Eintrag zurÅck.
 	Scrolling im Popup muû noch gemacht werden!
 	----------------------------------------------------------------------*/
-static int open_modconf_popup(MOD_INFO * modinfo)
+static short open_modconf_popup(MOD_INFO * modinfo)
 {
 	char cnfpath[257];
-	char *omca,
-	*mca;
-
-	int x,
-	 y,
-	 w,
-	 h,
-	 back,
-	 t,
-	 mx,
-	 my,
-	 mb,
-	 key;
-	int mconf_index = 0;
-	int fhandle,
-	 num_confs;
-
+	char *omca;
+	char *mca;
+	WORD x, y, w, h;
+	WORD back;
+	short t;
+	WORD mx, my, mb, key;
+	short mconf_index = 0;
+	int fhandle;
+	short num_confs;
 	char **confnames;
-	long fback,
-	 mca_len,
-	 areaheader_pos,
-	 magic,
-	 len;
+	long mca_len;
+	long areaheader_pos;
+	long magic;
+	long len;
 
 	/*
 	 * Position des Dialogs festlegen
@@ -269,16 +250,15 @@ static int open_modconf_popup(MOD_INFO * modinfo)
 	 */
 	strcpy(cnfpath, Sys_info.home_path);
 	strcat(cnfpath, "\\modconf.cnf");
-	fback = Fopen(cnfpath, FO_RW);
-	if (fback < 0)
-		return (NEW_CONF);
+	fhandle = (int) Fopen(cnfpath, FO_RW);
+	if (fhandle < 0)
+		return NEW_CONF;
 
-	fhandle = (int) fback;
 	areaheader_pos = seek_modconf(fhandle, modinfo);
 	if (areaheader_pos == -1)
 	{
 		Fclose(fhandle);
-		return (NEW_CONF);				/* fÅr dieses Modul keine CNF vorhanden */
+		return NEW_CONF;				/* fÅr dieses Modul keine CNF vorhanden */
 	}
 
 	Fseek(-4, fhandle, 1);
@@ -288,7 +268,7 @@ static int open_modconf_popup(MOD_INFO * modinfo)
 	Fclose(fhandle);
 
 	mca += 4 + strlen(modinfo->mod_name) + 1;
-	num_confs = *(int *) mca;			/* Konfigurationsanzahl auslesen */
+	num_confs = *(short *) mca;			/* Konfigurationsanzahl auslesen */
 	mca += 2;
 
 	confnames = (char **) malloc(num_confs * sizeof(confnames[0]));
@@ -296,7 +276,7 @@ static int open_modconf_popup(MOD_INFO * modinfo)
 
 	for (t = 0; t < num_confs; t++)
 	{
-		magic = *(long *) mca;
+		magic = *(int32_t *) mca;
 		mca += 4;
 
 		if (magic == 0x4d434e46L)		/* 'MCNF' */
@@ -304,7 +284,7 @@ static int open_modconf_popup(MOD_INFO * modinfo)
 			confnames[t] = malloc(33);
 			strcpy(confnames[t], mca);	/* Konfignamen lesen */
 			mca += 33;
-			len = *(long *) mca;		/* und seine LÑnge */
+			len = *(int32_t *) mca;		/* und seine LÑnge */
 			mca += 4 + len;
 		}
 	}
@@ -390,9 +370,72 @@ static int open_modconf_popup(MOD_INFO * modinfo)
 	free(confnames);
 
 	if (back == -1)
-		return (-1);
+		return -1;
 
-	return (back + mconf_index);
+	return back + mconf_index;
+}
+
+
+/* mconfLoad --------------------------------------------
+	ôffnet das Pseudopopup und lÑdt eine Konfiguration. Diese wird
+	an das Modul zurÅckgegeben.
+	------------------------------------------------------*/
+void *mconfLoad(MOD_INFO * modinfo, short mod_id, char *name)
+{
+	char cnfname[33];
+	short back;
+	void *block = NULL;
+
+	(void) mod_id;
+	(void) name;
+
+	modconf_popup[NEW_CONF].ob_state |= OS_DISABLED;
+	back = open_modconf_popup(modinfo);	/* erstmal das Popup auf */
+	modconf_popup[NEW_CONF].ob_state &= ~OS_DISABLED;
+	if (back <= 0)
+		return NULL;
+
+	if (back == NEW_CONF)
+		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_NOCONF].TextCast, NULL, NULL, NULL, 1);
+	else
+	{
+		strcpy(cnfname, modconf_popup[back].TextCast);
+		block = load_from_modconf(modinfo, cnfname, &back, MOD_MAGIC_EDIT);
+	}
+
+	return block;
+}
+
+
+/* expandFile -----------------------------------------
+	Macht in der Datei handle an der aktuellen Fileposition len bytes 
+	Platz. Der Dateipointer wird nicht verÑndert. Dateipuffer ist 2048
+	Bytes, sollte vielleicht noch grîûer gewÑhlt werden?
+	----------------------------------------------------*/
+static void expandFile(int handle, long len)
+{
+	char *buffer;
+	long bytes;
+	long oldpos;
+
+	if (len == 0)
+		return;
+
+	oldpos = Fseek(0, handle, 1);
+
+	bytes = Fseek(0, handle, 2) - oldpos;	/* wieviel Speicher wird gebraucht? */
+	buffer = SMalloc(bytes + len);		/* soviel + len Bytes anfordern */
+	Fseek(oldpos, handle, 0);			/* und wieder zurÅck */
+
+	Fread(handle, bytes, buffer);		/* jetzt Rest puffern */
+	Fwrite(handle, len, buffer);		/* len Bytes Platz machen */
+
+	Fseek(-bytes, handle, 1);			/* Rest Bytes zurÅck */
+	Fwrite(handle, bytes, buffer);		/* und Puffer wegschreiben */
+
+	Fseek(oldpos, handle, 0);			/* und wieder zurÅck */
+
+	SMfree(buffer);
 }
 
 
@@ -404,16 +447,12 @@ static int open_modconf_popup(MOD_INFO * modinfo)
 static void save_to_modconf(MOD_INFO * modinfo, void *confblock, long len, char *name, long type)
 {
 	char cnfpath[257];
-
-	int filehandle,
-	 num_confs;
-
-	long oback,
-	 cback,
-	 mca_len = 0,
-		pos,
-		areaname_len,
-		areaheader_pos;
+	int filehandle;
+	short num_confs;
+	long mca_len = 0;
+	long pos;
+	long areaname_len;
+	long areaheader_pos;
 
 	strcpy(cnfpath, Sys_info.home_path);
 	strcat(cnfpath, "\\modconf.cnf");
@@ -421,28 +460,23 @@ static void save_to_modconf(MOD_INFO * modinfo, void *confblock, long len, char 
 	/*
 	 * MODCONF.CNF îffnen oder erzeugen
 	 */
-	oback = Fopen(cnfpath, FO_RW);
-	if (oback < 0)
+	filehandle = (int) Fopen(cnfpath, FO_RW);
+	if (filehandle < 0)
 	{
-		cback = Fcreate(cnfpath, 0);
-		if (cback < 0)
+		filehandle = (int) Fcreate(cnfpath, 0);
+		if (filehandle < 0)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_CREATEERR].TextCast, NULL, NULL, NULL, 1);
 			return;
 		}
-
-		filehandle = (int) cback;
-	} else
-		filehandle = (int) oback;
-
-
-	/*
-	 * Modulbereich in der cnf suchen
-	 */
-	if (oback >= 0)
-		pos = seek_modconf(filehandle, modinfo);
-	else
 		pos = -1;
+	} else
+	{
+		/*
+		 * Modulbereich in der cnf suchen
+		 */
+		pos = seek_modconf(filehandle, modinfo);
+	}
 
 	/*
 	 * in vorhandenen Filebereich des Moduls (sofern gefunden)
@@ -510,113 +544,21 @@ static void save_to_modconf(MOD_INFO * modinfo, void *confblock, long len, char 
 }
 
 
-/* load_from_modconf -------------------------------------------------------------
-	LÑdt die Konfiguration Nummer <num> fÅr das Modul modinfo aus
-	der MODCONF.CNF. Der Name der Konfig wird in name kopiert.
-	Ein Zeiger auf den geladenen Konfigurationsblock (SMalloc) wird zurÅckgegeben
-	und in num kommt die LÑnge zurÅck.
-	-------------------------------------------------------------------------------*/
-void *load_from_modconf(MOD_INFO * modinfo, char *name, int *num, long type)
-{
-	char SeekString[37] = "MCNF";
-	char cnfpath[257];
-	char *mca,
-	*block;
-
-	int fhandle,
-	 num_confs;
-
-	long back,
-	 mca_len,
-	 len,
-	 areaheader_pos;
-
-
-	strcpy(cnfpath, Sys_info.home_path);
-	strcat(cnfpath, "\\modconf.cnf");
-
-	/*
-	 * MODCONF.CNF îffnen
-	 */
-	back = Fopen(cnfpath, FO_RW);
-	if (back < 0)
-	{
-		if (type == MOD_MAGIC_EDIT)
-			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_OPENERR].TextCast, NULL, NULL, NULL, 1);
-		return (NULL);					/* fÅr dieses Modul keine CNF vorhanden */
-	}
-
-	fhandle = (int) back;
-	areaheader_pos = seek_modconf(fhandle, modinfo);
-	if (areaheader_pos == -1)
-	{
-		Fclose(fhandle);
-		if (type == MOD_MAGIC_EDIT)
-			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_READERR].TextCast, NULL, NULL, NULL, 1);
-		return (NULL);					/* fÅr dieses Modul keine CNF vorhanden */
-	}
-
-	Fseek(-4, fhandle, 1);
-	Fread(fhandle, 4, &mca_len);
-	mca = SMalloc(mca_len);
-	Fread(fhandle, mca_len, mca);
-	Fclose(fhandle);
-
-	num_confs = *(int *) (mca + 4 + strlen(modinfo->mod_name) + 1);	/* Konfigurationsanzahl auslesen */
-
-	/*
-	 * ist die Nummer Åberhaupt mîglich?
-	 */
-	if (*num > num_confs)
-	{
-		SMfree(mca);
-		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_NOTFOUND].TextCast, NULL, NULL, NULL, 1);
-		return (NULL);
-	}
-
-	strcat(SeekString, name);
-	back = Idxtab(mca, SeekString, mca_len);
-
-	if (back == -1)
-		return (NULL);
-
-	strcpy(name, mca + back + 4);		/* Konfignamen lesen */
-	if (type == MOD_MAGIC_EDIT)
-		len = *(long *) (mca + back + 4 + 33);	/* und seine LÑnge */
-	else
-		len = *(long *) (mca + back + 4);	/* und seine LÑnge */
-	*num = (int) len;
-
-	block = SMalloc(len);
-	if (type == MOD_MAGIC_EDIT)
-		memcpy(block, mca + back + 4 + 33 + 4, len);	/* und schlieûlich die Config */
-	else
-		memcpy(block, mca + back + 4 + 4, len);	/* und schlieûlich die Config */
-
-	SMfree(mca);
-
-	return (block);
-}
-
-
 /* overwriteMCNF ----------------------------------------------------
 	öberschreibt eine Modulkonfiguration mit dem Index num in der Datei
 	mit dem neuen Block confblock der LÑnge newlen.
 	-------------------------------------------------------------------*/
-static int overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char *name, int num, long type)
+static short overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char *name, short num, long type)
 {
 	char SeekString[37] = "MCNF";
 	char cnfpath[257];
 	char *mca;
-
-	int filehandle,
-	 num_confs;
-
-	long back,
-	 mca_len,
-	 len,
-	 areaheader_pos;
-
+	int filehandle;
+	short num_confs;
+	long back;
+	long mca_len;
+	long len;
+	long areaheader_pos;
 
 	strcpy(cnfpath, Sys_info.home_path);
 	strcat(cnfpath, "\\modconf.cnf");
@@ -624,20 +566,19 @@ static int overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char 
 	/*
 	 * erstmal die Datei auf
 	 */
-	back = Fopen(cnfpath, FO_RW);
-	if (back < 0)
+	filehandle = (int) Fopen(cnfpath, FO_RW);
+	if (filehandle < 0)
 	{
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_OPENERR].TextCast, NULL, NULL, NULL, 1);
-		return (-1);
+		return -1;
 	}
 
-	filehandle = (int) back;
 	areaheader_pos = seek_modconf(filehandle, modinfo);
 	if (areaheader_pos == -1)
 	{
 		Fclose(filehandle);
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_READERR].TextCast, NULL, NULL, NULL, 1);
-		return (-1);
+		return -1;
 	}
 
 	Fseek(-4, filehandle, 1);
@@ -645,7 +586,7 @@ static int overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char 
 	mca = SMalloc(mca_len);
 	Fread(filehandle, mca_len, mca);
 
-	num_confs = *(int *) (mca + 4 + strlen(modinfo->mod_name) + 1);	/* Konfigurationsanzahl auslesen */
+	num_confs = *(short *) (mca + 4 + strlen(modinfo->mod_name) + 1);	/* Konfigurationsanzahl auslesen */
 
 	/*
 	 * ist die Nummer Åberhaupt mîglich?
@@ -655,7 +596,7 @@ static int overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char 
 		SMfree(mca);
 		Fclose(filehandle);
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_NOTFOUND].TextCast, NULL, NULL, NULL, 1);
-		return (-1);
+		return -1;
 	}
 
 	strcat(SeekString, name);
@@ -665,7 +606,7 @@ static int overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char 
 	if (back == -1)						/* eigentlich unmîglich */
 	{
 		Fclose(filehandle);
-		return (-1);
+		return -1;
 	}
 
 	Fseek(areaheader_pos + back + 4, filehandle, 0);	/* bis zum MCNF und noch drÅber */
@@ -687,110 +628,218 @@ static int overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char 
 
 	Fclose(filehandle);
 
-	return (0);
+	return 0;
 }
 
 
-/* seek_modconf -----------------------------------------------
-	Sucht eine MCA (Module Config Area, gekennzeichnet durch 'MCAB')
-	zum Modul modinfo in der Datei filehandle (MODCONF.CNF) und positioniert 
-	den Dateipointer auf das 'MCAB'.
-	ZurÅckgegeben wird die neue Position relativ zur alten vor dem Aufruf.
-	-------------------------------------------------------------*/
-static long seek_modconf(int filehandle, MOD_INFO * modinfo)
+/* Testet ob der Konfigname schon vergeben fÅr dieses Modul */
+/* RÅckgabe 0: alles ist klar, 1: schon vergeben */
+static short nametest(MOD_INFO * modinfo, char *name)
 {
-	char SeekString[128] = "MCAB";
+	char cnfpath[257];
+	char SeekString[37] = "MCNF";
+	char *mca;
+	int filehandle;
+	long back;
+	long mca_len = 0;
 
-	long filepos;
-
+	strcpy(cnfpath, Sys_info.home_path);
+	strcat(cnfpath, "\\modconf.cnf");
 
 	/*
-	 * Suchstring zusammenbasteln 
+	 * MODCONF.CNF îffnen
 	 */
-	strcat(SeekString, modinfo->mod_name);
+	filehandle = (int) Fopen(cnfpath, FO_READ);
+	if (filehandle < 0)
+		return 0;
 
-	/* lossuchen, RÅckgabe ist -1 wenn nicht gefunden */
-	filepos = seekInFile(filehandle, SeekString);
-	Fseek(filepos, filehandle, 1);
+	/*
+	 * Modulbereich in der cnf suchen
+	 */
+	if (seek_modconf(filehandle, modinfo) == -1)
+	{
+		Fclose(filehandle);
+		return 0;
+	} else
+	{
+		Fseek(-4, filehandle, 1);
+		Fread(filehandle, 4, &mca_len);
+		mca = SMalloc(mca_len);
+		Fread(filehandle, mca_len, mca);
+		Fclose(filehandle);
 
-	return (filepos);
+		strcat(SeekString, name);
+		back = Idxtab(mca, SeekString, mca_len);
+
+		SMfree(mca);
+
+		if (back == -1)
+			return 0;
+		else
+			return 1;
+	}
 }
 
 
-/* Schnelle Suchroutine nach Boyer-Moore */
-/* implementiert 24.5.95 - 10.6.95 von Christian Eyrich */
-/* sucht m in n */
-static long Idxtab(unsigned char *n, unsigned char *m, long len)
+/* mconfSave --------------------------------------------
+	Die Dienstfunktion, die vom Modul aufgerufen wird.
+	ôffnet das Pseudopopup mit den Modulkonfigs und dann ggfs. den
+	Dialog zur Eingabe eines neuen Namens, dann wird die Konfig
+	in die MONDCONF.CNF gespeichert. ZurÅckgegeben wird ein Zeiger
+	auf den vom User eingegebenen Namen (max. 32 Zeichen).
+	------------------------------------------------------*/
+void mconfSave(MOD_INFO * modinfo, short mod_id, void *confblock, long len, char *name)
 {
-	char skiptab[256],
-	 t,
-	 lenofm,
-	 lenofm2;
+	char cnfname[33];
+	short back;
+	WORD x, y, w, h;
 
-	int j;
+	(void) mod_id;
+	(void) name;
 
-	long i,
-	 lenofn = len;
-
-
-	lenofm = strlen(m);
-	lenofm2 = lenofm - 1;
-
-	for (i = 0; i < 256; i++)			/* initialisieren der Tabelle */
-		skiptab[i] = lenofm;			/* mit der LÑnge des Suchstrings */
-
-	for (i = 0; i < lenofm; i++)
-		skiptab[m[i]] = lenofm - i - 1;
-
-	/* die eigentliche Suchroutine */
-	for (i = j = lenofm2; j > 0; i--, j--)
-	{
-		while (n[i] != m[j] && i < lenofn)
-		{
-			t = skiptab[n[i]];
-			i += (lenofm - j > t) ? lenofm - j : t;
-			j = lenofm2;
-		}
-
-		if (i > lenofn)					/* wurde nichts gefunden */
-			return (-1);				/* wird -1 zurÅckgegeben */
-	}
-
-	return (i);							/* wurde die Routine fÅndig, */
-}										/* wird die Fundstelle zurÅckgegeben */
-
-
-/* expandFile -----------------------------------------
-	Macht in der Datei handle an der aktuellen Fileposition len bytes 
-	Platz. Der Dateipointer wird nicht verÑndert. Dateipuffer ist 2048
-	Bytes, sollte vielleicht noch grîûer gewÑhlt werden?
-	----------------------------------------------------*/
-static void expandFile(int handle, long len)
-{
-	char *buffer;
-
-	long bytes,
-	 oldpos;
-
-
-	if (len == 0)
+	back = open_modconf_popup(modinfo);	/* Erstmal das Popup auf */
+	if (back <= 0)
 		return;
 
-	oldpos = Fseek(0, handle, 1);
+	/*
+	 * Es soll eine neue Konfiguration gesichert werden?
+	 * (-1 heiût, es gibt noch gar keine, also auf jeden Fall eine neue) 
+	 */
+	if (back == NEW_CONF)
+	{
+	  again:
+		x = confsave_dialog->ob_x - 2;
+		y = confsave_dialog->ob_y - 2;
+		w = confsave_dialog->ob_width + 4;
+		h = confsave_dialog->ob_height + 4;
 
-	bytes = Fseek(0, handle, 2) - oldpos;	/* wieviel Speicher wird gebraucht? */
-	buffer = SMalloc(bytes + len);		/* soviel + len Bytes anfordern */
-	Fseek(oldpos, handle, 0);			/* und wieder zurÅck */
+		wind_update(BEG_UPDATE);
+		wind_update(BEG_MCTRL);
+		form_dial(FMD_START, x, y, w, h, x, y, w, h);
 
-	Fread(handle, bytes, buffer);		/* jetzt Rest puffern */
-	Fwrite(handle, len, buffer);		/* len Bytes Platz machen */
+		/* damit das Feld leer ist und der Cursor vorne steht */
+		strcpy(confsave_dialog[MODCONF_NAME].TextCast, "");
 
-	Fseek(-bytes, handle, 1);			/* Rest Bytes zurÅck */
-	Fwrite(handle, bytes, buffer);		/* und Puffer wegschreiben */
+		do
+		{
+			objc_draw(confsave_dialog, 0, MAX_DEPTH, x, y, w, h);
+			back = form_do(confsave_dialog, MODCONF_NAME);
+			confsave_dialog[back].ob_state &= ~OS_SELECTED;
+		} while ((back != MODCONF_SAVE || strlen(confsave_dialog[MODCONF_NAME].TextCast) == 0) &&
+				 back != MODCONF_CANCEL);
 
-	Fseek(oldpos, handle, 0);			/* und wieder zurÅck */
+		form_dial(FMD_FINISH, x, y, w, h, x, y, w, h);
+		wind_update(END_MCTRL);
+		wind_update(END_UPDATE);
 
-	SMfree(buffer);
+
+		if (back == MODCONF_SAVE)
+		{
+			strcpy(cnfname, confsave_dialog[MODCONF_NAME].TextCast);
+
+			if (nametest(modinfo, cnfname))
+			{
+				back =
+					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_EXISTS].TextCast, "Nein", " Ja ", NULL, 1);
+				if (back == 1)			/* nicht Åberschreiben */
+					goto again;
+				else					/* Åberschreiben */
+					overwriteMCNF(modinfo, confblock, len, cnfname, 0, MOD_MAGIC_EDIT);
+			} else
+			{
+				save_to_modconf(modinfo, confblock, len, cnfname, MOD_MAGIC_EDIT);
+			}
+		}
+	} else
+	{
+		strcpy(cnfname, modconf_popup[back].TextCast);
+		overwriteMCNF(modinfo, confblock, len, cnfname, back, MOD_MAGIC_EDIT);
+	}
+}
+
+
+/* load_from_modconf -------------------------------------------------------------
+	LÑdt die Konfiguration Nummer <num> fÅr das Modul modinfo aus
+	der MODCONF.CNF. Der Name der Konfig wird in name kopiert.
+	Ein Zeiger auf den geladenen Konfigurationsblock (SMalloc) wird zurÅckgegeben
+	und in num kommt die LÑnge zurÅck.
+	-------------------------------------------------------------------------------*/
+void *load_from_modconf(MOD_INFO * modinfo, char *name, short *num, long type)
+{
+	char SeekString[37] = "MCNF";
+	char cnfpath[257];
+	char *mca;
+	char *block;
+	int fhandle;
+	short num_confs;
+	long back;
+	long mca_len;
+	long len;
+	long areaheader_pos;
+
+	strcpy(cnfpath, Sys_info.home_path);
+	strcat(cnfpath, "\\modconf.cnf");
+
+	/*
+	 * MODCONF.CNF îffnen
+	 */
+	fhandle = (int) Fopen(cnfpath, FO_RW);
+	if (fhandle < 0)
+	{
+		if (type == MOD_MAGIC_EDIT)
+			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_OPENERR].TextCast, NULL, NULL, NULL, 1);
+		return NULL;					/* fÅr dieses Modul keine CNF vorhanden */
+	}
+
+	areaheader_pos = seek_modconf(fhandle, modinfo);
+	if (areaheader_pos == -1)
+	{
+		Fclose(fhandle);
+		if (type == MOD_MAGIC_EDIT)
+			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_READERR].TextCast, NULL, NULL, NULL, 1);
+		return NULL;					/* fÅr dieses Modul keine CNF vorhanden */
+	}
+
+	Fseek(-4, fhandle, 1);
+	Fread(fhandle, 4, &mca_len);
+	mca = SMalloc(mca_len);
+	Fread(fhandle, mca_len, mca);
+	Fclose(fhandle);
+
+	num_confs = *(short *) (mca + 4 + strlen(modinfo->mod_name) + 1);	/* Konfigurationsanzahl auslesen */
+
+	/*
+	 * ist die Nummer Åberhaupt mîglich?
+	 */
+	if (*num > num_confs)
+	{
+		SMfree(mca);
+		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MCONF_NOTFOUND].TextCast, NULL, NULL, NULL, 1);
+		return NULL;
+	}
+
+	strcat(SeekString, name);
+	back = Idxtab(mca, SeekString, mca_len);
+
+	if (back == -1)
+		return NULL;
+
+	strcpy(name, mca + back + 4);		/* Konfignamen lesen */
+	if (type == MOD_MAGIC_EDIT)
+		len = *(int32_t *) (mca + back + 4 + 33);	/* und seine LÑnge */
+	else
+		len = *(int32_t *) (mca + back + 4);	/* und seine LÑnge */
+	*num = (short) len;
+
+	block = SMalloc(len);
+	if (type == MOD_MAGIC_EDIT)
+		memcpy(block, mca + back + 4 + 33 + 4, len);	/* und schlieûlich die Config */
+	else
+		memcpy(block, mca + back + 4 + 4, len);	/* und schlieûlich die Config */
+
+	SMfree(mca);
+
+	return block;
 }
 
 
@@ -802,13 +851,10 @@ static void expandFile(int handle, long len)
 void memorize_emodConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 {
 	char cmp_modname[30];
-	char *textseg,
-	*cnfblock;
-
-	int index;
-
+	char *textseg;
+	char *cnfblock;
+	short index;
 	MOD_INFO *modinfo;
-
 
 	/*
 	 * Erstmal muû der passende Index gefunden werden.
@@ -832,7 +878,7 @@ void memorize_emodConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 		free(edit_cnfblock[index]);
 
 
-	cnfblock = (char *) *(long *) &smurf_struct->event_par[0];
+	cnfblock = *((char **) &smurf_struct->event_par[0]);
 	edit_cnflen[index] = smurf_struct->event_par[2];
 
 	edit_cnfblock[index] = malloc(edit_cnflen[index]);
@@ -850,14 +896,11 @@ void memorize_emodConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 void memorize_expmodConfig(BASPAG * modbase, GARGAMEL * smurf_struct, char save)
 {
 	char cmp_modname[30];
-	char *textseg,
-	*cnfblock;
-
-	int index,
-	 length;
-
+	char *textseg;
+	char *cnfblock;
+	short index;
+	short length;
 	MOD_INFO *modinfo;
-
 
 	/*
 	 * Erstmal muû der passende Index gefunden werden.
@@ -880,7 +923,7 @@ void memorize_expmodConfig(BASPAG * modbase, GARGAMEL * smurf_struct, char save)
 	if (export_cnfblock[index] != NULL)
 		free(export_cnfblock[index]);
 
-	cnfblock = (char *) *(long *) &smurf_struct->event_par[0];
+	cnfblock = *((char **) &smurf_struct->event_par[0]);
 	length = smurf_struct->event_par[2];
 	if (!save)
 	{
@@ -888,9 +931,12 @@ void memorize_expmodConfig(BASPAG * modbase, GARGAMEL * smurf_struct, char save)
 		export_cnfblock[index] = malloc(export_cnflen[index]);
 		memcpy(export_cnfblock[index], cnfblock, export_cnflen[index]);
 	} else if (nametest(modinfo, ""))
+	{
 		overwriteMCNF(modinfo, cnfblock, length, "", 0, MOD_MAGIC_EXPORT);
-	else
+	} else
+	{
 		save_to_modconf(modinfo, cnfblock, length, "", MOD_MAGIC_EXPORT);
+	}
 }
 
 
@@ -905,9 +951,7 @@ void transmitConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 {
 	char *textseg;
 	char cmp_modname[30];
-
-	int index;
-
+	short index;
 	MOD_INFO *modinfo;
 
 
@@ -931,114 +975,11 @@ void transmitConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 
 	if (edit_cnfblock[index])
 	{
-		smurf_struct->event_par[0] = (int) ((unsigned long) edit_cnfblock[index] >> 16);
-		smurf_struct->event_par[1] = (int) ((long) edit_cnfblock[index] & 0xFFFF);
+		smurf_struct->event_par[0] = (short) ((unsigned long) edit_cnfblock[index] >> 16);
+		smurf_struct->event_par[1] = (short) ((long) edit_cnfblock[index] & 0xFFFF);
 		smurf_struct->event_par[2] = edit_cnflen[index];
 
 		module.comm.startEdit("", modbase, CONFIG_TRANSMIT, smurf_struct->module_number, smurf_struct);
 		f_handle_modmessage(smurf_struct);
-	}
-}
-
-
-
-/* seekInFile --------------------------------------------------------------
-	Sucht den String SeekString in der Datei filehandle ab der aktuellen
-	Position und gibt relativ zur Dateiposition beim Aufruf den Abstand des
-	gefundenen Strings in der Datei zurÅck, bzw. -1, wenn nix gefunden wurde.
-	-------------------------------------------------------------------------*/
-static long seekInFile(int filehandle, char *SeekString)
-{
-	char *seekbuffer;
-
-	long pos,
-	 filepos = 0,
-		read_bytes;
-	long oldpos,
-	 seekLen;
-
-
-	seekLen = strlen(SeekString);
-	oldpos = Fseek(0, filehandle, 1);
-
-	/*
-	 * jetzt wird die Datei 2K-blockweise nach SeekString durchsucht
-	 */
-	seekbuffer = malloc(SEEKBUF_SIZE + 8);
-	memset(seekbuffer, 0x0, SEEKBUF_SIZE + 8);
-	filepos = 0;
-	do
-	{
-		read_bytes = Fread(filehandle, SEEKBUF_SIZE, seekbuffer);
-
-		if ((pos = Idxtab(seekbuffer, SeekString, SEEKBUF_SIZE)) != -1)	/* versuchen, SeekString zu finden */
-			break;
-
-		Fseek(-seekLen, filehandle, 1);	/* SeekLen zurÅck */
-		filepos += SEEKBUF_SIZE - seekLen;
-	} while (read_bytes == SEEKBUF_SIZE);
-
-	free(seekbuffer);
-
-	Fseek(oldpos, filehandle, 0);
-
-	if (pos != -1)
-		filepos += pos;
-	else
-		filepos = -1;
-
-	return (filepos);
-}
-
-
-/* Testet ob der Konfigname schon vergeben fÅr dieses Modul */
-/* RÅckgabe 0: alles ist klar, 1: schon vergeben */
-static int nametest(MOD_INFO * modinfo, char *name)
-{
-	char cnfpath[257];
-	char SeekString[37] = "MCNF";
-	char *mca;
-
-	int filehandle;
-
-	long back,
-	 mca_len = 0;
-
-	strcpy(cnfpath, Sys_info.home_path);
-	strcat(cnfpath, "\\modconf.cnf");
-
-	/*
-	 * MODCONF.CNF îffnen
-	 */
-	back = Fopen(cnfpath, FO_READ);
-	if (back < 0)
-		return (0);
-	else
-		filehandle = (int) back;
-
-	/*
-	 * Modulbereich in der cnf suchen
-	 */
-	if (seek_modconf(filehandle, modinfo) == -1)
-	{
-		Fclose(filehandle);
-		return (0);
-	} else
-	{
-		Fseek(-4, filehandle, 1);
-		Fread(filehandle, 4, &mca_len);
-		mca = SMalloc(mca_len);
-		Fread(filehandle, mca_len, mca);
-		Fclose(filehandle);
-
-		strcat(SeekString, name);
-		back = Idxtab(mca, SeekString, mca_len);
-
-		SMfree(mca);
-
-		if (back == -1)
-			return (0);
-		else
-			return (1);
 	}
 }

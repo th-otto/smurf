@@ -277,7 +277,7 @@ typedef struct
 	char * *export_module_names;	/* Namen fÅr bis zu 100 Export-Module */
 
 	char * *export_cnfblock;		/* Konfigurationsblîcke fÅr die Exporter */
-	int	* export_cnflen;			/* LÑnge des jeweiligen Blockes */
+	short *export_cnflen;			/* LÑnge des jeweiligen Blockes */
 
 	int *mouse_xpos,*mouse_ypos,*mouse_button,*klicks,
 		*obj,*key_scancode,*key_ascii,*key_at_event;
@@ -310,19 +310,19 @@ typedef struct
 
 
 	/* Kommunikation und Information fÅr Smurf */
-	int message;					/* Message */
-	int event_par[10];				/* Beim Event betroffenes Objekt und weitere Daten*/
-	int mousex,mousey;				/* Mauspos beim Event 			*/
-	int klicks;						/* Mausklicks beim Event 		*/
+	short message;					/* Message */
+	WORD event_par[10];				/* Beim Event betroffenes Objekt und weitere Daten*/
+	WORD mousex,mousey;				/* Mauspos beim Event 			*/
+	WORD klicks;						/* Mausklicks beim Event 		*/
 
 	char	plugin_name[25];		/* erweiterter Plugin-Name f. MenÅtitel */
-	int		plugin_flag;			/* Bit 0+1: GewÅnschte Position in evtl.
+	short	plugin_flag;			/* Bit 0+1: GewÅnschte Position in evtl.
 										Branch-Liste:	%_0: egal,
 										sonst			%01: ganz vorne,
 														%11: ganz hinten
 									falls sich mehrere Plugins an dieselbe
 									Funktion anhÑngen wollen. */
-	int id;
+	short id;
 	struct moduleObj *module_object;
 } PLUGIN_DATA;
 
