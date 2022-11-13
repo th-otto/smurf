@@ -113,6 +113,7 @@ modules\import\fckpaint.prj
 modules\import\gem_img.prj
 modules\import\gfx.prj
 modules\import\gif_ii\gif.prj
+modules\import\godpaint.prj
 modules\import\goes.prj
 modules\import\gra.prj
 modules\import\hilight.prj
@@ -172,7 +173,6 @@ modules\plugin\print\prntplgw.prj
 ; missing:
 ;modules\edit\bumber.prj
 ;modules\edit\colrun.prj
-;modules\import\godpaint.prj
 ;modules\import\jpeg\jpegdspl.prj
 ;modules\import\jpeg\jpegdspn.prj
 ;modules\import\pixar.prj
