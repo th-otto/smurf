@@ -7,11 +7,15 @@ LDFLAGS += -nostartfiles
 
 MODULES = \
 	$(DISTDIR)/modules/import/godpaint.sim \
+	$(DISTDIR)/modules/import/pixar.sim \
 	$(empty)
 
 all:: $(MODULES)
 
 $(DISTDIR)/modules/import/godpaint.sim: impstart.o godpaint.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean::

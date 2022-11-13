@@ -36,49 +36,47 @@
 
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO    module_info = {"Pixar image",
-                        0x0010,
-                        "Dodger",
-                        "PXR", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0
-                        };
+MOD_INFO module_info = {
+	"Pixar image",			/* Name of module */
+	0x0010,					/* version */
+	"Dodger",				/* author */
+	/* 10 Extensionen fuer Importer */
+	{ "PXR", "", "", "", "", "", "", "", "", "" },
+	/* 4 Slider titles: max length 8 */
+	"Slider 1", "Slider 2", "Slider 3", "Slider 4",
+	/* 4 checkbox titles */
+	"Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4",
+	/* 4 edit object titles */
+	"Edit 1", "Edit 2", "Edit 3", "Edit 4",
+	/* min/max values for slider */
+	0,128, 0,128, 0,128, 0,128,
+	/* min/max values for slider */
+	0,10, 0,10, 0,10, 0,10,
+	/* default values for slider */
+	0, 0, 0, 0,
+	/* default values for checkboxes */
+	0, 0, 0, 0,
+	/* default values for editobjects */
+	0, 0, 0, 0,
+	/* how many pics? */
+	0,
+	/* description for pictures */
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-                        8, 24, 0, 0, 0, 0, 0, 0,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        0,
-                        };
+MOD_ABILITY module_ability = {
+	8, 24, 0, 0, 0, 0, 0, 0,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	0,
+};
 
 
 
@@ -91,90 +89,108 @@ MOD_ABILITY  module_ability = {
 /* -------------------------------------------------*/
 EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
-    EXPORT_PIC *exp_pic;
-    char *buffer;
-    char *dest;
-    int message;
-    int width, height;
-    long piclen;
-    int BPP;
-    char Byte1, Byte2;
+	EXPORT_PIC *exp_pic;
+	uint8_t *buffer;
+	uint8_t *dest;
+	short message;
+	unsigned short width, height;
+	long piclen;
+	short BPP;
+	uint8_t Byte1, Byte2;
 
-    message =   smurf_struct->module_mode;  
+	message = smurf_struct->module_mode;
 
-    BPP=smurf_struct->smurf_pic->depth;
+	BPP = smurf_struct->smurf_pic->depth;
 
-    switch(message)
-    {
-            /*---------------- Export-Start ----------------*/  
-        case MEXTEND:   smurf_struct->event_par[0]=1;
-                        smurf_struct->module_mode=M_EXTEND;
-                        return(NULL);
+	switch (message)
+	{
+			/*---------------- Export-Start ----------------*/
+	case MEXTEND:
+		smurf_struct->event_par[0] = 1;
+		smurf_struct->module_mode = M_EXTEND;
+		return NULL;
 
-        case MCOLSYS:   /*if(smurf_struct->smurf_pic->depth==8)
-                            smurf_struct->event_par[0]=GREY;
-                        else if(smurf_struct->smurf_pic->depth==24)*/
-                            smurf_struct->event_par[0]=RGB;
-                        smurf_struct->module_mode=M_COLSYS;     
-                        return(NULL);
+	case MCOLSYS:
+#if 0
+		if (smurf_struct->smurf_pic->depth == 8)
+			smurf_struct->event_par[0] = GREY;
+		else if (smurf_struct->smurf_pic->depth == 24)
+#endif
+			smurf_struct->event_par[0] = RGB;
+		smurf_struct->module_mode = M_COLSYS;
+		return NULL;
 
-        case MSTART:    smurf_struct->module_mode=M_WAITING;
-                        return(NULL);
+	case MSTART:
+		smurf_struct->module_mode = M_WAITING;
+		return NULL;
 
 
-        case MEXEC:     buffer  =   smurf_struct->smurf_pic->pic_data;
-                        width   =   smurf_struct->smurf_pic->pic_width;
-                        height  =   smurf_struct->smurf_pic->pic_height;
+	case MEXEC:
+		buffer = smurf_struct->smurf_pic->pic_data;
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
 
-                        exp_pic=Malloc(sizeof(EXPORT_PIC));
-                    
-                        piclen=(long)width*(long)height*(long)(BPP>>3) + 1024;      /* Bildl„nge */
-                        exp_pic->f_len=piclen;
+		piclen = (long)width * (long)height * (long)(BPP >> 3) + 1024;	/* Bildl„nge */
 
-                        dest=Malloc(exp_pic->f_len+1024);
+		exp_pic = smurf_struct->services->SMalloc(sizeof(EXPORT_PIC));
+		if (exp_pic == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		}
+		exp_pic->f_len = piclen;
 
-                        /* Kennung schreiben */ 
-                        *(dest)=0x80;
-                        *(dest+1)=0xE8;
-                        *(dest+2)=0x00;
-                        *(dest+3)=0x00;
-                        *(dest+4)=0x01;
+		dest = smurf_struct->services->SMalloc(exp_pic->f_len + 1024);
+		if (dest == NULL)
+		{
+			smurf_struct->services->SMfree(exp_pic);
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		}
+		/* Kennung schreiben */
+		*(dest) = 0x80;
+		*(dest + 1) = 0xE8;
+		*(dest + 2) = 0x00;
+		*(dest + 3) = 0x00;
+		*(dest + 4) = 0x01;
 
-                        /*--------------------- Breite und H”he schreiben */
-                        Byte2=height&0x00FF;
-                        Byte1=(height&0xFF00)>>8;
-                        *(dest+0x1A0)=Byte2;
-                        *(dest+0x1A1)=Byte1;
-                        *(dest+0x1A4)=Byte2;    /* Sowohl H”he als auch Breite sind in allen */
-                        *(dest+0x1A5)=Byte1;    /* meinen Bildern zweimal enthalten... */
-                    
-                        Byte2=width&0x00FF;
-                        Byte1=(width&0xFF00)>>8;
-                        *(dest+0x1A2)=Byte2;
-                        *(dest+0x1A3)=Byte1;
-                        *(dest+0x1A6)=Byte2;    /* ...also schreib' ichs auch zweimal rein. */
-                        *(dest+0x1A7)=Byte1;
+		/*--------------------- Breite und H”he schreiben */
+		Byte2 = height & 0x00FF;
+		Byte1 = (height & 0xFF00) >> 8;
+		*(dest + 0x1A0) = Byte2;
+		*(dest + 0x1A1) = Byte1;
+		*(dest + 0x1A4) = Byte2;		/* Sowohl H”he als auch Breite sind in allen */
+		*(dest + 0x1A5) = Byte1;		/* meinen Bildern zweimal enthalten... */
 
-                        /*--------------------------- Bits per Pixel: */
-                        if(BPP==24) *(dest+0x1A8) = 0x0E;
-                        else if(BPP==8) *(dest+0x1A8) = 0x08;
+		Byte2 = width & 0x00FF;
+		Byte1 = (width & 0xFF00) >> 8;
+		*(dest + 0x1A2) = Byte2;
+		*(dest + 0x1A3) = Byte1;
+		*(dest + 0x1A6) = Byte2;		/* ...also schreib' ichs auch zweimal rein. */
+		*(dest + 0x1A7) = Byte1;
 
-                        memcpy(dest+1024, buffer, piclen);
-                        exp_pic->pic_data=dest;
+		/*--------------------------- Bits per Pixel: */
+		if (BPP == 24)
+			*(dest + 0x1A8) = 0x0E;
+		else if (BPP == 8)
+			*(dest + 0x1A8) = 0x08;
 
-                        /*Mfree(buffer);*/
-                
-                        smurf_struct->module_mode=M_DONEEXIT;
-                        return(exp_pic);
-                    
-        case MTERM:     smurf_struct->module_mode=M_EXIT;
-                        break;
-    
-        default:        smurf_struct->module_mode=M_WAITING;
-                        break;
-    }
+		memcpy(dest + 1024, buffer, piclen);
+		exp_pic->pic_data = dest;
 
-    return(NULL);
+		/* Mfree(buffer); */
+
+		smurf_struct->module_mode = M_DONEEXIT;
+		return exp_pic;
+
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+
+	default:
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	}
+
+	return NULL;
 }
-
-

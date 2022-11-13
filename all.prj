@@ -139,6 +139,7 @@ modules\import\pcx.prj
 modules\import\pic_pcpa.prj
 modules\import\pict.prj
 modules\import\pix.prj
+modules\import\pixar.prj
 modules\import\pofo.prj
 modules\import\ppm.prj
 modules\import\psd.prj
@@ -175,7 +176,6 @@ modules\plugin\print\prntplgw.prj
 ;modules\edit\colrun.prj
 ;modules\import\jpeg\jpegdspl.prj
 ;modules\import\jpeg\jpegdspn.prj
-;modules\import\pixar.prj
 ;modules\import\qdv.prj
 ;modules\import\qfax.prj
 ;modules\import\softimag.prj

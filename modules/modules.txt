@@ -142,7 +142,7 @@ pcx.sim        0.10    0.10
 pic_pcpa.sim   0.20    0.20
 pict.sim       0.80    0.80
 pix.sim        0.40    0.40
-pixar.sim      -       1.00
+pixar.sim      1.00    1.00
 pofo.sim       0.30    0.30
 ppm.sim        0.30    0.30
 psd.sim        0.30    0.30

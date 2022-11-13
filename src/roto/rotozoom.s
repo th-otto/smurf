@@ -45,6 +45,9 @@ _rotozoom:
 	move.w 18(a7),d1
 	move.w 20(a7),d2
 #endif
+	bsr.s rotozoom
+	move.l (a7)+,d2
+	rts
 
 	.globl rotozoom
 rotozoom:
