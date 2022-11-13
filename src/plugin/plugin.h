@@ -145,7 +145,7 @@ typedef struct
 	/*
 	* Resource-Funktionen
 	*/
-	void	(*init_smurfrsc)(char *rscpath);
+	void	(*init_smurfrsc)(const char *rscpath);
 	void	(*fix_rsc)(void);				/* RSC-Anpassung an OS, Farbtiefe, AES, etc... */
 	void	(*f_init_popups)(void);		/* Alle Popups initialisieren */
 	void	(*f_init_sliders)(void);	

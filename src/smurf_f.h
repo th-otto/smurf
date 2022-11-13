@@ -207,7 +207,7 @@ void cursor_on(WINDOW *window);
 
 void free_preview(void);
 
-void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, int dither);
+void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, short dither);
 
 void mr_message(void);
 void protocol_message(int message, int id, char *modname);

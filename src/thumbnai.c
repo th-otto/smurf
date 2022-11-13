@@ -34,10 +34,9 @@
 #include "smurf_f.h"
 
 
-void make_thumbnail(SMURF_PIC * original_pic, SMURF_PIC * thumbnail, int dither)
+void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, short dither)
 {
-	int zoom;
-
+	short zoom;
 	DISPLAY_MODES thisDisplay;
 
 	zoom = compute_zoom(original_pic, thumbnail->pic_width, thumbnail->pic_height);
@@ -53,7 +52,6 @@ void make_thumbnail(SMURF_PIC * original_pic, SMURF_PIC * thumbnail, int dither)
 		free(thumbnail->screen_pic);
 	}
 
-
 	/*
 	 * Thumbnail-Bildstruktur fertig machen
 	 */
@@ -64,7 +62,6 @@ void make_thumbnail(SMURF_PIC * original_pic, SMURF_PIC * thumbnail, int dither)
 	thumbnail->palette = original_pic->palette;
 	thumbnail->format_type = original_pic->format_type;
 	thumbnail->col_format = original_pic->col_format;
-
 	thumbnail->zoom = zoom;
 
 	/*
