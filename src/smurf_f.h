@@ -590,21 +590,21 @@ char *mystrtok(char *s, char c);
 int strsrchl(char *s, char c);
 int strsrchr(char *s, char c);
 void get_tmp_dir(char *tmpdir);
-int get_cookie(unsigned long cookie, unsigned long *value);
+BOOLEAN get_cookie(unsigned long cookie, unsigned long *value);
 void *SMalloc(long amount);
 int SMfree(void *ptr);
 void exported_SMfree(void *ptr);
 void set_startupdial(char *string);
 float convert_units(short oldunit, short newunit, float dpi);
-char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols);
-long get_maxnamelen(char *path);
-void BCD2string(char *string, int bcd);
+char *load_palfile(char *path, WORD *red, WORD *green, WORD *blue, WORD max_cols);
+long get_maxnamelen(const char *path);
+void BCD2string(char *string, uint16_t bcd);
 char *strrpbrk(char *s1beg, char *s1, char *s2);
-void make_singular_display(DISPLAY_MODES *old, int Dither, int Pal);
+void make_singular_display(DISPLAY_MODES *old, short Dither, short Pal);
 void restore_display(DISPLAY_MODES *old);
 char *shorten_name(char *string, char newlen);
-int get_path(char *path, char drive);
-int set_path(char *path);
+BOOLEAN get_path(char *path, char drive);
+BOOLEAN set_path(char *path);
 void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call, BOOLEAN (*call_me)(WORD mx, WORD my));
 
 

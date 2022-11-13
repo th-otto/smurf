@@ -47,8 +47,8 @@
 /* enthaltenen Quotemarks.											*/
 char *quote_arg(char *s)
 {
-	char *t,
-	*ot;
+	char *t;
+	char *ot;
 
 	t = calloc(1, 257);
 	ot = t;
@@ -67,7 +67,7 @@ char *quote_arg(char *s)
 	*t++ = '\'';						/* und ganz hinten ein Quote */
 	*t = '\0';
 
-	return (ot);
+	return ot;
 }
 
 
@@ -75,16 +75,15 @@ char *quote_arg(char *s)
 /* aus Strings (Pfadnamen). 										*/
 char *unquote_arg(char *s)
 {
-	char *t,
-	*os;
-
+	char *t;
+	char *os;
 
 	os = s;
 
 	/* 'eric''s file' -> eric's file */
 	t = s;
 	if (*s != '\'')
-		return (s);
+		return s;
 
 	s++;								/* ganz vorne ein Quote weg */
 
@@ -98,7 +97,7 @@ char *unquote_arg(char *s)
 
 	*(t - 1) = '\0';					/* und ganz hinten ein Quote weg */
 
-	return (os);
+	return os;
 }
 
 
@@ -110,9 +109,8 @@ char *unquote_arg(char *s)
 char *strargvtok(char *s)
 {
 	static char *t = NULL;
-	char *back,
-	 in = 0;
-
+	char *back;
+	char in = 0;
 
 	if (t == NULL)						/* Nur beim Ersten Aufruf der Fall */
 		t = s;
@@ -120,7 +118,7 @@ char *strargvtok(char *s)
 	if (*t == '\0')						/* Wenn der String zu Ende tokenisiert wurde, */
 	{									/* also nach dem letzten gÅltigen Aufruf. */
 		t = NULL;						/* Und das, damit nachfolgende Strings auch noch */
-		return (NULL);					/* gemacht werden kînnen. */
+		return NULL;					/* gemacht werden kînnen. */
 	}
 
 	s = t;
@@ -163,7 +161,7 @@ char *strargvtok(char *s)
 	back = t;							/* Eingangsstring wegsichern */
 	t = s;								/* und neuen Anfang setzen */
 
-	return (back);
+	return back;
 }
 
 
@@ -178,11 +176,10 @@ char *mystrtok(char *s, char c)
 	static char *t = NULL;
 	char *back;
 
-
 	if (s == NULL)						/* manueller Init */
 	{
 		t = NULL;
-		return (NULL);
+		return NULL;
 	}
 
 	if (t == NULL)						/* Nur am Stringanfang der Fall */
@@ -191,7 +188,7 @@ char *mystrtok(char *s, char c)
 	if (*t == '\0')						/* Wenn der String zu Ende tokenisiert wurde, */
 	{									/* also nach dem letzten gÅltigen Aufruf. */
 		t = NULL;						/* Und das, damit nachfolgende Strings auch noch */
-		return (NULL);					/* gemacht werden kînnen. */
+		return NULL;					/* gemacht werden kînnen. */
 	}
 
 	s = t;
@@ -209,7 +206,7 @@ char *mystrtok(char *s, char c)
 	back = t;							/* Eingangsstring wegsichern */
 	t = s;								/* und neuen Anfang setzen */
 
-	return (back);
+	return back;
 }
 
 
@@ -219,7 +216,6 @@ int strsrchl(char *s, char c)
 {
 	int i;
 
-
 	i = 0;
 	while (*s != c && *s != '\0')
 	{
@@ -228,9 +224,9 @@ int strsrchl(char *s, char c)
 	}
 
 	if (*s == '\0')
-		return (-1);
+		return -1;
 	else
-		return (i);
+		return i;
 }
 
 
@@ -241,7 +237,6 @@ int strsrchr(char *s, char c)
 {
 	int i;
 
-
 	i = (int) strlen(s) - 1;			/* Index auf letztes Zeichen setzen */
 	s += i;
 	while (i >= 0 && *s != c)			/* i vor s prÅfen, da *s mîglicherweise ungÅltig! */
@@ -250,7 +245,7 @@ int strsrchr(char *s, char c)
 		i--;
 	}
 
-	return (i);
+	return i;
 }
 
 
@@ -260,7 +255,7 @@ void get_tmp_dir(char *tmpdir)
 {
 	char *result;
 
-
+	*tmpdir = '\0';
 	if ((result = getenv("TMP")) != NULL)
 		strcpy(tmpdir, result);
 	if ((result = getenv("TEMP")) != NULL)
@@ -277,13 +272,11 @@ void get_tmp_dir(char *tmpdir)
 /* Christian Eyrich irgendwann im 20. Jahrhundert */
 /* Umgestellt um ohne Supervisormodus auszukommen am 22.4.99 */
 /* Erweitert um Ssystem(GETCOOKIE) am 2.5.99 */
-int get_cookie(unsigned long cookie, unsigned long *value)
+BOOLEAN get_cookie(unsigned long cookie, unsigned long *value)
 {
-	long r,
-	 val;
-
+	long r;
+	long val;
 	unsigned long *cookiejar;
-
 
 	/* Erst den neuen Weg probieren */
 	if ((r = Ssystem(GETCOOKIE, cookie, (long) &val)) != EINVFN)
@@ -291,11 +284,11 @@ int get_cookie(unsigned long cookie, unsigned long *value)
 		if (r != -1)
 		{
 			*value = val;
-			return (TRUE);
+			return TRUE;
 		} else
 		{
 			*value = 0L;
-			return (FALSE);
+			return FALSE;
 		}
 	} else
 	{
@@ -314,16 +307,16 @@ int get_cookie(unsigned long cookie, unsigned long *value)
 			if (*cookiejar == cookie)
 			{
 				*value = *(cookiejar + 1);
-				return (TRUE);
+				return TRUE;
 			} else
 			{
-				*value = 0L;
-				return (FALSE);
+				*value = 0;
+				return FALSE;
 			}
 		} else
 		{
-			*value = 0L;
-			return (FALSE);
+			*value = 0;
+			return FALSE;
 		}
 	}
 }
@@ -335,13 +328,12 @@ void *SMalloc(long amount)
 {
 	char *buffer;
 
-
 	if ((buffer = (char *) Malloc(amount)) == 0)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MALLOC_ERR].TextCast, NULL, NULL, NULL, 1);
 	else
 		memset(buffer, 0x0, amount);
 
-	return (buffer);
+	return buffer;
 }
 
 
@@ -349,15 +341,15 @@ void *SMalloc(long amount)
 int SMfree(void *ptr)
 {
 	if (ptr == NULL)
-		return (-1);
+		return -1;
 
 	if (Mfree(ptr) != 0)
 	{
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MFREE_ERR].TextCast, NULL, NULL, NULL, 1);
-		return (-1);
+		return -1;
 	}
 
-	return (0);
+	return 0;
 }
 
 void exported_SMfree(void *ptr)
@@ -446,65 +438,65 @@ float convert_units(short oldunit, short newunit, float dpi)
 		}
 	}
 
-	return (conv_factor);
+	return conv_factor;
 }
 
 
-char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols)
+char *load_palfile(char *path, WORD *red, WORD *green, WORD *blue, WORD max_cols)
 {
-	int fsback;
-	int *palbuf,
-	*palcpy;
-	int max_count,
-	 t;
+	WORD fsback;
+	WORD *palbuf;
+	WORD *palcpy;
+	WORD max_count;
+	WORD t;
 	static char pal_loadpath[256];
 
 	strcpy(pal_loadpath, path);
-	fsback = f_fsbox(pal_loadpath, "Palette laden", 0);
+	fsback = f_fsbox(pal_loadpath, "Palette laden", 0); /* FIXME: translate */
 
 	if (fsback != FALSE)
 	{
-		palbuf = (int *) fload(pal_loadpath, 0);
-		max_count = (int) (f_len / 6);
+		palbuf = (WORD *) fload(pal_loadpath, 0);
+		max_count = (WORD) (f_len / 6);
 		if (max_count > max_cols)
 		{
+			SMfree(palbuf);
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[PAL_DEPTHERR].TextCast, NULL, NULL, NULL, 1);
-			return (NULL);
+			return NULL;
 		} else
 		{
 			palcpy = palbuf;
 			/* Mit der ersten Farbe im File die Palette ausnullen */
 			for (t = 0; t < 256; t++)
 			{
-				red[t] = (int) (255L * (long) palcpy[0] / 1000L);
-				green[t] = (int) (255L * (long) palcpy[1] / 1000L);
-				blue[t] = (int) (255L * (long) palcpy[2] / 1000L);
+				red[t] = (WORD) (255L * (long) palcpy[0] / 1000L);
+				green[t] = (WORD) (255L * (long) palcpy[1] / 1000L);
+				blue[t] = (WORD) (255L * (long) palcpy[2] / 1000L);
 			}
 
 			/* und Åbertragen */
 			for (t = 0; t < max_count; t++)
 			{
-				red[t] = (int) (255L * (long) palcpy[t * 3] / 1000L);
-				green[t] = (int) (255L * (long) palcpy[t * 3 + 1] / 1000L);
-				blue[t] = (int) (255L * (long) palcpy[t * 3 + 2] / 1000L);
+				red[t] = (WORD) (255L * (long) palcpy[t * 3] / 1000L);
+				green[t] = (WORD) (255L * (long) palcpy[t * 3 + 1] / 1000L);
+				blue[t] = (WORD) (255L * (long) palcpy[t * 3 + 2] / 1000L);
 			}
 		}
 
 		SMfree(palbuf);
-		return (pal_loadpath);
+		return pal_loadpath;
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 
 /* get_maxnamelen ------------------------------------------------
 	Gibt die maximale LÑnge eines Dateinamen im Pfad path zurÅck.
 	-------------------------------------------------------------*/
-long get_maxnamelen(char *path)
+long get_maxnamelen(const char *path)
 {
 	long Name_Max;
-
 
 	/* maximale FilenamenlÑnge im Pfad erfragen */
 	if ((Name_Max = Dpathconf(path, 3)) >= 0)	/* Funktionsergebnis gÅltig */
@@ -512,16 +504,18 @@ long get_maxnamelen(char *path)
 		if (Name_Max == UNLIMITED)		/* LÑnge unbegrenzt */
 			Name_Max = NAME_MAX;
 	} else
+	{
 		Name_Max = 12;					/* Funktion nicht vorhanden */
+	}
 
-	return (Name_Max);
+	return Name_Max;
 }
 
 
 /* Konvertiert ein int im BCD-Format in einen String */
 /* inklusive UnterdrÅckung einer 0 im ersten Zeichen und */
 /* Punkt an der richtigen Stelle */
-void BCD2string(char *string, int bcd)
+void BCD2string(char *string, uint16_t bcd)
 {
 	if ((bcd >> 12) != 0)
 		*string++ = '0' + (bcd >> 12);
@@ -540,7 +534,6 @@ char *strrpbrk(char *s1beg, char *s1, char *s2)
 {
 	char *os2 = s2;
 
-
 	do
 	{
 		s2 = os2;
@@ -552,9 +545,9 @@ char *strrpbrk(char *s1beg, char *s1, char *s2)
 	} while (s1-- != s1beg);
 
 	if (*s1 && *s1 == *s2)
-		return (s1);
+		return s1;
 	else
-		return (NULL);
+		return NULL;
 }
 
 
@@ -563,7 +556,7 @@ char *strrpbrk(char *s1beg, char *s1, char *s2)
 	in alle Variablen von Display_Opt, damit alle Farbtiefen nur mit diesen
 	Modi gedithert werden (z.B. fÅr Preview).
 	--------------------------------------------------------------------*/
-void make_singular_display(DISPLAY_MODES * old, int Dither, int Pal)
+void make_singular_display(DISPLAY_MODES *old, short Dither, short Pal)
 {
 	memcpy(old, &Display_Opt, sizeof(DISPLAY_MODES));
 	Display_Opt.dither_24 = Dither;
@@ -574,11 +567,12 @@ void make_singular_display(DISPLAY_MODES * old, int Dither, int Pal)
 	Display_Opt.syspal_4 = Pal;
 }
 
+
 /* restore_display -------------------------------------------------------
 	Kopiert die gerettete DISPLAY_MODES *old nach Display_Opt. Zum Restoren von
 	make_singular_display.
 	----------------------------------------------------------------------*/
-void restore_display(DISPLAY_MODES * old)
+void restore_display(DISPLAY_MODES *old)
 {
 	memcpy(&Display_Opt, old, sizeof(DISPLAY_MODES));
 }
@@ -594,7 +588,7 @@ char *shorten_name(char *string, char newlen)
 
 	/* nichts tun wenn String sowieso passend */
 	if (strlen(string) <= newlen)
-		return (string);
+		return string;
 
 	memset(temp, 0, sizeof(temp));
 	strncpy(temp, string, newlen / 2 - 1);	/* auf die HÑlfte und eines weniger */
@@ -607,10 +601,10 @@ char *shorten_name(char *string, char newlen)
 
 /* Lesen des aktuellen Pfad. (drive = 0 fÅr Defaultdrive) */
 
-int get_path(char *path, char drive)
+BOOLEAN get_path(char *path, char drive)
 {
-	int ret,
-	 drive_nr;
+	short ret;
+	short drive_nr;
 
 	if (drive == 0)
 	{
@@ -618,7 +612,9 @@ int get_path(char *path, char drive)
 		if (drive > 'Z')
 			drive = drive - 'Z' + '0';
 	} else
+	{
 		drive = toupper(drive);
+	}
 	if (drive >= '1' && drive <= '6')	/* Laufwerk nach Z mit Big-DOS oder MetaDOS > 2.60 */
 		drive_nr = drive - '1' + 26;
 	else
@@ -633,15 +629,16 @@ int get_path(char *path, char drive)
 		str_toupper(path);
 #endif
 
-	return (ret == 0);
+	return ret == 0;
 }
+
 
 /* Setzt den aktuellen Pfad. */
 
-int set_path(char *path)
+BOOLEAN set_path(char *path)
 {
-	int drive,
-	 ret;
+	short drive;
+	short ret;
 
 	if (path[0] == '\0')
 		return FALSE;
@@ -653,5 +650,5 @@ int set_path(char *path)
 		drive = path[0] - 'A';
 	Dsetdrv(drive);
 	ret = Dsetpath(path + 2);
-	return (ret == 0);
+	return ret == 0;
 }
