@@ -161,7 +161,7 @@ void    f_init_bintable(OBJECT *rsc);       /* Bin„rwert-Table init */
 
 
 WORD handle_keyboardevent(WINDOW *wind_s, WORD scancode, WORD *sel_object);
-void change_object(WINDOW *window, WORD objct, WORD status, int redraw);
+void change_object(WINDOW *window, WORD objct, WORD status, BOOLEAN redraw);
 
 
 /*

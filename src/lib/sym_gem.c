@@ -81,9 +81,8 @@ WORD button_ev(OBJECT *tree)
 	WORD newedit;
 	WORD scancode;
 
-
 	evnt_multi(MU_BUTTON | MU_MESAG, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, messagebuf, EVNT_TIME(0), &mouse_xpos,
-			   &mouse_ypos, &mouse_button, &key_at_event, &scancode, &klicks);
+		&mouse_ypos, &mouse_button, &key_at_event, &scancode, &klicks);
 	ob_number = objc_find(tree, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
 
 	if (ob_number != -1)
@@ -104,17 +103,14 @@ WORD button_ev(OBJECT *tree)
 short f_numedit(WORD obj, OBJECT *tree, WORD deflt)
 {
 	char defstr[10];
-	static int editx = 1;
-
-	int xpos = 0,
-		ypos = 0;
-	int width,
-	 height;
-	int event_type;
-	int key_scancode,
-	 nextob,
-	 nextchar;
-
+	WORD editx = 0;
+	WORD xpos = 0;
+	WORD ypos = 0;
+	WORD width, height;
+	WORD event_type;
+	WORD key_scancode;
+	WORD nextob;
+	WORD nextchar;
 
 	objc_offset(tree, obj, &xpos, &ypos);	/* X-und Y-Koordinate des klickobj. ermitteln */
 	width = u_tree[NUMEDIT_BOX].ob_width;
@@ -133,9 +129,10 @@ short f_numedit(WORD obj, OBJECT *tree, WORD deflt)
 
 	do
 	{
-		event_type = evnt_multi(MU_BUTTON | MU_KEYBD, 0x102, 0x3, 0x0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, messagebuf,
-								EVNT_TIME(0), &mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &key_scancode,
-								&klicks);
+		event_type = evnt_multi(MU_BUTTON | MU_KEYBD, 0x102, 0x3, 0x0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			messagebuf,
+			EVNT_TIME(0),
+			&mouse_xpos, &mouse_ypos, &mouse_button, &key_at_event, &key_scancode, &klicks);
 
 		if (event_type & MU_KEYBD)
 		{
@@ -172,37 +169,27 @@ short f_numedit(WORD obj, OBJECT *tree, WORD deflt)
 /******************************************************************	*/
 WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree)
 {
-	int xpos,
-	 ypos;
-	int pop_button = 1,
-		backval;
-	int mx,
-	 my;
-	int popwidth,
-	 popheight;
-	int dummy = 0;
-	int pbuf[50];
-	int item,
-	 popup,
-	 obj;
-	int popup_head,
-	 popup_tail,
-	 cycled_item,
-	 obutton;
-	int em_x,
-	 em_y,
-	 mbutt;
-	int abx,
-	 aby,
-	 abw,
-	 abh;
-	int curr_ob;
-	int mb[32];
-
-	OBJECT *tree,
-	*popup_form;
+	WORD xpos, ypos;
+	WORD pop_button = 1;
+	WORD backval;
+	WORD mx, my;
+	WORD popwidth, popheight;
+	WORD dummy = 0;
+	WORD pbuf[50];
+	WORD item;
+	WORD popup;
+	WORD obj;
+	WORD popup_head, popup_tail;
+	WORD cycled_item;
+	WORD obutton;
+	WORD em_x, em_y;
+	WORD mbutt;
+	WORD abx, aby, abw, abh;
+	WORD curr_ob;
+	WORD mb[32];
+	OBJECT *tree;
+	OBJECT *popup_form;
 	MENU popup_menu;
-
 
 	tree = popup_struct->display_tree;
 	item = popup_struct->item;
@@ -243,8 +230,10 @@ WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree)
 		objc_offset(tree, obj, &xpos, &ypos);	/* Koordiaten fr popup holen */
 
 	evnt_multi(MU_TIMER, 0, 0, 0,
-			   0, dummy, dummy, dummy, dummy, 0, dummy, dummy, dummy, dummy,
-			   pbuf, EVNT_TIME(20), &mouse_xpos, &mouse_ypos, &dummy, &dummy, &dummy, &dummy);
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		pbuf,
+		EVNT_TIME(20),
+		&mouse_xpos, &mouse_ypos, &dummy, &dummy, &dummy, &dummy);
 
 	xpos -= 3;
 
@@ -354,8 +343,7 @@ WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree)
 
 		wind_update(BEG_MCTRL);
 		wind_update(BEG_UPDATE);
-		form_dial(FMD_START, xpos - 2, ypos - 2, popwidth + 4, popheight + 4, xpos - 2, ypos - 2, popwidth + 4,
-				  popheight + 4);
+		form_dial(FMD_START, xpos - 2, ypos - 2, popwidth + 4, popheight + 4, xpos - 2, ypos - 2, popwidth + 4, popheight + 4);
 
 		objc_draw(popup_form, 0, MAX_DEPTH, 0, 0, Sys_info.screen_width, Sys_info.screen_height);
 		obutton = 1;
@@ -378,8 +366,12 @@ WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree)
 		do
 		{
 			graf_mkstate(&em_x, &em_y, &dummy, &dummy);
-			backval = evnt_multi(MU_BUTTON | MU_M1, 1, 1, 1, 1, em_x, em_y, 1, 1, 0, 0, 0, 0, 0,
-								 mb, EVNT_TIME(0), &mx, &my, &mbutt, &dummy, &dummy, &dummy);
+			backval = evnt_multi(MU_BUTTON | MU_M1, 1, 1, 1,
+				1, em_x, em_y, 1, 1,
+				0, 0, 0, 0, 0,
+				mb,
+				EVNT_TIME(0),
+				&mx, &my, &mbutt, &dummy, &dummy, &dummy);
 
 			pop_button = objc_find(popup_form, 0, MAX_DEPTH, mx, my);
 
@@ -407,8 +399,7 @@ WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree)
 		if (pop_button > 0)
 			popup_form[pop_button].ob_state &= ~OS_SELECTED;
 
-		form_dial(FMD_FINISH, xpos - 2, ypos - 2, popwidth + 4, popheight + 4, xpos - 2, ypos - 2, popwidth + 4,
-				  popheight + 4);
+		form_dial(FMD_FINISH, xpos - 2, ypos - 2, popwidth + 4, popheight + 4, xpos - 2, ypos - 2, popwidth + 4, popheight + 4);
 		wind_update(END_UPDATE);
 		wind_update(END_MCTRL);
 
@@ -435,23 +426,16 @@ WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree)
 /* angibt, ob ein Objekt gezogen werden darf (1) oder nicht (0).	*/
 /* ****************************************************************	*/
 #if 0									/* unused */
-static int moveable;
+static BOOLEAN moveable;
 
 void f_drag(WORD obj, WORD parent, OBJECT *tree)
 {
-	int xkoo,
-	 ykoo;
-	int oxkoo,
-	 oykoo;
-	int xmin,
-	 ymin;
-	int xpos,
-	 ypos;
-	int w,
-	 h;
-	int clipw,
-	 cliph;
-
+	WORD xkoo, ykoo;
+	WORD oxkoo, oykoo;
+	WORD xmin, ymin;
+	WORD xpos, ypos;
+	WORD w, h;
+	WORD clipw, cliph;
 
 	w = tree[obj].ob_width;				/* Breite und... */
 	h = tree[obj].ob_height + 1;		/* H”he ermitteln (fr Dragbox) */
@@ -573,38 +557,31 @@ void f_showtree(OBJECT *tree, WORD object)
 /* ****************************************************************	*/
 short f_rslid(SLIDER *slider_struct)
 {
-	int regler,
-	 fhr,
-	 txt_obj;
-	int min_val,
-	 max_val;
-	int mousex,
-	 mousey,
-	 mbutt,
-	 oldy;
-	int ypos,
-	 fhr_x,
-	 fhr_y;
-	int slidval;
-	int klickobj;
-	int dummy;
-	int reg_x,
-	 reg_y,
-	 ev;
-
+	WORD regler;
+	WORD fhr;
+	WORD txt_obj;
+	WORD min_val, max_val;
+	WORD mousex, mousey;
+	WORD mbutt;
+	WORD oldy;
+	WORD ypos;
+	WORD fhr_x, fhr_y;
+	WORD slidval;
+	WORD klickobj;
+	WORD dummy;
+	WORD reg_x, reg_y;
+	WORD ev;
 	float differ;
-
 	OBJECT *rtree;
 	WINDOW *windst;
 	GRECT wsize;
-
 
 	regler = slider_struct->regler;
 	fhr = slider_struct->schiene;
 	rtree = slider_struct->rtree;
 	txt_obj = slider_struct->txt_obj;
-	min_val = (int) slider_struct->min_val;
-	max_val = (int) slider_struct->max_val;
+	min_val = (WORD) slider_struct->min_val;
+	max_val = (WORD) slider_struct->max_val;
 	windst = slider_struct->window;
 	differ = (float) (max_val - min_val);
 
@@ -630,8 +607,11 @@ short f_rslid(SLIDER *slider_struct)
 		do
 		{
 			oldy = mousey;
-			ev = evnt_multi(MU_BUTTON | MU_M1, 1, 1, 0, 1, 0, mousey, scrwd, 1, 0, 0, 0, 0, 0, NULL, EVNT_TIME(0),
-							&dummy, &mousey, &mbutt, &dummy, &dummy, &dummy);
+			ev = evnt_multi(MU_BUTTON | MU_M1, 1, 1, 0,
+				1, 0, mousey, scrwd, 1,
+				0, 0, 0, 0, 0,
+				NULL, EVNT_TIME(0),
+				&dummy, &mousey, &mbutt, &dummy, &dummy, &dummy);
 
 			if (oldy != mousey)
 			{
@@ -704,23 +684,15 @@ short f_rslid(SLIDER *slider_struct)
 void setslider(SLIDER * sliderstruct, long value)
 {
 	char string[8];
-
-	int ypos;
-	int sliderob,
-	 slidertxt,
-	 sliders;
-	int gx,
-	 gy,
-	 gw,
-	 gh;
-
-	long max_val,
-	 min_val;
-
+	WORD ypos;
+	WORD sliderob;
+	WORD slidertxt;
+	WORD sliders;
+	WORD gx, gy, gw, gh;
+	long max_val;
+	long min_val;
 	float div;
-
 	OBJECT *tree;
-
 
 	max_val = sliderstruct->max_val;
 	min_val = sliderstruct->min_val;
@@ -782,37 +754,34 @@ void setslider(SLIDER * sliderstruct, long value)
 /*************************************************************	*/
 WORD f_listfield(WINDOW *window, WORD klick_obj, WORD key_scancode, LIST_FIELD *lfstruct)
 {
-	int listparent;
-	int first_entry,
-	 last_entry,
-	 entryc = 0;
+	WORD listparent;
+	WORD first_entry, last_entry;
+	WORD entryc = 0;
 	OBJECT *tree;
 	char **entries;
 	char *myentry;
-	int sl_parent,
-	 sl_ob;
-	int spar_height,
-	 spar_y,
-	 spar_x,
-	 number_of_entries,
-	 maxentries;
-	int oldoffset;
-	int mbutt,
-	 oldy,
-	 mousey = 0;
-	int gx,
-	 gy;
-	int next_obj,
-	 first_sel;
-	int oldkey_scan,
-	 ent_found;
-	int scan_ascii;
-	int old_rtoff,
-	 old_slpos,
-	 dummy = 0;
-	char *al_string,
-	*al_last,
-	 len;
+	WORD sl_parent;
+	WORD sl_ob;
+	WORD spar_height;
+	WORD spar_y, spar_x;
+	WORD number_of_entries;
+	WORD maxentries;
+	WORD oldoffset;
+	WORD mbutt;
+	WORD oldy;
+	WORD mousey = 0;
+	WORD gx, gy;
+	WORD next_obj;
+	WORD first_sel;
+	WORD oldkey_scan;
+	WORD ent_found;
+	WORD scan_ascii;
+	WORD old_rtoff;
+	WORD old_slpos;
+	WORD dummy = 0;
+	char *al_string;
+	char *al_last;
+	short len;
 
 	tree = window->resource_form;
 
@@ -1035,8 +1004,12 @@ WORD f_listfield(WINDOW *window, WORD klick_obj, WORD key_scancode, LIST_FIELD *
 			do
 			{
 				oldy = mousey;
-				evnt_multi(MU_BUTTON | MU_M1, 1, 1, 0, 1, 0, mouse_ypos, scrwd, 1, 0, 0, 0, 0, 0, NULL, EVNT_TIME(0),
-						   &dummy, &mousey, &mbutt, &dummy, &dummy, &dummy);
+				evnt_multi(MU_BUTTON | MU_M1, 1, 1, 0,
+					1, 0, mouse_ypos, scrwd, 1,
+					0, 0, 0, 0, 0,
+					NULL,
+					EVNT_TIME(0),
+					&dummy, &mousey, &mbutt, &dummy, &dummy, &dummy);
 
 				if (oldy != mousey)
 				{
@@ -1179,14 +1152,12 @@ WORD f_listfield(WINDOW *window, WORD klick_obj, WORD key_scancode, LIST_FIELD *
 
 static void f_update_listfield(LIST_FIELD * lfstruct, OBJECT * tree)
 {
-	register char **entries;
-	register char *myentry;
-	register int stringcount,
-	 entryc;
-	int first_entry,
-	 last_entry;
-	int number_of_entries;
-
+	char **entries;
+	char *myentry;
+	WORD stringcount;
+	WORD entryc;
+	WORD first_entry, last_entry;
+	WORD number_of_entries;
 	OBJECT *entry_obj;
 
 	first_entry = tree[lfstruct->parent_obj].ob_head;
@@ -1227,8 +1198,7 @@ static void f_update_listfield(LIST_FIELD * lfstruct, OBJECT * tree)
 /******************************************************************	*/
 WORD get_selected_object(OBJECT *tree, WORD first_entry, WORD last_entry)
 {
-	int entryc;
-
+	WORD entryc;
 
 	entryc = first_entry;
 
@@ -1252,8 +1222,8 @@ WORD get_selected_object(OBJECT *tree, WORD first_entry, WORD last_entry)
 /*--------------------- Listenfeld generieren ----------------------*/
 /******************************************************************	*/
 void f_generate_listfield(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sliderobject,
-						  WORD listparent, char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield,
-						  WORD autoloc)
+	WORD listparent, char *listentries, WORD num_entries, WORD max_entries, LIST_FIELD *listfield,
+	WORD autoloc)
 {
 	if (listfield == NULL)
 		listfield = malloc(sizeof(LIST_FIELD));
@@ -1285,7 +1255,7 @@ void f_generate_listfield(WORD uparrow, WORD dnarrow, WORD sliderparent, WORD sl
 /* OS_ENABLED | OS_DISABLED											*/
 /* Redraw = 1->gleich neu zeichnen.									*/
 /* **************************************************************** */
-void change_object(WINDOW *window, WORD objct, WORD status, int redraw)
+void change_object(WINDOW *window, WORD objct, WORD status, BOOLEAN redraw)
 {
 	GRECT gred;
 	OBJECT *tree;
@@ -1310,7 +1280,7 @@ void change_object(WINDOW *window, WORD objct, WORD status, int redraw)
 	else if (status == OS_ENABLED)
 		tree[objct].ob_state &= ~OS_DISABLED;
 
-	if (redraw != 0)
+	if (redraw)
 		Window.redraw(window, &gred, objct, DRAWNOPICTURE);
 
 	DEBUG_MSG(("change_object...Ende\n"));
@@ -1338,31 +1308,24 @@ void change_object(WINDOW *window, WORD objct, WORD status, int redraw)
 /* ------------------------------------------------------------------------	*/
 void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call, BOOLEAN (*call_me)(WORD mx, WORD my))
 {
-	int obx,
-	 oby,
-	 obw,
-	 obh;
+	WORD obx, oby, obw, obh;
 	OBJECT *tree;
-	int dummy,
-	 mousex,
-	 mousey,
-	 mbutton,
-	 keystate;
-	int nmx,
-	 nmy,
-	 m_xoff,
-	 m_yoff;
-	int mbuff[16];
-	MFDB screenm,
-	 buffer;
-	int savepxy[8];
-	int deletepxy[8];
-	int cliparray[8];
-	int obj_xpos,
-	 obj_ypos;
-	int omx,
-	 omy,
-	 redraw;
+	WORD dummy;
+	WORD mousex, mousey;
+	WORD mbutton;
+	WORD keystate;
+	WORD nmx, nmy;
+	WORD m_xoff;
+	WORD m_yoff;
+	WORD mbuff[16];
+	MFDB screenm;
+	MFDB buffer;
+	WORD savepxy[8];
+	WORD deletepxy[8];
+	WORD cliparray[8];
+	WORD obj_xpos, obj_ypos;
+	WORD omx, omy;
+	BOOLEAN redraw;
 
 	/* Mausposition speichern */
 	obx = mousex = mouse_xpos;
@@ -1444,8 +1407,13 @@ void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call,
 		omx = mousex;
 		omy = mousey;
 
-		evnt_multi(MU_TIMER | MU_M1, 1, 3, 0, 1, mousex, mousey, 1, 1, 0, 0, 0, 0, 0,
-				   mbuff, EVNT_TIME(50), &nmx, &nmy, &mbutton, &keystate, &dummy, &dummy);
+		evnt_multi(MU_TIMER | MU_M1,
+			1, 3, 0,
+			1, mousex, mousey, 1, 1,
+			0, 0, 0, 0, 0,
+			mbuff,
+			EVNT_TIME(50),
+			&nmx, &nmy, &mbutton, &keystate, &dummy, &dummy);
 
 		graf_mkstate(&nmx, &nmy, &mbutton, &keystate);
 

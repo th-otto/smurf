@@ -43,7 +43,7 @@
 /*  auf eines der Objekte (Slider, Pfeile, Sliderparent, Listen-*/
 /*  eintrag) dieses und die Struktur an f_listfield bergeben.  */
 /*  Fertig. Die Funktion srollt und redrawed das Listenfeld     */
-/*  selbst„ndig ud gibt den selektierten Listeneintrag          */
+/*  selbst„ndig und gibt den selektierten Listeneintrag         */
 /*  (incl. Scrolloffset) zurck.                                */
 typedef char**  LISTPTR;
 
