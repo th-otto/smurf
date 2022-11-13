@@ -30,7 +30,8 @@
 .C[ -C -K -M -P- -2 -8 ]
 .C [-I..\..\..\src\lib]
 .C [-I..\..\dither]
-
+.S[-DPURE_C=1]
+.L[-S=1024]
 =                  ; list of modules follows...
 ..\edstart.s          ; startup code
 

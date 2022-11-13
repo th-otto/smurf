@@ -47,6 +47,7 @@
 *
 *   Noch unoptimiert, nur zum Austesten
 *---------------------------------------------------
+	.IFEQ PURE_C
 /* gcc cdecl entry point */
 	.globl _setpix_std_line
 _setpix_std_line:
@@ -65,6 +66,7 @@ _setpix_std_line:
 	bsr.s setpix_std_line
 	move.l (a7)+,d2
 	rts
+	.ENDC
 
 	.globl setpix_std_line
 setpix_std_line:
@@ -167,6 +169,7 @@ looplane:
 *
 *   Noch unoptimiert, nur zum Austesten
 *---------------------------------------------------
+	.IFEQ PURE_C
 /* gcc cdecl entry point */
 	.globl _setpix_std_line16
 _setpix_std_line16:              /* Hier wird je nach Einsprungpunkt die Variable */
@@ -185,7 +188,7 @@ _setpix_std_line16:              /* Hier wird je nach Einsprungpunkt die Variabl
 	bsr.s setpix_std_line16
 	move.l (a7)+,d2
 	rts
-
+	.ENDC
 
 	.globl setpix_std_line16
 setpix_std_line16:              /* Hier wird je nach Einsprungpunkt die Variable */
@@ -330,6 +333,7 @@ looplane16:
 *
 *   Noch unoptimiert, nur zum Austesten
 *---------------------------------------------------
+	.IFEQ PURE_C
 /* gcc cdecl entry point */
 	.globl _setpix_std_line_TC
 _setpix_std_line_TC:              /* Hier wird je nach Einsprungpunkt die Variable */
@@ -348,6 +352,7 @@ _setpix_std_line_TC:              /* Hier wird je nach Einsprungpunkt die Variab
 	bsr.s setpix_std_line_TC
 	move.l (a7)+,d2
 	rts
+	.ENDC
 
 
 	.globl setpix_std_line_TC

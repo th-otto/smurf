@@ -9,11 +9,12 @@ WARN = -Werror
 DEFS =
 INCLUDES = -I.
 CFLAGS = $(OPT) $(WARN) $(DEFS) $(INCLUDES)
+ASFLAGS = -Wa,--defsym,PURE_C=0
 LDFLAGS =
 LIBS = -lgem
 
 DISTDIR = $(top_srcdir)/dist
 
 .s.o:
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(ASFLAGS) -c -o $@ $<
 

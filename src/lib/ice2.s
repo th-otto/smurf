@@ -6,10 +6,12 @@
 *          a1 - Address of unpacked data
 * Output : None
 
+	.IFEQ PURE_C
 	.globl _ice_decrunch
 _ice_decrunch:
 	move.l  4(a7),a0
 	move.l  8(a7),a1
+	.ENDC
 
 	.globl ice_decrunch
 ice_decrunch:

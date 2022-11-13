@@ -33,6 +33,7 @@
 *************************************************************** *
 */
 /* gcc cdecl entry point */
+	.IFEQ PURE_C
 	.globl  _get_standard_pix
 _get_standard_pix:
 	move.l 4(a7),a0
@@ -44,6 +45,7 @@ _get_standard_pix:
 	move.w 12(a7),d0
 	move.l 14(a7),d1
 #endif
+	.ENDC
 
 	.globl  get_standard_pix
 get_standard_pix:

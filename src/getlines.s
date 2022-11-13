@@ -45,6 +45,7 @@
 *   Noch unoptimiert, nur zum Austesten
 *---------------------------------------------------
 /* gcc cdecl entry point */
+	.IFEQ PURE_C
 	.globl  _getpix_std_line
 	move.l d2,-(a7)
 _getpix_std_line:
@@ -62,6 +63,7 @@ _getpix_std_line:
 	bsr.s getpix_std_line
 	move.l (a7)+,d2
 	rts
+	.ENDC
 
 	.globl  getpix_std_line
 getpix_std_line:

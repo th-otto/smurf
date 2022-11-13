@@ -30,6 +30,7 @@
 .C [-I..\..\..\src\lib]
 .C [-I..]
 .C [-I..\..\..\..\purec\include\]
+.S[-DPURE_C=1]
 .L [-S=1024]
 =                                           ; list of modules follows...
 ..\ditstart.s                               ; startup code

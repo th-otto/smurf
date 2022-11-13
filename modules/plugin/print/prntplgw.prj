@@ -26,6 +26,7 @@
 .C [-I..\..\..\src\lib]
 .C [-I..\..\dither]
 .C [-I..\..\..\..\purec\include\]
+.S[-DPURE_C=1]
 .L [-S=7168]
 =                                       ; list of modules follows...
 ..\plgstart.s                           ; startup code

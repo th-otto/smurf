@@ -2,6 +2,7 @@
 
 
 gif2_imp.prg                  ; name of executable program is topmost window
+.S[-DPURE_C=1]
 =                  ; list of modules follows...
 PCSTART.O
 
@@ -17,5 +18,4 @@ pcstdlib.lib       ; standard library
 pcextlib.lib       ; extended library
 pctoslib.lib       ; TOS library
 pcgemlib.lib       ; AES and VDI library
-DEMOLIB.LIB       ; AES and VDI library
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+demolib.lib       ; AES and VDI library

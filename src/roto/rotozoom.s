@@ -30,6 +30,8 @@
 *14(a0)=paddr
 *15(a0)=image
 
+/* void rotozoom(short *img, short *padr, short xstep, short xystep, short pos) */
+	.IFEQ PURE_C
 /* gcc cdecl entry point */
 	.globl _rotozoom
 _rotozoom:
@@ -48,6 +50,7 @@ _rotozoom:
 	bsr.s rotozoom
 	move.l (a7)+,d2
 	rts
+	,ENDC
 
 	.globl rotozoom
 rotozoom:

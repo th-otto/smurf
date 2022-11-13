@@ -41,6 +41,7 @@ BOXDEPTH	= 10
 *	Aufsummieren der Farben einer yz-Plane aus dem FarbwÅrfel
 *	Deklaration: ulong sumplane_yz(long *hist, MC_BOX *box, int xposition);
 /* gcc cdecl entry point */
+	.IFEQ PURE_C
 	.globl _sumplane_yz
 _sumplane_yz:
 	move.l 4(a7),a0
@@ -50,6 +51,7 @@ _sumplane_yz:
 #else
 	move.w 12(a7),d0
 #endif
+	.ENDC
 
 	.globl sumplane_yz
 sumplane_yz:

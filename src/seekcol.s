@@ -31,6 +31,7 @@
 *   int seek_nearest_col(long *par, int maxcol);
 *
 
+	.IFEQ PURE_C
 /* gcc cdecl entry point */
 	.globl _seek_nearest_col
 _seek_nearest_col:
@@ -40,6 +41,7 @@ _seek_nearest_col:
 #else
 	move.w 8(a7),d0
 #endif
+	.ENDC
 
 	.globl seek_nearest_col
 seek_nearest_col:

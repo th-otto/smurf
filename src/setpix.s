@@ -50,6 +50,7 @@
 *
 *   Noch unoptimiert, nur zum austesten
 *---------------------------------------------------
+	.IFEQ PURE_C
 /* gcc cdecl entry point */
 	.globl _setpix_standard
 _setpix_standard:
@@ -68,6 +69,7 @@ _setpix_standard:
 	bsr.s setpix_standard
 	move.l (a7)+,d2
 	rts
+	.ENDC
 
 	.globl setpix_standard
 setpix_standard:
@@ -225,6 +227,8 @@ return_1:
 *   return: Anzahl an Bytes, die im Quellbild weitergegangen werden soll
 *           (in diesem Fall immer 2)
 *---------------------------------------------------
+	.IFEQ PURE_C
+/* gcc cdecl entry point */
 	.globl _setpix_standard
 _setpix_standard_16:
 	move.l d2,-(a7)
@@ -242,6 +246,7 @@ _setpix_standard_16:
 	bsr.s setpix_standard_16
 	move.l (a7)+,d2
 	rts
+	.ENDC
 
 	.globl setpix_standard_16
 setpix_standard_16:
@@ -354,6 +359,7 @@ setpix_16:
 *   int setpix_pp(char *buf16, char *dest, int depth, long planelen, int howmany);
 *   Return: Pixelincrement im Quellbild (8Bit -> 16, 4 Bit->8)
 *---------------------------------------------------
+	.IFEQ PURE_C
 /* gcc cdecl entry point */
 	.globl _setpix_pp
 _setpix_pp:
@@ -372,6 +378,7 @@ _setpix_pp:
 	bsr.s setpix_pp
 	move.l (a7)+,d2
 	rts
+	.ENDC
 
 	.globl setpix_pp
 setpix_pp:

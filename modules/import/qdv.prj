@@ -21,27 +21,19 @@
 ; ***** END LICENSE BLOCK *****
 
 ..\..\dist\modules\import\qdv.sim
-.C [-C -K -M -P-]
+.C [-C -K -M -P -2-]
 .C [-I..\..\src\lib]
 .C [-I..\dither]
 .C [-I..\..\..\purec\include\]
+.S[-DPURE_C=1]
 .L [-S=2048]
 =                  	; list of modules follows...
 impstart.s         	; startup code
 
 qdv.c
 
-;..\getint08.s   	; get_IBPLine8
-;..\getinter.s		; get_IBPLine
+..\..\src\setlines.s    ; setpix_std_line
 
-
-;..\..\src\setp16.s          ; setpix and getpix for standard format
-
-;..\..\src\setlines.s    ; setpix_std_line
-
-
-pcfltlib.lib       ; floating point library
 pcstdlib.lib       ; standard library
-pcextlib.lib       ; extended library
 pctoslib.lib       ; TOS library
 pcgemlib.lib       ; AES and VDI library
