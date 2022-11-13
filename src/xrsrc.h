@@ -48,11 +48,11 @@ extern WORD xrsrc_mustexist;
 
 WORD	xrsrc_load  (const char *re_lpfname, WORD *pglobal);
 WORD    xrsrc_free  (WORD *pglobal);
-WORD    xrsrc_gaddr (WORD re_gtype, WORD re_gindex, VOID *re_gaddr, WORD *pglobal);
-WORD    xrsrc_saddr (WORD re_stype, WORD re_sindex, VOID *re_saddr, WORD *pglobal);
+WORD    xrsrc_gaddr (WORD re_gtype, WORD re_gindex, void *re_gaddr, WORD *pglobal);
+WORD    xrsrc_saddr (WORD re_stype, WORD re_sindex, void *re_saddr, WORD *pglobal);
 WORD    xrsrc_obfix (OBJECT *re_otree, WORD re_oobject);
 
-WORD init_xrsrc  (WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox);
-VOID    term_xrsrc 	(VOID);
+WORD init_xrsrc(WORD vdi_handle, GRECT *desk, WORD gl_wbox, WORD gl_hbox);
+void term_xrsrc(void);
 
 #endif /* __XRSRC__ */
