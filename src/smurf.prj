@@ -31,7 +31,7 @@
 
 .C[-DDEBUG]
 
-.C [-C -K -M -P]
+.C [-C -K -M -P -G-]
 .C [-I.\rsc]
 .C [-I.\lib]
 .C [-I..\modules\dither]

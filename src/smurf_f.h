@@ -40,12 +40,12 @@
 /* **********************************************************************/
 
 /* Dateihandling mit Fileselector */
-void file_load(char *ltext, char **dateien, int mode);
-int file_save(char *stext, uint8_t *buf, long length);
+void file_load(char *ltext, char **dateien, short mode);
+BOOLEAN file_save(char *stext, uint8_t *buf, long length);
 BOOLEAN f_fsbox(char *Path, const char *fbtext, uint8_t selectart);
 
 /*  File laden */
-char *fload(char *Path, int header);
+char *fload(char *Path, short header);
 
 /* Bild importieren */
 void reload_pic(WINDOW *picwindow);
@@ -56,7 +56,7 @@ uint8_t *f_do_pcd(const char *Path);
 /*
  * config.c
  */
-int load_config(void);
+short load_config(void);
 void save_config(void);
 void f_analyze_system(void);
 void GetSMPath(void);
@@ -117,17 +117,17 @@ void makeNCT(long *par, long maxcol) ASM_NAME("_makeNCT");
 
 
 /*--------------------- Transformers -----------------------*/
-int f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mode, char automatic);
-int tfm_std_to_std(SMURF_PIC *smurf_pic, char dst_depth, char mode);
-int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode);
-int tfm_pp_to_std8(SMURF_PIC *picture, char mode);
-int tfm_8_to_16(SMURF_PIC *picture, char mode);
-int tfm_8_to_24(SMURF_PIC *picture, char mode);
-int tfm_16_to_24(SMURF_PIC *picture, char mode);
-int tfm_24_to_16(SMURF_PIC *picture, char mode);
-int tfm_bgr_to_rgb(SMURF_PIC *picture, char mode);
-int tfm_cmy_to_rgb(SMURF_PIC *picture, char mode);
-int tfm_rgb_to_grey(SMURF_PIC *picture, char mode);
+short f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, uint8_t modcolform, uint8_t mode, uint8_t automatic);
+short tfm_std_to_std(SMURF_PIC *smurf_pic, uint8_t dst_depth, uint8_t mode);
+short tfm_std_to_pp(SMURF_PIC *picture, uint8_t dst_depth, uint8_t mode);
+short tfm_pp_to_std8(SMURF_PIC *picture, uint8_t mode);
+short tfm_8_to_16(SMURF_PIC *picture, uint8_t mode);
+short tfm_8_to_24(SMURF_PIC *picture, uint8_t mode);
+short tfm_16_to_24(SMURF_PIC *picture, uint8_t mode);
+short tfm_24_to_16(SMURF_PIC *picture, uint8_t mode);
+short tfm_bgr_to_rgb(SMURF_PIC *picture, uint8_t mode);
+short tfm_cmy_to_rgb(SMURF_PIC *picture, uint8_t mode);
+short tfm_rgb_to_grey(SMURF_PIC *picture, uint8_t mode);
 
 
 void transform_pic(void);        /* "Bild Wandeln" - Dialog */

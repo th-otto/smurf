@@ -61,7 +61,7 @@ static void inquire_clipboard(void);
 static short getploadinfo(char *cmdlin, char *fname);
 
 
-int load_config(void)
+short load_config(void)
 {
 	char path[128];
 	char *buf;

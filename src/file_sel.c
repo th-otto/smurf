@@ -105,7 +105,7 @@ static void f_free_filelist(void)
 
 /* Ist nun die Hauptladefunktion und wird nicht mehr */
 /* von f_loadpic() aufgerufen, sondern andersherum. */
-void file_load(char *ltext, char **dateien, int mode)
+void file_load(char *ltext, char **dateien, short mode)
 {
 	char *buf;
 	char *fullname;
@@ -177,7 +177,7 @@ void file_load(char *ltext, char **dateien, int mode)
 }
 
 
-int file_save(char *stext, uint8_t *buf, long length)
+BOOLEAN file_save(char *stext, uint8_t *buf, long length)
 {
 	char desk_name[9];
 	int fh;

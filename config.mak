@@ -5,7 +5,7 @@ AS = $(CC)
 AR = $(CROSS)ar
 
 OPT = -O2 -fomit-frame-pointer
-WARN =
+WARN = -Werror
 DEFS =
 INCLUDES = -I.
 CFLAGS = $(OPT) $(WARN) $(DEFS) $(INCLUDES)

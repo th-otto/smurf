@@ -68,7 +68,7 @@ static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
 char *fileext(char *filename);
-void *fload(char *Path, int header);
+void *fload(char *Path, short header);
 
 /* Dies bastelt direct ein rol.w #8,d0 inline ein. */
 unsigned int swap_word(unsigned int w)
@@ -243,7 +243,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 /* --- FLOAD --- */
 
-void *fload(char *Path, int header)
+void *fload(char *Path, short header)
 {
 	char *fil;
 

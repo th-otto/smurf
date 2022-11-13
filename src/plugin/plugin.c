@@ -76,13 +76,13 @@ static SMURF_VARIABLES global_vars;
 BASPAG *plugin_bp[11];
 PLUGIN_DATA *plg_data[11];
 PLUGIN_INFO *plg_info[11];
-int anzahl_plugins;
+short anzahl_plugins;
 char *plugin_paths[11];
 signed char menu2plugin[128];			/* feste Meneintr„ge, in die Plugins eingeh„ngt sind */
 
 EXT_MODCONF *modconfs[20];				/* Strukturen fr Modul-Notifying */
 
-int printplug_found = 0;
+BOOLEAN printplug_found = FALSE;
 
 /*------------------ Plugins suchen und eintragen ------------------*/
 /* Der Ordner MODULES\\PLUGIN wird nach Files mit der Extension	*/
@@ -272,7 +272,7 @@ void scan_plugins(void)
 					plugin_startup(install_index, &curr_plugin_entry, actual->modname);
 
 					if (strcmp(curr_info->name, "GDOS Print-Plugin") == 0)
-						printplug_found = 1;
+						printplug_found = TRUE;
 
 					if (!curr_info->resident)
 						terminate_plugin(install_index);
@@ -287,7 +287,9 @@ void scan_plugins(void)
 				 */
 				else
 				{
-/*					Pexec(102, NULL, plugin_bp[anzahl_plugins], ""); */
+#if 0
+					Pexec(102, NULL, plugin_bp[anzahl_plugins], "");
+#endif
 					SMfree(plugin_bp[anzahl_plugins]->p_env);
 					SMfree(plugin_bp[anzahl_plugins]);
 					plugin_bp[anzahl_plugins] = NULL;

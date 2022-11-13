@@ -28,7 +28,7 @@
 #include "smurf_f.h"
 
 /* -------------------------- File laden --------------------------------*/
-char *fload(char *Path, int header)
+char *fload(char *Path, short header)
 {
 	char *buf;
 	int fh;

@@ -94,7 +94,7 @@ void check_depth(void);
 char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols);
 
 extern  void change_object(WINDOW *window, int object, int status, int redraw);
-extern  char *fload(char *Path, int header);
+extern  char *fload(char *Path, short header);
 extern  int depth_button2depth(int button);
 
 extern  void start_conversion(void);

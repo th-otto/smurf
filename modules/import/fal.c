@@ -50,7 +50,7 @@ static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
 char *fileext(char *filename);
-void *fload(char *Path, int header);
+void *fload(char *Path, short header);
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"Q0 Japan Image",
@@ -187,7 +187,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 }
 
 /* --- FLOAD --- */
-void *fload(char *Path, int header)
+void *fload(char *Path, short header)
 {
 	char *fil;
 	long f_len;

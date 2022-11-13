@@ -45,7 +45,7 @@ void change_object(WINDOW *window, int object, int status, int redraw)
 
 
 /* -------------------------- File laden --------------------------------*/
-char *fload(char *Path, int header)
+char *fload(char *Path, short header)
 {
     char *buf;
     int fh, attrib = 0;
@@ -83,7 +83,7 @@ char *fload(char *Path, int header)
         buf = NULL;
 
     return(buf);
-} /* fload */
+}
 
 
 int depth_button2depth(int button)

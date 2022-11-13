@@ -45,7 +45,7 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
-void *fload(char *Path, int header);
+void *fload(char *Path, short header);
 int strsrcr(char *s, char c);
 
 /* Infostruktur fÅr Hauptmodul */
@@ -203,7 +203,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 
 /* --- FLOAD --- */
-void *fload(char *Path, int header)
+void *fload(char *Path, short header)
 {
 	char *fil;
 	long f_len;

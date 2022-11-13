@@ -1286,7 +1286,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 
 			picture = (char *) pic_to_save->pic_data;
 			len = pic_to_save->f_len;
-			file_save("Bild Speichern", picture, len);
+			file_save("Bild Speichern", picture, len); /* FIXME: translate */
 			SMfree(pic_to_save);
 			SMfree(picture);
 			Dialog.busy.dispRAM();

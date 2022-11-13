@@ -63,10 +63,13 @@
 #include "smurfobs.h"
 #include "ext_obs.h"
 
-static void bgrtorgb(char *pic, long pixels)
+#define TIMER 0
+
+
+static void bgrtorgb(uint8_t *pic, long pixels)
 {
-	char c;
-	
+	uint8_t c;
+
 	do
 	{
 		c = pic[0];
@@ -77,27 +80,27 @@ static void bgrtorgb(char *pic, long pixels)
 }
 
 
-int f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mode, char automatic)
+short f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, uint8_t modcolform, uint8_t mode, uint8_t automatic)
 {
-	char picdepth, dstdepth, srcmode, dstmode, t;
-	char moddepth[8], modform[8], piccolform, g_ask = 0, in_modcolform = modcolform;
-
-	int back;
-
+	uint8_t picdepth, dstdepth, srcmode, dstmode, t;
+	uint8_t moddepth[8];
+	uint8_t modform[8];
+	uint8_t piccolform;
+	uint8_t g_ask = 0;
+	uint8_t in_modcolform = modcolform;
+	short back;
 	SMURF_PIC *dummy_pic;
-
 
 	picdepth = picture->depth;
 	srcmode = picture->format_type;
 
 	piccolform = picture->col_format;
 
-	if(automatic)
+	if (automatic)
 	{
 		dstdepth = mod_abs->depth1;
 		dstmode = mod_abs->form1;
-	}
-	else
+	} else
 	{
 		moddepth[0] = mod_abs->depth1;
 		moddepth[1] = mod_abs->depth2;
@@ -119,134 +122,131 @@ int f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mo
 
 
 		/* beste Zielfarbtiefe ermitteln */
-		/**/
 		/* Sofern m”glich, wird eine Wandlung nach 16 Bit generell umgangen. */
 		/* Weiterhin wird auch das Zielformat 8 Bit Graustufen umgangen wenn */
 		/* das Quellbild kein Graustufenbild ist. */
-
 		dummy_pic = SMalloc(sizeof(SMURF_PIC));
 
-		for(t = 0; t < 8 && moddepth[t] != 0; t++)
+		for (t = 0; t < 8 && moddepth[t] != 0; t++)
 		{
-			if(moddepth[t] >= picdepth)
+			if (moddepth[t] >= picdepth)
 			{
-				if(in_modcolform == 255)
+				if (in_modcolform == 255)
 				{
 					dummy_pic->depth = moddepth[t];
 					dummy_pic->col_format = piccolform;
-					start_exp_module(export_path, MCOLSYS, dummy_pic, module.bp[exp_conf.export_mod_num&0xFF], module.smStruct[exp_conf.export_mod_num&0xFF], exp_conf.export_mod_num);
-					if(module.smStruct[exp_conf.export_mod_num&0xFF]->module_mode == M_COLSYS)
-						modcolform = module.smStruct[exp_conf.export_mod_num&0xFF]->event_par[0];
+					start_exp_module(export_path, MCOLSYS, dummy_pic, module.bp[exp_conf.export_mod_num & 0xFF],
+						module.smStruct[exp_conf.export_mod_num & 0xFF], exp_conf.export_mod_num);
+					if (module.smStruct[exp_conf.export_mod_num & 0xFF]->module_mode == M_COLSYS)
+						modcolform = module.smStruct[exp_conf.export_mod_num & 0xFF]->event_par[0];
 				}
 
-				if(moddepth[t] == 8 && modcolform == GREY && piccolform != GREY)
+				if (moddepth[t] == 8 && modcolform == GREY && piccolform != GREY)
 				{
+					/* FIXME: translate */
 					g_ask = Dialog.winAlert.openAlert("Das Bild muž fr das Modul in 8 Bit Graustufen gewandelt werden! Sind Sie damit einverstanden?", "Nein", "Ja", NULL, 1);
-					if(g_ask == 1)						/* Nein */
+					if (g_ask == 1)		/* Nein */
 						continue;
 					else
 						break;
-				}
+				} else if (moddepth[t] == 16 && picdepth != 16)
+					continue;
 				else
-					if(moddepth[t] == 16 && picdepth != 16)
-						continue;
-					else
-						break;
+					break;
 			}
 		}
 
 		SMfree(dummy_pic);
-	
-		if(moddepth[t] == 0) 
+
+		if (moddepth[t] == 0)
 			dstdepth = moddepth[--t];
 		else
 			dstdepth = moddepth[t];
 #if 0
-		printf("\nsrcmode: %d, dstmode: %d, piccolform: %d, modcolform: %d, picdepth: %d, moddepth[%d]: %d", (int)srcmode, (int)modform[t], (int)piccolform, (int)modcolform, (int)picdepth, (int)t, (int)moddepth[t]);
+		printf("\nsrcmode: %d, dstmode: %d, piccolform: %d, modcolform: %d, picdepth: %d, moddepth[%d]: %d",
+			srcmode, modform[t], piccolform, modcolform, picdepth, t, moddepth[t]);
 		getch();
 #endif
 		/* will der User das Bild vielleicht in eine h”here Farbtiefe gewandelt haben? */
-		if(g_ask)
+		if (g_ask)
 		{
-			if(g_ask == 1 && dstdepth == 8)				/* Nein und keine h”here vorhanden */
-				return(-2);
-			else
-				if(g_ask == 1 && dstdepth == 24)		/* Nein und h”here vorhanden */
-				{
-					if(Dialog.winAlert.openAlert("Das Modul nimmt auch eine h”here Farbtiefen als 8 Bit. Soll dahin gewandelt werden?", "Nein", " Ja ", NULL, 1) == 1)
-						return(-2);						/* Nein */
-					else
-						modcolform = 0;					/* Farbsystem fest auf RGB, muž sp„ter erfragt werden */
-				}
+			if (g_ask == 1 && dstdepth == 8)	/* Nein und keine h”here vorhanden */
+				return -2;
+			if (g_ask == 1 && dstdepth == 24)	/* Nein und h”here vorhanden */
+			{
+				/* FIXME: translate */
+				if (Dialog.winAlert.openAlert("Das Modul nimmt auch eine h”here Farbtiefen als 8 Bit. Soll dahin gewandelt werden?", "Nein", " Ja ", NULL, 1) == 1)
+					return -2;			/* Nein */
+				else
+					modcolform = 0;		/* Farbsystem fest auf RGB, muž sp„ter erfragt werden */
+			}
 		}
 
 		/* will der User das Bild wirklich nach 16 Bit gewandelt haben? */
-		if(dstdepth == 16 && picdepth != 16)
+		if (dstdepth == 16 && picdepth != 16)
 		{
-			if(Dialog.winAlert.openAlert("Bei der Wandlung nach 16 Bit wird das Bild an Farbqualit„t verlieren! Wollen Sie das in Kauf nehmen?", "Nein", " Ja ", NULL, 1) == 1)
-				return(-2);
+			/* FIXME: translate */
+			if (Dialog.winAlert.openAlert("Bei der Wandlung nach 16 Bit wird das Bild an Farbqualit„t verlieren! Wollen Sie das in Kauf nehmen?", "Nein", " Ja ", NULL, 1) == 1)
+				return -2;
 		}
 
 		dstmode = modform[t];
 	}
 
 
-	if(picdepth == dstdepth && (srcmode == dstmode || dstmode == FORM_BOTH) &&
-	   piccolform == modcolform)
-		return(0);
+	if (picdepth == dstdepth && (srcmode == dstmode || dstmode == FORM_BOTH) && piccolform == modcolform)
+		return 0;
 
-/**/
-/*      Farbtiefendispatcher    */
-/**/
-	if(piccolform != modcolform ||				/* Ganz verschieden ... */
-	   picdepth == 24 && dstdepth == 8)			/* ... oder auch gleich aber 24 Bit->8 Bit */
+	/*
+	 * Farbtiefendispatcher
+	 */
+	if (piccolform != modcolform ||			/* Ganz verschieden ... */
+		picdepth == 24 && dstdepth == 8)	/* ... oder auch gleich aber 24 Bit->8 Bit */
 	{
-		if(modcolform == GREY)
+		if (modcolform == GREY)
 		{
 			back = tfm_rgb_to_grey(picture, mode);
-			if(back == 0)
+			if (back == 0)
 			{
-				srcmode=FORM_PIXELPAK;
-				picdepth=8;
-			}
-			else
-				return(back);
-		}
-		else
+				srcmode = FORM_PIXELPAK;
+				picdepth = 8;
+			} else
+				return back;
+		} else
 		{
 			picture->col_format = RGB;
 			back = 0;
 		}
 	}
 
-	if((srcmode != dstmode && dstmode != FORM_BOTH) || picdepth != dstdepth)
+	if ((srcmode != dstmode && dstmode != FORM_BOTH) || picdepth != dstdepth)
 	{
-		if(srcmode == FORM_STANDARD)
+		if (srcmode == FORM_STANDARD)
 		{
-			if(dstmode == FORM_STANDARD)
+			if (dstmode == FORM_STANDARD)
 				back = tfm_std_to_std(picture, dstdepth, mode);
 			else
 				back = tfm_std_to_pp(picture, dstdepth, mode);
-		}
-		else
-			switch(picdepth)
+		} else
+		{
+			switch (picdepth)
 			{
-				case 8:
-					if(dstdepth == 8)
-						back = tfm_pp_to_std8(picture, mode);
-					else
-						if(dstdepth == 16)
-							back = tfm_8_to_16(picture, mode);
-						else
-							back = tfm_8_to_24(picture, mode);
-					break;
-				case 16:
-					back = tfm_16_to_24(picture, mode);
-					break;
+			case 8:
+				if (dstdepth == 8)
+					back = tfm_pp_to_std8(picture, mode);
+				else if (dstdepth == 16)
+					back = tfm_8_to_16(picture, mode);
+				else
+					back = tfm_8_to_24(picture, mode);
+				break;
+			case 16:
+				back = tfm_16_to_24(picture, mode);
+				break;
 			}
+		}
 	}
 
-	return(back);
+	return back;
 }
 
 
@@ -254,17 +254,15 @@ int f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, char modcolform, char mo
 /*              Transferroutine Std. -> Std. 1-8 Bit                */
 /*                  h”her, schneller, weiter                        */
 /*----------------------------------------------------------------- */
-int tfm_std_to_std(SMURF_PIC *picture, char dst_depth, char mode)
+short tfm_std_to_std(SMURF_PIC *picture, uint8_t dst_depth, uint8_t mode)
 {
-	char *buffer, *ziel,
-		 BitsPerPixel;
-
-	unsigned int width, height;
-
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t BitsPerPixel;
+	unsigned short width, height;
 	unsigned long planelength, w;
 
-
-/* Struktur auslesen */
+	/* Struktur auslesen */
 	buffer = picture->pic_data;
 	width = picture->pic_width;
 	height = picture->pic_height;
@@ -272,26 +270,26 @@ int tfm_std_to_std(SMURF_PIC *picture, char dst_depth, char mode)
 
 	w = (width + 7) / 8;
 	planelength = w * (long)height;
-	
-/* Speicher fr neues Bild mit dst_depth Planes anfordern ... */
-	if((ziel = SMalloc(planelength * dst_depth)) == 0)
-		return(M_MEMORY);
 
-/* ... und ausnullen da die neuen Planes leer sein sollten */
+	/* Speicher fr neues Bild mit dst_depth Planes anfordern ... */
+	if ((ziel = SMalloc(planelength * dst_depth)) == 0)
+		return M_MEMORY;
+
+	/* ... und ausnullen da die neuen Planes leer sein sollten */
 	memset(ziel, 0x0, planelength * dst_depth);
 
-/* alte Planes in den neuen Speicher vor die zus„tzlichen */
-/* Planes kopieren ... */
+	/* alte Planes in den neuen Speicher vor die zus„tzlichen */
+	/* Planes kopieren ... */
 	memcpy(ziel, buffer, planelength * BitsPerPixel);
 
-/* ... und altes Bild freigeben */
-	if(mode == SAME)
+	/* ... und altes Bild freigeben */
+	if (mode == SAME)
 		SMfree(buffer);
 
 	picture->pic_data = ziel;
 	picture->depth = dst_depth;
 
-	return(0);
+	return 0;
 }
 
 
@@ -299,15 +297,20 @@ int tfm_std_to_std(SMURF_PIC *picture, char dst_depth, char mode)
 /*		Transformation von 1-8 Bit Standard nach 8, 16 und 24 Bit	*/
 /*		PP-Format													*/
 /*----------------------------------------------------------------- */
-int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode)
+short tfm_std_to_pp(SMURF_PIC *picture, uint8_t dst_depth, uint8_t mode)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *palette, *pal, *pixbuf, *opixbuf,
-		 BitsPerPixel, Planes, val;
-		
-	unsigned int x, y, width, height;
-	
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *palette;
+	uint8_t *pal;
+	uint8_t *pixbuf;
+	uint8_t *opixbuf;
+	uint8_t BitsPerPixel;
+	uint8_t Planes, val;
+	unsigned short x, y, width, height;
 	unsigned long planelength, w;
-
 
 	Dialog.busy.reset(128, "StF -> PP");
 
@@ -319,21 +322,23 @@ int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode)
 	BitsPerPixel = picture->depth;
 
 	/* Zielbild anfordern */
-	if((ziel = SMalloc((((long)width * (long)height * dst_depth) >> 3) + 7)) == 0)
-		return(M_MEMORY);
+	if ((ziel = SMalloc((((long)width * (long)height * dst_depth) >> 3) + 7)) == 0)
+		return M_MEMORY;
 
-/* wie schnell sind wir? */
-/*	init_timer(); */
+#if TIMER
+	/* wie schnell sind wir? */
+	init_timer();
+#endif
 
 	w = (width + 7) / 8;
-	planelength = w * (unsigned long)height;   /* L„nge einer Plane in Bytes */
+	planelength = w * (unsigned long)height;	/* L„nge einer Plane in Bytes */
 
 	Planes = BitsPerPixel;
 
 	obuffer = buffer;
 	oziel = ziel;
 
-	if(dst_depth == 8)
+	if (dst_depth == 8)
 	{
 		y = 0;
 		do
@@ -342,14 +347,13 @@ int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode)
 			getpix_std_line(buffer, ziel, Planes, planelength, width);
 			buffer += w;
 			ziel += width;
-		} while(++y < height);
-	}
-	else
+		} while (++y < height);
+	} else
 	{
-		pixbuf = (char *)malloc(width + 7);
+		pixbuf = (uint8_t *)malloc(width + 7);
 		opixbuf = pixbuf;
 
-		if(dst_depth == 24)
+		if (dst_depth == 24)
 		{
 			y = 0;
 			do
@@ -369,10 +373,9 @@ int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode)
 					*ziel++ = *pal++;
 					*ziel++ = *pal++;
 					*ziel++ = *pal;
-				} while(++x < width); 
-			} while(++y < height);
-		}
-		else 
+				} while (++x < width);
+			} while (++y < height);
+		} else
 		{
 			y = 0;
 			do
@@ -391,23 +394,25 @@ int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode)
 
 					*((unsigned short *)ziel) = ((*pal & 0xf8) << 8) | ((*(pal + 1) & 0xfc) << 3) | (*(pal + 2) >> 3);
 					ziel += 2;
-				} while(++x < width); 
-			} while(++y < height);
+				} while (++x < width);
+			} while (++y < height);
 		}
 
 		pixbuf = opixbuf;
 		free(pixbuf);
 	}
-	
+
 	buffer = obuffer;
 	ziel = oziel;
 
-/* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
+#if TIMER
+	/* wie schnell waren wir? */
+	printf("%lu\n", get_timer());
+	getch();
+#endif
 
-	if(mode == SAME)
-		SMfree(buffer);							/* StF-Bild freigeben */
+	if (mode == SAME)
+		SMfree(buffer);					/* StF-Bild freigeben */
 
 	picture->pic_data = ziel;
 	picture->depth = dst_depth;
@@ -415,40 +420,42 @@ int tfm_std_to_pp(SMURF_PIC *picture, char dst_depth, char mode)
 
 	Dialog.busy.ok();
 
-	return(0);
+	return 0;
 }
 
 
 /*----------------------------------------------------------------- */
 /*		Transformation vom PP-Format nach 8 Bit Standardformat		*/
 /*----------------------------------------------------------------- */
-int tfm_pp_to_std8(SMURF_PIC *picture, char mode)
+short tfm_pp_to_std8(SMURF_PIC *picture, uint8_t mode)
 {
-	char *buffer, *obuffer, *ziel, *oziel,
-		 v;
-	
-	unsigned int y, width, height;
-	
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t v;
+	unsigned short y, width, height;
 	unsigned long planelength, w;
-
 
 	Dialog.busy.reset(128, "PP -> StF");
 
-/* Struktur auslesen */
+	/* Struktur auslesen */
 	buffer = picture->pic_data;
 	width = picture->pic_width;
 	height = picture->pic_height;
 
-/* Zielbild anfordern */
+	/* Zielbild anfordern */
 	w = (width + 7) / 8;
-	planelength = w * (unsigned long)height;   /* L„nge einer Plane in Bytes */
+	planelength = w * (unsigned long)height;	/* L„nge einer Plane in Bytes */
 
-	if((ziel = SMalloc(planelength * 8L)) == 0)
-		return(M_MEMORY);
-	memset(ziel, 0x0, planelength * 8L); 
+	if ((ziel = SMalloc(planelength * 8L)) == 0)
+		return M_MEMORY;
+	memset(ziel, 0x0, planelength * 8L);
 
-/* wie schnell sind wir? */
-/*	init_timer(); */
+#if TIMER
+	/* wie schnell sind wir? */
+	init_timer();
+#endif
 
 	obuffer = buffer;
 	oziel = ziel;
@@ -460,45 +467,48 @@ int tfm_pp_to_std8(SMURF_PIC *picture, char mode)
 	{
 		setpix_std_line(buffer, ziel, 8, planelength, width);
 		buffer += width;
-		ziel += v;									/* ziel weiter */
-	} while(++y < height);
+		ziel += v;						/* ziel weiter */
+	} while (++y < height);
 
 	buffer = obuffer;
 	ziel = oziel;
 
-/* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
+#if TIMER
+	/* wie schnell waren wir? */
+	printf("%lu\n", get_timer());
+	getch();
+#endif
 
-	if(mode == SAME)							/* wenn ersetzen, */
-		SMfree(buffer);							/* PP-Bild freigeben */
+	if (mode == SAME)					/* wenn ersetzen, */
+		SMfree(buffer);					/* PP-Bild freigeben */
 
 	picture->pic_data = ziel;
 	picture->format_type = FORM_STANDARD;
 
 	Dialog.busy.ok();
 
-	return(0);
+	return 0;
 }
 
 
 /*----------------------------------------------------------------- */
 /*						8 Bit PP nach 16 Bit						*/
 /*----------------------------------------------------------------- */
-int tfm_8_to_16(SMURF_PIC *picture, char mode)
+short tfm_8_to_16(SMURF_PIC *picture, uint8_t mode)
 {
-	char *buffer, *obuffer, *palette, *pal,
-		 val;
-	
-	unsigned int *ziel, *oziel,
-				 width, height;
-	
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *palette;
+	uint8_t *pal;
+	uint8_t val;
+	uint16_t *ziel;
+	uint16_t *oziel;
+	uint16_t width, height;
 	unsigned long length;
 
-	
 	Dialog.busy.reset(128, "8 Bit->16 Bit");
 
-/* Struktur auslesen */
+	/* Struktur auslesen */
 	buffer = picture->pic_data;
 	palette = picture->palette;
 	width = picture->pic_width;
@@ -506,51 +516,53 @@ int tfm_8_to_16(SMURF_PIC *picture, char mode)
 
 	length = (long)width * (long)height;
 
-/* 16 Bit-Bild anfordern */
-	if((ziel = (unsigned int *)SMalloc(length * 2L)) == 0)
-		return(M_MEMORY);
+	/* 16 Bit-Bild anfordern */
+	if ((ziel = (uint16_t *)SMalloc(length * 2L)) == 0)
+		return M_MEMORY;
 
 	obuffer = buffer;
 	oziel = ziel;
 
-/* Farbtiefe konvertieren */
+	/* Farbtiefe konvertieren */
 	do
 	{
 		val = *buffer++;
 		pal = palette + val + val + val;
 
-		*ziel++ = ((unsigned int)(*pal & 0xf8) << 8) | ((unsigned int)(*(pal + 1) & 0xfc) << 3) | ((unsigned int)*(pal + 2) >> 3);
-	} while(--length);
+		*ziel++ = ((*pal & 0xf8) << 8) | ((*(pal + 1) & 0xfc) << 3) | (*(pal + 2) >> 3);
+	} while (--length);
 
 	buffer = obuffer;
 	ziel = oziel;
-	
-	if(mode == SAME)
+
+	if (mode == SAME)
 		SMfree(buffer);					/* 8 Bit-Bild freigeben */
 
 	picture->pic_data = ziel;
 	picture->depth = 16;
-	
+
 	Dialog.busy.ok();
 
-	return(0);
+	return 0;
 }
 
 
 /*----------------------------------------------------------------- */
 /*                      8 Bit PP nach 24 Bit                        */
 /*----------------------------------------------------------------- */
-int tfm_8_to_24(SMURF_PIC *picture, char mode)
+short tfm_8_to_24(SMURF_PIC *picture, uint8_t mode)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *palette, *pal,
-		 val;
-	
-	unsigned int width, height;
-	
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *palette;
+	uint8_t *pal;
+	uint8_t val;
+	uint16_t width, height;
 	unsigned long length;
 
-
-/* Struktur auslesen */
+	/* Struktur auslesen */
 	buffer = picture->pic_data;
 	palette = picture->palette;
 	width = picture->pic_width;
@@ -558,16 +570,16 @@ int tfm_8_to_24(SMURF_PIC *picture, char mode)
 
 	length = (long)width * (long)height;
 
-/* 24 Bit-Bild anfordern */
-	if((ziel = SMalloc(length * 3L)) == 0)
-		return(M_MEMORY);
+	/* 24 Bit-Bild anfordern */
+	if ((ziel = SMalloc(length * 3L)) == 0)
+		return M_MEMORY;
 
 	obuffer = buffer;
 	oziel = ziel;
 
 	Dialog.busy.reset(0, "8 Bit->24 Bit");
 
-/* Farbtiefe konvertieren */
+	/* Farbtiefe konvertieren */
 	do
 	{
 		val = *buffer++;
@@ -576,12 +588,12 @@ int tfm_8_to_24(SMURF_PIC *picture, char mode)
 		*ziel++ = *pal;
 		*ziel++ = *(pal + 1);
 		*ziel++ = *(pal + 2);
-	} while(--length);
+	} while (--length);
 
 	buffer = obuffer;
 	ziel = oziel;
 
-	if(mode == SAME)
+	if (mode == SAME)
 		SMfree(buffer);					/* 8 Bit-Bild freigeben */
 
 	picture->pic_data = ziel;
@@ -589,61 +601,60 @@ int tfm_8_to_24(SMURF_PIC *picture, char mode)
 
 	Dialog.busy.ok();
 
-	return(0);
+	return 0;
 }
 
 
 /*----------------------------------------------------------------- */
 /*                        16 Bit nach 24 Bit                        */
 /*----------------------------------------------------------------- */
-int tfm_16_to_24(SMURF_PIC *picture, char mode)
+short tfm_16_to_24(SMURF_PIC *picture, uint8_t mode)
 {
-	char *ziel, *oziel;
-	
-	unsigned int *buffer, *obuffer,
-				 width, height, val;
-	
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint16_t *buffer;
+	uint16_t *obuffer;
+	uint16_t width, height, val;
 	long length;
-
 
 	Dialog.busy.reset(0, "16 Bit->24 Bit");
 
-/* Struktur auslesen */
-	buffer = (unsigned int *)picture->pic_data;
+	/* Struktur auslesen */
+	buffer = (uint16_t *)picture->pic_data;
 	width = picture->pic_width;
 	height = picture->pic_height;
 
 	length = (long)width * (long)height;
 
-/* 24 Bit-Bild anfordern */
-	if((ziel = SMalloc(length * 3L)) == 0)
-		return(M_MEMORY);
+	/* 24 Bit-Bild anfordern */
+	if ((ziel = SMalloc(length * 3L)) == 0)
+		return M_MEMORY;
 
 	obuffer = buffer;
 	oziel = ziel;
 
-/* Farbtiefe konvertieren */
+	/* Farbtiefe konvertieren */
 	do
 	{
 		val = *buffer++;
 
-		*ziel++ = (char)((val & 0xf800) >> 8);
-		*ziel++ = (char)((val & 0x07e0) >> 3);
-		*ziel++ = (char)((val & 0x001f) << 3);
-	} while(--length);
-	
+		*ziel++ = ((val & 0xf800) >> 8);
+		*ziel++ = ((val & 0x07e0) >> 3);
+		*ziel++ = ((val & 0x001f) << 3);
+	} while (--length);
+
 	buffer = obuffer;
 	ziel = oziel;
 
-	if(mode == SAME)
-		SMfree(buffer);						/* 16Bit-Bild freigeben */
+	if (mode == SAME)
+		SMfree(buffer);					/* 16Bit-Bild freigeben */
 
 	picture->pic_data = ziel;
 	picture->depth = 24;
-	
+
 	Dialog.busy.ok();
 
-	return(0);
+	return 0;
 }
 
 
@@ -651,29 +662,28 @@ int tfm_16_to_24(SMURF_PIC *picture, char mode)
 /*                        24 Bit nach 16 Bit                        */
 /*		Eigentlich ein Exportdither, gef„llt mir hier aber besser	*/
 /*----------------------------------------------------------------- */
-int tfm_24_to_16(SMURF_PIC *picture, char mode)
+short tfm_24_to_16(SMURF_PIC *picture, uint8_t mode)
 {
-	char *buffer, *obuffer;
-	
-	unsigned int *ziel, *oziel,
-				 x, y, width, height;
-
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint16_t *ziel;
+	uint16_t *oziel;
+	uint16_t x, y, width, height;
 
 	Dialog.busy.reset(0, "24 Bit->16 Bit");
 
-/* Struktur auslesen */
+	/* Struktur auslesen */
 	buffer = picture->pic_data;
 	obuffer = buffer;
 	width = picture->pic_width;
 	height = picture->pic_height;
 
-	if(mode == NEW)
+	if (mode == NEW)
 	{
-		if((ziel = (unsigned int *)SMalloc((long)width * (long)height * 2L)) == 0)
-			return(M_MEMORY);
-	}
-	else
-		ziel = (unsigned int *)buffer;
+		if ((ziel = (uint16_t *)SMalloc((long)width * (long)height * 2L)) == 0)
+			return M_MEMORY;
+	} else
+		ziel = (uint16_t *)buffer;
 
 	oziel = ziel;
 
@@ -684,23 +694,23 @@ int tfm_24_to_16(SMURF_PIC *picture, char mode)
 		do
 		{
 			*ziel++ = ((*buffer++ & 0xf8) << 8) | ((*buffer++ & 0xf8) << 3) | (*buffer++ >> 3);
-		} while(++x < width);
-	} while(++y < height);
+		} while (++x < width);
+	} while (++y < height);
 
 	buffer = obuffer;
 	ziel = oziel;
 
-	if(mode == NEW)
+	if (mode == NEW)
 		SMfree(buffer);
 	else
 		_Mshrink(ziel, (long)width * (long)height * 2L);
 
-	picture->pic_data = (char *)ziel;
+	picture->pic_data = ziel;
 	picture->depth = 16;
-	
+
 	Dialog.busy.ok();
 
-	return(0);
+	return 0;
 }
 
 
@@ -708,107 +718,109 @@ int tfm_24_to_16(SMURF_PIC *picture, char mode)
 /*------------------------------------------------------------------*/
 /*				Transferroutine BGR->RGB und andersherum			*/
 /*------------------------------------------------------------------*/
-int tfm_bgr_to_rgb(SMURF_PIC *picture, char mode)
+short tfm_bgr_to_rgb(SMURF_PIC *picture, uint8_t mode)
 {
-	char *buffer, *ziel, *palette;
-
-	unsigned int *ziel16,
-				 memwidth, width, height, depth, pixel, red, green, blue;
-
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *palette;
+	uint16_t *ziel16;
+	uint16_t memwidth;
+	uint16_t width, height, depth, pixel, red, green, blue;
 	long length;
-
 
 	Dialog.busy.reset(0, "BGR->RGB");
 
-/* Struktur auslesen */
+	/* Struktur auslesen */
 	buffer = picture->pic_data;
 	palette = picture->palette;
 	width = picture->pic_width;
 	height = picture->pic_height;
 	depth = picture->depth;
 
-	if(mode == NEW)
+	if (mode == NEW)
 	{
-		if(picture->format_type == FORM_STANDARD)
+		if (picture->format_type == FORM_STANDARD)
 			memwidth = (width + 15) / 16 * 16;
 		else
 			memwidth = width;
 
-		if((ziel = (char *)SMalloc(((long)memwidth * (long)height * depth) >> 3)) == 0)
-			return(M_MEMORY);
+		if ((ziel = (uint8_t *)SMalloc(((long)memwidth * (long)height * depth) >> 3)) == 0)
+			return M_MEMORY;
 		memcpy(ziel, buffer, ((long)memwidth * (long)height * depth) >> 3);
-	}
-	else
+	} else
 		ziel = buffer;
 
 	length = (long)width * (long)height;
 
-	switch(depth)
+	switch (depth)
 	{
 	/*----- 16 BIT -----*/
-		case 16: ziel16 = (unsigned int *)ziel;
-				 do
-				 {
-					 pixel = *ziel16;
-					 red = pixel&0xf800;
-					 green = pixel&0x07e0;
-					 blue = pixel&0x001f;
-		
-					 *ziel16++ = (red >> 11) | green | (blue << 11);
-				 } while(--length);
-				 break;  
+	case 16:
+		ziel16 = (uint16_t *)ziel;
+		do
+		{
+			pixel = *ziel16;
+			red = pixel & 0xf800;
+			green = pixel & 0x07e0;
+			blue = pixel & 0x001f;
+
+			*ziel16++ = (red >> 11) | green | (blue << 11);
+		} while (--length);
+		break;
 	/*----- 24 BIT -----*/
-		case 24: bgrtorgb(ziel, length);
-				 break;
-		default: bgrtorgb(palette, 256);
-				 break;
+	case 24:
+		bgrtorgb(ziel, length);
+		break;
+	default:
+		bgrtorgb(palette, 256);
+		break;
 	}
 
-	if(mode == NEW)
+	if (mode == NEW)
 		picture->pic_data = ziel;
 
 	picture->col_format = RGB;
 
 	Dialog.busy.ok();
 
-	return(0);
+	return 0;
 }
 
 
 /*------------------------------------------------------------------*/
 /*				Transferroutine CMY->RGB und andersherum			*/
 /*------------------------------------------------------------------*/
-int tfm_cmy_to_rgb(SMURF_PIC *picture, char mode)
+short tfm_cmy_to_rgb(SMURF_PIC *picture, uint8_t mode)
 {
-	char *buffer, *ziel, *oziel, *pal;
-	
-	unsigned int *buffer16, *ziel16,
-				 memwidth, width, height, depth;
-
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	uint16_t *buffer16;
+	uint16_t *ziel16;
+	uint16_t memwidth, width, height, depth;
 	long length;
-
 
 	Dialog.busy.reset(0, "CMY->RGB");
 
-/* Struktur auslesen */
+	/* Struktur auslesen */
 	buffer = picture->pic_data;
 	pal = picture->palette;
 	width = picture->pic_width;
 	height = picture->pic_height;
 	depth = picture->depth;
 
-	if(mode == NEW)
+	if (mode == NEW)
 	{
-		if(picture->format_type == FORM_STANDARD)
+		if (picture->format_type == FORM_STANDARD)
 			memwidth = (width + 15) / 16 * 16;
 		else
 			memwidth = width;
 
-		if((ziel = (char *)SMalloc(((long)memwidth * (long)height * depth) >> 3)) == 0)
-			return(M_MEMORY);
+		if ((ziel = (uint8_t *)SMalloc(((long)memwidth * (long)height * depth) >> 3)) == 0)
+			return M_MEMORY;
 		oziel = ziel;
-	}
-	else
+	} else
 	{
 		ziel = buffer;
 		oziel = ziel;
@@ -816,45 +828,48 @@ int tfm_cmy_to_rgb(SMURF_PIC *picture, char mode)
 
 	length = (long)width * (long)height;
 
-	switch(depth)
+	switch (depth)
 	{
 	/*----- 16 BIT -----*/
-		case 16: buffer16 = (unsigned int *)buffer;
-				 ziel16 = (unsigned int *)ziel;
-				 do
-				 {
-					 *ziel16++ = ~*buffer16++;
-				 } while(--length);
-				 break;
+	case 16:
+		buffer16 = (uint16_t *)buffer;
+		ziel16 = (uint16_t *)ziel;
+		do
+		{
+			*ziel16++ = ~*buffer16++;
+		} while (--length);
+		break;
 
 	/*----- 24 BIT -----*/
-		case 24: do
-				 {
-					 *ziel++ = ~*buffer++;
-					 *ziel++ = ~*buffer++;
-					 *ziel++ = ~*buffer++;
-				 } while(--length);
-				 break;
-		default: length = 256;
-				 do
-				 {
-					 *pal++ = ~*pal;
-					 *pal++ = ~*pal;
-					 *pal++ = ~*pal;
-				 } while(--length);
-				 break;			
+	case 24:
+		do
+		{
+			*ziel++ = ~*buffer++;
+			*ziel++ = ~*buffer++;
+			*ziel++ = ~*buffer++;
+		} while (--length);
+		break;
+	default:
+		length = 256;
+		do
+		{
+			*pal++ = ~*pal;
+			*pal++ = ~*pal;
+			*pal++ = ~*pal;
+		} while (--length);
+		break;
 	}
 
 	ziel = oziel;
 
-	if(mode == NEW)
+	if (mode == NEW)
 		picture->pic_data = ziel;
 
 	picture->col_format = RGB;
 
 	Dialog.busy.ok();
 
-	return(0);
+	return 0;
 }
 
 
@@ -862,20 +877,24 @@ int tfm_cmy_to_rgb(SMURF_PIC *picture, char mode)
 /*				Transferroutine RGB->Grau und nur so rum			*/
 /*			Alles m”gliche nach 8 Bit Graustufen pixelpacked.		*/
 /*------------------------------------------------------------------*/
-int tfm_rgb_to_grey(SMURF_PIC *picture, char mode)
+short tfm_rgb_to_grey(SMURF_PIC *picture, uint8_t mode)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *palette, *pal,
-		 *pixbuf, BitsPerPixel, val;
-
-	unsigned int *buffer16,
-				 i, x, y, width, height, val16;
-
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *palette;
+	uint8_t *pal;
+	uint8_t *pixbuf;
+	uint8_t BitsPerPixel;
+	uint8_t val;
+	uint16_t *buffer16;
+	uint16_t i, x, y, width, height, val16;
 	unsigned long planelength, length, w;
-
 
 	Dialog.busy.reset(0, "RGB->Graustufen");
 
-/* Struktur auslesen */
+	/* Struktur auslesen */
 	buffer = picture->pic_data;
 	width = picture->pic_width;
 	height = picture->pic_height;
@@ -883,94 +902,104 @@ int tfm_rgb_to_grey(SMURF_PIC *picture, char mode)
 
 	length = (long)width * (long)height;
 
-	if((ziel = (char *)SMalloc(length)) == 0)
-		return(M_MEMORY);
+	if ((ziel = (uint8_t *)SMalloc(length)) == 0)
+		return M_MEMORY;
 
 	obuffer = buffer;
 	oziel = ziel;
 
-	if(BitsPerPixel == 24)
+	if (BitsPerPixel == 24)
 	{
 		do
-		{	
-			*ziel++ = (((long)*buffer++ * 871L)
-					 + ((long)*buffer++ * 2929L)
-					 + ((long)*buffer++ * 295L)) >> 12;
-		} while(--length);
-	}
-	else
-		if(BitsPerPixel == 16)
 		{
-			buffer16 = (unsigned int *)buffer;
-	
+			uint32_t val32;
+
+			val32 = (uint32_t)*buffer++ * 871L;
+			val32 += (uint32_t)*buffer++ * 2929L;
+			val32 += (uint32_t)*buffer++ * 295L;
+			val32 >>= 12;
+			*ziel++ = val32;
+		} while (--length);
+	} else if (BitsPerPixel == 16)
+	{
+		buffer16 = (uint16_t *)buffer;
+
+		do
+		{
+			val16 = *buffer16++;
+
+			*ziel++ = (((long)((val16 & 0xf800) >> 8) * 871L) + ((long) ((val16 & 0x7e0) >> 3) * 2929L) + ((long) ((val16 & 0x1f) << 3) * 295L)) >> 12;
+		} while (--length);
+	} else
+	{
+		palette = picture->palette;
+
+		if (picture->format_type == FORM_PIXELPAK)
+		{
 			do
 			{
-				val16 = *buffer16++;
+				uint32_t val32;
 
-				*ziel++ = (((long)((val16&0xf800) >> 8) * 871L)
-						 + ((long)((val16&0x7e0) >> 3) * 2929L)
-						 + ((long)((val16&0x1f) << 3) * 295L)) >> 12;
-			} while(--length);
-		}
-		else
+				val = *buffer++;
+				pal = palette + val + val + val;
+
+				val32 = (uint32_t)*pal++ * 871L;
+				val32 += (uint32_t)*pal++ * 2929L;
+				val32 += (uint32_t)*pal * 295L;
+				val32 >>= 12;
+				*ziel++ = val32;
+			} while (--length);
+		} else
 		{
-			palette = picture->palette;
+			pixbuf = malloc(width);
 
-			if(picture->format_type == FORM_PIXELPAK)
+			if (pixbuf != NULL)
 			{
-				do
-				{	
-					val = *buffer++;
-					pal = palette + val + val + val;
-
-					*ziel++ = (((long)*pal++ * 871L)
-							 + ((long)*pal++ * 2929L)
-							 + ((long)*pal * 295L)) >> 12;
-				} while(--length);
-			}
-			else
-			{
-				pixbuf = malloc(width);
-
 				w = (width + 7) / 8;
-				planelength = w * (unsigned long)height;   /* L„nge einer Plane in Bytes */
-
+				planelength = w * (unsigned long)height;	/* L„nge einer Plane in Bytes */
+	
 				y = 0;
 				do
 				{
-					memset(pixbuf, 0x0, width);
+					memset(pixbuf, 0, width);
 					getpix_std_line(buffer, pixbuf, BitsPerPixel, planelength, width);
-
+	
 					x = 0;
 					do
 					{
+						uint32_t val32;
+	
 						val = pixbuf[x];
 						pal = palette + val + val + val;
-
-						*ziel++ = (((long)*pal++ * 871L)
-								 + ((long)*pal++ * 2929L)
-								 + ((long)*pal * 295L)) >> 12;
-					} while(++x < width);
-
+	
+						val32 = (uint32_t)*pal++ * 871L;
+						val32 += (uint32_t)*pal++ * 2929L;
+						val32 += (uint32_t)*pal * 295L;
+						val32 >>= 12;
+						*ziel++ = val32;
+					} while (++x < width);
+	
 					buffer += w;
-				} while(++y < height);
-			} /* Standardsource */
+				} while (++y < height);
+				free(pixbuf);
+			}
 		}
+	}
 
 	buffer = obuffer;
 	ziel = oziel;
 
-	pal = picture->palette;	
+	pal = picture->palette;
 
-	for(i = 0; i < 256; i++)
+	for (i = 0; i < 256; i++)
 	{
-		*pal++ = (char)i;
-		*pal++ = (char)i;
-		*pal++ = (char)i;
+		*pal++ = i;
+		*pal++ = i;
+		*pal++ = i;
 	}
 
-/* und altes Bild freigeben */
-	if(mode == SAME)
+	/* und altes Bild freigeben */
+	if (mode == SAME)
 		SMfree(buffer);
 
 	picture->pic_data = ziel;
@@ -981,71 +1010,67 @@ int tfm_rgb_to_grey(SMURF_PIC *picture, char mode)
 
 	Dialog.busy.ok();
 
-	return(0);
+	return 0;
 }
 
 
 /*------------------------------------------------------------------*/
 /*		Testet, ob das bergebene Bild ein Graustufenbild ist		*/
 /*------------------------------------------------------------------*/
-#if 0 /* unused */
-char test_if_grey(SMURF_PIC *picture)
+#if 0									/* unused */
+BOOLEAN test_if_grey(SMURF_PIC *picture)
 {
-	char *data,
-		 BitsPerPixel, r, g, b;
-
-	unsigned int *data16,
-				 width, height, pixel16;
-
+	uint8_t *data;
+	uint8_t BitsPerPixel;
+	uint8_t r, g, b;
+	uint16_t *data16;
+	uint16_t width, height, pixel16;
 	unsigned long length;
 
-
-	if(picture->col_format == GREY)
-		return(1);
+	if (picture->col_format == GREY)
+		return TRUE;
 
 	width = picture->pic_width;
 	height = picture->pic_height;
 	BitsPerPixel = picture->depth;
 
-	if(BitsPerPixel <= 8)
+	if (BitsPerPixel <= 8)
 	{
 		data = picture->palette;
 
 		length = 256;
-	}
-	else
+	} else
 	{
-		if(BitsPerPixel == 24)
+		if (BitsPerPixel == 24)
 			data = picture->pic_data;
 		else
-			data16 = (unsigned int *)picture->pic_data;
+			data16 = (uint16_t *)picture->pic_data;
 
 		length = (long)width * (long)height;
 	}
 
-	if(BitsPerPixel != 16)
+	if (BitsPerPixel != 16)
 		do
 		{
 			r = *data++;
 			g = *data++;
 			b = *data++;
-		} while(r == g && r == b && g == b && --length);
+		} while (r == g && r == b && g == b && --length);
 	else
 		do
 		{
 			pixel16 = *data16++;
 
-			r = (char)((pixel16 & 0xf800) >> 8);
-			g = (char)((pixel16 & 0x7e0) >> 3);
-			b = (char)((pixel16 & 0x1f) << 3);
-		} while(r == g && r == b && g == b && --length);
+			r = ((pixel16 & 0xf800) >> 8);
+			g = ((pixel16 & 0x7e0) >> 3);
+			b = ((pixel16 & 0x1f) << 3);
+		} while (r == g && r == b && g == b && --length);
 
-	if(r == g && r == b && g == b)
+	if (r == g && r == b && g == b)
 	{
 		picture->col_format = GREY;
-		return(1);
+		return 1;
 	}
-	else
-		return(0);
+	return 0;
 }
 #endif
