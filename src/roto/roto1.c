@@ -43,13 +43,13 @@ void rotozoom(short *img, short *padr, short xstep, short xystep, short pos) ASM
 static int *Sin;
 static int *Cos;
 
-static int old_timer;
+static WORD old_timer;
 static SMURF_PIC rotoimage;
-static int phi, phi2, phi3;
+static short phi, phi2, phi3;
 
-static int xpos[] = { -100, -100, 100, 100, -100, -100, 100, 100 };
-static int ypos[] = { -100, 100, 100, -100, -100, 100, 100, -100 };
-static int zpos[] = { -100, -100, -100, -100, 100, 100, 100, 100 };
+static short xpos[] = { -100, -100, 100, 100, -100, -100, 100, 100 };
+static short ypos[] = { -100, 100, 100, -100, -100, 100, 100, -100 };
+static short zpos[] = { -100, -100, -100, -100, 100, 100, 100, 100 };
 
 
 static WORD x2d[100];
@@ -66,25 +66,28 @@ static WORD offscreenHandle = -1;
 static WORD rotowork_in[40];
 static WORD rotowork_out[40];
 
-int init_roto(void)
+void init_roto(void)
 {
 	double bog;
 	long t;
 
 	phi = 0;
 
+	old_timer = Sys_info.Event_Timer;
 	graf_mouse(BUSYBEE, dummy_ptr);
 
-	Sin = SMalloc((long) 370 * 2);
-	Cos = SMalloc((long) 370 * 2);
+	Sin = SMalloc((long) 370 * sizeof(*Sin));
+	Cos = SMalloc((long) 370 * sizeof(*Cos));
+	if (Sin == NULL || Cos == NULL)
+		return;
 
 	/*---- FÅllen der Sin/Cos-Tabelle ----*/
 	for (t = 0; t < 365; t++)
 	{
 		bog = (float) t *M_PI / 180.F;
 
-		Sin[t] = (int) (sin(bog) * 256.F);
-		Cos[t] = (int) (cos(bog) * 256.F);
+		Sin[t] = sin(bog) * 256.F;
+		Cos[t] = cos(bog) * 256.F;
 	}
 
 
@@ -140,7 +143,6 @@ int init_roto(void)
 	rotowork_in[12] = rotoimage.screen_pic->fd_h - 1;
 	v_opnbm(rotowork_in, rotoimage.screen_pic, &offscreenHandle, rotowork_out);
 
-
 	wind_s[WIND_INFO].picture = &rotoimage;
 	wind_s[WIND_INFO].pic_xpos = wind_s[WIND_INFO].resource_form[ROTOBOX].ob_x;
 	wind_s[WIND_INFO].pic_ypos = wind_s[WIND_INFO].resource_form[ROTOBOX].ob_y;
@@ -151,14 +153,12 @@ int init_roto(void)
 
 	/* Timer umschalten
 	 */
-	old_timer = Sys_info.Event_Timer;
 	Sys_info.Event_Timer = 20;
 
 	wind_s[WIND_INFO].resource_form[ROTOBOX].ob_flags &= ~OF_HIDETREE;
 
 	Window.redraw(&wind_s[WIND_INFO], NULL, 0, 0);
 	graf_mouse(ARROW, dummy_ptr);
-	return (0);
 }
 
 
@@ -170,7 +170,10 @@ void roto(void)
 	WORD pxy[5];
 	short normvek;
 	long mySin, myCos;
-	int xrot[100], yrot[100], zrot[100];
+	short xrot[100], yrot[100], zrot[100];
+
+	if (Sin == NULL || Cos == NULL || offscreenHandle <= 0)
+		return;
 
 	/*---- Jetz' gehts los ----*/
 	phi += 4;
@@ -190,24 +193,24 @@ void roto(void)
 		/* y-achse */
 		mySin = Sin[phi];
 		myCos = Cos[phi];
-		xrot[t] = (int) ((((long) xpos[t] * myCos) - ((long) zpos[t] * mySin)) >> 8);
-		zrot[t] = (int) ((((long) xpos[t] * mySin) + ((long) zpos[t] * myCos)) >> 8);
+		xrot[t] = (short) ((((long) xpos[t] * myCos) - ((long) zpos[t] * mySin)) >> 8);
+		zrot[t] = (short) ((((long) xpos[t] * mySin) + ((long) zpos[t] * myCos)) >> 8);
 
 		pos = zrot[t];
 
 		/* x-achse */
 		mySin = Sin[phi2];
 		myCos = Cos[phi2];
-		zrot[t] = (int) ((((long) zrot[t] * myCos) - ((long) ypos[t] * mySin)) >> 8);
-		yrot[t] = (int) ((((long) pos * mySin) + ((long) ypos[t] * myCos)) >> 8);
+		zrot[t] = (short) ((((long) zrot[t] * myCos) - ((long) ypos[t] * mySin)) >> 8);
+		yrot[t] = (short) ((((long) pos * mySin) + ((long) ypos[t] * myCos)) >> 8);
 
 		pos = xrot[t];
 
 		/* z-achse */
 		mySin = Sin[phi3];
 		myCos = Cos[phi3];
-		xrot[t] = (int) ((((long) xrot[t] * myCos) - ((long) yrot[t] * mySin)) >> 8);
-		yrot[t] = (int) ((((long) pos * mySin) + ((long) yrot[t] * myCos)) >> 8);
+		xrot[t] = (short) ((((long) xrot[t] * myCos) - ((long) yrot[t] * mySin)) >> 8);
+		yrot[t] = (short) ((((long) pos * mySin) + ((long) yrot[t] * myCos)) >> 8);
 
 
 		/* projektion
@@ -264,12 +267,9 @@ void deinit_roto(void)
 		rotoimage.screen_pic = NULL;
 	}
 
-	if (Sin)
-	{
-		SMfree(Sin);
-		SMfree(Cos);
-		Sin = Cos = NULL;
-	}
+	SMfree(Sin);
+	SMfree(Cos);
+	Sin = Cos = NULL;
 
 	if (offscreenHandle > 0)
 	{

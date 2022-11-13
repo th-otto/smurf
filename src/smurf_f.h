@@ -212,7 +212,7 @@ void make_thumbnail(SMURF_PIC *original_pic, SMURF_PIC *thumbnail, short dither)
 void mr_message(void);
 void protocol_message(int message, int id, char *modname);
 
-int init_roto(void);
+void init_roto(void);
 void roto(void);
 void deinit_roto(void);
 
