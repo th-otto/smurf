@@ -99,20 +99,20 @@ typedef struct moduleObj
     --------------------------------------------------*/
 typedef struct generalWindow
 {
-    short (*open) (WINDOW *window);
-    void (*redraw) (WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
-    void (*drawIconified) (WINDOW *window, WORD *vdiclip);
+    short (*open)(WINDOW *window);
+    void (*redraw)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
+    void (*drawIconified)(WINDOW *window, WORD *vdiclip);
 
-    int (*rcIntersect) (GRECT *r1, GRECT *r2, GRECT *r3);
-    short (*myWindow) (WORD handle);
+    int (*rcIntersect)(GRECT *r1, GRECT *r2, GRECT *r3);
+    short (*myWindow)(WORD handle);
     WINDOW *(*myModuleWindow)(WORD handle);
     
-    void (*windowToList) (WINDOW *window);
-    void (*removeWindow) (WINDOW *window);
-    void (*top) (WORD handle);
-    void (*topNow) (WINDOW *window);
-    void (*topHandle) (WORD handle);
-    void (*close) (WORD handle);
+    void (*windowToList)(WINDOW *window);
+    void (*removeWindow)(WINDOW *window);
+    void (*top)(WORD handle);
+    void (*topNow)(WINDOW *window);
+    void (*topHandle)(WORD handle);
+    void (*close)(WORD handle);
 
     void (*cursorOn)(WINDOW *window);
     void (*cursorOff)(WINDOW *window);
@@ -128,8 +128,8 @@ typedef struct generalWindow
 
 typedef struct unDo
 {
-    void (*saveBuffer)(SMURF_PIC *picture, int picnum);
-    void (*swapBuffer)(SMURF_PIC *toPicture, int picNum);
+    void (*saveBuffer)(SMURF_PIC *picture, short picnum);
+    void (*swapBuffer)(SMURF_PIC *toPicture, short picNum);
 } UNDO;
 
 
@@ -138,18 +138,18 @@ typedef struct unDo
     -------------------------------------------------*/
 typedef struct picWindow
 {
-    void (*drawBlock) (WINDOW *window, GRECT *picbox);
-    void (*insertZoom) (WINDOW *window);
-    void (*drawCrosshair) (WINDOW *window);
-    void (*drawBlockbox) (WINDOW *window);
+    void (*drawBlock)(WINDOW *window, GRECT *picbox);
+    void (*insertZoom)(WINDOW *window);
+    void (*drawCrosshair)(WINDOW *window);
+    void (*drawBlockbox)(WINDOW *window);
     int (*findCrosshair)(WINDOW *window);
-    void (*arrowWindow) (int mode, WINDOW *wind,int amount);
-    void (*slideWindow) (int pos, WINDOW *wind, int mode);
-    void (*setSliders) (WINDOW *wind);
+    void (*arrowWindow)(int mode, WINDOW *wind,int amount);
+    void (*slideWindow)(int pos, WINDOW *wind, int mode);
+    void (*setSliders)(WINDOW *wind);
     void (*scrollRT)(WINDOW *window, int xamount, int yamount);
 
-    void (*clipPicwin) (WINDOW *picw);
-    void (*toggleAsterisk) (WINDOW *picwin, int onoff);
+    void (*clipPicwin)(WINDOW *picw);
+    void (*toggleAsterisk)(WINDOW *picwin, int onoff);
     void (*displayCoords)(WINDOW *pic_window, WORD mx, WORD my, BOOLEAN blockflag);
     void (*nullCoords)(WINDOW *picwindow);
     void (*removeBlock)(WINDOW *picwindow);
@@ -173,7 +173,7 @@ typedef struct picManager
     void (*navigateWindow)(void);
     BOOLEAN (*autoScroll)(WORD mx, WORD my);
     void (*makeThumbnail)(short picture_num);
-    void (*drawPicmanBoxes) (void);
+    void (*drawPicmanBoxes)(void);
 
     OBJECT *tree;
     WINDOW *window;

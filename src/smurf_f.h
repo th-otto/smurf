@@ -292,8 +292,8 @@ void transmitConfig(BASPAG *modbase, GARGAMEL *smurf_struct);
 /*
  * undo.c
  */
-void saveUndoBuffer(SMURF_PIC *picture, int picnum);
-void swapUndoBuffer(SMURF_PIC *toPicture, int picNum);
+void saveUndoBuffer(SMURF_PIC *picture, short picnum);
+void swapUndoBuffer(SMURF_PIC *toPicture, short picNum);
 
 
 

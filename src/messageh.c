@@ -70,12 +70,12 @@ WORD f_handle_message(void)
 	short t;
 	WORD back;
 	WORD wxp, wyp, wwp, whp;
-	short ismodule = 0;
+	BOOLEAN ismodule = FALSE;
 	short module_num;
 	WORD dummy;
 	WORD owner;
 	short last_loaded_pic = 0;
-	short biggest_handle = 0;
+	WORD biggest_handle = 0;
 	short picnum;
 	WORD tophandle;
 	WORD flags;
@@ -102,17 +102,19 @@ WORD f_handle_message(void)
 		wind_num = Window.myWindow(messagebuf[3]);
 
 		if (wind_num > 0)
+		{
 			window_to_handle = &wind_s[wind_num];
-		else if (wind_num < 0)
+		} else if (wind_num < 0)
+		{
 			window_to_handle = &picture_windows[-wind_num];
-		else if (wind_num == 0)
+		} else if (wind_num == 0)
 		{
 			window_to_handle = Window.myModuleWindow(messagebuf[3]);
-			ismodule = 1;
+			ismodule = TRUE;
 		}
 
 		if (window_to_handle == NULL)
-			return (0);
+			return 0;
 
 		if (wind_num < 0)
 		{
@@ -139,7 +141,7 @@ WORD f_handle_message(void)
 		wind_close(wind_s[WIND_BUSY].whandlem);
 		wind_delete(wind_s[WIND_BUSY].whandlem);
 		if (_app)
-			return (PRG_CLOSED);
+			return PRG_CLOSED;
 		break;
 
 	case AP_DRAGDROP:
@@ -158,7 +160,7 @@ WORD f_handle_message(void)
 			menu_tnormal(menu_tree, messagebuf[3], 1);
 			back = f_handle_menuevent(messagebuf);
 			if (back == -1)
-				return (PRG_CLOSED);
+				return PRG_CLOSED;
 		}
 		break;
 
@@ -206,8 +208,9 @@ WORD f_handle_message(void)
 			Window.cursorOff(&wind_s[topwin]);
 
 		if (Dialog.winAlert.isTop)
+		{
 			Window.windSet(Dialog.winAlert.winHandle, WF_TOP, 0, 0, 0, 0);
-		else
+		} else
 		{
 			Window.windSet(messagebuf[3], WF_TOP, 0, 0, 0, 0);
 
@@ -218,7 +221,7 @@ WORD f_handle_message(void)
 				Window.cursorOn(window_to_handle);
 				Dialog.picMan.tree[PM_BOX].ob_spec.obspec.framesize = 0;
 
-				if (wind_num == WIND_MODFORM || (wind_num == 0 && ismodule == 1))	/* Modulfenster mit Fadenkreuz? ->Bildfenster neu zeichnen! */
+				if (wind_num == WIND_MODFORM || (wind_num == 0 && ismodule))	/* Modulfenster mit Fadenkreuz? ->Bildfenster neu zeichnen! */
 				{
 					picwindow = &picture_windows[position_markers[window_to_handle->module].smurfpic[0]];
 					Window.redraw(picwindow, NULL, 0, DRAWNOTREE);
@@ -239,7 +242,6 @@ WORD f_handle_message(void)
 
 		if (window_to_handle == 0)
 			f_set_syspal();
-
 		break;
 
 
@@ -260,7 +262,7 @@ WORD f_handle_message(void)
 			Window.cursorOn(window_to_handle);
 			Dialog.picMan.tree[PM_BOX].ob_spec.obspec.framesize = 0;
 
-			if (wind_num == WIND_MODFORM || (wind_num == 0 && ismodule == 1))	/* Modulfenster/Fadenkreuz -> Bild redrawen */
+			if (wind_num == WIND_MODFORM || (wind_num == 0 && ismodule))	/* Modulfenster/Fadenkreuz -> Bild redrawen */
 			{
 				picwindow = &picture_windows[position_markers[window_to_handle->module].smurfpic[0]];
 				Window.redraw(picwindow, NULL, 0, DRAWNOTREE);
@@ -280,7 +282,7 @@ WORD f_handle_message(void)
 			Window.cursorOff(window_to_handle);
 			Window.windSet(messagebuf[3], WF_BOTTOM, 0, 0, 0, 0);
 
-			if (wind_num == WIND_MODFORM || (wind_num == 0 && ismodule == 1))	/* Modulfenster/FK -> Bilfenster redraw */
+			if (wind_num == WIND_MODFORM || (wind_num == 0 && ismodule))	/* Modulfenster/FK -> Bilfenster redraw */
 			{
 				picwindow = &picture_windows[position_markers[window_to_handle->module].smurfpic[0]];
 				Window.redraw(picwindow, NULL, 0, DRAWNOTREE);
@@ -296,7 +298,7 @@ WORD f_handle_message(void)
 		{
 			Window.cursorOff(window_to_handle);
 
-			if (wind_num == WIND_MODFORM || (wind_num == 0 && ismodule == 1))	/* Modulfenster */
+			if (wind_num == WIND_MODFORM || (wind_num == 0 && ismodule))	/* Modulfenster */
 			{
 				picwindow = &picture_windows[position_markers[window_to_handle->module].smurfpic[0]];
 				Window.redraw(picwindow, NULL, 0, DRAWNOTREE);
@@ -315,8 +317,9 @@ WORD f_handle_message(void)
 					f_set_picpal(picture_windows[-topwin].picture);
 			}
 		} else
+		{
 			f_set_syspal();
-
+		}
 		break;
 
 		/*
@@ -445,7 +448,7 @@ WORD f_handle_message(void)
 		 * Fenster muž redrawed werden
 		 */
 	case WM_REDRAW:
-		if (wind_num || ismodule == 1)
+		if (wind_num || ismodule)
 		{
 			if (window_to_handle != NULL && window_to_handle->whandlem != -1)
 			{
@@ -477,21 +480,22 @@ WORD f_handle_message(void)
 		 * Fenster wurde geschlossen
 		 */
 	case WM_CLOSED:
-		if (wind_num || ismodule == 1)
+		if (wind_num || ismodule)
 		{
 			if (wind_num < 0)			/* bearbeitetes Bild? -> Rckfrage! */
 			{
 				if (window_to_handle->wtitle[11] == '*' && !(Sys_info.profi_mode & OS_SELECTED))
 				{
-					if (Dialog.winAlert.
-						openAlert(Dialog.winAlert.alerts[WCLOSE_ALERT].TextCast, "Nein", " Ja ", NULL, 1) == 1)
-						return (0);
+					/* FIXME: translate */
+					if (Dialog.winAlert.openAlert(Dialog.winAlert.alerts[WCLOSE_ALERT].TextCast, "Nein", " Ja ", NULL, 1) == 1)
+						return 0;
 				}
 			}
 
 			if (Dialog.winAlert.isTop && window_to_handle->whandlem == Dialog.winAlert.winHandle)
+			{
 				Dialog.winAlert.closeAlert();
-			else
+			} else
 			{
 				Window.cursorOff(window_to_handle);
 				wind_close(window_to_handle->whandlem);
@@ -616,7 +620,7 @@ WORD f_handle_message(void)
 				/* 
 				 * irgendeine Art von Modul? -> Message senden 
 				 */
-				else if (wind_num == 0 && ismodule == 1)
+				else if (wind_num == 0 && ismodule)
 				{
 					module_num = window_to_handle->module;
 
@@ -716,7 +720,7 @@ WORD f_handle_message(void)
 		 * Fenster soll iconifiziert werden
 		 */
 	case WM_ICONIFY:
-		if (wind_num || ismodule == 1)
+		if (wind_num || ismodule)
 		{
 			Window.windSet(messagebuf[3], WF_ICONIFY, messagebuf[4], messagebuf[5], messagebuf[6], messagebuf[7]);
 			Window.windGet(messagebuf[3], WF_WORKXYWH, &window_to_handle->wx, &window_to_handle->wy, &window_to_handle->ww, &window_to_handle->wh);
@@ -729,7 +733,7 @@ WORD f_handle_message(void)
 		 * Fenster soll deiconifiziert werden
 		 */
 	case WM_UNICONIFY:
-		if (wind_num || ismodule == 1)
+		if (wind_num || ismodule)
 		{
 			Window.windSet(messagebuf[3], WF_UNICONIFY, messagebuf[4], messagebuf[5], messagebuf[6], messagebuf[7]);
 
@@ -768,7 +772,6 @@ WORD f_handle_message(void)
 			Comm.sendAESMsg(Sys_info.ENV_avserver, AV_STARTED, LONG2_2INT(argback), -1);
 		else
 			Dialog.busy.noEvents = 0;
-
 		break;
 
 
@@ -806,7 +809,6 @@ WORD f_handle_message(void)
 
 		/* av_comm l”schen, damit ich bei der n„xten msg bescheid weiž, ob sie von mir ist */
 		memset(&Comm.avComm, 0, sizeof(AV_COMM));
-
 		break;
 
 
@@ -891,8 +893,7 @@ WORD f_handle_message(void)
 		if (messagebuf[5] != 0 && messagebuf[6] != 0)
 			SMfree(ext_com_ptr);		/* entspricht new_filename aus bubble_gem() */
 		break;
-
 	}
 
-	return (0);
+	return 0;
 }

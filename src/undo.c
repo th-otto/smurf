@@ -38,16 +38,13 @@
  * imageWindow.undo.saveBuffer
  * speichert einen undobuffer unter <bildnummer>.sub ins TMP-Verzeichnis
  */
-void saveUndoBuffer(SMURF_PIC * picture, int picnum)
+void saveUndoBuffer(SMURF_PIC *picture, short picnum)
 {
-	char filePath[257],
-	 temppath[257],
-	*bslPos;
-
+	char filePath[257];
+	char temppath[257];
+	char *bslPos;
 	int fHandle;
-
 	long picLen;
-
 
 	get_tmp_dir(temppath);
 	bslPos = strchr(temppath, '\\');
@@ -98,20 +95,16 @@ void saveUndoBuffer(SMURF_PIC * picture, int picnum)
  * toPicture ausgelesen, <picNum>.sub gel”scht und tmp.sub in
  * <picNum>.sub umbenannt.
  */
-void swapUndoBuffer(SMURF_PIC * toPicture, int picNum)
+void swapUndoBuffer(SMURF_PIC *toPicture, short picNum)
 {
-	char filePath[257],
-	 temppath[257],
-	*bslPos;
+	char filePath[257];
+	char temppath[257];
+	char *bslPos;
 	char tmpName[257];
-
 	int fHandle;
-
-	long picLen,
-	 undoPicLen;
-
+	long picLen;
+	long undoPicLen;
 	SMURF_PIC undoPic;
-
 
 	get_tmp_dir(temppath);
 	bslPos = strchr(temppath, '\\');
