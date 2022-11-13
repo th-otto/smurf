@@ -1280,8 +1280,8 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 	{
 		pic_to_save = module.comm.start_exp_module("", mode, smurf_picture[active_pic], module.bp[mod_index], module.smStruct[mod_index], module_number);
 
-		if (module.smStruct[mod_index]->module_mode == M_DONEEXIT
-			|| module.smStruct[mod_index]->module_mode == M_PICDONE)
+		if (module.smStruct[mod_index]->module_mode == M_DONEEXIT ||
+			module.smStruct[mod_index]->module_mode == M_PICDONE)
 		{
 
 			picture = (char *) pic_to_save->pic_data;
@@ -1325,9 +1325,9 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 	/*
 	 * das Edit-Modul ist fertig mit dem Bildbearbeiten und Smurf muž entsprechend reagieren
 	 */
-	if (mod_magic == MOD_MAGIC_EDIT
-		&& (module.smStruct[mod_index]->module_mode == M_PICDONE
-			|| module.smStruct[mod_index]->module_mode == M_DONEEXIT))
+	if (mod_magic == MOD_MAGIC_EDIT &&
+		(module.smStruct[mod_index]->module_mode == M_PICDONE ||
+		 module.smStruct[mod_index]->module_mode == M_DONEEXIT))
 	{
 		Dialog.busy.dispRAM();
 
@@ -1635,8 +1635,9 @@ void f_event(void)
 					if (Window.myWindow(topwin) > 0)	/* Dialogfenster? */
 						Window.close(topwin);
 				} else if ((key_scancode >> 8) == KEY_HELP)
+				{
 					call_stguide(topwin);
-				else
+				} else
 				{
 					obj = 0;
 					key_ascii = scan_2_ascii(key_scancode, key_at_event);
@@ -1645,8 +1646,8 @@ void f_event(void)
 					mod_win = Window.myModuleWindow(topwin);
 
 					/* Control gedrckt? */
-					if ((key_at_event & KEY_CTRL) || (key_at_event & KEY_ALT) && (key_scancode >> 8) != SCAN_RETURN
-						&& (key_scancode >> 8) != SCAN_ENTER)
+					if ((key_at_event & KEY_CTRL) || (key_at_event & KEY_ALT) && (key_scancode >> 8) != SCAN_RETURN &&
+						(key_scancode >> 8) != SCAN_ENTER)
 					{
 						ki.ascii_code = key_ascii;
 						ki.scan_code = key_scancode;
@@ -1669,8 +1670,8 @@ void f_event(void)
 						itsok = 0;
 
 					/* Dialogfenster oder Modulfenster */
-					if (itsok == 0
-						&& ((topw_num > 0 && wind_s[topw_num].shaded == 0) || (mod_win != 0 && mod_win->shaded == 0)))
+					if (itsok == 0 &&
+						((topw_num > 0 && wind_s[topw_num].shaded == 0) || (mod_win != 0 && mod_win->shaded == 0)))
 					{
 						if (wind_s[topw_num].whandlem != -1 && topw_num > 0)	/* Dialog */
 						{
@@ -1737,9 +1738,10 @@ void f_event(void)
 						ob = wind_s[windnum].resource_form;
 						klickobj = objc_find(ob, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
 
-						if (mouse_button == 0x02 && ob[klickobj].ob_spec.userblk != &cycle_user)
+						if (mouse_button == 0x02 && ob[klickobj].ob_type != (CYCLEBUTTON | G_USERDEF))
+						{
 							Comm.bubbleGem(windnum, mouse_xpos, mouse_ypos, 0);
-						else
+						} else
 						{
 							/*------- Fenster toppen? --------*/
 							if (klickobj == 0 || ob[klickobj].ob_type == G_FTEXT || IsDisabled(ob[klickobj])	/* ||
@@ -1786,10 +1788,11 @@ void f_event(void)
 
 						klickobj = objc_find(mod_win->resource_form, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
 
-						if (mouse_button == 0x02 && klickobj != 0
-							&& (mod_win->resource_form[klickobj].ob_spec.userblk) != &cycle_user)
+						if (mouse_button == 0x02 && klickobj != 0 &&
+							mod_win->resource_form[klickobj].ob_type != (CYCLEBUTTON | G_USERDEF))
+						{
 							Comm.bubbleGem(klickhandle, mouse_xpos, mouse_ypos, 1);
-						else if (mod_win != 0 && mod_win->shaded == 0)
+						} else if (mod_win != 0 && mod_win->shaded == 0)
 						{
 							module_number = mod_win->module;
 							klickobj = handle_modevent(MU_BUTTON, mod_win);
@@ -1827,19 +1830,19 @@ void f_event(void)
 									/* Erste Frage muž sein da das Module ggf. bei do_MBEVT terminiert */
 									/* bzw. sein Fenster geschlossen werden kann, mod_win aber weil schon */
 									/* oben geholt noch auf den nun ungltigen Speicher zeigt. */
-									if (module.smStruct[module_number & 0xFF]
-										&& module.smStruct[module_number & 0xFF]->wind_struct
-										&& (mod_win->resource_form[klickobj].ob_type & 0x00ff) != G_USERDEF
-										&& !(mod_win->resource_form[klickobj].ob_flags & OF_RBUTTON)
-										&& (mod_win->resource_form[klickobj].ob_type >> 8) != UDO
-										&& (mod_win->resource_form[klickobj].ob_flags & OF_SELECTABLE))
+									if (module.smStruct[module_number & 0xFF] &&
+										module.smStruct[module_number & 0xFF]->wind_struct &&
+										(mod_win->resource_form[klickobj].ob_type & 0x00ff) != G_USERDEF &&
+										!(mod_win->resource_form[klickobj].ob_flags & OF_RBUTTON) &&
+										(mod_win->resource_form[klickobj].ob_type >> 8) != UDO &&
+										(mod_win->resource_form[klickobj].ob_flags & OF_SELECTABLE))
 										change_object(mod_win, klickobj, OS_UNSEL, 1);
 								}
 							}
-						}				/* mod_win != 0 */
-					}					/* windnum == 0 && mod_win != 0 */
+						}
+					}
 
-						/*--------------- Busybalken umschalten? */
+					/*--------------- Busybalken umschalten? */
 					if (klickhandle == wind_s[WIND_BUSY].whandlem)
 					{
 						klickobj = objc_find(Dialog.busy.busyTree, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
@@ -1881,18 +1884,18 @@ void f_event(void)
 					/*
 					 * Buttonevents an die Dialoge weiterleiten
 					 */
-					if (!Dialog.winAlert.isTop && (back & MU_BUTTON) && windnum > 0 && wind_s[windnum].shaded == 0
-						&& obj == klickobj)
+					if (!Dialog.winAlert.isTop && (back & MU_BUTTON) && windnum > 0 && wind_s[windnum].shaded == 0 &&
+						obj == klickobj)
 					{
 						openmode = 1;
 						CallDialog(klickhandle);
 					}
 
-				}						/* if(Dialog.winAlert.isTop) - else */
+				}
 
-			}							/* Buttonevents */
+			}
 
-		}								/* if(!(back&MU_MESAG)) */
+		}
 
 	} while (message_back != PRG_CLOSED);
 }
