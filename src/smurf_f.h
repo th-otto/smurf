@@ -310,24 +310,24 @@ void f_draw_crosshair(WINDOW *window);       /* Positionierungskreuz in einem Bi
 void f_draw_blockbox(WINDOW *window);
 void draw_picmanboxes(void);
 void clip_picw2screen(WINDOW *picw);
-int f_rc_intersect( GRECT *r1, GRECT *r2, GRECT *r3);     /* Zum Redraw. */
+BOOLEAN f_rc_intersect(const GRECT *r1, const GRECT *r2, GRECT *r3);     /* Zum Redraw. */
 short my_window(WORD handle);                              /* Fenster identifizieren */
 WINDOW *my_module_window(WORD handle);                      /* Modulfenster identif. */
 void f_setsliders(WINDOW *wind);                         /* Slider setzen */
-void f_arrow_window(int mode, WINDOW *window, int amount);   /* Pfeilbedienung im Bildfenster */
-void scrollWindowRT(WINDOW *window, int xamount, int yamount);
-void f_slide_window(int pos, WINDOW *wind, int mode);    /* Bildfenster sliden */
-void toggle_asterisk(WINDOW *picwin, int onoff);
+void f_arrow_window(WORD mode, WINDOW *window, WORD amount);   /* Pfeilbedienung im Bildfenster */
+void scrollWindowRT(WINDOW *window, WORD xamount, WORD yamount);
+void f_slide_window(WORD pos, WINDOW *wind, WORD mode);    /* Bildfenster sliden */
+void toggle_asterisk(WINDOW *picwin, BOOLEAN onoff);
 void window_to_list(WINDOW *window);        /* Fenster in die Liste h„ngen */
 void remove_window(WINDOW *window);
-int find_crosshair(WINDOW *window);         /* findet eine Fadenkreuzstruktur zu einem Bildfenster */
+short find_crosshair(WINDOW *window);         /* findet eine Fadenkreuzstruktur zu einem Bildfenster */
 void top_window(WORD handle);
 void top_window_now(WINDOW *window);
 void top_windowhandle(WORD handle);
 void close_window(WORD handle);
 WORD f_alert(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);   /* Fenster-Alertfunktion */
 void close_alert(void);
-void f_pic_changed(WINDOW *window, int onoff);
+void f_pic_changed(WINDOW *window, BOOLEAN onoff);
 
 
 /*

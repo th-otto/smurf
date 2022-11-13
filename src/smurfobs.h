@@ -103,7 +103,7 @@ typedef struct generalWindow
     void (*redraw)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
     void (*drawIconified)(WINDOW *window, WORD *vdiclip);
 
-    int (*rcIntersect)(GRECT *r1, GRECT *r2, GRECT *r3);
+    BOOLEAN (*rcIntersect)(const GRECT *r1, const GRECT *r2, GRECT *r3);
     short (*myWindow)(WORD handle);
     WINDOW *(*myModuleWindow)(WORD handle);
     
@@ -142,14 +142,14 @@ typedef struct picWindow
     void (*insertZoom)(WINDOW *window);
     void (*drawCrosshair)(WINDOW *window);
     void (*drawBlockbox)(WINDOW *window);
-    int (*findCrosshair)(WINDOW *window);
-    void (*arrowWindow)(int mode, WINDOW *wind,int amount);
-    void (*slideWindow)(int pos, WINDOW *wind, int mode);
+    short (*findCrosshair)(WINDOW *window);
+    void (*arrowWindow)(WORD mode, WINDOW *wind, WORD amount);
+    void (*slideWindow)(WORD pos, WINDOW *wind, WORD mode);
     void (*setSliders)(WINDOW *wind);
     void (*scrollRT)(WINDOW *window, int xamount, int yamount);
 
     void (*clipPicwin)(WINDOW *picw);
-    void (*toggleAsterisk)(WINDOW *picwin, int onoff);
+    void (*toggleAsterisk)(WINDOW *picwin, BOOLEAN onoff);
     void (*displayCoords)(WINDOW *pic_window, WORD mx, WORD my, BOOLEAN blockflag);
     void (*nullCoords)(WINDOW *picwindow);
     void (*removeBlock)(WINDOW *picwindow);
