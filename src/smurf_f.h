@@ -111,7 +111,7 @@ short seek_nearest_col(long *par, short maxcol) ASM_NAME("_seek_nearest_col");
 void direct2screen(SMURF_PIC *picture, uint8_t *where_to, GRECT *part);
 
 int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MODES *display, WORD *fixpal_red, WORD *fixpal_green, WORD *fixpal_blue);
-void make_tmp_nct(long *histogram, SMURF_PIC *pic, unsigned int maxc);
+void make_tmp_nct(long *histogram, SMURF_PIC *pic, unsigned short maxc);
 void makeNCT(long *par, long maxcol) ASM_NAME("_makeNCT");
 
 

@@ -45,22 +45,13 @@
 #include "../smurfobs.h"
 #include "../ext_obs.h"
 
-#define ComputeIndex3d(r,g,b)		(unsigned long)( ((unsigned int)r<<10) + ((unsigned int)g<<5) + ((unsigned int)b) )
+#define ComputeIndex3d(r,g,b)		(unsigned long)( ((uint16_t)r<<10) + ((uint16_t)g<<5) + ((uint16_t)b) )
 
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 #define XEDGE	1
 #define YEDGE	2
 #define ZEDGE	3
-
-static void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram);
-static int find_cutpos(int box_to_cut, int edge, long *histogram);
-static int find_edge(int *edge, int num_of_boxes);
-static void shrink_box(int num_of_box, long *histogram);
-
-static unsigned long sum_xyplane(int box_to_cut, int zposition, long *histogram);
-static unsigned long sum_xzplane(int box_to_cut, int yposition, long *histogram);
-static unsigned long sum_yzplane(int box_to_cut, int xposition, long *histogram);
 
 long histogram_24bit(long *histogram, char *pdata, long pixlen) ASM_NAME("_histogram_24bit");
 
@@ -72,20 +63,16 @@ long histogram_24bit(long *histogram, char *pdata, long pixlen) ASM_NAME("_histo
 /* Zur Verwaltung der einzelnen Boxes im RGB-WÅrfel */
 typedef struct
 {
-	unsigned int xbox,
-		ybox,
-		zbox,							/* Position der Box im WÅrfel (x=r, y=g, z=b) */
-		boxwid,
-		boxhgt,
-		boxdepth;						/* Abmessungen der Box (wid=r, hgt=g depth=b) */
+	uint16_t xbox, ybox, zbox; 			/* Position der Box im WÅrfel (x=r, y=g, z=b) */
+	uint16_t boxwid, boxhgt, boxdepth;	/* Abmessungen der Box (wid=r, hgt=g depth=b) */
 } MC_BOX;
 
 
 static MC_BOX *boxes[256];
 
-unsigned long sumplane_xy(long *hist, MC_BOX * box, int zposition) ASM_NAME("_sumplane_xy");
-unsigned long sumplane_xz(long *hist, MC_BOX * box, int yposition) ASM_NAME("_sumplane_xz");
-unsigned long sumplane_yz(long *hist, MC_BOX * box, int xposition) ASM_NAME("_sumplane_yz");
+unsigned long sumplane_xy(long *hist, MC_BOX *box, int16_t zposition) ASM_NAME("_sumplane_xy");
+unsigned long sumplane_xz(long *hist, MC_BOX *box, int16_t yposition) ASM_NAME("_sumplane_xz");
+unsigned long sumplane_yz(long *hist, MC_BOX *box, int16_t xposition) ASM_NAME("_sumplane_yz");
 
 static unsigned long colnum;
 
@@ -98,27 +85,23 @@ long *make_histogram(SMURF_PIC * picture)
 {
 	long *histogram;
 	char *pdata;
-	unsigned int *p16;
-	unsigned long t,
-	 pixlen,
-	 x,
-	 xc,
-	 yc;
-	int width,
-	 height;
+	uint16_t *p16;
+	unsigned long t;
+	unsigned long pixlen;
+	unsigned long x;
+	unsigned long xc;
+	unsigned long yc;
+	int16_t width, height;
 	unsigned long index3d;
-	unsigned char red,
-	 green,
-	 blue;
-	unsigned char index8;
-	unsigned char *curr_pal;
-	char st_buf[17];
+	uint8_t red, green, blue;
+	uint8_t index8;
+	uint8_t *curr_pal;
+	uint8_t st_buf[17];
 	long planelen;
-
 
 	histogram = SMalloc(132000L);		/* speicher fÅrs Histogramm */
 
-	p16 = (unsigned int *) picture->pic_data;
+	p16 = (uint16_t *) picture->pic_data;
 	pdata = picture->pic_data;
 	width = picture->pic_width;
 	height = picture->pic_height;
@@ -138,7 +121,7 @@ long *make_histogram(SMURF_PIC * picture)
 			while (t--)
 			{
 				if (!(t & 32767))
-					Dialog.busy.draw((int) (20 - (t * 20L / pixlen)));
+					Dialog.busy.draw((short) (20 - (t * 20L / pixlen)));
 				red = *(p16) >> 11;
 				green = (*(p16) >> 6) & 31;
 				blue = *(p16++) & 31;
@@ -152,7 +135,7 @@ long *make_histogram(SMURF_PIC * picture)
 			while (t--)
 			{
 				if (!(t & 32767))
-					Dialog.busy.draw((int) (20 - (t * 20L / pixlen)));
+					Dialog.busy.draw((short) (20 - (t * 20L / pixlen)));
 				index8 = *(pdata++);
 				curr_pal = (picture->palette + index8 + index8 + index8);
 				red = *(curr_pal++) >> 3;
@@ -172,7 +155,7 @@ long *make_histogram(SMURF_PIC * picture)
 		for (yc = 0; yc < height; yc++)
 		{
 			if (!(yc & 63))
-				Dialog.busy.draw((int) ((long) yc * 20L / (long) height));
+				Dialog.busy.draw((short) ((long) yc * 20L / (long) height));
 			pdata = (char *) (picture->pic_data) + (yc * x);
 			for (xc = 0; xc < x; xc++)
 			{
@@ -193,153 +176,192 @@ long *make_histogram(SMURF_PIC * picture)
 		}
 	}
 
-	return (histogram);
+	return histogram;
 }
 
 
-
-/*-------------------------------------------------------------------------------------	*/
-/*										MEDIAN CUT										*/
-/*	Farbquantisierung nach Heckbert aus dem Histogramm *histogram des Bildes *picture	*/
-/*-------------------------------------------------------------------------------------	*/
-void median_cut(long *histogram, SMURF_PIC * picture, SYSTEM_INFO * sysinfo)
+/*---------------------------------------------------------------------	*/
+/*								sum_plane								*/
+/*	Diese Routinen fÅhren eine Aufsummierung aller HÑufigkeiten einer	*/
+/*	"Scheibe" aus einem WÅrfel durch und gibt die Summe (long) zurÅck.	*/
+/*---------------------------------------------------------------------	*/
+/* X-Y-Plane aufsummieren */
+static unsigned long sum_xyplane(int16_t box_to_cut, int16_t zposition, long *histogram)
 {
-	int currentbox = 0;
-	int edge;
-	int num_of_boxes = 1;				/*Initial 1 Box (der gesamte WÅrfel) */
-	int dest_colors,
-	 t;
-	int x,
-	 y,
-	 z,
-	 w,
-	 h,
-	 d;
-	int cx,
-	 cy,
-	 cz;
+	int16_t x, y;
+	int16_t yb, xb;
+	int16_t w, h;
 	unsigned long index3d;
-	unsigned long rcol[256];
-	unsigned long gcol[256];
-	unsigned long bcol[256];
-	unsigned long divide[256];
-	long frequency;
-	char red,
-	 green,
-	 blue;
-	int *pr,
-	*pg,
-	*pb;
+	unsigned long sum = 0;
 
-	/*
-	 * Die Anzahl an Farben ist entweder die an Screenfarben oder, wenn weniger, 
-	 * die Anzahl, die im Bild Åberhaupt vorhanden ist.
-	 */
-	dest_colors = sysinfo->Max_col + 1;
-	if (colnum < dest_colors)
-		dest_colors = (int) colnum;
+	xb = boxes[box_to_cut]->xbox;
+	yb = boxes[box_to_cut]->ybox;
+	w = boxes[box_to_cut]->boxwid;
+	h = boxes[box_to_cut]->boxhgt;
 
-	for (t = 0; t < dest_colors + 1; t++)
+	sum = 0;
+
+	for (y = yb; y < yb + h; y++)
 	{
-		boxes[t] = malloc(sizeof(MC_BOX));
-		memset(boxes[t], 0x0, sizeof(MC_BOX));
-	}
-
-	/*
-	 *  Box 0 ist erstmal der Gesamte WÅrfel...
-	 */
-	Dialog.busy.reset(20, "Variance-MedianCut");
-
-	boxes[0]->xbox = 0;
-	boxes[0]->ybox = 0;
-	boxes[0]->zbox = 0;
-	boxes[0]->boxwid = 32;
-	boxes[0]->boxhgt = 32;
-	boxes[0]->boxdepth = 32;
-	shrink_box(0, histogram);
-
-
-	/*
-	 *  und jetzt immer wieder zerschneiden, bis dest_col boxes da sind... 
-	 */
-	do
-	{
-		/* Die lÑngste Kante und deren WÅrfel suchen.... */
-		currentbox = find_edge(&edge, num_of_boxes);
-
-		/* Schnipp-Schnapp! */
-		cut_box(num_of_boxes, currentbox, edge, histogram);
-
-		shrink_box(currentbox, histogram);
-		shrink_box(num_of_boxes, histogram);
-
-		if (!(num_of_boxes & 31))
-			Dialog.busy.draw((num_of_boxes << 5) / dest_colors + 20);
-	} while (++num_of_boxes < dest_colors);
-
-
-	/*
-	 *  Jetzt muû aus den Boxes noch die Palette ermittelt werden.
-	 */
-	Dialog.busy.reset(64, "erzeuge Palette");
-	for (t = 0; t < num_of_boxes; t++)
-	{
-		x = boxes[t]->xbox;
-		y = boxes[t]->ybox;
-		z = boxes[t]->zbox;
-		w = boxes[t]->boxwid;
-		h = boxes[t]->boxhgt;
-		d = boxes[t]->boxdepth;
-
-		divide[t] = rcol[t] = gcol[t] = bcol[t] = 0;
-
-		for (cz = z; cz < z + d; cz++)
+		index3d = ComputeIndex3d(xb, y, zposition);
+		x = w;
+		while (x--)
 		{
-			for (cy = y; cy < y + h; cy++)
-			{
-				for (cx = x; cx < x + w; cx++)
-				{
-					index3d = ComputeIndex3d(cx, cy, cz);
-					frequency = histogram[index3d];
-					divide[t] += frequency;
-					rcol[t] += (long) cx *frequency;
-					gcol[t] += (long) cy *frequency;
-					bcol[t] += (long) cz *frequency;
-				}
-			}
+			sum += histogram[index3d];
+			index3d += 1024;
 		}
 	}
 
-	for (t = 0; t < dest_colors + 1; t++)
-		free(boxes[t]);
-
-	/*
-	 * So. Jetzt hab ich 'nen Eimer voll 15 Bit-Werte und die mÅssen in die Bildpalette.
-	 * Zuerst wird da die Systempalette eingefÅgt und dann die ermittelten Farben drÅber-
-	 * geschrieben, damit so viel von der Syspal erhalten bleibt, wie mîglich.
-	 */
-	pr = picture->red;
-	pg = picture->grn;
-	pb = picture->blu;
-
-	for (t = 0; t < sysinfo->Max_col + 1; t++)
-	{
-		pr[t] = sysinfo->pal_red[t] * 0.255;
-		pg[t] = sysinfo->pal_green[t] * 0.255;
-		pb[t] = sysinfo->pal_blue[t] * 0.255;
-	}
-
-	for (t = 0; t < num_of_boxes; t++)
-	{
-		red = (char) (rcol[t] / divide[t]);
-		green = (char) (gcol[t] / divide[t]);
-		blue = (char) (bcol[t] / divide[t]);
-		pr[t] = (int) red << 3;
-		pg[t] = (int) green << 3;
-		pb[t] = (int) blue << 3;
-	}
-
+	return sum;
 }
+
+/* X-Z-Plane aufsummieren */
+static unsigned long sum_xzplane(int16_t box_to_cut, int16_t yposition, long *histogram)
+{
+	int16_t x, z;
+	int16_t xb, zb;
+	int16_t w, d;
+	unsigned long index3d;
+	unsigned long sum = 0;
+
+	xb = boxes[box_to_cut]->xbox;
+	zb = boxes[box_to_cut]->zbox;
+	w = boxes[box_to_cut]->boxwid;
+	d = boxes[box_to_cut]->boxdepth;
+
+	sum = 0;
+
+	for (z = zb; z < zb + d; z++)
+	{
+		index3d = ComputeIndex3d(xb, yposition, z);
+		x = w;
+		while (x--)
+		{
+			sum += histogram[index3d];
+			index3d += 1024;
+		}
+	}
+
+	return sum;
+}
+
+
+/* Y-Z-Plane aufsummieren */
+static unsigned long sum_yzplane(int16_t box_to_cut, int16_t xposition, long *histogram)
+{
+	int16_t y, z;
+	int16_t yb, zb;
+	int16_t h, d;
+	unsigned long index3d;
+	unsigned long sum = 0;
+
+	yb = boxes[box_to_cut]->ybox;
+	zb = boxes[box_to_cut]->zbox;
+	h = boxes[box_to_cut]->boxhgt;
+	d = boxes[box_to_cut]->boxdepth;
+
+	sum = 0;
+
+	for (z = zb; z < zb + d; z++)
+	{
+		index3d = ComputeIndex3d(xposition, yb, z);
+		y = h;
+		while (y--)
+		{
+			sum += histogram[index3d];
+			index3d += 32;
+		}
+	}
+
+	return sum;
+}
+
+
+
+
+/*---------------------------------------------------------------------	*/
+/*								find_cutpos								*/
+/*	findet die optimale Schnittposition fÅr den WÅrfel Nr. box_to_cut	*/
+/*	an der Kante edge.													*/
+/*	Die Routine lÑuft von den beiden Seiten der zu schneidenden Kante	*/
+/*	durch den WÅrfel und ermittelt die Schnittstelle so, daû die HÑufig-*/
+/*	keiten der Farben in den beiden resultierenden HÑlften gleich sind.	*/
+/*	Die Schnittposition ABSLOUT ZUM GESAMTWöRFEL wird zurÅckgegeben.	*/
+/*---------------------------------------------------------------------	*/
+static int16_t find_cutpos(int16_t box_to_cut, int16_t edge, long *histogram)
+{
+	int16_t left_position, right_position;
+	unsigned long left_sum = 0;
+	unsigned long all_sum = 0;
+
+#if ASSEMBLER
+	unsigned long (*sum_plane)(long *hist, MC_BOX * box, int16_t xposition);
+#else
+	unsigned long (*sum_plane)(int16_t box_to_cut, int16_t position, long *histo);
+#endif
+	int16_t all_pos;
+
+	/*---------------- Welche Kante soll geschnitten werden? ---------*/
+	if (edge == XEDGE)
+	{
+		left_position = boxes[box_to_cut]->xbox;
+		right_position = boxes[box_to_cut]->xbox + boxes[box_to_cut]->boxwid - 1;
+#if ASSEMBLER
+		sum_plane = sumplane_yz;
+#else
+		sum_plane = sum_yzplane;
+#endif
+	} else if (edge == YEDGE)
+	{
+		left_position = boxes[box_to_cut]->ybox;
+		right_position = boxes[box_to_cut]->ybox + boxes[box_to_cut]->boxhgt - 1;
+#if ASSEMBLER
+		sum_plane = sumplane_xz;
+#else
+		sum_plane = sum_xzplane;
+#endif
+	} else if (edge == ZEDGE)
+	{
+		left_position = boxes[box_to_cut]->zbox;
+		right_position = boxes[box_to_cut]->zbox + boxes[box_to_cut]->boxdepth - 1;
+#if ASSEMBLER
+		sum_plane = sumplane_xy;
+#else
+		sum_plane = sum_xyplane;
+#endif
+	}
+
+	if (left_position == right_position)
+		return left_position;
+	if (right_position - left_position == 1)
+		return left_position + 1;
+
+	/*-------- Gesamtsumme ermitteln ---------*/
+	all_pos = left_position;
+	do
+	{
+#if ASSEMBLER
+		all_sum += sum_plane(histogram, boxes[box_to_cut], all_pos);
+#else
+		all_sum += sum_plane(box_to_cut, all_pos, histogram);
+#endif
+	} while (all_pos++ < right_position);
+
+	all_sum /= 2;
+
+
+	/*---- von links durch den WÅrfel laufen...	-----*/
+	do
+	{
+		/*left_sum += sum_plane(histogram, boxes[box_to_cut], left_position); */
+		left_sum += sum_plane(box_to_cut, left_position, histogram);
+		left_position++;
+	} while (left_sum < all_sum && left_position != right_position);
+
+	return left_position;
+}
+
+
 
 
 /*---------------------------------------------------------------------	*/
@@ -349,22 +371,25 @@ void median_cut(long *histogram, SMURF_PIC * picture, SYSTEM_INFO * sysinfo)
 /*	den WÅrfel auseinander,	erzeugt eine neue MC_BOX-Struktur und paût	*/
 /*	die alte an.														*/
 /*---------------------------------------------------------------------	*/
-static void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram)
+static void cut_box(int16_t num_of_boxes, int16_t box_to_cut, int16_t edge, long *histogram)
 {
-	int cut_position;
-	int old_len;
+	int16_t cut_position;
+	int16_t old_len;
 
-	/*
-	   Goto_pos(0,0);
-	   printf("\n Teile Box Nr %i ", box_to_cut);
-	   if(edge==XEDGE) puts(" an X   ");
-	   else if(edge==YEDGE) puts(" an Y   ");
-	   else if(edge==ZEDGE) puts(" an Z   ");
+#if 0
+	Goto_pos(0,0);
+	printf("\n Teile Box Nr %i ", box_to_cut);
+	if (edge == XEDGE)
+		puts(" an X   ");
+	else if (edge == YEDGE)
+		puts(" an Y   ");
+	else if (edge == ZEDGE)
+		puts(" an Z   ");
 
-	   printf("\n Urbox: %i-%i-%i, %i-%i-%i   ",
-	   boxes[box_to_cut]->xbox, boxes[box_to_cut]->ybox, boxes[box_to_cut]->zbox,
-	   boxes[box_to_cut]->boxwid, boxes[box_to_cut]->boxhgt, boxes[box_to_cut]->boxdepth);
-	 */
+	printf("\n Urbox: %i-%i-%i, %i-%i-%i   ",
+		boxes[box_to_cut]->xbox, boxes[box_to_cut]->ybox, boxes[box_to_cut]->zbox,
+		boxes[box_to_cut]->boxwid, boxes[box_to_cut]->boxhgt, boxes[box_to_cut]->boxdepth);
+#endif
 
 	/*---------- Skalpell ansetzen (Ermitteln der Schnittposition) */
 	cut_position = find_cutpos(box_to_cut, edge, histogram);
@@ -424,107 +449,19 @@ static void cut_box(int num_of_boxes, int box_to_cut, int edge, long *histogram)
 
 
 /*---------------------------------------------------------------------	*/
-/*								find_cutpos								*/
-/*	findet die optimale Schnittposition fÅr den WÅrfel Nr. box_to_cut	*/
-/*	an der Kante edge.													*/
-/*	Die Routine lÑuft von den beiden Seiten der zu schneidenden Kante	*/
-/*	durch den WÅrfel und ermittelt die Schnittstelle so, daû die HÑufig-*/
-/*	keiten der Farben in den beiden resultierenden HÑlften gleich sind.	*/
-/*	Die Schnittposition ABSLOUT ZUM GESAMTWöRFEL wird zurÅckgegeben.	*/
-/*---------------------------------------------------------------------	*/
-static int find_cutpos(int box_to_cut, int edge, long *histogram)
-{
-	int left_position,
-	 right_position;
-	unsigned long left_sum = 0,
-		all_sum = 0;
-
-#if ASSEMBLER
-	unsigned long (*sum_plane)(long *hist, MC_BOX * box, int xposition);
-#else
-	unsigned long (*sum_plane)(int box_to_cut, int position, long *histo);
-#endif
-	int all_pos;
-
-	/*---------------- Welche Kante soll geschnitten werden? ---------*/
-	if (edge == XEDGE)
-	{
-		left_position = boxes[box_to_cut]->xbox;
-		right_position = boxes[box_to_cut]->xbox + boxes[box_to_cut]->boxwid - 1;
-#if ASSEMBLER
-		sum_plane = sumplane_yz;
-#else
-		sum_plane = sum_yzplane;
-#endif
-	} else if (edge == YEDGE)
-	{
-		left_position = boxes[box_to_cut]->ybox;
-		right_position = boxes[box_to_cut]->ybox + boxes[box_to_cut]->boxhgt - 1;
-#if ASSEMBLER
-		sum_plane = sumplane_xz;
-#else
-		sum_plane = sum_xzplane;
-#endif
-	} else if (edge == ZEDGE)
-	{
-		left_position = boxes[box_to_cut]->zbox;
-		right_position = boxes[box_to_cut]->zbox + boxes[box_to_cut]->boxdepth - 1;
-#if ASSEMBLER
-		sum_plane = sumplane_xy;
-#else
-		sum_plane = sum_xyplane;
-#endif
-	}
-
-	if (left_position == right_position)
-		return (left_position);
-	if (right_position - left_position == 1)
-		return (left_position + 1);
-
-	/*-------- Gesamtsumme ermitteln ---------*/
-	all_pos = left_position;
-	do
-	{
-#if ASSEMBLER
-		all_sum += sum_plane(histogram, boxes[box_to_cut], all_pos);
-#else
-		all_sum += sum_plane(box_to_cut, all_pos, histogram);
-#endif
-	} while (all_pos++ < right_position);
-
-	all_sum /= 2;
-
-
-	/*---- von links durch den WÅrfel laufen...	-----*/
-	do
-	{
-		/*left_sum += sum_plane(histogram, boxes[box_to_cut], left_position); */
-		left_sum += sum_plane(box_to_cut, left_position, histogram);
-		left_position++;
-	} while (left_sum < all_sum && left_position != right_position);
-
-	return (left_position);
-}
-
-
-
-
-/*---------------------------------------------------------------------	*/
 /*								find_edge								*/
 /*	Sucht den WÅrfel mit der lÑngsten Kante Åberhaupt und liefert die	*/
 /*	Nummer des wÅrfels mit return() und die Kante in *edge zurÅck.		*/
 /*---------------------------------------------------------------------	*/
-static int find_edge(int *edge, int num_of_boxes)
+static int16_t find_edge(int16_t *edge, int16_t num_of_boxes)
 {
-	int t;
-	int w,
-	 h,
-	 d;
-	int boxreturn,
-	 edgereturn = 0;
-	int curedge = 0,
-		maxlen = 0,
-		curmaxlen = 0;
+	int16_t t;
+	int16_t w, h, d;
+	int16_t boxreturn;
+	int16_t edgereturn = 0;
+	int16_t curedge = 0;
+	int16_t maxlen = 0;
+	int16_t curmaxlen = 0;
 
 	for (t = 0; t < num_of_boxes; t++)
 	{
@@ -558,8 +495,8 @@ static int find_edge(int *edge, int num_of_boxes)
 		}
 	}
 
-	*(edge) = edgereturn;
-	return (boxreturn);
+	*edge = edgereturn;
+	return boxreturn;
 }
 
 
@@ -568,16 +505,12 @@ static int find_edge(int *edge, int num_of_boxes)
 /*								shrink_box								*/
 /* Schrumpft die MC_BOX mit der Nummer num_of_box auf ihre Extrema ein	*/
 /*---------------------------------------------------------------------	*/
-static void shrink_box(int num_of_box, long *histogram)
+static void shrink_box(int16_t num_of_box, long *histogram)
 {
-	int t;
-	unsigned int diff;
-	int w,
-	 h,
-	 d;
-	int x,
-	 y,
-	 z;
+	int16_t t;
+	uint16_t diff;
+	int16_t w, h, d;
+	int16_t x, y, z;
 	unsigned long sum;
 
 	w = boxes[num_of_box]->boxwid;
@@ -675,126 +608,151 @@ static void shrink_box(int num_of_box, long *histogram)
 
 
 
-/*---------------------------------------------------------------------	*/
-/*								sum_plane								*/
-/*	Diese Routinen fÅhren eine Aufsummierung aller HÑufigkeiten einer	*/
-/*	"Scheibe" aus einem WÅrfel durch und gibt die Summe (long) zurÅck.	*/
-/*---------------------------------------------------------------------	*/
-/* X-Y-Plane aufsummieren */
-static unsigned long sum_xyplane(int box_to_cut, int zposition, long *histogram)
+/*-------------------------------------------------------------------------------------	*/
+/*										MEDIAN CUT										*/
+/*	Farbquantisierung nach Heckbert aus dem Histogramm *histogram des Bildes *picture	*/
+/*-------------------------------------------------------------------------------------	*/
+void median_cut(long *histogram, SMURF_PIC * picture, SYSTEM_INFO * sysinfo)
 {
-	int x,
-	 y;
-	int yb,
-	 xb;
-	int w,
-	 h;
+	int16_t currentbox = 0;
+	int16_t edge;
+	int16_t num_of_boxes = 1;				/*Initial 1 Box (der gesamte WÅrfel) */
+	int16_t dest_colors, t;
+	int16_t x, y, z;
+	int16_t w, h, d;
+	int16_t cx, cy, cz;
 	unsigned long index3d;
-	unsigned long sum = 0;
+	unsigned long rcol[256];
+	unsigned long gcol[256];
+	unsigned long bcol[256];
+	unsigned long divide[256];
+	long frequency;
+	uint8_t red, green, blue;
+	WORD *pr;
+	WORD *pg;
+	WORD *pb;
 
-	xb = boxes[box_to_cut]->xbox;
-	yb = boxes[box_to_cut]->ybox;
-	w = boxes[box_to_cut]->boxwid;
-	h = boxes[box_to_cut]->boxhgt;
+	/*
+	 * Die Anzahl an Farben ist entweder die an Screenfarben oder, wenn weniger, 
+	 * die Anzahl, die im Bild Åberhaupt vorhanden ist.
+	 */
+	dest_colors = sysinfo->Max_col + 1;
+	if (colnum < dest_colors)
+		dest_colors = (int16_t) colnum;
 
-	sum = 0;
-
-	for (y = yb; y < yb + h; y++)
+	for (t = 0; t < dest_colors + 1; t++)
 	{
-		index3d = ComputeIndex3d(xb, y, zposition);
-		x = w;
-		while (x--)
+		boxes[t] = malloc(sizeof(MC_BOX));
+		memset(boxes[t], 0, sizeof(MC_BOX));
+	}
+
+	/*
+	 *  Box 0 ist erstmal der Gesamte WÅrfel...
+	 */
+	Dialog.busy.reset(20, "Variance-MedianCut");
+
+	boxes[0]->xbox = 0;
+	boxes[0]->ybox = 0;
+	boxes[0]->zbox = 0;
+	boxes[0]->boxwid = 32;
+	boxes[0]->boxhgt = 32;
+	boxes[0]->boxdepth = 32;
+	shrink_box(0, histogram);
+
+
+	/*
+	 *  und jetzt immer wieder zerschneiden, bis dest_col boxes da sind... 
+	 */
+	do
+	{
+		/* Die lÑngste Kante und deren WÅrfel suchen.... */
+		currentbox = find_edge(&edge, num_of_boxes);
+
+		/* Schnipp-Schnapp! */
+		cut_box(num_of_boxes, currentbox, edge, histogram);
+
+		shrink_box(currentbox, histogram);
+		shrink_box(num_of_boxes, histogram);
+
+		if (!(num_of_boxes & 31))
+			Dialog.busy.draw((num_of_boxes << 5) / dest_colors + 20);
+	} while (++num_of_boxes < dest_colors);
+
+
+	/*
+	 *  Jetzt muû aus den Boxes noch die Palette ermittelt werden.
+	 */
+	Dialog.busy.reset(64, "erzeuge Palette");
+	for (t = 0; t < num_of_boxes; t++)
+	{
+		x = boxes[t]->xbox;
+		y = boxes[t]->ybox;
+		z = boxes[t]->zbox;
+		w = boxes[t]->boxwid;
+		h = boxes[t]->boxhgt;
+		d = boxes[t]->boxdepth;
+
+		divide[t] = rcol[t] = gcol[t] = bcol[t] = 0;
+
+		for (cz = z; cz < z + d; cz++)
 		{
-			sum += histogram[index3d];
-			index3d += 1024;
+			for (cy = y; cy < y + h; cy++)
+			{
+				for (cx = x; cx < x + w; cx++)
+				{
+					index3d = ComputeIndex3d(cx, cy, cz);
+					frequency = histogram[index3d];
+					divide[t] += frequency;
+					rcol[t] += (long) cx *frequency;
+					gcol[t] += (long) cy *frequency;
+					bcol[t] += (long) cz *frequency;
+				}
+			}
 		}
 	}
 
-	return (sum);
-}
+	for (t = 0; t < dest_colors + 1; t++)
+		free(boxes[t]);
 
-/* X-Z-Plane aufsummieren */
-static unsigned long sum_xzplane(int box_to_cut, int yposition, long *histogram)
-{
-	int x,
-	 z;
-	int xb,
-	 zb;
-	int w,
-	 d;
-	unsigned long index3d;
-	unsigned long sum = 0;
+	/*
+	 * So. Jetzt hab ich 'nen Eimer voll 15 Bit-Werte und die mÅssen in die Bildpalette.
+	 * Zuerst wird da die Systempalette eingefÅgt und dann die ermittelten Farben drÅber-
+	 * geschrieben, damit so viel von der Syspal erhalten bleibt, wie mîglich.
+	 */
+	pr = picture->red;
+	pg = picture->grn;
+	pb = picture->blu;
 
-	xb = boxes[box_to_cut]->xbox;
-	zb = boxes[box_to_cut]->zbox;
-	w = boxes[box_to_cut]->boxwid;
-	d = boxes[box_to_cut]->boxdepth;
-
-	sum = 0;
-
-	for (z = zb; z < zb + d; z++)
+	for (t = 0; t < sysinfo->Max_col + 1; t++)
 	{
-		index3d = ComputeIndex3d(xb, yposition, z);
-		x = w;
-		while (x--)
-		{
-			sum += histogram[index3d];
-			index3d += 1024;
-		}
+		pr[t] = sysinfo->pal_red[t] * 0.255;
+		pg[t] = sysinfo->pal_green[t] * 0.255;
+		pb[t] = sysinfo->pal_blue[t] * 0.255;
 	}
 
-	return (sum);
-}
-
-/* Y-Z-Plane aufsummieren */
-static unsigned long sum_yzplane(int box_to_cut, int xposition, long *histogram)
-{
-	int y,
-	 z;
-	int yb,
-	 zb;
-	int h,
-	 d;
-	unsigned long index3d;
-	unsigned long sum = 0;
-
-	yb = boxes[box_to_cut]->ybox;
-	zb = boxes[box_to_cut]->zbox;
-	h = boxes[box_to_cut]->boxhgt;
-	d = boxes[box_to_cut]->boxdepth;
-
-	sum = 0;
-
-	for (z = zb; z < zb + d; z++)
+	for (t = 0; t < num_of_boxes; t++)
 	{
-		index3d = ComputeIndex3d(xposition, yb, z);
-		y = h;
-		while (y--)
-		{
-			sum += histogram[index3d];
-			index3d += 32;
-		}
+		red = (uint8_t) (rcol[t] / divide[t]);
+		green = (uint8_t) (gcol[t] / divide[t]);
+		blue = (uint8_t) (bcol[t] / divide[t]);
+		pr[t] = red << 3;
+		pg[t] = green << 3;
+		pb[t] = blue << 3;
 	}
 
-	return (sum);
 }
 
 
-
-
-void make_tmp_nct(long *histogram, SMURF_PIC * pic, unsigned int maxc)
+void make_tmp_nct(long *histogram, SMURF_PIC * pic, unsigned short maxc)
 {
 	long tt;
 	long par[10];
-	unsigned char *nct;
-	int rpal[256],
-	 gpal[256],
-	 bpal[256];
-	long curr_freq,
-	 lowest_freq;
-	unsigned int lowfreq_idx;
-	int not_in_nct = 0,
-		idx = 0;
+	uint8_t *nct;
+	WORD rpal[256], gpal[256], bpal[256];
+	long curr_freq, lowest_freq;
+	unsigned short lowfreq_idx;
+	short not_in_nct;
+	short idx;
 
 	/*--------------- Palette auf 15 Bit skalieren ------------*/
 	for (tt = 0; tt < 256; tt++)
@@ -815,7 +773,7 @@ void make_tmp_nct(long *histogram, SMURF_PIC * pic, unsigned int maxc)
 		if (curr_freq < lowest_freq)
 		{
 			lowest_freq = curr_freq;
-			lowfreq_idx = (unsigned int) tt;
+			lowfreq_idx = (unsigned short) tt;
 		}
 	}
 
@@ -851,10 +809,12 @@ void make_tmp_nct(long *histogram, SMURF_PIC * pic, unsigned int maxc)
 			idx = seek_nearest_col(par, maxc);
 			*(nct + tt) = idx;
 		} else
+		{
 			nct[tt] = (unsigned char) not_in_nct;
+		}
 
 		if (!(tt & 8191))
-			Dialog.busy.draw((int) (64 + (tt >> 9)));
+			Dialog.busy.draw((short) (64 + (tt >> 9)));
 	}
 
 
