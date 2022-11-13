@@ -169,7 +169,7 @@ typedef struct
 	*/
 	int		(*file_save)(char *stext, uint8_t *buf, long length);
 	void	(*file_load)(char *ltext, char **dateien, int mode);
-	int		(*f_fsbox)(char *Path, char *fbtext, char selectart);
+	BOOLEAN (*f_fsbox)(char *Path, const char *fbtext, uint8_t selectart);
 	char *	(*fload)(char *Path, int header);
 
 	/* 

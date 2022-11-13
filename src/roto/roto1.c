@@ -37,7 +37,7 @@
 #include "../bindings.h"
 
 
-void rotozoom(int *img, int *padr, int xstep, int xystep, int pos) ASM_NAME("_rotozoom");
+void rotozoom(short *img, short *padr, short xstep, short xystep, short pos) ASM_NAME("_rotozoom");
 
 
 static int *Sin;
@@ -45,34 +45,31 @@ static int *Cos;
 
 static int old_timer;
 static SMURF_PIC rotoimage;
-static int phi,
-	phi2,
-	phi3;
+static int phi, phi2, phi3;
 
 static int xpos[] = { -100, -100, 100, 100, -100, -100, 100, 100 };
 static int ypos[] = { -100, 100, 100, -100, -100, 100, 100, -100 };
 static int zpos[] = { -100, -100, -100, -100, 100, 100, 100, 100 };
 
 
-static int x2d[100];
-static int y2d[100];
+static WORD x2d[100];
+static WORD y2d[100];
 
-static int pointNum = 8;
-static int polyNum = 6;
+#define pointNum 8
+#define polyNum  6
 
-static int polyPointNum[50] = { 4, 4, 4, 4, 4, 4 };
+static WORD polyPointNum[polyNum] = { 4, 4, 4, 4, 4, 4 };
 
-static int polyPoints[50][4];
+static WORD polyPoints[polyNum][4];
 
-static int offscreenHandle = -1;
-static int rotowork_in[40];
-static int rotowork_out[40];
+static WORD offscreenHandle = -1;
+static WORD rotowork_in[40];
+static WORD rotowork_out[40];
 
 int init_roto(void)
 {
 	double bog;
 	long t;
-
 
 	phi = 0;
 
@@ -168,16 +165,12 @@ int init_roto(void)
 
 void roto(void)
 {
-	int pos,
-	 t,
-	 pxy[5],
-	 normvek;
-	long mySin,
-	 myCos;
-	int xrot[100],
-	 yrot[100],
-	 zrot[100];
-
+	short pos;
+	short t;
+	WORD pxy[5];
+	short normvek;
+	long mySin, myCos;
+	int xrot[100], yrot[100], zrot[100];
 
 	/*---- Jetz' gehts los ----*/
 	phi += 4;
@@ -252,7 +245,6 @@ void roto(void)
 		v_fillarea(offscreenHandle, polyPointNum[t], pxy);
 	}
 	Window.redraw(&wind_s[WIND_INFO], NULL, 0, DRAWNOTREE | DRAWNOBLOCK | NOBLOCKBOX);
-
 }
 
 

@@ -42,7 +42,7 @@
 /* Dateihandling mit Fileselector */
 void file_load(char *ltext, char **dateien, int mode);
 int file_save(char *stext, uint8_t *buf, long length);
-int f_fsbox(char *Path, char *fbtext, char selectart);
+BOOLEAN f_fsbox(char *Path, const char *fbtext, uint8_t selectart);
 
 /*  File laden */
 char *fload(char *Path, int header);
@@ -233,7 +233,7 @@ void send_AESMessage(WORD dest_id, WORD msg, ...);                /* AES-Message
 void update_dhst(char *path);
 void bubble_init(void);
 void bubble_exit(void);
-void bubble_gem(WORD windownum, WORD xpos, WORD ypos, int modulemode);
+void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode);
 void init_AVPROTO(void);
 void get_avserv(void);
 void call_stguide(WORD topwin_handle);
@@ -560,7 +560,7 @@ void picwin_keyboard(WORD key_scancode, WORD key_at_event, WINDOW *picwin);
  * dispopts.c
  */
 void f_display_opt(void);            /* Display-Optionen */
-void f_update_dwindow(int mode, int redraw);
+void f_update_dwindow(short mode, BOOLEAN redraw);
 
 
 /*
@@ -615,7 +615,7 @@ void color_choose(void);
 /* Denn kein Betriebssystem ist vollkommen.                             */
 /* **********************************************************************/
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
-int cdecl fsel_boxinput(char *path, char *name, int *button, char *label, void *callback);
+int cdecl fsel_boxinput(char *path, char *name, WORD *button, const char *label, void *callback);
 #endif
 WORD SM_wind_set(WORD wi_ghandle, WORD wi_gfield, WORD wi_gw1, WORD wi_gw2, WORD wi_gw3, WORD wi_gw4);
 WORD SM_wind_get(WORD wi_ghandle, WORD wi_gfield, WORD *wi_gw1, WORD *wi_gw2, WORD *wi_gw3, WORD *wi_gw4);

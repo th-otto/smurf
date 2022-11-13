@@ -30,9 +30,23 @@
 *14(a0)=paddr
 *15(a0)=image
 
-GLOBL rotozoom
+/* gcc cdecl entry point */
+	.globl _rotozoom
+_rotozoom:
+	move.l d2,-(a7)
+	move.l 8(a7),a0
+	move.l 12(a7),a1
+#ifndef __MSHORT__
+	move.w 18(a7),d0
+	move.w 22(a7),d1
+	move.w 26(a7),d2
+#else
+	move.w 16(a7),d0
+	move.w 18(a7),d1
+	move.w 20(a7),d2
+#endif
 
-
+	.globl rotozoom
 rotozoom:
 	movem.l d3-d7/a2-a6,-(sp)			/* Register retten */
 
@@ -100,17 +114,11 @@ loopx:
 	bpl	loopy
 
 
-
-
-
-
-
 	movem.l (sp)+,d3-d7/a2-a6			/* Register wiederherstellen */
 	rts
 	
 	
-	
-.BSS
+	.bss
 xcount:	ds.w	1
 ycount:	ds.w	1
 

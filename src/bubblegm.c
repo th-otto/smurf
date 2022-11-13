@@ -47,8 +47,8 @@
 #include <mint/slb.h>
 #endif
 
-#if !defined(__PUREC__) || !defined(__MSHORT__)
-/* must pass structure by value, because otherwies stack layout is wrong */
+#if !defined(__PUREC__) && !defined(__MSHORT__)
+/* must pass structure by value, because otherwise stack layout is wrong */
 struct bgh_load_args {
 	const char *name;
 	short Mode;
@@ -133,7 +133,7 @@ void bubble_exit(void)
 }
 
 
-void bubble_gem(WORD windownum, WORD xpos, WORD ypos, int modulemode)
+void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 {
 	WORD klickobj;
 	char helppath[256];
@@ -314,7 +314,7 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, int modulemode)
 		helpstring = (char *) SMalloc(257);
 #endif
 
-#if !defined(__PUREC__) || !defined(__MSHORT__)
+#if !defined(__PUREC__) && !defined(__MSHORT__)
 	{
 		struct bgh_load_args args;
 		args.name = helppath;
@@ -326,7 +326,7 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, int modulemode)
 #endif
 	if (!Help)
 		return;
-#if !defined(__PUREC__) || !defined(__MSHORT__)
+#if !defined(__PUREC__) && !defined(__MSHORT__)
 	{
 		struct bgh_gethelp_args args;
 		args.BGH_Handle = Help;

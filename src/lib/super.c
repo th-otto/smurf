@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
 #ifdef __PUREC__
 #include <tos.h>
 #if defined(_MINT_OSBIND_H)

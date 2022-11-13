@@ -313,7 +313,7 @@ WORD	objc_sysvar(WORD ob_smode, WORD ob_swhich, WORD ob_sival1, WORD ob_sival2, 
  * identisch!), das die öbergabe der Callback-Adresse erlaubt. Andere
  * Fileselectoren sollten den ÅberzÑhligen Parameter einfach ignorieren.
  */
-int cdecl fsel_boxinput(char *path, char *name, int *button, char *label, void *callback)
+int cdecl fsel_boxinput(char *path, char *name, WORD *button, const char *label, void *callback)
 {
 	AESPB aespb;
 

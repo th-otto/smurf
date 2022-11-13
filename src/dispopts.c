@@ -220,7 +220,7 @@ void f_display_opt(void)
 /*------------------------ Display-Options Popups updaten. -----------------*/
 /* mode: 0=aus Sysinfo (nicht Åbernommene Werte)							*/
 /* 		 1=aus Display_Opt (Åbernommene Werte)								*/
-void f_update_dwindow(int mode, int redraw)
+void f_update_dwindow(short mode, BOOLEAN redraw)
 {
 	short dit4, dit8, dit24;
 	short pal4, pal8, pal24;

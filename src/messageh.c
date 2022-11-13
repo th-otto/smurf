@@ -133,7 +133,7 @@ WORD f_handle_message(void)
 	}
 
 
-	switch (messagebuf[0])
+	switch ((UWORD) messagebuf[0])
 	{
 	/*-------------------- Application Messages ------------------------ */
 	case AP_TERM:

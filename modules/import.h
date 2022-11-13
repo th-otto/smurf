@@ -277,7 +277,7 @@ typedef struct
     /*  70 */ SMURF_PIC* (*get_pic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short form, short col);
 
     /*  74 */ WORD (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
-    /*  78 */ BOOLEAN (*f_fsbox)(char *Path, char *fbtext, char selectart);
+    /*  78 */ BOOLEAN (*f_fsbox)(char *Path, const char *fbtext, uint8_t selectart);
     /*  82 */ float (*convert_units)(short oldunit, short newunit, float dpi);
 
     /*  86 */ void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);

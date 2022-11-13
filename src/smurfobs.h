@@ -146,7 +146,7 @@ typedef struct picWindow
     void (*arrowWindow)(WORD mode, WINDOW *wind, WORD amount);
     void (*slideWindow)(WORD pos, WINDOW *wind, WORD mode);
     void (*setSliders)(WINDOW *wind);
-    void (*scrollRT)(WINDOW *window, int xamount, int yamount);
+    void (*scrollRT)(WINDOW *window, WORD xamount, WORD yamount);
 
     void (*clipPicwin)(WINDOW *picw);
     void (*toggleAsterisk)(WINDOW *picwin, BOOLEAN onoff);
@@ -157,7 +157,7 @@ typedef struct picWindow
 
     UNDO undo;
 
-    int topPicwin;
+    WORD topPicwin;
 } IMAGEWINDOW;
 
 
@@ -179,8 +179,8 @@ typedef struct picManager
     WINDOW *window;
     SMURF_PIC thumbnail;
     LIST_FIELD  pictureList;
-    int picmanList[25];
-    int selectedPic;
+    short picmanList[25];
+    short selectedPic;
 } PICTURE_MANAGER;
 
 
@@ -212,7 +212,7 @@ typedef struct busyBox
     void (*enable)(void);
     void (*fullDisable)(void);
 
-    int noEvents;
+    short noEvents;
     long resetClock;
     char disabled;
     OBJECT *busyTree;
@@ -232,7 +232,7 @@ typedef struct editmodList
     LIST_FIELD  modList;
     OBJECT *tree;
     OBJECT *infoTree;
-    int anzahl;
+    short anzahl;
 } EDITMOD_LIST;
 
 
@@ -249,7 +249,7 @@ typedef struct exportList
     LIST_FIELD  modList;
     OBJECT *tree;
     OBJECT *infoTree;
-    int anzahl;
+    short anzahl;
 } EXPMOD_LIST;
 
 
@@ -271,7 +271,7 @@ typedef struct smurfOptions
 typedef struct displayOptions
 {
     void (*displayOptions)(void);
-    void (*updateWindow)(int mode, int redraw);
+    void (*updateWindow)(short mode, BOOLEAN redraw);
 
     OBJECT *tree;
 } DISPOPTS_DIALOG;
@@ -317,7 +317,7 @@ typedef struct commHandlers
 
     void (*initbubbleGem)(void);
     void (*deinitbubbleGem)(void);
-    void (*bubbleGem)(WORD windownum, WORD xpos, WORD ypos, int modulemode);
+    void (*bubbleGem)(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode);
 
 
     void (*sendAESMsg)(WORD dest_id, WORD msg, ...);

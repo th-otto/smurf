@@ -128,13 +128,11 @@ SLIDER  red_slider, green_slider, blue_slider,
 
 void (*set_slider)(SLIDER *sliderstruct, long value);  /* Funktion deklarieren */ 
 
-void *(*mconfLoad)(MOD_INFO *modinfo, int mod_id, char *name);
-void (*mconfSave)(MOD_INFO *modinfo, int mod_id, void *confblock, long len, char *name);
 void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 static void (*SMfree)(void *ptr);
 
-void save_setting(void);
-void load_setting(void);
+void save_setting(GARGAMEL *smurf_struct);
+void load_setting(GARGAMEL *smurf_struct);
 void apply_setting(BUMP_CONFIG *myConfig);
 void write_setting(BUMP_CONFIG *myConfig);
 
@@ -156,8 +154,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
     
     slider = smurf_struct->services->slider;
     set_slider = smurf_struct->services->set_slider;
-    mconfLoad = smurf_struct->services->mconfLoad;
-    mconfSave = smurf_struct->services->mconfSave;
     redraw_window = smurf_struct->services->redraw_window;
     SMfree = smurf_struct->services->SMfree;
     
@@ -242,10 +238,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
                                     set_slider(&m_hard_slider, glanz_hard); 
                                     break;
 
-            case SAVE_SET:          save_setting();
+            case SAVE_SET:          save_setting(smurf_struct);
                                     break;
 
-            case LOAD_SET:          load_setting();
+            case LOAD_SET:          load_setting(smurf_struct);
                                     break;
         }
         smurf_struct->module_mode = M_WAITING;
@@ -751,7 +747,7 @@ void f_default_sliders(void)
 
 
 
-void save_setting(void)
+void save_setting(GARGAMEL *smurf_struct)
 {
     BUMP_CONFIG myConfig;
     char name[33];
@@ -759,21 +755,21 @@ void save_setting(void)
     write_setting(&myConfig);
     
     memset(name, 0, 33);
-    mconfSave(&module_info, module_id, &myConfig, sizeof(BUMP_CONFIG), name);
+    smurf_struct->services->mconfSave(&module_info, module_id, &myConfig, sizeof(BUMP_CONFIG), name);
 
     strcpy(main_form[LOAD_SET].TextCast, name);
     redraw_window(my_window, NULL, LOAD_SET, 0);
 }
 
 
-void load_setting(void)
+void load_setting(GARGAMEL *smurf_struct)
 {
     BUMP_CONFIG *myConfig;
     char name[33];
 
     memset(name, 0, 33);
 
-    myConfig = mconfLoad(&module_info, module_id, name);
+    myConfig = smurf_struct->services->mconfLoad(&module_info, module_id, name);
     strcpy(main_form[LOAD_SET].TextCast, name);
     redraw_window(my_window, NULL, LOAD_SET, 0);
 
