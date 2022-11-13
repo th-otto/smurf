@@ -1,14 +1,14 @@
 /* Funktionsprototypen */
 
-#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 #ifdef __PUREC__
+#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 void vq_scrninfo(WORD handle, WORD *work_out);
 int vq_ext_devinfo(WORD handle, WORD device, WORD *dev_exists, char *file_path, char *file_name, char *name);
 void v_clsbm(WORD handle);
 void v_opnbm(WORD *work_in, MFDB *bitmap, WORD *handle, WORD *work_out);
+#endif
 #else
 #include <gemx.h>
-#endif
 #endif
 
 #ifndef _MINT_MINTBIND_H
@@ -52,3 +52,5 @@ void v_opnbm(WORD *work_in, MFDB *bitmap, WORD *handle, WORD *work_out);
 # define GCJARSIZE 0
 
 void v_ext_opnwk(WORD *work_in, WORD *handle, WORD *work_out);
+WORD SM_wind_set(WORD wi_ghandle, WORD wi_gfield, WORD wi_gw1, WORD wi_gw2, WORD wi_gw3, WORD wi_gw4);
+WORD SM_wind_get(WORD wi_ghandle, WORD wi_gfield, WORD *wi_gw1, WORD *wi_gw2, WORD *wi_gw3, WORD *wi_gw4);

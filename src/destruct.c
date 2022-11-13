@@ -42,6 +42,7 @@
 
 #include "smurfobs.h"
 #include "ext_obs.h"
+#include "destruct.h"
 
 
 /* destroy_smurfpic ----------------------------------------

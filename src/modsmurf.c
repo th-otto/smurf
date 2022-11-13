@@ -210,7 +210,7 @@ short num_of_pics;
 
 static long timer_fx_counter[10];
 long timer_fx_max[10];
-static void *timer_fx_rout[10];
+static void (*timer_fx_rout[10])(void);
 
 WORD fix_red[256];
 WORD fix_blue[256];
@@ -1499,7 +1499,7 @@ void f_event(void)
 						if (timer_fx_counter[t] >= timer_fx_max[t])
 						{
 							timer_fx_counter[t] = 0;
-							timerrout = (void (*)()) timer_fx_rout[t];
+							timerrout = timer_fx_rout[t];
 							timerrout();
 						}
 					}
@@ -2281,7 +2281,7 @@ short f_loadpic(char *pic, char *picpath)
 	/*---- BBOK - Timer einschalten ---*/
 	timer_fx_max[1] = 30;
 	timer_fx_counter[1] = 0;
-	timer_fx_rout[1] = (void (*)()) Dialog.busy.ok;
+	timer_fx_rout[1] = Dialog.busy.ok;
 
 	return back;						/* und zurÅck */
 }
