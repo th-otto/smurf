@@ -35,7 +35,7 @@
 =                  ; list of modules follows...
 ..\edstart.s          ; startup code
 
-sphere.c
+sphrfpu.c
 
 pc881lib.lib       ; floating point library
 pcstdlib.lib       ; standard library

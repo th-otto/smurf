@@ -424,6 +424,7 @@ short setpix_standard_16(uint8_t *buf16, uint8_t *dest, short depth, long planel
 void get_standard_pix(void *st_pic, void *buf16, short planes, long planelen) ASM_NAME("_get_standard_pix");
 void getpix_std_1(uint8_t *std, short *pixval, short depth, long planelen, short which) ASM_NAME("_getpix_std_1");
 short setpix_std_line(uint8_t *buf, uint8_t *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_std_line");
+short setpix_std_line_TC(uint8_t *buf, uint8_t *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_std_line_TC");
 void getpix_std_line(uint8_t *std, uint8_t *buf, short depth, long planelen, short howmany) ASM_NAME("_getpix_std_line");
 short setpix_std_line16(uint8_t *buf, uint8_t *dest, short depth, long planelen, short howmany) ASM_NAME("_setpix_std_line16");
 void rearrange_line2(uint8_t *src, uint8_t *dst, long bytes, unsigned short pixels) ASM_NAME("_rearrange_line2");

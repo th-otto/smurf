@@ -28,8 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../import.h"
-#include "../../../../src/smurfine.h"
+#include "../../import.h"
+#include "../../../src/smurfine.h"
 
 #include "bumpmap6.rsh"
 #include <math.h>

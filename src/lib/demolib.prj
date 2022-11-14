@@ -24,6 +24,8 @@ demolib.lib
 
 .C [-C -K -M -P]
 .L [-J]
+.S[-DPURE_C=1]
+.S[-S]
 =
 screens.c
 ice2.s

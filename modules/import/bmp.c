@@ -260,7 +260,8 @@ short imp_module_main(GARGAMEL *smurf_struct)
 									 break;
 /* Bis auf weiteres gekillt, da mit der mitgelieferten Palette blož Scheiže rauskommt */
 /* und auch das Windows Clipboard diese Palette anscheinend nicht auswertet. */
-/*					case CF_PALETTE: PalettenOffset = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x06)) +
+#if 0
+					case CF_PALETTE: PalettenOffset = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x06)) +
 													  ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x08)) << 16L);
 
 									 palbuf = (char *)smurf_struct->smurf_pic->pic_data + PalettenOffset;
@@ -279,7 +280,8 @@ short imp_module_main(GARGAMEL *smurf_struct)
 										 *pal++ = *palbuf++;
 										 palbuf++;
 									 }
-									 break; */
+									 break;
+#endif
 					default:		 break;
 				}
 				buffer += 0x59;			/* Gr”že einer Datenbereich-Definition */
@@ -570,7 +572,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		smurf_struct->smurf_pic->pic_data = ziel;
 
 	pal = smurf_struct->smurf_pic->palette;
-	if(BitsPerPixel == 1 && (pal[0] == 0 && pal[3] == 255 || WinBMPv1 == TRUE))
+	if(BitsPerPixel == 1 && ((pal[0] == 0 && pal[3] == 255) || WinBMPv1 == TRUE))
 		invert_1Bit(ziel, width, height);
 
 	smurf_struct->smurf_pic->pic_width = (int)width;
