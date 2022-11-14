@@ -34,8 +34,6 @@ spectrum.c
 ..\..\src\getpix.s          ; setpix and getpix for standard format
 
 
-pcfltlib.lib       ; floating point library
 pcstdlib.lib       ; standard library
-pcextlib.lib       ; extended library
 pctoslib.lib       ; TOS library
 pcgemlib.lib       ; AES and VDI library
