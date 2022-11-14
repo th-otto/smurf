@@ -21,7 +21,7 @@
 ; ***** END LICENSE BLOCK *****
 
 ..\..\dist\modules\import\qdv.sim
-.C [-C -K -M -P -Z -2-]
+.C [-C -K -M -P- -2-]
 .C [-I..\..\src\lib]
 .C [-I..\dither]
 .C [-I..\..\..\purec\include\]
