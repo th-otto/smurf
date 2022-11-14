@@ -63,13 +63,10 @@
 
 #if COUNTRY==1
 #define ERROR1 "[1][ Es werden bei RIFF Bitmap's|zur Zeit nur BMP's untersttzt][ Stop ]"
-#define ERROR2 "[1][ Nicht genug Speicher um das Bild | um die Orientierung zu „ndern ][OK]"
 #elif COUNTRY==0
 #define ERROR1 "[1][ At present for RIFF bitmaps|only BMP's are supported][ Stop ]"
-#define ERROR2 "[1][ Not enough memory to alter the | orientation of the picture.][OK]"
 #elif COUNTRY==2
 #define ERROR1 "[1][ At present for RIFF bitmaps|only BMP's are supported][ Stop ]"
-#define ERROR2 "[1][ Not enough memory to alter the | orientation of the picture.][OK]"
 #else
 #error "Keine Sprache!"
 #endif
@@ -90,741 +87,439 @@
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
-char *decodeRLE8(char *buffer, unsigned int width, unsigned int height, unsigned long bperz, unsigned long w);
-char *decodeRLE4(char *buffer, unsigned int width, unsigned int height, unsigned long bperz);
-char *getBMPdata(char *buffer, unsigned int height, unsigned long bperz, unsigned long w);
-char *getBMPdata4(char *buffer, unsigned int width, unsigned int height, unsigned long bperz, unsigned long w);
-char *getCLP(GARGAMEL *picture, unsigned long BMPOffset, unsigned long *UsedColors);
-char *SwitchOrient(char *buffer, unsigned int width, unsigned int height, char BitsPerPixel);
-void invert_1Bit(char *data, int width, int height);
 
 /* Dies bastelt direct ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w) 0xE058;
+#ifdef __PUREC__
+/* Dies bastelt direkt ein rol.w #8,d0 inline ein. */
+static unsigned short swap_word(unsigned short w) 0xE058;
+static unsigned long swap_word2(unsigned long w) 0xE058;
+static uint32_t swap_d0(uint32_t w) 0x4840;
+#define swap_long(w) swap_word2(swap_d0(swap_word2(w)))
+#else
+static unsigned short swap_word(unsigned short w)
+{
+	return (w >> 8) | (w << 8);
+}
+static uint32_t swap_long(uint32_t w)
+{
+	return ((w >> 24)) | ((w & 0xff0000L) >> 8) | ((w & 0xff00L) << 8) | ((w & 0xffL) << 24);
+}
+#endif
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"BMP/Clipboard",
-						0x0110,
-						"Christian Eyrich",
-						"BMP", "DIB", "CLP", "RIF", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						0
-						};
+MOD_INFO module_info = {
+	"BMP/Clipboard",			/* Name of module */
+	0x0111,						/* version */
+	"Christian Eyrich",			/* author */
+	/* 10 Extensionen fuer Importer */
+	{ "BMP", "DIB", "CLP", "RIF", "", "", "", "", "", "" },
+	/* 4 Slider titles: max length 8 */
+	"Slider 1", "Slider 2", "Slider 3", "Slider 4",
+	/* 4 checkbox titles */
+	"Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4",
+	/* 4 edit object titles */
+	"Edit 1", "Edit 2", "Edit 3", "Edit 4",
+	/* min/max values for slider */
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	/* min/max values for edit objects */
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	/* default values for slider */
+	0, 0, 0, 0,
+	/* default values for checkboxes */
+	0, 0, 0, 0,
+	/* default values for edit objects */
+	0, 0, 0, 0,
+	/* how many pics? */
+	0,
+	/* description for pictures */
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-char *globpal;
+static uint8_t const winstdpal[] = {
+	0x00, 0x00, 0x00,
+	0xbf, 0x00, 0x00,
+	0x00, 0xbf, 0x00,
+	0xbf, 0xbf, 0x00,
+	0x00, 0x00, 0xbf,
+	0xbf, 0x00, 0xbf,
+	0x00, 0xbf, 0xbf,
+	0xc0, 0xc0, 0xc0,
+	0xc0, 0xdc, 0xc0,
+	0xa6, 0xca, 0xf0,
+	0x83, 0xab, 0xff,
+	0xab, 0xab, 0xff,
+	0xd7, 0xab, 0xff,
+	0xff, 0xab, 0xff,
+	0x00, 0xd7, 0xff,
+	0x57, 0xd7, 0xff,
+	0x57, 0x00, 0x00,
+	0x83, 0x00, 0x00,
+	0xab, 0x00, 0x00,
+	0xd7, 0x00, 0x00,
+	0x00, 0x2b, 0x00,
+	0x57, 0x2b, 0x00,
+	0x83, 0x2b, 0x00,
+	0xab, 0x2b, 0x00,
+	0xd7, 0x2b, 0x00,
+	0xff, 0x2b, 0x00,
+	0x00, 0x57, 0x00,
+	0x57, 0x57, 0x00,
+	0x83, 0x57, 0x00,
+	0xab, 0x57, 0x00,
+	0x57, 0xd7, 0x00,
+	0x83, 0xd7, 0x00,
+	0xab, 0xd7, 0x00,
+	0xd7, 0xd7, 0x00,
+	0xff, 0xd7, 0x00,
+	0x57, 0xff, 0x00,
+	0x83, 0xff, 0x00,
+	0xab, 0xff, 0x00,
+	0xd7, 0xff, 0x00,
+	0x00, 0x00, 0x57,
+	0x57, 0x00, 0x57,
+	0x83, 0x00, 0x57,
+	0xab, 0x00, 0x57,
+	0xd7, 0x00, 0x57,
+	0xff, 0x00, 0x57,
+	0x00, 0x2b, 0x57,
+	0x53, 0x2b, 0x57,
+	0x83, 0x2b, 0x57,
+	0xab, 0x2b, 0x57,
+	0xd7, 0x2b, 0x57,
+	0xff, 0x2b, 0x57,
+	0x00, 0x57, 0x57,
+	0x57, 0x57, 0x57,
+	0x83, 0x57, 0x57,
+	0xab, 0x57, 0x57,
+	0xd7, 0x57, 0x57,
+	0xff, 0x57, 0x57,
+	0x00, 0x83, 0x57,
+	0x57, 0x83, 0x57,
+	0x83, 0x83, 0x57,
+	0x00, 0xff, 0x57,
+	0x57, 0xff, 0x57,
+	0x83, 0xff, 0x57,
+	0xab, 0xff, 0x57,
+	0xd7, 0xff, 0x57,
+	0xff, 0xff, 0x57,
+	0x00, 0x00, 0x83,
+	0x57, 0x00, 0x83,
+	0x83, 0x00, 0x83,
+	0xab, 0x00, 0x83,
+	0xd7, 0x00, 0x83,
+	0xff, 0x00, 0x83,
+	0x00, 0x2b, 0x83,
+	0x57, 0x2b, 0x83,
+	0x83, 0x2b, 0x83,
+	0xab, 0x2b, 0x83,
+	0xd7, 0x2b, 0x83,
+	0xff, 0x2b, 0x83,
+	0x00, 0x57, 0x83,
+	0x57, 0x57, 0x83,
+	0x83, 0x57, 0x83,
+	0xab, 0x57, 0x83,
+	0xd7, 0x57, 0x83,
+	0xff, 0x57, 0x83,
+	0x00, 0x83, 0x83,
+	0x57, 0x83, 0x83,
+	0x83, 0x83, 0x83,
+	0xab, 0x83, 0x83,
+	0xd7, 0x83, 0x83,
+	0xff, 0x83, 0x83,
+	0xd7, 0x57, 0x00,
+	0xff, 0x57, 0x00,
+	0x00, 0x83, 0x00,
+	0x57, 0x83, 0x00,
+	0x83, 0x83, 0x00,
+	0xab, 0x83, 0x00,
+	0xd7, 0x83, 0x00,
+	0xff, 0x83, 0x00,
+	0x00, 0xab, 0x00,
+	0x57, 0xab, 0x00,
+	0x83, 0xab, 0x00,
+	0xab, 0xab, 0x00,
+	0xd7, 0xab, 0x00,
+	0xff, 0xab, 0x00,
+	0x00, 0xd7, 0x00,
+	0xab, 0xff, 0x83,
+	0xd7, 0xff, 0x83,
+	0xff, 0xff, 0x83,
+	0x00, 0x00, 0xab,
+	0x57, 0x00, 0xab,
+	0x83, 0x00, 0xab,
+	0xab, 0x00, 0xab,
+	0xd7, 0x00, 0xab,
+	0xff, 0x00, 0xab,
+	0x00, 0x2b, 0xab,
+	0x57, 0x2b, 0xab,
+	0x83, 0x2b, 0xab,
+	0xab, 0x2b, 0xab,
+	0xd7, 0x2b, 0xab,
+	0xff, 0x2b, 0xab,
+	0x00, 0x57, 0xab,
+	0xab, 0x83, 0x57,
+	0xd7, 0x83, 0x57,
+	0xff, 0x83, 0x57,
+	0x00, 0xab, 0x57,
+	0x57, 0xab, 0x57,
+	0x83, 0xab, 0x57,
+	0xab, 0xab, 0x57,
+	0xd7, 0xab, 0x57,
+	0xff, 0xab, 0x57,
+	0x00, 0xd7, 0x57,
+	0x57, 0xd7, 0x57,
+	0x83, 0xd7, 0x57,
+	0xab, 0xd7, 0x57,
+	0xd7, 0xd7, 0x57,
+	0xff, 0xd7, 0x57,
+	0x83, 0xff, 0xab,
+	0xab, 0xff, 0xab,
+	0xd7, 0xff, 0xab,
+	0xff, 0xff, 0xab,
+	0x00, 0x00, 0xd7,
+	0x57, 0x00, 0xd7,
+	0x83, 0x00, 0xd7,
+	0xab, 0x00, 0xd7,
+	0xd7, 0x00, 0xd7,
+	0xff, 0x00, 0xd7,
+	0x00, 0x2b, 0xd7,
+	0x57, 0x2b, 0xd7,
+	0x83, 0x2b, 0xd7,
+	0xab, 0x2b, 0xd7,
+	0xd7, 0x2b, 0xd7,
+	0xff, 0x2b, 0xd7,
+	0x00, 0xab, 0x83,
+	0x57, 0xab, 0x83,
+	0x83, 0xab, 0x83,
+	0xab, 0xab, 0x83,
+	0xd7, 0xab, 0x83,
+	0xff, 0xab, 0x83,
+	0x00, 0xd7, 0x83,
+	0x57, 0xd7, 0x83,
+	0x83, 0xd7, 0x83,
+	0xab, 0xd7, 0x83,
+	0xd7, 0xd7, 0x83,
+	0xff, 0xd7, 0x83,
+	0x00, 0xff, 0x83,
+	0xf7, 0xff, 0x83,
+	0x83, 0xff, 0x83,
+	0x57, 0xff, 0xd7,
+	0x83, 0xff, 0xd7,
+	0xab, 0xff, 0xd7,
+	0xd7, 0xff, 0xd7,
+	0xff, 0xff, 0xd7,
+	0x57, 0x00, 0xff,
+	0x83, 0x00, 0xff,
+	0xab, 0x00, 0xff,
+	0xd7, 0x00, 0xff,
+	0x00, 0x2b, 0xff,
+	0x57, 0x2b, 0xff,
+	0x83, 0x2b, 0xff,
+	0xab, 0x2b, 0xff,
+	0xd7, 0x2b, 0xff,
+	0xff, 0x2b, 0xff,
+	0x00, 0x57, 0xff,
+	0x57, 0x57, 0xab,
+	0x83, 0x57, 0xab,
+	0xab, 0x57, 0xab,
+	0xd7, 0x57, 0xab,
+	0xff, 0x57, 0xab,
+	0x00, 0x83, 0xab,
+	0x57, 0x83, 0xab,
+	0x83, 0x83, 0xab,
+	0xab, 0x83, 0xab,
+	0xd7, 0x83, 0xab,
+	0xff, 0x83, 0xab,
+	0x00, 0xab, 0xab,
+	0x57, 0xab, 0xab,
+	0x83, 0xab, 0xab,
+	0xab, 0xab, 0xab,
+	0xd7, 0xab, 0xab,
+	0xff, 0xab, 0xab,
+	0x00, 0xd7, 0xab,
+	0x57, 0xd7, 0xab,
+	0x83, 0xd7, 0xab,
+	0xab, 0xd7, 0xab,
+	0xd7, 0xd7, 0xab,
+	0xff, 0xd7, 0xab,
+	0x00, 0xff, 0xab,
+	0x57, 0xff, 0xab,
+	0x00, 0x57, 0xd7,
+	0x57, 0x57, 0xd7,
+	0x83, 0x57, 0xd7,
+	0xab, 0x57, 0xd7,
+	0xd7, 0x57, 0xd7,
+	0xff, 0x57, 0xd7,
+	0x00, 0x83, 0xd7,
+	0x57, 0x83, 0xd7,
+	0x83, 0x83, 0xd7,
+	0xab, 0x83, 0xd7,
+	0xd7, 0x83, 0xd7,
+	0xff, 0x83, 0xd7,
+	0x00, 0xab, 0xd7,
+	0x57, 0xab, 0xd7,
+	0x83, 0xab, 0xd7,
+	0xab, 0xab, 0xd7,
+	0xd7, 0xab, 0xd7,
+	0xff, 0xab, 0xd7,
+	0x00, 0xd7, 0xd7,
+	0x57, 0xd7, 0xd7,
+	0x83, 0xd7, 0xd7,
+	0xab, 0xd7, 0xd7,
+	0xd7, 0xd7, 0xd7,
+	0xff, 0xd7, 0xd7,
+	0x00, 0xff, 0xd7,
+	0x57, 0x57, 0xff,
+	0x83, 0x57, 0xff,
+	0xab, 0x57, 0xff,
+	0xd7, 0x57, 0xff,
+	0xff, 0x57, 0xff,
+	0x00, 0x83, 0xff,
+	0x57, 0x83, 0xff,
+	0x83, 0x83, 0xff,
+	0xab, 0x83, 0xff,
+	0xd7, 0x83, 0xff,
+	0xff, 0x83, 0xff,
+	0x00, 0xab, 0xff,
+	0x57, 0xab, 0xff,
+	0xff, 0xfb, 0xf0,
+	0xa0, 0xa0, 0xa4,
+	0x80, 0x80, 0x80,
+	0xff, 0x00, 0x00,
+	0x00, 0xff, 0x00,
+	0xff, 0xff, 0x00,
+	0x00, 0x00, 0xff,
+	0xff, 0x00, 0xff,
+	0x00, 0xff, 0xff,
+	0xff, 0xff, 0xff
+};
 
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-/*				BMP-/CLP-Importer (BMP/CLP)			*/
-/*		Windows 2.x, Windows 3.x, OS/2 1.x,			*/
-/*		OS/2 2.x, Clipboard,						*/
-/*		1, 4, 8, 16, 24 Bit, 						*/
-/*		unkomprimiert, RLE4 und RLE8				*/
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-short imp_module_main(GARGAMEL *smurf_struct)
+
+/************************************************************/
+/******************** RLE 8 Dekodierung *********************/
+/************************************************************/
+static uint8_t *decodeRLE8(uint8_t *buffer, uint16_t width, uint16_t height, unsigned long bperz, unsigned long w)
 {
-	char *ziel, *buffer, *pal, *palbuf, winstdpal[] =
-		{
-		 0x00, 0x00, 0x00, 0xbf, 0x00, 0x00, 0x00, 0xbf, 0x00, 0xbf, 0xbf, 0x00, 0x00, 0x00, 0xbf,
-		 0xbf, 0x00, 0xbf, 0x00, 0xbf, 0xbf, 0xc0, 0xc0, 0xc0, 0xc0, 0xdc, 0xc0, 0xa6, 0xca, 0xf0,
-		 0x83, 0xab, 0xff, 0xab, 0xab, 0xff, 0xd7, 0xab, 0xff, 0xff, 0xab, 0xff, 0x00, 0xd7, 0xff,
-		 0x57, 0xd7, 0xff, 0x57, 0x00, 0x00, 0x83, 0x00, 0x00, 0xab, 0x00, 0x00, 0xd7, 0x00, 0x00,
-		 0x00, 0x2b, 0x00, 0x57, 0x2b, 0x00, 0x83, 0x2b, 0x00, 0xab, 0x2b, 0x00, 0xd7, 0x2b, 0x00,
-		 0xff, 0x2b, 0x00, 0x00, 0x57, 0x00, 0x57, 0x57, 0x00, 0x83, 0x57, 0x00, 0xab, 0x57, 0x00,
-		 0x57, 0xd7, 0x00, 0x83, 0xd7, 0x00, 0xab, 0xd7, 0x00, 0xd7, 0xd7, 0x00, 0xff, 0xd7, 0x00,
-		 0x57, 0xff, 0x00, 0x83, 0xff, 0x00, 0xab, 0xff, 0x00, 0xd7, 0xff, 0x00, 0x00, 0x00, 0x57,
-		 0x57, 0x00, 0x57, 0x83, 0x00, 0x57, 0xab, 0x00, 0x57, 0xd7, 0x00, 0x57, 0xff, 0x00, 0x57,
-		 0x00, 0x2b, 0x57, 0x53, 0x2b, 0x57, 0x83, 0x2b, 0x57, 0xab, 0x2b, 0x57, 0xd7, 0x2b, 0x57,
-		 0xff, 0x2b, 0x57, 0x00, 0x57, 0x57, 0x57, 0x57, 0x57, 0x83, 0x57, 0x57, 0xab, 0x57, 0x57,
-		 0xd7, 0x57, 0x57, 0xff, 0x57, 0x57, 0x00, 0x83, 0x57, 0x57, 0x83, 0x57, 0x83, 0x83, 0x57,
-		 0x00, 0xff, 0x57, 0x57, 0xff, 0x57, 0x83, 0xff, 0x57, 0xab, 0xff, 0x57, 0xd7, 0xff, 0x57,
-		 0xff, 0xff, 0x57, 0x00, 0x00, 0x83, 0x57, 0x00, 0x83, 0x83, 0x00, 0x83, 0xab, 0x00, 0x83,
-		 0xd7, 0x00, 0x83, 0xff, 0x00, 0x83, 0x00, 0x2b, 0x83, 0x57, 0x2b, 0x83, 0x83, 0x2b, 0x83,
-		 0xab, 0x2b, 0x83, 0xd7, 0x2b, 0x83, 0xff, 0x2b, 0x83, 0x00, 0x57, 0x83, 0x57, 0x57, 0x83,
-		 0x83, 0x57, 0x83, 0xab, 0x57, 0x83, 0xd7, 0x57, 0x83, 0xff, 0x57, 0x83, 0x00, 0x83, 0x83,
-		 0x57, 0x83, 0x83, 0x83, 0x83, 0x83, 0xab, 0x83, 0x83, 0xd7, 0x83, 0x83, 0xff, 0x83, 0x83,
-		 0xd7, 0x57, 0x00, 0xff, 0x57, 0x00, 0x00, 0x83, 0x00, 0x57, 0x83, 0x00, 0x83, 0x83, 0x00,
-		 0xab, 0x83, 0x00, 0xd7, 0x83, 0x00, 0xff, 0x83, 0x00, 0x00, 0xab, 0x00, 0x57, 0xab, 0x00,
-		 0x83, 0xab, 0x00, 0xab, 0xab, 0x00, 0xd7, 0xab, 0x00, 0xff, 0xab, 0x00, 0x00, 0xd7, 0x00,
-		 0xab, 0xff, 0x83, 0xd7, 0xff, 0x83, 0xff, 0xff, 0x83, 0x00, 0x00, 0xab, 0x57, 0x00, 0xab,
-		 0x83, 0x00, 0xab, 0xab, 0x00, 0xab, 0xd7, 0x00, 0xab, 0xff, 0x00, 0xab, 0x00, 0x2b, 0xab,
-		 0x57, 0x2b, 0xab, 0x83, 0x2b, 0xab, 0xab, 0x2b, 0xab, 0xd7, 0x2b, 0xab, 0xff, 0x2b, 0xab,
-		 0x00, 0x57, 0xab, 0xab, 0x83, 0x57, 0xd7, 0x83, 0x57, 0xff, 0x83, 0x57, 0x00, 0xab, 0x57,
-		 0x57, 0xab, 0x57, 0x83, 0xab, 0x57, 0xab, 0xab, 0x57, 0xd7, 0xab, 0x57, 0xff, 0xab, 0x57,
-		 0x00, 0xd7, 0x57, 0x57, 0xd7, 0x57, 0x83, 0xd7, 0x57, 0xab, 0xd7, 0x57, 0xd7, 0xd7, 0x57,
-		 0xff, 0xd7, 0x57, 0x83, 0xff, 0xab, 0xab, 0xff, 0xab, 0xd7, 0xff, 0xab, 0xff, 0xff, 0xab,
-		 0x00, 0x00, 0xd7, 0x57, 0x00, 0xd7, 0x83, 0x00, 0xd7, 0xab, 0x00, 0xd7, 0xd7, 0x00, 0xd7,
-		 0xff, 0x00, 0xd7, 0x00, 0x2b, 0xd7, 0x57, 0x2b, 0xd7, 0x83, 0x2b, 0xd7, 0xab, 0x2b, 0xd7,
-		 0xd7, 0x2b, 0xd7, 0xff, 0x2b, 0xd7, 0x00, 0xab, 0x83, 0x57, 0xab, 0x83, 0x83, 0xab, 0x83,
-		 0xab, 0xab, 0x83, 0xd7, 0xab, 0x83, 0xff, 0xab, 0x83, 0x00, 0xd7, 0x83, 0x57, 0xd7, 0x83,
-		 0x83, 0xd7, 0x83, 0xab, 0xd7, 0x83, 0xd7, 0xd7, 0x83, 0xff, 0xd7, 0x83, 0x00, 0xff, 0x83,
-		 0xf7, 0xff, 0x83, 0x83, 0xff, 0x83, 0x57, 0xff, 0xd7, 0x83, 0xff, 0xd7, 0xab, 0xff, 0xd7,
-		 0xd7, 0xff, 0xd7, 0xff, 0xff, 0xd7, 0x57, 0x00, 0xff, 0x83, 0x00, 0xff, 0xab, 0x00, 0xff,
-		 0xd7, 0x00, 0xff, 0x00, 0x2b, 0xff, 0x57, 0x2b, 0xff, 0x83, 0x2b, 0xff, 0xab, 0x2b, 0xff,
-		 0xd7, 0x2b, 0xff, 0xff, 0x2b, 0xff, 0x00, 0x57, 0xff, 0x57, 0x57, 0xab, 0x83, 0x57, 0xab,
-		 0xab, 0x57, 0xab, 0xd7, 0x57, 0xab, 0xff, 0x57, 0xab, 0x00, 0x83, 0xab, 0x57, 0x83, 0xab,
-		 0x83, 0x83, 0xab, 0xab, 0x83, 0xab, 0xd7, 0x83, 0xab, 0xff, 0x83, 0xab, 0x00, 0xab, 0xab,
-		 0x57, 0xab, 0xab, 0x83, 0xab, 0xab, 0xab, 0xab, 0xab, 0xd7, 0xab, 0xab, 0xff, 0xab, 0xab,
-		 0x00, 0xd7, 0xab, 0x57, 0xd7, 0xab, 0x83, 0xd7, 0xab, 0xab, 0xd7, 0xab, 0xd7, 0xd7, 0xab,
-		 0xff, 0xd7, 0xab, 0x00, 0xff, 0xab, 0x57, 0xff, 0xab, 0x00, 0x57, 0xd7, 0x57, 0x57, 0xd7,
-		 0x83, 0x57, 0xd7, 0xab, 0x57, 0xd7, 0xd7, 0x57, 0xd7, 0xff, 0x57, 0xd7, 0x00, 0x83, 0xd7,
-		 0x57, 0x83, 0xd7, 0x83, 0x83, 0xd7, 0xab, 0x83, 0xd7, 0xd7, 0x83, 0xd7, 0xff, 0x83, 0xd7,
-		 0x00, 0xab, 0xd7, 0x57, 0xab, 0xd7, 0x83, 0xab, 0xd7, 0xab, 0xab, 0xd7, 0xd7, 0xab, 0xd7,
-		 0xff, 0xab, 0xd7, 0x00, 0xd7, 0xd7, 0x57, 0xd7, 0xd7, 0x83, 0xd7, 0xd7, 0xab, 0xd7, 0xd7,
-		 0xd7, 0xd7, 0xd7, 0xff, 0xd7, 0xd7, 0x00, 0xff, 0xd7, 0x57, 0x57, 0xff, 0x83, 0x57, 0xff,
-		 0xab, 0x57, 0xff, 0xd7, 0x57, 0xff, 0xff, 0x57, 0xff, 0x00, 0x83, 0xff, 0x57, 0x83, 0xff,
-		 0x83, 0x83, 0xff, 0xab, 0x83, 0xff, 0xd7, 0x83, 0xff, 0xff, 0x83, 0xff, 0x00, 0xab, 0xff,
-		 0x57, 0xab, 0xff, 0xff, 0xfb, 0xf0, 0xa0, 0xa0, 0xa4, 0x80, 0x80, 0x80, 0xff, 0x00, 0x00,
-		 0x00, 0xff, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0xff, 0x00, 0xff, 0xff,
-		 0xff, 0xff, 0xff
-		};
-	char dummy[3], impmessag[21], BitsPerPixel;
-	char WinBMPv1 = FALSE, WinBMPv3 = FALSE, Os2BMPv1 = FALSE, Os2BMPv21 = FALSE,
-		 Os2BMPv22 = FALSE, RIFF = FALSE, CLP = FALSE, DIB = FALSE;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	unsigned long v;
+	uint8_t v1, v2, dx, dy, rest;
+	uint16_t x,	 y;
 
-	unsigned int x;
-	unsigned int width, height, PicOrient = 0, CLPBereiche, CLPFormat;
+	(void) width;
+	if ((ziel = SMalloc(w * height)) == 0)
+		return NOMEM;
 
-	unsigned long BMPOffset = 0, DatenOffset = 0, PalettenOffset = 0,
-				  UsedColors = 0, KompFlag = 0, bperz, w;
+	memset(ziel, 0, w * (unsigned long) height);
 
+	v = bperz - w;
 
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
+	oziel = ziel;
 
-	buffer = smurf_struct->smurf_pic->pic_data;
-	
-	if(*(unsigned long *)buffer == 'RIFF')					   /* RIFF Container */
+	y = 0;
+	do
 	{
-		if(strncmp(buffer + 8, "RDIBdata", 8) == 0)
-			RIFF = TRUE;
-		else
+		x = 0;
+		do
 		{
-			form_alert(1, ERROR1 );
-			return(M_UNKNOWN_TYPE);
-		}
-	
-		/* RIFF Header abschneiden */
-		BMPOffset = 0x08 + 0x0c;
-		buffer += BMPOffset;
-		strncpy(smurf_struct->smurf_pic->format_name, "RIFF Bitmap (RIF)   ", 21);
-	}
-	else
-		if(*buffer == 0x50 && *(buffer + 1) == 0xc3)
-		{
-			CLPBereiche = swap_word(*(unsigned int *)(buffer + 0x02));
+			v1 = *buffer++;
 
-			/* Auf Anfang des ersten Datenbereiches setzen */
-			buffer += 0x04;
-
-			while(CLPBereiche--  && DIB == FALSE)
+			if (v1)						/* Encoded Run */
 			{
-				CLPFormat = swap_word(*(unsigned int *)buffer);
+				v2 = *buffer++;
 
-				switch(CLPFormat)
-				{
-					case CF_DIB:	 BMPOffset = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x06)) +
-												 ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x08)) << 16L);
-									 DIB = TRUE;
-									 CLP = FALSE;
-								 	 break;
-					case CF_BITMAP:	
-					case CF_BITMAP2: BMPOffset = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x06)) +
-												 ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x08)) << 16L);
-									 DIB = FALSE;
-									 CLP = TRUE;
-									 break;
-/* Bis auf weiteres gekillt, da mit der mitgelieferten Palette blož Scheiže rauskommt */
-/* und auch das Windows Clipboard diese Palette anscheinend nicht auswertet. */
-#if 0
-					case CF_PALETTE: PalettenOffset = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x06)) +
-													  ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x08)) << 16L);
+				x += v1;
 
-									 palbuf = (char *)smurf_struct->smurf_pic->pic_data + PalettenOffset;
-
-									 UsedColors = (unsigned long)swap_word(*(unsigned int *)(palbuf + 0x02));
-
-									 /* palbuf auf Anfang Palette setzen */
-									 palbuf += 0x04;
-
-									 pal = smurf_struct->smurf_pic->palette;
-	
-									 for(x = 0; x < UsedColors; x++)
-									 {
-										 *pal++ = *palbuf++;
-										 *pal++ = *palbuf++;
-										 *pal++ = *palbuf++;
-										 palbuf++;
-									 }
-									 break;
-#endif
-					default:		 break;
-				}
-				buffer += 0x59;			/* Gr”že einer Datenbereich-Definition */
-			}
-
-			if(CLP == FALSE && DIB == FALSE)
-				return(M_UNKNOWN_TYPE);
-
-			if(CLP == TRUE)
+				while (v1--)
+					*ziel++ = v2;
+			}							/* x != 0 */
+			else						/* Literal Run */
 			{
-				if((ziel = getCLP(smurf_struct, BMPOffset, &UsedColors)) == NOMEM)
-					return(M_MEMORY);
-				else
+				v2 = *buffer++;
+
+				/**************** Steuersequenz *************/
+				if (v2 < 3)
 				{
-					smurf_struct->smurf_pic->pic_data = ziel;
-				
-					if(PalettenOffset == 0)
+					switch (v2)
 					{
-						palbuf = winstdpal;
-						pal = smurf_struct->smurf_pic->palette;
-		
-						for(x = 0; x < UsedColors; x++)
+					case 0:			/* Zeile beenden, nur wenn nicht am Anfang einer Zeile */
+						if (x)
 						{
-							*pal++ = *palbuf++;
-							*pal++ = *palbuf++;
-							*pal++ = *palbuf++;
+							ziel += (bperz - x);
+							x = (uint16_t) bperz;
 						}
+						break;
+					case 1:			/* Grafik beenden */
+						x = (uint16_t) bperz;
+						y = height;
+						break;
+					case 2:			/* Verschiebung von x, y */
+						dx = *buffer++;
+						ziel += dx;
+						x += dx;
+
+						dy = *buffer++;
+						ziel += (unsigned long) dy *bperz;
+
+						y += dy;
+						break;
 					}
-
-					return(M_PICDONE);
 				}
-			}
-			else
-				buffer = (char *)smurf_struct->smurf_pic->pic_data + BMPOffset;			/* buffer auf Datenbereich setzen */
-		}
-		
-	/***********************************************************/
-	/************** Auslesen der BMP-Versionsart ***************/
-	/***********************************************************/
-	if(*(unsigned int *)buffer == 0x424d)
-		switch(*(buffer + 14))
-		{
-			case 0x0c:	Os2BMPv1 = TRUE;
-					 	if(RIFF == FALSE)
-							strncpy(smurf_struct->smurf_pic->format_name, "OS2 v1.x Bitmap (BMP)", 21);
-						strcpy(impmessag, "OS/2 1.x BMP ");
-						break;
-			case 0x28:	WinBMPv3 = TRUE;
-						if(RIFF == FALSE)
-							strncpy(smurf_struct->smurf_pic->format_name, "Windows 3.x Bitmap (BMP) ", 21);
-						strcpy(impmessag, "Win 3.x BMP ");
-						break;
-			case 0x40:	Os2BMPv21 = TRUE;
-						if(RIFF == FALSE)
-							strncpy(smurf_struct->smurf_pic->format_name, "OS2 v2.x Bitmap (BMP)", 21);
-						strcpy(impmessag, "OS/2 2.x BMP ");
-						break;
-			default:	break;
-		}
-	else
-		if(*(unsigned int *)buffer == 0x4241 &&
-		   *(unsigned int *)(buffer + 0x0e) == 0x424d)
-		{
-			Os2BMPv22 = TRUE;
-			if(RIFF == FALSE)
-				strncpy(smurf_struct->smurf_pic->format_name, "OS2 v2.x Bitmap (BMP)", 21);
-			strcpy(impmessag, "OS/2 2.x BMP ");
-		}
-		else
-			/* lt. Doku sind die ersten beiden Bytes 0, diese lasche Erkennung fhrt jedoch
-			   leicht zu Verirrungen und so wird schon mal z.B. ein PICT als Win 1.x BMP erkannt,
-			   da hier ja die ersten 512 Bytes 0 sind. Deshalb die Abfrage auf Byte 3 und 4 != 0
-			   was zwar auch nicht das Nonplusultra ist, aber doch eine Verbesserung */
-			if(*(unsigned int *)buffer == 0x0 &&
-			   *(unsigned int *)(buffer + 2) != 0x0)
-			{
-				WinBMPv1 = TRUE;
-				if(RIFF == FALSE)
-					strncpy(smurf_struct->smurf_pic->format_name, "Windows 1.x Bitmap (BMP) ", 21);
-				strcpy(impmessag, "Win 1.x BMP ");
-			}
-			else
-				if(DIB == TRUE && *buffer == 0x28)
-				{
-					WinBMPv3 = TRUE;
-					strncpy(smurf_struct->smurf_pic->format_name, "Windows 3.x Bitmap (BMP) ", 21);
-					strcpy(impmessag, "Win 3.x BMP ");
-				}
+				/************** RLE8 kodiert ******************/
 				else
-					return(M_INVALID);
+				{
+					x += v2;
+					rest = v2 & 1;		/* Modulo 2 */
 
-	/***********************************************************/
-	/**************** Auslesen der Bildgeometrie ***************/
-	/***********************************************************/
-	if(Os2BMPv1 == TRUE || WinBMPv3 == TRUE)					/* OS/2 Version 1.x BMP oder Windows BMP */
-	{
-		if(DIB == FALSE)
-		{
-			/* der Fileheader fehlt bei includeten BMPs leider ... */
-			DatenOffset = (long)swap_word(*(unsigned int *)(buffer + 0x0a)) + ((long)swap_word(*(unsigned int *)(buffer + 0x0c)) << 16L);
+					while (v2--)
+						*ziel++ = *buffer++;
+					if (rest)
+						buffer++;
+				}
+			}							/* x == 0 */
+		} while (x < bperz);
+		ziel -= v;
+	} while (++y < height);
 
-			/* Auf Anfang Bitmap Header setzen*/
-			buffer += 0x0e;
-		}
-		else
-			/* ... deshalb muž der Abstand angenommen werden */
-			DatenOffset = 0x28;
-	
-		PalettenOffset = (unsigned long)swap_word(*(unsigned int *)buffer) + ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x02)) << 16L);
+	ziel = oziel;
 
-		if(Os2BMPv1 == TRUE)
-		{
-			width = swap_word(*(unsigned int *)(buffer + 0x04));
-			height = swap_word(*(unsigned int *)(buffer + 0x06));
-
-			BitsPerPixel = (char)swap_word(*(unsigned int *)(buffer + 0x0a));
-		}
-		else
-		{
-			width = swap_word(*(unsigned int *)(buffer + 0x04));
-			height = swap_word(*(unsigned int *)(buffer + 0x08));
-
-			BitsPerPixel = (char)swap_word(*(unsigned int *)(buffer + 0x0e));
-
-			KompFlag = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x10)) + ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x12)) << 16L);
-			if(BitsPerPixel < 16)
-				UsedColors = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x20)) + ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x22)) << 16L);
-		}
-
-		if(BitsPerPixel != 1 && BitsPerPixel != 4 && BitsPerPixel != 8 && 
-		   BitsPerPixel != 24)
-			return(M_PICERR);
-	} /* OS/2 1.x und Win Format */
-	else
-		if(Os2BMPv21 == TRUE || Os2BMPv22 == TRUE)				/* OS/2 Version 2.x BMP beide Varianten*/
-		{
-			/* Bitmaparrayfileheader berspringen */
-			if(Os2BMPv22 == TRUE)
-				buffer += 0x0e;
-
-			DatenOffset = (long)swap_word(*(unsigned int *)(buffer + 0x0a)) + ((long)swap_word(*(unsigned int *)(buffer + 0x0c)) << 16L);
-
-			/* Auf Anfang Bitmapheader setzen */
-			buffer += 0x0e;
-
-			PalettenOffset = (unsigned long)swap_word(*(unsigned int *)buffer) + ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x02)) << 16L);
-	
-			width = swap_word(*(unsigned int *)(buffer + 0x04));
-			height = swap_word(*(unsigned int *)(buffer + 0x08)); 
-
-			BitsPerPixel = (char)swap_word(*(unsigned int *)(buffer + 0x0e));
-	
-			KompFlag = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x10)) + ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x12)) << 16L);
-			if(BitsPerPixel < 16)
-				UsedColors = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x20)) + ((unsigned long)swap_word(*(unsigned int *)(buffer + 0x22)) << 16L);
-
-			if(Os2BMPv21 == TRUE)
-				PicOrient = swap_word(*(unsigned int *)(buffer + 0x2c));
-
-			if(BitsPerPixel != 1 && BitsPerPixel != 4 && BitsPerPixel != 8 &&
-			   BitsPerPixel != 24)
-				return(M_PICERR);
-		} /* OS/2 2.x Format */
-		else
-			if(WinBMPv1 == TRUE)
-			{
-				width = swap_word(*(unsigned int *)(buffer + 0x02));
-				height = swap_word(*(unsigned int *)(buffer + 0x04)); 
-
-				BitsPerPixel = *(buffer + 0x09); 
-
-				DatenOffset = 0x0a;
-			} /* Win 1.x/2.x Format */
-
-	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-	strcat(impmessag, " Bit");
-	smurf_struct->services->reset_busybox(128, impmessag);
-	
-	/***********************************************************/
-	/**************** Auswerten der Bilddaten ******************/
-	/***********************************************************/
-
-	/* šbertragen der Palette */
-	if(BitsPerPixel < 16)
-	{
-		if(UsedColors == 0) 
-			UsedColors = 1 << BitsPerPixel;
-
-		pal = smurf_struct->smurf_pic->palette;
-
-		if(WinBMPv1 == TRUE)
-		{
-		/* Hier muž die Windows Standardpalette rein */
-			pal[0] = 255;
-			pal[1] = 255;
-			pal[2] = 255;
-			pal[3] = 0;
-			pal[4] = 0;
-			pal[5] = 0;
-		}
-		else
-		{
-			palbuf = buffer + (char)PalettenOffset;
-			globpal = pal;
-
-			for(x = 0; x < UsedColors; x++)
-			{
-				*pal++ = *(palbuf++ + 2);
-				*pal++ = *palbuf++;
-				*pal++ = *(palbuf++ - 2);
-				if(!Os2BMPv1)
-					palbuf++;
-			}
-		}
-	}
-
-
-	/* Anpassen der Bilddimensionen */
-	switch(BitsPerPixel)
-	{
-		case 1: bperz = (unsigned long)(width + 7) / 8L;
-				bperz = (unsigned long)(((bperz + 3) / 4) * 4);
-				w = (unsigned long)(width + 7) / 8L;
-
-				smurf_struct->smurf_pic->col_format = RGB;
-				smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-				break;
-		case 4: bperz = (unsigned long)((width + 1) / 2);
-				bperz = ((bperz + 3) / 4) * 4;
-				w = (unsigned long)(width + 1) / 2L;
-
-				smurf_struct->smurf_pic->col_format = RGB;
-				smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-				break;
-		case 8:	bperz = (unsigned long)(((width + 3) / 4) * 4);
-				w = (unsigned long)width;
-
-				smurf_struct->smurf_pic->col_format = RGB;
-				smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-				break;
-		case 24: bperz = (unsigned long)width * 3L;
-				 bperz = ((bperz + 3) / 4) * 4;
-				 w = (unsigned long)width * 3L;
-
-				 smurf_struct->smurf_pic->col_format = BGR;
-				 smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-				 break;
-	}
-
-	/* der Fileheader fehlt bei includeten BMPs leider und der Abstand */
-	/* muž deshalb manuell um die Palette erweitert werden */
-	if(DIB == TRUE)
-		DatenOffset += UsedColors * 4;
-	buffer = (char *)smurf_struct->smurf_pic->pic_data + BMPOffset + DatenOffset;	/* buffer auf Bilddatenanfang setzen */
-
-	if(KompFlag == 0)												/* unkomprimiert */
-	{
-		if(BitsPerPixel == 4)
-			ziel = getBMPdata4(buffer, width, height, bperz, w);
-		else
-			ziel = getBMPdata(buffer, height, bperz, w);
-
-		if(ziel == NOMEM)
-			return(M_MEMORY);
-	}
-	else
-		if(KompFlag == 1)											/* RLE 8 */
-		{
-			ziel = decodeRLE8(buffer, width, height, bperz, w);
-
-			if(ziel == NOMEM)
-				return(M_MEMORY);
-		}
-		else
-			if(KompFlag == 2)										/* RLE 4 */
-			{
-				ziel = decodeRLE4(buffer, width, height, bperz);
-
-				if(ziel == NOMEM)
-					return(M_MEMORY);
-			}
-
-	SMfree(smurf_struct->smurf_pic->pic_data);
-
-	if(PicOrient == 0)
-		smurf_struct->smurf_pic->pic_data = SwitchOrient(ziel, width, height, BitsPerPixel);
-	else
-		smurf_struct->smurf_pic->pic_data = ziel;
-
-	pal = smurf_struct->smurf_pic->palette;
-	if(BitsPerPixel == 1 && ((pal[0] == 0 && pal[3] == 255) || WinBMPv1 == TRUE))
-		invert_1Bit(ziel, width, height);
-
-	smurf_struct->smurf_pic->pic_width = (int)width;
-	smurf_struct->smurf_pic->pic_height = (int)height;
-	smurf_struct->smurf_pic->depth = BitsPerPixel;				
-
-	return(M_PICDONE);
+	return ziel;
 }
 
-
-
-/****************************************************/
-/****************** BMP auslesen ********************/
-/****************************************************/
-char *getBMPdata(char *buffer, unsigned int height, unsigned long bperz, unsigned long w)
-{
-	char *ziel, *oziel,
-		 v;
-
-	unsigned int x, y;
-
-	if((ziel = SMalloc(w * (unsigned long)height)) == 0)
-		return(NOMEM);
-
-	memset(ziel, 0, w * (unsigned long)height);
-
-	v = (char)(bperz - w);
-
-	oziel = ziel;
-
-	y = 0;
-	do
-	{
-		x = 0;
-		do
-		{
-			*ziel++ = *buffer++;
-		} while(++x < w);
-		buffer += v;
-	} while(++y < height);
-
-	ziel = oziel;
-
-	return(ziel);
-} /* getBMPdata */
-
-
-/****************************************************/
-/********** 4 Bit BMP auslesen und wandeln **********/
-/****************************************************/
-char *getBMPdata4(char *buffer, unsigned int width, unsigned int height, unsigned long bperz, unsigned long w)
-{
-	char *ziel, *oziel, *pixbuf,
-		 v, val;
-
-	unsigned int x, y;
-
-	unsigned long memwidth, planelength;
-
-
-	memwidth = (unsigned long)((width + 7) / 8) * 4L;
-
-	if((ziel = SMalloc(memwidth * (unsigned long)height + 1L)) == 0)
-		return(NOMEM);
-
-	memset(ziel, 0x0, memwidth * (unsigned long)height + 1L);
-
-	oziel = ziel;
-
-	v = (char)(bperz - w);
-	
-	planelength = (unsigned long)((width + 7) / 8) * (unsigned long)height;
-
-	pixbuf = (char *)Malloc(width + 7);
-
-	y = 0;
-	do
-	{
-		x = 0;
-		do
-		{
-			val = *buffer++;
-			pixbuf[x++] = val >> 4;
-			pixbuf[x++] = val & 0x0f;
-		} while(x < width);
-
-		ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
-		buffer += v;
-	} while(++y < height);
-
-	ziel = oziel;
-
-	Mfree(pixbuf);
-
-	return(ziel);
-} /* getBMPdata4 */
-
-
-/****************************************************/
-/****** Bitmap-Datenbereich aus CLP auslesen ********/
-/****************************************************/
-char *getCLP(GARGAMEL *picture, unsigned long BMPOffset, unsigned long *UsedColors)
-{
-	char *buffer, *ziel, *oziel, *pixbuf,
-		 BitsPerPixel, v, val;
-	char dummy[3], impmessag[21];
-
-	unsigned int *buffer16, *ziel16, 
-				 width, height, x, y;
-
-	unsigned long bperz, w, memwidth, planelength;
-
-	buffer = (char *)picture->smurf_pic->pic_data + BMPOffset;
-
-	width = swap_word(*(unsigned int *)(buffer + 0x02));
-	height = swap_word(*(unsigned int *)(buffer + 0x04));
-	bperz = (unsigned long)swap_word(*(unsigned int *)(buffer + 0x06));
-
-	BitsPerPixel = *(buffer + 0x09);
-
-	*UsedColors = 1 << BitsPerPixel;
-
-	strncpy(picture->smurf_pic->format_name, "Windows Clipboard (CLP) ", 21);
-	picture->smurf_pic->pic_width = (int)width;
-	picture->smurf_pic->pic_height = (int)height;
-	picture->smurf_pic->depth = BitsPerPixel;
-
-	strcpy(impmessag, "Windows CLP ");
-	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-	strcat(impmessag, " Bit");
-	picture->services->reset_busybox(128, impmessag);
-
-	if(BitsPerPixel == 1)
-	{
-		w = (unsigned long)((width + 7) / 8);
-		memwidth = (unsigned long)w * 8L;
-	}
-	else
-		if(BitsPerPixel == 4)
-		{
-			w = (unsigned long)((width + 3) / 4) * 2L;
-			memwidth = (unsigned long)((width + 7) / 8) * 8L;
-		}
-		else
-		{
-			w = ((unsigned long)width * BitsPerPixel) >> 3;
-			memwidth = (unsigned long)width;
-		}
-
-	if((ziel = SMalloc(((memwidth * (long)height * BitsPerPixel) >> 3) + 1L)) == 0)
-		return(NOMEM);
-
-	memset(ziel, 0, ((memwidth * (long)height * BitsPerPixel) >> 3) + 1L);
-
-	/* buffer auf Bilddaten setzen */
-	buffer += 0x0e;
-
-	oziel = ziel;
-
-	if(BitsPerPixel == 4)
-	{
-		planelength = (unsigned long)((width + 7) / 8) * (unsigned long)height;
-
-		pixbuf = (char *)Malloc(width + 7);
-
-		y = 0;
-		do
-		{
-			x = 0;
-			do
-			{
-				val = *buffer++;
-				pixbuf[x++] = val >> 4;
-				pixbuf[x++] = val & 0x0f;
-			} while(x < width);
-			ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
-		} while(++y < height);
-
-		Mfree(pixbuf);
-	}
-	else
-		if(BitsPerPixel == 16)
-		{
-			v = (char)((bperz - w) / 2);
-			w = w / 2;
-	
-			buffer16 = (unsigned int *)buffer;
-			ziel16 = (unsigned int *)ziel;
-	
-			y = 0;
-			do
-			{
-				x = 0;
-				do
-				{
-					*ziel16++ = swap_word(*buffer16++);
-				} while(++x < w);
-				buffer16 += v;
-			} while(++y < height);
-		}
-		else
-		{
-			v = (char)(bperz - w);
-	
-			y = 0;
-			do
-			{
-				x = 0;
-				do
-				{
-					*ziel++ = *buffer++;
-				} while(++x < w);
-				buffer += v;
-			} while(++y < height);
-		}
-
-	ziel = oziel;
-
-	if(BitsPerPixel == 1 || BitsPerPixel == 4)
-		picture->smurf_pic->format_type = FORM_STANDARD;
-	else
-		picture->smurf_pic->format_type = FORM_PIXELPAK;
-	picture->smurf_pic->col_format = RGB;
-
-	return(ziel);
-} /* getCLP */
 
 
 /************************************************************/
 /******************** RLE 4 Dekodierung *********************/
 /************************************************************/
-char *decodeRLE4(char *buffer, unsigned int width, unsigned int height, unsigned long bperz)
+static uint8_t *decodeRLE4(uint8_t *buffer, uint16_t width, uint16_t height, unsigned long bperz)
 {
-	char *ziel, *oziel, *pixbuf, *opixbuf,
-		 val, v1, v2, dx, dy, rest;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pixbuf;
+	uint8_t *opixbuf;
+	uint8_t val;
+	uint8_t v1, v2, dx, dy, rest;
+	uint16_t x, y;
+	uint16_t k = 0;
+	unsigned long memwidth;
+	unsigned long planelength;
 
-	unsigned int x, y, k = 0;
+	memwidth = (unsigned long) ((width + 7) / 8) * 4L;
 
-	unsigned long memwidth, planelength;
+	if ((ziel = SMalloc(memwidth * height + 1L)) == 0)
+		return NOMEM;
 
+	pixbuf = (uint8_t *)Malloc((unsigned long) width + 4L);
+	memset(ziel, 0, (unsigned long) width + 4L);
 
-	memwidth = (unsigned long)((width + 7) / 8) * 4L;
-
-	if((ziel = SMalloc(memwidth * (unsigned long)height + 1L)) == 0)
-		return(NOMEM);
-
-	memset(ziel, 0x0, memwidth * (unsigned long)height + 1L);
-
-	pixbuf = Malloc((unsigned long)width + 4L);
-	memset(ziel, 0x0, (unsigned long)width + 4L);
-
-	planelength = (unsigned long)((width + 7) / 8) * (unsigned long)height;
+	planelength = (unsigned long) ((width + 7) / 8) * (unsigned long) height;
 
 	bperz <<= 1;
 
@@ -839,113 +534,110 @@ char *decodeRLE4(char *buffer, unsigned int width, unsigned int height, unsigned
 		{
 			v1 = *buffer++;
 
-			if(v1)								/* Encoded Run */
-			{ 	
+			if (v1)						/* Encoded Run */
+			{
 				v2 = *buffer++;
 
 				x += v1;
 
 				rest = v1 & 1;
 				v1 >>= 1;
-				while(v1--)
+				while (v1--)
 				{
 					*pixbuf++ = v2 >> 4;
 					*pixbuf++ = v2 & 0x0f;
 				}
 
-				if(rest)
+				if (rest)
 					*ziel++ = v2 >> 4;
-			} /* v1 != 0 */
-			else								/* Literal Run */
+			}							/* v1 != 0 */
+			else						/* Literal Run */
 			{
 				v2 = *buffer++;
-				
+
 				/**************** Steuersequenz *************/
-				if(v2 < 3)	
+				if (v2 < 3)
 				{
-					switch(v2)
+					switch (v2)
 					{
-						case 0:	/* Zeile beenden, nur wenn nicht am Anfang einer Zeile */
-								if(x)
-								{
-									ziel += (bperz - x);
-									x = (unsigned int)bperz;
-								}
-								break;
-						case 1:	/* Grafik beenden */
-								k = height - y;
-								x = (unsigned int)bperz;
-								y = height;
-								break;	
-						case 2:	/* Verschiebung von x, y */
-								dx = *buffer++;
-								x += dx;
+					case 0:			/* Zeile beenden, nur wenn nicht am Anfang einer Zeile */
+						if (x)
+						{
+							ziel += (bperz - x);
+							x = (uint16_t) bperz;
+						}
+						break;
+					case 1:			/* Grafik beenden */
+						k = height - y;
+						x = (uint16_t) bperz;
+						y = height;
+						break;
+					case 2:			/* Verschiebung von x, y */
+						dx = *buffer++;
+						x += dx;
 
-								dy = *buffer++;
-								y += dy;
+						dy = *buffer++;
+						y += dy;
 
-								k = dy;
+						k = dy;
 
-								while(k--)
-								{
-									pixbuf = opixbuf;
-									ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
+						while (k--)
+						{
+							pixbuf = opixbuf;
+							ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
 
-									memset(pixbuf, 0x0, (unsigned long)width);
-								}
-								break;
-					}									
+							memset(pixbuf, 0x0, (unsigned long) width);
+						}
+						break;
+					}
 				}
 				/************** RLE4 kodiert ******************/
-				else 		
+				else
 				{
 					x += v2;
 
 					v2 >>= 1;
-					rest = v2 & 1;				/* Modulo 2 */
+					rest = v2 & 1;		/* Modulo 2 */
 
-					while(v2--)
+					while (v2--)
 					{
 						val = *buffer++;
 						*pixbuf++ = val >> 4;
 						*pixbuf++ = val & 0x0f;
 					}
 
-					if(rest)
+					if (rest)
 						buffer++;
 				}
-			} /* v1 == 0 */
-		} while(x < bperz);
+			}							/* v1 == 0 */
+		} while (x < bperz);
 
 		pixbuf = opixbuf;
 		ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
-	} while(++y < height);
+	} while (++y < height);
 
 	ziel = oziel;
 
 	Mfree(pixbuf);
 
-	return(ziel);
-} /* decodeRLE4 */
+	return ziel;
+}
 
 
-/************************************************************/
-/******************** RLE 8 Dekodierung *********************/
-/************************************************************/
-char *decodeRLE8(char *buffer, unsigned int width, unsigned int height, unsigned long bperz, unsigned long w)
+/****************************************************/
+/****************** BMP auslesen ********************/
+/****************************************************/
+static uint8_t *getBMPdata(uint8_t *buffer, uint16_t height, unsigned long bperz, unsigned long w)
 {
-	char *ziel, *oziel,
-		 v, v1, v2, dx, dy, rest;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	unsigned long v;
+	uint16_t x, y;
 
-	unsigned int x, y;
+	if ((ziel = SMalloc(w * height)) == 0)
+		return NOMEM;
 
-	(void)width;
-	if((ziel = SMalloc(w * (unsigned long)height)) == 0)
-		return(NOMEM);
-
-	memset(ziel, 0, w * (unsigned long)height);
-
-	v = (char)(bperz - w);
+	v = bperz - w;
 
 	oziel = ziel;
 
@@ -955,110 +647,241 @@ char *decodeRLE8(char *buffer, unsigned int width, unsigned int height, unsigned
 		x = 0;
 		do
 		{
-			v1 = *buffer++;
-
-			if(v1)								/* Encoded Run */
-			{ 	
-				v2 = *buffer++;
-
-				x += v1;
-
-				while(v1--) 
-					*ziel++ = v2;
-			} /* x != 0 */
-			else								/* Literal Run */
-			{
-				v2 = *buffer++;
-				
-				/**************** Steuersequenz *************/
-				if(v2 < 3)	
-				{
-					switch(v2)
-					{
-						case 0:		/* Zeile beenden, nur wenn nicht am Anfang einer Zeile */
-									if(x)
-									{
-										ziel += (bperz - x);
-										x = (unsigned int)bperz;
-									}
-									break;
-						case 1:		/* Grafik beenden */
-									x = (unsigned int)bperz;
-									y = height;
-									break;	
-						case 2:		/* Verschiebung von x, y */
-									dx = *buffer++;
-									ziel += dx;
-									x += dx;
-
-									dy = *buffer++;
-									ziel += (unsigned long)dy * bperz;
-									y += dy;
-									break;
-					}									
-				}
-				/************** RLE8 kodiert ******************/
-				else 		
-				{
-					x += v2;
-					rest = v2&1;				/* Modulo 2 */
-
-					while(v2--)
-						*ziel++ = *buffer++;
-					if(rest)
-						buffer++;
-				}
-			} /* x == 0 */
-		} while(x < bperz);
-		ziel -= v;
-	} while(++y < height);
+			*ziel++ = *buffer++;
+		} while (++x < w);
+		buffer += v;
+	} while (++y < height);
 
 	ziel = oziel;
 
-	return(ziel);
-} /* decodeRLE8 */
+	return ziel;
+}
+
+
+/****************************************************/
+/********** 4 Bit BMP auslesen und wandeln **********/
+/****************************************************/
+static uint8_t *getBMPdata4(uint8_t *buffer, uint16_t width, uint16_t height, unsigned long bperz, unsigned long w)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pixbuf;
+	unsigned long v;
+	uint8_t val;
+	uint16_t x, y;
+	unsigned long memwidth;
+	unsigned long planelength;
+
+	memwidth = ((width + 7) / 8) * 4L;
+
+	if ((ziel = SMalloc(memwidth * height + 1L)) == 0)
+		return NOMEM;
+
+	memset(ziel, 0x0, memwidth * height + 1L);
+
+	oziel = ziel;
+
+	v = bperz - w;
+
+	planelength = (unsigned long) ((width + 7) / 8) * (unsigned long) height;
+
+	pixbuf = (uint8_t *) Malloc(width + 7);
+
+	y = 0;
+	do
+	{
+		x = 0;
+		do
+		{
+			val = *buffer++;
+			pixbuf[x++] = val >> 4;
+			pixbuf[x++] = val & 0x0f;
+		} while (x < width);
+
+		ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
+		buffer += v;
+	} while (++y < height);
+
+	ziel = oziel;
+
+	Mfree(pixbuf);
+
+	return ziel;
+}
+
+
+/****************************************************/
+/****** Bitmap-Datenbereich aus CLP auslesen ********/
+/****************************************************/
+static uint8_t *getCLP(GARGAMEL * picture, unsigned long BMPOffset, unsigned long *UsedColors)
+{
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pixbuf;
+	uint8_t BitsPerPixel;
+	unsigned long v;
+	uint8_t val;
+	char dummy[3];
+	char impmessag[21];
+	uint16_t *buffer16;
+	uint16_t *ziel16;
+	uint16_t width;
+	uint16_t height;
+	uint16_t x, y;
+	unsigned long bperz;
+	unsigned long w;
+	unsigned long memwidth;
+	unsigned long planelength;
+
+	buffer = (uint8_t *) picture->smurf_pic->pic_data + BMPOffset;
+
+	width = swap_word(*(uint16_t *) (buffer + 0x02));
+	height = swap_word(*(uint16_t *) (buffer + 0x04));
+	bperz = swap_word(*(uint16_t *) (buffer + 0x06));
+
+	BitsPerPixel = *(buffer + 0x09);
+
+	*UsedColors = 1 << BitsPerPixel;
+
+	strncpy(picture->smurf_pic->format_name, "Windows Clipboard (CLP) ", 21);
+	picture->smurf_pic->pic_width = width;
+	picture->smurf_pic->pic_height = height;
+	picture->smurf_pic->depth = BitsPerPixel;
+
+	strcpy(impmessag, "Windows CLP ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	picture->services->reset_busybox(128, impmessag);
+
+	if (BitsPerPixel == 1)
+	{
+		w = (unsigned long) ((width + 7) / 8);
+		memwidth = (unsigned long) w *8L;
+	} else if (BitsPerPixel == 4)
+	{
+		w = (unsigned long) ((width + 3) / 4) * 2L;
+		memwidth = (unsigned long) ((width + 7) / 8) * 8L;
+	} else
+	{
+		w = ((unsigned long) width * BitsPerPixel) >> 3;
+		memwidth = (unsigned long) width;
+	}
+
+	if ((ziel = SMalloc(((memwidth * (long) height * BitsPerPixel) >> 3) + 1L)) == 0)
+		return NOMEM;
+
+	memset(ziel, 0, ((memwidth * (long) height * BitsPerPixel) >> 3) + 1L);
+
+	/* buffer auf Bilddaten setzen */
+	buffer += 0x0e;
+
+	oziel = ziel;
+
+	if (BitsPerPixel == 4)
+	{
+		planelength = (unsigned long) ((width + 7) / 8) * (unsigned long) height;
+
+		pixbuf = (uint8_t *) Malloc(width + 7);
+
+		y = 0;
+		do
+		{
+			x = 0;
+			do
+			{
+				val = *buffer++;
+				pixbuf[x++] = val >> 4;
+				pixbuf[x++] = val & 0x0f;
+			} while (x < width);
+			ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
+		} while (++y < height);
+
+		Mfree(pixbuf);
+	} else if (BitsPerPixel == 16)
+	{
+		v = (bperz - w) / 2;
+		w = w / 2;
+
+		buffer16 = (uint16_t *) buffer;
+		ziel16 = (uint16_t *) ziel;
+
+		y = 0;
+		do
+		{
+			x = 0;
+			do
+			{
+				*ziel16++ = swap_word(*buffer16++);
+			} while (++x < w);
+			buffer16 += v;
+		} while (++y < height);
+	} else
+	{
+		v = bperz - w;
+
+		y = 0;
+		do
+		{
+			x = 0;
+			do
+			{
+				*ziel++ = *buffer++;
+			} while (++x < w);
+			buffer += v;
+		} while (++y < height);
+	}
+
+	ziel = oziel;
+
+	if (BitsPerPixel == 1 || BitsPerPixel == 4)
+		picture->smurf_pic->format_type = FORM_STANDARD;
+	else
+		picture->smurf_pic->format_type = FORM_PIXELPAK;
+	picture->smurf_pic->col_format = RGB;
+
+	return ziel;
+}
 
 
 /**********************************************************/
 /*			Orientierung von oben nach unten 			  */
 /**********************************************************/
-char *SwitchOrient(char *buffer, unsigned int width, unsigned int height, char BitsPerPixel)
+static void SwitchOrient(uint8_t *buffer, uint16_t width, uint16_t height, uint8_t BitsPerPixel)
 {
-	char *obuf, *buffer2, *mirrbuf,
-		p, Planes;
-
-	unsigned int y;
-
+	uint8_t *obuf;
+	uint8_t *buffer2;
+	uint8_t *mirrbuf;
+	uint8_t p;
+	uint8_t Planes;
+	uint16_t y;
 	unsigned long realwidth;
 
-
-	if(BitsPerPixel == 1 || BitsPerPixel == 4)
+	if (BitsPerPixel == 1 || BitsPerPixel == 4)
 	{
 		realwidth = (width + 7) / 8;
 
 		Planes = BitsPerPixel;
-	}
-	else
+	} else
 	{
-		if(BitsPerPixel == 8)
-			realwidth = (unsigned long)width;
+		if (BitsPerPixel == 8)
+			realwidth = (unsigned long) width;
 		else
-			realwidth = (unsigned long)width * 3L;
+			realwidth = (unsigned long) width * 3L;
 
 		Planes = 1;
 	}
 
-	if((mirrbuf = SMalloc(realwidth)) == 0)
-		form_alert(1, ERROR2 );
-	else
+	if ((mirrbuf = SMalloc(realwidth)) != NULL)
 	{
 		obuf = buffer;
 
 		p = 0;
 		do
 		{
-			buffer += p * (unsigned long)height * realwidth;
-			buffer2 = buffer + (unsigned long)(height - 1) * realwidth;
+			buffer += p * (unsigned long) height *realwidth;
+
+			buffer2 = buffer + (unsigned long) (height - 1) * realwidth;
 
 			y = (height >> 1);
 			do
@@ -1068,29 +891,431 @@ char *SwitchOrient(char *buffer, unsigned int width, unsigned int height, char B
 				memcpy(buffer2, mirrbuf, realwidth);
 				buffer += realwidth;
 				buffer2 -= realwidth;
-			} while(--y);
+			} while (--y);
 
 			buffer = obuf;
-		} while(++p < Planes);
+		} while (++p < Planes);
 
 		SMfree(mirrbuf);
 	}
-
-	return(buffer);
-} /* SwitchOrient */
+}
 
 
-void invert_1Bit(char *data, int width, int height)
+static void invert_1Bit(uint8_t *data, uint16_t width, uint16_t height)
 {
 	long length;
 
-
-	length = (long)((width + 7) >> 3) * (long)height;
+	length = (unsigned long) ((width + 7) >> 3) * (unsigned long) height;
 
 	do
 	{
 		*data++ = ~*data;
-	} while(--length);
+	} while (--length);
+}
 
-	return;
-} /* invert_1Bit */
+
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+/*				BMP-/CLP-Importer (BMP/CLP)			*/
+/*		Windows 2.x, Windows 3.x, OS/2 1.x,			*/
+/*		OS/2 2.x, Clipboard,						*/
+/*		1, 4, 8, 16, 24 Bit, 						*/
+/*		unkomprimiert, RLE4 und RLE8				*/
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+short imp_module_main(GARGAMEL * smurf_struct)
+{
+	uint8_t *ziel;
+	uint8_t *buffer;
+	uint8_t *pal;
+	const uint8_t *palbuf;
+	char dummy[3];
+	char impmessag[21];
+	uint8_t BitsPerPixel;
+	BOOLEAN WinBMPv1 = FALSE;
+	BOOLEAN WinBMPv3 = FALSE;
+	BOOLEAN Os2BMPv1 = FALSE;
+	BOOLEAN Os2BMPv21 = FALSE;
+	BOOLEAN Os2BMPv22 = FALSE;
+	BOOLEAN RIFF = FALSE;
+	BOOLEAN CLP = FALSE;
+	BOOLEAN DIB = FALSE;
+
+	uint16_t x;
+	uint16_t width;
+	uint16_t height;
+	uint16_t PicOrient = 0;
+	uint16_t CLPBereiche;
+	uint16_t CLPFormat;
+
+	unsigned long BMPOffset = 0;
+	unsigned long DatenOffset = 0;
+	unsigned long PalettenOffset = 0;
+	unsigned long UsedColors = 0;
+	unsigned long KompFlag = 0;
+	unsigned long bperz;
+	unsigned long w;
+
+	SMalloc = smurf_struct->services->SMalloc;
+	SMfree = smurf_struct->services->SMfree;
+
+	buffer = smurf_struct->smurf_pic->pic_data;
+
+	if (*(uint32_t *) buffer == 0x52494646L)	/* 'RIFF' Container */
+	{
+		if (strncmp(buffer + 8, "RDIBdata", 8) != 0)
+		{
+			form_alert(1, ERROR1);
+			return M_UNKNOWN_TYPE;
+		}
+
+		RIFF = TRUE;
+		/* RIFF Header abschneiden */
+		BMPOffset = 0x08 + 0x0c;
+		buffer += BMPOffset;
+		strncpy(smurf_struct->smurf_pic->format_name, "RIFF Bitmap (RIF)   ", 21);
+	} else if (*buffer == 0x50 && *(buffer + 1) == 0xc3)
+	{
+		CLPBereiche = swap_word(*(uint16_t *) (buffer + 0x02));
+
+		/* Auf Anfang des ersten Datenbereiches setzen */
+		buffer += 0x04;
+
+		while (CLPBereiche-- && DIB == FALSE)
+		{
+			CLPFormat = swap_word(*(uint16_t *) buffer);
+
+			switch (CLPFormat)
+			{
+			case CF_DIB:
+				BMPOffset = swap_long(*(uint32_t *) (buffer + 0x06));
+				DIB = TRUE;
+				CLP = FALSE;
+				break;
+			case CF_BITMAP:
+			case CF_BITMAP2:
+				BMPOffset = swap_long(*(uint32_t *) (buffer + 0x06));
+				DIB = FALSE;
+				CLP = TRUE;
+				break;
+/* Bis auf weiteres gekillt, da mit der mitgelieferten Palette blož Scheiže rauskommt */
+/* und auch das Windows Clipboard diese Palette anscheinend nicht auswertet. */
+#if 0
+			case CF_PALETTE:
+				PalettenOffset = swap_long(*(uint32_t *) (buffer + 0x06));
+
+				palbuf = smurf_struct->smurf_pic->pic_data + PalettenOffset;
+
+				UsedColors = swap_word(*(unsigned short *) (palbuf + 0x02));
+
+				/* palbuf auf Anfang Palette setzen */
+				palbuf += 0x04;
+
+				pal = smurf_struct->smurf_pic->palette;
+
+				for (x = 0; x < UsedColors; x++)
+				{
+					*pal++ = *palbuf++;
+					*pal++ = *palbuf++;
+					*pal++ = *palbuf++;
+					palbuf++;
+				}
+				break;
+#endif
+			default:
+				break;
+			}
+			buffer += 0x59;				/* Gr”že einer Datenbereich-Definition */
+		}
+
+		if (CLP == FALSE && DIB == FALSE)
+			return M_UNKNOWN_TYPE;
+
+		if (CLP)
+		{
+			if ((ziel = getCLP(smurf_struct, BMPOffset, &UsedColors)) == NOMEM)
+			{
+				return M_MEMORY;
+			} else
+			{
+				smurf_struct->smurf_pic->pic_data = ziel;
+
+				if (PalettenOffset == 0)
+				{
+					palbuf = winstdpal;
+					pal = smurf_struct->smurf_pic->palette;
+
+					for (x = 0; x < UsedColors; x++)
+					{
+						*pal++ = *palbuf++;
+						*pal++ = *palbuf++;
+						*pal++ = *palbuf++;
+					}
+				}
+
+				return M_PICDONE;
+			}
+		} else
+		{
+			buffer = (uint8_t *) smurf_struct->smurf_pic->pic_data + BMPOffset;	/* buffer auf Datenbereich setzen */
+		}
+	}
+
+	/***********************************************************/
+	/************** Auslesen der BMP-Versionsart ***************/
+	/***********************************************************/
+	if (*(uint16_t *) buffer == 0x424d)
+	{
+		DatenOffset = swap_long(*(uint32_t *) (buffer + 14));
+		if (DatenOffset == 12)
+		{
+			Os2BMPv1 = TRUE;
+			if (RIFF == FALSE)
+				strncpy(smurf_struct->smurf_pic->format_name, "OS2 v1.x Bitmap (BMP)", 21);
+			strcpy(impmessag, "OS/2 1.x BMP ");
+		} else if (DatenOffset == 64)
+		{
+			Os2BMPv21 = TRUE;
+			if (RIFF == FALSE)
+				strncpy(smurf_struct->smurf_pic->format_name, "OS2 v2.x Bitmap (BMP)", 21);
+			strcpy(impmessag, "OS/2 2.x BMP ");
+		} else
+		{
+			WinBMPv3 = TRUE;
+			if (RIFF == FALSE)
+				strncpy(smurf_struct->smurf_pic->format_name, "Windows 3.x Bitmap (BMP) ", 21);
+			strcpy(impmessag, "Win 3.x BMP ");
+		}
+	} else if (*(uint16_t *) buffer == 0x4241 && *(uint16_t *) (buffer + 0x0e) == 0x424d)
+	{
+		Os2BMPv22 = TRUE;
+		if (RIFF == FALSE)
+			strncpy(smurf_struct->smurf_pic->format_name, "OS2 v2.x Bitmap (BMP)", 21);
+		strcpy(impmessag, "OS/2 2.x BMP ");
+	} else if (*(uint16_t *) buffer == 0x0 && *(uint16_t *) (buffer + 2) != 0x0)
+	{
+		/* lt. Doku sind die ersten beiden Bytes 0, diese lasche Erkennung fhrt jedoch
+		   leicht zu Verirrungen und so wird schon mal z.B. ein PICT als Win 1.x BMP erkannt,
+		   da hier ja die ersten 512 Bytes 0 sind. Deshalb die Abfrage auf Byte 3 und 4 != 0
+		   was zwar auch nicht das Nonplusultra ist, aber doch eine Verbesserung */
+		WinBMPv1 = TRUE;
+		if (RIFF == FALSE)
+			strncpy(smurf_struct->smurf_pic->format_name, "Windows 1.x Bitmap (BMP) ", 21);
+		strcpy(impmessag, "Win 1.x BMP ");
+	} else if (DIB && *buffer == 0x28)
+	{
+		WinBMPv3 = TRUE;
+		strncpy(smurf_struct->smurf_pic->format_name, "Windows 3.x Bitmap (BMP) ", 21);
+		strcpy(impmessag, "Win 3.x BMP ");
+	} else
+	{
+		return M_INVALID;
+	}
+
+	/***********************************************************/
+	/**************** Auslesen der Bildgeometrie ***************/
+	/***********************************************************/
+	if (Os2BMPv1 || WinBMPv3)	/* OS/2 Version 1.x BMP oder Windows BMP */
+	{
+		if (DIB == FALSE)
+		{
+			/* der Fileheader fehlt bei includeten BMPs leider ... */
+			DatenOffset = swap_long(*(uint32_t *) (buffer + 0x0a));
+			/* Auf Anfang Bitmap Header setzen */
+			buffer += 0x0e;
+		} else
+		{
+			/* ... deshalb muž der Abstand angenommen werden */
+			DatenOffset = 0x28;
+		}
+
+		PalettenOffset = swap_long(*(uint32_t *) buffer);
+
+		if (Os2BMPv1)
+		{
+			width = swap_word(*(uint16_t *) (buffer + 0x04));
+			height = swap_word(*(uint16_t *) (buffer + 0x06));
+
+			BitsPerPixel = swap_word(*(uint16_t *) (buffer + 0x0a));
+		} else
+		{
+			width = swap_long(*(uint32_t *) (buffer + 0x04));
+			height = swap_long(*(uint32_t *) (buffer + 0x08));
+
+			BitsPerPixel = swap_word(*(uint16_t *) (buffer + 0x0e));
+
+			KompFlag = swap_long(*(uint32_t *) (buffer + 0x10));
+			if (BitsPerPixel < 16)
+				UsedColors = swap_long(*(uint32_t *) (buffer + 0x20));
+			if ((int16_t) height < 0)
+			{
+				height = -height;
+				PicOrient = 1;
+			}
+		}
+
+		if (BitsPerPixel != 1 && BitsPerPixel != 4 && BitsPerPixel != 8 && BitsPerPixel != 24)
+			return M_PICERR;
+	}									/* OS/2 1.x und Win Format */
+	else if (Os2BMPv21 || Os2BMPv22)	/* OS/2 Version 2.x BMP beide Varianten */
+	{
+		/* Bitmaparrayfileheader berspringen */
+		if (Os2BMPv22)
+			buffer += 0x0e;
+
+		DatenOffset = swap_long(*(uint32_t *) (buffer + 0x0a));
+
+		/* Auf Anfang Bitmapheader setzen */
+		buffer += 0x0e;
+
+		PalettenOffset = swap_long(*(uint32_t *) buffer);
+
+		width = swap_long(*(uint32_t *) (buffer + 0x04));
+		height = swap_long(*(uint32_t *) (buffer + 0x08));
+
+		BitsPerPixel = swap_word(*(uint16_t *) (buffer + 0x0e));
+
+		KompFlag = swap_long(*(uint32_t *) (buffer + 0x10));
+		if (BitsPerPixel < 16)
+			UsedColors = swap_long(*(uint16_t *) (buffer + 0x20));
+
+		if (Os2BMPv21)
+			PicOrient = swap_word(*(uint16_t *) (buffer + 0x2c));
+
+		if (BitsPerPixel != 1 && BitsPerPixel != 4 && BitsPerPixel != 8 && BitsPerPixel != 24)
+			return M_PICERR;
+	}									/* OS/2 2.x Format */
+	else if (WinBMPv1)
+	{
+		width = swap_word(*(uint16_t *) (buffer + 0x02));
+		height = swap_word(*(uint16_t *) (buffer + 0x04));
+
+		BitsPerPixel = *(buffer + 0x09);
+
+		DatenOffset = 0x0a;
+	}									/* Win 1.x/2.x Format */
+
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	/***********************************************************/
+	/**************** Auswerten der Bilddaten ******************/
+	/***********************************************************/
+
+	/* šbertragen der Palette */
+	if (BitsPerPixel < 16)
+	{
+		if (UsedColors == 0)
+			UsedColors = 1 << BitsPerPixel;
+
+		pal = smurf_struct->smurf_pic->palette;
+
+		if (WinBMPv1)
+		{
+			/* Hier muž die Windows Standardpalette rein */
+			pal[0] = 255;
+			pal[1] = 255;
+			pal[2] = 255;
+			pal[3] = 0;
+			pal[4] = 0;
+			pal[5] = 0;
+		} else
+		{
+			palbuf = buffer + PalettenOffset;
+
+			for (x = 0; x < UsedColors; x++)
+			{
+				*pal++ = palbuf[2];
+				*pal++ = palbuf[1];
+				*pal++ = palbuf[0];
+				palbuf += 3;
+				if (!Os2BMPv1)
+					palbuf++;
+			}
+		}
+	}
+
+
+	/* Anpassen der Bilddimensionen */
+	switch (BitsPerPixel)
+	{
+	case 1:
+		bperz = (unsigned long) (width + 7) / 8L;
+		bperz = (unsigned long) (((bperz + 3) / 4) * 4);
+		w = (unsigned long) (width + 7) / 8L;
+
+		smurf_struct->smurf_pic->col_format = RGB;
+		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+		break;
+	case 4:
+		bperz = (unsigned long) ((width + 1) / 2);
+		bperz = ((bperz + 3) / 4) * 4;
+		w = (unsigned long) (width + 1) / 2L;
+
+		smurf_struct->smurf_pic->col_format = RGB;
+		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+		break;
+	case 8:
+		bperz = (unsigned long) (((width + 3) / 4) * 4);
+		w = (unsigned long) width;
+
+		smurf_struct->smurf_pic->col_format = RGB;
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+		break;
+	case 24:
+		bperz = (unsigned long) width * 3L;
+
+		bperz = ((bperz + 3) / 4) * 4;
+		w = (unsigned long) width * 3L;
+
+		smurf_struct->smurf_pic->col_format = BGR;
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+		break;
+	}
+
+	/* der Fileheader fehlt bei includeten BMPs leider und der Abstand */
+	/* muž deshalb manuell um die Palette erweitert werden */
+	if (DIB)
+		DatenOffset += UsedColors * 4;
+	buffer = (uint8_t *) smurf_struct->smurf_pic->pic_data + BMPOffset + DatenOffset;	/* buffer auf Bilddatenanfang setzen */
+
+	if (KompFlag == 0)					/* unkomprimiert */
+	{
+		if (BitsPerPixel == 4)
+			ziel = getBMPdata4(buffer, width, height, bperz, w);
+		else
+			ziel = getBMPdata(buffer, height, bperz, w);
+
+		if (ziel == NOMEM)
+			return M_MEMORY;
+	} else if (KompFlag == 1)			/* RLE 8 */
+	{
+		ziel = decodeRLE8(buffer, width, height, bperz, w);
+
+		if (ziel == NOMEM)
+			return M_MEMORY;
+	} else if (KompFlag == 2)			/* RLE 4 */
+	{
+		ziel = decodeRLE4(buffer, width, height, bperz);
+
+		if (ziel == NOMEM)
+			return M_MEMORY;
+	}
+
+	SMfree(smurf_struct->smurf_pic->pic_data);
+
+	if (PicOrient == 0)
+		SwitchOrient(ziel, width, height, BitsPerPixel);
+	smurf_struct->smurf_pic->pic_data = ziel;
+
+	pal = smurf_struct->smurf_pic->palette;
+	if (BitsPerPixel == 1 && ((pal[0] == 0 && pal[3] == 255) || WinBMPv1))
+		invert_1Bit(ziel, width, height);
+
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	return M_PICDONE;
+}

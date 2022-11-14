@@ -6,12 +6,16 @@ LIBS += -lm
 LDFLAGS += -nostartfiles
 
 MODULES = \
+	$(DISTDIR)/modules/import/bmp.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
 	$(empty)
 
 all:: $(MODULES)
+
+$(DISTDIR)/modules/import/bmp.sim: impstart.o bmp.o setlines.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/godpaint.sim: impstart.o godpaint.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)

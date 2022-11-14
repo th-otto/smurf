@@ -48,13 +48,13 @@ MOD_INFO module_info = {
 	"Edit 1", "Edit 2", "Edit 3", "Edit 4",
 	/* min/max values for slider */
 	0,128, 0,128, 0,128, 0,128,
-	/* min/max values for slider */
+	/* min/max values for edit objects */
 	0,10, 0,10, 0,10, 0,10,
 	/* default values for slider */
 	0, 0, 0, 0,
 	/* default values for checkboxes */
 	0, 0, 0, 0,
-	/* default values for editobjects */
+	/* default values for edit objects */
 	0, 0, 0, 0,
 	/* how many pics? */
 	0,
