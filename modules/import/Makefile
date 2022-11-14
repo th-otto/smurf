@@ -10,6 +10,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
+	$(DISTDIR)/modules/import/softimag.sim \
 	$(empty)
 
 all:: $(MODULES)
@@ -25,6 +26,10 @@ $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o
 
 $(DISTDIR)/modules/import/qdv.sim: impstart.o qdv.o setlintc.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/softimag.sim: impstart.o softimag.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 
 setlines.o: $(top_srcdir)/src/setlines.s
 	$(CC) $(CFLAGS) $(ASFLAGS) -c -o $@ $<

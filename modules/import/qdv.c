@@ -28,6 +28,13 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+/*			Macintosh Giffer-Format (QDV)			*/
+/*		1, 4, 8 Bit, unkomprimiert					*/
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+
 /* info structure for main module */
 MOD_INFO module_info = {
 	"Macintosh Giffer-Format",	/* Name of module */
@@ -107,12 +114,6 @@ static short SwitchOrient(uint8_t *dest, uint16_t width, uint16_t height, uint8_
 }
 
 
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-/*				GEM Icon-Format (ICN)				*/
-/*		1, 2, 4, 8 Bit, unkomprimiert				*/
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
 	struct header *pic_data;

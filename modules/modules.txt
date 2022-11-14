@@ -157,7 +157,7 @@ scodl.sim      0.10    0.10
 sef.sim        0.50    0.50
 sgi.sim        0.40    0.40
 smurf_mt.sim   0.10    0.10
-softimag.sim   -       1.00
+softimag.sim   1.00    1.00
 spectrum.sim   0.10    0.10
 spu_spc.sim    -       0.30
 stad.sim       0.10    0.10

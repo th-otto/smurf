@@ -744,7 +744,7 @@ static uint8_t *getCLP(GARGAMEL * picture, unsigned long BMPOffset, unsigned lon
 
 	*UsedColors = 1 << BitsPerPixel;
 
-	strncpy(picture->smurf_pic->format_name, "Windows Clipboard (CLP) ", 21);
+	strcpy(picture->smurf_pic->format_name, "Windows Clipboard (CLP)");
 	picture->smurf_pic->pic_width = width;
 	picture->smurf_pic->pic_height = height;
 	picture->smurf_pic->depth = BitsPerPixel;
@@ -963,7 +963,7 @@ short imp_module_main(GARGAMEL * smurf_struct)
 
 	if (*(uint32_t *) buffer == 0x52494646L)	/* 'RIFF' Container */
 	{
-		if (strncmp(buffer + 8, "RDIBdata", 8) != 0)
+		if (strncmp((char *)buffer + 8, "RDIBdata", 8) != 0)
 		{
 			form_alert(1, ERROR1);
 			return M_UNKNOWN_TYPE;
@@ -973,7 +973,7 @@ short imp_module_main(GARGAMEL * smurf_struct)
 		/* RIFF Header abschneiden */
 		BMPOffset = 0x08 + 0x0c;
 		buffer += BMPOffset;
-		strncpy(smurf_struct->smurf_pic->format_name, "RIFF Bitmap (RIF)   ", 21);
+		strcpy(smurf_struct->smurf_pic->format_name, "RIFF Bitmap (RIF)");
 	} else if (*buffer == 0x50 && *(buffer + 1) == 0xc3)
 	{
 		CLPBereiche = swap_word(*(uint16_t *) (buffer + 0x02));
@@ -1071,26 +1071,26 @@ short imp_module_main(GARGAMEL * smurf_struct)
 		{
 			Os2BMPv1 = TRUE;
 			if (RIFF == FALSE)
-				strncpy(smurf_struct->smurf_pic->format_name, "OS2 v1.x Bitmap (BMP)", 21);
+				strcpy(smurf_struct->smurf_pic->format_name, "OS2 v1.x Bitmap (BMP)");
 			strcpy(impmessag, "OS/2 1.x BMP ");
 		} else if (DatenOffset == 64)
 		{
 			Os2BMPv21 = TRUE;
 			if (RIFF == FALSE)
-				strncpy(smurf_struct->smurf_pic->format_name, "OS2 v2.x Bitmap (BMP)", 21);
+				strcpy(smurf_struct->smurf_pic->format_name, "OS2 v2.x Bitmap (BMP)");
 			strcpy(impmessag, "OS/2 2.x BMP ");
 		} else
 		{
 			WinBMPv3 = TRUE;
 			if (RIFF == FALSE)
-				strncpy(smurf_struct->smurf_pic->format_name, "Windows 3.x Bitmap (BMP) ", 21);
+				strcpy(smurf_struct->smurf_pic->format_name, "Windows 3.x Bitmap (BMP)");
 			strcpy(impmessag, "Win 3.x BMP ");
 		}
 	} else if (*(uint16_t *) buffer == 0x4241 && *(uint16_t *) (buffer + 0x0e) == 0x424d)
 	{
 		Os2BMPv22 = TRUE;
 		if (RIFF == FALSE)
-			strncpy(smurf_struct->smurf_pic->format_name, "OS2 v2.x Bitmap (BMP)", 21);
+			strcpy(smurf_struct->smurf_pic->format_name, "OS2 v2.x Bitmap (BMP)");
 		strcpy(impmessag, "OS/2 2.x BMP ");
 	} else if (*(uint16_t *) buffer == 0x0 && *(uint16_t *) (buffer + 2) != 0x0)
 	{
@@ -1100,12 +1100,12 @@ short imp_module_main(GARGAMEL * smurf_struct)
 		   was zwar auch nicht das Nonplusultra ist, aber doch eine Verbesserung */
 		WinBMPv1 = TRUE;
 		if (RIFF == FALSE)
-			strncpy(smurf_struct->smurf_pic->format_name, "Windows 1.x Bitmap (BMP) ", 21);
+			strcpy(smurf_struct->smurf_pic->format_name, "Windows 1.x Bitmap (BMP)");
 		strcpy(impmessag, "Win 1.x BMP ");
 	} else if (DIB && *buffer == 0x28)
 	{
 		WinBMPv3 = TRUE;
-		strncpy(smurf_struct->smurf_pic->format_name, "Windows 3.x Bitmap (BMP) ", 21);
+		strcpy(smurf_struct->smurf_pic->format_name, "Windows 3.x Bitmap (BMP)");
 		strcpy(impmessag, "Win 3.x BMP ");
 	} else
 	{
