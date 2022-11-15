@@ -21,7 +21,7 @@
 ; ***** END LICENSE BLOCK *****
 
 ..\..\dist\modules\import\qfax.sim
-.C [-C -K -M -P-]
+.C [-C -K -M -P]
 .C [-I..\..\src\lib]
 .C [-I..\dither]
 .C [-I..\..\..\purec\include\]
@@ -46,3 +46,5 @@ pcstdlib.lib       ; standard library
 pcextlib.lib       ; extended library
 pctoslib.lib       ; TOS library
 pcgemlib.lib       ; AES and VDI library
+..\..\src\lib\demolib.lib
+
