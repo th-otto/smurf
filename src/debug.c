@@ -75,5 +75,7 @@ void DebugMsg(const char *Arg, ...)
 	}
 
 	va_end(ap);
+#else
+	(void)Arg;
 #endif
 }

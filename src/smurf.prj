@@ -29,7 +29,7 @@
 ; Symbol: DEBUG : If you add this, there will be writen some infos in
 ;                 file smurf.log
 
-.C[-DDEBUG]
+;.C[-DDEBUG]
 
 .C [-C -K -M -P -G-]
 .C [-I.\rsc]
