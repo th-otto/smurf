@@ -158,8 +158,7 @@ sef.sim        0.50    0.50
 sgi.sim        0.40    0.40
 smurf_mt.sim   0.10    0.10
 softimag.sim   1.00    1.00
-spectrum.sim   0.10    0.10
-spu_spc.sim    -       0.30
+spectrum.sim   0.30    0.30 version 0.30 was named spu_spc
 stad.sim       0.10    0.10
 tga.sim        1.10    1.10
 tiff.sim       1.50    1.50

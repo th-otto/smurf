@@ -46,165 +46,110 @@
 
 /* info structure for main module */
 MOD_INFO module_info = {
-	"Spectrum 512-Importer",
-	0x0010,
-	"Olaf Piesche",
+	"Spectrum 512",
+	0x0030,
+	"Olaf Piesche, Christian Eyrich",
 	/* Extensionen */
-	{ "SPC", "SPU", "", "", "", "", "", "", "", "" },
+	{ "SPU", "SPC", "", "", "", "", "", "", "", "" },
 
 	/* Slider */
-	"", "", "", "",
-	/* Editfelder */
-	"", "", "", "",
+	"Slider 1", "Slider 2", "Slider 3", "Slider 4",
 	/* Checkboxen */
-	"", "", "", "",
+	"Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4",
+	/* Editfelder */
+	"Edit 1", "Edit 2", "Edit 3", "Edit 4",
 
 	/* Minima + Maxima */
 	/* Slider */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
 	/* Edits */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
 	/* Defaults */
 	0, 0, 0, 0,
 	0, 0, 0, 0,
-	0, 0, 0, 0
+	0, 0, 0, 0,
+	/* how many pics? */
+	0,
+	/* description for pictures */
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
+static short (*busybox)(short lft);
+
+static unsigned short *palettes[200];
 
 
-unsigned short *palettes[200];
+#define SPU 1
+#define SPC 2
+#define SPX 3
 
 
-
-static short FindIndex(short x, short c);
-static void *decompress_SPC(uint8_t *picdata, uint8_t *dest_data, long decompressed_bytes);
-static void decode_palettes(unsigned short *picdata);
-
-
-short imp_module_main(GARGAMEL * smurf_struct)
+static void get_uncompressed(uint16_t *data, uint8_t *pixel)
 {
-	uint8_t *picdata;
-	uint8_t *pdcopy;
-	uint8_t *dest_data;
-	uint8_t *DecodedPic;
-	uint8_t *EndPic;
-	uint16_t *dest_zerbastel;
-	unsigned short *CurrentPalette;
-	uint8_t *CompressedPalette;
-	short t;
-	unsigned short palpix;
-	uint8_t pixel[17];
-	uint16_t C;
-	uint16_t x;
-	uint16_t y;
-	uint16_t red, green, blue;
-	long planelen;
-
-	void (*reset_busybox)(short lft, const char *txt);
-
-	reset_busybox = smurf_struct->services->reset_busybox;
-
-	pdcopy = picdata = smurf_struct->smurf_pic->pic_data;
-
-	/* Kennung prÅfen */
-	if (memcmp(picdata, "SP\0\0", 4) == 0)
-		;
-	else
-		return M_INVALID;				/* Kenn ich nicht */
-
-	reset_busybox(0, "Spectrum 512 C");
-
-
-	/****************************************************************************/
-	/*                          Bilddaten Dekomprimieren                        */
-	/****************************************************************************/
-	dest_data = (uint8_t *)Malloc(32000L * 2L);
-	DecodedPic = dest_data;
-
-	picdata += 12;
-
-	picdata = decompress_SPC(picdata, dest_data, 31840);
-
-
-	/****************************************************************************/
-	/* -------------------  Paletten 'dekomprimieren'   ----------------------- */
-	/****************************************************************************/
-	CompressedPalette = picdata;
-
-	reset_busybox(0, "Paletten decodieren");
-	decode_palettes((unsigned short *) CompressedPalette);
-
-	Mfree(pdcopy);						/* Ur-Bilddaten freigeben */
-
-
-
-
-	picdata = DecodedPic;				/* fÅrs Zerbasteln auf dekomprimiertes Bild legen */
-	EndPic = (uint8_t *)Malloc(320L * 199L * 2L);	/* und Speicher fÅrs Zerbasteln anfordern */
-	dest_zerbastel = (uint16_t *) EndPic;
-
-	planelen = (320L * 199L) / 8L;
-
-	reset_busybox(0, "SPC zerbasteln");
-
-
-	for (y = 0; y < 199; y++)
+	uint8_t t;
+	uint8_t bit;
+	
+	memset(pixel, 0, 16);
+	t = 0;
+	do
 	{
-		for (x = 0; x < 320; x += 16)
+		bit = 15;
+		do
 		{
-			memset(pixel, 0, 16);
-
-			get_standard_pix(picdata, pixel, 4, planelen);
-
-			for (t = 0; t < 16; t++)
-			{
-#if 0
-				pal = CurrentPalette + (EinePalette * FindIndex(x + t, C));
-				palpix = *(pal + pixel[t]);
-#endif
-
-				C = pixel[t];
-				CurrentPalette = palettes[y];
-				palpix = *(CurrentPalette + FindIndex(x + t, C));
-
-				/* und nach 16Bit umbauen */
-				blue = (palpix & 0x0003) << 2;
-				green = (palpix & 0x0030) << 3;
-				red = (palpix & 0x0300) << 2;
-				*(dest_zerbastel++) = red | green | blue;
-			}
-
-			picdata += 2;
-		}
-	}
-
-	Mfree(DecodedPic);
-	for (t = 0; t < 199; t++)
-		free(palettes[t]);
-
-
-	smurf_struct->smurf_pic->pic_data = EndPic;
-	smurf_struct->smurf_pic->depth = 16;	/*16 */
-
-	strncpy(smurf_struct->smurf_pic->format_name, "Spectrum 512 SPC     ", 21);
-	smurf_struct->smurf_pic->pic_width = 320;
-	smurf_struct->smurf_pic->pic_height = 199;
-	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;	/* PP */
-
-	return M_PICDONE;					/* das wars. */
+			*pixel++ |= ((*data >> bit) & 1) << t;
+		} while (bit-- != 0);
+		data++;
+		pixel -= 16;
+	} while (++t < 4);
 }
 
 
+static void *decompress_SPC(uint8_t *picdata, uint8_t *dest_data, unsigned long compressed_bytes)
+{
+	unsigned long count;
+	int8_t pix;
+	unsigned short C;
+
+	count = 0;
+
+	do
+	{
+		pix = *(picdata++);
+		count++;
+		if (pix < 0)
+		{
+			/*------------------------ Compressed Run */
+			C = (-pix) + 2;
+			pix = *(picdata++);
+			count++;
+			while (C-- != 0)
+			{
+				*(dest_data++) = pix;
+			}
+		} else /* if(pix>=0 && x<=127) */
+		{
+			/*------------------------ Literal Run */
+			C = pix + 1;
+			count += C;
+			while (C-- != 0)
+			{
+				*(dest_data++) = *(picdata++);
+			}
+		}
+	} while (count < compressed_bytes);
+
+	return picdata;
+}
 
 
 /*--------------------- Find Color Palette Index--------------*/
-static short FindIndex(short x, short c)
+static short FindIndex(short x, uint8_t c)
 {
 	short x1;
 
@@ -224,81 +169,209 @@ static short FindIndex(short x, short c)
 }
 
 
-
-
-
-static void *decompress_SPC(uint8_t *picdata, uint8_t *dest_data, long decompressed_bytes)
+static void decode_sp(uint16_t *dest_zerbastel, uint8_t *data, uint8_t type)
 {
-	long count;
-	int8_t pix;
-	short C;
-	short t;
+	unsigned short *CurrentPalette;
+	unsigned short t;
+	unsigned short palpix;
+	uint8_t pixel[16];
+	uint8_t C;
+	uint16_t x;
+	uint16_t red, green, blue;
+	uint8_t skip;
+	uint16_t y;
+	uint16_t ycount;
+	short busycounter;
+	long planelen;
+	
+	dest_zerbastel += 320;
+	ycount = 19;
+	busycounter = 0;
+	
+	planelen = (320L * 199L) / 8L;
 
-	count = 0;
-
+	if (type == SPC)
+		skip = 2;
+	else
+		skip = 8;
+	y = 0;
 	do
 	{
-		pix = *(picdata++);
-		count++;
-		if ((int) pix >= -128 && (int) pix <= -1)
+		if ((y % ycount) == 0)
 		{
-			/*------------------------ Compressed Run */
-			C = (-pix) + 2;
-			pix = *(picdata++);
-			for (t = 0; t < C; t++)
-			{
-				*(dest_data++) = pix;
-				count++;
-			}
-		} else /* if(pix>=0 && x<=127) */
-		{
-			/*------------------------ Literal Run */
-			C = pix + 1;
-			for (t = 0; t < C; t++)
-			{
-				count++;
-				*(dest_data++) = *(picdata++);
-			}
+			busybox(busycounter);
+			busycounter += 12;
 		}
-	} while (count < decompressed_bytes);
+		for (x = 0; x < 320; x += 16)
+		{
+			if (type == SPC)
+				get_standard_pix(data, pixel, 4, planelen);
+			else
+				get_uncompressed((uint16_t *)data, pixel);
+			CurrentPalette = palettes[y];
+			t = 0;
+			do
+			{
+				C = pixel[t];
+				palpix = *(CurrentPalette + FindIndex(x + t, C));
 
-	return picdata;
+				/* und nach 16Bit umbauen */
+				blue = (palpix & 0x0007) << 2;
+				green = (palpix & 0x0070) << 4;
+				red = (palpix & 0x0700) << 5;
+				*(dest_zerbastel++) = red | green | blue;
+			} while (++t < 16);
+
+			data += skip;
+		}
+	} while (++y < 199);
 }
 
 
-
-
-static void decode_palettes(unsigned short *picdata)
+static void decode_palettes(unsigned short *picdata, uint8_t type)
 {
-	short t;
-	short bit;
-	short palette_number;
+	unsigned short t;
+	unsigned short bit;
+	unsigned short palette_number;
 	uint16_t header_word;
-	uint16_t counter;
 	unsigned short *Cpal;
 
-	for (t = 0; t < 199; t++)
+	t = 0;
+	do
 	{
-		palettes[t] = malloc(97);
-		counter = 0;
 		Cpal = palettes[t];
 
-		for (palette_number = 0; palette_number < 3; palette_number++)
+		if (type == SPC)
 		{
-			header_word = *(picdata++);
-
-			bit = 0;
-
+			palette_number = 0;
 			do
 			{
-				/* Paletteneintrag vorhanden */
-				if (((header_word & (1 << bit)) == 0) || bit == 15 /*|| bit==0 */ )
-					*(Cpal++) = 0;
-				else
-					*(Cpal++) = *(picdata++);
-
-				counter++;
-			} while (++bit < 16);
+				header_word = *(picdata++);
+	
+				bit = 0;
+				do
+				{
+					/* Paletteneintrag vorhanden */
+					if (((header_word & (1 << bit)) == 0) || bit == 0 || bit == 15)
+						*(Cpal++) = 0;
+					else
+						*(Cpal++) = *(picdata++);
+				} while (++bit < 16);
+			} while (++palette_number < 3);
+		} else
+		{
+			memcpy(Cpal, picdata, 16 * 3 * sizeof(palettes[0][0]));
+			picdata += 16 * 3;
 		}
+	} while (++t < 199);
+}
+
+
+short imp_module_main(GARGAMEL *smurf_struct)
+{
+	uint8_t *picdata;
+	uint8_t *dest_data;
+	uint8_t *DecodedPic;
+	const char *ext;
+	uint8_t type;
+	unsigned short t;
+	long compressed_size;
+	long map_offset;
+	
+	busybox = smurf_struct->services->busybox;
+
+	picdata = smurf_struct->smurf_pic->pic_data;
+	ext = smurf_struct->smurf_pic->filename + strlen(smurf_struct->smurf_pic->filename) - 3;
+	
+	/* Kennung prÅfen */
+	type = 0;
+	if (memcmp(picdata, "\0\0\0\0\0\0\0\0\0\0", 10) == 0 &&
+		strnicmp(ext, "SPU", 3) == 0)
+		type = SPU;
+	else if (memcmp(picdata, "SP\0\0", 4) == 0)
+		type = SPC;
+	else if (strncmp(picdata, "SPX", 3) == 0)
+		type = SPX;
+	if (type != SPU && type != SPC && type != SPX)
+		return M_INVALID;				/* Kenn ich nicht */
+	strncpy(smurf_struct->smurf_pic->format_name, "Spectrum 512 .SP", 21);
+	if (type == SPU)
+		smurf_struct->smurf_pic->format_name[16] = 'U';
+	else if (type == SPC)
+		smurf_struct->smurf_pic->format_name[16] = 'C';
+	else
+		smurf_struct->smurf_pic->format_name[16] = 'X';
+	
+	smurf_struct->smurf_pic->pic_width = 320;
+	smurf_struct->smurf_pic->pic_height = 200;
+	smurf_struct->smurf_pic->depth = 16;
+
+	smurf_struct->services->reset_busybox(0, "Spectrum 512");
+
+
+	/****************************************************************************/
+	/*                          Bilddaten Dekomprimieren                        */
+	/****************************************************************************/
+	dest_data = (uint8_t *)smurf_struct->services->SMalloc(32000L * 4L);
+	if (dest_data == NULL)
+		return M_MEMORY;
+
+	if (type == SPC)
+	{
+		compressed_size = *((int32_t *)(picdata + 4));
+		map_offset = compressed_size + 12;
+		/* FIXME: translate */
+		smurf_struct->services->reset_busybox(0, "Bild dekodieren");
+		DecodedPic = (uint8_t *)Malloc(31840L);
+		if (DecodedPic == NULL)
+		{
+			smurf_struct->services->SMfree(dest_data);
+			return M_MEMORY;
+		}
+		decompress_SPC(picdata + 12, DecodedPic, compressed_size);
+	} else
+	{
+		compressed_size = 31840L;
+		map_offset = 32000L;
+		DecodedPic = (uint8_t *)Malloc(31840L);
+		if (DecodedPic == NULL)
+		{
+			smurf_struct->services->SMfree(dest_data);
+			return M_MEMORY;
+		}
+		memcpy(DecodedPic, picdata + 160, 31840L);
 	}
+	
+	/****************************************************************************/
+	/* -------------------  Paletten 'dekomprimieren'   ----------------------- */
+	/****************************************************************************/
+
+	/* FIXME: translate */
+	smurf_struct->services->reset_busybox(0, "Paletten dekodieren");
+
+	if ((palettes[0] = (unsigned short *)Malloc(16 * 3 * sizeof(palettes[0][0] * 200))) == NULL)
+	{
+		Mfree(DecodedPic);
+		smurf_struct->services->SMfree(dest_data);
+		return M_MEMORY;
+	}
+	for (t = 1; t < 199; t++)
+		palettes[t] = palettes[0] + 16 * 3 * t;
+
+	decode_palettes((unsigned short *) (picdata + map_offset), type);
+
+	/* FIXME: translate */
+	smurf_struct->services->reset_busybox(0, "SP dekodieren");
+	decode_sp((uint16_t *)dest_data, DecodedPic, type);
+
+	Mfree(palettes[0]);
+	Mfree(DecodedPic);
+
+	smurf_struct->services->SMfree(picdata);						/* Ur-Bilddaten freigeben */
+	smurf_struct->smurf_pic->pic_data = dest_data;
+
+	smurf_struct->smurf_pic->col_format = RGB;	/* PP */
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;	/* PP */
+
+	return M_PICDONE;					/* das wars. */
 }

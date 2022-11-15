@@ -35,20 +35,19 @@
 *   Busybox-Aufruf
 *-------------------------------------------------------------
 
+	/* smurf_struct->services->busybox(128 - (int) ((y << 7) / height)) */
 	.MACRO   _Busybox
 
-    move.l busybox,a6      /*  busybox-adresse */
-    move.w 4(sp),d2        /*  Wert... */
-    lsl.l #7,d2            /* ...ausrechnen */
+    movem.l d0-d2/a0-a1,-(sp)  /*  register retten */
+    move.l busybox,a0      /* busybox-adresse */
+    moveq #0,d1
+    move.w 20+4(sp),d1        /* Wert... */
+    lsl.l #7,d1            /* ...ausrechnen */
     move.w height,d0
-    divu.w d0,d2
+    divu.w d0,d1
     move.w #128,d0
-    sub.w d2,d0
-    movem.l d3-d7/a0-a6,-(sp)  /*  register retten */
-    jsr (a6)                    /*  busybox */
-    movem.l (sp)+,d3-d7/a0-a6  /*  und regs zurck */
+    sub.w d1,d0
+    jsr (a0)                    /* busybox */
+    movem.l (sp)+,d0-d2/a0-a1  /*  und regs zurck */
 
 	.ENDM
-
-
-

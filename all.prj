@@ -179,7 +179,6 @@ modules\plugin\print\prntplgw.prj
 ;modules\import\jpeg\jpegdspl.prj
 ;modules\import\jpeg\jpegdspn.prj
 ;modules\import\qfax.prj
-;modules\import\spu_spc.prj
 ;modules\plugin\mrm.prj
 
 ; do not compile:

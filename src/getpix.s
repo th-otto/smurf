@@ -93,6 +93,7 @@ loopplane1:
 *                           a0          a1          d0             d1        d2
 *************************************************************** 
 
+	.IFEQ PURE_C
 /* gcc cdecl entry point */
 	.globl  _getpix_std_1
 _getpix_std_1:
@@ -111,6 +112,7 @@ _getpix_std_1:
 	bsr.s getpix_std_1
 	move.l (a7)+,d2
 	rts
+	.ENDC
 
 	.globl  getpix_std_1
 getpix_std_1:
