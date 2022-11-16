@@ -79,16 +79,18 @@ struct t13a26 {
 static void *(*SMalloc)(long amount);
 static void *(*SMfree)(void *ptr);
 static uint8_t *x13a1e;
-static char x13a22[2];
+static uint8_t x13a22;
 static uint16_t global_y;
 static struct t13a26 *x13a26;
-static uint8_t *x13a2a;
-extern struct t13a26 x13a2e[256][32];
+static struct t13a26 *x13a2a;
+struct t13a26 x13a2e[256][32];
+struct t13a26 x1ba2e[256][32];
 
 static char *get_extension(const char *filename);
 static void x10178(uint8_t *data, uint8_t *dest_data, uint16_t width, uint16_t height);
 static void x101e0(uint8_t *dest_data);
 static uint16_t x10428(int);
+static void x10456(void);
 static void x104a4(void);
 
 
@@ -198,24 +200,26 @@ static void x10178(uint8_t *data, uint8_t *dest_data, uint16_t width, uint16_t h
 
 static void x101e0(uint8_t *dest_data)
 {
-	uint16_t d4;
+	int16_t d4;
 	uint16_t d5;
 	uint16_t o4;
-	uint16_t o0;
-	/* struct t13a26 (*a5)[32][32]; */
+	int16_t o2;
+	BOOLEAN o0;
 	int16_t d7;
 	int16_t d3;
 	uint8_t d6;
+	uint8_t *a3;
+	int d0;
 	
 	o4 = 0;
 	x137f0 = 0;
 	d4 = 0;
 	d5 = 0;
-	o0 = 1;
-	/* a5 = &x13a2e; */
+	o0 = TRUE;
+	x13a22 = 0;
 	while (o4 == 0)
 	{
-		if (o0 == 1)
+		if (o0 == TRUE)
 		{
 			d5 = x10428(8);
 			d7 = x13a26[d5].a;
@@ -229,11 +233,12 @@ static void x101e0(uint8_t *dest_data)
 				if (d7 == -3)
 				{
 					x13a1e -= 2;
+					x10456();
 					return;
 				}
 				if (d7 == -2)
 				{
-					x13a1e += (int)((x137f0 + 4) >> 3;
+					x13a1e += (int)(x137f0 + 4) >> 3;
 					x137f0 = (x137f0 + 4) & 7;
 					return;
 				}
@@ -245,13 +250,66 @@ static void x101e0(uint8_t *dest_data)
 			x13a1e += (int)(x137f0 + d6) >> 3;
 			x137f0 = (x137f0 + d6) & 7;
 			if (d7 < 64)
-				o0 = 0;
-			d4 = d7;
+				o0 = FALSE;
+			d4 += d7;
 		} else
 		{
-			
+			d5 = x10428(8);
+			d7 = x13a2a[d5].a;
+			if (d7 == -1)
+			{
+				x13a1e += (int)(x137f0 + 8) >> 3;
+				x137f0 = (x137f0 + 8) & 7;
+				d3 = x13a2a[d5].c;
+				d5 = x10428(5);
+				d7 = x1ba2e[d3][d5].a;
+				if (d7 == -3)
+				{
+					x13a1e -= 2;
+					x10456();
+					return;
+				}
+				if (d7 == -2)
+				{
+					x13a1e += (int)(x137f0 + 4) >> 3;
+					x137f0 = (x137f0 + 4) & 7;
+					return;
+				}
+				d6 = x1ba2e[d3][d5].b;
+			} else
+			{
+				d6 = x13a2a[d5].b;
+			}
+			x13a1e += (int)(x137f0 + d6) >> 3;
+			x137f0 = (x137f0 + d6) & 7;
+			if (d7 < 64)
+				o0 = TRUE;
+			a3 = &dest_data[d4 >> 3];
+			d0 = (7 - d4) & 7;
+			d4 += d7;
+			while (d7 != 0 && d0 >= 0)
+			{
+				*a3 = *a3 | (1 << d0);
+				d0--;
+				d7--;
+			}
+			o2 = d7 >> 3;
+			while (o2-- != 0)
+			{
+				*++a3 = 0xff;
+				d7 -= 8;
+			}
+			if (d7 != 0)
+			{
+				d0 = 7;
+				a3++;
+				while (d7-- != 0)
+				{
+					*a3 = *a3 | (1 << d0);
+					d0--;
+				}
+			}
 		}
-		/* 10420 */
 	}
 }
 
@@ -260,6 +318,12 @@ static uint16_t x10428(int x)
 {
 	return x;
 }
+
+
+static void x10456(void)
+{
+}
+
 
 static void x104a4(void)
 {
@@ -278,4 +342,7 @@ static char *get_extension(const char *filename)
 	return p;
 }
 
+/*
 struct t13a26 x13a2e[256][32];
+struct t13a26 x1ba2e[256][32];
+*/
