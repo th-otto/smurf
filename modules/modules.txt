@@ -147,7 +147,7 @@ pofo.sim       0.30    0.30
 ppm.sim        0.30    0.30
 psd.sim        0.30    0.30
 qdv.sim        0.30    0.30
-qfax.sim       -       0.10
+qfax.sim       0.20    0.10
 qrt.sim        0.10    0.10
 r8.sim         0.10    0.10
 ras.sim        0.60    0.60
