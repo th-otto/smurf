@@ -41,6 +41,8 @@
 #include "../../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
@@ -148,8 +150,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			SMfree = smurf_struct->services->SMfree;
 			busybox = smurf_struct->services->busybox;
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 			antialias = smurf_struct->check1;
 			angle = (float)smurf_struct->edit1;
@@ -195,10 +199,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			smurf_struct->smurf_pic->pic_data = ziel;
 
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
-			
+	printf("%lu\n", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_PICDONE;
 			return;
 		}

@@ -65,6 +65,8 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 #define EXTEND	0
 #define HOLD	1
 #define HORIZONTAL	1
@@ -159,8 +161,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	else
 		if(smurf_struct->module_mode == MEXEC)
 		{
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 			SMalloc = smurf_struct->services->SMalloc;
 			SMfree = smurf_struct->services->SMfree;
 
@@ -227,9 +231,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				SMfree(buffer);
 			}
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
+	printf("%lu\n", get_timer());
+	getch();
+#endif
 
 			smurf_struct->module_mode = M_PICDONE;
 			return;

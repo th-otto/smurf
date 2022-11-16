@@ -42,7 +42,9 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
-short (*busybox)(short pos);
+#define TIMER 0
+
+static short (*busybox)(short pos);
 
 MOD_INFO module_info = {"Expander",
 						0x0030,
@@ -118,8 +120,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			return;
 
 		case MEXEC:
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 			busybox = smurf_struct->services->busybox;
 
 			BitsPerPixel = smurf_struct->smurf_pic->depth;
@@ -344,10 +348,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			free(histogram);
 			free(normalize_map);			
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
-			
+	printf("%lu\n", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_DONEEXIT;
 			return;
 

@@ -57,6 +57,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
+#define TIMER 0
+
 MOD_INFO module_info = {TEXT1,
 						0x0050,
 						"Christian Eyrich",
@@ -120,8 +122,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	unsigned long length;
 	
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 /* Wenn das Modul zum ersten Mal gestartet wurde */
 	if(smurf_struct->module_mode == MSTART)
@@ -182,10 +186,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					*data16++ = ~*data16;
 			}
 	
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
-			
+	printf("%lu\n", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_DONEEXIT;
 			return;
 	}

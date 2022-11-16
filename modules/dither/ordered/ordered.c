@@ -42,6 +42,8 @@
 #include "demolib.h"
 #include "../../../src/smurfine.h"
 
+#define TIMER 0
+
 void f_dither_orderedcol(SMURF_PIC *pic_todit,  char* ziel, DITHER_DATA *dither);
 void orderedto1(SMURF_PIC *picture, char* ziel);
 void orderedto4(SMURF_PIC *picture, char* ziel);
@@ -181,8 +183,10 @@ void orderedto1(SMURF_PIC *picture, char* ziel)
     long planelengthr;
 
 
-/* wie schnell sind wir? */
-/*  init_timer(); */
+#if TIMER
+	/* wie schnell sind wir? */
+	init_timer();
+#endif
 
     depth = picture->depth;
 
@@ -323,14 +327,14 @@ void orderedto1(SMURF_PIC *picture, char* ziel)
         } while(++y < endhgt);
     }
 
-/* wie schnell waren wir? */
-/*  printf("%lu\n", get_timer());
-    getch(); */
+#if TIMER
+	/* wie schnell waren wir? */
+	printf("%lu\n", get_timer());
+	getch();
+#endif
 
     Mfree(pixbuf);
-
-    return;
-} /* orderedto1 */
+}
 
 
 
@@ -351,8 +355,10 @@ void orderedto4(SMURF_PIC *picture, char* ziel)
     unsigned long planelengthr;
 
 
+#if TIMER
 /* wie schnell sind wir? */
-/*  init_timer(); */
+  init_timer();
+#endif
 
 /* Palette mit festen Farbabst„nden berechnen, und Bildpalette darauf setzen */
     make_pal(picture, convtab);
@@ -474,9 +480,11 @@ void orderedto4(SMURF_PIC *picture, char* ziel)
         ziel += set16pixels(pixbuf, ziel, bplanes, planelengthw, endwid);   /* Pixel setzen und ziel weiter */
     } while(++y < endhgt);
 
+#if TIMER
 /* wie schnell waren wir? */
-/*  printf("%lu\n", get_timer());
-    getch(); */
+  printf("%lu\n", get_timer());
+    getch();
+#endif
 
     Mfree(pixbuf);
 
@@ -525,8 +533,10 @@ void f_dither_orderedcol(SMURF_PIC *picture, char* ziel, DITHER_DATA *dither)
 
     pixbuf = (char *)Malloc(width + 7);
 
+#if TIMER
 /* wie schnell sind wir? */
-/*  init_timer(); */
+  init_timer();
+#endif
 
 
 
@@ -654,9 +664,11 @@ void f_dither_orderedcol(SMURF_PIC *picture, char* ziel, DITHER_DATA *dither)
             ziel += set16pixels(pixbuf, ziel, bplanes, planelengthw, endwid);   /* Pixel setzen und ziel weiter */
     } while(++y < endhgt);
 
+#if TIMER
 /* wie schnell waren wir? */
-/*  printf("%lu\n", get_timer());
-    getch(); */
+  printf("%lu\n", get_timer());
+    getch();
+#endif
 
     Mfree(pixbuf);
 

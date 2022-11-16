@@ -48,6 +48,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
+#define TIMER 0
+
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
@@ -106,8 +108,10 @@ short imp_module_main(GARGAMEL *smurf_struct)
     unsigned long w, memwidth;
 
 
-/* wie schnell sind wir? */
-/*  init_timer(); */
+#if TIMER
+	/* wie schnell sind wir? */
+	init_timer();
+#endif
     SMalloc = smurf_struct->services->SMalloc;
     SMfree = smurf_struct->services->SMfree;
 
@@ -274,9 +278,11 @@ short imp_module_main(GARGAMEL *smurf_struct)
         } /* Malloc */
     } /* Erkennung */
 
-/* wie schnell waren wir? */
-/*  printf("%lu", get_timer);
-    getch(); */
+#if TIMER
+	/* wie schnell waren wir? */
+	printf("%lu", get_timer());
+	getch();
+#endif
 
     return(M_PICDONE);
 }

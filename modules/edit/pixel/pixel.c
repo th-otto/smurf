@@ -47,6 +47,8 @@
 #include "../../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 static void normalpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, char BitsPerPixel);
 static void interpolpixel(char *data, unsigned int width, unsigned int height, char xpix, char ypix, SERVICE_FUNCTIONS *service);
 void do_block(unsigned char *data, unsigned long *pixtab, int blocksize) ASM_NAME("_do_block");
@@ -128,8 +130,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	else
 		if(smurf_struct->module_mode == MEXEC)
 		{
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 			interpol = smurf_struct->check1;
 			xpix = (char)smurf_struct->edit1;
@@ -159,10 +163,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				normalpixel(data, width, height, xpix - 1, ypix - 1, BitsPerPixel);
 
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu", get_timer());
-	getch(); */
-			
+	printf("%lu", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_PICDONE;
 			return;
 		}

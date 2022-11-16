@@ -58,6 +58,8 @@
 #include <math.h>
 #include "../../import.h"
 
+#define TIMER 0
+
 #define MOTOROLA 1
 #define INTEL 2
 
@@ -728,8 +730,10 @@ int tiffLZW_depack(GARGAMEL *smurf_struct, char *source, char *dest, long Width,
 		return(-1);
 	}
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 	tail = (char *)(head + head_size);
 	out = (char *)(head + head_size + tail_size);
@@ -912,9 +916,11 @@ _checkEOI:
 		}
 	}
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu", get_timer());
-	getch(); */
+	printf("%lu", get_timer());
+	getch();
+#endif
 
 	Mfree(head);
 	return(0);

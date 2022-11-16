@@ -69,6 +69,8 @@
 #error "Keine Sprache!"
 #endif
 
+#define TIMER 0
+
 
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
@@ -85,8 +87,7 @@ unsigned long encode_24Bit(char *buffer, char *ziel, unsigned int width, unsigne
 
 
 /* Dies bastelt direct ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w)
-	0xE058;
+unsigned int swap_word(unsigned int w) 0xE058;
 
 /*	Infostruktur fÅr Hauptmodul */
 MOD_INFO module_info = {"TGA Bitmap",
@@ -514,8 +515,10 @@ unsigned long write_16Bit(unsigned int *buffer, unsigned int *ziel, unsigned int
 	unsigned int x, y, pixel16;
 
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 	buffer = (unsigned int *)buffer;
 	y = 0;
@@ -530,9 +533,11 @@ unsigned long write_16Bit(unsigned int *buffer, unsigned int *ziel, unsigned int
 		} while(++x < width);
 	} while(++y < height);
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
+	printf("%lu\n", get_timer());
+	getch();
+#endif
 
 	return(0);
 } /* write_16Bit */

@@ -767,10 +767,6 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			return(M_PICERR);
 		}
 	}
-/*
-	printf("Width: %ld, Height: %ld, NewLength: %ld\n", Width, Height, NewLength);
-	getch();
-*/
 
 	/*	------- 24 Bit, RGB	 --------*/
 	if(Depth==24 && PlanarConfig==1 && Photo==2)

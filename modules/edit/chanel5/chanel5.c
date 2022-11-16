@@ -47,6 +47,8 @@
 
 #include "country.h"
 
+#define TIMER 0
+
 #if COUNTRY==1
 #include "de/chanel5.rsh"
 #elif COUNTRY==0
@@ -231,8 +233,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			break;
 
 		case MEXEC:
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 			BitsPerPixel = smurf_struct->smurf_pic->depth;
 
@@ -341,9 +345,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				}
 			}
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("\n%lu\n", get_timer());
-	getch(); */
+	printf("\n%lu\n", get_timer());
+	getch();
+#endif
 
 			smurf_struct->module_mode = M_PICDONE;
 			break;

@@ -66,6 +66,7 @@
 #error "Keine Sprache!"
 #endif
 
+#define TIMER 0
 
 #define _LSCRDES	 7			/* ist wegen des Auffllens der Strukturen */
 #define _IMAGE_DES	10			/* von Compilerseite her leider n”tig */
@@ -612,12 +613,10 @@ void interlace(unsigned int height, CONFIG *config)
 	int k, l;
 
 
-/*
 #if TIMER
 /* wie schnell sind wir? */
 	init_timer();
 #endif
-*/
 
 	if(config->interlace)
 	{
@@ -637,13 +636,13 @@ void interlace(unsigned int height, CONFIG *config)
 			lacetab[k] = k;
 
 
-/*
+
 #if TIMER
 /* wie schnell waren wir? */
 	printf("\nZeit: %lu", get_timer());
 	getch();
 #endif
-*/
+
 
 	return;
 } /* interlace */

@@ -60,6 +60,8 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 #undef random
 #define random( x ) (rand() % (x))
 
@@ -157,8 +159,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			height = smurf_struct->smurf_pic->pic_height;
 
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 			/* Zufallsgenerator zuf„llig initialisieren */
 			srand((unsigned int)time(NULL));
@@ -174,10 +178,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					else
 						storm_right(data, width, height, BitsPerPixel);
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
-			
+	printf("%lu\n", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_PICDONE;
 			return;
 		}

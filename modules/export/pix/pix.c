@@ -43,6 +43,8 @@
 
 #include "country.h"
 
+#define TIMER 0
+
 #if COUNTRY==1
 	#include "pix/de/pix.rsh"
 	#include "pix/de/pix.rh"
@@ -294,8 +296,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 	/* Und losexportieren */
 		case MEXEC:
-/* wie schnell sind wir? */
-/*	init_timer(); */
+#if TIMER
+		/* wie schnell sind wir? */
+	init_timer();
+#endif
 			SMalloc = smurf_struct->services->SMalloc;
 			SMfree = smurf_struct->services->SMfree;
 
@@ -451,16 +455,18 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 					*pal |= ((unsigned int)*ppal++ >> 5) << 4;
 					*pal++ |= (unsigned int)*ppal++ >> 5;
 				}
-			} /* Malloc */
+			}
 
+#if TIMER
 /* wie schnell waren wir? */
-/*  printf("%lu", get_timer);
-	getch(); */
+  printf("%lu", get_timer());
+	getch();
+#endif
 
 			smurf_struct->module_mode = M_DONEEXIT;
 			return(exp_pic);
 
-/* Mterm empfangen - Speicher freigeben und beenden */
+		/* Mterm empfangen - Speicher freigeben und beenden */
 		case MTERM:
 			SMfree(exp_pic->pic_data);
 			SMfree((char *)exp_pic);

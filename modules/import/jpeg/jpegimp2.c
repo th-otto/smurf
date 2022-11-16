@@ -41,6 +41,8 @@
 #include "jpeglib.h"
 #include <setjmp.h>
 
+#define TIMER 0
+
 char *read_JPEG_file(char *inpic);
 int is_jpeg(char *buffer);
 
@@ -107,17 +109,16 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	unsigned int i;
 
 
+#if TIMER
 /* wie schnell sind wir? */
-/*  init_timer(); */
+  init_timer();
+#endif
 
 	Services = smurf_struct->services;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 
 	f_len_global = smurf_struct->smurf_pic->file_len;
-
-/*	printf("JFIF-Importer hier\n");
-	getch(); */
 
 	if(is_jpeg(buffer) < 0)
 		return(M_INVALID);
@@ -155,9 +156,11 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			smurf_struct->smurf_pic->col_format = RGB;
 	} /* Erkennung */
 
+#if TIMER
 /* wie schnell waren wir? */
-/*  printf("%lu", get_timer);
-	getch(); */
+  printf("%lu", get_timer());
+	getch();
+#endif
 
 	return(M_PICDONE);
 }
@@ -168,9 +171,6 @@ METHODDEF(void)my_error_exit(j_common_ptr cinfo)
 {
   /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
   my_error_ptr myerr = (my_error_ptr)cinfo->err;
-
-/*	printf("Hier Fehler\n");
-	getch(); */
 
   /* Return control to the setjmp point */
   longjmp(myerr->setjmp_buffer, 1);

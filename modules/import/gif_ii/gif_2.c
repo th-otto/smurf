@@ -61,6 +61,8 @@
 #define _LSCRDES	7			/* ist wegen des auffÅllens der Strukturen */
 #define _IMAGE_DES	10			/* von Compilerseite her leider nîtig */
 
+#define TIMER 0
+
 #define DEBUG	0
 #define TIMER	0
 
@@ -537,12 +539,11 @@ void deinterlace(char *buffer, unsigned int width, unsigned int height, char Bit
 	unsigned long realwidth, planelength;
 
 
-/*
+
 #if TIMER
 /* wie schnell sind wir? */
 	init_timer();
 #endif
-*/
 
 	reset_busybox(128, "deinterlace GIF");
 
@@ -602,13 +603,11 @@ void deinterlace(char *buffer, unsigned int width, unsigned int height, char Bit
 		buffer += planelength;
 	}
 
-/*
 #if TIMER
 /* wie schnell waren wir? */
 	printf("\nZeit: %lu", get_timer());
 	getch();
 #endif
-*/
 
 	free(lacetabf);
 	free(lacebuf);

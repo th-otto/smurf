@@ -43,6 +43,8 @@
 
 #include "chanelmx.rsh"
 
+#define TIMER 0
+
 #define DEST_PIC	0
 #define SRC_PIC		1
 #define	TextCast	ob_spec.tedinfo->te_ptext
@@ -276,8 +278,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			break;
 
 		case MEXEC:
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 			busybox = service->busybox;
 
 			deckung = sdeck * 64 / 100;
@@ -377,9 +381,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				} while(++sy < sheight);
 			}
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("\n%lu\n", get_timer());
-	getch(); */
+	printf("\n%lu\n", get_timer());
+	getch();
+#endif
 
 			smurf_struct->module_mode = M_PICDONE;
 			break;

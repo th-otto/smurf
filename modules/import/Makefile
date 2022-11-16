@@ -29,7 +29,7 @@ $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o
 $(DISTDIR)/modules/import/qdv.sim: impstart.o qdv.o setlintc.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(DISTDIR)/modules/import/qfax.sim: impstart.o qfax.o
+$(DISTDIR)/modules/import/qfax.sim: impstart.o qfax.o timer.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/softimag.sim: impstart.o softimag.o
@@ -47,6 +47,9 @@ setlintc.o: $(top_srcdir)/src/setlintc.s
 
 getpix.o: $(top_srcdir)/src/getpix.s
 	$(CC) $(CFLAGS) $(ASFLAGS) -c -o $@ $<
+
+timer.o: $(top_srcdir)/src/lib/timer.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean::
 	$(RM) *.o $(MODULES)

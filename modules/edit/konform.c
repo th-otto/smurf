@@ -55,6 +55,8 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 #define VDI		1
 #define HARD	2
 
@@ -134,8 +136,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	unsigned long planelength, w;
 	
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 	module_id = smurf_struct->module_number;
 
@@ -237,10 +241,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 			Mfree(pixbuf);
 	
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
-			
+	printf("%lu\n", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_PICDONE;
 			return;
 		}

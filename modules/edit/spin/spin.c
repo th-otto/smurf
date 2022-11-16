@@ -39,6 +39,8 @@
 
 #include "spin90.rsh"
 
+#define TIMER 0
+
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
@@ -131,8 +133,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		pop_up.Cyclebutton = -1;
 		item = popup(&pop_up, 1, 1, pop_form);
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 		switch(item)
 		{
@@ -236,10 +240,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 						} while(--length);
 					}
 	
+#if TIMER
 	/* wie schnell waren wir? */
-	/*	printf("\n%lu", get_timer());
-		getch(); */
-			
+printf("\n%lu", get_timer());
+		getch();
+#endif
+
 			SMfree(smurf_struct->smurf_pic->pic_data);
 			smurf_struct->smurf_pic->pic_data = data2;
 			if(!two)

@@ -492,11 +492,6 @@ struct DIRENTRY *build_up_filelist(char *path, char *wildcard, int pathlen)
      */
     if((back = Dopendir(path, 0)) != EINVFN)        /* Verzeichnis im Normalmodus ”ffnen */
     {                                               /* und Test ob Dopendir() existiert */
-#if 0
-        printf("Dopendir()/Dreaddir()\n\n");
-        getch();
-#endif
-
         Element.next = NULL;                        /* Initial auf "keine Dateien enthalten" setzen */
 
         if((back&0xff000000L) != 0xff000000L)       /* Directory gefunden */
@@ -550,9 +545,6 @@ struct DIRENTRY *build_up_filelist(char *path, char *wildcard, int pathlen)
     }
     else                    /* Fsfirst()/Fsnext() */
     {
-/*      printf("\nFsfirst()/Fsnext()\n\n");
-        getch(); */
-
         old_dta = Fgetdta();            /* DTA holen */
         new_dta = malloc(sizeof(DTA));
         Fsetdta(new_dta);               /* neue DTA setzen */

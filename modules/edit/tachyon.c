@@ -36,6 +36,7 @@
 #include "demolib.h"
 
 #define DEBUG 0
+#define TIMER 0
 
 void do_tachyon(char *data, unsigned int width, unsigned int height);
 extern void tachyon_pixel(char *data, char *cliptab, unsigned int width);
@@ -106,8 +107,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	unsigned long length;
 	
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 /* Wenn das Modul zum ersten Mal gestartet wurde */
 	if(smurf_struct->module_mode == MSTART)
@@ -153,10 +156,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			}
 		}
 	
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
-			
+	printf("%lu\n", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_DONEEXIT;
 			return;
 	}
@@ -188,8 +193,10 @@ void do_tachyon(char *data, unsigned int width, unsigned int height)
 	(void) Cconws("\033H);
 #endif
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 	if((bh = height / 10) == 0) 	/* busy-height */
 		bh = height;
@@ -282,9 +289,11 @@ void do_tachyon(char *data, unsigned int width, unsigned int height)
 
 	Mfree(cliptab);
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("\n%lu", get_timer());
-	getch(); */
+	printf("\n%lu", get_timer());
+	getch();
+#endif
 
 	return;
 } /* do_tachyon */

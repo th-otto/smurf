@@ -77,6 +77,8 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 #undef random
 #define random( x ) (rand() % (x))
 
@@ -158,8 +160,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	else
 		if(smurf_struct->module_mode == MEXEC)
 		{
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 			busybox = smurf_struct->services->busybox;
 
@@ -188,9 +192,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			else
 				noise_color(data, width, height, amountr, amountg, amountb);
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
+	printf("%lu\n", get_timer());
+	getch();
+#endif
 
 			smurf_struct->module_mode = M_PICDONE;
 			return;

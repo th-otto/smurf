@@ -48,6 +48,7 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
 
 MOD_INFO module_info = {"Clip'n'Pic",
 						0x0050,
@@ -143,8 +144,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	long planelength;
 	long w;
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 /* Wenn das Modul zum ersten Mal gestartet wurde */
 	if(smurf_struct->module_mode == MSTART)
@@ -677,11 +680,11 @@ uende16:
 				}
 			} /* BitsPerPixel == 16? */
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("\n%lu", get_timer());
-	getch(); */
-
-/*		printf("newwidth: %u, newheight: %u, leftborder: %u, rightborder: %u, upperborder: %u, lowerborder: %u\n", newwidth, newheight, leftborder, rightborder, upperborder, lowerborder); */
+	printf("\n%lu", get_timer());
+	getch();
+#endif
 
 		if(did == TRUE)
 		{

@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include "../import.h"
 #include "../../src/smurfine.h"
+#include "demolib.h"
 
 
 /* info structure for main module */
@@ -65,9 +66,216 @@ MOD_INFO module_info = {
 	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-char x137f0[2] = "";
+#define TIMER 1
+
+static uint8_t x137f0 = 0;
+
+struct t13a26 {
+	int16_t a;
+	uint8_t b;
+	uint8_t c;
+};
+
+static void *(*SMalloc)(long amount);
+static void *(*SMfree)(void *ptr);
+static uint8_t *x13a1e;
+static char x13a22[2];
+static uint16_t global_y;
+static struct t13a26 *x13a26;
+static uint8_t *x13a2a;
+extern struct t13a26 x13a2e[256][32];
+
+static char *get_extension(const char *filename);
+static void x10178(uint8_t *data, uint8_t *dest_data, uint16_t width, uint16_t height);
+static void x101e0(uint8_t *dest_data);
+static uint16_t x10428(int);
+static void x104a4(void);
+
+
+
+/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
+#ifdef __PUREC__
+/* Dies bastelt direkt ein rol.w #8,d0 inline ein. */
+static unsigned short swap_word(unsigned short w) 0xE058;
+#else
+static unsigned short swap_word(unsigned short w)
+{
+	return (w >> 8) | (w << 8);
+}
+#endif
+
 
 short imp_module_main(GARGAMEL *smurf_struct)
 {
+	char *extstart;
+	uint8_t *pic_data;
+	uint8_t type;
+	uint16_t width;
+	uint16_t height;
+	uint8_t dpi;
+	uint8_t *dest_data;
+	uint8_t *pal;
+	
+	pic_data = smurf_struct->smurf_pic->pic_data;
+	
+	extstart = get_extension(smurf_struct->smurf_pic->filename);
+	if (strnicmp(extstart, "F", 1) != 0 ||
+		extstart[1] < '0' || extstart[1] > '9' ||
+		extstart[2] < '0' || extstart[2] > '9')
+		return M_INVALID;
+	
+	type = pic_data[24];
+	if (type == 0)
+		type = 1;
+	if (type > 1)
+	{
+		/* FIXME: translate */
+		/* FIMXE: must not call AES functions in modules */
+		form_alert(0, "[1][2-dimensionale Komprimierung wird | noch nicht unterstzt][ OK ]");
+		return M_UNKNOWN_TYPE;
+	}
+	
+	height = swap_word(*((uint16_t *)(pic_data + 25))); /* BUG: misaligned address */
+	width = swap_word(*((uint16_t *)(pic_data + 27))); /* BUG: misaligned address */
+	if (pic_data[29] == 0)
+		dpi = 100;
+	else
+		dpi = 200;
+	dpi = dpi;
+	/* FIXME: translate */
+	strncpy(smurf_struct->smurf_pic->format_name, "QFax Faxdatei", 21);
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 1;
+	smurf_struct->services->reset_busybox(128, "QFax Faxdatei 1 Bit");
+	
+	width = (width + 7) >> 3;
+	if ((dest_data = SMalloc((long) width * height)) == NULL)
+		return M_MEMORY;
+	memset(dest_data, 0, (long) width * height);
+	x10178(pic_data + 256, dest_data, width, height);
+	smurf_struct->smurf_pic->pic_data = dest_data;
+	SMfree(pic_data);
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	pal = smurf_struct->smurf_pic->palette;
+	pal[0] = 255;
+	pal[1] = 255;
+	pal[2] = 255;
+	pal[3] = 0;
+	pal[4] = 0;
+	pal[5] = 0;
+	
 	return M_PICDONE;					/* das wars. */
 }
+
+
+static void x10178(uint8_t *data, uint8_t *dest_data, uint16_t width, uint16_t height)
+{
+	uint16_t y;
+	
+	x13a1e = data;
+	x104a4();
+#if TIMER
+	/* wie schnell sind wir? */
+	init_timer();
+#endif
+	y = 0;
+	do
+	{
+		global_y = y;
+		x101e0(dest_data);
+		dest_data += width;
+	} while (++y < height);
+
+#if TIMER
+	/* wie schnell waren wir? */
+	printf("Zeit: %lu\n", get_timer());
+#endif
+	SMfree(x13a26);
+	SMfree(x13a2a);
+}
+
+
+static void x101e0(uint8_t *dest_data)
+{
+	uint16_t d4;
+	uint16_t d5;
+	uint16_t o4;
+	uint16_t o0;
+	/* struct t13a26 (*a5)[32][32]; */
+	int16_t d7;
+	int16_t d3;
+	uint8_t d6;
+	
+	o4 = 0;
+	x137f0 = 0;
+	d4 = 0;
+	d5 = 0;
+	o0 = 1;
+	/* a5 = &x13a2e; */
+	while (o4 == 0)
+	{
+		if (o0 == 1)
+		{
+			d5 = x10428(8);
+			d7 = x13a26[d5].a;
+			if (d7 == -1)
+			{
+				x13a1e += (int)(x137f0 + 8) >> 3;
+				x137f0 = (x137f0 + 8) & 7;
+				d3 = x13a26[d5].c;
+				d5 = x10428(5);
+				d7 = x13a2e[d3][d5].a;
+				if (d7 == -3)
+				{
+					x13a1e -= 2;
+					return;
+				}
+				if (d7 == -2)
+				{
+					x13a1e += (int)((x137f0 + 4) >> 3;
+					x137f0 = (x137f0 + 4) & 7;
+					return;
+				}
+				d6 = x13a2e[d3][d5].b;
+			} else
+			{
+				d6 = x13a26[d5].b;
+			}
+			x13a1e += (int)(x137f0 + d6) >> 3;
+			x137f0 = (x137f0 + d6) & 7;
+			if (d7 < 64)
+				o0 = 0;
+			d4 = d7;
+		} else
+		{
+			
+		}
+		/* 10420 */
+	}
+}
+
+
+static uint16_t x10428(int x)
+{
+	return x;
+}
+
+static void x104a4(void)
+{
+}
+
+
+static char *get_extension(const char *filename)
+{
+	char *p;
+	
+	p = strrchr(filename, '.');
+	if (p != NULL)
+		p++;
+	else
+		p = strrchr(filename, '\0');
+	return p;
+}
+
+struct t13a26 x13a2e[256][32];

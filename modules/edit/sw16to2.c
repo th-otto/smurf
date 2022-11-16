@@ -57,6 +57,8 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 char box(char *data);
 
 MOD_INFO module_info = {TEXT1,
@@ -137,8 +139,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	else
 		if(smurf_struct->module_mode == MEXEC)
 		{
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 			grenze = (unsigned long)(smurf_struct->slide1 << 12);
 
@@ -199,10 +203,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				}
 			} while(++i < length);
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("\n%lu\n", get_timer());
-	getch(); */
-		
+	printf("\n%lu\n", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_PICDONE;
 			return;
 		}

@@ -61,6 +61,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
+#define TIMER 0
+
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
@@ -168,8 +170,10 @@ short imp_module_main(GARGAMEL *smurf_struct)
     unsigned long help;
  
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 	SMalloc = smurf_struct->services->SMalloc;
 	SMfree = smurf_struct->services->SMfree;
@@ -323,14 +327,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 		smurf_struct->services->reset_busybox(128, "YCbCr -> RGB");
 
-/* wie schnell sind wir? */
-/*	init_timer(); */
-
 		ycctorgb(ziel, width, height);
-
-/* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
 
 		smurf_struct->smurf_pic->pic_data = ziel;
 		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
@@ -340,9 +337,11 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	} /* Malloc */
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
+	printf("%lu\n", get_timer());
+	getch();
+#endif
 
 	SMfree(buffer);
 	return(M_PICDONE);

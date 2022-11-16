@@ -93,6 +93,8 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 
 MOD_INFO module_info = {TEXT1,
 						0x0120,
@@ -174,8 +176,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	else 
 		if(smurf_struct->module_mode == MEXEC)
 		{
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 			if(smurf_struct->smurf_pic->col_format == GREY)
 			{
 				smurf_struct->module_mode = M_WAITING;
@@ -350,10 +354,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			if(intens == 64)
 				smurf_struct->smurf_pic->col_format = GREY;
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("\n%lu", get_timer());
-	getch(); */
-		
+	printf("\n%lu", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_PICDONE;
 			return;
 		}

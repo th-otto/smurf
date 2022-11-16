@@ -132,10 +132,6 @@ if(SmurfMessage==MSTART){
     SliderYmat=Malloc(sizeof(SLIDER));
     SliderStrength=Malloc(sizeof(SLIDER));
 
-/*  printf("\n Breite: %i", main->ob_width);
-    printf("\n H”he: %i", main->ob_height);
-    getch(); */
-
     mod_id=smurf_struct->module_number;         /* Welche ID habe ich?  */
     mwindow=(WINDOW*)Malloc(sizeof(WINDOW)+5);
     mwindow->whandlem=0;                        /* evtl. Handle l”schen */

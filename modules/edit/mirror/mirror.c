@@ -42,6 +42,8 @@
 
 #include "mirror.rsh"
 
+#define TIMER 0
+
 WORD (*popup)(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree);
 
 MOD_INFO module_info = {"Spiegeln",
@@ -143,8 +145,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		pop_up.Cyclebutton = -1;
 		item = popup(&pop_up, 1, 1, pop_form);
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 		switch(item)
 		{
@@ -336,10 +340,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					}	/* pixelpacked oder Standardformat? */
 			}	/* vertikal? */
 	
+#if TIMER
 	/* wie schnell waren wir? */
-	/*	printf("\n%lu", get_timer());
-		getch(); */
-				
+	printf("\n%lu", get_timer());
+	getch();
+#endif
+	
 			smurf_struct->module_mode = M_DONEEXIT;
 			return;
 		}

@@ -89,6 +89,8 @@
 #include "demolib.h"
 #include "../../src/smurfine.h"
 
+#define TIMER 0
+
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 static WORD (*f_alert)(char *alertstring, char *b1, char *b2, char *b3, WORD defbt);
@@ -156,8 +158,10 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	unsigned int t, CMapStart, CMapLength, width, height, w, memwidth;
 
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 	SMalloc = smurf_struct->services->SMalloc;
 	SMfree = smurf_struct->services->SMfree;
 	f_alert = smurf_struct->services->f_alert;
@@ -361,9 +365,11 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		} /* Malloc */
 	} /* Erkennung */
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu", get_timer());
-	getch(); */
+	printf("%lu", get_timer());
+	getch();
+#endif
 
 	SMfree(buffer);
 

@@ -622,8 +622,6 @@ char *decode(unsigned int width, unsigned int height, char BitsPerPixel, char Ct
 
 				if(v1 > 0x7f)							/* Encoded Run */
 				{ 	
-/*					printf("align: %lu\n", align);
-					getch(); */
 					v1 = 0x101 - v1;
 
 					x += v1;
@@ -637,12 +635,9 @@ char *decode(unsigned int width, unsigned int height, char BitsPerPixel, char Ct
 						*ziel++ = v2;
 						dpaketlength++;
 					}
-/*					printf("run - dpaketlength: %u\n", dpaketlength); */
 				} /* x != 0 */
 				else									/* Literal Run */
 				{
-/*					printf("align: %lu\n", align);
-					getch(); */
 					v1++;
 
 					x += v1;
@@ -654,13 +649,9 @@ char *decode(unsigned int width, unsigned int height, char BitsPerPixel, char Ct
 						*ziel++ = *buffer++;
 						dpaketlength++;
 					}
-/*					printf("literal - dpaketlength: %u\n", dpaketlength); */
 				}
-/*				getch(); */
 			} while(x < w);
 			ziel -= v;
-/*			printf("x: %u, w: %lu, align: %lu\n\n", x, w, align);
-			getch(); */
 		} while(++y < height);
 	} /* Malloc */
 
@@ -756,8 +747,6 @@ char *decode4(unsigned int width, unsigned int height, char CtrlByteLen, char pa
 					}
 				} while(x < w);
 			}
-/*			printf("x: %u, w: %lu\n", x, w);
-			getch(); */
 
 			pixbuf = opixbuf;
 			ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
@@ -836,8 +825,6 @@ char *decode16(unsigned int width, unsigned int height, char CtrlByteLen)
 						}
 				}
 			} while(x < w);
-/*			printf("x: %u, w: %lu\n", x, w);
-			getch(); */
 		} while(++y < height);
 	} /* Malloc */
 
@@ -916,8 +903,6 @@ char *decode24(unsigned int width, unsigned int height, char cmpCount, char Ctrl
 						*ziel2++ = *buffer++;
 				}
 			} while(x < w);
-/*			printf("x: %u, w: %lu\n", x, w);
-			getch(); */
 			/* RGB-Folgen aus dem Zeilenbuffer wieder umsortieren */
 			ziel2 = oziel2;
 			if(cmpCount == 4)

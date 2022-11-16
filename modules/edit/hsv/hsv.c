@@ -81,6 +81,8 @@
 #endif
 
 #define DEBUG 0
+#define TIMER 0
+
 #define	TextCast	ob_spec.tedinfo->te_ptext
 
 typedef struct
@@ -254,8 +256,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			break;
 
 		case MEXEC:
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 			busybox = smurf_struct->services->busybox;
 
 			colval = (unsigned int)slidcol;						/* Absolutwert */
@@ -312,9 +316,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			else
 				do_HLS(data, width, height, colval, brightval, satval);
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("\n%lu", get_timer());
-	getch(); */
+	printf("\n%lu", get_timer());
+	getch();
+#endif
 
 			smurf_struct->module_mode = M_PICDONE;
 			break;

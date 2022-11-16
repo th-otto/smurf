@@ -99,6 +99,8 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
@@ -196,8 +198,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			SMalloc = smurf_struct->services->SMalloc;
 			SMfree = smurf_struct->services->SMfree;
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 			red = smurf_struct->slide1;
 			green = smurf_struct->slide2;
@@ -411,9 +415,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			buffer = obuffer;
 			ziel = oziel;
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("\n%lu", get_timer());
-	getch(); */
+	printf("\n%lu", get_timer());
+	getch();
+#endif
 
 		SMfree(buffer);
 

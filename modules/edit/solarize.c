@@ -54,6 +54,8 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 
+#define TIMER 0
+
 MOD_INFO module_info = {TEXT1,
 						0x0020,
 						"Christian Eyrich",
@@ -135,8 +137,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	else
 		if(smurf_struct->module_mode == MEXEC)
 		{
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 			schwelle = (unsigned int)((100 - smurf_struct->slide1) * 255 / 100);
 
 			BitsPerPixel = smurf_struct->smurf_pic->depth;
@@ -216,10 +220,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			        }
 				}
 	
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
-			
+	printf("%lu\n", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_PICDONE;
 			return;
 		}

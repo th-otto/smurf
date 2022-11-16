@@ -59,6 +59,8 @@
 #include "../../src/smurfine.h"
 #include "demolib.h"
 
+#define TIMER 0
+
 #undef random
 #define random( x ) (rand() % (x))
 
@@ -162,8 +164,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			busybox = smurf_struct->services->busybox;
 
 			smurf_struct->services->reset_busybox(0, "scatten ...");
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 			/* Zufallsgenerator zuf„llig initialisieren */
 			srand((unsigned int)time(NULL));
@@ -266,10 +270,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			if(clean)
 				SMfree(buffer);
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
-			
+	printf("%lu\n", get_timer());
+	getch();
+#endif
+
 			smurf_struct->module_mode = M_PICDONE;
 			return;
 		}

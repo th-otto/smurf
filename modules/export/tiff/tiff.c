@@ -60,6 +60,7 @@
 #include "../../../src/smurfine.h"
 
 #define PRG		0
+#define TIMER 0
 
 #include "country.h"
 
@@ -340,8 +341,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			break;
 
 		case MEXEC:
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 #if !PRG
 			SMalloc = smurf_struct->services->SMalloc;
 			SMfree = smurf_struct->services->SMfree;
@@ -448,16 +451,11 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 										break;
 					}
 
-/*					printf("vor Komp. datalen: %lu\n", datalen); */
-
 					if(config.comp == RLE)
 						datalen = encode_RLE(ziel, zielbuf, w, RowsPerStrip);
 					else
 						if(config.comp == LZW)
 							datalen = encode_LZW(ziel, zielbuf, w, RowsPerStrip, smurf_struct);
-
-/*					printf("nach Komp. datalen: %lu\n", datalen);
-					getch(); */
 
 					heightinv -= RowsPerStrip;
 
@@ -470,17 +468,17 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 				ziel = oziel;
 
-/*				printf("f_len: %lu\n", f_len); */
-
 				_Mshrink(ziel, f_len);
 
 				exp_pic->pic_data = ziel;
 				exp_pic->f_len = f_len;
 			} /* Malloc */
 
+#if TIMER
 /* wie schnell waren wir? */
-/*	printf("%lu\n", get_timer());
-	getch(); */
+	printf("%lu\n", get_timer());
+	getch();
+#endif
 			smurf_struct->module_mode = M_DONEEXIT;
 			return(exp_pic);
 

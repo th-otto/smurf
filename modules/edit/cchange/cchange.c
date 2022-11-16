@@ -37,6 +37,8 @@
 
 #include "cchange.rsh"
 
+#define TIMER 0
+
 typedef struct
 {
 	unsigned int index;
@@ -122,8 +124,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	static OBJECT *win_form;
 	
 
+#if TIMER
 /* wie schnell sind wir? */
-/*	init_timer(); */
+	init_timer();
+#endif
 
 	switch(smurf_struct->module_mode)
 	{
@@ -241,9 +245,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 								if(BitsPerPixel <= 8)
 									do_pal(smurf_struct->smurf_pic, &dst, &src);
 
+#if TIMER
 		/* wie schnell waren wir? */
-		/*	printf("%lu\n", get_timer());
-			getch(); */
+		printf("%lu\n", get_timer());
+			getch();
+#endif
 
 						smurf_struct->module_mode = M_DONEEXIT;
 
