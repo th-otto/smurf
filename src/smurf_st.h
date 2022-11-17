@@ -63,13 +63,6 @@ typedef struct
 } KINFO;
 
 
-typedef struct
-{
-    char cut[3];
-    WORD ltitle;
-    WORD litem;
-} CUTTAB;
-
 #ifndef _DOSVARS
 #define _DOSVARS
 typedef struct

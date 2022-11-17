@@ -46,6 +46,13 @@
 #define THEFIRST	3					/* Objekt-Nummer des ersten Mens */
 
 
+typedef struct
+{
+    char cut[3];
+    WORD ltitle;
+    WORD litem;
+} CUTTAB;
+
 /* Fehlt noch die Dimensionierung */
 static CUTTAB cuttab[128];
 
@@ -93,9 +100,7 @@ void set_menu_key(OBJECT *menu)
 				{
 					s = menu[j].ob_spec.free_string;	/* Men */
 					i = (WORD) strlen(s);
-					if (i > 0 && s[i - 1] == ' ')
-						i--;
-					if (i > 0 && s[i - 1] == ' ')
+					while (i > 0 && s[i - 1] == ' ')
 						i--;
 					for (; i >= 0 && s[i] != ' '; i--)	/* von hinten her nach dem letzten Leerzeichen suchen */
 						;
@@ -105,8 +110,13 @@ void set_menu_key(OBJECT *menu)
 						k = 0;
 						if (s[i + 1] != SHIFT_CHAR)
 							k++;
-						while (s[++i] != ' ')
+						for (;;)
+						{
+							++i;
+							if (s[i] == '\0' || s[i] == ' ' || k >= 3)
+								break;
 							cuttab[cutpos].cut[k++] = s[i];
+						}
 						cuttab[cutpos].ltitle = ltitle;
 						cuttab[cutpos].litem = j;
 						cutpos++;
