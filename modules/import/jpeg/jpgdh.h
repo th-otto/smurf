@@ -28,46 +28,47 @@ typedef struct _JPGD_STRUCT JPGD_STRUCT;
 typedef JPGD_STRUCT	*JPGD_PTR;
 
 struct _JPGD_STRUCT {
-	VOID_PTR	InPointer;							/* JPEG Image Pointer */
-	VOID_PTR	OutPointer;							/* Output Buffer/Filename Pointer (see OutFlag) */
-	_LONG	InSize;									/* JPEG Image Size (Bytes) */
-	_LONG	OutSize;								/* Output Image Size (Bytes) */
-	short	InComponents;							/* JPEG Image Components Number (1->4) */
-	short	OutComponents;							/* Output Components Number (1->4) */
-	short	OutPixelSize;							/* Output Pixel Size (1->4) */
-	short	OutFlag;								/* 0 (RAM Output) / -1 (Disk Output) */
-	short	XLoopCounter;							/* Number of MCUs per Row */
-	short	YLoopCounter;							/* Number of MCUs per Column */
-	FUNC_PTR(Create, JPGD_STRUCT *);				/* Pointer to User Routine / NULL */
-	FUNC_PTR(Write, JPGD_STRUCT *);					/* Pointer to User Routine / NULL */
-	FUNC_PTR(Close, JPGD_STRUCT *);					/* Pointer to User Routine / NULL */
-	FUNC_PTR(SigTerm, JPGD_STRUCT *);				/* Pointer to User Routine / NULL */
-	UCHAR_PTR	Comp1GammaPtr;						/* Component 1 Gamma Table / NULL */
-	UCHAR_PTR	Comp2GammaPtr;						/* Component 2 Gamma Table / NULL */
-	UCHAR_PTR	Comp3GammaPtr;						/* Component 3 Gamma Table / NULL */
-	UCHAR_PTR	Comp4GammaPtr;						/* Component 4 Gamma Table / NULL */
-	FUNC_PTR(UserRoutine, JPGD_STRUCT *);			/* Pointer to User Routine (Called during Decompression) / NULL */
-	VOID_PTR	OutTmpPointer;						/* Current OutPointer / Temporary Disk Buffer Pointer (see OutFlag) */
-	short	MCUsCounter;							/* Number of MCUs not Decoded */
-	short	OutTmpHeight;							/* Number of Lines in OutTmpPointer */
-	_LONG	User[2];								/* Free, Available for User */
-	short	OutHandle;								/* 0 / Output File Handle (see OutFlag) */
+	/*  0 */ VOID_PTR	InPointer;							/* JPEG Image Pointer */
+	/*  4 */ VOID_PTR	OutPointer;							/* Output Buffer/Filename Pointer (see OutFlag) */
+	/*  8 */ _LONG	InSize;									/* JPEG Image Size (Bytes) */
+	/* 12 */ _LONG	OutSize;								/* Output Image Size (Bytes) */
+	/* 16 */ short	InComponents;							/* JPEG Image Components Number (1->4) */
+	/* 18 */ short	OutComponents;							/* Output Components Number (1->4) */
+	/* 20 */ short	OutPixelSize;							/* Output Pixel Size (1->4) */
+	/* 22 */ short	OutFlag;								/* 0 (RAM Output) / -1 (Disk Output) */
+	/* 24 */ short	XLoopCounter;							/* Number of MCUs per Row */
+	/* 26 */ short	YLoopCounter;							/* Number of MCUs per Column */
+	/* 28 */ FUNC_PTR(Create, JPGD_STRUCT *);				/* Pointer to User Routine / NULL */
+	/* 32 */ FUNC_PTR(Write, JPGD_STRUCT *);					/* Pointer to User Routine / NULL */
+	/* 36 */ FUNC_PTR(Close, JPGD_STRUCT *);					/* Pointer to User Routine / NULL */
+	/* 40 */ FUNC_PTR(SigTerm, JPGD_STRUCT *);				/* Pointer to User Routine / NULL */
+	/* 44 */ UCHAR_PTR	Comp1GammaPtr;						/* Component 1 Gamma Table / NULL */
+	/* 48 */ UCHAR_PTR	Comp2GammaPtr;						/* Component 2 Gamma Table / NULL */
+	/* 52 */ UCHAR_PTR	Comp3GammaPtr;						/* Component 3 Gamma Table / NULL */
+	/* 56 */ UCHAR_PTR	Comp4GammaPtr;						/* Component 4 Gamma Table / NULL */
+	/* 60 */ FUNC_PTR(UserRoutine, JPGD_STRUCT *);			/* Pointer to User Routine (Called during Decompression) / NULL */
+	/* 64 */ VOID_PTR	OutTmpPointer;						/* Current OutPointer / Temporary Disk Buffer Pointer (see OutFlag) */
+	/* 68 */ short	MCUsCounter;							/* Number of MCUs not Decoded */
+	/* 70 */ short	OutTmpHeight;							/* Number of Lines in OutTmpPointer */
+	/* 72 */ _LONG	User[2];								/* Free, Available for User */
+	/* 80 */ short	OutHandle;								/* 0 / Output File Handle (see OutFlag) */
 
 	/* Output image MFDB */
-	VOID_PTR	MFDBAddress;
-	short	MFDBPixelWidth;
-	short	MFDBPixelHeight;
-	short	MFDBWordSize;
-	short	MFDBFormatFlag;
-	short	MFDBBitPlanes;
-	short	MFDBReserved1;
-	short	MFDBReserved2;
-	short	MFDBReserved3;
+	/* 82 */ VOID_PTR	MFDBAddress;
+	/* 86 */ short	MFDBPixelWidth;
+	/* 88 */ short	MFDBPixelHeight;
+	/* 90 */ short	MFDBWordSize;
+	/* 92 */ short	MFDBFormatFlag;
+	/* 94 */ short	MFDBBitPlanes;
+	/* 96 */ short	MFDBReserved1;
+	/* 98 */ short	MFDBReserved2;
+	/* 100 */ short	MFDBReserved3;
 
 	/* Official structure stop here, what follows is decoder-dependant */
 
-	_ULONG handle;	/* ARAnyM image handle */
-} __attribute__((packed));
+	/* 102 */ _ULONG handle;	/* ARAnyM image handle */
+	/* 106 */ 
+};
 
 #define	JPGD_MAGIC	0x5F4A5044L /* '_JPD' */
 #define	JPGD_VERSION	1
@@ -120,13 +121,13 @@ typedef	long	JPGD_ENUM;
 
 typedef struct {
 	long		JPGDVersion;
-	JPGD_ENUM	(*JPGDOpenDriver)(JPGD_PTR);
-	JPGD_ENUM	(*JPGDCloseDriver)(JPGD_PTR);
+	JPGD_ENUM	(*JPGDOpenDriver)(JPGD_STRUCT *);
+	JPGD_ENUM	(*JPGDCloseDriver)(JPGD_STRUCT *);
 	long		(*JPGDGetStructSize)(void);
-	JPGD_ENUM	(*JPGDGetImageInfo)(JPGD_PTR);
-	JPGD_ENUM	(*JPGDGetImageSize)(JPGD_PTR);
-	JPGD_ENUM	(*JPGDDecodeImage)(JPGD_PTR);
-} __attribute__((packed)) JPGDDRV_STRUCT;
+	JPGD_ENUM	(*JPGDGetImageInfo)(JPGD_STRUCT *);
+	JPGD_ENUM	(*JPGDGetImageSize)(JPGD_STRUCT *);
+	JPGD_ENUM	(*JPGDDecodeImage)(JPGD_STRUCT *);
+} JPGDDRV_STRUCT;
 typedef JPGDDRV_STRUCT	*JPGDDRV_PTR;
 
 #define	JPGDOpenDriver(x,y)		(x->JPGDOpenDriver)(y)

@@ -8,7 +8,6 @@ LDFLAGS += -nostartfiles
 MODULES = \
 	$(DISTDIR)/modules/import/bmp.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
-	$(DISTDIR)/modules/import/jpeg.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
 	$(DISTDIR)/modules/import/qfax.sim \
@@ -16,7 +15,10 @@ MODULES = \
 	$(DISTDIR)/modules/import/spectrum.sim \
 	$(empty)
 
-all:: $(MODULES)
+SUBDIRS = jpeg
+
+all:: $(MODULES) impstart.o
+	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { false; }; done
 
 $(DISTDIR)/modules/import/bmp.sim: impstart.o bmp.o setlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -26,6 +28,9 @@ $(DISTDIR)/modules/import/godpaint.sim: impstart.o godpaint.o
 
 $(DISTDIR)/modules/import/jpeg.sim: impstart.o jpeg/jpegimp2.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -ljpeg $(LIBS)
+
+$(DISTDIR)/modules/import/jpegdsp.sim: impstart.o jpeg/jpegdsp.o jpeg/jpegdsps.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -56,4 +61,5 @@ timer.o: $(top_srcdir)/src/lib/timer.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean::
-	$(RM) *.o */*.o $(MODULES)
+	$(RM) *.o $(MODULES)
+	for i in $(SUBDIRS); do $(MAKE) -C $$i $@; done

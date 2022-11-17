@@ -22,7 +22,7 @@
 
 ..\..\..\dist\modules\import\jpegdsp.sim
 
-.C [-C -K -M- -P-]
+.C [-C -K -M- -P- -Z-]
 .C [-I..\..\..\src\lib]
 .C [-I..\..\dither]
 .C [-I..\..\..\..\purec\include\]
@@ -33,10 +33,8 @@
 ..\impstart.s
 
 jpegdsp.c
+jpegdsps.s [-2]
 
 pcstdlib.lib       ; standard library
-pcfltlib.lib       ; floating point library
-; the float library can be omitted if you've turned off DCT_FLOAT_SUPPORTED
-pcextlib.lib       ; extended library
 pctoslib.lib       ; TOS library
 pcgemlib.lib
