@@ -8,6 +8,7 @@ LDFLAGS += -nostartfiles
 MODULES = \
 	$(DISTDIR)/modules/import/bmp.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
+	$(DISTDIR)/modules/import/jpeg.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
 	$(DISTDIR)/modules/import/qfax.sim \
@@ -22,6 +23,9 @@ $(DISTDIR)/modules/import/bmp.sim: impstart.o bmp.o setlines.o
 
 $(DISTDIR)/modules/import/godpaint.sim: impstart.o godpaint.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/jpeg.sim: impstart.o jpeg/jpegimp2.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -ljpeg $(LIBS)
 
 $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -52,4 +56,4 @@ timer.o: $(top_srcdir)/src/lib/timer.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean::
-	$(RM) *.o $(MODULES)
+	$(RM) *.o */*.o $(MODULES)
