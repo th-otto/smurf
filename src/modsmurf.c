@@ -3138,7 +3138,7 @@ void shutdown_smurf(char while_startup)
 			start_plugin(plugin_bp[t], MTERM, t, plg_data[t]);
 
 #if 0
-			Pexec(102, NULL, plugin_bp[t], "");
+			Pexec(102, NULL, plugin_bp[t], NULL);
 #endif
 			SMfree(plugin_bp[t]->p_env);
 			SMfree(plugin_bp[t]);

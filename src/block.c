@@ -1757,7 +1757,7 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 
 	/*----------- Modul terminieren ------------------------------*/
 #if 0
-	Pexec(102, NULL, clx_bp, "");
+	Pexec(102, NULL, clx_bp, NULL);
 #endif
 	SMfree(clx_bp->p_env);
 	SMfree(clx_bp);

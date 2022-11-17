@@ -108,7 +108,7 @@ void f_scan_edit(void)
 		strcpy(edit_path, editpath);
 		strcat(edit_path, actual->modname);
 
-		temp = Pexec(3, edit_path, NULL, NULL);
+		temp = Pexec(3, edit_path, "", NULL);
 		if (temp < 0)
 		{
 			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
@@ -139,7 +139,7 @@ void f_scan_edit(void)
 				_Mshrink(edit_baspag, ProcLen);	/* Speicherblock verkrzen */
 				edit_baspag->p_hitpa = (void *) ((char *) edit_baspag + ProcLen);
 
-				lback = Pexec(4, 0L, (char *) edit_baspag, 0L);
+				lback = Pexec(4, NULL, (char *) edit_baspag, NULL);
 				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -176,7 +176,9 @@ void f_scan_edit(void)
 				DEBUG_MSG(("      Autor  : %s\n", module_info->autor));
 			}
 
-/*			Pexec(102, NULL, edit_baspag, 0L); */
+#if 0
+			Pexec(102, NULL, edit_baspag, NULL);
+#endif
 			SMfree(edit_baspag->p_env);
 			SMfree(edit_baspag);
 		}
@@ -387,7 +389,7 @@ void f_scan_import(void)
 		strcpy(import_path, importpath);
 		strcat(import_path, actual->modname);
 
-		temp = Pexec(3, import_path, NULL, NULL);
+		temp = Pexec(3, import_path, "", NULL);
 		if (temp < 0)
 		{
 			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
@@ -409,7 +411,7 @@ void f_scan_import(void)
 				_Mshrink(import_baspag, ProcLen);	/* Speicherblock verkrzen */
 				import_baspag->p_hitpa = (void *) ((char *) import_baspag + ProcLen);
 
-				lback = Pexec(4, 0L, (char *) import_baspag, 0L);
+				lback = Pexec(4, NULL, (char *) import_baspag, NULL);
 				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -439,7 +441,7 @@ void f_scan_import(void)
 			}
 
 #if 0
-			Pexec(102, NULL, import_baspag, 0L);
+			Pexec(102, NULL, import_baspag, NULL);
 #endif
 			SMfree(import_baspag->p_env);
 			SMfree(import_baspag);
@@ -651,7 +653,7 @@ void f_scan_export(void)
 		strcpy(ex_path, expath);
 		strcat(ex_path, actual->modname);
 
-		temp = Pexec(3, ex_path, NULL, NULL);
+		temp = Pexec(3, ex_path, "", NULL);
 		if (temp < 0)
 		{
 			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
@@ -673,7 +675,7 @@ void f_scan_export(void)
 				_Mshrink(export_baspag, ProcLen);	/* Speicherblock verkrzen */
 				export_baspag->p_hitpa = (void *) ((char *) export_baspag + ProcLen);
 
-				lback = Pexec(4, 0L, (char *) export_baspag, 0L);
+				lback = Pexec(4, NULL, (char *) export_baspag, NULL);
 				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -707,7 +709,9 @@ void f_scan_export(void)
 				DEBUG_MSG(("      Autor  : %s\n", module_info->autor));
 			}
 
-/*			Pexec(102, NULL, export_baspag, 0L); */
+#if 0
+			Pexec(102, NULL, export_baspag, NULL);
+#endif
 			SMfree(export_baspag->p_env);
 			SMfree(export_baspag);
 		}
@@ -793,7 +797,7 @@ void f_scan_dither(void)
 		DEBUG_MSG(("  Speicher %li\n", Malloc(-1)));
 		;
 
-		temp = Pexec(3, dit_path, NULL, NULL);
+		temp = Pexec(3, dit_path, "", NULL);
 
 		if (temp < 0)
 		{
@@ -816,7 +820,7 @@ void f_scan_dither(void)
 				_Mshrink(dit_baspag, ProcLen);	/* Speicherblock verkrzen */
 				dit_baspag->p_hitpa = (void *) ((char *) dit_baspag + ProcLen);
 
-				lback = Pexec(4, 0L, (char *) dit_baspag, 0L);
+				lback = Pexec(4, NULL, (char *) dit_baspag, NULL);
 				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 

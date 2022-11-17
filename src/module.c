@@ -100,8 +100,8 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	GARGAMEL sm_struct;
 
 
-/*	Modul als Overlay laden und Basepage ermitteln	*/
-	temp = Pexec(3, modpath, NULL, NULL);
+	/* Modul als Overlay laden und Basepage ermitteln */
+	temp = Pexec(3, modpath, "", NULL);
 	if (temp < 0)
 	{
 		strcpy(alstring, Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast);
@@ -124,7 +124,7 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 
 		mod_basepage->p_hitpa = (void *) ((char *) mod_basepage + ProcLen);
 
-		lback = Pexec(4, 0L, (char *) mod_basepage, 0L);
+		lback = Pexec(4, NULL, (char *) mod_basepage, NULL);
 		if (lback < 0L)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -141,7 +141,7 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 		module_return = module_main(&sm_struct);
 
 #if 0
-		Pexec(102, NULL, mod_basepage, 0L);	/* Modul systemkonform t”ten */
+		Pexec(102, NULL, mod_basepage, NULL);	/* Modul systemkonform t”ten */
 #endif
 		SMfree(mod_basepage->p_env);
 		SMfree(mod_basepage);			/* Modul-Basepage freigeben */
@@ -167,7 +167,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 	MOD_ABILITY *mod_abs;
 
 
-	if (mod_id < 0 || mod_id > 20)
+	if (mod_id < 0 || mod_id >= MAX_MODS)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[SMURF_ID_ERR].TextCast, NULL, NULL, NULL, 1);
 
 	/*
@@ -175,7 +175,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 	 */
 	if (edit_basepage == NULL)			/* Modul wurde noch nicht gestartet! */
 	{
-		temp = Pexec(3, modpath, NULL, NULL);
+		temp = Pexec(3, modpath, "", NULL);
 		if (temp < 0)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
@@ -200,7 +200,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 
 			edit_basepage->p_hitpa = (void *) ((char *) edit_basepage + ProcLen);
 
-			lback = Pexec(4, 0L, (char *) edit_basepage, 0L);
+			lback = Pexec(4, NULL, (char *) edit_basepage, NULL);
 			if (lback < 0L)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 		}
@@ -284,7 +284,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 	 */
 	if (export_basepage == NULL)
 	{
-		temp = Pexec(3, modpath, NULL, NULL);
+		temp = Pexec(3, modpath, "", NULL);
 		if (temp < 0)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
@@ -309,7 +309,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 
 			export_basepage->p_hitpa = (void *) ((char *) export_basepage + ProcLen);
 
-			lback = Pexec(4, 0L, (char *) export_basepage, 0L);
+			lback = Pexec(4, NULL, (char *) export_basepage, NULL);
 			if (lback < 0)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 		}
@@ -708,9 +708,9 @@ short give_free_module(void)
 
 	/* freie Modulstruktur ermitteln */
 	mod_num = 0;
-	while (mod_num < 21 && module.smStruct[mod_num] != NULL)
+	while (mod_num < MAX_MODS && module.smStruct[mod_num] != NULL)
 		mod_num++;
-	if (mod_num > 20)
+	if (mod_num >= MAX_MODS)
 	{
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MORE_MODULES].TextCast, NULL, NULL, NULL, 1);
 		return -1;
@@ -730,7 +730,7 @@ void check_and_terminate(short mode, short module_number)
 			|| module.smStruct[module_number]->module_mode == M_EXIT))
 	{
 #if 0
-		Pexec(102, NULL, module.bp[module_number], "");
+		Pexec(102, NULL, module.bp[module_number], NULL);
 #endif
 		SMfree(module.bp[module_number]->p_env);
 		SMfree(module.bp[module_number]);
@@ -755,7 +755,7 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA *ditherdata)
 	BASPAG *dither_basepage;
 
 
-	if (mod_id < 0 || mod_id > 20)
+	if (mod_id < 0 || mod_id >= MAX_MODS)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[SMURF_ID_ERR].TextCast, NULL, NULL, NULL, 1);
 
 	if (mod_id >= 0)
@@ -1129,7 +1129,7 @@ short inform_modules(short message, SMURF_PIC *picture)
 	/*
 	 * alle Editmodule informieren
 	 */
-	for (t = 0; t < 20; t++)
+	for (t = 0; t < MAX_MODS - 1; t++)
 	{
 		curr_baspag = module.bp[t];
 		if (curr_baspag)
@@ -1215,7 +1215,7 @@ void AESmsg_to_modules(WORD *msgbuf)
 	/*
 	 * Editmodule und Exporter informieren
 	 */
-	for (t = 0; t < 20; t++)
+	for (t = 0; t < MAX_MODS - 1; t++)
 	{
 		curr_bp = module.bp[t];
 

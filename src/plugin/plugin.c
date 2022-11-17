@@ -148,7 +148,7 @@ void scan_plugins(void)
 		strcpy(edit_path, editpath);
 		strcat(edit_path, actual->modname);
 
-		temp = Pexec(3, edit_path, NULL, NULL);
+		temp = Pexec(3, edit_path, "", NULL);
 		if (temp < 0)
 		{
 			strcpy(alert, "[1][Fehler in File|");
@@ -182,7 +182,7 @@ void scan_plugins(void)
 				_Mshrink(plugin_bp[anzahl_plugins], ProcLen);	/* Speicherblock verkrzen */
 				plugin_bp[anzahl_plugins]->p_hitpa = (void *) ((char *) plugin_bp[anzahl_plugins] + ProcLen);
 
-				lback = Pexec(4, 0L, (char *) plugin_bp[anzahl_plugins], 0L);
+				lback = Pexec(4, NULL, (char *) plugin_bp[anzahl_plugins], NULL);
 				if (lback < 0L)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -288,7 +288,7 @@ void scan_plugins(void)
 				else
 				{
 #if 0
-					Pexec(102, NULL, plugin_bp[anzahl_plugins], "");
+					Pexec(102, NULL, plugin_bp[anzahl_plugins], NULL);
 #endif
 					SMfree(plugin_bp[anzahl_plugins]->p_env);
 					SMfree(plugin_bp[anzahl_plugins]);
@@ -484,7 +484,7 @@ static int load_plugin(int plugin_number)
 
 	Dialog.busy.reset(128, "Lade Plugin");
 
-	temp = Pexec(3, plugin_paths[plugin_number], NULL, NULL);
+	temp = Pexec(3, plugin_paths[plugin_number], "", NULL);
 	if (temp < 0)
 	{
 		strcpy(alert, "[1][Fehler beim Nachladen|");
@@ -501,7 +501,7 @@ static int load_plugin(int plugin_number)
 		_Mshrink(plugin_bp[plugin_number], ProcLen);	/* Speicherblock verkrzen */
 		plugin_bp[plugin_number]->p_hitpa = (void *) ((char *) plugin_bp[plugin_number] + ProcLen);
 
-		lback = Pexec(4, 0L, (char *) plugin_bp[plugin_number], 0L);
+		lback = Pexec(4, NULL, (char *) plugin_bp[plugin_number], NULL);
 		if (lback < 0L)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
@@ -578,7 +578,9 @@ static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename
 void terminate_plugin(int index)
 {
 	start_plugin(plugin_bp[index], MTERM, index, plg_data[index]);
-/*	Pexec(102, NULL, plugin_bp[index], ""); */
+#if 0
+	Pexec(102, NULL, plugin_bp[index], NULL);
+#endif
 
 	SMfree(plugin_bp[index]->p_env);
 	SMfree(plugin_bp[index]);
