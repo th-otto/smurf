@@ -28,7 +28,6 @@
 #include "../import.h"
 #include "../../src/smurfine.h"
 #include "demolib.h"
-#include <mint/arch/nf_ops.h>
 
 
 static unsigned short const bitmask[9] = {
