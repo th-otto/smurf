@@ -12,14 +12,16 @@
 #if defined(__atarist__) || defined(__TOS__)
 #define VOID_PTR	void *
 #define UCHAR_PTR	unsigned char *
-#define FUNC_PTR(x,y)	short (*x)(y)
+#define FUNC_PTR(t,x,y)	t (*x)(y)
+#ifndef _LONG
 #define _LONG		long
 #define _ULONG		unsigned long
+#endif
 #else
 /* otherwise in emulator */
 #define	VOID_PTR	uint32
 #define	UCHAR_PTR	uint32
-#define FUNC_PTR(x,y)	uint32 x
+#define FUNC_PTR(t,x,y)	uint32 x
 #define _LONG		int32
 #define _ULONG		uint32
 #endif
@@ -38,15 +40,15 @@ struct _JPGD_STRUCT {
 	/* 22 */ short	OutFlag;								/* 0 (RAM Output) / -1 (Disk Output) */
 	/* 24 */ short	XLoopCounter;							/* Number of MCUs per Row */
 	/* 26 */ short	YLoopCounter;							/* Number of MCUs per Column */
-	/* 28 */ FUNC_PTR(Create, JPGD_STRUCT *);				/* Pointer to User Routine / NULL */
-	/* 32 */ FUNC_PTR(Write, JPGD_STRUCT *);					/* Pointer to User Routine / NULL */
-	/* 36 */ FUNC_PTR(Close, JPGD_STRUCT *);					/* Pointer to User Routine / NULL */
-	/* 40 */ FUNC_PTR(SigTerm, JPGD_STRUCT *);				/* Pointer to User Routine / NULL */
+	/* 28 */ FUNC_PTR(long, Create, JPGD_STRUCT *);				/* Pointer to User Routine / NULL */
+	/* 32 */ FUNC_PTR(long, Write, JPGD_STRUCT *);					/* Pointer to User Routine / NULL */
+	/* 36 */ FUNC_PTR(long, Close, JPGD_STRUCT *);					/* Pointer to User Routine / NULL */
+	/* 40 */ FUNC_PTR(void, SigTerm, JPGD_STRUCT *);				/* Pointer to User Routine / NULL */
 	/* 44 */ UCHAR_PTR	Comp1GammaPtr;						/* Component 1 Gamma Table / NULL */
 	/* 48 */ UCHAR_PTR	Comp2GammaPtr;						/* Component 2 Gamma Table / NULL */
 	/* 52 */ UCHAR_PTR	Comp3GammaPtr;						/* Component 3 Gamma Table / NULL */
 	/* 56 */ UCHAR_PTR	Comp4GammaPtr;						/* Component 4 Gamma Table / NULL */
-	/* 60 */ FUNC_PTR(UserRoutine, JPGD_STRUCT *);			/* Pointer to User Routine (Called during Decompression) / NULL */
+	/* 60 */ FUNC_PTR(long, UserRoutine, JPGD_STRUCT *);			/* Pointer to User Routine (Called during Decompression) / NULL */
 	/* 64 */ VOID_PTR	OutTmpPointer;						/* Current OutPointer / Temporary Disk Buffer Pointer (see OutFlag) */
 	/* 68 */ short	MCUsCounter;							/* Number of MCUs not Decoded */
 	/* 70 */ short	OutTmpHeight;							/* Number of Lines in OutTmpPointer */
@@ -117,7 +119,7 @@ enum _JPGD_ENUM {
 	DRIVERCLOSED,		/* Driver is Already Closed. */
 	ENDOFIMAGE			/* Stop Decoding (Internal Message, Should Never Appear) */
 };
-typedef	long	JPGD_ENUM;
+typedef	short JPGD_ENUM;
 
 typedef struct {
 	long		JPGDVersion;
@@ -128,13 +130,103 @@ typedef struct {
 	JPGD_ENUM	(*JPGDGetImageSize)(JPGD_STRUCT *);
 	JPGD_ENUM	(*JPGDDecodeImage)(JPGD_STRUCT *);
 } JPGDDRV_STRUCT;
-typedef JPGDDRV_STRUCT	*JPGDDRV_PTR;
+typedef JPGDDRV_STRUCT *JPGDDRV_PTR;
 
-#define	JPGDOpenDriver(x,y)		(x->JPGDOpenDriver)(y)
-#define	JPGDCloseDriver(x,y)	(x->JPGDCloseDriver)(y)
-#define	JPGDGetStructSize(x)	(x->JPGDGetStructSize)()
-#define	JPGDGetImageInfo(x,y)	(x->JPGDGetImageInfo)(y)
-#define	JPGDGetImageSize(x,y)	(x->JPGDGetImageSize)(y)
-#define	JPGDDecodeImage(x,y)	(x->JPGDDecodeImage)(y)
+#ifdef __PUREC__
+/*
+ * we can directly use Pure-C calling convention
+ */
+#define	JPGDOpenDriver(x,y)		((x)->JPGDOpenDriver)(y)
+#define	JPGDCloseDriver(x,y)	((x)->JPGDCloseDriver)(y)
+#define	JPGDGetStructSize(x)	((x)->JPGDGetStructSize)()
+#define	JPGDGetImageInfo(x,y)	((x)->JPGDGetImageInfo)(y)
+#define	JPGDGetImageSize(x,y)	((x)->JPGDGetImageSize)(y)
+#define	JPGDDecodeImage(x,y)	((x)->JPGDDecodeImage)(y)
+#endif
+
+#ifdef __GNUC__
+
+/*
+ * we have to pass the JPGD_STRUCT pointer in a0
+ */
+static __inline__ JPGD_ENUM JPGDOpenDriver(JPGDDRV_STRUCT *driver, JPGD_STRUCT *jpgd)
+{
+	register JPGD_ENUM retcode __asm__("d0");
+	__asm__ __volatile__(
+		"\tmove.l %[jpgd_ptr],%%a0\n"
+		"\tjsr (%[func_ptr])\n"
+	: "=r"(retcode)  /* outputs */
+	: [jpgd_ptr]"g"(jpgd), [func_ptr]"a"(driver->JPGDOpenDriver) /* inputs  */
+	: __CLOBBER_RETURN("d0") "d1", "d2", "a0", "a1", "a2", "cc" AND_MEMORY /* clobbered regs */
+	);
+	return retcode;
+}
+
+static __inline__ JPGD_ENUM JPGDCloseDriver(JPGDDRV_STRUCT *driver, JPGD_STRUCT *jpgd)
+{
+	register JPGD_ENUM retcode __asm__("d0");
+	__asm__ __volatile__(
+		"\tmove.l %[jpgd_ptr],%%a0\n"
+		"\tjsr (%[func_ptr])\n"
+	: "=r"(retcode)  /* outputs */
+	: [jpgd_ptr]"g"(jpgd), [func_ptr]"a"(driver->JPGDCloseDriver) /* inputs  */
+	: __CLOBBER_RETURN("d0") "d1", "d2", "a0", "a1", "a2", "cc" AND_MEMORY /* clobbered regs */
+	);
+	return retcode;
+}
+
+static __inline__ long JPGDGetStructSize(JPGDDRV_STRUCT *driver)
+{
+	register long retcode __asm__("d0");
+	__asm__ __volatile__(
+		"\tjsr (%[func_ptr])\n"
+	: "=r"(retcode)  /* outputs */
+	: [func_ptr]"a"(driver->JPGDGetStructSize) /* inputs  */
+	: __CLOBBER_RETURN("d0") "d1", "d2", "a0", "a1", "a2", "cc" AND_MEMORY /* clobbered regs */
+	);
+	return retcode;
+}
+
+static __inline__ JPGD_ENUM JPGDGetImageInfo(JPGDDRV_STRUCT *driver, JPGD_STRUCT *jpgd)
+{
+	register JPGD_ENUM retcode __asm__("d0");
+	__asm__ __volatile__(
+		"\tmove.l %[jpgd_ptr],%%a0\n"
+		"\tjsr (%[func_ptr])\n"
+	: "=r"(retcode)  /* outputs */
+	: [jpgd_ptr]"g"(jpgd), [func_ptr]"a"(driver->JPGDGetImageInfo) /* inputs  */
+	: __CLOBBER_RETURN("d0") "d1", "d2", "a0", "a1", "a2", "cc" AND_MEMORY /* clobbered regs */
+	);
+	return retcode;
+}
+
+static __inline__ JPGD_ENUM JPGDGetImageSize(JPGDDRV_STRUCT *driver, JPGD_STRUCT *jpgd)
+{
+	register JPGD_ENUM retcode __asm__("d0");
+	__asm__ __volatile__(
+		"\tmove.l %[jpgd_ptr],%%a0\n"
+		"\tjsr (%[func_ptr])\n"
+	: "=r"(retcode)  /* outputs */
+	: [jpgd_ptr]"g"(jpgd), [func_ptr]"a"(driver->JPGDGetImageSize) /* inputs  */
+	: __CLOBBER_RETURN("d0") "d1", "d2", "a0", "a1", "a2", "cc" AND_MEMORY /* clobbered regs */
+	);
+	return retcode;
+}
+
+static __inline__ JPGD_ENUM JPGDDecodeImage(JPGDDRV_STRUCT *driver, JPGD_STRUCT *jpgd)
+{
+	register JPGD_ENUM retcode __asm__("d0");
+	__asm__ __volatile__(
+		"\tmove.l %[jpgd_ptr],%%a0\n"
+		"\tjsr (%[func_ptr])\n"
+	: "=r"(retcode)  /* outputs */
+	: [jpgd_ptr]"g"(jpgd), [func_ptr]"a"(driver->JPGDDecodeImage) /* inputs  */
+	: __CLOBBER_RETURN("d0") "d1", "d2", "a0", "a1", "a2", "cc" AND_MEMORY /* clobbered regs */
+	);
+	return retcode;
+}
+
+#endif
+
 
 #endif /* JPGDH_H */

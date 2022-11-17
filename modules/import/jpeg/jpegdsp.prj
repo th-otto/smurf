@@ -33,7 +33,6 @@
 ..\impstart.s
 
 jpegdsp.c
-jpegdsps.s [-2]
 
 pcstdlib.lib       ; standard library
 pctoslib.lib       ; TOS library
