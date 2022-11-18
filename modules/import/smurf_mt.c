@@ -24,8 +24,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 

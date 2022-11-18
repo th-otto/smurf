@@ -26,14 +26,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "smurf.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "popdefin.h"
 #include "smurf_st.h"
 #include "smurf_f.h"
-#include "plugin/plugin.h"
+#include "plugin.h"
 
 #include "xrsrc.h"
 #include "globdefs.h"

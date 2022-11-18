@@ -43,14 +43,14 @@
 #endif
 #include <math.h>
 #include <errno.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "demolib.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"
 #include "smurf_f.h"
 #include "popdefin.h"
-#include "plugin/plugin.h"
+#include "plugin.h"
 #include "olgagems.h"
 #include "smurfobs.h"
 #include "ext_obs.h"

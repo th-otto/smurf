@@ -30,8 +30,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../../import.h"
-#include "../../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 extern short (*seek_nearest_col)(long *par, short maxcol);
 void (*read_pixel)(void);

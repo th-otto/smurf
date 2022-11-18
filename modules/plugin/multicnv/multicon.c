@@ -37,15 +37,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../../import.h"
-#define MAX_MODS 21
-#include "../../../src/smurf_st.h"
+#include "import.h"
+#include "smurf_st.h"
 #include "../../../src/rsc/smurf.h"
-#include "../../../src/smurfine.h"
-#include "../../../src/globdefs.h"
-#include "../../../src/plugin/plugin.h"
-#include "../../../src/popdefin.h"
-#include "../../../src/smurfobs.h"
+#include "smurfine.h"
+#include "globdefs.h"
+#include "plugin.h"
+#include "popdefin.h"
 
 #undef NUM_STRINGS
 #undef NUM_FRSTR

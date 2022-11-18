@@ -31,7 +31,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "smurfine.h"
 #include "smurf.h"
 #include "smurf_st.h"

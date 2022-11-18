@@ -53,7 +53,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "demolib.h"
 #include "smurfine.h"
 #include "smurf_st.h"

@@ -1,7 +1,7 @@
 top_srcdir=..
 include $(top_srcdir)/config.mak
 
-INCLUDES += -Irsc -Ilib -I$(top_srcdir)/modules/dither
+INCLUDES += -Irsc
 LIBS += -lm
 
 OBJS = \

@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "smurf.h"
 #include "smurfine.h"
 #include "globdefs.h"

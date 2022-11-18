@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "fontsel.h"
-#include "../../import.h"
+#include "import.h"
 
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 AESPB aespb;

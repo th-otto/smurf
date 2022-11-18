@@ -28,8 +28,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 char comp1[12]="Dies ist ein";
 char comp2[12]="Dummy-Export";

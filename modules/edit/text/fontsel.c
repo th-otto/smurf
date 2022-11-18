@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 #include <stddef.h>
-#include "../../import.h"
+#include "import.h"
 #include "fontsel.h"
 #include "de/text.h"
 

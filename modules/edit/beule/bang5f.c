@@ -32,8 +32,8 @@
 #include <string.h>
 #include <math.h>
 
-#include "../../import.h"
-#include "../../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 typedef unsigned char uchar;
 typedef unsigned int uint;

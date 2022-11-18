@@ -27,7 +27,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "startup.h"
 #include "smurf_st.h"
 #include "smurf_f.h"
@@ -35,7 +35,7 @@
 #include "globdefs.h"
 #include "vaproto.h"
 #include "bindings.h"
-#include "../modules/dither/dit_mod.h"
+#include "dit_mod.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"

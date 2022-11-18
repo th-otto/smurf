@@ -23,6 +23,7 @@
 demolib.lib
 
 .C [-C -K -M -P]
+.C [-I..\..\include]
 .L [-J]
 .S[-DPURE_C=1]
 .S[-S]

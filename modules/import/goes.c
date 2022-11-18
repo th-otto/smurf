@@ -43,8 +43,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 #define GARS    1
 #define MCIDAS  2

@@ -42,8 +42,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 
 MOD_INFO module_info=

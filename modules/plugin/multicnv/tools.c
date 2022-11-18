@@ -23,11 +23,11 @@
  */
 
 #include <stddef.h>
-#include "../../import.h"
-#include "../../../src/smurf_st.h"
-#include "../../../src/rsc/smurf.h"
-#include "../../../src/smurfine.h"
-#include "../../../src/globdefs.h"
+#include "import.h"
+#include "smurf_st.h"
+#include "smurfine.h"
+#include "globdefs.h"
+#include "popdefin.h"
 
 void change_object(WINDOW *window, int object, int status, int redraw)
 {

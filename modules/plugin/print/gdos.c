@@ -31,14 +31,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../../import.h"
-#define MAX_MODS 21
-#include "../../../src/smurf_st.h"
-#include "../../../src/globdefs.h"
-#include "../../../src/smurfine.h"
-#include "../../../src/plugin/plugin.h"
-#include "../../../src/bindings.h"
-#include "../../../src/smurfobs.h"
+#include "import.h"
+#include "smurf_st.h"
+#include "globdefs.h"
+#include "smurfine.h"
+#include "plugin.h"
+#include "bindings.h"
 #include "wdialog.h"
 #include "gdos.h"
 

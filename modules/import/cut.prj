@@ -22,11 +22,9 @@
 
 ..\..\dist\modules\import\cut.sim
 .C [-C -K -M -P-]
-.C [-I..\..\src\lib]
-.C [-I..\dither]
-.C [-I..\..\..\purec\include\]
+.C [-I..\..\include]
 .S[-DPURE_C=1]
-.L [-S=2048]
+.L [-S=1024]
 =                  	; list of modules follows...
 impstart.s         	; startup code
 

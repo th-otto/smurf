@@ -41,8 +41,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../import.h"
-#include "../../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 #include "demolib.h"
 
 #include "country.h"

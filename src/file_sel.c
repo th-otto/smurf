@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "select.h"
 #include "smurf_st.h"
 #include "smurf_f.h"

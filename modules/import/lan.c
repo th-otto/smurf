@@ -33,8 +33,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 /* Dies bastelt direkt ein rol.w #8,d0 inline ein. */
 unsigned int swap_word(unsigned int w)

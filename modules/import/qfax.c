@@ -25,8 +25,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 #include "demolib.h"
 
 

@@ -26,13 +26,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../../import.h"
-#define MAX_MODS 21
-#include "../../../src/smurf_st.h"
-#include "../../../src/globdefs.h"
-#include "../../../src/smurfine.h"
-#include "../../../src/plugin/plugin.h"
-#include "../../../src/rsc/smurf.h"
+#include "import.h"
+#include "smurf_st.h"
+#include "globdefs.h"
+#include "smurfine.h"
+#include "plugin.h"
+#include "../../../src/rsc/en/smurf.h"
 #undef NUM_STRINGS
 #undef NUM_FRSTR
 #undef NUM_UD
@@ -48,8 +47,6 @@
 #undef ALERT_STRINGS /* conflicts with smurf.h */
 #include "wdialog.h"
 #include "gdos.h"
-
-#include "../../../src/smurfobs.h"
 
 #include "country.h"
 
@@ -175,7 +172,6 @@ void plugin_main(PLUGIN_DATA *data)
          */
         case PLGSELECTED:   if( *(smurf_vars->picthere) == 0 )
                             {
-/*                              services->f_alert("Kein Bild geladen!", NULL, NULL, NULL, 1); */
                                 services->f_alert(alerts[NO_PIC].TextCast, NULL, NULL, NULL, 1);
                                 data->message = M_EXIT;
                             }

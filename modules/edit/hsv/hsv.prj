@@ -26,10 +26,8 @@
 
 ..\..\..\dist\modules\edit\hsv.sem        ; name of executable program is topmost window
 .C [-C -K -M -P-]
-.C [-I..\..\..\src\lib]
-.C [-I..\..\dither]
+.C [-I..\..\..\include]
 .C[-Ien]
-.C [-I..\..\..\..\purec\include\]
 .S[-DPURE_C=1]
 .L [-S=1024]
 =                  ; list of modules follows...

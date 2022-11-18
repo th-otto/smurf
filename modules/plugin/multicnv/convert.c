@@ -26,15 +26,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-#include "../../import.h"
-#define MAX_MODS 21
-#include "../../../src/smurf_st.h"
-#include "../../../src/rsc/smurf.h"
-#include "../../../src/smurfine.h"
-#include "../../../src/globdefs.h"
-#include "../../../src/plugin/plugin.h"
-#include "../../../src/popdefin.h"
-#include "../../../src/smurfobs.h"
+#include "import.h"
+#include "smurf_st.h"
+#include "smurfine.h"
+#include "globdefs.h"
+#include "plugin.h"
+#include "popdefin.h"
+#include "../../../src/rsc/en/smurf.h"
 
 #undef INFOICON /* conflicts with smurf.h */
 #undef DITHER_CB /* conflicts with smurf.h */

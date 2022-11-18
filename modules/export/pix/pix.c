@@ -38,8 +38,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "../../import.h"
-#include "../../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 #include "country.h"
 

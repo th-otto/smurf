@@ -36,8 +36,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 #define TIMER 0
 

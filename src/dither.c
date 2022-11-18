@@ -39,7 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "demolib.h"
 #include "smurf.h"
 #include "smurf_st.h"

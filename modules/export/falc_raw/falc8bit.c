@@ -30,8 +30,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../../import.h"
-#include "../../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 /* Infostruktur fÅr Hauptmodul */
 MOD_INFO    module_info = {"8Bit PP Raw",

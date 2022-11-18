@@ -44,8 +44,8 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 char *fileext(char *filename);
 

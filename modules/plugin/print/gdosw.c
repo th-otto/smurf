@@ -31,14 +31,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../../import.h"
-#define MAX_MODS 21
-#include "../../../src/smurf_st.h"
-#include "../../../src/globdefs.h"
-#include "../../../src/smurfine.h"
-#include "../../../src/plugin/plugin.h"
-#include "../../../src/bindings.h"
-#include "../../../src/smurfobs.h"
+#include "import.h"
+#include "smurf_st.h"
+#include "globdefs.h"
+#include "smurfine.h"
+#include "plugin.h"
+#include "bindings.h"
 #include "wdialog.h"
 #include "gdos.h"
 
@@ -70,8 +68,11 @@ int print_with_GDOS(PRN_SETTINGS *prn_settings)
     char *srcpic,
          can_scale;
 
-/*  int work_in[] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2}; */
+#if 0
+    int work_in[] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2};
+#else
     int work_in[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+#endif
     int gdos_handle = 0, pxy[8], clip[4], colindex[2] = {1, 0}, SCALE;
     unsigned int height, stripoffset, stripheight, bh, bl;
 
@@ -90,8 +91,10 @@ int print_with_GDOS(PRN_SETTINGS *prn_settings)
     v_opnwk(work_in, &gdos_handle, work_out);
     if(!gdos_handle)
     {
-/*      form_alert(1, "[3][Fehler bei v_opnwk!][ OK ]"); */
-/*      form_alert(1, "[2][Smurf kann den Drucker nicht ”ffnen][ Abbruch ]"); */
+#if 0
+		form_alert(1, "[3][Fehler bei v_opnwk!][ OK ]");
+	    form_alert(1, "[2][Smurf kann den Drucker nicht ”ffnen][ Abbruch ]");
+#endif
         services->f_alert(alerts[NO_OPEN].TextCast, NULL, NULL, NULL, 1);
         return(-1);
     }

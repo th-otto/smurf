@@ -22,8 +22,7 @@
 
 ..\..\dist\modules\import\trp_all.sim
 .C [-C -K -M -P-]
-.C [-I..\..\src\lib]
-.C [-I..\dither]
+.C [-I..\..\include]
 .S[-DPURE_C=1]
 .L [-S=1024]
 =                  ; list of modules follows...

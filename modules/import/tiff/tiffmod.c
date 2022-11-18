@@ -56,7 +56,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "../../import.h"
+#include "import.h"
 
 #define TIMER 0
 

@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../../import.h"
+#include "import.h"
 #include "demolib.h"
 
 #define MaxStackSize	4096

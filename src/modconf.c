@@ -64,7 +64,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "smurf.h"
 #include "globdefs.h"
 #include "smurf_st.h"

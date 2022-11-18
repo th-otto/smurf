@@ -24,7 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "popdefin.h"

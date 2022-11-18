@@ -49,8 +49,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 #define DEST_PIC    0
 #define BUMP_PIC    1

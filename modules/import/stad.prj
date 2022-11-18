@@ -22,8 +22,7 @@
 
 ..\..\dist\modules\import\stad.sim
 .C [-C -K -M -P-]
-.C [-I..\..\src\lib]
-.C [-I..\dither]
+.C [-I..\..\include]
 .S[-DPURE_C=1]
 .L [-S=1024]
 =                  ; list of modules follows...
@@ -39,4 +38,3 @@ pcstdlib.lib       ; standard library
 pcextlib.lib       ; extended library
 pctoslib.lib       ; TOS library
 pcgemlib.lib       ; AES and VDI library
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

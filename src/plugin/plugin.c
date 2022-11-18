@@ -46,10 +46,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../modules/import.h"
-#include "../smurfine.h"
-#include "../globdefs.h"
-#include "../smurf_st.h"
+#include "import.h"
+#include "smurfine.h"
+#include "globdefs.h"
+#include "smurf_st.h"
 #include "smurf.h"
 #include "../smurf_f.h"
 #include "plugin.h"

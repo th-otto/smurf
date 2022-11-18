@@ -25,14 +25,14 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../modules/import.h"
+#include "import.h"
 #include "smurfine.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurf_f.h"
 #include "globdefs.h"
 #include "destruct.h"
-#include "plugin/plugin.h"
+#include "plugin.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"

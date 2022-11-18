@@ -85,9 +85,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../import.h"
+#include "import.h"
 #include "demolib.h"
-#include "../../src/smurfine.h"
+#include "smurfine.h"
 
 #define TIMER 0
 

@@ -1,6 +1,6 @@
-#include "../../import.h"
+#include "import.h"
 #include "wdialog.h"
-#include "../../../src/bindings.h"
+#include "bindings.h"
 
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 

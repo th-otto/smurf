@@ -23,9 +23,7 @@
 ; disabled by default (extension plx)
 ..\..\..\dist\modules\plugin\printwd.plx
 .C [-C -K -M -P-]
-.C [-I..\..\..\src\lib]
-.C [-I..\..\dither]
-.C [-I..\..\..\..\purec\include\]
+.C [-I..\..\..\include]
 .S[-DPURE_C=1]
 .L [-S=7168]
 =                                       ; list of modules follows...

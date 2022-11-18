@@ -42,8 +42,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../../import.h"
-#include "../../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 char orgft[3*16]={
 255,255,255,

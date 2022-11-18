@@ -27,13 +27,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "smurf_st.h"
 #include "smurf.h"
 #include "smurf_f.h"
-#include "plugin/plugin.h"
+#include "plugin.h"
 #include "ext_rsc.h"
 #include "olga.h"
 #include "olgagems.h"

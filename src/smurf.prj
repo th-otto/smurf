@@ -34,7 +34,7 @@
 .C [-C -K -M -P -G-]
 .C [-I.\rsc]
 .C [-I.\lib]
-.C [-I..\modules\dither]
+.C [-I..\include]
 ; 12K stack is necessary, 8K were to small, this was also
 ; the reason that FDFast and NC often crashed Smurf.
 .S[-DPURE_C=1]

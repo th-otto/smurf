@@ -35,7 +35,7 @@
 /*					-> 1=selektiert, 0=unselektiert						*/
 
 #include <stdio.h>
-#include "../../modules/import.h"
+#include "import.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"

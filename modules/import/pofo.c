@@ -21,16 +21,16 @@
  */
 
 /* =================================================================*/
-/*	PGF files Importer																							*/
-/*																																	*/
-/* Version 0.4  --  26.04.2003         															*/
-/*                  Umstellung auf Smurf Malloc/Free								*/
-/* Version 0.3  --  05.04.2003																			*/
+/*	PGF files Importer												*/
+/*																	*/
+/* Version 0.4  --  26.04.2003         								*/
+/*                  Umstellung auf Smurf Malloc/Free				*/
+/* Version 0.3  --  05.04.2003										*/
 /*                  Kann nun auch PGX-Dateien lesen. Es wird nur das*/
-/*									erste Bild geladen.															*/ 
-/* Version 0.2  --  01.04.2003																			*/
-/* Version 0.1  --  29.03.2003																			*/
-/*																																	*/
+/*									erste Bild geladen.				*/ 
+/* Version 0.2  --  01.04.2003										*/
+/* Version 0.1  --  29.03.2003										*/
+/*																	*/
 /* =================================================================*/
 
 #include "country.h"
@@ -55,8 +55,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);

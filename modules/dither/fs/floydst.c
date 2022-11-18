@@ -26,8 +26,8 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
-#include "../../import.h"
-#include "../../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 /* Set 16 Pixel (Standard Format) Assembler-Rout */
 short (*set_16_pixels)(uint8_t *source, uint8_t *dest, short depth, long planelen, short howmany);          

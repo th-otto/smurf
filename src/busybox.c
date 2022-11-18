@@ -27,7 +27,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <time.h>
-#include "../modules/import.h"
+#include "import.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"

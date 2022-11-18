@@ -50,7 +50,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../modules/import.h"
+#include "import.h"
 #include "smurf_st.h"
 #include "smurf.h"
 #include "smurf_f.h"

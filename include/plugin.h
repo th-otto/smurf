@@ -334,7 +334,7 @@ typedef struct
 									falls sich mehrere Plugins an dieselbe
 									Funktion anh„ngen wollen. */
 	short id;
-	struct moduleObj *module_object;
+	void /* struct moduleObj */ *module_object;
 } PLUGIN_DATA;
 
 

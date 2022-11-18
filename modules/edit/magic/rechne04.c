@@ -30,8 +30,8 @@
 
 #include <stdio.h>
 
-#include "../../import.h"
-#include "../../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 extern long get_point2(void *b ,unsigned int mx,int x,int y,void *xy);
 extern long get_point2_fak(void *b ,unsigned int mx,int x,int y,void *xy);

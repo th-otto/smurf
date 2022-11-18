@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../../import.h"
+#include "import.h"
 
 #define MAXBITS	12
 #define HSIZE	5003

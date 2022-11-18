@@ -58,3 +58,11 @@
 #define PDSLIDER4       4
 
 #define BLOCK_SLIDER        5
+
+/* objects in EXPORT_DEPTH_POP (must not change) */
+#define EXP_D1                             1
+#define EXP_D2                             2
+#define EXP_D4                             3
+#define EXP_D8                             4
+#define EXP_D16                            5
+#define EXP_D24                            6

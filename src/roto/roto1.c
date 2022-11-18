@@ -26,15 +26,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../../modules/import.h"
-#include "../smurf_st.h"
-#include "../smurfine.h"
+#include "import.h"
+#include "smurf_st.h"
+#include "smurfine.h"
 #include "../smurf_f.h"
 #include "smurf.h"
-#include "../globdefs.h"
+#include "globdefs.h"
 #include "../smurfobs.h"
 #include "../ext_obs.h"
-#include "../bindings.h"
+#include "bindings.h"
 
 
 void rotozoom(short *img, short *padr, short xstep, short xystep, short pos) ASM_NAME("_rotozoom");

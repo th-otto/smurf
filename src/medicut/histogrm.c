@@ -37,9 +37,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "../modules/import.h"
-#include "../smurfine.h"
-#include "../smurf_st.h"
+#include "import.h"
+#include "smurfine.h"
+#include "smurf_st.h"
 #include "../smurf_f.h"
 
 #include "../smurfobs.h"

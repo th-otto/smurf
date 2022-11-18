@@ -44,8 +44,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include "../import.h"
-#include "../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 
 char *decodePCX(char *buffer, int BytePerLine, int height);
 #define NOMEM   ( (void*) 0L )

@@ -21,9 +21,8 @@
 ; ***** END LICENSE BLOCK *****
 
 ..\..\dist\modules\import\indy16.sim
-.C [-C -K  -Z -M -P -S]
-.C [-I..\..\src\lib]
-.C [-I..\dither]
+.C [-C -K -M -P-]
+.C [-I..\..\include]
 .S[-DPURE_C=1]
 .L [-S=1024]
 =                  ; list of modules follows...

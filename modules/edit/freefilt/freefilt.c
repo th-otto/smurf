@@ -29,8 +29,8 @@
 #include <string.h>
 #include <math.h>
 
-#include "../../import.h"
-#include "../../../src/smurfine.h"
+#include "import.h"
+#include "smurfine.h"
 #include "freefilt.rsh"
  
 #define Obj_Selected(a) (main_form[a].ob_state & OS_SELECTED)
