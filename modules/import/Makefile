@@ -17,7 +17,7 @@ MODULES = \
 
 SUBDIRS = jpeg
 
-all:: $(MODULES) impstart.o
+all:: impstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { false; }; done
 
 $(DISTDIR)/modules/import/bmp.sim: impstart.o bmp.o setlines.o

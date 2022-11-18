@@ -40,18 +40,23 @@
 	trap #1
 
 	.globl edit_module_main			/* Hauptfunktion des Moduls holen */
-	bra	edit_module_main				/* mainfunction anspringen */
-	.dc.l 0x53454d44						/* Magic (TEXT + 8 Bytes) */
+	bra	edit_module_main			/* mainfunction anspringen */
+	.dc.l 0x53454d44				/* Magic (TEXT + 8 Bytes) */
 
-	.globl module_info					/* Modulinformationsstruktur */
-	.dc.l module_info					/* Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes) */
+	.globl module_info				/* Modulinformationsstruktur */
+	.dc.l module_info				/* Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes) */
 
-	.globl module_ability				/* Modulf„higkeiten-Struktur */
-	.dc.l module_ability					/* Zeiger auf Modability-Struktur (TEXT + 16 Bytes) */
+	.globl module_ability			/* Modulf„higkeiten-Struktur */
+	.dc.l module_ability			/* Zeiger auf Modability-Struktur (TEXT + 16 Bytes) */
 
-	.dc.l 0x0101							/* Versionsnummer */
+	.dc.l 0x0101					/* Versionsnummer */
 
 	.data
+	
+	.IFEQ PURE_C
+	.globl _errno
+_errno: .ds.l	1
+	.ELSE
 	.globl errno
-
 errno: .ds.w	1
+	.ENDC
