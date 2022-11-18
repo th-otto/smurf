@@ -52,25 +52,39 @@
 *
 
 
-INCLUDE "../../../src/ditmacro.s"
+	.include "../../../src/ditmacro.s"
 
-IMPORT  draw_busybox
-IMPORT  fdd_24bit, fdd_16bit, fdd_8bit
-IMPORT  get_standard_pix
+/* imports */
+	.globl fdd_24bit
+	.globl fdd_16bit
+	.globl fdd_8bit
+	.globl get_standard_pix
 
-IMPORT  seekcolor
-GLOBL   red, grn, blu, max_col, line_ready, scalex_inc
-
-GLOBL   floyd1624
-
-GLOBL   read_ready
-GLOBL   endseek
-
-GLOBL   Palette, rgbtab
+	.globl seekcolor
+	.globl red
+	.globl grn
+	.globl blu
+	.globl max_col
+	.globl line_ready
+	.globl scalex_inc
 
 
+	.globl read_ready
+
+	.globl Palette
+	.globl rgbtab
+
+
+/* gcc cdecl entry point */
+	.IFEQ PURE_C
+	.globl  _floyd1624
+_floyd1624:
+	move.l 4(a7),a0
+	.ENDC
+
+	.globl floyd1624
 floyd1624:
-movem.l d3-d7/a2-a6,-(sp)
+movem.l d2-d7/a2-a6,-(sp)
 
 
 move.l  (a0)+,a1            /* Clip-Table */
@@ -108,7 +122,7 @@ move.l  (a0)+,a0            /* picdata-memblock */
 
     /*---------- Ziel-Farbanzahl ausrechnen */
     moveq.l #1,d3
-    move.l bips,d5
+    move.l bips(pc),d5
     lsl.w   d5,d3
     clr.l d5
     move.b Depth,d5
@@ -190,20 +204,20 @@ picinc24:               /* 24 Bit */
 
 picincdone:
     move.w  d1,picinc           /*speichern */
-    move.l  paddr,-(sp)
+    move.l  paddr(pc),-(sp)
 
 
     ********************************************************************
     *   Vorbereitung fÅr evtl. Scaling
     ********************************************************************
     /*-------------------------- Y-Increment */
-    move.w  zoom_faktor,d1
-    muls.w  picinc,d1
+    move.w  zoom_faktor(pc),d1
+    muls.w  picinc(pc),d1
     move.l  d1,scaley_inc
 
     /*-------------------------- X-Increment */
-    move.w  zoom_faktor,d1
-    muls.w  bytes_per_pixel,d1
+    move.w  zoom_faktor(pc),d1
+    muls.w  bytes_per_pixel(pc),d1
     move.w  d1,scalex_inc
 
 
@@ -212,8 +226,8 @@ picincdone:
     /*--------------------------  Hîhe */
     clr.l d1
     clr.l d2
-    move.w  destheight,d1
-    move.w  zoom_faktor,d2
+    move.w  destheight(pc),d1
+    move.w  zoom_faktor(pc),d2
     add.w   #1,d2
     divu.w  d2,d1
     move.w  d1,destheight
@@ -222,16 +236,16 @@ picincdone:
     /*--------------------------  Breite */
     clr.l d1
     clr.l d2
-    move.w  destwidth,d1
-    move.w  zoom_faktor,d2
+    move.w  destwidth(pc),d1
+    move.w  zoom_faktor(pc),d2
     add.w   #1,d2
     divu.w  d2,d1
     move.w  d1,d0
     move.w  d0,destwidth            /*speichern */
     
     /* ZeilenlÑnge im Zielblock (Bytes) berechnen */
-    move.l  plen,d3
-    divu.w  destheight,d3
+    move.l  plen(pc),d3
+    divu.w  destheight(pc),d3
     ext.l   d3
     move.l  d3,DestLineLen     /* ZeilenlÑnge (Bytes)im Zielblock */
 
@@ -242,7 +256,7 @@ picincdone:
 *******************************************************************
 loopy:
     move.w 4(sp),d0        /* Y-Wert */
-    andi.w #$1f,d0         /* undieren */
+    andi.w #31,d0         /* undieren */
     bne.b nobusy            /* und wenn !=0 dann keine BB. */
     _Busybox
     nobusy:
@@ -260,23 +274,23 @@ loopy:
     beq no_standard_format
     movem.l d0-d1/a0-a1,-(sp)      /* Register retten */
 
-    move.w  orig_width,d3          /* ungezoomte Breite */
+    move.w  orig_width(pc),d3          /* ungezoomte Breite */
     add.w   #15,d3                  /* + Rand */
     lsr.w   #4,d3                  /* -> Anzahl 16er-Blîcke */
     subq.w  #1,d3
     
-    move.l  SrcPlanelen,d1
-    movea.l pixtab,a1              /* Ziel auf pixtab ausrichten */
+    move.l  SrcPlanelen(pc),d1
+    movea.l pixtab(pc),a1           /* Ziel auf pixtab ausrichten */
     
     getst_loop:
         move.b  STFDepth,d0            /* Tiefe nach d0 */
-        jsr get_standard_pix(PC)
+        bsr get_standard_pix
         adda.l  #2,a0                  /* 16 Pixel im Quellbild weitergehen... */
     dbra    d3,getst_loop
 
     movem.l (sp)+,d0-d1/a0-a1      /* Register restore */
     
-    movea.l pixtab,a0              /*Source auf buf16 ausrichten */
+    movea.l pixtab(pc),a0          /*Source auf buf16 ausrichten */
 no_standard_format:
 
     
@@ -290,11 +304,11 @@ no_standard_format:
     moveq.l #0,d6
     moveq.l #0,d5
     
-    move.l  rgbtab,a6           /* Palette (3*512 Bytes) */
+    move.l  rgbtab(pc),a6           /* Palette (3*512 Bytes) */
 
-    move.w  destwidth,d0            /*width counter init */
+    move.w  destwidth(pc),d0            /*width counter init */
     subq.w  #1,d0
-    move.w  not_in_nct,d1
+    move.w  not_in_nct(pc),d1
 
 
     clr.l d7
@@ -308,23 +322,43 @@ line_ready:
 *   
     movem.l a1-a3,-(sp)
     
-    move.l  bips,d0        /* Farbtiefe */
-    move.l  plen,d1        /* Planelength */
-    move.w  destwidth,d2
-    move.l  pixtab,a0
-    move.l  paddr,a1
-    movea.l set_pixels,a6
+    move.l  bips(pc),d0    /* Farbtiefe */
+    move.l  plen(pc),d1    /* Planelength */
+    move.w  destwidth(pc),d2
+    move.l  pixtab(pc),a0
+    move.l  paddr(pc),a1
+    movea.l set_pixels(pc),a6
+    .IFEQ PURE_C
+#ifndef __MSHORT__
+	move.l d2,-(a7)
+	move.l d1,-(a7)
+	move.l d0,-(a7)
+	move.l a1,-(a7)
+	move.l a0,-(a7)
     jsr (a6)
+	lea 20(a7),a7
+#else
+	move.w d2,-(a7)
+	move.l d1,-(a7)
+	move.w d0,-(a7)
+	move.l a1,-(a7)
+	move.l a0,-(a7)
+    jsr (a6)
+	lea 16(a7),a7
+#endif
+    .ELSE
+    jsr (a6)
+    .ENDC
     movem.l (sp)+,a1-a3
 
-    move.l  DestLineLen,d0
+    move.l  DestLineLen(pc),d0
     add.l   d0,paddr
 
-    movea.l pixtab,a4      /*pixtab zum Anfang */
+    movea.l pixtab(pc),a4      /*pixtab zum Anfang */
 
-    move.l  oldpic,a0      /* alte Position restoren,... */
-    adda.w  picinc,a0      /* ...nÑchste Zeile hernehmen... */
-    add.l   scaley_inc,a0  /* ...Y-Skalieren... */
+    move.l  oldpic(pc),a0      /* alte Position restoren,... */
+    adda.w  picinc(pc),a0      /* ...nÑchste Zeile hernehmen... */
+    add.l   scaley_inc(pc),a0  /* ...Y-Skalieren... */
     move.l  a0,oldpic      /* ...und als alte Pos speichern */
 
     subq.w  #1,4(sp)
@@ -335,7 +369,7 @@ line_ready:
     *         Ende - Stack und Register restaurieren
     *                   und RÅcksprung
     addq.w  #6,sp
-    movem.l (sp)+,d3-d7/a2-a6
+    movem.l (sp)+,d2-d7/a2-a6
     rts
 
 
@@ -382,6 +416,5 @@ DestLineLen:    ds.l    1
 STFDepth:       ds.b    1
 .EVEN
 set_pixels:     ds.l    1
-setpix_ParBlk:  ds.l    10
 destwidth:      ds.w    1
 destheight:     ds.w    1

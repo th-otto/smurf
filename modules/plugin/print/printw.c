@@ -32,7 +32,7 @@
 #include "globdefs.h"
 #include "smurfine.h"
 #include "plugin.h"
-#include "../../../src/rsc/smurf.h"
+#include "../../../src/rsc/en/smurf.h"
 #undef NUM_STRINGS
 #undef NUM_FRSTR
 #undef NUM_UD

@@ -37,11 +37,11 @@ fdfast.c
 
 
 ;--------- Assembler-Ditherroutinen -------- 
-fdd030.S          ; FD-Fast Systempalette
+fdd030.s          ; FD-Fast Systempalette
 line_dit.s        ; Ditherroutinen fr je eine Zeile jeder Farbtiefe
 
 ;--------- Lese- / Schreibroutinen ---------- 
-..\standard.s                   ; Ausleseroutinen - subrouts, Versuch
+..\..\..\src\getpix.s                   ; Ausleseroutinen - subrouts, Versuch
 fdf_scol.s                      ; Ausleseroutinen - subrouts, Versuch
 
 

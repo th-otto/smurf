@@ -22,14 +22,18 @@
  * ***** END LICENSE BLOCK *****
  */
 
+	.globl red
+	.globl grn
+	.globl blu
+	.globl max_col
+
 *******************************************************
 *       Farbsuche fÅr 1 Farbe
 *   fÅr den FAST-DIFFUSION - Algorithmus
 *******************************************************
-IMPORT endseek, red,grn,blu, max_col
 
-GLOBL seekcolor
-
+/* only called from other assembler routines */
+	.globl seekcolor
 seekcolor:
     movem.l a1-a4/d0-d6,-(sp)
 
@@ -46,18 +50,21 @@ seekcolor:
 loopcol:
     move.w (a1)+,d1            /* Rot-differenz */
     sub.w   d4,d1
-    bpl.b *+4               /*rok */
+    bpl.b loopcol1               /*rok */
     neg.w d1
+loopcol1:
 
     move.w (a2)+,d5            /* GrÅn-Differenz */
     sub.w   d3,d5
-    bpl.b *+4               /*gok */
+    bpl.b loopcol2               /*gok */
     neg.w d5
+loopcol2:
 
     move.w (a3)+,d6            /* Blau-Differenz */
     sub.w   d2,d6
-    bpl.b *+4               /*bok */
+    bpl.b loopcol3               /*bok */
     neg.w d6
+loopcol3:
 
     add.w   d6,d5              /* Gesamtdifferenz */
     add.w   d5,d1
@@ -80,4 +87,3 @@ loopcol:
     move.b  d7,(d6.w,a2)
 
     rts
-/*  bra endseek*/

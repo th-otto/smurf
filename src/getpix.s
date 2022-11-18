@@ -54,7 +54,12 @@ get_standard_pix:
 	subq.w #1,d0           /* planes-1 fÅr dbra */
 	moveq   #15,d6
 
+	.IFNE 0
+	tst.w d2
+	bne get_zoom
+	.ENDC
 
+*--------------------------- normales auslesen (zoom=0)
 loop16:
     move.l  d0,d2      /* plane-counter  */
 
@@ -71,7 +76,6 @@ loopplane:
 
     or.b    d5,d3
 loopplane1:
-
     adda.l  d1,a2          /* eine plane weiter */
     lsl.b   #1,d5
     dbra d2,loopplane
@@ -82,6 +86,67 @@ loopplane1:
 
 	movem.l (sp)+,d2-d6/a2
 	rts
+
+
+	.IFNE 0
+*--------------------------- gezoomtes auslesen (1<=zoom<=15)
+get_zoom:
+    move.l a2,old_src
+
+    move.l d7,-(sp)
+    clr.l d7
+
+    move.w d2,d7
+    move.w d2,zoomcounter
+
+
+loop16z:
+    move.l  d0,d2      /* plane-counter  */
+
+    movea.l a0,a2      /* source kopieren */
+
+    moveq.l #0,d3
+    moveq.l #1,d5
+
+    /*------X-scaling */
+    subq.w  #1,d7
+    cmp.w   zoomcounter,d7
+    bge end_planeloop
+        move.w zoomcounter,d7
+
+loopplanez:
+    move.w  (a2),d4
+
+    btst    d6,d4
+    beq *+4
+
+    or.b    d5,d3
+
+    adda.l  d1,a2          /* eine plane weiter */
+    lsl.b   #1,d5
+    dbra d2,loopplanez
+
+    move.b d3,(a1)+
+    add.w   #1,written
+
+end_planeloop:
+    dbra d6,loop16z
+
+    cmp.w #16,written      /*--- ende der 16 Lesepixel: schon 16 geschrieben? */
+    beq end
+    move.w  #15,d6
+    move.l old_src,a2
+    add.l   #2,a2
+    bra loop16z
+
+end:
+    movem.l (sp)+,d3-d7/a2
+    rts
+
+zoomcounter:    ds.w    1
+old_src:        ds.l    1
+written:        ds.w    1
+	.ENDC
 
 
 *************************************************************** *

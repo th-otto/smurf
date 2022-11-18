@@ -28,18 +28,42 @@
 #include "import.h"
 #include "smurfine.h"
 
-void floyd1624(long *par) ASM_NAME("_floyd1624");               /* 24&16-Bit " " mit SysPal */
-short (*set_16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany);
-short (*seek_nearest_col)(long *par, short maxcol);
+struct floyd1624_par {
+	const short *cliptable;
+	uint8_t *nct;
+	uint8_t *planetable;
+	uint8_t *pix;
+	short *rgbtab;
+	long planelen;
+	uint8_t *where_to;
+	long width;
+	long height;
+	long bplanes;
+	short (*busybox)(short lft);
+	long src_depth;
+	uint8_t *palette;
+	long src_planelen;
+	long zoom;
+	short (*set_16pixels)(uint8_t *buf16, uint8_t *dest, short depth, long planelen, short howmany);
+	long not_in_nct;
+	WORD *red;
+	WORD *green;
+	WORD *blue;
+	long destwidth;
+	long destheight;
+	uint8_t *pic;
+};
+
+void floyd1624(struct floyd1624_par *par) ASM_NAME("_floyd1624");	/* 24&16-Bit " " mit SysPal */
+static short (*seek_nearest_col)(long *par, short maxcol);
 
 
-DITHER_MOD_INFO dith_module_info =
-{
-    "Fast Diffusion\0",
-    "Olaf Piesche\0",
-     0x0100,                    /* Schlumpfine-Version */
-    0,                          /* Konfigurierbar? */
-    ALLPAL                      /* Palettenmodi */
+DITHER_MOD_INFO dith_module_info = {
+	"Fast Diffusion",
+	"Olaf Piesche",
+	0x0100,								/* Schlumpfine-Version */
+	0,									/* Konfigurierbar? */
+	ALLPAL								/* Palettenmodi */
 };
 
 
@@ -47,119 +71,126 @@ DITHER_MOD_INFO dith_module_info =
 /*  --------------------------------------------------------------  */
 /*  --------------------- 8-24-Bit Bild -------------------------   */
 /*  --------------------------------------------------------------  */
-short dither_module_main(DITHER_DATA *dither)
+short dither_module_main(DITHER_DATA * dither)
 {
-char    *pix, *pic, *nct;
-int     rgbtab[2048];
-long    par[23];
-long    planelen, src_planelen;
-int     width, height;
+	uint8_t *pix;
+	uint8_t *pic;
+	uint8_t *nct;
+	short rgbtab[4 * 256];
+	struct floyd1624_par par;
+	long planelen;
+	long src_planelen;
+	short width, height;
+
 #if 0
-int     endwid, endhgt;
+	short endwid, endhgt;
 #endif
-int     src_depth, bplanes, t, idx;
-char    *plantab, *where_to;
-int     cliptable[100]=
-        {
-            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-            0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,
-            31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31
-        };
+	short src_depth;
+	short bplanes;
+	short t;
+	short idx;
+	uint8_t *plantab;
 
-int     *red, *grn, *blu;
-int not_in_nct;
-SMURF_PIC *picture;
-int destwid, desthgt;
+	static short const cliptable[100] = {
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+		31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31
+	};
 
+	WORD *red, *grn, *blu;
+	int not_in_nct;
+	SMURF_PIC *picture;
+	short destwid, desthgt;
 
-    picture=dither->picture;
-    
-    width=picture->pic_width;
-    height=picture->pic_height;
-    src_depth=picture->depth;
-    bplanes=dither->dst_depth;
-    red=dither->red;
-    grn=dither->green;
-    blu=dither->blue;
-    plantab=dither->planetable;
-    nct=dither->nc_tab;
-    where_to=dither->dest_mem;
-    
-    set_16pixels=dither->set_16pixels;
+	picture = dither->picture;
 
-    seek_nearest_col = dither->services->seek_nearest_col;
-    not_in_nct = dither->not_in_nct;
-    
-    /*
-    *   Farbtabelle(15 Bit) initialisieren 
-    */
-    idx=0;
-    for(t=0; t<256; t++)
-    {
-        rgbtab[idx] = blu[t];
-        rgbtab[idx+1] = grn[t];
-        rgbtab[idx+2] = red[t];
-        idx+=4;
-    }
-    
-    /*
-    *   Variablenvorbereitung
-    */
-    pix = malloc(width+16);
-    if(pix==NULL) 
-        return(M_MEMORY);
-    
+	width = picture->pic_width;
+	height = picture->pic_height;
+	src_depth = picture->depth;
+	bplanes = dither->dst_depth;
+	red = dither->red;
+	grn = dither->green;
+	blu = dither->blue;
+	plantab = dither->planetable;
+	nct = dither->nc_tab;
+
+	seek_nearest_col = dither->services->seek_nearest_col;
+	not_in_nct = dither->not_in_nct;
+
+	/*
+	 *   Farbtabelle(15 Bit) initialisieren 
+	 */
+	idx = 0;
+	for (t = 0; t < 256; t++)
+	{
+		rgbtab[idx + 0] = blu[t];
+		rgbtab[idx + 1] = grn[t];
+		rgbtab[idx + 2] = red[t];
+		idx += 4;
+	}
+
+	/*
+	 *   Variablenvorbereitung
+	 */
+	pix = (uint8_t *)Malloc(width + 16);
+	if (pix == NULL)
+		return M_MEMORY;
+
 #if 0
-    endwid = width/(dither->zoom+1);
-    endhgt = height/(dither->zoom+1);
+	endwid = width / (dither->zoom + 1);
+	endhgt = height / (dither->zoom + 1);
 #endif
-    pic = picture->pic_data;
-    planelen=dither->dest_planelength;
+	pic = picture->pic_data;
+	planelen = dither->dest_planelength;
 
-    if(dither->w==0) destwid = width;
-    else destwid = dither->w;
-    if(dither->h==0) desthgt = height;
-    else desthgt = dither->h;
+	if (dither->w == 0)
+		destwid = width;
+	else
+		destwid = dither->w;
+	if (dither->h == 0)
+		desthgt = height;
+	else
+		desthgt = dither->h;
 
-    /*  Source-Zeiger auf den Ausschnittsbeginn ausrichten
-     */
-    if(picture->format_type==FORM_PIXELPAK)
-        pic += ((long)dither->x*(long)(src_depth/8))+((long)dither->y*(long)width*(long)(src_depth/8));
-    else
-        pic += (dither->x/8)+((long)dither->y*(long)((width+7)/8));
+	/*  Source-Zeiger auf den Ausschnittsbeginn ausrichten
+	 */
+	if (picture->format_type == FORM_PIXELPAK)
+		pic += ((unsigned long) dither->x * (src_depth >> 3)) + ((unsigned long) dither->y * width * (src_depth >> 3));
+	else
+		pic += (dither->x >> 3) + ((unsigned long) dither->y * ((width + 7) >> 3));
 
-    src_planelen=0L;
-    if(picture->format_type==FORM_STANDARD)
-        src_planelen=(long)(((long)(width+7)>>3)*(long)height);
+	src_planelen = 0;
+	if (picture->format_type == FORM_STANDARD)
+		src_planelen = ((unsigned long) (width + 7) >> 3) * height;
 
-        par[0] = (long)&cliptable[31];
-        par[1] = (long)nct;
-        par[2] = (long)plantab;
-        par[3] = (long)pix;
-        par[4] = (long)rgbtab;
-        par[5] = (long)planelen;
-        par[6] = (long)where_to;
-        par[7] = (long)width;
-        par[8] = (long)height;
-        par[9] = (long)bplanes;
-        par[10] = (long)dither->services->busybox;
-        par[11] = (long)src_depth;
-        par[12] = (long)picture->palette;
-        par[13] = (long)src_planelen;
-        par[14] = (long)picture->zoom;
-        par[15] = (long)set_16pixels;
-        par[16] = (long)not_in_nct;
-        par[17] = (long)red;
-        par[18] = (long)grn;
-        par[19] = (long)blu;
-        par[20] = (long)destwid;
-        par[21] = (long)desthgt;
-        par[22] = (long)pic;
+	par.cliptable = &cliptable[31];
+	par.nct = nct;
+	par.planetable = plantab;
+	par.pix = pix;
+	par.rgbtab = rgbtab;
+	par.planelen = planelen;
+	par.where_to = dither->dest_mem;
+	par.width = width;
+	par.height = height;
+	par.bplanes = bplanes;
+	par.busybox = dither->services->busybox;
+	par.src_depth = src_depth;
+	par.palette = picture->palette;
+	par.src_planelen = src_planelen;
+	par.zoom = picture->zoom;
+	par.set_16pixels = dither->set_16pixels;
+	par.not_in_nct = not_in_nct;
+	par.red = red;
+	par.green = grn;
+	par.blue = blu;
+	par.destwidth = destwid;
+	par.destheight = desthgt;
+	par.pic = pic;
 
-        dither->services->reset_busybox(0, "FDiff Dither");
-        floyd1624(par);
+	dither->services->reset_busybox(0, "FDiff Dither");
+	floyd1624(&par);
 
-        free(pix);
+	Mfree(pix);
 
-        return(M_PICDONE);
+	return M_PICDONE;
 }

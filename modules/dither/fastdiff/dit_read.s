@@ -32,13 +32,18 @@
 *
 *******************************************************************
 
-GLOBL read24bit, read8bit, read16bit
+/* exports */
+	.globl read24bit
+	.globl read8bit
+	.globl read16bit
 
-IMPORT  read_ready
+/* imports */
+	.globl read_ready
+	.globl Palette
+	.globl rgbtab
 
-IMPORT  Palette, rgbtab
 
-
+/* only called from other assembler routines */
 read24bit:
     move.b  (a0)+,d4        /* rot holen */
         lsr.w   #3,d4           /*r>>3 */
@@ -62,6 +67,7 @@ read24bit:
 
 
 
+/* only called from other assembler routines */
 read8bit:
         move.l  Palette,a6      /*Palette holen */
 
@@ -97,6 +103,7 @@ read8bit:
 
 
 
+/* only called from other assembler routines */
 read16bit:
         move.w  (a0)+,d4           /* pixel holen */
         move.w  d4,d3              /* fÅr grÅn */

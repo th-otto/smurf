@@ -36,7 +36,7 @@
 floydst.c
 
 ;--------- Lese- / Schreibroutinen ---------- 
-..\standard.s                               ; Ausleseroutinen - subrouts, Versuch
+..\..\..\src\getpix.s                               ; Ausleseroutinen - subrouts, Versuch
 
 ;--------- 68000-C ---------- 
 FS_68000.c

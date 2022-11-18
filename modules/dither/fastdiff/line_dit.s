@@ -28,13 +28,17 @@
 *   fr den Fast Diffusion Dither
 *********************************************************
 
-IMPORT seekcolor, rgbtab, scalex_inc, line_ready, Palette
-GLOBL fdd_24bit, fdd_16bit, fdd_8bit
+	.globl seekcolor
+	.globl rgbtab
+	.globl scalex_inc
+	.globl line_ready
+	.globl Palette
 
 
 /*
  *  Fr 24 Bit-Source
  */
+ 	.globl fdd_24bit
 fdd_24bit:
     move.b  (a0)+,d4        /* rot holen */
     lsr.w   #3,d4           /*r>>3 */
@@ -104,24 +108,25 @@ fdd_24bit:
 /*
  *  Fr 16 Bit-Source
  */
+	.globl fdd_16bit
 fdd_16bit:
     move.w  (a0)+,d4           /* pixel holen */
     move.w  d4,d3              /* fr grn */
     move.w  d4,d2              /* fr blau */
 
-    rol.w   #5,d4               /* rot fertigmachen */
-    and.w   #$001f,d4          /* rot ausmaskieren */
+    rol.w   #5,d4              /* rot fertigmachen */
+    and.w   #31,d4             /* rot ausmaskieren */
     sub.w   d7,d4              /* -rf */
     add.w   d4,d4
     move.w  (a1,d4.w),d4  /* clip */
 
-    lsr.w   #6,d3               /*grn fertigmachen */
-    and.w   #$001f,d3          /* grn ausmaskieren */
+    lsr.w   #6,d3              /*grn fertigmachen */
+    and.w   #31,d3             /* grn ausmaskieren */
     sub.w   d6,d3              /* -gf */
     add.w   d3,d3
     move.w  (a1,d3.w),d3  /* clip */
 
-    and.w   #$001f,d2          /* blau ausmaskieren */
+    and.w   #31,d2             /* blau ausmaskieren */
     sub.w   d5,d2              /* -rf */
     add.w   d2,d2
     move.w  (a1,d2.w),d2  /* clip */
@@ -176,6 +181,7 @@ fdd_16bit:
 /*
  *  Fr 8 Bit-Source
  */
+	.globl fdd_8bit
 fdd_8bit:
     move.l  Palette,a6      /*Palette holen */
     move.b  (a0)+,d2        /**pic */

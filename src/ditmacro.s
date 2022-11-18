@@ -47,7 +47,20 @@
     divu.w d0,d1
     move.w #128,d0
     sub.w d1,d0
+    .IFEQ PURE_C
+#ifndef __MSHORT__
+	ext.w d0
+	move.l d0,-(a7)
     jsr (a0)                    /* busybox */
+	addq.w #4,a7
+#else
+	move.w d0,-(a7)
+    jsr (a0)                    /* busybox */
+	addq.w #2,a7
+#endif
+    .ELSE
+    jsr (a0)                    /* busybox */
+    .ENDC
     movem.l (sp)+,d0-d2/a0-a1  /*  und regs zurÅck */
 
 	.ENDM

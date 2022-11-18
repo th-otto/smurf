@@ -37,7 +37,7 @@
 nc.c
 
 ;--------- Lese- / Schreibroutinen ---------- 
-..\standard.s                           ; Lesen und Schreiben fr Standardformat 
+..\..\..\src\getpix.s                           ; Lesen und Schreiben fr Standardformat 
 line_dit.s                              ; Ausleseroutinen fr alle Farbtiefen
 
 ;--------- Assembler-Ditherroutinen -------- 

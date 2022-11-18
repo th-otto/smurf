@@ -367,6 +367,5 @@ DestLineLen:    ds.l    1
 STFDepth:       ds.b    1
 .EVEN
 set_pixels:     ds.l    1
-setpix_ParBlk:  ds.l    10
 destwidth:      ds.w    1
 destheight:     ds.w    1

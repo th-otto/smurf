@@ -34,6 +34,7 @@
 ..\ditstart.s                           ; startup code
 
 greyscal.c
+setpix16.s
 
 ;--------- Lese- / Schreibroutinen ---------- 
 ..\..\..\src\getlines.s                 ; n Pixel aus dem Standardformat lesen (fr C-Dithers)

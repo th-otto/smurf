@@ -39,7 +39,7 @@
 #include <math.h>
 #include "import.h"
 #include "smurf_st.h"
-#include "../../../src/rsc/smurf.h"
+#include "../../../src/rsc/en/smurf.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "plugin.h"

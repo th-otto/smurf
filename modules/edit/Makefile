@@ -11,7 +11,7 @@ MODULES = \
 SUBDIRS = colrun
 
 all:: edstart.o $(MODULES)
-	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { false; }; done
+	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
 
 $(DISTDIR)/modules/edit/clip.sem: edstart.o clip.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
