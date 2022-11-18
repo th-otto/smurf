@@ -30,6 +30,14 @@
 #include "../../import.h"
 #include "../../../src/smurfine.h"
 #include "country.h"
+#include "colrun.rsh"
+
+#define COLRUN_MAIN 0
+
+#define START 19
+#define GRADIENT 0
+
+
 
 #if COUNTRY == 1
 #define TEXT1 "Farbverlauf"
@@ -106,6 +114,107 @@ short x137f6 = 0;
 short x137f8 = 90;
 short x137fa = 5;
 
+OBJECT *maintree;
+WINDOW *win;
+SMURF_PIC *smurf_pic;
+void (*set_slider)(SLIDER *, long);
+void (*redraw_window)(WINDOW *, GRECT *, WORD, WORD);
+
+WORD mx, my;
+
+
 void edit_module_main(GARGAMEL *smurf_struct)
 {
+	short d6 = 1;
+	short (*f_module_window)(WINDOW *);
+	short (*slider)(SLIDER *);
+	char version[] = "Farbverlauf V0.1";
+	short o0;
+	short SmurfMessage;
+	WORD i;
+	short module_id; /* d5 */
+	
+	SmurfMessage = smurf_struct->module_mode;
+	f_module_window = smurf_struct->services->f_module_window;
+	slider = smurf_struct->services->slider;
+	set_slider = smurf_struct->services->set_slider;
+	redraw_window = smurf_struct->services->redraw_window;
+	smurf_pic = smurf_struct->smurf_pic;
+	
+	if (SmurfMessage == MSTART)
+	{
+		mx = smurf_pic->pic_width / 2;
+		my = smurf_pic->pic_height / 2;
+		maintree = rs_trindex[COLRUN_MAIN];
+		/* Resource fix ---------------------------------------- */
+		for (i = 0; i < NUM_OBS; i++)
+			rsrc_obfix(&rs_object[i], 0);
+
+		module_id = smurf_struct->module_number;
+		win = smurf_struct->services->SMalloc(sizeof(*win));
+		memset(win, 0, sizeof(*win));
+		
+		smurf_struct->module_mode = M_MODPIC;
+		return;
+	}
+	
+	if (SmurfMessage == MBEVT)
+	{
+		smurf_struct->module_mode = M_MODPIC;
+		return;
+	}
+
+	if (SmurfMessage == MKEVT)
+	{
+		if (smurf_struct->event_par[0] == START)
+			smurf_struct->module_mode = M_STARTED;
+		return;
+	}
+
+	if (SmurfMessage == MDITHER_READY)
+	{
+		redraw_window(win, NULL, GRADIENT, 0);
+		smurf_struct->module_mode = M_WAITING;
+		return;
+	}
+
+	if (SmurfMessage == MCH_DEFCOO)
+	{
+		smurf_struct->event_par[0] = mx;
+		smurf_struct->event_par[1] = my;
+		smurf_struct->module_mode = M_CHDEFCOO;
+		return;
+	}
+
+	if (SmurfMessage == MCH_COORDS)
+	{
+		mx = smurf_struct->event_par[0];
+		my = smurf_struct->event_par[1];
+		smurf_struct->module_mode = M_WAITING;
+		return;
+	}
+
+	if (SmurfMessage == MEXEC)
+	{
+		smurf_struct->module_mode = M_PICDONE;
+		return;
+	}
+
+	if (SmurfMessage == MTERM)
+	{
+		smurf_struct->module_mode = M_EXIT;
+		return;
+	}
+
+	if (SmurfMessage == GETCONFIG)
+	{
+		smurf_struct->module_mode = M_CONFIG;
+		return;
+	}
+
+	if (SmurfMessage == CONFIG_TRANSMIT)
+	{
+		smurf_struct->module_mode = M_MODPIC;
+		return;
+	}
 }

@@ -327,58 +327,19 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #endif
 
 
-static char colrun_string_0[] = "Rot";
-static char colrun_string_1[] = "";
-static char colrun_string_2[] = "";
-static char colrun_string_3[] = "Richtung";
-static char colrun_string_4[] = "";
-static char colrun_string_5[] = "";
-static char colrun_string_6[] = "linear";
-static char colrun_string_7[] = "";
-static char colrun_string_8[] = "";
-static char colrun_string_9[] = "radial";
-static char colrun_string_10[] = "";
-static char colrun_string_11[] = "";
-static char colrun_string_12[] = "Verlaufstyp";
-static char colrun_string_13[] = "";
-static char colrun_string_14[] = "";
-static char colrun_string_15[] = "_____";
-static char colrun_string_16[] = "";
-static char colrun_string_17[] = "";
-static char colrun_string_18[] = "Blau";
-static char colrun_string_19[] = "";
-static char colrun_string_20[] = "";
-static char colrun_string_21[] = "_____";
-static char colrun_string_22[] = "";
-static char colrun_string_23[] = "";
-static char colrun_string_24[] = "Gr\201n";
-static char colrun_string_25[] = "";
-static char colrun_string_26[] = "";
-static char colrun_string_27[] = "_____";
-static char colrun_string_28[] = "";
-static char colrun_string_29[] = "";
-static char colrun_string_30[] = "Los!";
-static char colrun_string_31[] = "Verlauf:";
-static char colrun_string_32[] = "";
-static char colrun_string_33[] = "";
-static char colrun_string_34[] = "000";
-static char colrun_string_35[] = "___\370";
-static char colrun_string_36[] = "999";
-
-
 TEDINFO rs_tedinfo[NUM_TI] = {
-	{ colrun_string_0, colrun_string_1, colrun_string_2, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 4,1 },
-	{ colrun_string_3, colrun_string_4, colrun_string_5, SMALL, 0, TE_LEFT, 0x1100, 0x0, -1, 9,1 },
-	{ colrun_string_6, colrun_string_7, colrun_string_8, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
-	{ colrun_string_9, colrun_string_10, colrun_string_11, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
-	{ colrun_string_12, colrun_string_13, colrun_string_14, SMALL, 0, TE_LEFT, 0x1100, 0x0, -1, 12,1 },
-	{ colrun_string_15, colrun_string_16, colrun_string_17, SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 },
-	{ colrun_string_18, colrun_string_19, colrun_string_20, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 },
-	{ colrun_string_21, colrun_string_22, colrun_string_23, SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 },
-	{ colrun_string_24, colrun_string_25, colrun_string_26, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 },
-	{ colrun_string_27, colrun_string_28, colrun_string_29, SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 },
-	{ colrun_string_31, colrun_string_32, colrun_string_33, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 9,1 },
-	{ colrun_string_34, colrun_string_35, colrun_string_36, IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 4,5 }
+	{ "Rot", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 4,1 },
+	{ "Richtung", "\0", "\0", SMALL, 0, TE_LEFT, 0x1100, 0x0, -1, 9,1 },
+	{ "linear", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
+	{ "radial", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
+	{ "Verlaufstyp", "\0", "\0", SMALL, 0, TE_LEFT, 0x1100, 0x0, -1, 12,1 },
+	{ "_____", "\0", "\0", SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 },
+	{ "Blau", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 },
+	{ "_____", "\0", "\0", SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 },
+	{ "Gr\201n", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 },
+	{ "_____", "\0", "\0", SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 },
+	{ "Verlauf:", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 9,1 },
+	{ "000", "___\370", "999", IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 4,5 }
 };
 
 
@@ -404,7 +365,7 @@ OBJECT rs_object[NUM_OBS] = {
 	{ 18, 17, 17, (21<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE8178L), 1813,2, 1,264 },
 	{ 16, -1, -1, (21<<8)+G_BOX, 0x640, OS_NORMAL, C_UNION(0xFF1178L), 0,2311, 1,2048 },
 	{ 19, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[9]), 1044,2058, 1539,3328 },
-	{ 20, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(colrun_string_30), 26,2066, 8,1 },
+	{ 20, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION("Los!"), 26,2066, 8,1 },
 	{ 21, -1, -1, G_BOX, OF_FL3DBAK, OS_SELECTED, C_UNION(0xFF1101L), 258,258, 2,16 },
 	{ 38, 22, 37, G_BOX, OF_FL3DBAK, OS_SELECTED, C_UNION(0xFE1101L), 1796,258, 2,2064 },
 	{ 23, -1, -1, (21<<8)+G_BOX, 0x201, OS_SELECTED, C_UNION(0x11100L), 0,0, 2,1280 },
