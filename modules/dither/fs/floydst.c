@@ -28,48 +28,41 @@
 #include <string.h>
 #include "import.h"
 #include "smurfine.h"
+#include "fs.h"
 
 /* Set 16 Pixel (Standard Format) Assembler-Rout */
-short (*set_16_pixels)(uint8_t *source, uint8_t *dest, short depth, long planelen, short howmany);          
-
-
-int floyd_steinberg68000(SMURF_PIC *picture, DITHER_DATA *dither, char *output);
-int floyd_steinberg68030(SMURF_PIC *picture, DITHER_DATA *dither, char *output);
-
+short (*set_16_pixels)(uint8_t *source, uint8_t *dest, short depth, long planelen, short howmany);
 SERVICE_FUNCTIONS *service;
-
-
-
-DITHER_MOD_INFO dith_module_info =
-{
-    "Floyd-Steinberg",
-    "Olaf Piesche",
-    0x0100,                 /* Schlumpfine-Version */
-    0,                      /* Konfigurierbar? */
-    ALLPAL                  /* Palettenmodi */
-};
-
-SERVICE_FUNCTIONS *service;
-
 short (*seek_nearest_col)(long *par, short maxcol);
-int not_in_nct;
+short not_in_nct;
+
+
+
+
+DITHER_MOD_INFO dith_module_info = {
+	"Floyd-Steinberg",
+	"Olaf Piesche",
+	0x0100,								/* Schlumpfine-Version */
+	0,									/* Konfigurierbar? */
+	ALLPAL								/* Palettenmodi */
+};
 
 
 /*  --------------------------------------------------------------  */
 /*  --------------------- 8-24-Bit Bild -------------------------   */
 /*  --------------------------------------------------------------  */
-short dither_module_main(DITHER_DATA *dither)
+short dither_module_main(DITHER_DATA * dither)
 {
-    short back;
+	short back;
 
-    service=dither->services;
-    
-    set_16_pixels = dither->set_16pixels;
-    not_in_nct = dither->not_in_nct;
+	service = dither->services;
 
-    seek_nearest_col = service->seek_nearest_col;
+	set_16_pixels = dither->set_16pixels;
+	not_in_nct = dither->not_in_nct;
 
-    back = floyd_steinberg68000(dither->picture, dither, dither->dest_mem);
-    
-    return back;
+	seek_nearest_col = service->seek_nearest_col;
+
+	back = floyd_steinberg68000(dither->picture, dither, dither->dest_mem);
+
+	return back;
 }

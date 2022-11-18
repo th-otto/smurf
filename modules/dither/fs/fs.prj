@@ -39,10 +39,10 @@ floydst.c
 ..\..\..\src\getpix.s                               ; Ausleseroutinen - subrouts, Versuch
 
 ;--------- 68000-C ---------- 
-FS_68000.c
+fs_68000.c
 
 ;--------- 68030-C ---------- 
-;FS_68030.c
+;fs_68030.c
 
 
 
