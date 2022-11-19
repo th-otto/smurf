@@ -13,5 +13,7 @@ all:: $(MODULES)
 $(DISTDIR)/modules/edit/colrun.sem: ../edstart.o colrun.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+colrun.o: colrun.c colrun.rsh colrun.h
+
 clean::
-	$(RM) *.o $(MODULES)
+	$(RM) *.o ../edstart.o $(MODULES)

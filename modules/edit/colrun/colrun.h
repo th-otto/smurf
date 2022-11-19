@@ -17,7 +17,7 @@
  * Number of Trees:          1
  * Number of Userblks:       0
  * Number of Images:         0
- * Total file size:          1452
+ * Total file size:          1450
  */
 
 #ifdef RSC_NAME
@@ -54,7 +54,38 @@
 
 
 
-#define COLRUN                             0 /* form/dialog */
+#define COLRUN_MAIN                        0 /* form/dialog */
+#define COLRUN_LINEAR                      5 /* IBOX in tree COLRUN_MAIN */
+#define COLRUN_RADIAL                      6 /* IBOX in tree COLRUN_MAIN */
+#define M_RED_FHR                          8 /* BOX in tree COLRUN_MAIN */
+#define M_RED_SLIDE                        9 /* BOX in tree COLRUN_MAIN */
+#define M_RED_EDIT                        10 /* BOXTEXT in tree COLRUN_MAIN */
+#define M_BLUE_FHR                        12 /* BOX in tree COLRUN_MAIN */
+#define M_BLUE_SLIDE                      13 /* BOX in tree COLRUN_MAIN */
+#define M_BLUE_EDIT                       14 /* BOXTEXT in tree COLRUN_MAIN */
+#define M_GREEN_FHR                       16 /* BOX in tree COLRUN_MAIN */
+#define M_GREEN_SLIDE                     17 /* BOX in tree COLRUN_MAIN */
+#define M_GREEN_EDIT                      18 /* BOXTEXT in tree COLRUN_MAIN */
+#define START                             19 /* BUTTON in tree COLRUN_MAIN */
+#define PREVIEW                           20 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_BOX                     21 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_FIRST                   22 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_LAST                    23 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_00                      24 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_01                      25 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_02                      26 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_03                      27 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_04                      28 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_05                      29 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_06                      30 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_07                      31 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_08                      32 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_09                      33 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_10                      34 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_11                      35 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_12                      36 /* BOX in tree COLRUN_MAIN */
+#define DATAPOINT_13                      37 /* BOX in tree COLRUN_MAIN */
+#define COLRUN_DIR                        39 /* FTEXT in tree COLRUN_MAIN */
 
 
 
