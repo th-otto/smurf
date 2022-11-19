@@ -96,6 +96,29 @@ static BGH_Cookie *BGHI_Cookie;
 static char BGHI_Slb;					/* BGHI als shared library = TRUE       */
 static SLB_EXEC slbexec;
 static SLB_HANDLE slb;
+/* Dialognummer in der RSC fuer BGH */
+static WORD const dialog_nums[] = {
+	-1,
+	-1,
+	DISPLAY_OPTIONS, /* WIND_DOPT */
+	NEWPIC_FORM,     /* WIND_PIC */
+	IMAGE_INFO,      /* WIND_PICINFO */
+	SMURF_OPTIONS,   /* WIND_OPTIONS */
+	WINDOW_ALERT,    /* WIND_ALERT */
+	MOD_FORM,        /* WIND_MODFORM */
+	BUSY_WINDOW,     /* WIND_BUSY */
+	MODULES,         /* WIND_MODULES */
+	SMURF_INFO,      /* WIND_INFO */
+	NEWPIC_FORM,     /* WIND_NEWPIC */
+	BLOCK_TYPE,      /* WIND_BTYPEIN */
+	EXPORT_MODS,     /* WIND_EXPORT */
+	PIC_MANAGER,     /* WIND_PICMAN */
+	EXPORT_FORM,     /* FORM_EXPORT */
+	TRANSFORM_PIC,   /* WIND_TRANSFORM */
+	-1,              /* WIND_PICORDER */
+	BLOCK_CONF       /* WIND_BLOCKMODE */
+};
+
 
 void bubble_init(void)
 {
@@ -241,7 +264,10 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 			} else
 			{
 				Section = BGH_DIAL;
-				TreeId = window->dialog_num;
+				if (window->wnum < 0 ||
+					window->wnum >= (int)(sizeof(dialog_nums) / sizeof(dialog_nums[0])) ||
+					(TreeId = dialog_nums[window->wnum]) < 0)
+					return;
 			}
 
 			strcpy(helpname, "\\smurf.bgh");

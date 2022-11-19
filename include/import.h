@@ -162,28 +162,27 @@ typedef struct smurfpic
 
 
 /* Allgemeine Windowstruktur zur internen Verwaltung von Fenstern */
-/*  101 Bytes */
 struct _window
 {
-    WORD whandlem;          /* AES-Handle des Windows */
-    short module;           /* Modul, dem das Fenster gehîrt */
-    short wnum;             /* das wievielte Fenster des Moduls? */
-    WORD wx, wy, ww, wh;    /* X/Y, Breite, Hîhe */ 
-    char wtitle[41];        /* Fenstertitel */
-    OBJECT *resource_form;  /* Modulresource-Formular */
-    WORD dialog_num;		/* Dialognummer in der RSC fuer BGH */
-    SMURF_PIC *picture;     /* Zeigerfeld fÅr Bild/Animation */
-    WORD xoffset, yoffset;  /* Scrolloffsets in Pixels */
-    short shaded;           /* Shaded-Flag */
-    WORD pic_xpos, pic_ypos; /* X/Y-Position fÅr 'picture' im Fenster */
-    WORD editob, nextedit, editx;
+    /*   0 */ WORD whandlem;          /* AES-Handle des Windows */
+    /*   2 */ short module;           /* Modul, dem das Fenster gehîrt */
+    /*   4 */ short wnum;             /* das wievielte Fenster des Moduls? */
+    /*   6 */ WORD wx, wy, ww, wh;    /* X/Y, Breite, Hîhe */ 
+    /*  14 */ char wtitle[41];        /* Fenstertitel */
+    /*  56 */ OBJECT *resource_form;  /* Modulresource-Formular */
+    /*  60 */ SMURF_PIC *picture;     /* Zeigerfeld fÅr Bild/Animation */
+    /*  64 */ WORD xoffset, yoffset;  /* Scrolloffsets in Pixels */
+    /*  68 */ short shaded;           /* Shaded-Flag */
+    /*  70 */ WORD pic_xpos, pic_ypos; /* X/Y-Position fÅr 'picture' im Fenster */
+    /*  74 */ WORD editob, nextedit, editx;
 
-    WORD clipwid, cliphgt;  /* Breite und Hîhe des Ausschnittes von *picture */
-    short pflag;            /* reines Bildfenster: 1, ansonsten 0 */
+    /*  80 */ WORD clipwid, cliphgt;  /* Breite und Hîhe des Ausschnittes von *picture */
+    /*  84 */ short pflag;            /* reines Bildfenster: 1, ansonsten 0 */
 
-    WINDOW *prev_window;     /* vorheriges Fenster */
-    WINDOW *next_window;     /* nÑxtes Fenster */
-    WORD fullx,fully,fullw,fullh;    /* zum RÅckspeichern der Koordinaten bei WM_FULLED */
+    /*  86 */ WINDOW *prev_window;    /* vorheriges Fenster */
+    /*  90 */ WINDOW *next_window;    /* nÑxtes Fenster */
+    /*  94 */ WORD fullx,fully,fullw,fullh;    /* zum RÅckspeichern der Koordinaten bei WM_FULLED */
+    /* 102 */
 };
 
 
