@@ -8,7 +8,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/clip.sem \
 	$(empty)
 
-SUBDIRS = colrun
+SUBDIRS = beule colrun
 
 all:: edstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
