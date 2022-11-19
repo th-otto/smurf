@@ -27,8 +27,14 @@
 *   Enth„lt die X-Schleifen fr den Nearest-Color-Dither
 *********************************************************
 
-IMPORT  Palette, rgbtab, line_ready
-EXPORT loopx24, loopx16, loopx8
+/* imports */
+	.globl Palette
+	.globl rgbtab
+	.globl line_ready
+/* exports */
+	.globl loopx24
+	.globl loopx16
+	.globl loopx8
 
 *----------------- 24 Bit
 loopx24:
@@ -70,13 +76,13 @@ loopx16:
     move.w  d4,d3              /* fr grn */
     move.w  d4,d2              /* fr blau */
     
-    rol.w   #5,d4               /* rot fertigmachen */
-    and.w   #$001f,d4          /* rot ausmaskieren */
+    rol.w   #5,d4              /* rot fertigmachen */
+    and.w   #31,d4             /* rot ausmaskieren */
     
-    lsr.w   #6,d3               /*grn fertigmachen */
-    and.w   #$001f,d3          /* grn ausmaskieren */
+    lsr.w   #6,d3              /* grn fertigmachen */
+    and.w   #31,d3             /* grn ausmaskieren */
     
-    and.w   #$001f,d2          /* blau ausmaskieren */
+    and.w   #31,d2             /* blau ausmaskieren */
     
     /*
      *       Nearest Color table offset (3*5bit->15Bit-Wert)

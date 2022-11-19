@@ -7,7 +7,7 @@ LDFLAGS += -nostartfiles
 MODULES = \
 	$(empty)
 
-SUBDIRS = fastdiff fs greyscal
+SUBDIRS = fastdiff fs greyscal nc
 
 all:: ditstart.o ../../src/getpix.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done

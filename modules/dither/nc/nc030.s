@@ -50,20 +50,30 @@
 **********  "Die schnellsten Ditherroutinen der Welt".... ********
 
 
-INCLUDE "ditmacro.s"
+	.include "../../../src/ditmacro.s"
 
-IMPORT draw_busybox, get_standard_pix
-IMPORT read24bit, read16bit, read8bit
+/* imports */
+	.globl get_standard_pix
+	.globl read24bit
+	.globl read16bit
+	.globl read8bit
 
-GLOBL   nearest_color
-GLOBL   read_ready
-
-GLOBL   Palette, rgbtab
-
+/* exports */
+	.globl Palette
+	.globl rgbtab
 
 
+
+/* gcc cdecl entry point */
+	.IFEQ PURE_C
+	.globl  _nearest_color
+_nearest_color:
+	move.l 4(a7),a0
+	.ENDC
+
+	.globl nearest_color
 nearest_color:
-movem.l d3-d7/a2-a6,-(sp)
+movem.l d2-d7/a2-a6,-(sp)
 
 move.l  (a0)+,a1                /*normalized-tab */
 move.l  (a0)+,a2                /*ac-table */
@@ -88,7 +98,7 @@ move.l  (a0)+,a0            /*picdata-memblock */
     move.w d2,zoom_faktor
     move.b d5,Depth
 
-    lea.l   pixtab,a4      /*Zielbuffer (PP) */
+    lea.l   pixtab(pc),a4      /*Zielbuffer (PP) */
 
     move.w  #16,pixels_set
     move.w  #42,a5
@@ -192,13 +202,13 @@ picincdone:
 *               Increments fÅr Scaling vorbereiten
 ********************************************************************
     /*-------------------------- Y-Increment */
-    move.w  zoom_faktor,d1
-    muls.w  picinc,d1
+    move.w  zoom_faktor(pc),d1
+    muls.w  picinc(pc),d1
     move.l  d1,scaley_inc
 
     /*-------------------------- X-Increment */
-    move.w  zoom_faktor,d1
-    muls.w  bytes_per_pixel,d1
+    move.w  zoom_faktor(pc),d1
+    muls.w  bytes_per_pixel(pc),d1
     move.w  d1,scalex_inc
 
 ****************************************************************
@@ -207,8 +217,8 @@ picincdone:
     /*--------------------------  Hîhe */
     clr.l d1
     clr.l d2
-    move.w  height,d1
-    move.w  zoom_faktor,d2
+    move.w  height(pc),d1
+    move.w  zoom_faktor(pc),d2
     add.w   #1,d2
     divu.w  d2,d1
     move.w  d1,height
@@ -218,7 +228,7 @@ picincdone:
     clr.l d1
     clr.l d2
     move.w  d0,d1
-    move.w  zoom_faktor,d2
+    move.w  zoom_faktor(pc),d2
     add.w   #1,d2
     divu.w  d2,d1
     move.w  d1,d0
@@ -238,7 +248,7 @@ picincdone:
 *******************************************************************
 loopy:
     move.w 4(sp),d0        /* Y-Wert */
-    andi.w #$1f,d0         /* undieren */
+    andi.w #31,d0          /* undieren */
     bne.b nobusy            /* und wenn !=0 dann keine BB. */
 
     _Busybox
@@ -266,14 +276,14 @@ loopx:
 
     lea.l   buf16,a1               /* Ziel auf buf16 ausrichten */
     clr.l   d0
-    move.b  STFDepth,d0            /* Tiefe nach d0 */
-    move.l  SrcPlanelen,d1         /* Source Plane-LÑnge */
-    jsr get_standard_pix(PC)        /* ...und auslesen. */
+    move.b  STFDepth(pc),d0        /* Tiefe nach d0 */
+    move.l  SrcPlanelen(pc),d1     /* Source Plane-LÑnge */
+    bsr get_standard_pix           /* ...und auslesen. */
 
     movem.l (sp)+,d0-d1/a0-a1      /* Register restore */
 
 
-    adda.l  #2,a0.l
+    adda.l  #2,a0
     move.l  a0,-(sp)       /* alte Source speichern  */
     lea.l   buf16,a0       /*Source auf buf16 ausrichten */
 
@@ -286,7 +296,7 @@ no_standard_format:
 *           Raster fÅr 16 Pixel
 ***********************************************
 ***********************************************
-    move.l  rgbtab,a6
+    move.l  rgbtab(pc),a6
 
     moveq   #0,d1           /*16 Pixel */
 
@@ -301,6 +311,7 @@ loop16:
     **********************
     jmp (a5)
     
+	.globl read_ready
 read_ready:                 /* RÅckkehr aus der Read-Routine */
 
     ***********************************************
@@ -321,13 +332,13 @@ read_ready:                 /* RÅckkehr aus der Read-Routine */
     move.b  (d6.w,a2),d7          /*Index des Screenwerts (NCT) */
     move.b  (d7.w,a3),(a4)+       /*Screenwert eintragen (Planetable) */
 
-    adda.w  scalex_inc,a0.l            /* X-Scaling - adda.W ist hier schneller!! (eigenartig.) */
+    adda.w  scalex_inc(pc),a0            /* X-Scaling - adda.W ist hier schneller!! (eigenartig.) */
 
 
     addq.w  #1,d1      /* 16er-Counter erhîhen */
     addq.w  #1,d0      /* X-Counter erhîhen */
 
-    cmp.w   width,d0
+    cmp.w   width(pc),d0
     bge     raushier
 
     cmp.w   #16,d1
@@ -343,34 +354,54 @@ raushier:
 
 no_standard_format2:
 
-    lea.l   pixtab,a4      /*pixtab zum Anfang */
+    lea.l   pixtab(pc),a4      /*pixtab zum Anfang */
     /*
      ********** <=16 Pixel ins Standardformat setzen 
      */
     /*int set_16pixels(char *buf16, char *dest, int depth, long planelen, int howmany); */
     movem.l d0-d2/a0-a1,-(sp)
-    move.l  bips,d0
+    move.l  bips(pc),d0
     addq.l  #1,d0          /* Farbtiefe nach d0 */
     movea.l a4,a0          /* -src-Adresse */
     move.l  d1,d2          /* -Pixelanzahl */
     move.l  plen,d1      /* -Planelength */
     movea.l paddr,a1      /* -dest */
-    movea.l set_pixels,a6
+    movea.l set_pixels(pc),a6
+    .IFEQ PURE_C
+#ifndef __MSHORT__
+	move.l d2,-(a7)
+	move.l d1,-(a7)
+	move.l d0,-(a7)
+	move.l a1,-(a7)
+	move.l a0,-(a7)
     jsr (a6)
-    add.l   d0.w,paddr.l     /* paddr um d0 weiter */
+	lea 20(a7),a7
+#else
+	move.w d2,-(a7)
+	move.l d1,-(a7)
+	move.w d0,-(a7)
+	move.l a1,-(a7)
+	move.l a0,-(a7)
+    jsr (a6)
+	lea 16(a7),a7
+#endif
+    .ELSE
+    jsr (a6)
+    .ENDC
+    add.l   d0,paddr.l     /* paddr um d0 weiter */
     movem.l (sp)+,d0-d2/a0-a1
 
     
     /*********************   loopx schlieûen */
-    cmp.w   width,d0
+    cmp.w   width(pc),d0
     blt loopx
 
-    move.l  oldpic,a0      /* alte Position restoren,... */
-    adda.w  picinc,a0      /* ...nÑchste Zeile hernehmen... */
+    move.l  oldpic(pc),a0      /* alte Position restoren,... */
+    adda.w  picinc(pc),a0      /* ...nÑchste Zeile hernehmen... */
     move.l  a0,oldpic      /* ...und als alte Pos speichern */
 
     ************ Y-Scaling
-    add.l   scaley_inc,a0   
+    add.l   scaley_inc(pc),a0   
     move.l  a0,oldpic      /* ...und als alte Pos speichern */
 
     subq.w  #1,4(sp)
@@ -383,7 +414,7 @@ no_standard_format2:
     *                   und RÅcksprung
     *******************************************************
     addq.w  #6,sp
-    movem.l (sp)+,d3-d7/a2-a6
+    movem.l (sp)+,d2-d7/a2-a6
     rts
 
 

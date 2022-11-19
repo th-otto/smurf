@@ -33,56 +33,6 @@
 
 
 
-*************************************************************** *
-*   16 Standardformatpixel aus a0 in 16 Packed Pixels nach a1   *
-*   schreiben.                                                  *
-*   Deklaration:                                                *
-*                                                               *
-* void get_standard_pix(void *st_pic, void *buf16, int planes, long planelen);
-*
-*************************************************************** *
-MACRO ReadPixel_standard
-
-    LOCAL loop16_std, loopplane_std
-    IMPORT scalex_inc
-
-    subq.w #1,d0           /* planes-1 fÅr dbra */
-    moveq   #15,d6
-
-
-    loop16_std:
-        move.l  d0,d2      /* plane-counter  */
-    
-        movea.l a0,a2      /* source kopieren */
-    
-        moveq.l #0,d3
-        moveq.l #0,d5
-    
-    loopplane_std:
-        move.w  (a2),d4
-    
-        btst d6,d4
-        beq.b *+4
-    
-        bset.l  d5.w,d3
-    
-        adda.l  d1,a2          /* eine plane weiter */
-        addq.w  #1,d5
-        dbra d2,loopplane_std
-    
-        move.b d3,(a6)+
-    
-    
-        dbra d6,loop16_std
-
-
-ENDM
-
-
-
-
-
-
 *-------------------------------------------------------------
 *   Busybox-Aufruf
 *-------------------------------------------------------------
