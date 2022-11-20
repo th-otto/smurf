@@ -3142,7 +3142,6 @@ void shutdown_smurf(char while_startup)
 			plugin_bp[t] = NULL;
 			free(plg_data[t]);
 			plg_data[t] = NULL;
-			free(plg_info[t]->name);
 			free(plg_info[t]);
 			plg_info[t] = NULL;
 			free(modconfs[t]);

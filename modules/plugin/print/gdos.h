@@ -42,7 +42,7 @@
 
 typedef struct
 {
-   unsigned int nvdi_version;       /* Version im BCD-Format */
+   unsigned short nvdi_version;     /* Version im BCD-Format */
    unsigned long nvdi_datum;        /* Datum im BCD-Format */
 } NVDI_STR;
 
@@ -56,43 +56,46 @@ typedef struct
 /* enthÑlt die Infos Åber den ausgewÑhlten GDOS-Treiber */
 typedef struct
 {
-    char devID;             /* die Treibernummer (21 .. 99) */
-    int prtwidth;           /* bedruckbare Breite in Pixeln */
-    int prtheight;          /* bedruckbare Hîhe in Pixeln */
-    int leftBorder;         /* linker Rand */
-    int upperBorder;        /* oberer Rand */
-    int rightBorder;        /* rechter Rand */
-    int lowerBorder;        /* unterer Rand */
+    short devID;            /* die Treibernummer (21 .. 99) */
+    short prtwidth;         /* bedruckbare Breite in Pixeln */
+    short prtheight;        /* bedruckbare Hîhe in Pixeln */
+    short leftBorder;       /* linker Rand */
+    short upperBorder;      /* oberer Rand */
+    short rightBorder;      /* rechter Rand */
+    short lowerBorder;      /* unterer Rand */
     float pixwidth;         /* Pixelbreite in mm */
     float pixheight;        /* Pixelhîhe in mm */
-    int horres;             /* horizontale Auflîsung in dpi */
-    int verres;             /* horizontale Auflîsung in dpi */
-    char depth;             /* Farbtiefe in Bit */
-    char can_scale;         /* kann der Treiber skalieren oder nicht? */
-    char paperform;         /* Papierformat */
+    short horres;           /* horizontale Auflîsung in dpi */
+    short verres;           /* horizontale Auflîsung in dpi */
+    unsigned char depth;    /* Farbtiefe in Bit */
+    unsigned char can_scale;  /* kann der Treiber skalieren oder nicht? */
+    unsigned char paperform;  /* Papierformat */
 } DevParamS;
 
 /* enthÑlt die Infos Åber */
 typedef struct
 {
-    int zx;                 /* linke obere Ecke der Ausgabe */
-    int zy;                 /* linke obere Ecke der Ausgabe */
-    int picwidth;           /* effektive Bildbreite */
-    int picheight;          /* effektive Bildhîhe */
-    char advance;           /* Vorschub nach Seite? */
+    short zx;               /* linke obere Ecke der Ausgabe */
+    short zy;               /* linke obere Ecke der Ausgabe */
+    short picwidth;         /* effektive Bildbreite */
+    short picheight;        /* effektive Bildhîhe */
+    unsigned char advance;  /* Vorschub nach Seite? */
 } OutParamS;
 
 extern SERVICE_FUNCTIONS *services;
-extern SMURF_PIC * *smurf_picture;
+extern SMURF_PIC **smurf_picture;
 extern short *active_pic;
-extern PRN_SETTINGS *prn_settings;
 extern OBJECT *alerts;
 extern PLUGIN_FUNCTIONS *smurf_functions;
 extern SMURF_VARIABLES *smurf_vars;
+extern DevParamS DevParam;
+extern OutParamS OutParam;
+extern DevInfoS DevInfo[30];
+extern short dev_anzahl;
 
-int print_with_GDOS(PRN_SETTINGS *prn_settings);
-int actualize_DevParam(int gdos_dev, DevParamS *DevParam);
-int scan_devs(void);                            /* sucht nach GDOS-Ausgabedevices */
-int get_DevInfo(char devID, DevInfoS *DevInfo);
-void set_MFDB(MFDB *srcform, MFDB *dstform, char *srcpic, char BitsPerPixel);
-int f_d_dither(SMURF_PIC *smurf_pic, char *ziel, unsigned int stripoffset, unsigned int stripheight, char dest_depth);
+short print_with_GDOS(void);
+short actualize_DevParam(WORD gdos_dev, DevParamS *DevParam);
+short scan_devs(void);                            /* sucht nach GDOS-Ausgabedevices */
+short get_DevInfo(WORD devID, DevInfoS *DevInfo);
+void set_MFDB(MFDB *srcform, MFDB *dstform, void *srcpic, unsigned char BitsPerPixel);
+short f_d_dither(SMURF_PIC *smurf_pic, uint8_t *ziel, uint16_t stripoffset, uint16_t stripheight, unsigned char dest_depth);

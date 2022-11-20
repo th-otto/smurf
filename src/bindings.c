@@ -40,7 +40,6 @@ void vq_scrninfo(WORD handle, WORD *work_out)
 {
 	VDIPB vdipb;
 
-
 	vdipb.contrl = _VDIParBlk.contrl;
 	vdipb.intin = _VDIParBlk.intin;
 	vdipb.ptsin = _VDIParBlk.ptsin;
@@ -58,10 +57,9 @@ void vq_scrninfo(WORD handle, WORD *work_out)
 }
 
 
-int vq_ext_devinfo(int handle, int device, int *dev_exists, char *file_path, char *file_name, char *name)
+WORD vq_ext_devinfo(WORD handle, WORD device, WORD *dev_exists, char *file_path, char *file_name, char *name)
 {
 	VDIPB vdipb;
-
 
 	vdipb.contrl = _VDIParBlk.contrl;
 	vdipb.ptsin = _VDIParBlk.ptsin;
@@ -69,22 +67,22 @@ int vq_ext_devinfo(int handle, int device, int *dev_exists, char *file_path, cha
 	vdipb.ptsout = _VDIParBlk.ptsout;
 	vdipb.intout = _VDIParBlk.intout;
 
+	vdipb.intin[0] = device;
+	*(char **)&vdipb.intin[1] = file_path;
+	*(char **)&vdipb.intin[3] = file_name;
+	*(char **)&vdipb.intin[5] = name;
+
 	vdipb.contrl[0] = 248;
 	vdipb.contrl[1] = 0;
 	vdipb.contrl[3] = 7;
 	vdipb.contrl[5] = 4242;
 	vdipb.contrl[6] = handle;
 
-	vdipb.intin[0] = device;
-	*(char **)&vdipb.intin[1] = file_path;
-	*(char **)&vdipb.intin[3] = file_name;
-	*(char **)&vdipb.intin[5] = name;
-
 	vdi(&vdipb);
 
 	*dev_exists = vdipb.intout[0];
 
-	return(vdipb.intout[1]);
+	return vdipb.intout[1];
 }
 
 
@@ -119,7 +117,7 @@ void v_ext_opnwk(WORD *work_in, WORD *handle, WORD *work_out)
 /* vr_transfer_bits--------------------------------------------
 	neue Rasterwandelroutine von NVDI 5
 	-----------------------------------------------------------*/
-void vr_transfer_bits(int handle, GCBITMAP *src_bm, GCBITMAP *dst_bm, int *src_rect, int *dst_rect, int mode)
+void vr_transfer_bits(WORD handle, GCBITMAP *src_bm, GCBITMAP *dst_bm, WORD *src_rect, WORD *dst_rect, WORD mode)
 {
 	VDIPB vdipb;
 
@@ -163,7 +161,7 @@ void vr_transfer_bits(int handle, GCBITMAP *src_bm, GCBITMAP *dst_bm, int *src_r
 /* vq_px_format------------------------------------------------
 	Liefer Pixelformat und Farbraum von handle zurÅck
 	-----------------------------------------------------------*/
-long vq_px_format(int handle, unsigned long *px_format)
+long vq_px_format(WORD handle, unsigned long *px_format)
 {
 	VDIPB vdipb;
 
@@ -186,14 +184,14 @@ long vq_px_format(int handle, unsigned long *px_format)
 
 	*px_format = *(long *)&vdipb.intout[2];
 
-	return(	*(long *)&vdipb.intout[0]);
+	return *(long *)&vdipb.intout[0];
 }
 
 
 /* v_get_ctab_id-----------------------------------------------
 	Fordert eine Farbtabellenid fÅr die Device vom System an
 	-----------------------------------------------------------*/
-long v_get_ctab_id(int handle)
+long v_get_ctab_id(WORD handle)
 {
 	VDIPB vdipb;
 
@@ -213,14 +211,14 @@ long v_get_ctab_id(int handle)
 
 	vdi(&vdipb);
 
-	return(*(long *)&vdipb.intout[0]);
+	return *(long *)&vdipb.intout[0];
 }
 
 
 /* v_create_ctab-----------------------------------------------
 	Legt eine Farbtabellenstruktur an und initialisiert sie
 	-----------------------------------------------------------*/
-COLOR_TAB *v_create_ctab(int handle, long color_space, unsigned long px_format)
+COLOR_TAB *v_create_ctab(WORD handle, long color_space, unsigned long px_format)
 {
 	VDIPB vdipb;
 
@@ -243,14 +241,14 @@ COLOR_TAB *v_create_ctab(int handle, long color_space, unsigned long px_format)
 
 	vdi(&vdipb);
 
-	return(*(COLOR_TAB **)&vdipb.intout[0]);
+	return *(COLOR_TAB **)&vdipb.intout[0];
 }
 
 
 /* v_delete_ctab-----------------------------------------------
 	Lîscht eine Farbtabellenstruktur
 	-----------------------------------------------------------*/
-int v_delete_ctab(int handle, COLOR_TAB *ctab)
+WORD v_delete_ctab(WORD handle, COLOR_TAB *ctab)
 {
 	VDIPB vdipb;
 
@@ -272,21 +270,20 @@ int v_delete_ctab(int handle, COLOR_TAB *ctab)
 
 	vdi(&vdipb);
 
-	return(vdipb.intout[0]);
+	return vdipb.intout[0];
 }
 
 
-WORD	objc_sysvar(WORD ob_smode, WORD ob_swhich, WORD ob_sival1, WORD ob_sival2, WORD *ob_soval1, WORD *ob_soval2)
+WORD objc_sysvar(WORD ob_smode, WORD ob_swhich, WORD ob_sival1, WORD ob_sival2, WORD *ob_soval1, WORD *ob_soval2)
 {
 	AESPB aespb;
-
 
 	aespb.contrl = _GemParBlk.contrl;
 	aespb.global = _GemParBlk.global;
 	aespb.intin = _GemParBlk.intin;
 	aespb.intout = _GemParBlk.intout;
-	aespb.addrin = (int *)_GemParBlk.addrin;
-	aespb.addrout = (int *)_GemParBlk.addrout;
+	aespb.addrin = (void *)_GemParBlk.addrin;
+	aespb.addrout = (void *)_GemParBlk.addrout;
 
 	aespb.contrl[0] = 48;
 	aespb.contrl[1] = 4;
@@ -304,7 +301,7 @@ WORD	objc_sysvar(WORD ob_smode, WORD ob_swhich, WORD ob_sival1, WORD ob_sival2, 
 	*ob_soval1 = aespb.intout[1];
 	*ob_soval2 = aespb.intout[2];
 
-	return(aespb.intout[0]);
+	return aespb.intout[0];
 }
 
 
@@ -313,7 +310,7 @@ WORD	objc_sysvar(WORD ob_smode, WORD ob_swhich, WORD ob_sival1, WORD ob_sival2, 
  * identisch!), das die öbergabe der Callback-Adresse erlaubt. Andere
  * Fileselectoren sollten den ÅberzÑhligen Parameter einfach ignorieren.
  */
-int cdecl fsel_boxinput(char *path, char *name, WORD *button, const char *label, void *callback)
+WORD cdecl fsel_boxinput(char *path, char *name, WORD *button, const char *label, void *callback)
 {
 	AESPB aespb;
 
@@ -321,8 +318,8 @@ int cdecl fsel_boxinput(char *path, char *name, WORD *button, const char *label,
 	aespb.global = _GemParBlk.global;
 	aespb.intin = _GemParBlk.intin;
 	aespb.intout = _GemParBlk.intout;
-	aespb.addrin = (int *)_GemParBlk.addrin;
-	aespb.addrout = (int *)_GemParBlk.addrout;
+	aespb.addrin = (void *)_GemParBlk.addrin;
+	aespb.addrout = (void *)_GemParBlk.addrout;
 
 	aespb.contrl[0] = 91;
 	aespb.contrl[1] = 0;
@@ -339,27 +336,13 @@ int cdecl fsel_boxinput(char *path, char *name, WORD *button, const char *label,
 
 	*button = aespb.intout[1];
 
-	return(aespb.intout[0]);
-}
-#endif
-
-
-WORD SM_wind_get(WORD wi_ghandle, WORD wi_gfield, WORD *wi_gw1, WORD *wi_gw2, WORD *wi_gw3, WORD *wi_gw4)
-{
-	return wind_get(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
+	return aespb.intout[0];
 }
 
 
-WORD SM_wind_set(WORD wi_ghandle, WORD wi_gfield, WORD wi_gw1, WORD wi_gw2, WORD wi_gw3, WORD wi_gw4)
-{
-	return wind_set(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
-}
-
-
-#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 /* Binding fÅr die neue VDI-Funktion v_opnbm(), Offscreen-Bitmap îffnen */
 /* VDI 100, 1 */
-void v_opnbm(int *work_in, MFDB *bitmap, int *handle, int *work_out)
+void v_opnbm(WORD *work_in, MFDB *bitmap, WORD *handle, WORD *work_out)
 {
     /* Wenn work_in[15..19] 0 enthalten, wird eine Bitmap im gerÑtespezifischen
        Format oder mit nur 1 Ebene erzeugt (hÑngt vom MFDB ab). Anderfalls wird
@@ -391,7 +374,7 @@ void v_opnbm(int *work_in, MFDB *bitmap, int *handle, int *work_out)
 
 /* Binding fÅr die neue VDI-Funktion v_clsbm(), Offscreen-Bitmap schlieûen */
 /* VDI 101, 1 */
-void v_clsbm(int handle)
+void v_clsbm(WORD handle)
 {
     VDIPB vdipb;
 
@@ -411,3 +394,15 @@ void v_clsbm(int handle)
     vdi(&vdipb);
 }
 #endif
+
+
+WORD SM_wind_get(WORD wi_ghandle, WORD wi_gfield, WORD *wi_gw1, WORD *wi_gw2, WORD *wi_gw3, WORD *wi_gw4)
+{
+	return wind_get(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
+}
+
+
+WORD SM_wind_set(WORD wi_ghandle, WORD wi_gfield, WORD wi_gw1, WORD wi_gw2, WORD wi_gw3, WORD wi_gw4)
+{
+	return wind_set(wi_ghandle, wi_gfield, wi_gw1, wi_gw2, wi_gw3, wi_gw4);
+}

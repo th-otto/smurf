@@ -24,6 +24,7 @@
 ..\..\..\dist\modules\plugin\printwd.plx
 .C [-C -K -M -P-]
 .C [-I..\..\..\include]
+.C[-Ien]
 .S[-DPURE_C=1]
 .L [-S=7168]
 =                                       ; list of modules follows...

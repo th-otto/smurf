@@ -1,31 +1,31 @@
-               src     106gpl
+               src     106gpl   gcc
 dither:
-fdfast.sdm     1.00    1.00
-floydst.sdm    1.00    1.00
-greyscal.sdm   1.00    1.00
-nc.sdm         1.00    1.00
-ordered.sdm    1.00    1.00
+fdfast.sdm     1.00    1.00     x
+floydst.sdm    1.00    1.00     x
+greyscal.sdm   1.00    1.00     x
+nc.sdm         1.00    1.00     x
+ordered.sdm    1.00    1.00     x
 
 edit:
-beule.sem      0.80    0.80
-border.sem     0.10    -
+beule.sem      0.80    0.80     x
+border.sem     0.10    -        x
 bumber.sem     -       1.00
 bumpmap.sem    1.20    -
 cchange.sem    0.10    -
 chanel5.sem    0.50    0.50
 chanelmx.sem   0.20    -
-clip.sem       0.50    -
+clip.sem       0.50    -        x
 clipnpic.sem   0.50    0.50
 colrun.sem     -       1.00
 colsat.sem     1.20    -
 displace.sem   -       1.00
-dropshdw.sem   1.21    2.00  !!!
+dropshdw.sem   1.21    2.00        !!!
 edgeokil.sem   1.10    1.10
 equalize.sem   0.10    0.10
 erode.sem      0.10    -
 expander.sem   0.30    0.30
 extrapol.sem   0.10    -
-freefilt.sem   0.50    0.70  !!!
+freefilt.sem   0.50    0.70        !!!
 gamma.sem      0.20    0.20
 grau.sem       1.20    1.20
 highshad.sem   0.20    0.20
@@ -44,7 +44,7 @@ paletout.sem   0.20    -
 pepsip.sem     0.10    -
 picfade.sem    0.50    -
 pixel.sem      0.40    0.40
-quicksmt.sem   0.80    1.00  !!!
+quicksmt.sem   0.80    1.00        !!!
 rahmen.sem     0.70    0.70
 rotate.sem     0.30    0.30
 scale.sem      1.30    1.30
@@ -53,12 +53,12 @@ scheren.sem    0.40    0.40
 sharp.sem      0.20    -
 sinusw.sem     0.20    0.20
 solarize.sem   0.20    0.20
-speedom.sem    0.50    0.80  !!!
+speedom.sem    0.50    0.80        !!!
 sphere.sem     0.50    -
 spherfpu.sem   0.50    -
 spin.sem       0.20    0.20
 strudel.sem    1.00    1.00
-sw.sem         0.10    0.50  !!!
+sw.sem         0.10    0.50        !!!
 tachyon.sem    0.10    0.10
 texbump.sem    1.21    -
 texshdow.sem   0.30    -
@@ -70,19 +70,19 @@ zoom.sem       0.80    0.80
 export:
 bmp.sxm        0.70    0.70
 clipbrd.sxm    0.10    0.10
-esm.sxm        0.20    0.20
+esm.sxm        0.20    0.20     x
 cmp.sxm        0.30    0.30
 falc16.sxm     0.10    -
 falc8bit.sxm   0.10    -
 gem_img.sxm    0.50    0.50
 gif.sxm        0.70    0.70
 godpaint.sxm   0.10    0.10
-icn.sxm        0.20    0.20
+icn.sxm        0.20    0.20     x
 iim.sxm        0.30    0.30
 pac.sxm        0.30    0.30
 pcx.sxm        0.20    0.20
 pix.sxm        0.30    0.30
-pixar.sxm      0.10    0.10
+pixar.sxm      0.10    0.10     x
 ppm.sxm        0.60    0.60
 raw.sxm        0.10    0.10
 sgi.sxm        0.30    0.30
@@ -95,7 +95,7 @@ import:
 1stbp.sim      0.50    0.50
 adexv.sim      0.10    0.10
 alphabmp.sim   0.20    0.20
-bmp.sim        1.11    1.10
+bmp.sim        1.11    1.10     x
 bsvg1.sim      0.10    0.10
 bw.sim         1.30    1.30
 cas.sim        0.50    0.50
@@ -108,13 +108,13 @@ doodle.sim     0.50    0.50
 dta.sim        0.50    0.50
 egarx.sim      0.50    0.50
 eps.sim        0.50    0.50
-esm.sim        0.10    0.50  !!!
+esm.sim        0.10    0.50        !!!
 fal.sim        0.10    0.10
 fckpaint.sim   1.10    1.10
-gem_img.sim    1.60    1.40 version bumped by GS
+gem_img.sim    1.60    1.40       version bumped by GS
 gfx.sim        1.10    1.10
 gif_2.sim      0.37    0.37
-godpaint.sim   1.00    1.00
+godpaint.sim   1.00    1.00     x
 goes.sim       0.10    0.10
 gra.sim        1.30    1.30
 hilight.sim    0.10    0.10
@@ -126,8 +126,8 @@ iff.sim        0.70    0.70
 iim.sim        0.10    0.10
 indy.sim       0.50    0.50
 indy16.sim     0.50    0.50
-jpeg.sim       0.10    0.10
-jpegdsp.sim    1.30    1.30
+jpeg.sim       0.10    0.10     x
+jpegdsp.sim    1.30    1.30     x
 lan.sim        0.20    0.20
 mac.sim        0.50    0.50
 mim.sim        1.20    1.20
@@ -141,12 +141,12 @@ pcx.sim        0.10    0.10
 pic_pcpa.sim   0.20    0.20
 pict.sim       0.80    0.80
 pix.sim        0.40    0.40
-pixar.sim      1.00    1.00
+pixar.sim      1.00    1.00     x
 pofo.sim       0.30    0.30
 ppm.sim        0.30    0.30
 psd.sim        0.30    0.30
-qdv.sim        0.30    0.30
-qfax.sim       0.20    0.10
+qdv.sim        0.30    0.30     x
+qfax.sim       0.20    0.10     x
 qrt.sim        0.10    0.10
 r8.sim         0.10    0.10
 ras.sim        0.60    0.60
@@ -156,8 +156,8 @@ scodl.sim      0.10    0.10
 sef.sim        0.50    0.50
 sgi.sim        0.40    0.40
 smurf_mt.sim   0.10    0.10
-softimag.sim   1.00    1.00
-spectrum.sim   0.30    0.30 version 0.30 was named spu_spc
+softimag.sim   1.00    1.00     x
+spectrum.sim   0.30    0.30     x   version 0.30 was named spu_spc
 stad.sim       0.10    0.10
 tga.sim        1.10    1.10
 tiff.sim       1.50    1.50
@@ -173,7 +173,7 @@ xga.sim        0.30    0.30
 xwd.sim        0.10    0.10
 
 plugin:
-mrm.plg        -       1.00 Smurf ModComm-Protokoll Plugin
+mrm.plg        -       1.00       Smurf ModComm-Protokoll Plugin
 multicon.plg   0.91    0.91
 print.plg      1.02    1.02
 printwd.plx    1.01    1.01

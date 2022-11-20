@@ -62,10 +62,10 @@
 /*
  * lokale Funktionen
  */
-static void insert_to_menu(OBJECT * menu, int entry, char *string);
+static void insert_to_menu(OBJECT *menu, WORD entry, const char *string);
 static void init_structs(void);
-static int load_plugin(int plugin_number);
-static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename);
+static short load_plugin(short plugin_number);
+static void plugin_startup(short index, short *curr_plugin_entry, const char *plg_filename);
 
 static PLUGIN_FUNCTIONS global_replace;
 static ADD_FUNCTIONS global_call;
@@ -93,34 +93,30 @@ void scan_plugins(void)
 {
 	char *editpath;						/* voller Modulpfad, Original */
 	char *edit_path;					/* voller Modulpfad, editable */
-	char *swapstr,
-	 alert[256];
-	char newpath[256],
-	*oldpath,
-	*dot_pos;
+	char *swapstr;
+	char alert[256];
+	char newpath[256];
+	char *oldpath;
+	char *dot_pos;
 	char *textseg_begin;
-	int pathlen,
-	 t,
-	 install_flag,
-	 install_index,
-	 curr_plugin_entry;
-	PLUGIN_INFO *curr_info,
-	*info;
+	short pathlen;
+	short t;
+	BOOLEAN install_flag;
+	short install_index;
+	short curr_plugin_entry;
+	PLUGIN_INFO *curr_info;
+	PLUGIN_INFO *info;
 	PLUGIN_INFO installed_infos[20];
 	long mod_magic;
-
 	long ProcLen;
-	long temp,
-	 lback;
-
-	struct DIRENTRY *actual,
-	*filelist;
-
+	long temp, lback;
+	struct DIRENTRY *actual;
+	struct DIRENTRY *filelist;
 
 	for (t = 0; t < 11; t++)
 		plg_data[t] = NULL;
 
-	memset(menu2plugin, -1, 128);
+	memset(menu2plugin, -1, sizeof(menu2plugin));
 	init_structs();						/* Plugin-Strukturen aufbauen */
 
 	/*---- Pfade vorbereiten ----*/
@@ -130,7 +126,7 @@ void scan_plugins(void)
 
 	Name_Max = get_maxnamelen(editpath);
 
-	pathlen = (unsigned int) (strlen(editpath) + Name_Max);
+	pathlen = (short) (strlen(editpath) + Name_Max);
 	edit_path = calloc(1, pathlen + 1);
 	swapstr = calloc(1, pathlen + 1);
 
@@ -151,6 +147,7 @@ void scan_plugins(void)
 		temp = Pexec(3, edit_path, "", NULL);
 		if (temp < 0)
 		{
+			/* FIXME: translate */
 			strcpy(alert, "[1][Fehler in File|");
 			strcat(alert, actual->modname);
 			strcat(alert, "|im Ordner|");
@@ -164,6 +161,7 @@ void scan_plugins(void)
 			mod_magic = get_modmagic(plugin_bp[anzahl_plugins]);	/* Zeiger auf Magic (muž 'PLGN' sein!) */
 			if (mod_magic != MOD_MAGIC_PLUGIN)
 			{
+				/* FIXME: translate */
 				strcpy(alert, "[1][ File ");
 				strcat(alert, actual->modname);
 				strcat(alert, " | im Ordner |");
@@ -189,18 +187,19 @@ void scan_plugins(void)
 				textseg_begin = plugin_bp[anzahl_plugins]->p_tbase;	/* Textsegment-Startadresse holen */
 
 				install_index = anzahl_plugins;
-				install_flag = 1;
+				install_flag = TRUE;
 
 				curr_info = *((PLUGIN_INFO **) (textseg_begin + PLG_INFO_OFFSET));
 
 				if (curr_info->for_smurf_version != SMURF_VERSION)
 				{
+					/* FIXME: translate */
 					strcpy(alert, "[2][Das Plugin \"");
 					strcat(alert, curr_info->name);
 					strcat(alert, "\"|ist nicht fr diese Smurf-Version|gedacht! Da das zu ");
 					strcat(alert, "Problemen|fhren kann, wird das Plugin terminiert.][ OK ]");
 					form_alert(1, alert);
-					install_flag = 0;
+					install_flag = FALSE;
 				} else
 				{
 					/*
@@ -212,14 +211,15 @@ void scan_plugins(void)
 						if (strcmp(curr_info->name, info->name) == 0)
 						{
 							if (curr_info->plugin_version == info->plugin_version)	/* gleiche Version */
-								install_flag = 0;
-							else
 							{
+								install_flag = FALSE;
+							} else
+							{
+								/* FIXME: translate */
 								strcpy(alert, "[2][Das Plugin \"");
 								strcat(alert, info->name);
 								strcat(alert, "\"|ist zweimal in unterschiedlichen|Versionen installiert! ");
-								strcat(alert,
-									   "Nur das|neuere wird eingebunden. Soll das|„ltere Plugin abgemeldet werden?][ Ja | Nein ]");
+								strcat(alert, "Nur das|neuere wird eingebunden. Soll das|„ltere Plugin abgemeldet werden?][ Ja | Nein ]");
 								if (form_alert(1, alert) == 1)
 								{
 									if (curr_info->plugin_version > info->plugin_version)	/* ist das jetzige neuer als das vorher angemeldete? */
@@ -235,14 +235,15 @@ void scan_plugins(void)
 
 								if (curr_info->plugin_version > info->plugin_version)	/* ist das jetzige neuer als das vorher angemeldete? */
 								{
-									free(plg_info[t]->name);
 									free(plg_info[t]);
 									free(plugin_paths[t]);
 									plugin_bp[t] = plugin_bp[install_index];
 									plugin_bp[install_index] = NULL;
 									install_index = t;
 								} else
-									install_flag = 0;
+								{
+									install_flag = FALSE;
+								}
 							}
 
 							break;
@@ -253,25 +254,33 @@ void scan_plugins(void)
 				/*
 				 * ggfs. Plugin anmelden
 				 */
-				if (install_flag == 1)
+				if (install_flag)
 				{
-					plg_info[install_index] = malloc(sizeof(PLUGIN_INFO));
+					char *name;
+					
+					/*
+					 * have to copy contents of info & name,
+					 * because they are freed if the plugin is not resident
+					 */
+					plg_info[install_index] = malloc(sizeof(PLUGIN_INFO) + strlen(curr_info->name) + 1);
 					memcpy(plg_info[install_index], curr_info, sizeof(PLUGIN_INFO));
-					plg_info[install_index]->name = malloc(strlen(curr_info->name) + 1);
-					strcpy(plg_info[install_index]->name, curr_info->name);
+					name = (char *)(plg_info[install_index] + 1);
+					strcpy(name, curr_info->name);
+					plg_info[install_index]->name = name;
 					memcpy(&installed_infos[install_index], plg_info[install_index], sizeof(PLUGIN_INFO));
 
 					plugin_paths[install_index] = malloc(strlen(edit_path) + 1);
-					memset(plugin_paths[install_index], 0x0, strlen(edit_path) + 1);
+					memset(plugin_paths[install_index], 0, strlen(edit_path) + 1);
 					strcpy(plugin_paths[install_index], edit_path);
 
 					plg_data[install_index] = malloc(sizeof(PLUGIN_DATA));
-					memset(plg_data[install_index], 0x0, sizeof(PLUGIN_DATA));
+					memset(plg_data[install_index], 0, sizeof(PLUGIN_DATA));
 
 					/* Startup-Kommunikation */
 					plugin_startup(install_index, &curr_plugin_entry, actual->modname);
 
-					if (strcmp(curr_info->name, "GDOS Print-Plugin") == 0)
+					/* did plugin install as print plugin? */
+					if (menu2plugin[FILE_PRINT] >= 0)
 						printplug_found = TRUE;
 
 					if (!curr_info->resident)
@@ -313,18 +322,14 @@ void scan_plugins(void)
 	Zum Aufrufen eines im Speicher befindlichen Plugins (BASBAG *bp).
 	Die Message <message> wird bergeben. Handling ansonsten wie bei Editmodulen
 	---------------------------------------------------------------------------*/
-int start_plugin(BASPAG * bp, int message, int plg_id, PLUGIN_DATA * data)
+short start_plugin(BASPAG *bp, short message, short plg_id, PLUGIN_DATA *data)
 {
 	void (*plg_main)(PLUGIN_DATA * data);
-
 	char *textseg_begin;
-
-	int out_msg,
-	 index,
-	 curr_notify_index;
-
+	short out_msg;
+	short index;
+	short curr_notify_index;
 	long mod_magic;
-
 
 	textseg_begin = bp->p_tbase;		/* Textsegment-Startadresse holen */
 	mod_magic = get_modmagic(bp);		/* Zeiger auf Magic (muž 'PLGN' sein!) */
@@ -357,17 +362,18 @@ int start_plugin(BASPAG * bp, int message, int plg_id, PLUGIN_DATA * data)
 		out_msg = data->message;
 
 		if (out_msg == M_MEMORY)
+		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
-		else if (out_msg == M_EXIT)
+		} else if (out_msg == M_EXIT)
 		{
 			terminate_plugin(index);
-			return (M_TERMINATED);
+			return M_TERMINATED;
 		} else if (message != MSTART && message != MTERM && out_msg != M_WAITING)
 		{
 			if (modconfs[index] == NULL)
 			{
 				modconfs[index] = malloc(sizeof(EXT_MODCONF));
-				memset(modconfs[index], 0x0, sizeof(EXT_MODCONF));
+				memset(modconfs[index], 0, sizeof(EXT_MODCONF));
 			}
 
 			curr_notify_index = 0;
@@ -398,11 +404,12 @@ int start_plugin(BASPAG * bp, int message, int plg_id, PLUGIN_DATA * data)
 		}
 	} else
 	{
+		/* FIXME: translate */
 		Dialog.winAlert.openAlert("Fehler beim Aufrufen des Plugins!", NULL, NULL, NULL, 1);
-		return (-1);
+		return -1;
 	}
 
-	return (0);
+	return 0;
 }
 
 
@@ -410,10 +417,10 @@ int start_plugin(BASPAG * bp, int message, int plg_id, PLUGIN_DATA * data)
 /*--------------------------------------------------------------------
 	Plugin-Meneintrag wurde gew„hlt (wird von MENU.C aus aufgerufen) 
 	-----------------------------------------------------------------*/
-void call_plugin(int menuentry)
+void call_plugin(WORD menuentry)
 {
-	int plugin_number,
-	 msgbuf[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	short plugin_number;
+	WORD msgbuf[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 #if 0
 	if (menuentry >= PLUGIN1 && menuentry <= PLUGIN10)
@@ -432,17 +439,16 @@ void call_plugin(int menuentry)
 		if (plg_data[plugin_number] != NULL)
 		{
 			if (plg_data[plugin_number]->wind_struct != NULL && plg_data[plugin_number]->wind_struct->whandlem != -1)
+			{
 				Window.top(plg_data[plugin_number]->wind_struct->whandlem);
-			else if (modconfs[plugin_number]->windhandle != 0)
+			} else if (modconfs[plugin_number]->windhandle != 0)
 			{
 				msgbuf[0] = WM_TOPPED;
 				msgbuf[1] = Sys_info.app_id;
 				msgbuf[3] = modconfs[plugin_number]->windhandle;
 				memcpy(plg_data[plugin_number]->event_par, msgbuf, 16);
-				start_plugin(plugin_bp[plugin_number], SMURF_AES_MESSAGE, plugin_number | 0x200,
-							 plg_data[plugin_number]);
+				start_plugin(plugin_bp[plugin_number], SMURF_AES_MESSAGE, plugin_number | 0x200, plg_data[plugin_number]);
 			}
-
 			return;
 		}
 
@@ -454,7 +460,7 @@ void call_plugin(int menuentry)
 			if (load_plugin(plugin_number) < 0)
 				return;
 			plg_data[plugin_number] = malloc(sizeof(PLUGIN_DATA));
-			memset(plg_data[plugin_number], 0x0, sizeof(PLUGIN_DATA));
+			memset(plg_data[plugin_number], 0, sizeof(PLUGIN_DATA));
 			start_plugin(plugin_bp[plugin_number], MSTART, plugin_number | 0x200, plg_data[plugin_number]);
 		}
 
@@ -473,25 +479,26 @@ void call_plugin(int menuentry)
 	Diese Funktion wird z.B. benutzt, um nichtresidente Plugins 
 	nachzuladen.
 	-----------------------------------------------------------------*/
-static int load_plugin(int plugin_number)
+static short load_plugin(short plugin_number)
 {
 	char alert[128];
-	long temp,
-	 lback,
-	 ProcLen,
-	 mod_magic;
+	long temp;
+	long lback;
+	long ProcLen;
+	long mod_magic;
 
-
+	/* FIXME: translate */
 	Dialog.busy.reset(128, "Lade Plugin");
 
 	temp = Pexec(3, plugin_paths[plugin_number], "", NULL);
 	if (temp < 0)
 	{
+		/* FIXME: translate */
 		strcpy(alert, "[1][Fehler beim Nachladen|");
 		strcat(alert, "des Plugins!]");
 		strcat(alert, "[ Oh ]");
 		form_alert(1, alert);
-		return (-1);
+		return -1;
 	} else
 	{
 		plugin_bp[plugin_number] = (BASPAG *) temp;
@@ -509,26 +516,25 @@ static int load_plugin(int plugin_number)
 
 		if (mod_magic != MOD_MAGIC_PLUGIN)
 		{
+			/* FIXME: translate */
 			strcpy(alert, "[1][Plugin-typ ist nicht |registriert!][ Au weia ]");
 			form_alert(1, alert);
-			return (-1);
+			return -1;
 		}
 	}
 
-	return (0);
+	return 0;
 }
 
 
 /* plugin_startup ----------------------------------------------------------
 	Handled die Startup-Kommunikation mit dem Plugin.
 	------------------------------------------------------------------------*/
-static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename)
+static void plugin_startup(short index, short *curr_plugin_entry, const char *plg_filename)
 {
 	char alert[128];
-
-	int message,
-	 menuentry;
-
+	short message;
+	WORD menuentry;
 
 	start_plugin(plugin_bp[index], MSTART, index | 0x200, plg_data[index]);
 
@@ -536,6 +542,7 @@ static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename
 
 	if (message != MENU_ENTRY && message != FIXED_PLUGIN && message != INVISIBLE)
 	{
+		/* FIXME: translate */
 		strcpy(alert, "[1][Plugin|");
 		strcat(alert, plg_filename);
 		strcat(alert, "|initialisiert sich nicht!][ Oh ]");
@@ -575,7 +582,7 @@ static void plugin_startup(int index, int *curr_plugin_entry, char *plg_filename
 /*---------------------------------------------------------------------------
 	Plugin terminieren: mit MTERM aufrufen und Speicher freigeben.
 	-------------------------------------------------------------------------*/
-void terminate_plugin(int index)
+void terminate_plugin(short index)
 {
 	start_plugin(plugin_bp[index], MTERM, index, plg_data[index]);
 #if 0
@@ -597,16 +604,12 @@ void terminate_plugin(int index)
 	entry als Meneintrag ein. string darf nicht l„nger als der
 	ursprngliche Meneintrag sein!
 	-----------------------------------------------------------*/
-static void insert_to_menu(OBJECT * menu, int entry, char *string)
+static void insert_to_menu(OBJECT *menu, WORD entry, const char *string)
 {
 	char *dest_str;
-	char shortcut[6];
 	long string_len;
 
-
 	dest_str = menu[entry].ob_spec.free_string;
-
-	strcpy(shortcut, dest_str + strlen(dest_str) - 4);
 
 	string_len = strlen(string);
 

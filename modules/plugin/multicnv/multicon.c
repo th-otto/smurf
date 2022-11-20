@@ -172,7 +172,8 @@ void plugin_main(PLUGIN_DATA *data)
                         init_windstruct();
                         data->wind_struct = &window;
                         data->message = MENU_ENTRY;     /* Meneintrag anfordern */
-                        data->event_par[0]=24;
+						/* plugin responds to this menu entry */
+                        data->event_par[0]=FILE_FOLDER;
                         break;
 
         /*

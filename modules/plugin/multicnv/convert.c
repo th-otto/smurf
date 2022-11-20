@@ -56,7 +56,6 @@ extern  char *export_path;
 
 long files_read=0, allfiles=0;
 
-extern  SMURF_PIC * *smurf_picture;
 extern  GARGAMEL * *smurf_struct;
 extern  BASPAG * *edit_bp;
 

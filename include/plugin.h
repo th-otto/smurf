@@ -354,7 +354,7 @@ typedef struct
 	-----------------------------------------------------------------*/
 typedef struct plginfo
 {
-	char *name;
+	const char *name;
 	int16_t	plugin_version;
 	int16_t for_smurf_version;
 	uint8_t resident;			/* Resident halten oder nicht? */
@@ -370,11 +370,12 @@ extern short anzahl_plugins;
 extern signed char menu2plugin[128];		/* feste MenÅeintrÑge, in die Plugins eingehÑngt sind */
 extern BOOLEAN printplug_found;
 
+extern PLUGIN_INFO plugin_info ASM_NAME("plugin_info");
 
 /* Funktionsprototypen */
-int start_plugin(BASPAG *bp, int message, int plg_id, PLUGIN_DATA *data);
-void call_plugin(int menuentry);
+short start_plugin(BASPAG *bp, short message, short plg_id, PLUGIN_DATA *data);
+void call_plugin(WORD menuentry);
 void scan_plugins(void);
-void terminate_plugin(int index);
+void terminate_plugin(short index);
 
 void plugin_main(PLUGIN_DATA *data) ASM_NAME("plugin_main");
