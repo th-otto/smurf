@@ -1,36 +1,36 @@
 /*
- * resource set indices for multi
+ * resource set indices for multicon
  *
  * created by ORCS 2.18
  */
 
 /*
- * Number of Strings:        147
+ * Number of Strings:        129
  * Number of Bitblks:        0
  * Number of Iconblks:       0
  * Number of Color Iconblks: 1
  * Number of Color Icons:    1
- * Number of Tedinfos:       47
- * Number of Free Strings:   0
+ * Number of Tedinfos:       38
+ * Number of Free Strings:   9
  * Number of Free Images:    0
- * Number of Objects:        77
- * Number of Trees:          2
+ * Number of Objects:        67
+ * Number of Trees:          1
  * Number of Userblks:       0
  * Number of Images:         0
- * Total file size:          7216
+ * Total file size:          6786
  */
 
 #ifdef RSC_NAME
 #undef RSC_NAME
 #endif
 #ifndef __ALCYON__
-#define RSC_NAME "multi"
+#define RSC_NAME "multicon"
 #endif
 #ifdef RSC_ID
 #undef RSC_ID
 #endif
-#ifdef multi
-#define RSC_ID multi
+#ifdef multicon
+#define RSC_ID multicon
 #else
 #define RSC_ID 0
 #endif
@@ -39,17 +39,17 @@
 # define RSC_STATIC_FILE 0
 #endif
 #if !RSC_STATIC_FILE
-#define NUM_STRINGS 147
-#define NUM_FRSTR 0
+#define NUM_STRINGS 129
+#define NUM_FRSTR 9
 #define NUM_UD 0
 #define NUM_IMAGES 0
 #define NUM_BB 0
 #define NUM_FRIMG 0
 #define NUM_IB 0
 #define NUM_CIB 1
-#define NUM_TI 47
-#define NUM_OBS 77
-#define NUM_TREE 2
+#define NUM_TI 38
+#define NUM_OBS 67
+#define NUM_TREE 1
 #endif
 
 
@@ -84,16 +84,23 @@
 #define PROC_BAR          65 /* BOX in tree MULTICON */
 #define PROC_TEXT         66 /* TEXT in tree MULTICON */
 
-#define ALERT_STRINGS      1 /* form/dialog */
-#define NO_SOURCE          1 /* TEXT in tree ALERT_STRINGS */
-#define NO_DEST            2 /* TEXT in tree ALERT_STRINGS */
-#define NO_LOADMEM         3 /* TEXT in tree ALERT_STRINGS */
-#define IMPORT_ERROR       4 /* TEXT in tree ALERT_STRINGS */
-#define NO_PCD             5 /* TEXT in tree ALERT_STRINGS */
-#define PCD_READ_ERROR     6 /* TEXT in tree ALERT_STRINGS */
-#define NO_COM_STRUCT      7 /* TEXT in tree ALERT_STRINGS */
-#define NO_BASEPAGE        8 /* TEXT in tree ALERT_STRINGS */
-#define WRITE_ERROR        9 /* TEXT in tree ALERT_STRINGS */
+#define NO_SOURCE          0 /* Free string */
+
+#define NO_DEST            1 /* Free string */
+
+#define NO_LOADMEM         2 /* Free string */
+
+#define IMPORT_ERROR       3 /* Free string */
+
+#define NO_PCD             4 /* Free string */
+
+#define PCD_READ_ERROR     5 /* Free string */
+
+#define NO_COM_STRUCT      6 /* Free string */
+
+#define NO_BASEPAGE        7 /* Free string */
+
+#define WRITE_ERROR        8 /* Free string */
 
 
 
@@ -106,7 +113,7 @@
 #    define _WORD short
 #  endif
 #endif
-extern _WORD multi_rsc_load(_WORD wchar, _WORD hchar);
-extern _WORD multi_rsc_gaddr(_WORD type, _WORD idx, void *gaddr);
-extern _WORD multi_rsc_free(void);
+extern _WORD multicon_rsc_load(_WORD wchar, _WORD hchar);
+extern _WORD multicon_rsc_gaddr(_WORD type, _WORD idx, void *gaddr);
+extern _WORD multicon_rsc_free(void);
 #endif

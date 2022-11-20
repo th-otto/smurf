@@ -47,10 +47,11 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
+#include "wildcard.h"
 
-void tokenize_wildcards(char *string);
-char check_wildcard(char *filename, char *wildcard);
-char *mystrtok(char *s, char c);
+
+char *wildcards[64];
+short num_of_wildcards;
 
 
 /* tokenize_wildcards----------------------------------------------------
@@ -59,28 +60,22 @@ char *mystrtok(char *s, char c);
     ---------------------------------------------------------------------*/
 void tokenize_wildcards(char *string)
 {
-    char *curr_token;
+	char *curr_token;
 
-    extern char *wildcards[64];
-    extern int num_of_wildcards;
+	/*
+	 * Mittels mystrtok wird der String in seine durch , getrennten Tokens unterteilt.
+	 * Dabei werden die , durch Nullbytes ersetzt, so daž die L„nge der einzelnen
+	 * Tokens ohne weiteres mit strlen ausgemessen werden kann.
+	 */
+	while ((curr_token = mystrtok(string, ',')) != NULL)
+	{
+		wildcards[num_of_wildcards] = malloc(strlen(curr_token) + 1);	/* L„nge ausmessen und anfordern */
 
+		strcpy(wildcards[num_of_wildcards], curr_token);
 
-    /*
-     * Mittels mystrtok wird der String in seine durch , getrennten Tokens unterteilt.
-     * Dabei werden die , durch Nullbytes ersetzt, so daž die L„nge der einzelnen
-     * Tokens ohne weiteres mit strlen ausgemessen werden kann.
-     */
-    while((curr_token = mystrtok(string, ',')) != NULL)
-    {
-        wildcards[num_of_wildcards] = malloc(strlen(curr_token) + 1);   /* L„nge ausmessen und anfordern */
-
-        strcpy(wildcards[num_of_wildcards], curr_token);
-
-        num_of_wildcards++;
-    }
-
-    return;
-} /* tokenize_wildcards */
+		num_of_wildcards++;
+	}
+}
 
 
 /* check_wildcard -----------------------------------------------
@@ -88,32 +83,29 @@ void tokenize_wildcards(char *string)
     zutrifft (0) oder nicht (1). Es sind beliebig viele '*' und '?'
     in beliebiger Kombination zul„ssig.
     ------------------------------------------------------------*/
-char check_wildcard(char* filename, char* wildcard)
+int check_wildcard(char *filename, char *wildcard)
 {
-    while(*wildcard)
-    {
-        if((*wildcard == *filename) || (*wildcard == '?' && *filename))
-        {
-            wildcard++;
-            filename++;
-        }
-        else
-            if(*wildcard == '*')
-            {
-                for(;;)
-                {
-                    if(check_wildcard(filename, wildcard + 1))
-                        return(1);
+	while (*wildcard)
+	{
+		if ((*wildcard == *filename) || (*wildcard == '?' && *filename))
+		{
+			wildcard++;
+			filename++;
+		} else if (*wildcard == '*')
+		{
+			for (;;)
+			{
+				if (check_wildcard(filename, wildcard + 1))
+					return 1;
 
-                    if(*filename)
-                        filename++;
-                    else
-                        return(0);
-                }
-            }
-            else
-                return(0);
-    }
+				if (*filename)
+					filename++;
+				else
+					return 0;
+			}
+		} else
+			return 0;
+	}
 
-    return(*filename == '\0');
-} /* check_wildcard */
+	return *filename == '\0';
+}

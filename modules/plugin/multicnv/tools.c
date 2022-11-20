@@ -27,75 +27,88 @@
 #include "smurf_st.h"
 #include "smurfine.h"
 #include "globdefs.h"
+#include "plugin.h"
 #include "popdefin.h"
+#include "tools.h"
+#include "multi.h"
+#include "wildcard.h"
 
-void change_object(WINDOW *window, int object, int status, int redraw)
+
+void change_object(WINDOW *window, WORD object, WORD status, BOOLEAN redraw)
 {
-    extern SERVICE_FUNCTIONS *services;
+	OBJECT *obj = window->resource_form;
 
-    OBJECT *obj = window->resource_form;
-    
-    if(status==OS_SELECTED) obj[object].ob_state|=OS_SELECTED;
-    else if(status==OS_UNSEL)  obj[object].ob_state &= ~OS_SELECTED;
-    else if(status==OS_DISABLED)   obj[object].ob_state |= OS_DISABLED;
-    else if(status==OS_ENABLED)    obj[object].ob_state &= ~OS_DISABLED;
-    
-    if(redraw)  services->redraw_window(window, NULL, object, 0);
+	if (status == OS_SELECTED)
+		obj[object].ob_state |= OS_SELECTED;
+	else if (status == OS_UNSEL)
+		obj[object].ob_state &= ~OS_SELECTED;
+	else if (status == OS_DISABLED)
+		obj[object].ob_state |= OS_DISABLED;
+	else if (status == OS_ENABLED)
+		obj[object].ob_state &= ~OS_DISABLED;
+
+	if (redraw)
+		services->redraw_window(window, NULL, object, 0);
 }
 
 
 /* -------------------------- File laden --------------------------------*/
-char *fload(char *Path, short header)
+uint8_t *fload(char *Path, short header)
 {
-    char *buf;
-    int fh, attrib = 0;
-    long dummy;
-    extern long f_len;
+	uint8_t *buf;
+	int fh;
+	short attrib = 0;
+	long dummy;
 
+	/* Mit einem Trick testen, ob die Datei vorhanden ist */
+	if (Fattrib(Path, 0, attrib) >= 0)
+	{
+		if ((dummy = Fopen(Path, FO_READ)) >= 0)	/* Datei îffnen */
+		{
+			fh = (int) dummy;
 
-    /* Mit einem Trick testen, ob die Datei vorhanden ist */
-    if(Fattrib(Path, 0, attrib) >= 0)
-    {
-        if((dummy = Fopen(Path, FO_READ)) >= 0)     /* Datei îffnen */
-        {
-            fh = (int)dummy;
+			f_len = Fseek(0, fh, 2) - header;	/* FilelÑnge ermitteln */
+			Fseek(header, fh, 0);		/* und Dateizeiger wieder auf Anfang */
 
-            f_len = Fseek(0, fh, 2) - header;           /* FilelÑnge ermitteln */
-            Fseek(header, fh, 0);                       /* und Dateizeiger wieder auf Anfang */
+			if ((buf = (uint8_t *)Malloc(f_len)) == NULL)
+			{
+				form_alert(1, "[3][Nicht genÅgend Speicher zum|Laden der Datei!][ Oh! ]");
+			} else
+			{
+				dummy = Fread(fh, f_len, buf);
 
-            if((buf = Malloc(f_len)) == NULL)
-            form_alert(1, "[3][Nicht genÅgend Speicher zum|Laden der Datei!][ Oh! ]");
-            else
-            {
-                dummy = Fread(fh, f_len, buf);
+				if (dummy < f_len)
+				{
+					form_alert(1, "[3][Lesefehler beim Laden|der Datei!][ Oh! ]");
+					Mfree(buf);
+					buf = NULL;
+				}
+			}
+			Fclose(fh);
+		}
+	} else
+		buf = NULL;
 
-                if(dummy < f_len)
-                {
-                    form_alert(1, "[3][Lesefehler beim Laden|der Datei!][ Oh! ]");
-                    Mfree(buf);
-                    buf = NULL;
-                }
-            }
-            Fclose(fh);
-        }
-    }
-    else
-        buf = NULL;
-
-    return(buf);
+	return buf;
 }
 
 
-int depth_button2depth(int button)
+short depth_button2depth(WORD button)
 {
-    if(button==EXP_D24)         return(24);
-    else if(button==EXP_D16)    return(16);
-    else if(button==EXP_D8)     return(8);
-    else if(button==EXP_D4)     return(4);
-    else if(button==EXP_D2)     return(2);
-    else if(button==EXP_D1)     return(1);
+	if (button == EXP_D24)
+		return 24;
+	else if (button == EXP_D16)
+		return 16;
+	else if (button == EXP_D8)
+		return 8;
+	else if (button == EXP_D4)
+		return 4;
+	else if (button == EXP_D2)
+		return 2;
+	else if (button == EXP_D1)
+		return 1;
 
-    return(1);
+	return 1;
 }
 
 
@@ -107,65 +120,58 @@ int depth_button2depth(int button)
 /* Deshalb gibt es die Mîglichkeit des manuellen Inits mit NULL als erstem Parameter. */
 char *mystrtok(char *s, char c)
 {
-    static char *t = NULL;
-    char *back;
+	static char *t = NULL;
+	char *back;
 
+	if (s == NULL)						/* manueller Init */
+	{
+		t = NULL;
+		return NULL;
+	}
 
-    if(s == NULL)                   /* manueller Init */
-    {
-        t = NULL;
-        return(NULL);
-    }
+	if (t == NULL)						/* Nur am Stringanfang der Fall */
+		t = s;
 
-    if(t == NULL)                   /* Nur am Stringanfang der Fall */
-        t = s;
+	if (*t == '\0')						/* Wenn der String zu Ende tokenisiert wurde, */
+	{									/* also nach dem letzten gÅltigen Aufruf. */
+		t = NULL;						/* Und das, damit nachfolgende Strings auch noch */
+		return NULL;					/* gemacht werden kînnen. */
+	}
 
-    if(*t == '\0')                  /* Wenn der String zu Ende tokenisiert wurde, */
-    {                               /* also nach dem letzten gÅltigen Aufruf. */
-        t = NULL;                   /* Und das, damit nachfolgende Strings auch noch */
-        return(NULL);               /* gemacht werden kînnen. */
-    }
+	s = t;
 
-    s = t;
+	while (*s)
+	{
+		if (*s == c)
+		{
+			*s++ = '\0';
+			break;
+		} else
+			s++;
+	}
 
-    while(*s)
-    {
-        if(*s == c)
-        {
-            *s++ = '\0';
-            break;
-        }
-        else
-            s++;
-    }
+	back = t;							/* Eingangsstring wegsichern */
+	t = s;								/* und neuen Anfang setzen */
 
-    back = t;                       /* Eingangsstring wegsichern */
-    t = s;                          /* und neuen Anfang setzen */
-
-    return(back);
-} /* mystrtok */
+	return back;
+}
 
 
 /* Umwandlung der Buchstaben eines Strings in Kleinbuchstaben */
 /* unter BerÅcksichtigung der deutschen Umlaute */
 void lower(char *string)
 {
-    while(*string)
-    {
-        if(*string >= 'A' && *string <= 'Z')
-            *string += 32;
-        else
-            if(*string == 'é')
-                *string -= 10;
-            else
-                if(*string == 'ô')
-                    *string -= 5;
-                else
-                    if(*string == 'ö')
-                        *string -= 25;
+	while (*string)
+	{
+		if (*string >= 'A' && *string <= 'Z')
+			*string += 32;
+		else if (*string == 'é')
+			*string -= 10;
+		else if (*string == 'ô')
+			*string -= 5;
+		else if (*string == 'ö')
+			*string -= 25;
 
-        string++;
-    }
-
-    return;
-} /* lower */
+		string++;
+	}
+}

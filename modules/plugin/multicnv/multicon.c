@@ -44,6 +44,8 @@
 #include "globdefs.h"
 #include "plugin.h"
 #include "popdefin.h"
+#include "tools.h"
+#include "multi.h"
 
 #undef NUM_STRINGS
 #undef NUM_FRSTR
@@ -56,251 +58,142 @@
 #undef NUM_TI
 #undef NUM_OBS
 #undef NUM_TREE
-#undef INFOICON /* conflicts with smurf.h */
-#undef DITHER_CB /* conflicts with smurf.h */
-#undef ALERT_STRINGS /* conflicts with smurf.h */
-#include "multi.h"
+#undef INFOICON							/* conflicts with smurf.h */
+#undef DITHER_CB						/* conflicts with smurf.h */
 
 #include "country.h"
 
 #if COUNTRY==1
-    #include "deutsch.rsc/multi.rsh"
+#include "de/multicon.rsh"
 #elif COUNTRY==0
-    #include "englisch.rsc/multi.rsh"
+#include "en/multicon.rsh"
 #elif COUNTRY==2
-    #include "englisch.rsc/multi.rsh" /* missing french resource */
+#include "en/multicon.rsh"		/* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif
 
 #define TextCast ob_spec.tedinfo->te_ptext
 
-void init_rsh(void);
-void init_windstruct(void);
-void actualize_dialog(void);
-void handle_dialog(PLUGIN_DATA *data);
-int handle_aesmsg(int *msgbuf);
-void open_exporter_options(void);
-void analyze_module(MOD_ABILITY *expmabs, char *export_path, int mod_num);
-void ready_depth_popup(MOD_ABILITY *expmabs);
-int give_free_module(void);
-void init_exporter(void);
-int depth2popbutton(int depth);
-void init_colpop(void);
-void check_depth(void);
 
-char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols);
+static char const name_string[] = "Multikonverter";
 
-extern  void change_object(WINDOW *window, int object, int status, int redraw);
-extern  char *fload(char *Path, short header);
-extern  int depth_button2depth(int button);
-
-extern  void start_conversion(void);
-
-char name_string[] = "Multikonverter\0";
-
-PLUGIN_INFO plugin_info=
-{
-    name_string,
-    0x091,              /* Plugin-Version 1.00 */
-    SMURF_VERSION,      /* fr Smurf-Version 1.06 */
-    0                   /* und nicht resident. */
+PLUGIN_INFO plugin_info = {
+	name_string,
+	0x091,								/* Plugin-Version 1.00 */
+	SMURF_VERSION,						/* fr Smurf-Version 1.06 */
+	0									/* und nicht resident. */
 };
 
 SERVICE_FUNCTIONS *services;
 
-int my_id, dialog_open, options_open;
+static short my_id;
+static BOOLEAN dialog_open;
+static BOOLEAN options_open;
 
-WINDOW  window;
-OBJECT  *dialog, *alerts;
-SMURF_PIC *pic_active;
+WINDOW window;
+OBJECT *dialog;
+char **alerts;
+static SMURF_PIC *pic_active;
 
-SMURF_PIC * *smurf_picture;
-GARGAMEL * *smurf_struct;
-BASPAG * *edit_bp;
+static SMURF_PIC **smurf_picture;
+GARGAMEL **smurf_struct;
+BASPAG **edit_bp;
 static short *active_pic;
 
-PLUGIN_FUNCTIONS    *smurf_functions;
+PLUGIN_FUNCTIONS *smurf_functions;
 SMURF_VARIABLES *smurf_vars;
 
-LIST_FIELD exporter_list;
-POP_UP  depth_popup, colsys_popup, dither_popup, palette_popup;
+static LIST_FIELD exporter_list;
+static POP_UP depth_popup;
+static POP_UP colsys_popup;
+static POP_UP dither_popup;
+static POP_UP palette_popup;
 
 /*
 *   Informationen des gew„hlten Exporters: 
 */
-EXPORT_CONFIG   original_exp_conf;
-EXPORT_CONFIG *exp_conf;        /* dies ist die Struktur aus Smurf, um ihn beim Dithern zu betrgen */
+EXPORT_CONFIG original_exp_conf;
+EXPORT_CONFIG *exp_conf;				/* dies ist die Struktur aus Smurf, um ihn beim Dithern zu betrgen */
 EXPORT_CONFIG my_exp_conf;
 MOD_ABILITY expmabs;
 char *export_path;
-int mod_num, exp_depth;
+short mod_num;
+WORD exp_depth;
 
-int fix_red[256], fix_green[256], fix_blue[256];
+WORD fix_red[256];
+WORD fix_green[256];
+WORD fix_blue[256];
 
-char Path[256] = "C:\\";
-
-void plugin_main(PLUGIN_DATA *data)
-{
-    int exp_index;
-
-    /* Die Strukturen mit den Variablen und Funktionen holen */
-    services = data->services;
-    smurf_functions = data->smurf_functions;
-    smurf_vars = data->smurf_vars;
-    smurf_struct = smurf_vars->smurf_struct;
-    smurf_picture = smurf_vars->smurf_picture;
-    edit_bp = smurf_vars->edit_bp;
-    active_pic = smurf_vars->active_pic;
-    exp_conf = smurf_vars->exp_conf;
-
-    if(data->message == SMURF_AES_MESSAGE)
-    {
-        data->message = handle_aesmsg(data->event_par);
-        return;
-    }
-
-    switch(data->message)
-    {
-        /* 
-         * Startup des Plugins: Meneintrag anfordern 
-         */
-        case MSTART:
-                        my_id = data->id;
-                        strcpy(data->plugin_name, "Multikonvert...");
-                        init_rsh();
-                        init_windstruct();
-                        data->wind_struct = &window;
-                        data->message = MENU_ENTRY;     /* Meneintrag anfordern */
-						/* plugin responds to this menu entry */
-                        data->event_par[0]=FILE_FOLDER;
-                        break;
-
-        /*
-         * Plugin wurde aus dem Men heraus aufgerufen 
-         */
-        case PLGSELECTED:   pic_active = smurf_picture[*active_pic];
-
-                            /*
-                             * Fenster ”ffnen und Dialog initialisieren
-                             */
-                            my_exp_conf.exp_dither = DIT1;
-                            my_exp_conf.exp_colred = CR_SYSPAL;
-                            
-                            strcpy(dialog[DITHER_PB].TextCast, smurf_vars->col_pop[DIT1].TextCast);
-                            strcpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[CR_SYSPAL].TextCast);
-
-                            services->f_module_window(&window);
-                            dialog_open = 1;
-
-                            services->listfield(&window, 99, 99, &exporter_list);
-
-                            exp_index = services->listfield(&window, 0, 0, &exporter_list);
-                            export_path = smurf_vars->export_modules[exp_index];
-                            analyze_module(&expmabs, export_path, mod_num);
-                            ready_depth_popup(&expmabs);
-                            init_exporter();
-
-                            init_colpop();
-
-                            strcpy(dialog[SOURCE_PATH].TextCast, "");
-                            strcpy(dialog[DEST_PATH].TextCast, "");
-                            strcpy(dialog[WILDCARDS].TextCast, "*");
-
-                            data->message = M_WAITING;
-                            break;
-
-        /*
-         * Fenster wurde geschlossen
-         */
-        case MWINDCLOSED:   smurf_functions->check_and_terminate(MTERM, mod_num&0xFF);  
-                            dialog_open = 0;
-                            break;
-                            
-        /*
-         * Keyboardevent/Buttonevent
-         */
-        case MKEVT:
-        case MBEVT:     handle_dialog(data);
-                        data->message = M_WAITING;
-                        break;
-
-        case MTERM:     data->message = M_TERMINATED;
-                        break;
-
-        default:        data->message = M_WAITING;
-                        break;
-    }
-}
-
-
-void init_windstruct(void)
-{
-
-    window.module = my_id;
-    window.wnum = 1;                            /* Das wievielte Fenster des Moduls? */
-    window.wx = -1;                         
-    window.wy = -1;                         
-
-    strcpy(window.wtitle, "Multikonverter");    /* Fenstertitel */
-
-    window.resource_form = dialog;          /* Modulresource-Formular */
-    window.picture = NULL;                  /* Zeigerfeld fr Bild/Animation */
-    window.editob = WILDCARDS;
-    window.nextedit = 0;
-    window.editx = 0;
-    window.pflag = 0;
-
-    window.prev_window = NULL;  /* vorheriges Fenster (WINDOW*) */
-    window.next_window = NULL;  /* n„xtes Fenster (WINDOW*) */
-    
-    
-    memcpy(&exporter_list, smurf_vars->export_list, sizeof(LIST_FIELD));
-    exporter_list.max_entries = 9;      
-    exporter_list.parent_obj = EXPLIST_PARENT;
-    exporter_list.slider_parent = EXPLIST_SB;   /* Parentobjekt des Sliders     */
-    exporter_list.slider_obj = EXPLIST_SL;      /* Sliderobjekt                 */
-    exporter_list.slar_up = EXPLIST_UP;         /* Slider-Arrow hoch            */
-    exporter_list.slar_dn = EXPLIST_DN;         /* Slider-Arrow runter          */
-    exporter_list.scroll_offset = 0;            /* Scrolloffset der Liste       */
-    exporter_list.autolocator = NULL;           /* Zeiger auf Autolocator-String */
-    exporter_list.auto_len = 0;
-    
-    memcpy(&depth_popup, &smurf_vars->pop_ups[POPUP_EXP_DEPTH], sizeof(POP_UP));
-    depth_popup.item = 7;                   /* Item (=letzter Eintrag)      */
-    depth_popup.display_tree = dialog;      /* Tree, in dems dargestellt werden soll */
-    depth_popup.display_obj = DEPTH_PB;     /* Objekt in display_tree, bei dems dargestellt werden soll */
-    depth_popup.Cyclebutton = DEPTH_CB;     /* Index des Cyclebuttons */
-
-    memcpy(&palette_popup, &smurf_vars->pop_ups[POPUP_COLRED], sizeof(POP_UP));
-    palette_popup.item = 1;                 /* Item (=letzter Eintrag)      */
-    palette_popup.display_tree = dialog;        /* Tree, in dems dargestellt werden soll */
-    palette_popup.display_obj = PALMODE_PB; /* Objekt in display_tree, bei dems dargestellt werden soll */
-    palette_popup.Cyclebutton = PALMODE_CB; /* Index des Cyclebuttons */
-
-    memcpy(&dither_popup, &smurf_vars->pop_ups[POPUP_DITHER], sizeof(POP_UP));
-    dither_popup.item = 1;                  /* Item (=letzter Eintrag)      */
-    dither_popup.display_tree = dialog;     /* Tree, in dems dargestellt werden soll */
-    dither_popup.display_obj = DITHER_PB;   /* Objekt in display_tree, bei dems dargestellt werden soll */
-    dither_popup.Cyclebutton = DITHER_CB;   /* Index des Cyclebuttons */
-}
-
+static char Path[256] = "C:\\";
 
 
 /* init_rsh -----------------------------------------------------
     Initialisiert die Resource 
     -----------------------------------------------------------*/
-void init_rsh(void)
+static void init_rsh(void)
 {
-    int t;
+	WORD t;
 
-    /* Resource Umbauen */
-    for (t=0; t<NUM_OBS; t++)   rsrc_obfix (&rs_object[t], 0);
+	/* Resource Umbauen */
+	for (t = 0; t < NUM_OBS; t++)
+		rsrc_obfix(rs_object, t);
 
-    dialog = rs_trindex[MULTICON];      /* Resourcebaum holen */
-    alerts = rs_trindex[ALERT_STRINGS];
+	dialog = rs_trindex[MULTICON];		/* Resourcebaum holen */
+	alerts = rs_frstr;
+}
 
-    return;
+
+
+static void init_windstruct(void)
+{
+
+	window.module = my_id;
+	window.wnum = 1;					/* Das wievielte Fenster des Moduls? */
+	window.wx = -1;
+	window.wy = -1;
+
+	strcpy(window.wtitle, "Multikonverter");	/* Fenstertitel */
+
+	window.resource_form = dialog;		/* Modulresource-Formular */
+	window.picture = NULL;				/* Zeigerfeld fr Bild/Animation */
+	window.editob = WILDCARDS;
+	window.nextedit = 0;
+	window.editx = 0;
+	window.pflag = 0;
+
+	window.prev_window = NULL;			/* vorheriges Fenster (WINDOW*) */
+	window.next_window = NULL;			/* n„xtes Fenster (WINDOW*) */
+
+
+	memcpy(&exporter_list, smurf_vars->export_list, sizeof(LIST_FIELD));
+	exporter_list.max_entries = 9;
+	exporter_list.parent_obj = EXPLIST_PARENT;
+	exporter_list.slider_parent = EXPLIST_SB;	/* Parentobjekt des Sliders     */
+	exporter_list.slider_obj = EXPLIST_SL;	/* Sliderobjekt                 */
+	exporter_list.slar_up = EXPLIST_UP;	/* Slider-Arrow hoch            */
+	exporter_list.slar_dn = EXPLIST_DN;	/* Slider-Arrow runter          */
+	exporter_list.scroll_offset = 0;	/* Scrolloffset der Liste       */
+	exporter_list.autolocator = NULL;	/* Zeiger auf Autolocator-String */
+	exporter_list.auto_len = 0;
+
+	memcpy(&depth_popup, &smurf_vars->pop_ups[POPUP_EXP_DEPTH], sizeof(POP_UP));
+	depth_popup.item = 7;				/* Item (=letzter Eintrag)      */
+	depth_popup.display_tree = dialog;	/* Tree, in dems dargestellt werden soll */
+	depth_popup.display_obj = DEPTH_PB;	/* Objekt in display_tree, bei dems dargestellt werden soll */
+	depth_popup.Cyclebutton = DEPTH_CB;	/* Index des Cyclebuttons */
+
+	memcpy(&palette_popup, &smurf_vars->pop_ups[POPUP_COLRED], sizeof(POP_UP));
+	palette_popup.item = 1;				/* Item (=letzter Eintrag)      */
+	palette_popup.display_tree = dialog;	/* Tree, in dems dargestellt werden soll */
+	palette_popup.display_obj = PALMODE_PB;	/* Objekt in display_tree, bei dems dargestellt werden soll */
+	palette_popup.Cyclebutton = PALMODE_CB;	/* Index des Cyclebuttons */
+
+	memcpy(&dither_popup, &smurf_vars->pop_ups[POPUP_DITHER], sizeof(POP_UP));
+	dither_popup.item = 1;				/* Item (=letzter Eintrag)      */
+	dither_popup.display_tree = dialog;	/* Tree, in dems dargestellt werden soll */
+	dither_popup.display_obj = DITHER_PB;	/* Objekt in display_tree, bei dems dargestellt werden soll */
+	dither_popup.Cyclebutton = DITHER_CB;	/* Index des Cyclebuttons */
 }
 
 
@@ -308,204 +201,44 @@ void init_rsh(void)
 /* actualize_dialog ----------------------------------------------
     Aktualisiert den Dialog
     ------------------------------------------------------------*/
-void actualize_dialog(void)
+static void actualize_dialog(void)
 {
-
-    services->redraw_window(&window, NULL, 0, 0);
+	services->redraw_window(&window, NULL, 0, 0);
 }
 
-
-
-
-/* handle_dialog ----------------------------------------------
-    šbernimmt die Userbedienung des Dialogs
-    ----------------------------------------------------------*/
-void handle_dialog(PLUGIN_DATA *data)
-{
-    int button, back, exp_index, t;
-    char module_name[33]="";
-    char *textseg, *pal_loadpath;
-    MOD_INFO *minfo;
-
-
-    if(data->message == MBEVT)
-    {
-
-        button = data->event_par[0];
-        switch(button)
-        {
-            case DEPTH_PB:
-            case DEPTH_CB:      back = services->popup(&depth_popup, 0, button, NULL);
-                                services->deselect_popup(&window, DEPTH_PB, DEPTH_CB);
-                                if(back>0)
-                                    exp_depth = back;
-                                check_depth();
-                                break;
-                                
-            case DITHER_PB:
-            case DITHER_CB:     back = services->popup(&dither_popup, 0, button, NULL);
-                                services->deselect_popup(&window, DITHER_PB, DITHER_CB);
-                                if(back>0)
-                                    my_exp_conf.exp_dither = back;
-                                check_depth();
-                                break;
-                                
-            case PALMODE_PB:
-            case PALMODE_CB:    back = services->popup(&palette_popup, 0, button, NULL);
-                                services->deselect_popup(&window, PALMODE_PB, PALMODE_CB);
-                                if(back>0) my_exp_conf.exp_colred = back;
-                                    
-                                if(my_exp_conf.exp_colred==CR_FILEPAL)
-                                    change_object(&window, LOADPAL, OS_ENABLED, 1);
-                                else
-                                    change_object(&window, LOADPAL, OS_DISABLED, 1);
-                                break;
-
-            case EXPORTER_OPTIONS:  open_exporter_options();
-                                    break;
-            
-            case SOURCE_PATH:   back = services->f_fsbox(Path, "Quellpfad", 6);
-                                strncpy(dialog[SOURCE_PATH].TextCast, Path, 53);
-                                dialog[SOURCE_PATH].TextCast[54]=0;
-                                services->redraw_window(&window, NULL, SOURCE_PATH, 0);
-                                break;
-                                    
-            case DEST_PATH: back = services->f_fsbox(Path, "Zielpfad", 6);
-                            strncpy(dialog[DEST_PATH].TextCast, Path, 53);
-                            dialog[DEST_PATH].TextCast[54]=0;
-                            services->redraw_window(&window, NULL, DEST_PATH, 0);
-                            break;
-
-            case LOADPAL:   pal_loadpath = load_palfile(smurf_vars->Sys_info->standard_path, 
-                                                    fix_red, fix_green, fix_blue, 1<<depth_button2depth(exp_depth));
-                            if(pal_loadpath != NULL)
-                            {
-                                strcpy(smurf_vars->colred_popup[CR_FILEPAL].TextCast, strrchr(pal_loadpath, '\\')+1);
-                                strcpy(dialog[PALMODE_PB].TextCast, strrchr(pal_loadpath, '\\')+1);
-                            }
-                            change_object(&window, DITHER_PB, OS_UNSEL, 1);
-                            change_object(&window, LOADPAL, OS_UNSEL, 1);
-                            break;
-
-            case GO:        start_conversion();
-                            break;
-        }
-
-        /*
-         * Hat sich der gew„hlte Exporter ge„ndert? -> Farbtiefenpopup neu initialisieren
-         */
-        if(button >= EXPLIST_1 && button <= EXPLIST_9 || 
-            button == EXPLIST_UP || button == EXPLIST_DN || button == EXPLIST_SL || button == EXPLIST_SB)
-        {
-            /*
-             * ist der Exporter schon durch Fensterschliežen
-             * terminiert worden? Dann darf hier nix mehr gemacht werden
-             */
-            if(edit_bp[mod_num&0xFF]!=NULL)     
-            {
-                /*
-                 * bisherigen Optionsdialog schliežen
-                 */
-                if(options_open)
-                {
-                    options_open = 0;
-                    
-                    textseg = edit_bp[mod_num&0xFF] -> p_tbase;
-                    minfo = *((MOD_INFO **)(textseg + MOD_INFO_OFFSET));    /* Zeiger auf Modulinfostruktur */
-                    strncpy(module_name, minfo->mod_name, 30);
-                                
-                    for(t = 0; t < smurf_vars->anzahl_exporter; t++)
-                    {
-                        if( strncmp(module_name, smurf_vars->export_module_names[t], strlen(module_name))==0 )
-                            break;
-                    } 
-    
-                    *( (long *)smurf_struct[mod_num&0xFF]->event_par) = (long)smurf_vars->export_cnfblock[t];
-                    smurf_struct[mod_num&0xFF]->event_par[2] = smurf_vars->export_cnflen[t];
-                
-                    smurf_functions->start_exp_module(export_path, MMORECANC, NULL, edit_bp[mod_num&0xFF], smurf_struct[mod_num&0xFF], mod_num);
-                    wind_close(smurf_struct[mod_num&0xFF]->wind_struct->whandlem);
-                    wind_delete(smurf_struct[mod_num&0xFF]->wind_struct->whandlem);
-                    smurf_struct[mod_num&0xFF]->wind_struct->whandlem = -1;
-                }
-
-                /* momentanen Exporter wieder terminieren
-                 */
-                smurf_functions->check_and_terminate(MTERM, mod_num&0xFF);
-            }
-            
-            exp_index = services->listfield(&window, button, 0, &exporter_list);
-            export_path = smurf_vars->export_modules[exp_index];
-            analyze_module(&expmabs, export_path, mod_num);
-            ready_depth_popup(&expmabs);
-            init_exporter();
-            init_colpop();
-        }
-    }
-    
-}
-
-/* handle_aesmsg ----------------------------------------------
-    kmmert sich um von Smurf weitergeleitete AES-Messages
-    ----------------------------------------------------------*/
-int handle_aesmsg(int *msgbuf)
-{
-    (void)msgbuf;
-    return(M_WAITING);
-}
 
 
 /* open_exporter options ------------------------------------------------
     Bringt den geladenen Exporter dazu, seinen internen Optionsdialog zu
     ”ffnen.
     ---------------------------------------------------------------------*/
-void open_exporter_options(void)
+static void open_exporter_options(void)
 {
-    smurf_functions->start_exp_module(export_path, MMORE, NULL, edit_bp[mod_num&0xFF], smurf_struct[mod_num&0xFF], mod_num);
-    options_open=1;
+	smurf_functions->start_exp_module(export_path, MMORE, NULL, edit_bp[mod_num & 0xFF], smurf_struct[mod_num & 0xFF], mod_num);
+	options_open = 1;
 }
 
 
-/* init_exporter --------------------------------------------------------
-    L„dt den Exporter der globalen ID mod_num und startet diesen mit MSTART
-    bei gleichzeitiger šbergabe seines Konfigurationsblocks.
-    ----------------------------------------------------------------------*/
-void init_exporter(void)
+
+/* give_free_module -------------------------------------------------------
+    ermittelt eine freie Smurf-Modulstruktur in den Smurf-internen Arrays und
+    gibt einen entsprechenden Index zurck, der fr smurf_struct verwendet werden kann.
+    -----------------------------------------------------------------------*/
+static short give_free_module(void)
 {
-    char *txtbeg;
-    char module_name[33] = "";
+	short mod;
 
-    int t;
+	/* Freie Modulstruktur ermitteln */
+	mod = 0;
+	while (smurf_struct[mod] != NULL)
+		mod++;
+	if (mod > 20)
+	{
+		services->f_alert(smurf_vars->alerts[NO_MORE_MODULES].TextCast, 0, 0, 0, 1);
+		mod = -1;
+	}
 
-    MOD_INFO *modinfo;
-
-
-    mod_num = give_free_module();
-    if(mod_num == -1)
-    {
-        services->f_alert(smurf_vars->alerts[MOD_LOAD_ERR].TextCast, 0,0,0,1);
-        return;
-    }
-    mod_num |= 0x100;       /* als Exporter kennzeichnen */
-
-    smurf_struct[mod_num&0xFF] = malloc(sizeof(GARGAMEL));
-    memset(smurf_struct[mod_num&0xFF], 0x0, sizeof(GARGAMEL));
-
-    edit_bp[mod_num&0xFF] = (BASPAG *)smurf_functions->start_exp_module(export_path, MSTART, NULL, edit_bp[mod_num&0xFF], smurf_struct[mod_num&0xFF], mod_num);
-    smurf_struct[mod_num&0xFF]->wind_struct = NULL;
-
-    txtbeg = edit_bp[mod_num&0xFF]->p_tbase;
-    modinfo = *((MOD_INFO **)(txtbeg + MOD_INFO_OFFSET));       /* Zeiger auf Modulinfostruktur */
-
-    strncpy(module_name, modinfo->mod_name, 30);
-
-    for(t = 0; t < smurf_vars->anzahl_exporter; t++)
-    {
-        if(strncmp(module_name, smurf_vars->export_module_names[t], strlen(module_name)) == 0)
-            break;
-    } 
-    *((long *)smurf_struct[mod_num&0xFF]->event_par) = (long)smurf_vars->export_cnfblock[t];
-    smurf_struct[mod_num&0xFF]->event_par[2] = smurf_vars->export_cnflen[t];
+	return mod;
 }
 
 
@@ -513,36 +246,36 @@ void init_exporter(void)
     L„dt das Modul mit dem Pfad export_path mit der ID mod_num und kopiert
     die Infostrukturen in expmabs.
     ---------------------------------------------------------------------*/
-void analyze_module(MOD_ABILITY *expmabs, char *export_path, int mod_num)
+static void analyze_module(MOD_ABILITY *expmabs, char *export_path, short mod_num)
 {
-    MOD_ABILITY *export_mabs;
+	MOD_ABILITY *export_mabs;
 
-    
-    mod_num = give_free_module();
-    if(mod_num == -1)
-    {
-        services->f_alert(smurf_vars->alerts[MOD_LOAD_ERR].TextCast, 0,0,0,1);
-        return;
-    }
-    mod_num |= 0x100;       /* als Exporter kennzeichnen */
-    
-    smurf_struct[mod_num&0xFF] = malloc(sizeof(GARGAMEL));
-    memset(smurf_struct[mod_num&0xFF], 0x0, sizeof(GARGAMEL));
+	mod_num = give_free_module();
+	if (mod_num == -1)
+	{
+		services->f_alert(smurf_vars->alerts[MOD_LOAD_ERR].TextCast, 0, 0, 0, 1);
+		return;
+	}
+	mod_num |= 0x100;					/* als Exporter kennzeichnen */
 
-    /*
-     * Modul analysieren
-     */
-    export_mabs = (MOD_ABILITY *)smurf_functions->start_exp_module(export_path, MQUERY, NULL, edit_bp[mod_num&0xFF], smurf_struct[mod_num&0xFF], mod_num);
-    memcpy(expmabs, export_mabs, sizeof(MOD_ABILITY));
+	smurf_struct[mod_num & 0xFF] = malloc(sizeof(GARGAMEL));
+	memset(smurf_struct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
 
-    if(expmabs->ext_flag&0x02)
-        dialog[EXPORTER_OPTIONS].ob_state &= ~OS_DISABLED;
-    else
-        dialog[EXPORTER_OPTIONS].ob_state |= OS_DISABLED;
+	/*
+	 * Modul analysieren
+	 */
+	export_mabs = (MOD_ABILITY *) smurf_functions->start_exp_module(export_path, MQUERY, NULL, edit_bp[mod_num & 0xFF],
+		smurf_struct[mod_num & 0xFF], mod_num);
+	memcpy(expmabs, export_mabs, sizeof(MOD_ABILITY));
 
-    services->redraw_window(&window, NULL, EXPORTER_OPTIONS, 0);
-    
-    smurf_functions->check_and_terminate(MTERM, mod_num&0xFF);  /* Modul wieder terminieren */
+	if (expmabs->ext_flag & 0x02)
+		dialog[EXPORTER_OPTIONS].ob_state &= ~OS_DISABLED;
+	else
+		dialog[EXPORTER_OPTIONS].ob_state |= OS_DISABLED;
+
+	services->redraw_window(&window, NULL, EXPORTER_OPTIONS, 0);
+
+	smurf_functions->check_and_terminate(MTERM, mod_num & 0xFF);	/* Modul wieder terminieren */
 }
 
 
@@ -550,201 +283,487 @@ void analyze_module(MOD_ABILITY *expmabs, char *export_path, int mod_num)
     Pažt die Farbtiefen im Smurf-Popup fr Exportfarbtiefen nach den Modulf„higkeiten
     in expmabs an.
     -----------------------------------------------------------------------------*/
-void ready_depth_popup(MOD_ABILITY *expmabs)
+static void ready_depth_popup(MOD_ABILITY *expmabs)
 {
-    int export_depth[10], t, ob;
+	short export_depth[10];
+	short t;
+	WORD ob;
 
-    export_depth[0]=expmabs->depth1;
-    export_depth[1]=expmabs->depth2;
-    export_depth[2]=expmabs->depth3;
-    export_depth[3]=expmabs->depth4;
-    export_depth[4]=expmabs->depth5;
-    export_depth[5]=expmabs->depth6;
-    export_depth[6]=expmabs->depth7;
-    export_depth[7]=expmabs->depth8;
-    
-    /*
-    *   Depth-Popup vorbereiten 
-    */
-    ob=EXP_D1;
-    for(t=0; t<=6; t++)
-    {
-        smurf_vars->exp_dp_popup[ob].ob_state |= OS_DISABLED;
-        ob++;
-    }
-    for(t=0; t<8; t++)
-    {
-        switch(export_depth[t])
-        {
-            case 24:    smurf_vars->exp_dp_popup[EXP_D24].ob_state &= ~OS_DISABLED;    break;
-            case 16:    smurf_vars->exp_dp_popup[EXP_D16].ob_state &= ~OS_DISABLED;    break;
-            case 8:     smurf_vars->exp_dp_popup[EXP_D8].ob_state &= ~OS_DISABLED;     break;
-            case 4:     smurf_vars->exp_dp_popup[EXP_D4].ob_state &= ~OS_DISABLED;     break;
-            case 2:     smurf_vars->exp_dp_popup[EXP_D2].ob_state &= ~OS_DISABLED;     break;
-            case 1:     smurf_vars->exp_dp_popup[EXP_D1].ob_state &= ~OS_DISABLED;     break;
-        }
-    }
+	export_depth[0] = expmabs->depth1;
+	export_depth[1] = expmabs->depth2;
+	export_depth[2] = expmabs->depth3;
+	export_depth[3] = expmabs->depth4;
+	export_depth[4] = expmabs->depth5;
+	export_depth[5] = expmabs->depth6;
+	export_depth[6] = expmabs->depth7;
+	export_depth[7] = expmabs->depth8;
+
+	/*
+	 *   Depth-Popup vorbereiten 
+	 */
+	ob = EXP_D1;
+	for (t = 0; t <= 6; t++)
+	{
+		smurf_vars->exp_dp_popup[ob].ob_state |= OS_DISABLED;
+		ob++;
+	}
+	for (t = 0; t < 8; t++)
+	{
+		switch (export_depth[t])
+		{
+		case 24:
+			smurf_vars->exp_dp_popup[EXP_D24].ob_state &= ~OS_DISABLED;
+			break;
+		case 16:
+			smurf_vars->exp_dp_popup[EXP_D16].ob_state &= ~OS_DISABLED;
+			break;
+		case 8:
+			smurf_vars->exp_dp_popup[EXP_D8].ob_state &= ~OS_DISABLED;
+			break;
+		case 4:
+			smurf_vars->exp_dp_popup[EXP_D4].ob_state &= ~OS_DISABLED;
+			break;
+		case 2:
+			smurf_vars->exp_dp_popup[EXP_D2].ob_state &= ~OS_DISABLED;
+			break;
+		case 1:
+			smurf_vars->exp_dp_popup[EXP_D1].ob_state &= ~OS_DISABLED;
+			break;
+		}
+	}
 }
 
 
-/* give_free_module -------------------------------------------------------
-    ermittelt eine freie Smurf-Modulstruktur in den Smurf-internen Arrays und
-    gibt einen entsprechenden Index zurck, der fr smurf_struct verwendet werden kann.
-    -----------------------------------------------------------------------*/
-int give_free_module(void)
+/* init_exporter --------------------------------------------------------
+    L„dt den Exporter der globalen ID mod_num und startet diesen mit MSTART
+    bei gleichzeitiger šbergabe seines Konfigurationsblocks.
+    ----------------------------------------------------------------------*/
+static void init_exporter(void)
 {
-    int mod;
-    
-    /* Freie Modulstruktur ermitteln */
-    mod=0;
-    while(smurf_struct[mod]!=NULL) mod++;
-    if(mod>20)
-    {
-        services->f_alert(smurf_vars->alerts[NO_MORE_MODULES].TextCast, 0,0,0,1); 
-        mod=-1;
-    }
+	char *txtbeg;
+	char module_name[33] = "";
+	short t;
+	MOD_INFO *modinfo;
 
-    return(mod);    
-}
+	mod_num = give_free_module();
+	if (mod_num == -1)
+	{
+		services->f_alert(smurf_vars->alerts[MOD_LOAD_ERR].TextCast, 0, 0, 0, 1);
+		return;
+	}
+	mod_num |= 0x100;					/* als Exporter kennzeichnen */
 
-int depth2popbutton(int depth)
-{
-    int exp_depth;
-    
-    if(depth<2) exp_depth = EXP_D1;
-    else if(depth<4) exp_depth = EXP_D2;
-    else if(depth<8) exp_depth = EXP_D4;
-    else if(depth<16) exp_depth = EXP_D8;
-    else if(depth<24) exp_depth = EXP_D16;
-    else exp_depth = EXP_D24;
-    
-    return(exp_depth);
-}
+	smurf_struct[mod_num & 0xFF] = malloc(sizeof(GARGAMEL));
+	memset(smurf_struct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
 
-void init_colpop(void)
-{
-    exp_depth = depth2popbutton(expmabs.depth1);
-    
-    if(expmabs.depth2>expmabs.depth1) 
-        exp_depth = depth2popbutton(expmabs.depth2);
-    if(expmabs.depth3>expmabs.depth1) 
-        exp_depth = depth2popbutton(expmabs.depth3);
-    if(expmabs.depth4>expmabs.depth1) 
-        exp_depth = depth2popbutton(expmabs.depth4);
-    if(expmabs.depth5>expmabs.depth1) 
-        exp_depth = depth2popbutton(expmabs.depth5);
-    if(expmabs.depth6>expmabs.depth1) 
-        exp_depth = depth2popbutton(expmabs.depth6);
-    if(expmabs.depth7>expmabs.depth1) 
-        exp_depth = depth2popbutton(expmabs.depth7);
-    if(expmabs.depth8>expmabs.depth1) 
-        exp_depth = depth2popbutton(expmabs.depth8);
-        
-    strcpy(dialog[DEPTH_PB].TextCast, smurf_vars->exp_dp_popup[exp_depth].TextCast);
-    services->deselect_popup(&window, DEPTH_PB, DEPTH_CB);
-    depth_popup.item = exp_depth;
-    
-    check_depth();
+	edit_bp[mod_num & 0xFF] =
+		(BASPAG *) smurf_functions->start_exp_module(export_path, MSTART, NULL, edit_bp[mod_num & 0xFF],
+													 smurf_struct[mod_num & 0xFF], mod_num);
+	smurf_struct[mod_num & 0xFF]->wind_struct = NULL;
+
+	txtbeg = edit_bp[mod_num & 0xFF]->p_tbase;
+	modinfo = *((MOD_INFO **) (txtbeg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+
+	strncpy(module_name, modinfo->mod_name, 30);
+
+	for (t = 0; t < smurf_vars->anzahl_exporter; t++)
+	{
+		if (strncmp(module_name, smurf_vars->export_module_names[t], strlen(module_name)) == 0)
+			break;
+	}
+	*((long *) smurf_struct[mod_num & 0xFF]->event_par) = (long) smurf_vars->export_cnfblock[t];
+	smurf_struct[mod_num & 0xFF]->event_par[2] = smurf_vars->export_cnflen[t];
 }
 
 
-
-void check_depth(void)
+static void check_depth(void)
 {
-    int enablemode;
+	WORD enablemode;
 
-    if(exp_depth==EXP_D1)
-    {
-        strcpy(dialog[PALMODE_PB].TextCast, "s/w");
-        dialog[PALMODE_CB].ob_state |= OS_DISABLED;
-        dialog[PALMODE_PB].ob_state |= OS_DISABLED;
-        my_exp_conf.exp_colred = CR_SYSPAL;
-    }
-    else
-    {
-        strcpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[my_exp_conf.exp_colred].TextCast);
-        dialog[PALMODE_CB].ob_state &= ~OS_DISABLED;
-        dialog[PALMODE_PB].ob_state &= ~OS_DISABLED;
-    }
-    
-    services->deselect_popup(&window, PALMODE_PB, PALMODE_CB);
-    
+	if (exp_depth == EXP_D1)
+	{
+		strcpy(dialog[PALMODE_PB].TextCast, "s/w");
+		dialog[PALMODE_CB].ob_state |= OS_DISABLED;
+		dialog[PALMODE_PB].ob_state |= OS_DISABLED;
+		my_exp_conf.exp_colred = CR_SYSPAL;
+	} else
+	{
+		strcpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[my_exp_conf.exp_colred].TextCast);
+		dialog[PALMODE_CB].ob_state &= ~OS_DISABLED;
+		dialog[PALMODE_PB].ob_state &= ~OS_DISABLED;
+	}
 
-    if(exp_depth!=EXP_D16 && exp_depth>EXP_D1)
-    {
-        if(smurf_vars->ditmod_info[my_exp_conf.exp_dither-1]->pal_mode==FIXPAL)
-        {
-            palette_popup.item = CR_FIXPAL;
-            my_exp_conf.exp_colred = CR_FIXPAL;
-            strncpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[my_exp_conf.exp_colred].TextCast, 15);
-            enablemode=OS_DISABLED;
-        }
-        else 
-        {
-            palette_popup.item = CR_SYSPAL;
-            my_exp_conf.exp_colred = CR_SYSPAL;
-            strncpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[my_exp_conf.exp_colred].TextCast, 15);
-            enablemode=OS_ENABLED;
-        }
-        
-        if(enablemode==OS_DISABLED)
-        {
-            dialog[PALMODE_PB].ob_state |= OS_DISABLED;
-            dialog[PALMODE_CB].ob_state |= OS_DISABLED;
-        }
-        else
-        {
-            dialog[PALMODE_PB].ob_state &= ~OS_DISABLED;
-            dialog[PALMODE_CB].ob_state &= ~OS_DISABLED;
-        }
-        services->deselect_popup(&window, PALMODE_PB, PALMODE_CB);
-    }
+	services->deselect_popup(&window, PALMODE_PB, PALMODE_CB);
+
+
+	if (exp_depth != EXP_D16 && exp_depth > EXP_D1)
+	{
+		if (smurf_vars->ditmod_info[my_exp_conf.exp_dither - 1]->pal_mode == FIXPAL)
+		{
+			palette_popup.item = CR_FIXPAL;
+			my_exp_conf.exp_colred = CR_FIXPAL;
+			strncpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[my_exp_conf.exp_colred].TextCast, 15);
+			enablemode = OS_DISABLED;
+		} else
+		{
+			palette_popup.item = CR_SYSPAL;
+			my_exp_conf.exp_colred = CR_SYSPAL;
+			strncpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[my_exp_conf.exp_colred].TextCast, 15);
+			enablemode = OS_ENABLED;
+		}
+
+		if (enablemode == OS_DISABLED)
+		{
+			dialog[PALMODE_PB].ob_state |= OS_DISABLED;
+			dialog[PALMODE_CB].ob_state |= OS_DISABLED;
+		} else
+		{
+			dialog[PALMODE_PB].ob_state &= ~OS_DISABLED;
+			dialog[PALMODE_CB].ob_state &= ~OS_DISABLED;
+		}
+		services->deselect_popup(&window, PALMODE_PB, PALMODE_CB);
+	}
 }
 
 
-char *load_palfile(char *path, int *red, int *green, int *blue, int max_cols)
+static WORD depth2popbutton(short depth)
 {
-    int fsback;
-    int *palbuf, *palcpy;
-    int max_count, t;
-    extern long f_len;
-    char pal_loadpath[256];
+	WORD exp_depth;
 
-    strcpy(pal_loadpath, path);
-    fsback = smurf_functions->f_fsbox(pal_loadpath, "Palette laden", 0);
+	if (depth < 2)
+		exp_depth = EXP_D1;
+	else if (depth < 4)
+		exp_depth = EXP_D2;
+	else if (depth < 8)
+		exp_depth = EXP_D4;
+	else if (depth < 16)
+		exp_depth = EXP_D8;
+	else if (depth < 24)
+		exp_depth = EXP_D16;
+	else
+		exp_depth = EXP_D24;
 
-    if(fsback!=FALSE)
-    {
-        palbuf = (int*)fload(pal_loadpath, 0);
-        max_count = (int)(f_len/6);
-        if(max_count>max_cols)
-        {
-            services->f_alert(smurf_vars->alerts[PAL_DEPTHERR].TextCast, 0,0,0,1);
-            return(NULL);
-        }
-        else
-        {
-            palcpy=palbuf;
-            /* Mit der ersten Farbe im File die Palette ausnullen */
-            for(t=0; t<256; t++)
-            {
-                red[t] = (int)(255L*(long)palcpy[0] / 1000L);
-                green[t] = (int)(255L*(long)palcpy[1] / 1000L);
-                blue[t] = (int)(255L*(long)palcpy[2] / 1000L);
-            }
-
-            /* und bertragen */
-            for(t=0; t<max_count; t++)
-            {
-                red[t]= (int)(255L*(long)palcpy[t*3] / 1000L);
-                green[t]= (int)(255L*(long)palcpy[t*3+1] / 1000L);
-                blue[t]= (int)(255L*(long)palcpy[t*3+2] / 1000L);
-            }
-        }
-        Mfree(palbuf);
-        return(pal_loadpath);
-    }
-
-    return(NULL);
+	return exp_depth;
 }
 
+
+static void init_colpop(void)
+{
+	exp_depth = depth2popbutton(expmabs.depth1);
+
+	if (expmabs.depth2 > expmabs.depth1)
+		exp_depth = depth2popbutton(expmabs.depth2);
+	if (expmabs.depth3 > expmabs.depth1)
+		exp_depth = depth2popbutton(expmabs.depth3);
+	if (expmabs.depth4 > expmabs.depth1)
+		exp_depth = depth2popbutton(expmabs.depth4);
+	if (expmabs.depth5 > expmabs.depth1)
+		exp_depth = depth2popbutton(expmabs.depth5);
+	if (expmabs.depth6 > expmabs.depth1)
+		exp_depth = depth2popbutton(expmabs.depth6);
+	if (expmabs.depth7 > expmabs.depth1)
+		exp_depth = depth2popbutton(expmabs.depth7);
+	if (expmabs.depth8 > expmabs.depth1)
+		exp_depth = depth2popbutton(expmabs.depth8);
+
+	strcpy(dialog[DEPTH_PB].TextCast, smurf_vars->exp_dp_popup[exp_depth].TextCast);
+	services->deselect_popup(&window, DEPTH_PB, DEPTH_CB);
+	depth_popup.item = exp_depth;
+
+	check_depth();
+}
+
+
+static BOOLEAN load_palfile(char *path, WORD *red, WORD *green, WORD *blue, short max_cols, char *pal_loadpath)
+{
+	short fsback;
+	WORD *palbuf;
+	WORD *palcpy;
+	short max_count;
+	short t;
+
+	strcpy(pal_loadpath, path);
+	/* FIXME: translate */
+	fsback = smurf_functions->f_fsbox(pal_loadpath, "Palette laden", 0);
+
+	if (fsback != FALSE)
+	{
+		palbuf = (WORD *) fload(pal_loadpath, 0);
+		max_count = (short) (f_len / 6);
+		if (max_count > max_cols)
+		{
+			services->f_alert(smurf_vars->alerts[PAL_DEPTHERR].TextCast, 0, 0, 0, 1);
+			return FALSE;
+		} else
+		{
+			palcpy = palbuf;
+			/* Mit der ersten Farbe im File die Palette ausnullen */
+			for (t = 0; t < 256; t++)
+			{
+				red[t] = (WORD) (255L * (long) palcpy[0] / 1000L);
+				green[t] = (WORD) (255L * (long) palcpy[1] / 1000L);
+				blue[t] = (WORD) (255L * (long) palcpy[2] / 1000L);
+			}
+
+			/* und bertragen */
+			for (t = 0; t < max_count; t++)
+			{
+				red[t] = (WORD) (255L * (long) palcpy[t * 3] / 1000L);
+				green[t] = (WORD) (255L * (long) palcpy[t * 3 + 1] / 1000L);
+				blue[t] = (WORD) (255L * (long) palcpy[t * 3 + 2] / 1000L);
+			}
+		}
+		Mfree(palbuf);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+/* handle_dialog ----------------------------------------------
+    šbernimmt die Userbedienung des Dialogs
+    ----------------------------------------------------------*/
+static void handle_dialog(PLUGIN_DATA *data)
+{
+	WORD button;
+	WORD back;
+	WORD exp_index;
+	short t;
+	char module_name[33] = "";
+	char *textseg;
+	MOD_INFO *minfo;
+	char pal_loadpath[256];
+
+	if (data->message == MBEVT)
+	{
+
+		button = data->event_par[0];
+		switch (button)
+		{
+		case DEPTH_PB:
+		case DEPTH_CB:
+			back = services->popup(&depth_popup, 0, button, NULL);
+			services->deselect_popup(&window, DEPTH_PB, DEPTH_CB);
+			if (back > 0)
+				exp_depth = back;
+			check_depth();
+			break;
+
+		case DITHER_PB:
+		case DITHER_CB:
+			back = services->popup(&dither_popup, 0, button, NULL);
+			services->deselect_popup(&window, DITHER_PB, DITHER_CB);
+			if (back > 0)
+				my_exp_conf.exp_dither = back;
+			check_depth();
+			break;
+
+		case PALMODE_PB:
+		case PALMODE_CB:
+			back = services->popup(&palette_popup, 0, button, NULL);
+			services->deselect_popup(&window, PALMODE_PB, PALMODE_CB);
+			if (back > 0)
+				my_exp_conf.exp_colred = back;
+
+			if (my_exp_conf.exp_colred == CR_FILEPAL)
+				change_object(&window, LOADPAL, OS_ENABLED, 1);
+			else
+				change_object(&window, LOADPAL, OS_DISABLED, 1);
+			break;
+
+		case EXPORTER_OPTIONS:
+			open_exporter_options();
+			break;
+
+		case SOURCE_PATH:
+			back = services->f_fsbox(Path, "Quellpfad", 6);
+			strncpy(dialog[SOURCE_PATH].TextCast, Path, 53);
+			dialog[SOURCE_PATH].TextCast[54] = 0;
+			services->redraw_window(&window, NULL, SOURCE_PATH, 0);
+			break;
+
+		case DEST_PATH:
+			back = services->f_fsbox(Path, "Zielpfad", 6);
+			strncpy(dialog[DEST_PATH].TextCast, Path, 53);
+			dialog[DEST_PATH].TextCast[54] = 0;
+			services->redraw_window(&window, NULL, DEST_PATH, 0);
+			break;
+
+		case LOADPAL:
+			if (load_palfile(smurf_vars->Sys_info->standard_path,
+										fix_red, fix_green, fix_blue, 1 << depth_button2depth(exp_depth), pal_loadpath))
+			{
+				strcpy(smurf_vars->colred_popup[CR_FILEPAL].TextCast, strrchr(pal_loadpath, '\\') + 1);
+				strcpy(dialog[PALMODE_PB].TextCast, strrchr(pal_loadpath, '\\') + 1);
+			}
+			change_object(&window, DITHER_PB, OS_UNSEL, 1);
+			change_object(&window, LOADPAL, OS_UNSEL, 1);
+			break;
+
+		case GO:
+			start_conversion();
+			break;
+		}
+
+		/*
+		 * Hat sich der gew„hlte Exporter ge„ndert? -> Farbtiefenpopup neu initialisieren
+		 */
+		if (button >= EXPLIST_1 && button <= EXPLIST_9 ||
+			button == EXPLIST_UP || button == EXPLIST_DN || button == EXPLIST_SL || button == EXPLIST_SB)
+		{
+			/*
+			 * ist der Exporter schon durch Fensterschliežen
+			 * terminiert worden? Dann darf hier nix mehr gemacht werden
+			 */
+			if (edit_bp[mod_num & 0xFF] != NULL)
+			{
+				/*
+				 * bisherigen Optionsdialog schliežen
+				 */
+				if (options_open)
+				{
+					options_open = 0;
+
+					textseg = edit_bp[mod_num & 0xFF]->p_tbase;
+					minfo = *((MOD_INFO **) (textseg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+					strncpy(module_name, minfo->mod_name, 30);
+
+					for (t = 0; t < smurf_vars->anzahl_exporter; t++)
+					{
+						if (strncmp(module_name, smurf_vars->export_module_names[t], strlen(module_name)) == 0)
+							break;
+					}
+
+					*((long *) smurf_struct[mod_num & 0xFF]->event_par) = (long) smurf_vars->export_cnfblock[t];
+					smurf_struct[mod_num & 0xFF]->event_par[2] = smurf_vars->export_cnflen[t];
+
+					smurf_functions->start_exp_module(export_path, MMORECANC, NULL, edit_bp[mod_num & 0xFF],
+													  smurf_struct[mod_num & 0xFF], mod_num);
+					wind_close(smurf_struct[mod_num & 0xFF]->wind_struct->whandlem);
+					wind_delete(smurf_struct[mod_num & 0xFF]->wind_struct->whandlem);
+					smurf_struct[mod_num & 0xFF]->wind_struct->whandlem = -1;
+				}
+
+				/* momentanen Exporter wieder terminieren
+				 */
+				smurf_functions->check_and_terminate(MTERM, mod_num & 0xFF);
+			}
+
+			exp_index = services->listfield(&window, button, 0, &exporter_list);
+			export_path = smurf_vars->export_modules[exp_index];
+			analyze_module(&expmabs, export_path, mod_num);
+			ready_depth_popup(&expmabs);
+			init_exporter();
+			init_colpop();
+		}
+	}
+
+}
+
+
+/* handle_aesmsg ----------------------------------------------
+    kmmert sich um von Smurf weitergeleitete AES-Messages
+    ----------------------------------------------------------*/
+static short handle_aesmsg(WORD *msgbuf)
+{
+	(void) msgbuf;
+	return M_WAITING;
+}
+
+
+void plugin_main(PLUGIN_DATA *data)
+{
+	WORD exp_index;
+
+	/* Die Strukturen mit den Variablen und Funktionen holen */
+	services = data->services;
+	smurf_functions = data->smurf_functions;
+	smurf_vars = data->smurf_vars;
+	smurf_struct = smurf_vars->smurf_struct;
+	smurf_picture = smurf_vars->smurf_picture;
+	edit_bp = smurf_vars->edit_bp;
+	active_pic = smurf_vars->active_pic;
+	exp_conf = smurf_vars->exp_conf;
+
+	switch (data->message)
+	{
+		/* 
+		 * Startup des Plugins: Meneintrag anfordern 
+		 */
+	case MSTART:
+		my_id = data->id;
+		init_rsh();
+		strcpy(data->plugin_name, "Multikonvert...");
+		init_windstruct();
+		data->wind_struct = &window;
+		data->message = MENU_ENTRY;		/* Meneintrag anfordern */
+		/* plugin responds to this menu entry */
+		data->event_par[0] = FILE_FOLDER;
+		break;
+
+		/*
+		 * Plugin wurde aus dem Men heraus aufgerufen 
+		 */
+	case PLGSELECTED:
+		pic_active = smurf_picture[*active_pic];
+
+		/*
+		 * Fenster ”ffnen und Dialog initialisieren
+		 */
+		my_exp_conf.exp_dither = DIT1;
+		my_exp_conf.exp_colred = CR_SYSPAL;
+
+		strcpy(dialog[DITHER_PB].TextCast, smurf_vars->col_pop[DIT1].TextCast);
+		strcpy(dialog[PALMODE_PB].TextCast, smurf_vars->colred_popup[CR_SYSPAL].TextCast);
+
+		services->f_module_window(&window);
+		dialog_open = TRUE;
+
+		services->listfield(&window, 99, 99, &exporter_list);
+
+		exp_index = services->listfield(&window, 0, 0, &exporter_list);
+		export_path = smurf_vars->export_modules[exp_index];
+		analyze_module(&expmabs, export_path, mod_num);
+		ready_depth_popup(&expmabs);
+		init_exporter();
+
+		init_colpop();
+
+		strcpy(dialog[SOURCE_PATH].TextCast, "");
+		strcpy(dialog[DEST_PATH].TextCast, "");
+		strcpy(dialog[WILDCARDS].TextCast, "*");
+
+		data->message = M_WAITING;
+		break;
+
+		/*
+		 * Fenster wurde geschlossen
+		 */
+	case MWINDCLOSED:
+		smurf_functions->check_and_terminate(MTERM, mod_num & 0xFF);
+		dialog_open = FALSE;
+		break;
+
+		/*
+		 * Keyboardevent/Buttonevent
+		 */
+	case MKEVT:
+	case MBEVT:
+		handle_dialog(data);
+		data->message = M_WAITING;
+		break;
+
+	case MTERM:
+		data->message = M_TERMINATED;
+		break;
+
+	case SMURF_AES_MESSAGE:
+		data->message = handle_aesmsg(data->event_par);
+		break;
+
+	default:
+		data->message = M_WAITING;
+		break;
+	}
+}
