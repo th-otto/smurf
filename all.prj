@@ -173,7 +173,6 @@ modules\import\xwd.prj
 
 modules\plugin\multicnv\multicon.prj
 modules\plugin\print\prntplg.prj
-modules\plugin\print\prntplgw.prj
 
 ; missing:
 ;modules\edit\bumber.prj

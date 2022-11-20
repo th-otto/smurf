@@ -44,7 +44,6 @@
 #undef NUM_OBS
 #undef NUM_TREE
 #undef COL8								/* conflicts with smurf.h */
-#undef ALERT_STRINGS					/* conflicts with smurf.h */
 #include "bindings.h"
 #include "wdialog.h"
 #include "gdos.h"
@@ -53,16 +52,10 @@
 
 #if COUNTRY==1
 #include "de/print.rsh"
-#define TEXT1 "Drucken..."
-#define TEXT2 "Drucken: \""
 #elif COUNTRY==0
 #include "en/print.rsh"
-#define TEXT1 "Print..."
-#define TEXT2 "Print: \""
 #elif COUNTRY==2
 #include "en/print.rsh"		/* missing french resource */
-#define TEXT1 "Print..."
-#define TEXT2 "Print: \""
 #else
 #error "Keine Sprache!"
 #endif
@@ -687,6 +680,22 @@ static void actualize_xywh(void)
 }
 
 
+static void close_print_dialog(BOOLEAN with_free)
+{
+	WORD lastx, lasty;
+
+	if (prn_dialog)
+	{
+		pdlg_close(prn_dialog, &lastx, &lasty);
+		pdlg_delete(prn_dialog);
+		if (with_free)
+			pdlg_free_settings(prn_settings);
+		prn_dialog = 0;
+		pdlg_handle = 0;
+	}
+}
+
+
 /* handle_print_dialog ----------------------------------------
     öbernimmt die Userbedienung des Print-Dialogs
     ----------------------------------------------------------*/
@@ -989,15 +998,12 @@ static short handle_aesmsg(WORD *msgbuf)
 /* entfernen von Text in der Mitte und ersetzen durch "...". */
 /* Aus "Dies ist ein zu langer Filename.img" wÅrde bei KÅrzung */
 /* auf 27 Zeichen "Dies ist ein...Filename.img" */
-static char *shorten_name(char *string, short newlen)
+static char *shorten_name(char *string, short newlen, char *temp)
 {
-	static char temp[257];
-
 	/* nichts tun wenn String sowieso passend */
 	if (strlen(string) <= newlen)
 		return string;
 
-	memset(temp, 0, sizeof(temp));
 	strncpy(temp, string, newlen / 2 - 1);	/* auf die HÑlfte und eines weniger */
 	strcat(temp, "...");				/* LÅckenfÅller rein */
 	strcat(temp, string + strlen(string) - (newlen - newlen / 2 - 3));	/* und bis newlen LÑnge mit Originalstring affÅllen */
@@ -1007,9 +1013,64 @@ static char *shorten_name(char *string, short newlen)
 
 
 
+/* handle_print_dialog ----------------------------------------
+    öbernimmt die Userbedienung des Print-Dialogs
+    ----------------------------------------------------------*/
+static BOOLEAN handle_pdlg_dialog(EVNT *events)
+{
+	WORD button;
+
+	if (prn_dialog)
+	{
+		if (pdlg_evnt(prn_dialog, prn_settings, events, &button) == 0)	/* Dialog schlieûen? */
+		{
+			close_print_dialog(FALSE);		/* Dialog schlieûen */
+
+			if (button == PDLG_OK)		/* "Drucken" angewÑhlt? */
+			{
+				actualize_DevParam(prn_settings->driver_id, &DevParam);
+				print_with_GDOS();
+			}
+
+			pdlg_free_settings(prn_settings);
+
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+
+static void make_windowtitle(void)
+{
+	char *picname;
+	char temp[257];
+
+	if ((picname = strrchr(pic_active->filename, '\\')) != NULL && *(picname + 1) != '\0')
+		picname++;
+	else
+		picname = pic_active->filename;
+	strcpy(print_window.wtitle, alerts[PRINT_TEXT2]);
+	strcat(print_window.wtitle, " \"");
+	memset(temp, 0, sizeof(temp));
+	strcat(print_window.wtitle, shorten_name(picname, (short)(sizeof(print_window.wtitle) - 3 - strlen(print_window.wtitle)), temp));
+	strcat(print_window.wtitle, "\"");
+#if defined(__GEMLIB__) || defined(__PORTAES_H__)
+	wind_set_str(print_window.whandlem, WF_NAME, print_window.wtitle);
+#else
+	wind_set(print_window.whandlem, WF_NAME, LONG2_2INT(print_window.wtitle), 0, 0);
+#endif
+}
+
+
 void plugin_main(PLUGIN_DATA *data)
 {
 	char *picname;
+	WORD out1, out2, out3, out4;
+	BOOLEAN closed = FALSE;
+	static short notify_num = 0;
+	EVNT events;
 	WORD back, i;
 	DevInfoS *devinfo;
 
@@ -1020,12 +1081,6 @@ void plugin_main(PLUGIN_DATA *data)
 
 	redraw_window = services->redraw_window;	/* Redrawfunktion */
 
-	if (data->message == SMURF_AES_MESSAGE)
-	{
-		data->message = handle_aesmsg(data->event_par);
-		return;
-	}
-
 	switch (data->message)
 	{
 		/* 
@@ -1033,8 +1088,8 @@ void plugin_main(PLUGIN_DATA *data)
 		 */
 	case MSTART:
 		my_id = data->id;
-		strcpy(data->plugin_name, TEXT1);
 		init_rsh();
+		strcpy(data->plugin_name, alerts[PRINT_TEXT1]);
 		init_windstruct();
 		data->wind_struct = &print_window;
 		/* plugin responds to this menu entry */
@@ -1042,10 +1097,15 @@ void plugin_main(PLUGIN_DATA *data)
 		data->message = MENU_ENTRY;		/* MenÅeintrag anfordern */
 		break;
 
+	case PLG_STARTUP:
+		data->message = M_WAITING;
+		break;
+
 		/*
 		 * Plugin wurde aus dem MenÅ heraus aufgerufen 
 		 */
 	case PLGSELECTED:
+		pdlg_available = appl_find("?AGI") >= 0 && appl_getinfo(7, &out1, &out2, &out3, &out4) != 0 && (out1 & 0x10) != 0;
 		if (*(smurf_vars->picthere) == 0)
 		{
 			services->f_alert(alerts[NO_PIC], NULL, NULL, NULL, 1);
@@ -1062,79 +1122,115 @@ void plugin_main(PLUGIN_DATA *data)
 			OutParam.picwidth = pic_active->pic_width;
 			OutParam.picheight = pic_active->pic_height;
 
-			strcpy(print_dialog[XPOS].TextCast, "0");
-			strcpy(print_dialog[YPOS].TextCast, "0");
-			itoa(OutParam.picwidth, print_dialog[WIDTH].TextCast, 10);
-			itoa(OutParam.picheight, print_dialog[HEIGHT].TextCast, 10);
-
 			/*
-			 * Devices scannen und Infos Åber aktuelles GerÑt holen 
+			 * Druckdialog kreiern, initialisieren und îffnen 
 			 */
-			if (scan_devs() == -1)
+			if (pdlg_available && (prn_dialog = pdlg_create(PDLG_3D)) != NULL)
 			{
-				data->message = M_EXIT;
-				return;
-			}
+				prn_settings = pdlg_new_settings(prn_dialog);
 
-			for (i = 0; i < dev_anzahl; i++)
-			{
-				if (DevInfo[i].devID == 91)
+				if ((picname = strrchr(pic_active->filename, '\\')) != NULL && *(picname + 1) != '\0')
+					picname++;
+				else
+					picname = pic_active->filename;
+
+				if ((pdlg_handle = pdlg_open(prn_dialog, prn_settings, picname, PDLG_PRINT, -1, -1)) == 0)
 				{
-					curr_deviceID = 91;
-					break;
+					pdlg_delete(prn_dialog);
+					prn_dialog = 0;
+				} else if (notify_num == 0)
+				{
+					data->event_par[0] = pdlg_handle;
+					data->message = ALL_MSGS;
+					notify_num++;
+					return;
 				}
 			}
 
-			if (curr_deviceID != 91)
-				curr_deviceID = DevInfo[0].devID;
-
-			if (actualize_DevParam(curr_deviceID, &DevParam) != -1)
-				actualize_dialog(PAPER_REDRAW);
-
-			/*
-			 *  Fenster îffnen und Dialog initialisieren
-			 */
-			pic_active = smurf_picture[*active_pic];
-			if ((picname = strrchr(pic_active->filename, '\\')) != NULL /* && *(picname + 1) != '\0' */ )
-				picname++;
-			else
-				picname = pic_active->filename;
-			strcpy(print_window.wtitle, TEXT2);
-			strcat(print_window.wtitle, shorten_name(picname, 41 - (short) strlen(print_window.wtitle)));
-#if defined(__GEMLIB__) || defined(__PORTAES_H__)
-			wind_set_str(print_window.whandlem, WF_NAME, print_window.wtitle);
-#else
-			wind_set(print_window.whandlem, WF_NAME, LONG2_2INT(print_window.wtitle), 0, 0);
-#endif
-
-			if (services->f_module_window(&print_window) < 0)
-			{
-				data->message = M_EXIT;
-				break;
-			}
-			dialog_open = 1;
-
-			if (popup_initialized == 0)
-				init_driver_popup();
-
-			/*printf("\nDriver Preselection"); */
-			devinfo = get_devinfo(curr_deviceID);
-			if (devinfo != NULL)
-				strcpy(print_dialog[DRIVER_POPBUT].ob_spec.tedinfo->te_ptext, devinfo->devName);
-
-			/*printf("\nPaper Preselection"); */
-			/* Papierformat ermitteln */
-			back = DevParam.paperform;
-			/*printf("\nvoreingestelltes Papierformat: %i", back); */
-			if (back >= PAGE_DEFAULT && back <= PAGE_B5)
-				paper_popup.item = back + PAPER1;
-			else
-				paper_popup.item = back + PAPER6 - 16;
-			strcpy(print_dialog[PAPER_POPBUT].TextCast, pappop_rsc[paper_popup.item].TextCast);
-
-			strcpy(print_dialog[UNIT_POPBUT].TextCast, unitpop_rsc[UNIT_PIXELS].TextCast);
-
 			data->message = M_WAITING;
+
+			if (pdlg_handle == 0)
+			{
+				strcpy(print_dialog[XPOS].TextCast, "0");
+				strcpy(print_dialog[YPOS].TextCast, "0");
+				itoa(OutParam.picwidth, print_dialog[WIDTH].TextCast, 10);
+				itoa(OutParam.picheight, print_dialog[HEIGHT].TextCast, 10);
+	
+				/*
+				 * Devices scannen und Infos Åber aktuelles GerÑt holen 
+				 */
+				if (scan_devs() == -1)
+				{
+					data->message = M_EXIT;
+					return;
+				}
+	
+				for (i = 0; i < dev_anzahl; i++)
+				{
+					if (DevInfo[i].devID == 91)
+					{
+						curr_deviceID = 91;
+						break;
+					}
+				}
+	
+				if (curr_deviceID != 91)
+					curr_deviceID = DevInfo[0].devID;
+	
+				if (actualize_DevParam(curr_deviceID, &DevParam) != -1)
+					actualize_dialog(PAPER_REDRAW);
+	
+				/*
+				 *  Fenster îffnen und Dialog initialisieren
+				 */
+				pic_active = smurf_picture[*active_pic];
+				make_windowtitle();
+				if (services->f_module_window(&print_window) < 0)
+				{
+					data->message = M_EXIT;
+				} else
+				{
+					dialog_open = TRUE;
+		
+					if (popup_initialized == 0)
+						init_driver_popup();
+		
+					/*printf("\nDriver Preselection"); */
+					devinfo = get_devinfo(curr_deviceID);
+					if (devinfo != NULL)
+						strcpy(print_dialog[DRIVER_POPBUT].ob_spec.tedinfo->te_ptext, devinfo->devName);
+		
+					/*printf("\nPaper Preselection"); */
+					/* Papierformat ermitteln */
+					back = DevParam.paperform;
+					/*printf("\nvoreingestelltes Papierformat: %i", back); */
+					if (back >= PAGE_DEFAULT && back <= PAGE_B5)
+						paper_popup.item = back + PAPER1;
+					else
+						paper_popup.item = back + PAPER6 - 16;
+					strcpy(print_dialog[PAPER_POPBUT].TextCast, pappop_rsc[paper_popup.item].TextCast);
+		
+					strcpy(print_dialog[UNIT_POPBUT].TextCast, unitpop_rsc[UNIT_PIXELS].TextCast);
+				}
+			}
+		}
+		break;
+
+	case DONE:
+		data->message = M_WAITING;
+		if (pdlg_handle != 0)
+		{
+			if (notify_num == 1)
+			{
+				data->event_par[0] = pdlg_handle;
+				data->message = MBEVT;
+				notify_num++;
+			} else if (notify_num == 2)
+			{
+				data->event_par[0] = pdlg_handle;
+				data->message = MKEVT;
+				notify_num++;
+			}
 		}
 		break;
 
@@ -1142,44 +1238,81 @@ void plugin_main(PLUGIN_DATA *data)
 		 * Fenster wurde geschlossen
 		 */
 	case MWINDCLOSED:
-		dialog_open = 0;
+		dialog_open = FALSE;
 		data->message = M_WAITING;
+		break;
+
+		/*
+		 * button event
+		 */
+	case MBEVT:
+		if (pdlg_handle != 0)
+		{
+			events.mwhich = MU_BUTTON;
+			events.mx = data->mousex;
+			events.my = data->mousey;
+			events.mclicks = data->klicks;
+			events.mbutton = data->event_par[1];
+			closed = handle_pdlg_dialog(&events);
+		} else
+		{
+			handle_print_dialog(data);
+		}
+		data->message = M_WAITING;
+		break;
+
+		/*
+		 * key event
+		 */
+	case MKEVT:
+		if (pdlg_handle != 0)
+		{
+			events.mwhich = MU_KEYBD;
+			events.kstate = data->event_par[3];
+			events.key = data->event_par[1];
+			closed = handle_pdlg_dialog(&events);
+		} else
+		{
+			handle_print_dialog(data);
+		}
+		data->message = M_WAITING;
+		break;
+
+	case SMURF_AES_MESSAGE:
+		if (pdlg_handle)
+		{
+			events.mwhich = MU_MESAG;
+			memcpy(events.msg, data->event_par, 16);
+			closed = handle_pdlg_dialog(&events);
+			data->message = M_WAITING;
+		} else
+		{
+			data->message = handle_aesmsg(data->event_par);
+		}
 		break;
 
 		/*
 		 * aktives Bild hat sich geÑndert
 		 */
 	case MPIC_UPDATE:
+		pic_active = smurf_picture[data->event_par[0]];
+		if ((picname = strchr(pic_active->filename, '\\')) != NULL && *(picname + 1) != '\0')
+			picname++;
+		else
+			picname = pic_active->filename;
 		if (dialog_open)
 		{
-			pic_active = smurf_picture[data->event_par[0]];
 			actualize_dialog(POSITION_PAPER);
-			if ((picname = strchr(pic_active->filename, '\\')) != NULL && *(picname + 1) != '\0')
-				picname++;
-			else
-				picname = pic_active->filename;
-			strcpy(print_window.wtitle, "Drucken: \"");
-			strcat(print_window.wtitle, picname);
-			strcat(print_window.wtitle, "\"");
-#if defined(__GEMLIB__) || defined(__PORTAES_H__)
-			wind_set_str(print_window.whandlem, WF_NAME, print_window.wtitle);
-#else
-			wind_set(print_window.whandlem, WF_NAME, LONG2_2INT(print_window.wtitle), 0, 0);
-#endif
-			data->message = M_WAITING;
+			make_windowtitle();
+		} else if (pdlg_handle)
+		{
+			pdlg_update(prn_dialog, picname);
 		}
-		break;
-
-		/*
-		 * Buttonevent
-		 */
-	case MKEVT:
-	case MBEVT:
-		handle_print_dialog(data);
 		data->message = M_WAITING;
 		break;
 
 	case MTERM:
+		close_print_dialog(TRUE);
 		data->message = M_TERMINATED;
 		break;
 
@@ -1187,4 +1320,7 @@ void plugin_main(PLUGIN_DATA *data)
 		data->message = M_WAITING;
 		break;
 	}
+
+	if (closed)
+		data->message = M_EXIT;
 }

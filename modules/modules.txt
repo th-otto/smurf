@@ -175,5 +175,4 @@ xwd.sim        0.10    0.10
 plugin:
 mrm.plg        -       1.00       Smurf ModComm-Protokoll Plugin
 multicon.plg   0.91    0.91
-print.plg      1.02    1.02
-printwd.plx    1.01    1.01
+print.plg      1.03    1.02

@@ -313,13 +313,13 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #undef NUM_OBS
 #undef NUM_TREE
 #undef NUM_UD
-#define NUM_STRINGS 215
+#define NUM_STRINGS 217
 #define NUM_BB		0
 #define NUM_IB		0
 #define NUM_CIB     3
 #define NUM_CIC     3
 #define NUM_TI		67
-#define NUM_FRSTR	10
+#define NUM_FRSTR	12
 #define NUM_FRIMG	0
 #define NUM_OBS     91
 #define NUM_TREE	4
@@ -542,6 +542,8 @@ static char print_string_211[] = "Smurf kann den Drucker nicht \224ffnen!";
 static char print_string_212[] = "Nicht genug Speicher f\201r die Aufbereitung der Bilddaten.";
 static char print_string_213[] = "Smurf unterst\201tzt nur den Ausdruck \201ber GDOS. Leider ist bei Ihnen kein GDOS installiert.";
 static char print_string_214[] = "Es wurden keine Druckertreiber gefunden. Drucken unm\224glich.";
+static char print_string_215[] = "Drucken...";
+static char print_string_216[] = "Drucken:";
 
 
 static _UBYTE print_RS0_MMASK[] = {
@@ -746,7 +748,9 @@ static char *rs_frstr[NUM_FRSTR] = {
 	print_string_211,
 	print_string_212,
 	print_string_213,
-	print_string_214
+	print_string_214,
+	print_string_215,
+	print_string_216
 };
 
 
@@ -1414,8 +1418,8 @@ _WORD print_rsc_free()
 
 #else /* !RSC_STATIC_FILE */
 #if 0
-_WORD rs_numstrings = 215;
-_WORD rs_numfrstr = 10;
+_WORD rs_numstrings = 217;
+_WORD rs_numfrstr = 12;
 
 _WORD rs_nuser = 0;
 _WORD rs_numimages = 0;
