@@ -85,7 +85,7 @@ typedef struct
 extern SERVICE_FUNCTIONS *services;
 extern SMURF_PIC **smurf_picture;
 extern short *active_pic;
-extern OBJECT *alerts;
+extern char **alerts;
 extern PLUGIN_FUNCTIONS *smurf_functions;
 extern SMURF_VARIABLES *smurf_vars;
 extern DevParamS DevParam;

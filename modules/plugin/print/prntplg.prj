@@ -37,8 +37,8 @@ gdos.c
 bindings.c
 ..\..\..\src\getlines.s                     ; getpix for standard format
 
-pcfltlib.lib        ; floating point library
 pcstdlib.lib        ; standard library
+pcfltlib.lib        ; floating point library
 pcextlib.lib        ; extended library
 pctoslib.lib        ; TOS library
 pcgemlib.lib        ; AES and VDI library

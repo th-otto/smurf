@@ -313,59 +313,54 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #undef NUM_OBS
 #undef NUM_TREE
 #undef NUM_UD
-#define NUM_STRINGS 15
+#define NUM_STRINGS 12
 #define NUM_BB		0
 #define NUM_IB		0
 #define NUM_CIB     0
 #define NUM_CIC     0
-#define NUM_TI		5
+#define NUM_TI		4
 #define NUM_FRSTR	0
 #define NUM_FRIMG	0
-#define NUM_OBS     6
+#define NUM_OBS     5
 #define NUM_TREE	1
 #define NUM_UD		0
 #endif
 
 
-static char printw_string_0[] = "Needed program WDIALOG not installed.";
+static char printw_string_0[] = "No image loaded!";
 static char printw_string_1[] = "";
 static char printw_string_2[] = "";
-static char printw_string_3[] = "No image loaded!";
+static char printw_string_3[] = "Smurf can\'t open the printer!";
 static char printw_string_4[] = "";
 static char printw_string_5[] = "";
-static char printw_string_6[] = "Smurf can\'t open the printer!";
+static char printw_string_6[] = "Not enough memory for printing!";
 static char printw_string_7[] = "";
 static char printw_string_8[] = "";
-static char printw_string_9[] = "Not enough memory for printing!";
+static char printw_string_9[] = "Not enough memory to prepare the image data.";
 static char printw_string_10[] = "";
 static char printw_string_11[] = "";
-static char printw_string_12[] = "Not enough memory to prepare the image data.";
-static char printw_string_13[] = "";
-static char printw_string_14[] = "";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
-	{ printw_string_0, printw_string_1, printw_string_2, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 38,1 }, /* NO_WDIALOG */
-	{ printw_string_3, printw_string_4, printw_string_5, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 17,1 }, /* NO_PIC */
-	{ printw_string_6, printw_string_7, printw_string_8, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 30,1 }, /* NO_OPEN */
-	{ printw_string_9, printw_string_10, printw_string_11, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 32,1 }, /* NO_PRT_MEM */
-	{ printw_string_12, printw_string_13, printw_string_14, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 45,1 } /* NO_PREP_MEM */
+static TEDINFO rs_tedinfo[NUM_TI] = {
+	{ printw_string_0, printw_string_1, printw_string_2, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 17,1 }, /* NO_PIC */
+	{ printw_string_3, printw_string_4, printw_string_5, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 30,1 }, /* NO_OPEN */
+	{ printw_string_6, printw_string_7, printw_string_8, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 32,1 }, /* NO_PRT_MEM */
+	{ printw_string_9, printw_string_10, printw_string_11, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 45,1 } /* NO_PREP_MEM */
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* ALERT_STRINGS */
 
-	{ -1, 1, 5, G_BOX, OF_NONE, OS_SHADOWED, C_UNION(0x11100L), 0,0, 59,2056 },
-	{ 2, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 1,2048, 37,1 }, /* NO_WDIALOG */
-	{ 3, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 1,2, 16,1 }, /* NO_PIC */
-	{ 4, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[2]), 1,2051, 29,1 }, /* NO_OPEN */
-	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[3]), 1,5, 31,1 }, /* NO_PRT_MEM */
-	{ 0, -1, -1, G_TEXT, OF_LASTOB, OS_NORMAL, C_UNION(&rs_tedinfo[4]), 1,2054, 44,1 } /* NO_PREP_MEM */
+	{ -1, 1, 4, G_BOX, OF_NONE, OS_SHADOWED, C_UNION(0x11100L), 0,0, 59,2056 },
+	{ 2, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 1,2, 16,1 }, /* NO_PIC */
+	{ 3, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 1,2051, 29,1 }, /* NO_OPEN */
+	{ 4, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[2]), 1,5, 31,1 }, /* NO_PRT_MEM */
+	{ 0, -1, -1, G_TEXT, OF_LASTOB, OS_NORMAL, C_UNION(&rs_tedinfo[3]), 1,2054, 44,1 } /* NO_PREP_MEM */
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* ALERT_STRINGS */
 };
 
@@ -564,7 +559,7 @@ _WORD printw_rsc_free()
 
 #else /* !RSC_STATIC_FILE */
 #if 0
-_WORD rs_numstrings = 15;
+_WORD rs_numstrings = 12;
 _WORD rs_numfrstr = 0;
 
 _WORD rs_nuser = 0;
@@ -573,8 +568,8 @@ _WORD rs_numbb = 0;
 _WORD rs_numfrimg = 0;
 _WORD rs_numib = 0;
 _WORD rs_numcib = 0;
-_WORD rs_numti = 5;
-_WORD rs_numobs = 6;
+_WORD rs_numti = 4;
+_WORD rs_numobs = 5;
 _WORD rs_numtree = 1;
 
 char rs_name[] = "printw.rsc";

@@ -52,40 +52,89 @@
 #include "country.h"
 
 #if COUNTRY==1
-#include "de/printw.rsh"
+#include "de/print.rsh"
 #define TEXT1 "Drucken..."
+#define TEXT2 "Drucken: \""
 #elif COUNTRY==0
-#include "en/printw.rsh"
+#include "en/print.rsh"
 #define TEXT1 "Print..."
+#define TEXT2 "Print: \""
 #elif COUNTRY==2
-#include "en/printw.rsh"		/* missing french resource */
+#include "en/print.rsh"		/* missing french resource */
 #define TEXT1 "Print..."
+#define TEXT2 "Print: \""
 #else
 #error "Keine Sprache!"
 #endif
+
+#define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
+
+static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 
 static char const name_string[] = "GDOS Print-Plugin";
 
 PLUGIN_INFO plugin_info = {
 	name_string,
-	0x0101,								/* Plugin-Version 1.01 */
+	0x0103,								/* Plugin-Version 1.03 */
 	SMURF_VERSION,						/* fÅr Smurf-Version 1.06 */
 	0									/* und nicht resident. */
 };
 
 static short my_id;
+static BOOLEAN dialog_open;
+static BOOLEAN popup_initialized;
+static WORD unit = UNIT_PIXELS;
+
+static POP_UP driver_popup;
+static POP_UP paper_popup;
+static POP_UP unit_popup;
+static WINDOW print_window;
+static OBJECT *print_dialog;
+static OBJECT *drivpop_rsc;
+static OBJECT *pappop_rsc;
+static OBJECT *unitpop_rsc;
 static SMURF_PIC *pic_active;
+
+static WORD curr_deviceID = 91;
+static float scale;
+static float temp;
 
 SERVICE_FUNCTIONS *services;
 SMURF_PIC **smurf_picture;
 short *active_pic;
-OBJECT *alerts;
-SMURF_VARIABLES *smurf_vars;
+char **alerts;
 PLUGIN_FUNCTIONS *smurf_functions;
+SMURF_VARIABLES *smurf_vars;
 
 static WORD pdlg_handle;
 static PRN_DIALOG *prn_dialog;
 static PRN_SETTINGS *prn_settings;
+static BOOLEAN pdlg_available;
+
+
+static void init_windstruct(void)
+{
+	print_window.whandlem = 0;			/* evtl. Handle lîschen */
+	print_window.module = my_id;
+	print_window.wnum = 1;				/* Das wievielte Fenster des Moduls? */
+
+	print_window.wx = -1;
+	print_window.wy = -1;
+	print_window.ww = print_dialog->ob_width;
+	print_window.wh = print_dialog->ob_height;
+
+	strcpy(print_window.wtitle, "Bild drucken");	/* Fenstertitel */
+
+	print_window.resource_form = print_dialog;	/* Modulresource-Formular */
+	print_window.picture = NULL;		/* Zeigerfeld fÅr Bild/Animation */
+	print_window.editob = XPOS;
+	print_window.nextedit = YPOS;
+	print_window.editx = 0;
+	print_window.pflag = 0;
+
+	print_window.prev_window = NULL;	/* vorheriges Fenster (WINDOW*) */
+	print_window.next_window = NULL;	/* nÑxtes Fenster (WINDOW*) */
+}
 
 
 /* init_rsh -----------------------------------------------------
@@ -99,7 +148,11 @@ static void init_rsh(void)
 	for (t = 0; t < NUM_OBS; t++)
 		rsrc_obfix(rs_object, t);
 
-	alerts = rs_trindex[ALERT_STRINGS];	/* Resourcebaum holen */
+	print_dialog = rs_trindex[PRINT_MAIN];	/* Resourcebaum holen */
+	drivpop_rsc = rs_trindex[DRIVERS];
+	pappop_rsc = rs_trindex[PAPERS];
+	unitpop_rsc = rs_trindex[UNITS];
+	alerts = rs_frstr;
 }
 
 
@@ -178,15 +231,10 @@ void plugin_main(PLUGIN_DATA *data)
 		 * Plugin wurde aus dem MenÅ heraus aufgerufen 
 		 */
 	case PLGSELECTED:
-		if (appl_find("?AGI") < 0 || appl_getinfo(7, &out1, &out2, &out3, &out4) != 1 || (out1 & 0x10) == 0)
+		pdlg_available = appl_find("?AGI") >= 0 && appl_getinfo(7, &out1, &out2, &out3, &out4) != 0 && (out1 & 0x10) != 0);
+		if (*(smurf_vars->picthere) == 0)
 		{
-/*                              services->f_alert("Benîtigtes Programm WDIALOG ist nicht installiert.", NULL, NULL, NULL, 1); */
-			services->f_alert(alerts[NO_WDIALOG].TextCast, NULL, NULL, NULL, 1);
-			data->message = M_EXIT;
-		} else if (*(smurf_vars->picthere) == 0)
-		{
-/*                              services->f_alert("Kein Bild geladen!", NULL, NULL, NULL, 1); */
-			services->f_alert(alerts[NO_PIC].TextCast, NULL, NULL, NULL, 1);
+			services->f_alert(alerts[NO_PIC], NULL, NULL, NULL, 1);
 			data->message = M_EXIT;
 		} else
 		{

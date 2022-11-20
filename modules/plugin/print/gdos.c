@@ -92,7 +92,7 @@ short print_with_GDOS(void)
 	v_opnwk(work_in, &gdos_handle, work_out);
 	if (!gdos_handle)
 	{
-		services->f_alert(alerts[NO_OPEN].TextCast, NULL, NULL, NULL, 1);
+		services->f_alert(alerts[NO_OPEN], NULL, NULL, NULL, 1);
 		return -1;
 	}
 
@@ -131,13 +131,13 @@ short print_with_GDOS(void)
 
 	if ((mem = (long) Malloc(-1)) < 128000L)
 	{
-		services->f_alert(alerts[NO_PRT_MEM].TextCast, NULL, NULL, NULL, 1);
+		services->f_alert(alerts[NO_PRT_MEM], NULL, NULL, NULL, 1);
 		return -1;
 	}
 	lstripheight = ((mem - 6535L) / ((((swidth + 15) / 16 * 16) * DevParam.depth) >> 3));
 	if (lstripheight < 2)
 	{
-		services->f_alert(alerts[NO_PRT_MEM].TextCast, NULL, NULL, NULL, 1);
+		services->f_alert(alerts[NO_PRT_MEM], NULL, NULL, NULL, 1);
 		return -1;
 	}
 	stripheight = lstripheight;
@@ -147,7 +147,7 @@ short print_with_GDOS(void)
 	w = ((swidth + 15) / 16) * 16;
 	if ((srcpic = (uint8_t *) Malloc((lstripheight * w * DevParam.depth) >> 3)) == 0)
 	{
-		services->f_alert(alerts[NO_PREP_MEM].TextCast, NULL, NULL, NULL, 1);
+		services->f_alert(alerts[NO_PREP_MEM], NULL, NULL, NULL, 1);
 		return -1;
 	}
 
@@ -235,7 +235,7 @@ short scan_devs(void)
 
 	if (!vq_gdos())
 	{
-		services->f_alert(alerts[NO_GDOS].TextCast, NULL, NULL, NULL, 1);
+		services->f_alert(alerts[NO_GDOS], NULL, NULL, NULL, 1);
 		return -1;
 	}
 
@@ -254,7 +254,7 @@ short scan_devs(void)
 
 	if (dev_anzahl == 0)
 	{
-		services->f_alert(alerts[NO_DRIVER].TextCast, NULL, NULL, NULL, 1);
+		services->f_alert(alerts[NO_DRIVER], NULL, NULL, NULL, 1);
 		return -1;
 	}
 	return 0;
@@ -393,26 +393,6 @@ short f_d_dither(SMURF_PIC *smurf_pic, uint8_t *ziel, uint16_t stripoffset, uint
 
 				ziel += v;
 			} while (++y < stripheight);
-		} else
-		{
-#if 0
-			SMURF_PIC pic;
-			SYSTEM_INFO sys_info;
-
-			memcpy(&pic, smurf_pic, sizeof(SMURF_PIC));
-			pic.pic_data = buffer;
-			pic.pic_height = stripheight;
-			pic.screen_pic = NULL;
-			memcpy(&sys_info, smurf_vars->Sys_info, sizeof(SYSTEM_INFO));
-			sys_info.bitplanes = 1;
-			sys_info.Max_col = 1;
-			smurf_vars->exp_conf-> =;
-
-			if (smurf_functions->dither(&pic, &sys_info, 0) != 0)
-				return -2;
-
-			memcpy(ziel, pic.screen_pic->fd_addr, (long) sw * (long) stripheight);
-#endif
 		}
 	} else if (dest_depth == 32)
 	{
@@ -520,7 +500,7 @@ short actualize_DevParam(WORD gdos_dev, DevParamS *DevParam)
 	v_ext_opnwk(work_in, &gdos_handle, work_out);
 	if (!gdos_handle)
 	{
-		services->f_alert(alerts[NO_OPEN].TextCast, NULL, NULL, NULL, 1);
+		services->f_alert(alerts[NO_OPEN], NULL, NULL, NULL, 1);
 		return -1;
 	}
 

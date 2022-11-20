@@ -45,6 +45,7 @@
 #undef NUM_TREE
 #undef COL8								/* conflicts with smurf.h */
 #undef ALERT_STRINGS					/* conflicts with smurf.h */
+#include "bindings.h"
 #include "wdialog.h"
 #include "gdos.h"
 
@@ -74,7 +75,7 @@ static char const name_string[] = "GDOS Print-Plugin";
 
 PLUGIN_INFO plugin_info = {
 	name_string,
-	0x0102,								/* Plugin-Version 1.02 */
+	0x0103,								/* Plugin-Version 1.03 */
 	SMURF_VERSION,						/* fr Smurf-Version 1.06 */
 	0									/* und nicht resident. */
 };
@@ -101,9 +102,14 @@ static float temp;
 SERVICE_FUNCTIONS *services;
 SMURF_PIC **smurf_picture;
 short *active_pic;
-OBJECT *alerts;
+char **alerts;
 PLUGIN_FUNCTIONS *smurf_functions;
 SMURF_VARIABLES *smurf_vars;
+
+static WORD pdlg_handle;
+static PRN_DIALOG *prn_dialog;
+static PRN_SETTINGS *prn_settings;
+static BOOLEAN pdlg_available;
 
 
 static void init_windstruct(void)
@@ -146,7 +152,7 @@ static void init_rsh(void)
 	drivpop_rsc = rs_trindex[DRIVERS];
 	pappop_rsc = rs_trindex[PAPERS];
 	unitpop_rsc = rs_trindex[UNITS];
-	alerts = rs_trindex[ALERT_STRINGS];
+	alerts = rs_frstr;
 }
 
 
@@ -717,7 +723,7 @@ static void handle_print_dialog(PLUGIN_DATA *data)
 #endif
 				if (back == -1)
 				{
-					services->f_alert(alerts[NO_INIT].TextCast, NULL, NULL, NULL, 1);
+					services->f_alert(alerts[NO_INIT], NULL, NULL, NULL, 1);
 				} else
 				{
 					clip_values();
@@ -774,7 +780,7 @@ static void handle_print_dialog(PLUGIN_DATA *data)
 				back = actualize_DevParam(curr_deviceID, &DevParam);
 				if (back == -1)
 				{
-					services->f_alert(alerts[NO_INIT].TextCast, NULL, NULL, NULL, 1);
+					services->f_alert(alerts[NO_INIT], NULL, NULL, NULL, 1);
 				} else
 				{
 					clip_values();
@@ -784,7 +790,7 @@ static void handle_print_dialog(PLUGIN_DATA *data)
 
 				if (DevParam.paperform != new_paperform)
 				{
-					services->f_alert(alerts[PAPERFORMAT].TextCast, NULL, NULL, NULL, 1);
+					services->f_alert(alerts[PAPERFORMAT], NULL, NULL, NULL, 1);
 					back = DevParam.paperform;
 					if (back >= PAGE_DEFAULT && back <= PAGE_B5)
 						paper_popup.item = back + PAPER1;
@@ -802,10 +808,10 @@ static void handle_print_dialog(PLUGIN_DATA *data)
 		case PRINT_START:
 			if (DevParam.depth == 1 && smurf_picture[*active_pic]->depth > 1)
 			{
-				services->f_alert(alerts[NO_COLOUR].TextCast, NULL, NULL, NULL, 1);
+				services->f_alert(alerts[NO_COLOUR], NULL, NULL, NULL, 1);
 			} else if (DevParam.depth == 3)
 			{
-				services->f_alert(alerts[NO_EIGHT].TextCast, NULL, NULL, NULL, 1);
+				services->f_alert(alerts[NO_EIGHT], NULL, NULL, NULL, 1);
 			} else
 			{
 				OutParam.advance = 1;	/* Vorschub nach Seite? */
@@ -880,7 +886,7 @@ static void handle_print_dialog(PLUGIN_DATA *data)
 		if (button == PRINT_START)
 		{
 			if (DevParam.depth == 3)
-				services->f_alert(alerts[NO_EIGHT].TextCast, NULL, NULL, NULL, 1);
+				services->f_alert(alerts[NO_EIGHT], NULL, NULL, NULL, 1);
 			else
 			{
 				OutParam.advance = 1;	/* Vorschub nach Seite? */
@@ -1042,7 +1048,7 @@ void plugin_main(PLUGIN_DATA *data)
 	case PLGSELECTED:
 		if (*(smurf_vars->picthere) == 0)
 		{
-			services->f_alert(alerts[NO_PIC].TextCast, NULL, NULL, NULL, 1);
+			services->f_alert(alerts[NO_PIC], NULL, NULL, NULL, 1);
 			data->message = M_EXIT;
 		} else
 		{

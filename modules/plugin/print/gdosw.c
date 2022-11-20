@@ -53,6 +53,7 @@
 #endif
 
 short dev_anzahl = 0;
+DevInfoS DevInfo[30];
 DevParamS DevParam;
 OutParamS OutParam;
 
@@ -61,18 +62,12 @@ static WORD work_out[57];
 static uint16_t swidth, sheight, dwidth, dheight;
 
 
-
 /* Gedruckt wird immer das aktive Bild. */
 short print_with_GDOS(void)
 {
 	uint8_t *srcpic;
 	BOOLEAN can_scale;
-
-#if 0
 	WORD work_in[16] = { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0 };
-#else
-	WORD work_in[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-#endif
 	WORD gdos_handle = 0;
 	WORD pxy[8];
 	WORD clip[4];
@@ -93,7 +88,7 @@ short print_with_GDOS(void)
 	sheight = smurf_picture[*active_pic]->pic_height;
 
 	/* einloggen */
-	work_in[0] = DevParam.devID;	/* Nummer des GDOS-Treibers, siehe ASSIGN.SYS */
+	work_in[0] = DevParam.devID;		/* Nummer des GDOS-Treibers, siehe ASSIGN.SYS */
 	v_opnwk(work_in, &gdos_handle, work_out);
 	if (!gdos_handle)
 	{
@@ -226,6 +221,119 @@ short print_with_GDOS(void)
 	Mfree(srcpic);
 
 	return 0;
+}
+
+
+short scan_devs(void)
+{
+	short i;
+
+	if (dev_anzahl > 0)
+		return 0;
+
+	services->reset_busybox(128, "Scanne Drucker");
+
+	if (!vq_gdos())
+	{
+		services->f_alert(alerts[NO_GDOS].TextCast, NULL, NULL, NULL, 1);
+		return -1;
+	}
+
+	dev_anzahl = 0;
+	for (i = 21; i <= 30; i++)			/* GDOS-Device Drucker-Treiber */
+		if (get_DevInfo(i, &DevInfo[dev_anzahl]))
+			dev_anzahl++;
+	for (i = 81; i <= 90; i++)			/* GDOS-Device FAX-Treiber */
+		if (get_DevInfo(i, &DevInfo[dev_anzahl]))
+			dev_anzahl++;
+	for (i = 91; i <= 100; i++)			/* GDOS-Device IMG-Treiber */
+		if (get_DevInfo(i, &DevInfo[dev_anzahl]))
+			dev_anzahl++;
+
+	services->reset_busybox(128, "OK");
+
+	if (dev_anzahl == 0)
+	{
+		services->f_alert(alerts[NO_DRIVER].TextCast, NULL, NULL, NULL, 1);
+		return -1;
+	}
+	return 0;
+}
+
+
+/* Funktion um Cookie auf Anwesenheit zu testen */
+/* Christian Eyrich irgendwann im 20. Jahrhundert */
+static BOOLEAN get_cookie(unsigned long cookie, unsigned long *value)
+{
+	unsigned long *cookiejar;
+
+	/* ansonsten value auf 0L */
+	*value = 0;
+	/* Zeiger auf Cookie Jar holen */
+	cookiejar = (unsigned long *) Setexc(0x5a0 / 4, (void (*)()) -1);
+
+	/* Cookie Jar installiert? */
+	if (cookiejar == NULL)
+		return FALSE;
+
+	/* Keksdose nach cookie durchsuchen */
+	while (*cookiejar++ != 0)
+	{
+		if (*cookiejar++ == cookie)
+		{
+			/* wenn cookie gefunden wurde, value auf Cookiewert setzen, */
+			*value = *cookiejar;
+			return TRUE;
+		}
+		cookiejar += 1;
+	}
+
+	return FALSE;
+}
+
+
+/* versucht einen Treiber zu ”ffnen und stellt bei Erfolg Infos in die Dev-Struktur */
+short get_DevInfo(WORD devID, DevInfoS *DevInfo)
+{
+	char name[128];
+	char file_path[33];
+	char file_name[33];
+	WORD work_in[] = { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0 };
+	WORD gdos_handle = 0;
+	WORD devExist = 0;
+	NVDI_STR *nvdi_str = NULL;
+
+	work_in[0] = devID;
+	v_opnwk(work_in, &gdos_handle, work_out);
+	if (gdos_handle == 0)
+		return 0;
+
+	/* Vorsicht, vq_ext_devinfo existiert nur mit NVDI >= 3.0 */
+	get_cookie(0x4e564449L, (unsigned long *)&nvdi_str); /* 'NVDI' */
+
+	if (nvdi_str && nvdi_str->nvdi_version >= 0x0300)
+	{
+		vq_ext_devinfo(gdos_handle, devID, &devExist, file_path, file_name, name);
+	} else
+	{
+		memset(name, 0, sizeof(name));			/* die Strings von vqt_devinfo() sind nicht nullterminiert */
+#if defined(__GEMLIB__) || defined(__PORTAES_H__)
+		vqt_devinfo(gdos_handle, devID, &devExist, name, name + 64);
+#else
+		vqt_devinfo(gdos_handle, devID, &devExist, name);
+#endif
+	}
+
+	if (devExist)						/* nicht nur > 0, denn kann auch -1 sein */
+	{
+		DevInfo->devID = devID;
+		DevInfo->devName[0] = '\0';		/* damit der cat was zum drancaten hat */
+		strncat(DevInfo->devName, name, 35);
+	}
+
+	v_clswk(gdos_handle);
+
+	return devExist;
 }
 
 

@@ -313,16 +313,16 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #undef NUM_OBS
 #undef NUM_TREE
 #undef NUM_UD
-#define NUM_STRINGS 235
+#define NUM_STRINGS 215
 #define NUM_BB		0
 #define NUM_IB		0
 #define NUM_CIB     3
 #define NUM_CIC     3
-#define NUM_TI		77
-#define NUM_FRSTR	0
+#define NUM_TI		67
+#define NUM_FRSTR	10
 #define NUM_FRIMG	0
-#define NUM_OBS     102
-#define NUM_TREE	5
+#define NUM_OBS     91
+#define NUM_TREE	4
 #define NUM_UD		0
 #endif
 
@@ -533,35 +533,15 @@ static char print_string_202[] = "Prozent";
 static char print_string_203[] = "";
 static char print_string_204[] = "";
 static char print_string_205[] = "Kein Bild geladen!";
-static char print_string_206[] = "";
-static char print_string_207[] = "";
-static char print_string_208[] = "Drucker konnte nicht initialisiert werden!";
-static char print_string_209[] = "";
-static char print_string_210[] = "";
-static char print_string_211[] = "Dieses Papierformat steht nicht zur Verf\201gung!";
-static char print_string_212[] = "";
-static char print_string_213[] = "";
-static char print_string_214[] = "Ausgabe von Farbbildern auf s/w-Druckern ist noch nicht m\224glich!";
-static char print_string_215[] = "";
-static char print_string_216[] = "";
-static char print_string_217[] = "Ausgabe in 8 Farben ist leider noch nicht m\224glich!";
-static char print_string_218[] = "";
-static char print_string_219[] = "";
-static char print_string_220[] = "Es steht nicht genug Speicher zum Drucken zur Verf\201gung!";
-static char print_string_221[] = "";
-static char print_string_222[] = "";
-static char print_string_223[] = "Smurf kann den Drucker nicht \224ffnen!";
-static char print_string_224[] = "";
-static char print_string_225[] = "";
-static char print_string_226[] = "Nicht genug Speicher f\201r die Aufbereitung der Bilddaten.";
-static char print_string_227[] = "";
-static char print_string_228[] = "";
-static char print_string_229[] = "Smurf unterst\201tzt nur den Ausdruck \201ber GDOS. Leider ist bei Ihnen kein GDOS installiert.";
-static char print_string_230[] = "";
-static char print_string_231[] = "";
-static char print_string_232[] = "Es wurden keine Druckertreiber gefunden. Drucken unm\224glich.";
-static char print_string_233[] = "";
-static char print_string_234[] = "";
+static char print_string_206[] = "Drucker konnte nicht initialisiert werden!";
+static char print_string_207[] = "Dieses Papierformat steht nicht zur Verf\201gung!";
+static char print_string_208[] = "Ausgabe von Farbbildern auf s/w-Druckern ist noch nicht m\224glich!";
+static char print_string_209[] = "Ausgabe in 8 Farben ist leider noch nicht m\224glich!";
+static char print_string_210[] = "Es steht nicht genug Speicher zum Drucken zur Verf\201gung!";
+static char print_string_211[] = "Smurf kann den Drucker nicht \224ffnen!";
+static char print_string_212[] = "Nicht genug Speicher f\201r die Aufbereitung der Bilddaten.";
+static char print_string_213[] = "Smurf unterst\201tzt nur den Ausdruck \201ber GDOS. Leider ist bei Ihnen kein GDOS installiert.";
+static char print_string_214[] = "Es wurden keine Druckertreiber gefunden. Drucken unm\224glich.";
 
 
 static _UBYTE print_RS0_MMASK[] = {
@@ -756,14 +736,28 @@ static _UBYTE print_RS2_4CMASK[] = {
 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF, 0xFE, 0x7F, 0xFF, 0xFF, 0xFC, 
 0x1F, 0xFF, 0xFF, 0xF0, 0x1F, 0xFF, 0xFF, 0xF0, 0x1F, 0xFF, 0xFF, 0xF0, 0x1F, 0xFF, 0xFF, 0xF0};
 
-CICON rs_cicon[] = {
+static char *rs_frstr[NUM_FRSTR] = {
+	print_string_205,
+	print_string_206,
+	print_string_207,
+	print_string_208,
+	print_string_209,
+	print_string_210,
+	print_string_211,
+	print_string_212,
+	print_string_213,
+	print_string_214
+};
+
+
+static CICON rs_cicon[] = {
 	{ 4, (_WORD *) print_RS0_4CDATA, (_WORD *) print_RS0_4CMASK, 0, 0, 0 },
 	{ 4, (_WORD *) print_RS1_4CDATA, (_WORD *) print_RS1_4CMASK, 0, 0, 0 },
 	{ 4, (_WORD *) print_RS2_4CDATA, (_WORD *) print_RS2_4CMASK, 0, 0, 0 }
 };
 
 
-CICONBLK rs_ciconblk[] = {
+static CICONBLK rs_ciconblk[] = {
 	{ { (_WORD *) print_RS0_MMASK, (_WORD *) print_RS0_MDATA, print_string_16, 4096,24,23, 0,0,32,32, 13,13,6,8 }, &rs_cicon[0] },
 	{ { (_WORD *) print_RS1_MMASK, (_WORD *) print_RS1_MDATA, print_string_17, 4096,24,23, 0,0,32,32, 13,13,6,8 }, &rs_cicon[1] },
 	{ { (_WORD *) print_RS2_MMASK, (_WORD *) print_RS2_MDATA, print_string_66, 4096,17,26, 0,0,32,32, 6,15,6,8 }, &rs_cicon[2] }
@@ -779,7 +773,7 @@ CICONBLK rs_ciconblk[] = {
 #if RSC_USE_PALETTE && !RSC_NAMED_FUNCTIONS && RSC_STATIC_FILE
 _WORD rgb_palette[][4] = {
 #else
-_WORD rgb_palette[][4] = {
+static _WORD rgb_palette[][4] = {
 #endif
 	{ 0x03E8, 0x03E8, 0x03E8, 0x0000 },
 	{ 0x03E8, 0x0000, 0x0000, 0x0002 },
@@ -1041,7 +1035,7 @@ _WORD rgb_palette[][4] = {
 #endif
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ print_string_0, print_string_1, print_string_2, IBM, 6, TE_CNTR, 0x1100, 0x0, -1, 38,1 }, /* DRIVER_POPBUT */
 	{ print_string_3, print_string_4, print_string_5, SMALL, 6, TE_LEFT, 0x1100, 0x0, -1, 8,1 },
 	{ print_string_6, print_string_7, print_string_8, IBM, 6, TE_CNTR, 0x1100, 0x0, -1, 16,1 }, /* PAPER_POPBUT */
@@ -1108,21 +1102,11 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 	{ print_string_193, print_string_194, print_string_195, IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 }, /* UNIT_PIXELS */
 	{ print_string_196, print_string_197, print_string_198, IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 11,1 }, /* UNIT_MM */
 	{ print_string_199, print_string_200, print_string_201, IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 5,1 }, /* UNIT_INCH */
-	{ print_string_202, print_string_203, print_string_204, IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 8,1 }, /* UNIT_PERCENT */
-	{ print_string_205, print_string_206, print_string_207, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 19,1 }, /* NO_PIC */
-	{ print_string_208, print_string_209, print_string_210, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 43,1 }, /* NO_INIT */
-	{ print_string_211, print_string_212, print_string_213, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 47,1 }, /* PAPERFORMAT */
-	{ print_string_214, print_string_215, print_string_216, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 65,1 }, /* NO_COLOUR */
-	{ print_string_217, print_string_218, print_string_219, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 51,1 }, /* NO_EIGHT */
-	{ print_string_220, print_string_221, print_string_222, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 57,1 }, /* NO_PRT_MEM */
-	{ print_string_223, print_string_224, print_string_225, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 37,1 }, /* NO_OPEN */
-	{ print_string_226, print_string_227, print_string_228, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 57,1 }, /* NO_PREP_MEM */
-	{ print_string_229, print_string_230, print_string_231, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 90,1 }, /* NO_GDOS */
-	{ print_string_232, print_string_233, print_string_234, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 60,1 } /* NO_DRIVER */
+	{ print_string_202, print_string_203, print_string_204, IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 8,1 } /* UNIT_PERCENT */
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* PRINT_MAIN */
 
 	{ -1, 1, 43, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 54,2070 },
@@ -1224,30 +1208,15 @@ OBJECT rs_object[NUM_OBS] = {
 	{ 2, -1, -1, G_BOXTEXT, OF_FL3DACT, OS_NORMAL, C_UNION(&rs_tedinfo[63]), 768,768, 11,1 }, /* UNIT_PIXELS */
 	{ 3, -1, -1, G_BOXTEXT, OF_FL3DACT, OS_NORMAL, C_UNION(&rs_tedinfo[64]), 768,1793, 11,1 }, /* UNIT_MM */
 	{ 4, -1, -1, G_BOXTEXT, OF_FL3DACT, OS_NORMAL, C_UNION(&rs_tedinfo[65]), 768,2818, 11,1 }, /* UNIT_INCH */
-	{ 0, -1, -1, G_BOXTEXT, 0x620, OS_NORMAL, C_UNION(&rs_tedinfo[66]), 768,3843, 11,1 }, /* UNIT_PERCENT */
-
-/* ALERT_STRINGS */
-
-	{ -1, 1, 10, G_BOX, OF_NONE, OS_SHADOWED, C_UNION(0x11100L), 0,0, 1115,16 },
-	{ 2, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[67]), 1,2048, 18,1 }, /* NO_PIC */
-	{ 3, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[68]), 1,2, 42,1 }, /* NO_INIT */
-	{ 4, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[69]), 1,2051, 46,1 }, /* PAPERFORMAT */
-	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[70]), 1,5, 64,1 }, /* NO_COLOUR */
-	{ 6, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[71]), 1,2054, 50,1 }, /* NO_EIGHT */
-	{ 7, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[72]), 1,8, 56,1 }, /* NO_PRT_MEM */
-	{ 8, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[73]), 1,2057, 36,1 }, /* NO_OPEN */
-	{ 9, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[74]), 1,11, 56,1 }, /* NO_PREP_MEM */
-	{ 10, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[75]), 1,2060, 89,1 }, /* NO_GDOS */
-	{ 0, -1, -1, G_TEXT, OF_LASTOB, OS_NORMAL, C_UNION(&rs_tedinfo[76]), 1,14, 59,1 } /* NO_DRIVER */
+	{ 0, -1, -1, G_BOXTEXT, 0x620, OS_NORMAL, C_UNION(&rs_tedinfo[66]), 768,3843, 11,1 } /* UNIT_PERCENT */
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0], /* PRINT_MAIN */
 	&rs_object[44], /* DRIVERS */
 	&rs_object[75], /* PAPERS */
-	&rs_object[86], /* UNITS */
-	&rs_object[91] /* ALERT_STRINGS */
+	&rs_object[86] /* UNITS */
 };
 
 
@@ -1445,8 +1414,8 @@ _WORD print_rsc_free()
 
 #else /* !RSC_STATIC_FILE */
 #if 0
-_WORD rs_numstrings = 235;
-_WORD rs_numfrstr = 0;
+_WORD rs_numstrings = 215;
+_WORD rs_numfrstr = 10;
 
 _WORD rs_nuser = 0;
 _WORD rs_numimages = 0;
@@ -1454,9 +1423,9 @@ _WORD rs_numbb = 0;
 _WORD rs_numfrimg = 0;
 _WORD rs_numib = 0;
 _WORD rs_numcib = 3;
-_WORD rs_numti = 77;
-_WORD rs_numobs = 102;
-_WORD rs_numtree = 5;
+_WORD rs_numti = 67;
+_WORD rs_numobs = 91;
+_WORD rs_numtree = 4;
 
 char rs_name[] = "print.rsc";
 
