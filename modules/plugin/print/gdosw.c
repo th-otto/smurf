@@ -190,7 +190,7 @@ int print_with_GDOS(PRN_SETTINGS *prn_settings)
 
         clip[3] = OutParam.zy + (int)dy;        /* rechte untere Ecke des Clipping-Rechtecks */
 
-        vs_clip(gdos_handle, 1, clip);          /* Clipping-Rechteck setzen */
+        vs_clip(gdos_handle, TRUE, clip);          /* Clipping-Rechteck setzen */
 
         srcform.fd_h = stripheight;
 

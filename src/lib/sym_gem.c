@@ -1344,7 +1344,7 @@ void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call,
 	cliparray[1] = screen.g_y;
 	cliparray[2] = screen.g_w;
 	cliparray[3] = screen.g_h;
-	vs_clip(Sys_info.vdi_handle, 1, cliparray);
+	vs_clip(Sys_info.vdi_handle, TRUE, cliparray);
 
 	screenm.fd_addr = NULL;
 
@@ -1465,7 +1465,7 @@ void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call,
 	wind_update(END_MCTRL);
 	wind_update(END_UPDATE);
 
-	vs_clip(Sys_info.vdi_handle, 0, cliparray);
+	vs_clip(Sys_info.vdi_handle, FALSE, cliparray);
 
 	*dex = mousex;
 	*dey = mousey;

@@ -313,11 +313,11 @@ typedef struct
 typedef struct
 {
     WORD app_id;
-    uint8_t bitplanes;       /* aktuelle Planetiefe */
+    uint8_t bitplanes;      /* aktuelle Planetiefe */
     unsigned short Max_col; /* maximale Farben momentan */
     WORD screen_width;      /* Bildschirmbreite */
     WORD screen_height;     /* Bildschirmh”he */
-    WORD vdi_handle;
+    WORD vdi_handle;        /* VDI-Hendl */
     uint8_t *nc_table;      /* Standard-Nearest-Color-Table. Muž von Smurf anfangs geladen / erzeugt werden! */
     uint8_t *plane_table;   /* Standard-Binary-Palette-Table. Muž von Smurf anfangs erzeugt werden! */
 

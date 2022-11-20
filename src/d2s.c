@@ -126,7 +126,7 @@ void direct2screen(SMURF_PIC *picture, uint8_t *where_to, GRECT *part)
 
 	if (get_cookie(0x45644449L, (unsigned long *)&func) != 0 && call_eddi(func, 0) >= 0x0100)	/* 'EdDI' */
 	{
-		vq_scrninfo(handle, work_out);
+		vq_scrninfo(Sys_info.vdi_handle, work_out);
 
 		/* Anzahl benutzter Bits fÅr Farben */
 		if ((((unsigned long)(UWORD)work_out[3] << 16) | (UWORD)work_out[4]) == 32768L)

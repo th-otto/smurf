@@ -248,7 +248,7 @@ static void realtime_dither(GRECT *picbox, WINDOW *window, WORD *pxy, WORD *vdic
 	if (!window->pflag)
 		make_singular_display(&old, Sys_info.PreviewMoveDither, CR_SYSPAL);
 
-	vs_clip(Sys_info.vdi_handle, 1, vdiclip);
+	vs_clip(Sys_info.vdi_handle, TRUE, vdiclip);
 
 	if (window->pflag && picbox->g_w > 128 && picbox->g_h > 128)
 	{
@@ -422,9 +422,9 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, WORD startob, WORD flags)
 						}
 					}
 
-					vs_clip(Sys_info.vdi_handle, 1, vdiclip);
+					vs_clip(Sys_info.vdi_handle, TRUE, vdiclip);
 					objc_draw(tree, startob, MAX_DEPTH, clip[0], clip[1], clip[2], clip[3]);
-					vs_clip(Sys_info.vdi_handle, 0, vdiclip);
+					vs_clip(Sys_info.vdi_handle, FALSE, vdiclip);
 				}
 
 				/*
@@ -502,21 +502,21 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, WORD startob, WORD flags)
 							 */
 							if (!online)
 							{
-								vs_clip(Sys_info.vdi_handle, 1, vdiclip);
+								vs_clip(Sys_info.vdi_handle, TRUE, vdiclip);
 								if (disp_pic->fd_nplanes == 1)
 									vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, disp_pic, &m_screen, Colindex);
 								else
 									vro_cpyfm(Sys_info.vdi_handle, S_ONLY, pxy, disp_pic, &m_screen);
-								vs_clip(Sys_info.vdi_handle, 0, vdiclip);
+								vs_clip(Sys_info.vdi_handle, FALSE, vdiclip);
 							}
 						}
 
-						vs_clip(Sys_info.vdi_handle, 1, vdiclip);
+						vs_clip(Sys_info.vdi_handle, TRUE, vdiclip);
 
 						if (window->pflag && window->picture->block != NULL && !(flags & DRAWNOBLOCK))
 							imageWindow.drawBlock(window, &picbox);
 
-						vs_clip(Sys_info.vdi_handle, 1, vdiclip);	/* Clipping neu einschalten (wird in draw_block ge„ndert!) */
+						vs_clip(Sys_info.vdi_handle, TRUE, vdiclip);	/* Clipping neu einschalten (wird in draw_block ge„ndert!) */
 
 						/*
 						 * Ditherpuffer fr Online-Dithering wieder freigeben
@@ -536,7 +536,7 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, WORD startob, WORD flags)
 					 */
 					if (window->pflag)
 					{
-						vs_clip(Sys_info.vdi_handle, 1, vdiclip);
+						vs_clip(Sys_info.vdi_handle, TRUE, vdiclip);
 						vsf_color(Sys_info.vdi_handle, Sys_info.outcol);
 						vsl_color(Sys_info.vdi_handle, 1);
 
@@ -546,10 +546,10 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, WORD startob, WORD flags)
 						pxy[2] = wind_x + wind_w;
 						pxy[3] = wind_y + wind_h;
 						vr_recfl(Sys_info.vdi_handle, pxy);
-/*
-						if(vdiclip[1] < pxy[1])
+#if 0
+						if (vdiclip[1] < pxy[1])
 							vdiclip[1] = pxy[1];
-*/
+#endif
 						/* Box unterm Bild */
 						pxy[0] = wind_x;
 						pxy[1] = wind_y + TOOLBAR_HEIGHT + endhgt - window->yoffset;
@@ -563,7 +563,7 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, WORD startob, WORD flags)
 						imageWindow.drawCrosshair(window);
 					}
 
-					vs_clip(Sys_info.vdi_handle, 0, vdiclip);
+					vs_clip(Sys_info.vdi_handle, FALSE, vdiclip);
 				}
 			}
 		}
@@ -600,10 +600,10 @@ void draw_iconified(WINDOW *window, WORD *vdiclip)
 	u_tree[icon].ob_x = pxy[0] + (pxy[2] - pxy[0] - 42) / 2;
 	u_tree[icon].ob_y = pxy[1] + (pxy[3] - pxy[1] - 42) / 2;
 	vsf_color(Sys_info.vdi_handle, Sys_info.AES_bgcolor);
-	vs_clip(Sys_info.vdi_handle, 1, vdiclip);
+	vs_clip(Sys_info.vdi_handle, TRUE, vdiclip);
 	vr_recfl(Sys_info.vdi_handle, pxy);
 	objc_draw(u_tree, icon, MAX_DEPTH, vdiclip[0], vdiclip[1], vdiclip[2] - vdiclip[0], vdiclip[3] - vdiclip[1]);
-	vs_clip(Sys_info.vdi_handle, 0, vdiclip);
+	vs_clip(Sys_info.vdi_handle, FALSE, vdiclip);
 }
 
 
@@ -783,7 +783,7 @@ void draw_block(WINDOW *window, GRECT *picbox)
 		picture->block->screen_pic = NULL;
 	}
 
-	vs_clip(Sys_info.vdi_handle, 0, clip);
+	vs_clip(Sys_info.vdi_handle, FALSE, clip);
 }
 
 
@@ -907,7 +907,7 @@ void f_draw_blockbox(WINDOW *window)
 		pxy[1] += TOOLBAR_HEIGHT;
 		pxy[3] += TOOLBAR_HEIGHT;
 #if 0
-		vs_clip(Sys_info.vdi_handle, 1, pxy);
+		vs_clip(Sys_info.vdi_handle, TRUE, pxy);
 #endif
 
 		zoom = window->picture->zoom + 1;
@@ -1412,7 +1412,7 @@ void scrollWindowRT(WINDOW *window, WORD xamount, WORD yamount)
 			pxy[7] = box.g_h + box.g_y - 1;
 
 			memcpy(clip, pxy, 4 * 2);
-			vs_clip(Sys_info.vdi_handle, 1, clip);
+			vs_clip(Sys_info.vdi_handle, TRUE, clip);
 
 			/*
 			 * Wenn der Scrollbetrag gr”žer ist als der zu redrawende Ausschnitt, ist
@@ -1500,7 +1500,7 @@ void scrollWindowRT(WINDOW *window, WORD xamount, WORD yamount)
 				clip[1] = redraw.g_y;
 				clip[2] = redraw.g_x + redraw.g_w - 1;
 				clip[3] = redraw.g_y + redraw.g_h - 1;
-				vs_clip(Sys_info.vdi_handle, 1, clip);
+				vs_clip(Sys_info.vdi_handle, TRUE, clip);
 
 				realtime_dither(&redraw, window, pxy, clip, box.g_h * zoom + 1);
 #if 0
@@ -1510,7 +1510,7 @@ void scrollWindowRT(WINDOW *window, WORD xamount, WORD yamount)
 				window->picture->screen_pic = NULL;
 
 				imageWindow.drawBlock(window, &redraw);
-				vs_clip(Sys_info.vdi_handle, 1, clip);
+				vs_clip(Sys_info.vdi_handle, TRUE, clip);
 				imageWindow.drawBlockbox(window);
 			}
 
@@ -1547,7 +1547,7 @@ void scrollWindowRT(WINDOW *window, WORD xamount, WORD yamount)
 				clip[1] = redraw.g_y;
 				clip[2] = redraw.g_x + redraw.g_w - 1;
 				clip[3] = redraw.g_y + redraw.g_h - 1;
-				vs_clip(Sys_info.vdi_handle, 1, clip);
+				vs_clip(Sys_info.vdi_handle, TRUE, clip);
 
 				realtime_dither(&redraw, window, pxy, clip, box.g_h * zoom + 1);
 #if 0
@@ -1557,7 +1557,7 @@ void scrollWindowRT(WINDOW *window, WORD xamount, WORD yamount)
 				window->picture->screen_pic = NULL;
 
 				imageWindow.drawBlock(window, &redraw);
-				vs_clip(Sys_info.vdi_handle, 1, clip);
+				vs_clip(Sys_info.vdi_handle, TRUE, clip);
 				imageWindow.drawBlockbox(window);
 			}
 		}

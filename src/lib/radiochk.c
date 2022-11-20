@@ -70,7 +70,8 @@ static WORD cdecl f_do_radio(PARMBLK *parm)
 	USERBLK *buttonimg;
 	MFDB source;
 	MFDB dest;
-
+	BOOLEAN coloricon;
+	
 	if (Sys_info.bitplanes > 8)
 		write_mode = S_AND_D;
 	else
@@ -90,15 +91,27 @@ static WORD cdecl f_do_radio(PARMBLK *parm)
 	else
 		Radiobutton = Radio;
 
-	buttonimg = u_tree[Radiobutton].ob_spec.userblk;
-	if (buttonimg && Sys_info.Max_col >= 4)
-		quell_img = (CICONBLK *) buttonimg->ub_parm;
-	else
+	coloricon = FALSE;
+	/* has it been converted in xrsrc.c? */
+	if ((u_tree[Radiobutton].ob_type & 0xff) == G_USERDEF)
+	{
+		buttonimg = u_tree[Radiobutton].ob_spec.userblk;
+		if (Sys_info.Max_col >= 4)
+		{
+			coloricon = TRUE;
+			quell_img = (CICONBLK *) buttonimg->ub_parm;
+		} else
+		{
+			quell_img = u_tree[Radiobutton].ob_spec.ciconblk;
+		}
+	} else
+	{
 		quell_img = u_tree[Radiobutton].ob_spec.ciconblk;
+	}
 
 	dest.fd_addr = NULL;
-	source.fd_w = 16;					/* Radiobuttons/Checkboxen mit 16*16 */
-	source.fd_h = 16;
+	source.fd_w = quell_img->monoblk.ib_wicon;					/* Radiobuttons/Checkboxen mit 16*16 */
+	source.fd_h = quell_img->monoblk.ib_hicon;
 	source.fd_wdwidth = 1;				/* 16 Pixel einer Plane = 1 Word */
 	source.fd_stand = 0;
 
@@ -107,9 +120,9 @@ static WORD cdecl f_do_radio(PARMBLK *parm)
 	pxy[1] = ob_y;
 	pxy[2] = ob_x + source.fd_w - 1;
 	pxy[3] = ob_y + source.fd_h - 1;
-	vsf_color(handle, Sys_info.AES_bgcolor);
-	vswr_mode(handle, MD_REPLACE);
-	vr_recfl(handle, pxy);
+	vsf_color(Sys_info.vdi_handle, Sys_info.AES_bgcolor);
+	vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
+	vr_recfl(Sys_info.vdi_handle, pxy);
 
 	pxy[0] = 0;
 	pxy[1] = 0;
@@ -120,20 +133,20 @@ static WORD cdecl f_do_radio(PARMBLK *parm)
 	pxy[6] = ob_x + pxy[2];
 	pxy[7] = ob_y + pxy[3];
 
-	if (Sys_info.Max_col >= 4)
+	if (coloricon)
 	{
 		source.fd_nplanes = 1;			/* Bitplanes des Quellimages */
 		source.fd_addr = quell_img->mainlist->col_mask;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		vrt_cpyfm(handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farbe->Farbe - Rastercopy */
+		vrt_cpyfm(Sys_info.vdi_handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farbe->Farbe - Rastercopy */
 
 		source.fd_addr = quell_img->mainlist->col_data;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
 		source.fd_nplanes = quell_img->mainlist->num_planes;	/* Bitplanes des Quellimages */
-		vro_cpyfm(handle, write_mode, pxy, &source, &dest);	/* Farbe->Farbe - Rastercopy */
+		vro_cpyfm(Sys_info.vdi_handle, write_mode, pxy, &source, &dest);	/* Farbe->Farbe - Rastercopy */
 	} else
 	{
 		source.fd_addr = quell_img->monoblk.ib_pdata;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
 		source.fd_nplanes = 1;			/* Bitplanes des Quellimages */
-		vrt_cpyfm(handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* s/w->Farbe - Rastercopy */
+		vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* s/w->Farbe - Rastercopy */
 	}
 
 	return parm->pb_currstate & ~OS_SELECTED;
@@ -152,6 +165,7 @@ WORD cdecl f_do_checkbox(PARMBLK *parm)
 	USERBLK *buttonimg;
 	MFDB source;
 	MFDB dest;
+	BOOLEAN coloricon;
 
 	if (Sys_info.bitplanes > 8)
 		write_mode = S_AND_D;
@@ -167,23 +181,32 @@ WORD cdecl f_do_checkbox(PARMBLK *parm)
 	ob_x = parm->pb_x;
 	ob_y = parm->pb_y;
 
-
 	if (parm->pb_currstate & OS_SELECTED)
 		Checkbox = SelectedCheck;
 	else
 		Checkbox = Check;
 
-	buttonimg = u_tree[Checkbox].ob_spec.userblk;
-
-	if (buttonimg && Sys_info.Max_col >= 4)
-		quell_img = (CICONBLK *) buttonimg->ub_parm;
-	else
+	coloricon = FALSE;
+	/* has it been converted in xrsrc.c? */
+	if ((u_tree[Checkbox].ob_type & 0xff) == G_USERDEF)
+	{
+		buttonimg = u_tree[Checkbox].ob_spec.userblk;
+		if (Sys_info.Max_col >= 4)
+		{
+			coloricon = TRUE;
+			quell_img = (CICONBLK *) buttonimg->ub_parm;
+		} else
+		{
+			quell_img = u_tree[Checkbox].ob_spec.ciconblk;
+		}
+	} else
+	{
 		quell_img = u_tree[Checkbox].ob_spec.ciconblk;
+	}
 
 	dest.fd_addr = NULL;
-
-	source.fd_w = 16;
-	source.fd_h = 16;
+	source.fd_w = quell_img->monoblk.ib_wicon;
+	source.fd_h = quell_img->monoblk.ib_hicon;
 	source.fd_wdwidth = 1;
 	source.fd_stand = 0;
 
@@ -191,9 +214,9 @@ WORD cdecl f_do_checkbox(PARMBLK *parm)
 	pxy[1] = ob_y;
 	pxy[2] = ob_x + source.fd_w - 1;
 	pxy[3] = ob_y + source.fd_h - 1;
-	vsf_color(handle, Sys_info.AES_bgcolor);
-	vswr_mode(handle, MD_REPLACE);
-	vr_recfl(handle, pxy);
+	vsf_color(Sys_info.vdi_handle, Sys_info.AES_bgcolor);
+	vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
+	vr_recfl(Sys_info.vdi_handle, pxy);
 
 	pxy[0] = 0;
 	pxy[1] = 0;
@@ -204,20 +227,20 @@ WORD cdecl f_do_checkbox(PARMBLK *parm)
 	pxy[6] = ob_x + pxy[2];
 	pxy[7] = ob_y + pxy[3];
 
-	if (Sys_info.Max_col >= 4)
+	if (coloricon)
 	{
 		source.fd_nplanes = 1;
 		source.fd_addr = quell_img->mainlist->col_mask;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		vrt_cpyfm(handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farb-Rastercopy */
+		vrt_cpyfm(Sys_info.vdi_handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farb-Rastercopy */
 
 		source.fd_addr = quell_img->mainlist->col_data;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
 		source.fd_nplanes = quell_img->mainlist->num_planes;	/* Bitplanes des Quellimages */
-		vro_cpyfm(handle, write_mode, pxy, &source, &dest);	/* Farb-Rastercopy */
+		vro_cpyfm(Sys_info.vdi_handle, write_mode, pxy, &source, &dest);	/* Farb-Rastercopy */
 	} else
 	{
 		source.fd_addr = quell_img->monoblk.ib_pdata;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
 		source.fd_nplanes = 1;			/* Bitplanes des Quellimages */
-		vrt_cpyfm(handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* Farb-Rastercopy */
+		vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* Farb-Rastercopy */
 	}
 
 	return parm->pb_currstate & ~OS_SELECTED;
@@ -236,6 +259,7 @@ WORD cdecl f_do_cycle(PARMBLK *parm)
 	USERBLK *buttonimg;
 	MFDB source;
 	MFDB dest;
+	BOOLEAN coloricon;
 
 	if (Sys_info.bitplanes > 8)
 		write_mode = S_AND_D;
@@ -255,16 +279,27 @@ WORD cdecl f_do_cycle(PARMBLK *parm)
 	else
 		Cyclebutton = Cycle;
 
-	buttonimg = u_tree[Cyclebutton].ob_spec.userblk;
-	if (buttonimg && Sys_info.Max_col >= 4)
-		quell_img = (CICONBLK *) buttonimg->ub_parm;
-	else
+	coloricon = FALSE;
+	/* has it been converted in xrsrc.c? */
+	if ((u_tree[Cyclebutton].ob_type & 0xff) == G_USERDEF)
+	{
+		buttonimg = u_tree[Cyclebutton].ob_spec.userblk;
+		if (Sys_info.Max_col >= 4)
+		{
+			coloricon = TRUE;
+			quell_img = (CICONBLK *) buttonimg->ub_parm;
+		} else
+		{
+			quell_img = u_tree[Cyclebutton].ob_spec.ciconblk;
+		}
+	} else
+	{
 		quell_img = u_tree[Cyclebutton].ob_spec.ciconblk;
+	}
 
 	dest.fd_addr = NULL;
-
-	source.fd_w = 32;
-	source.fd_h = 24;
+	source.fd_w = quell_img->monoblk.ib_wicon;
+	source.fd_h = quell_img->monoblk.ib_hicon;
 	source.fd_wdwidth = 2;
 	source.fd_stand = 0;
 
@@ -272,33 +307,33 @@ WORD cdecl f_do_cycle(PARMBLK *parm)
 	pxy[1] = ob_y;
 	pxy[2] = ob_x + source.fd_w - 1;
 	pxy[3] = ob_y + source.fd_h - 1;
-	vsf_color(handle, Sys_info.AES_bgcolor);
-	vswr_mode(handle, MD_REPLACE);
-	vr_recfl(handle, pxy);
+	vsf_color(Sys_info.vdi_handle, Sys_info.AES_bgcolor);
+	vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
+	vr_recfl(Sys_info.vdi_handle, pxy);
 
 	pxy[0] = 0;
 	pxy[1] = 0;
-	pxy[2] = 23 /*source.fd_w - 1 */ ;
-	pxy[3] = 23 /*source.fd_h - 1 */ ;
+	pxy[2] = source.fd_w - 1;
+	pxy[3] = source.fd_h - 1;
 	pxy[4] = ob_x;
 	pxy[5] = ob_y;
 	pxy[6] = ob_x + pxy[2];
 	pxy[7] = ob_y + pxy[3];
 
-	if (Sys_info.Max_col >= 4)
+	if (coloricon)
 	{
 		source.fd_nplanes = 1;
 		source.fd_addr = quell_img->mainlist->col_mask;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		vrt_cpyfm(handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farb-Rastercopy */
+		vrt_cpyfm(Sys_info.vdi_handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farb-Rastercopy */
 
 		source.fd_addr = quell_img->mainlist->col_data;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
 		source.fd_nplanes = quell_img->mainlist->num_planes;	/* Bitplanes des Quellimages */
-		vro_cpyfm(handle, write_mode, pxy, &source, &dest);	/* Farb-Rastercopy */
+		vro_cpyfm(Sys_info.vdi_handle, write_mode, pxy, &source, &dest);	/* Farb-Rastercopy */
 	} else
 	{
 		source.fd_addr = quell_img->monoblk.ib_pdata;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
 		source.fd_nplanes = 1;			/* Bitplanes des Quellimages */
-		vrt_cpyfm(handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* Farb-Rastercopy */
+		vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* Farb-Rastercopy */
 	}
 
 	return parm->pb_currstate & ~OS_SELECTED;
@@ -311,12 +346,113 @@ static WORD cdecl f_do_corner(PARMBLK *parm)
 	WORD ob_x, ob_y;
 	WORD color_index[2];
 	WORD color_index2[2];
-	WORD Corner;
 	WORD write_mode;
 	USERBLK *buttonimg;
 	CICONBLK *quell_img;
 	MFDB source;
 	MFDB dest;
+	BOOLEAN coloricon;
+
+	if (Sys_info.bitplanes > 8)
+		write_mode = S_AND_D;
+	else
+		write_mode = S_OR_D;
+
+	pxy[0] = parm->pb_xc;
+	pxy[1] = parm->pb_yc;
+	pxy[2] = parm->pb_xc + parm->pb_wc - 1;
+	pxy[3] = parm->pb_yc + parm->pb_hc - 1;
+	vs_clip(Sys_info.vdi_handle, TRUE, pxy);
+
+	color_index[0] = 1;
+	color_index[1] = 0;
+	color_index2[0] = 0;
+	color_index2[1] = 1;
+
+	ob_x = parm->pb_x;
+	ob_y = parm->pb_y;
+
+	coloricon = FALSE;
+	/* has it been converted in xrsrc.c? */
+	if ((u_tree[CORNER2].ob_type & 0xff) == G_USERDEF)
+	{
+		buttonimg = u_tree[CORNER2].ob_spec.userblk;
+		if (Sys_info.Max_col >= 4)
+		{
+			coloricon = TRUE;
+			quell_img = (CICONBLK *) buttonimg->ub_parm;
+		} else
+		{
+			quell_img = u_tree[CORNER2].ob_spec.ciconblk;
+		}
+	} else
+	{
+		quell_img = u_tree[CORNER2].ob_spec.ciconblk;
+	}
+
+	dest.fd_addr = NULL;
+	source.fd_w = quell_img->monoblk.ib_wicon;
+	source.fd_h = quell_img->monoblk.ib_hicon;
+	source.fd_wdwidth = 3;
+	source.fd_stand = 0;
+
+	ob_y = parm->pb_tree[ROOT].ob_y + parm->pb_tree[ROOT].ob_height - source.fd_h;
+
+	pxy[0] = ob_x;
+	pxy[1] = ob_y;
+	pxy[2] = ob_x + source.fd_w - 1;
+	pxy[3] = ob_y + source.fd_h - 1;
+	vsf_color(Sys_info.vdi_handle, Sys_info.AES_bgcolor);
+	vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
+	vr_recfl(Sys_info.vdi_handle, pxy);
+
+	pxy[0] = 0;
+	pxy[1] = 0;
+	pxy[2] = source.fd_w - 1;
+	pxy[3] = source.fd_h - 1;
+	pxy[4] = ob_x;
+	pxy[5] = ob_y;
+	pxy[6] = ob_x + pxy[2];
+	pxy[7] = ob_y + pxy[3];
+
+	if (coloricon)
+	{
+		source.fd_nplanes = 1;
+		source.fd_addr = quell_img->mainlist->col_mask;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
+		vrt_cpyfm(Sys_info.vdi_handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farb-Rastercopy */
+
+		source.fd_addr = quell_img->mainlist->col_data;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
+		source.fd_nplanes = quell_img->mainlist->num_planes;	/* Bitplanes des Quellimages */
+		vro_cpyfm(Sys_info.vdi_handle, write_mode, pxy, &source, &dest);	/* Farb-Rastercopy */
+	} else
+	{
+		source.fd_addr = quell_img->monoblk.ib_pdata;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
+		source.fd_nplanes = 1;			/* Bitplanes des Quellimages */
+		vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* Farb-Rastercopy */
+	}
+
+	return parm->pb_currstate & ~OS_SELECTED;
+}
+
+
+#if 0
+/* Winkelobjekt zeichnen
+ * der eingestellte Winkel muž irgendwo in der OBJECT-Struktur
+ * gespeichert werden - einen der bei IBOXes vorhandenen
+ * Parameter muž ich also dazu mižbrauchen.
+ */
+static WORD cdecl drawAngleObject(PARMBLK *parm)
+{
+	CICONBLK *quell_img;
+	MFDB source;
+	MFDB dest;
+	WORD pxy[8];
+	WORD ob_x, ob_y;
+	WORD color_index[2];
+	WORD color_index2[2];
+	USERBLK *buttonimg;
+	WORD write_mode;
+	BOOLEAN coloricon;
 
 	if (Sys_info.bitplanes > 8)
 		write_mode = S_AND_D;
@@ -331,18 +467,25 @@ static WORD cdecl f_do_corner(PARMBLK *parm)
 	ob_x = parm->pb_x;
 	ob_y = parm->pb_y;
 
-	Corner = CORNER2;
-
-
-	buttonimg = u_tree[Corner].ob_spec.userblk;
-	if (buttonimg && Sys_info.Max_col >= 4)
-		quell_img = (CICONBLK *) buttonimg->ub_parm;
-	else
-		quell_img = u_tree[Corner].ob_spec.ciconblk;
-
+	coloricon = FALSE;
+	/* has it been converted in xrsrc.c? */
+	if ((u_tree[CORNER2].ob_type & 0xff) == G_USERDEF)
+	{
+		buttonimg = (USERBLK *) (u_tree[CORNER2].ob_spec.userblk);
+		if (Sys_info.Max_col >= 4)
+		{
+			coloricon = TRUE;
+			quell_img = (CICONBLK *) (buttonimg->ub_parm);
+		} else
+		{
+			quell_img = u_tree[CORNER2].ob_spec.ciconblk;
+		}
+	} else
+	{
+		quell_img = u_tree[CORNER2].ob_spec.ciconblk;
+	}
 
 	dest.fd_addr = NULL;
-
 	source.fd_w = 48;
 	source.fd_h = 42;
 	source.fd_wdwidth = 3;
@@ -352,39 +495,38 @@ static WORD cdecl f_do_corner(PARMBLK *parm)
 	pxy[1] = ob_y;
 	pxy[2] = ob_x + source.fd_w - 1;
 	pxy[3] = ob_y + source.fd_h - 1;
-	vsf_color(handle, Sys_info.AES_bgcolor);
-	vswr_mode(handle, MD_REPLACE);
-	vr_recfl(handle, pxy);
-
+	vsf_color(Sys_info.vdi_handle, Sys_info.AES_bgcolor);
+	vswr_mode(Sys_info.vdi_handle, MD_REPLACE);
+	vr_recfl(Sys_info.vdi_handle, pxy);
 
 	pxy[0] = 0;
 	pxy[1] = 0;
-	pxy[2] = 47 /*source.fd_w - 1 */ ;
-	pxy[3] = 41 /*source.fd_h - 1 */ ;
+	pxy[2] = source.fd_w - 1;
+	pxy[3] = source.fd_h - 1;
 	pxy[4] = ob_x;
 	pxy[5] = ob_y;
 	pxy[6] = ob_x + pxy[2];
 	pxy[7] = ob_y + pxy[3];
 
-	if (Sys_info.Max_col >= 4)
+	if (coloricon)
 	{
 		source.fd_nplanes = 1;
 		source.fd_addr = quell_img->mainlist->col_mask;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		vrt_cpyfm(handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farb-Rastercopy */
+		vrt_cpyfm(Sys_info.vdi_handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farb-Rastercopy */
 
 		source.fd_addr = quell_img->mainlist->col_data;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
 		source.fd_nplanes = quell_img->mainlist->num_planes;	/* Bitplanes des Quellimages */
-		vro_cpyfm(handle, write_mode, pxy, &source, &dest);	/* Farb-Rastercopy */
+		vro_cpyfm(Sys_info.vdi_handle, write_mode, pxy, &source, &dest);	/* Farb-Rastercopy */
 	} else
 	{
 		source.fd_addr = quell_img->monoblk.ib_pdata;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
 		source.fd_nplanes = 1;			/* Bitplanes des Quellimages */
-		vrt_cpyfm(handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* Farb-Rastercopy */
+		vrt_cpyfm(Sys_info.vdi_handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* Farb-Rastercopy */
 	}
-
 
 	return parm->pb_currstate & ~OS_SELECTED;
 }
+#endif
 
 
 static void f_init_tree(OBJECT *baum, WORD element)
@@ -434,92 +576,3 @@ void f_treewalk(OBJECT *tree, WORD start)
 		f_treewalk(tree, index);		/* rekursiv fr alle Kinder! */
 	}
 }
-
-
-#if 0
-/* Winkelobjekt zeichnen
- * der eingestellte Winkel muž irgendwo in der OBJECT-Struktur
- * gespeichert werden - einen der bei IBOXes vorhandenen
- * Parameter muž ich also dazu mižbrauchen.
- */
-static WORD cdecl drawAngleObject(PARMBLK *parm)
-{
-	CICONBLK *quell_img;
-	MFDB source;
-	MFDB dest;
-	WORD pxy[8];
-	WORD ob_x, ob_y;
-	WORD color_index[2];
-	WORD color_index2[2];
-	WORD Corner;
-	USERBLK *buttonimg;
-	WORD write_mode;
-
-	if (Sys_info.bitplanes > 8)
-		write_mode = S_AND_D;
-	else
-		write_mode = S_OR_D;
-
-	color_index[0] = 1;
-	color_index[1] = 0;
-	color_index2[0] = 0;
-	color_index2[1] = 1;
-
-	ob_x = parm->pb_x;
-	ob_y = parm->pb_y;
-
-	Corner = CORNER2;
-
-
-	buttonimg = (USERBLK *) (u_tree[Corner].ob_spec.userblk);
-	if (buttonimg && Sys_info.Max_col >= 4)
-		quell_img = (CICONBLK *) (buttonimg->ub_parm);
-	else
-		quell_img = (CICONBLK *) u_tree[Corner].ob_spec.iconblk;
-
-
-	dest.fd_addr = NULL;
-
-	source.fd_w = 48;
-	source.fd_h = 42;
-	source.fd_wdwidth = 3;
-	source.fd_stand = 0;
-
-	pxy[0] = ob_x;
-	pxy[1] = ob_y;
-	pxy[2] = ob_x + source.fd_w - 1;
-	pxy[3] = ob_y + source.fd_h - 1;
-	vsf_color(handle, Sys_info.AES_bgcolor);
-	vswr_mode(handle, MD_REPLACE);
-	vr_recfl(handle, pxy);
-
-
-	pxy[0] = 0;
-	pxy[1] = 0;
-	pxy[2] = 47 /*source.fd_w-1 */ ;
-	pxy[3] = 41 /*source.fd_h-1 */ ;
-	pxy[4] = ob_x;
-	pxy[5] = ob_y;
-	pxy[6] = ob_x + pxy[2];
-	pxy[7] = ob_y + pxy[3];
-
-	if (Sys_info.Max_col >= 4)
-	{
-		source.fd_nplanes = 1;
-		source.fd_addr = quell_img->mainlist->col_mask;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		vrt_cpyfm(handle, S_AND_NOTD, pxy, &source, &dest, color_index2);	/* Farb-Rastercopy */
-
-		source.fd_addr = quell_img->mainlist->col_data;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		source.fd_nplanes = quell_img->mainlist->num_planes;	/* Bitplanes des Quellimages */
-		vro_cpyfm(handle, write_mode, pxy, &source, &dest);	/* Farb-Rastercopy */
-	} else
-	{
-		source.fd_addr = quell_img->monoblk.ib_pdata;	/* *mainlist: Zeiger auf CICON-Struktur, col_data sind die Bilddaten */
-		source.fd_nplanes = 1;			/* Bitplanes des Quellimages */
-		vrt_cpyfm(handle, MD_REPLACE, pxy, &source, &dest, color_index);	/* Farb-Rastercopy */
-	}
-
-
-	return parm->pb_currstate & ~OS_SELECTED;
-}
-#endif

@@ -25,7 +25,7 @@
 /* Headerdate mit allen Externen OBJECT-Variablen der
     Smurf-Resource */
 
-extern OBJECT   *u_tree;                /* Zeiger auf Radiobutton/Checkbox-Formular*/
+extern OBJECT   *u_tree;                /* Zeiger auf Radiobutton/Checkbox-Formular */
 
 extern OBJECT   *info_window;               /* Zeiger auf Resource  */
 extern OBJECT   *form_pop;                  /* Zeiger auf Resource  */
@@ -56,6 +56,5 @@ extern OBJECT   *blocktype_window;
 
 extern OBJECT   *menu_tree;
 
-extern OBJECT   *u_tree;                /* Zeiger auf Radiobutton/Checkbox-Formular */
 extern OBJECT   *alerts;
 

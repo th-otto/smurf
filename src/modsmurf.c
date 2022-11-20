@@ -87,7 +87,6 @@ short openmode;							/* Dialog neu ge”ffnet (0) oder buttonevent? (!=0) */
 BOOLEAN PCD;							/* PCD-Kennung fr aktuell zu ladendes Bild */
 WORD PCDwidth, PCDheight;				/* H”he und Breite des PCD-Bildes */
 
-WORD handle;							/* VDI-Hendl */
 static WORD work_out[57];
 WORD scrwd, scrht;						/* Screen Breite+H”he */
 WORD mouse_xpos, mouse_ypos;			/* Mausposition */
@@ -240,9 +239,9 @@ static BOOLEAN open_vwork(void)
 		work_in[14] = 0;
 		work_in[15] = 0;
 		phys_handle = graf_handle(&gl_wchar, &gl_hchar, &gl_wbox, &gl_hbox);
-		handle = phys_handle;
-		v_opnvwk(work_in, &handle, work_out);
-		if (handle > 0)
+		Sys_info.vdi_handle = phys_handle;
+		v_opnvwk(work_in, &Sys_info.vdi_handle, work_out);
+		if (Sys_info.vdi_handle > 0)
 			return TRUE;
 	}
 	return FALSE;
@@ -272,7 +271,6 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 
-	Sys_info.vdi_handle = handle;
 	Sys_info.screen_width = work_out[0] + 1;
 	Sys_info.screen_height = work_out[1] + 1;
 
@@ -677,7 +675,7 @@ void f_set_syspal(void)
 			rgb[0] = Sys_info.pal_red[t];
 			rgb[1] = Sys_info.pal_green[t];
 			rgb[2] = Sys_info.pal_blue[t];
-			vs_color(handle, t, rgb);
+			vs_color(Sys_info.vdi_handle, t, rgb);
 		}
 
 		syspalset = TRUE;
@@ -708,7 +706,7 @@ void f_set_picpal(SMURF_PIC * pic)
 			rgb[0] = (WORD) ((long) pic->red[t] * 1000 / 255);
 			rgb[1] = (WORD) ((long) pic->grn[t] * 1000 / 255);
 			rgb[2] = (WORD) ((long) pic->blu[t] * 1000 / 255);
-			vs_color(handle, t, rgb);
+			vs_color(Sys_info.vdi_handle, t, rgb);
 		}
 
 		syspalset = FALSE;
@@ -2647,10 +2645,9 @@ short f_init_system(void)
 	/* alles systemgegebene ermitteln */
 	Sys_info.AES_version = _AESversion;
 	Sys_info.Max_col = work_out[13] - 1;
-	Sys_info.vdi_handle = handle;
 	Sys_info.app_id = appl_id;
 
-	vq_extnd(handle, 1, work_out);
+	vq_extnd(Sys_info.vdi_handle, 1, work_out);
 	Sys_info.bitplanes = work_out[4];
 
 	set_startupdial("initialisiere Objekte ...");
@@ -2766,7 +2763,7 @@ short f_init_system(void)
 
 		/* Clipping das vom objc_draw() des Startup-Dialogs gesetzt */
 		/* wurde weil XRSRC-Routinen benutzt werden wieder ausschalten */
-		vs_clip(handle, 0, pxy);
+		vs_clip(Sys_info.vdi_handle, FALSE, pxy);
 	}
 
 	DEBUG_MSG(("VDI-Tabelle...\n"));
@@ -2816,7 +2813,7 @@ void f_init_palette(void)
 
 	for (t = 0; t <= Sys_info.Max_col; t++)
 	{
-		vq_color(handle, t, 0, rgb);
+		vq_color(Sys_info.vdi_handle, t, 0, rgb);
 		orig_red[t] = rgb[0];
 		orig_green[t] = rgb[1];
 		orig_blue[t] = rgb[2];
@@ -2966,7 +2963,7 @@ uint8_t *f_init_table(void)
 				Sys_info.pal_green[t] = rgb[1] = grncomp[t];
 				Sys_info.pal_blue[t] = rgb[2] = blucomp[t];
 
-				vs_color(handle, t, rgb);
+				vs_color(Sys_info.vdi_handle, t, rgb);
 			}
 
 			return access_table;
@@ -3070,10 +3067,10 @@ void f_init_bintable(OBJECT * rsc)
 
 	for (col = 0; col < maxc; col++)
 	{
-		vsf_color(handle, col);			/* Farbe einstellen */
-		vr_recfl(handle, pxy);			/* Rechteck malen */
+		vsf_color(Sys_info.vdi_handle, col);			/* Farbe einstellen */
+		vr_recfl(Sys_info.vdi_handle, pxy);			/* Rechteck malen */
 
-		v_get_pixel(handle, pxy[0], pxy[1], &pel, &index);	/* und dann Farb- und Pixelwert holen */
+		v_get_pixel(Sys_info.vdi_handle, pxy[0], pxy[1], &pel, &index);	/* und dann Farb- und Pixelwert holen */
 		planetable[col] = (char) pel;
 	}
 
@@ -3209,7 +3206,7 @@ void shutdown_smurf(char while_startup)
 	/* -----  Resource schliežen, AES freigeben, virWS schliežen  -- */
 	f_exit_menu();						/* Men deinstallieren */
 	xrsrc_free(resource_global);
-	v_clsvwk(handle);
+	v_clsvwk(Sys_info.vdi_handle);
 	appl_exit();
 }
 

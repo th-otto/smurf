@@ -396,7 +396,6 @@ extern short picwindthere, dialwindthere, picthere;
 extern short openmode;					/* Dialog neu geîffnet (0) oder buttonevent? (!=0) */
 extern BOOLEAN PCD;						/* PCD-Kennung fÅr aktuell zu ladendes Bild */
 extern WORD PCDwidth, PCDheight;		/* Hîhe und Breite des PCD-Bildes */
-extern WORD handle;						/* VDI-Hendl */
 extern WORD scrwd, scrht;				/* Screen Breite+Hîhe */
 extern WORD mouse_xpos, mouse_ypos;		/* Mausposition */
 extern WORD key_scancode;				/* Scancode beim letzten Keyboard-Event */

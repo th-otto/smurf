@@ -90,6 +90,15 @@ typedef struct
 #define R_IBPTEXT 13
 #endif
 
+typedef struct {
+	OBBLK *userblks;
+	CICON *coloricons;
+	WORD num_coloricons;
+	OBJECT **ap_ptree;
+	RSXHDR *ap_rsc;
+	WORD ap_rsclen;
+} XRSRC_GLOBAL;
+
 /****** VARIABLES ************************************************************/
 
 WORD xrsrc_mustexist;
@@ -99,9 +108,9 @@ static WORD xgl_hbox;
 static GRECT xdesk;
 static WORD xvdi_handle;
 
-static WORD *rs_global;
-static RSXHDR *rs_hdr;
-static RSXHDR *hdr_buf;
+static XRSRC_GLOBAL *rs_global;
+static RSXHDR *rs_hdr; /* real start of resource */
+static RSXHDR *hdr_buf; /* converted RSHDR */
 
 #if COLOR_ICONS == TRUE
 static WORD farbtbl[256][32];
@@ -154,9 +163,9 @@ static void rs_obfix(OBJECT *rs_otree, WORD rs_oobject)
 
 static void rs_sglobal(WORD *base)
 {
-	rs_global = base;
-	hdr_buf = (RSXHDR *) * (LONG *) & rs_global[7];
-	rs_hdr = (RSXHDR *)((char *) hdr_buf + sizeof(RSXHDR));
+	rs_global = (XRSRC_GLOBAL *)base;
+	hdr_buf = rs_global->ap_rsc;
+	rs_hdr = &hdr_buf[1];
 }
 
 /*****************************************************************************/
@@ -168,22 +177,22 @@ static WORD rs_free(WORD *base)
 	CICON *color_icn;
 #endif
 
-	rs_global = base;
+	rs_global = (XRSRC_GLOBAL *)base;
 
 #if COLOR_ICONS == TRUE
 
-	if ((color_icn = (CICON *) * (LONG *) & rs_global[2]) != NULL)
+	if ((color_icn = rs_global->coloricons) != NULL)
 	{
 #if SAVE_MEMORY == TRUE
 		RSXHDR *rsxhdr;
 		void *rs_start;
 		void *rs_end;
 
-		rsxhdr = (void *) (((LONG) rs_global[7] << 16) | (LONG) rs_global[8]);
-		rs_start = (void *) ((LONG) rsxhdr + sizeof(RSXHDR));
+		rsxhdr = rs_global->ap_rsc;
+		rs_start = rsxhdr + 1;
 		rs_end = (void *) (*(LONG *) (rsxhdr->rsh_rssize + (rsxhdr->rsh_rssize & 1L) + (LONG) rs_start) + (LONG) rs_start - 1L);
 
-		for (i = 0; i < rs_global[4]; i++)
+		for (i = 0; i < rs_global->num_coloricons; i++)
 		{
 			if (color_icn[i].num_planes > 1)
 			{
@@ -199,7 +208,7 @@ static WORD rs_free(WORD *base)
 			}
 		}
 #else
-		for (i = 0; i < rs_global[4]; i++)
+		for (i = 0; i < rs_global->num_coloricons; i++)
 		{
 			if (color_icn[i].num_planes > 1)
 			{
@@ -214,11 +223,11 @@ static WORD rs_free(WORD *base)
 #endif
 		free(color_icn);
 	}
-	if (*(LONG *) rs_global)
-		free((void *) * (LONG *) rs_global);
+	if (rs_global->userblks)
+		free(rs_global->userblks);
 #endif
 
-	free((RSXHDR *) * (LONG *) & rs_global[7]);
+	free(rs_global->ap_rsc);
 
 	return TRUE;
 }
@@ -254,7 +263,7 @@ static void *get_address(WORD type, WORD index)
 	switch (type)
 	{
 	case R_TREE:
-		all_ptr.dpobject = (OBJECT **) (*(long **) &rs_global[5]);
+		all_ptr.dpobject = rs_global->ap_ptree;
 		the_addr = all_ptr.dpobject[index];
 		break;
 
@@ -393,12 +402,11 @@ static void fix_treeindex(void)
 	OBJECT **adr;
 	LONG count;
 
-	count = hdr_buf->rsh_ntree - 1L;
+	count = hdr_buf->rsh_ntree - 1;
 
 	adr = get_sub(0, hdr_buf->rsh_trindex, sizeof(OBJECT *));
 
-	rs_global[5] = ((LONG) adr >> 16) & 0xFFFF;
-	rs_global[6] = (LONG) adr & 0xFFFF;
+	rs_global->ap_ptree = adr;
 
 	while (count >= 0)
 	{
@@ -438,16 +446,15 @@ static void fix_tedinfo(void)
 
 static void do_rsfix(ULONG size)
 {
-	rs_global[7] = ((LONG) hdr_buf >> 16) & 0xFFFF;
-	rs_global[8] = (LONG) hdr_buf & 0xFFFF;
-	rs_global[9] = (UWORD) size;
+	rs_global->ap_rsc = hdr_buf;
+	rs_global->ap_rsclen = (UWORD) size;
 
 	fix_treeindex();
 	fix_tedinfo();
 
 	fix_nptr(hdr_buf->rsh_nib - 1, R_IBPMASK);
 	fix_nptr(hdr_buf->rsh_nib - 1, R_IBPDATA);
-	fix_nptr(hdr_buf->rsh_nib - 1, /*R_IPBTEXT */ R_IBPTEXT);
+	fix_nptr(hdr_buf->rsh_nib - 1, R_IBPTEXT);
 
 	fix_nptr(hdr_buf->rsh_nbb - 1, R_BIPDATA);
 	fix_nptr(hdr_buf->rsh_nstring - 1, R_FRSTR);
@@ -593,7 +600,9 @@ static void xfix_cicon(UWORD *col_data, LONG len, WORD old_planes, WORD new_plan
 					free(d.fd_addr);
 				}
 			} else
+			{
 				memcpy(s->fd_addr, col_data, len * 2 * new_planes);
+			}
 		}
 		return;
 	}
@@ -937,7 +946,7 @@ static WORD xadd_cicon(CICONBLK *cicnblk, OBJECT *obj, WORD nub)
 	CICON *color_icn;
 	CICON *best_icn = NULL;
 	LONG len;
-	LONG *next;
+	CICON **next;
 	MFDB d;
 	OBBLK *ub;
 
@@ -947,7 +956,7 @@ static WORD xadd_cicon(CICONBLK *cicnblk, OBJECT *obj, WORD nub)
 
 	len = cicnblk->monoblk.ib_wicon / 8 * cicnblk->monoblk.ib_hicon;
 
-	color_icn = &((CICON *) * (LONG *) & rs_global[2])[nub];
+	color_icn = &rs_global->coloricons[nub];
 
 	best_planes = 1;
 	if (xscrn_planes > 8)
@@ -956,12 +965,12 @@ static WORD xadd_cicon(CICONBLK *cicnblk, OBJECT *obj, WORD nub)
 		find_planes = xscrn_planes;
 
 	cicn = cicnblk->mainlist;
-	next = (LONG *) & cicnblk->mainlist;
+	next = &cicnblk->mainlist;
 
 	while (cicn != NULL)
 	{
-		*next = (LONG) cicn;
-		next = (LONG *) & cicn->next_res;
+		*next = cicn;
+		next = &cicn->next_res;
 
 #if SAVE_MEMORY == TRUE
 		if (cicn->num_planes > xscrn_planes)
@@ -1096,7 +1105,7 @@ static WORD xadd_cicon(CICONBLK *cicnblk, OBJECT *obj, WORD nub)
 	color_icn->next_res = cicnblk->mainlist;
 	cicnblk->mainlist = color_icn;
 #endif
-	ub = (OBBLK *) * (LONG *) rs_global;
+	ub = rs_global->userblks;
 	ub[nub].old_type = G_CICON;
 	ub[nub].ublk.ub_parm = obj->ob_spec.index;
 	ub[nub].ublk.ub_code = xdraw_cicon;
@@ -1388,13 +1397,15 @@ static WORD fill_cicon_liste(LONG *cicon_liste, ULONG header, RSXHDR *rsxhdr)
 
 		for (ob = 0; ob < rsxhdr->rsh_nobs; ob++)
 			if ((pobject[ob].ob_type & 0xff) == G_CICON)
+			{
 				pobject[ob].ob_spec.index = cicon_liste[pobject[ob].ob_spec.index];
+			}
 
-		if ((*(LONG *) rs_global = (LONG) malloc(num * sizeof(OBBLK))) != 0L)
-			memset((void *) * (LONG *) rs_global, 0, num * sizeof(OBBLK));
-		if ((*(LONG *) & rs_global[2] = (LONG) malloc(num * sizeof(CICON))) != 0L)
-			memset((void *) * (LONG *) & rs_global[2], 0, num * sizeof(CICON));
-		rs_global[4] = num;
+		if ((rs_global->userblks = malloc(num * sizeof(OBBLK))) != NULL)
+			memset(rs_global->userblks, 0, num * sizeof(OBBLK));
+		if ((rs_global->coloricons = malloc(num * sizeof(CICON))) != NULL)
+			memset(rs_global->coloricons, 0, num * sizeof(CICON));
+		rs_global->num_coloricons = num;
 	}
 
 	return num;
@@ -1410,8 +1421,7 @@ static void do_ciconfix(ULONG header, RSXHDR *rsxhdr, LONG rs_len)
 	WORD i;
 	OBJECT *obj;
 
-	cicon_liste =
-		(LONG *) (*(LONG *) (rsxhdr->rsh_rssize + (rsxhdr->rsh_rssize & 1L) + header + sizeof(LONG)) + header);
+	cicon_liste = (LONG *) (*(LONG *) (rsxhdr->rsh_rssize + (rsxhdr->rsh_rssize & 1L) + header + sizeof(LONG)) + header);
 	if ((LONG) cicon_liste - header > rsxhdr->rsh_rssize && (LONG) cicon_liste - header < rs_len)
 	{
 		if (fill_cicon_liste(cicon_liste, header, rsxhdr) != -1)
@@ -1421,14 +1431,13 @@ static void do_ciconfix(ULONG header, RSXHDR *rsxhdr, LONG rs_len)
 			WORD work_out[57];
 			WORD *palette;
 
-			if (*(LONG *) rs_global && *(LONG *) & rs_global[2])
+			if (rs_global->userblks && rs_global->coloricons)
 			{
 				vq_extnd(xvdi_handle, TRUE, work_out);	/* Anzahl der Planes ermitteln */
 				xscrn_planes = work_out[4];
 
 				xpixelbytes = test_rez();
-				palette =
-					(WORD *) * (LONG *) (rsxhdr->rsh_rssize + (rsxhdr->rsh_rssize & 1L) + header + 2 * sizeof(LONG));
+				palette = (WORD *) * (LONG *) (rsxhdr->rsh_rssize + (rsxhdr->rsh_rssize & 1L) + header + 2 * sizeof(LONG));
 				if (palette != NULL)
 				{
 					palette = (WORD *)((char *)palette + header);
@@ -1448,10 +1457,10 @@ static void do_ciconfix(ULONG header, RSXHDR *rsxhdr, LONG rs_len)
 					{
 						if (xadd_cicon(obj->ob_spec.ciconblk, obj, nub++) == FALSE)
 						{
-							memset(&((CICON *) * (LONG *) & rs_global[2])[nub - 1], 0, sizeof(CICON));
+							memset(&rs_global->coloricons[nub - 1], 0, sizeof(CICON));
 							obj->ob_type = (obj->ob_type & 0xff00) | G_ICON;
 						}
-						obj->ob_spec.index -= header;
+						obj->ob_spec.index -= header; /* will be added back in fix_object */
 					}
 				}
 			} else
@@ -1463,7 +1472,7 @@ static void do_ciconfix(ULONG header, RSXHDR *rsxhdr, LONG rs_len)
 					if ((obj->ob_type & 0xff) == G_CICON)
 					{
 						obj->ob_type = (obj->ob_type & 0xff00) | G_ICON;
-						obj->ob_spec.index -= header;
+						obj->ob_spec.index -= header; /* will be added back in fix_object */
 					}
 				}
 			}
@@ -1492,7 +1501,7 @@ static WORD rs_read(WORD *global, CONST char *fname)
 		return FALSE;
 	}
 
-	rs_global = global;
+	rs_global = (XRSRC_GLOBAL *)global;
 
 	old_dta = Fgetdta();
 	Fsetdta(&dta);
@@ -1510,11 +1519,15 @@ static WORD rs_read(WORD *global, CONST char *fname)
 
 			if (Fread(fh, size, rs_hdr) == size)
 			{
-				if (((RSHDR *) rs_hdr)->rsh_vrsn == 3)
+				if ((rs_hdr->rsh_vrsn & 3) == 3)
+				{
 					memcpy(hdr_buf, rs_hdr, sizeof(RSXHDR));
-				else
+				} else
+				{
+					/* convert the RSHDR to RSXHDR */
 					for (i = 0; i < sizeof(RSXHDR) / sizeof(LONG); i++)
 						((ULONG *) hdr_buf)[i] = ((UWORD *) rs_hdr)[i];
+				}
 
 				do_rsfix(hdr_buf->rsh_rssize);
 
@@ -1551,7 +1564,7 @@ static void fix_object(void)
 		obj = get_address(R_OBJECT, count);
 		rs_obfix(obj, 0);
 		if ((obj->ob_type & 0xff) != G_BOX && (obj->ob_type & 0xff) != G_IBOX && (obj->ob_type & 0xff) != G_BOXCHAR)
-			fix_long((LONG *) & obj->ob_spec);
+			fix_long(&obj->ob_spec.index);
 
 		count--;
 	}

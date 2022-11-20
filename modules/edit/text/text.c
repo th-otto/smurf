@@ -477,7 +477,7 @@ void f_doit(GARGAMEL *smurfstruct, SMURF_PIC *picture, FONT_INFO *font)
 	pxy[1]=0;
 	pxy[2]=extent[4]-1;
 	pxy[3]=extent[5]-1;
-	vs_clip(doithandle, 1, pxy);
+	vs_clip(doithandle, TRUE, pxy);
 	
 	v_ftext(doithandle, 0,0, maintree[TEXT_OB].ob_spec.tedinfo->te_ptext);
 
@@ -538,7 +538,7 @@ void compute_preview(void)
 	 * Preview l”schen und Text reinschreiben
 	 */
 	memset(preview.pic_data, 0, 416L*72L/8L);
-	vs_clip(oshandle, 1, pxy);
+	vs_clip(oshandle, TRUE, pxy);
 	v_ftext(oshandle, 0,0, maintree[TEXT_OB].ob_spec.tedinfo->te_ptext);
 }
 

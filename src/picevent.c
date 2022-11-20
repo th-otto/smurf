@@ -223,7 +223,7 @@ static void move_crosshair(WINDOW *window)
 	do
 	{
 		graf_mouse(M_OFF, dummy_ptr);
-		vs_clip(Sys_info.vdi_handle, 1, clip);
+		vs_clip(Sys_info.vdi_handle, TRUE, clip);
 		imageWindow.drawCrosshair(window);	/* Positionsmarker zeichnen */
 		graf_mouse(M_ON, dummy_ptr);
 
@@ -239,7 +239,7 @@ static void move_crosshair(WINDOW *window)
 		imageWindow.displayCoords(window, omx, omy, 0);
 
 		graf_mouse(M_OFF, dummy_ptr);
-		vs_clip(Sys_info.vdi_handle, 1, clip);
+		vs_clip(Sys_info.vdi_handle, TRUE, clip);
 		wind_update(BEG_UPDATE);
 		wind_update(BEG_MCTRL);
 		imageWindow.drawCrosshair(window);	/* l”schen... */
@@ -722,7 +722,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 	{
 #if 0
 		graf_mouse(M_OFF, dummy_ptr);
-		vs_clip(Sys_info.vdi_handle, 1, clip);
+		vs_clip(Sys_info.vdi_handle, TRUE, clip);
 		wind_update(BEG_UPDATE);
 #endif
 
@@ -749,13 +749,13 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 
 		if (display_mode == 0)
 		{
-			vs_clip(Sys_info.vdi_handle, 1, clip);
+			vs_clip(Sys_info.vdi_handle, TRUE, clip);
 			wind_update(BEG_UPDATE);
 			imageWindow.drawBlockbox(picwindow);	/* zeichnen */
 			wind_update(END_UPDATE);
 		} else
 		{
-			vs_clip(Sys_info.vdi_handle, 1, iconclip);
+			vs_clip(Sys_info.vdi_handle, TRUE, iconclip);
 
 			savepxy[0] = omx - 31;
 			savepxy[1] = omy - 31;
@@ -948,13 +948,13 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 
 		if (display_mode == 0)
 		{
-			vs_clip(Sys_info.vdi_handle, 1, clip);
+			vs_clip(Sys_info.vdi_handle, TRUE, clip);
 			wind_update(BEG_UPDATE);
 			imageWindow.drawBlockbox(picwindow);	/* l”schen */
 			wind_update(END_UPDATE);
 		} else
 		{
-			vs_clip(Sys_info.vdi_handle, 1, iconclip);
+			vs_clip(Sys_info.vdi_handle, TRUE, iconclip);
 			savepxy[0] = 0;
 			savepxy[1] = 0;
 			savepxy[2] = 31;

@@ -175,8 +175,6 @@ int print_with_GDOS(PRN_SETTINGS *prn_settings)
         if(height < stripheight)
             stripheight = height;
 
-/*      printf("stripheight: %u\n", stripheight);*/
-
         f_d_dither(smurf_picture[*active_pic], srcpic, stripoffset, stripheight, DevParam.depth);
 
         dy = stripoffset + stripheight - 1;     /* letzte einzulesende Zeile */
@@ -187,7 +185,7 @@ int print_with_GDOS(PRN_SETTINGS *prn_settings)
 
         clip[3] = OutParam.zy + (int)dy;        /* rechte untere Ecke des Clipping-Rechtecks */
 
-        vs_clip(gdos_handle, 1, clip);          /* Clipping-Rechteck setzen */
+        vs_clip(gdos_handle, TRUE, clip);          /* Clipping-Rechteck setzen */
 
         srcform.fd_h = stripheight;
 
