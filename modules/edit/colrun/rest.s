@@ -17,7 +17,6 @@ do_colrun:
 [000106f8] 5246                      addq.w     #1,d6
 [000106fa] bc7c 0010                 cmp.w      #$0010,d6
 [000106fe] 6df0                      blt.s      $000106F0
-
 [00010700] 4246                      clr.w      d6
 [00010702] 6048                      bra.s      $0001074C
 [00010704] 4240                      clr.w      d0
@@ -122,6 +121,7 @@ do_colrun:
 [0001084c] 6100 2322                 bsr        _xlcnv
 [00010850] 2600                      move.l     d0,d3
 [00010852] 6000 0190                 bra        $000109E4
+
 [00010856] 4240                      clr.w      d0
 [00010858] 9079 0001 4268            sub.w      $00014268,d0 mx
 [0001085e] 48c0                      ext.l      d0
@@ -130,6 +130,7 @@ do_colrun:
 [00010868] 48c1                      ext.l      d1
 [0001086a] 6100 280c                 bsr        _lmul
 [0001086e] 2f40 0008                 move.l     d0,8(a7)
+
 [00010872] 4240                      clr.w      d0
 [00010874] 9079 0001 426a            sub.w      $0001426A,d0 my
 [0001087a] 48c0                      ext.l      d0
@@ -138,6 +139,7 @@ do_colrun:
 [00010884] 48c1                      ext.l      d1
 [00010886] 6100 27f0                 bsr        _lmul
 [0001088a] 2f40 0004                 move.l     d0,4(a7)
+
 [0001088e] 222f 0008                 move.l     8(a7),d1
 [00010892] d280                      add.l      d0,d1
 [00010894] 41ef 0070                 lea.l      112(a7),a0
@@ -150,10 +152,12 @@ do_colrun:
 [000108a8] 486f 0084                 pea.l      132(a7)
 [000108ac] 6100 1078                 bsr        sqrt
 [000108b0] 4fef 000e                 lea.l      14(a7),a7
+
 [000108b4] 41ef 007a                 lea.l      122(a7),a0
 [000108b8] 6100 22b6                 bsr        _xlcnv
 [000108bc] 2000                      move.l     d0,d0
 [000108be] 2f40 0010                 move.l     d0,16(a7)
+
 [000108c2] 3017                      move.w     (a7),d0
 [000108c4] 9079 0001 426a            sub.w      $0001426A,d0 my
 [000108ca] 48c0                      ext.l      d0
@@ -174,9 +178,11 @@ do_colrun:
 [000108f8] 486f 0084                 pea.l      132(a7)
 [000108fc] 6100 1028                 bsr        sqrt
 [00010900] 4fef 000e                 lea.l      14(a7),a7
+
 [00010904] 41ef 007a                 lea.l      122(a7),a0
 [00010908] 6100 2266                 bsr        _xlcnv
 [0001090c] 2a00                      move.l     d0,d5
+
 [0001090e] 302f 0002                 move.w     2(a7),d0
 [00010912] 9079 0001 4268            sub.w      $00014268,d0 mx
 [00010918] 48c0                      ext.l      d0
@@ -193,11 +199,13 @@ do_colrun:
 [00010940] 48c1                      ext.l      d1
 [00010942] 6100 2734                 bsr        _lmul
 [00010946] 2f40 0004                 move.l     d0,4(a7)
+
 [0001094a] 222f 0008                 move.l     8(a7),d1
 [0001094e] d280                      add.l      d0,d1
 [00010950] 41ef 0070                 lea.l      112(a7),a0
 [00010954] 2001                      move.l     d1,d0
 [00010956] 6100 2258                 bsr        _lxcnv
+
 [0001095a] 41ef 007a                 lea.l      122(a7),a0
 [0001095e] 2f20                      move.l     -(a0),-(a7)
 [00010960] 2f20                      move.l     -(a0),-(a7)
@@ -205,10 +213,12 @@ do_colrun:
 [00010964] 486f 0084                 pea.l      132(a7)
 [00010968] 6100 0fbc                 bsr        sqrt
 [0001096c] 4fef 000e                 lea.l      14(a7),a7
+
 [00010970] 41ef 007a                 lea.l      122(a7),a0
 [00010974] 6100 21fa                 bsr        _xlcnv
 [00010978] 2000                      move.l     d0,d0
 [0001097a] 2f40 000c                 move.l     d0,12(a7)
+
 [0001097e] 3017                      move.w     (a7),d0
 [00010980] 9079 0001 426a            sub.w      $0001426A,d0 my
 [00010986] 48c0                      ext.l      d0
@@ -229,9 +239,11 @@ do_colrun:
 [000109b4] 486f 0084                 pea.l      132(a7)
 [000109b8] 6100 0f6c                 bsr        sqrt
 [000109bc] 4fef 000e                 lea.l      14(a7),a7
+
 [000109c0] 41ef 007a                 lea.l      122(a7),a0
 [000109c4] 6100 21aa                 bsr        _xlcnv
 [000109c8] 2200                      move.l     d0,d1
+
 [000109ca] 262f 0010                 move.l     16(a7),d3
 [000109ce] b685                      cmp.l      d5,d3
 [000109d0] 6c02                      bge.s      $000109D4
@@ -242,14 +254,17 @@ do_colrun:
 [000109de] b681                      cmp.l      d1,d3
 [000109e0] 6c02                      bge.s      $000109E4
 [000109e2] 2601                      move.l     d1,d3
+
 [000109e4] 41f9 0001 3956            lea.l      $00013956,a0
 [000109ea] 43ef 007a                 lea.l      122(a7),a1
 [000109ee] 22d8                      move.l     (a0)+,(a1)+
 [000109f0] 22d8                      move.l     (a0)+,(a1)+
 [000109f2] 32d8                      move.w     (a0)+,(a1)+
+
 [000109f4] 41ef 007a                 lea.l      122(a7),a0
 [000109f8] 2003                      move.l     d3,d0
 [000109fa] 6100 13ae                 bsr        _xldiv
+
 [000109fe] 2003                      move.l     d3,d0
 [00010a00] d080                      add.l      d0,d0
 [00010a02] d083                      add.l      d3,d0
@@ -258,13 +273,15 @@ do_colrun:
 [00010a0e] 2268 0052                 movea.l    82(a0),a1
 [00010a12] 2069 0038                 movea.l    56(a1),a0
 [00010a16] 4e90                      jsr        (a0)
+
 [00010a18] 2a48                      movea.l    a0,a5
 [00010a1a] 2f48 0062                 move.l     a0,98(a7)
+
 [00010a1e] 4246                      clr.w      d6
 [00010a20] 601a                      bra.s      $00010A3C
-[00010a22] 1bb9 0001 4224 6000       move.b     $00014224,0(a5,d6.w)
-[00010a2a] 1bb9 0001 4235 6001       move.b     $00014235,1(a5,d6.w)
-[00010a32] 1bb9 0001 4246 6002       move.b     $00014246,2(a5,d6.w)
+[00010a22] 1bb9 0001 4224 6000       move.b     datapoint_red,0(a5,d6.w)
+[00010a2a] 1bb9 0001 4235 6001       move.b     datapoint_green,1(a5,d6.w)
+[00010a32] 1bb9 0001 4246 6002       move.b     datapoint_blue,2(a5,d6.w)
 [00010a3a] 5646                      addq.w     #3,d6
 [00010a3c] 3006                      move.w     d6,d0
 [00010a3e] 48c0                      ext.l      d0
@@ -280,16 +297,17 @@ do_colrun:
 [00010a54] 241f                      move.l     (a7)+,d2
 [00010a56] b481                      cmp.l      d1,d2
 [00010a58] 6dc8                      blt.s      $00010A22
+
 [00010a5a] 2c01                      move.l     d1,d6
 [00010a5c] 6038                      bra.s      $00010A96
 [00010a5e] 3039 0001 37f4            move.w     num_datapoints,d0
-[00010a64] 41f9 0001 4224            lea.l      $00014224,a0
+[00010a64] 41f9 0001 4224            lea.l      datapoint_red,a0
 [00010a6a] 1bb0 00ff 6000            move.b     -1(a0,d0.w),0(a5,d6.w)
 [00010a70] 3039 0001 37f4            move.w     num_datapoints,d0
-[00010a76] 43f9 0001 4235            lea.l      $00014235,a1
+[00010a76] 43f9 0001 4235            lea.l      datapoint_green,a1
 [00010a7c] 1bb1 00ff 6001            move.b     -1(a1,d0.w),1(a5,d6.w)
 [00010a82] 3039 0001 37f4            move.w     num_datapoints,d0
-[00010a88] 41f9 0001 4246            lea.l      $00014246,a0
+[00010a88] 41f9 0001 4246            lea.l      datapoint_blue,a0
 [00010a8e] 1bb0 00ff 6002            move.b     -1(a0,d0.w),2(a5,d6.w)
 [00010a94] 5646                      addq.w     #3,d6
 [00010a96] 3006                      move.w     d6,d0
@@ -300,6 +318,7 @@ do_colrun:
 [00010aa0] d2bc 0000 0400            add.l      #$00000400,d1
 [00010aa6] b081                      cmp.l      d1,d0
 [00010aa8] 6db4                      blt.s      $00010A5E
+
 [00010aaa] 4bed 0400                 lea.l      1024(a5),a5
 [00010aae] 426f 003e                 clr.w      62(a7)
 [00010ab2] 6000 0162                 bra        $00010C16
@@ -308,22 +327,24 @@ do_colrun:
 [00010abc] 3f74 0000 003c            move.w     0(a4,d0.w),60(a7)
 [00010ac2] 3a34 0002                 move.w     2(a4,d0.w),d5
 [00010ac6] 322f 003c                 move.w     60(a7),d1
-[00010aca] 41f9 0001 4224            lea.l      $00014224,a0
+[00010aca] 41f9 0001 4224            lea.l      datapoint_red,a0
 [00010ad0] 7400                      moveq.l    #0,d2
 [00010ad2] 1430 1000                 move.b     0(a0,d1.w),d2
 [00010ad6] 7c0a                      moveq.l    #10,d6
 [00010ad8] edaa                      lsl.l      d6,d2
 [00010ada] 2f42 0038                 move.l     d2,56(a7)
-[00010ade] 43f9 0001 4235            lea.l      $00014235,a1
+
+[00010ade] 43f9 0001 4235            lea.l      datapoint_green,a1
 [00010ae4] 7c00                      moveq.l    #0,d6
 [00010ae6] 1c31 1000                 move.b     0(a1,d1.w),d6
 [00010aea] 700a                      moveq.l    #10,d0
 [00010aec] e1ae                      lsl.l      d0,d6
-[00010aee] 41f9 0001 4246            lea.l      $00014246,a0
+[00010aee] 41f9 0001 4246            lea.l      datapoint_blue,a0
 [00010af4] 7400                      moveq.l    #0,d2
 [00010af6] 1430 1000                 move.b     0(a0,d1.w),d2
 [00010afa] e1aa                      lsl.l      d0,d2
 [00010afc] 2f42 0034                 move.l     d2,52(a7)
+
 [00010b00] 43f9 0001 4257            lea.l      $00014257,a1
 [00010b06] 4242                      clr.w      d2
 [00010b08] 1431 1000                 move.b     0(a1,d1.w),d2
@@ -337,6 +358,7 @@ do_colrun:
 [00010b26] 6100 2048                 bsr        _xlcnv
 [00010b2a] 3000                      move.w     d0,d0
 [00010b2c] 3f40 0068                 move.w     d0,104(a7)
+
 [00010b30] 41f9 0001 4257            lea.l      $00014257,a0
 [00010b36] 4241                      clr.w      d1
 [00010b38] 1230 5000                 move.b     0(a0,d5.w),d1
@@ -350,7 +372,8 @@ do_colrun:
 [00010b56] 6100 2018                 bsr        _xlcnv
 [00010b5a] 3000                      move.w     d0,d0
 [00010b5c] 3f40 0066                 move.w     d0,102(a7)
-[00010b60] 41f9 0001 4224            lea.l      $00014224,a0
+
+[00010b60] 41f9 0001 4224            lea.l      datapoint_red,a0
 [00010b66] 7000                      moveq.l    #0,d0
 [00010b68] 1030 5000                 move.b     0(a0,d5.w),d0
 [00010b6c] 720a                      moveq.l    #10,d1
@@ -361,7 +384,8 @@ do_colrun:
 [00010b7c] 48c1                      ext.l      d1
 [00010b7e] 6100 2542                 bsr        _ldiv
 [00010b82] 2f40 0030                 move.l     d0,48(a7)
-[00010b86] 41f9 0001 4235            lea.l      $00014235,a0
+
+[00010b86] 41f9 0001 4235            lea.l      datapoint_green,a0
 [00010b8c] 7000                      moveq.l    #0,d0
 [00010b8e] 1030 5000                 move.b     0(a0,d5.w),d0
 [00010b92] 720a                      moveq.l    #10,d1
@@ -372,7 +396,8 @@ do_colrun:
 [00010ba0] 48c1                      ext.l      d1
 [00010ba2] 6100 251e                 bsr        _ldiv
 [00010ba6] 2f40 002c                 move.l     d0,44(a7)
-[00010baa] 41f9 0001 4246            lea.l      $00014246,a0
+
+[00010baa] 41f9 0001 4246            lea.l      datapoint_blue,a0
 [00010bb0] 7000                      moveq.l    #0,d0
 [00010bb2] 1030 5000                 move.b     0(a0,d5.w),d0
 [00010bb6] 720a                      moveq.l    #10,d1
@@ -383,6 +408,7 @@ do_colrun:
 [00010bc6] 48c1                      ext.l      d1
 [00010bc8] 6100 24f8                 bsr        _ldiv
 [00010bcc] 2200                      move.l     d0,d1
+
 [00010bce] 3f6f 0068 006a            move.w     104(a7),106(a7)
 [00010bd4] 6032                      bra.s      $00010C08
 [00010bd6] 202f 0038                 move.l     56(a7),d0
@@ -404,12 +430,14 @@ do_colrun:
 [00010c08] 302f 006a                 move.w     106(a7),d0
 [00010c0c] b06f 0066                 cmp.w      102(a7),d0
 [00010c10] 6dc4                      blt.s      $00010BD6
+
 [00010c12] 526f 003e                 addq.w     #1,62(a7)
 [00010c16] 70ff                      moveq.l    #-1,d0
 [00010c18] d079 0001 37f4            add.w      num_datapoints,d0
 [00010c1e] 322f 003e                 move.w     62(a7),d1
 [00010c22] b240                      cmp.w      d0,d1
 [00010c24] 6d00 fe90                 blt        $00010AB6
+
 [00010c28] 2f02                      move.l     d2,-(a7)
 [00010c2a] 2003                      move.l     d3,d0
 [00010c2c] 7202                      moveq.l    #2,d1
@@ -421,6 +449,7 @@ do_colrun:
 [00010c3a] 2a6f 0062                 movea.l    98(a7),a5
 [00010c3e] dbc1                      adda.l     d1,a5
 [00010c40] 4bed 0400                 lea.l      1024(a5),a5
+
 [00010c44] 41ef 0070                 lea.l      112(a7),a0
 [00010c48] 3004                      move.w     d4,d0
 [00010c4a] 6100 1f62                 bsr        _wxcnv
@@ -437,6 +466,7 @@ do_colrun:
 [00010c74] 486f 0084                 pea.l      132(a7)
 [00010c78] 6100 080a                 bsr        cos
 [00010c7c] 4fef 000e                 lea.l      14(a7),a7
+
 [00010c80] 41ef 007a                 lea.l      122(a7),a0
 [00010c84] 43f9 0001 3974            lea.l      $00013974,a1
 [00010c8a] 6100 1428                 bsr        _xxmul
@@ -444,6 +474,7 @@ do_colrun:
 [00010c92] 6100 1edc                 bsr        _xlcnv
 [00010c96] 2000                      move.l     d0,d0
 [00010c98] 2f40 0028                 move.l     d0,40(a7)
+
 [00010c9c] 41ef 0070                 lea.l      112(a7),a0
 [00010ca0] 3004                      move.w     d4,d0
 [00010ca2] 6100 1f0a                 bsr        _wxcnv
@@ -467,6 +498,7 @@ do_colrun:
 [00010cea] 6100 1e84                 bsr        _xlcnv
 [00010cee] 2000                      move.l     d0,d0
 [00010cf0] 2f40 0024                 move.l     d0,36(a7)
+
 [00010cf4] 7200                      moveq.l    #0,d1
 [00010cf6] 2f41 001c                 move.l     d1,28(a7)
 [00010cfa] 2f41 0020                 move.l     d1,32(a7)
@@ -477,6 +509,7 @@ do_colrun:
 [00010d0a] 6100 236c                 bsr        _lmul
 [00010d0e] e280                      asr.l      #1,d0
 [00010d10] 2f40 0014                 move.l     d0,20(a7)
+
 [00010d14] 202f 0024                 move.l     36(a7),d0
 [00010d18] 4480                      neg.l      d0
 [00010d1a] 322a 0138                 move.w     312(a2),d1
@@ -484,6 +517,7 @@ do_colrun:
 [00010d20] 6100 2356                 bsr        _lmul
 [00010d24] e280                      asr.l      #1,d0
 [00010d26] 2f40 0020                 move.l     d0,32(a7)
+
 [00010d2a] 720a                      moveq.l    #10,d1
 [00010d2c] e2a0                      asr.l      d1,d0
 [00010d2e] 2c00                      move.l     d0,d6
@@ -493,6 +527,7 @@ do_colrun:
 [00010d36] 2079 0001 3a4a            movea.l    $00013A4A,a0 maintree
 [00010d3c] c468 0082                 and.w      130(a0),d2
 [00010d40] 6700 00c2                 beq        $00010E04
+
 [00010d44] 426f 006a                 clr.w      106(a7)
 [00010d48] 6000 00aa                 bra        $00010DF4
 [00010d4c] 701f                      moveq.l    #31,d0
@@ -509,6 +544,7 @@ do_colrun:
 [00010d6e] 2051                      movea.l    (a1),a0
 [00010d70] 4e90                      jsr        (a0)
 [00010d72] 2f6f 0014 001c            move.l     20(a7),28(a7)
+
 [00010d78] 2f00                      move.l     d0,-(a7)
 [00010d7a] 302f 006e                 move.w     110(a7),d0
 [00010d7e] 48c0                      ext.l      d0
@@ -520,6 +556,7 @@ do_colrun:
 [00010d8e] d281                      add.l      d1,d1
 [00010d90] d280                      add.l      d0,d1
 [00010d92] 2f41 0018                 move.l     d1,24(a7)
+
 [00010d96] 4245                      clr.w      d5
 [00010d98] 603a                      bra.s      $00010DD4
 [00010d9a] 3005                      move.w     d5,d0
@@ -556,6 +593,7 @@ do_colrun:
 [00010df8] b06a 0138                 cmp.w      312(a2),d0
 [00010dfc] 6d00 ff4e                 blt        $00010D4C
 [00010e00] 6000 00fa                 bra        $00010EFC
+
 [00010e04] 2a6f 0062                 movea.l    98(a7),a5
 [00010e08] 4bed 0400                 lea.l      1024(a5),a5
 [00010e0c] 426f 006a                 clr.w      106(a7)
@@ -573,6 +611,7 @@ do_colrun:
 [00010e32] 2268 0052                 movea.l    82(a0),a1
 [00010e36] 2051                      movea.l    (a1),a0
 [00010e38] 4e90                      jsr        (a0)
+
 [00010e3a] 2f00                      move.l     d0,-(a7)
 [00010e3c] 302f 006e                 move.w     110(a7),d0
 [00010e40] 48c0                      ext.l      d0
@@ -584,6 +623,7 @@ do_colrun:
 [00010e50] d281                      add.l      d1,d1
 [00010e52] d280                      add.l      d0,d1
 [00010e54] 2f41 0018                 move.l     d1,24(a7)
+
 [00010e58] 302f 006a                 move.w     106(a7),d0
 [00010e5c] 9079 0001 426a            sub.w      $0001426A,d0 my
 [00010e62] 48c0                      ext.l      d0
@@ -611,6 +651,7 @@ do_colrun:
 [00010ea8] 486f 0084                 pea.l      132(a7)
 [00010eac] 6100 0a78                 bsr        sqrt
 [00010eb0] 4fef 000e                 lea.l      14(a7),a7
+
 [00010eb4] 41ef 007a                 lea.l      122(a7),a0
 [00010eb8] 6100 1cb6                 bsr        _xlcnv
 [00010ebc] 2000                      move.l     d0,d0
@@ -633,6 +674,7 @@ do_colrun:
 [00010ef0] 302f 006a                 move.w     106(a7),d0
 [00010ef4] b06a 0138                 cmp.w      312(a2),d0
 [00010ef8] 6d00 ff1a                 blt        $00010E14
+
 [00010efc] 206f 0062                 movea.l    98(a7),a0
 [00010f00] 226f 006c                 movea.l    108(a7),a1
 [00010f04] 2469 0052                 movea.l    82(a1),a2
@@ -1025,9 +1067,9 @@ compute_preview:
 [0001133c] 48e7 103e                 movem.l    d3/a2-a6,-(a7)
 [00011340] 3600                      move.w     d0,d3
 [00011342] 45f9 0001 4257            lea.l      $00014257,a2
-[00011348] 47ea ffcd                 lea.l      -51(a2),a3 14224
-[0001134c] 49ea ffde                 lea.l      -34(a2),a4 14235
-[00011350] 4bea ffef                 lea.l      -17(a2),a5 14246
+[00011348] 47ea ffcd                 lea.l      -51(a2),a3 14224 datapoint_red
+[0001134c] 49ea ffde                 lea.l      -34(a2),a4 14235 datapoint_green
+[00011350] 4bea ffef                 lea.l      -17(a2),a5 14246 datapoint_blue
 [00011354] 4df9 0001 37f4            lea.l      num_datapoints,a6
 [0001135a] 6038                      bra.s      $00011394
 [0001135c] 15b2 3001 3000            move.b     1(a2,d3.w),0(a2,d3.w)
@@ -1105,7 +1147,7 @@ compute_preview:
 [0001142c] 70ea                      moveq.l    #-22,d0
 [0001142e] d044                      add.w      d4,d0
 [00011430] 3680                      move.w     d0,(a3)
-[00011432] 41ea 07da                 lea.l      2010(a2),a0 14224
+[00011432] 41ea 07da                 lea.l      2010(a2),a0 14224 datapoint_red
 [00011436] 4241                      clr.w      d1
 [00011438] 1230 0000                 move.b     0(a0,d0.w),d1
 [0001143c] 3001                      move.w     d1,d0
@@ -1114,7 +1156,7 @@ compute_preview:
 [00011444] 226a 0822                 movea.l    2082(a2),a1 1426c set_slider
 [00011448] 4e91                      jsr        (a1)
 [0001144a] 3013                      move.w     (a3),d0
-[0001144c] 41ea 07eb                 lea.l      2027(a2),a0 14235
+[0001144c] 41ea 07eb                 lea.l      2027(a2),a0 14235 datapoint_green
 [00011450] 4241                      clr.w      d1
 [00011452] 1230 0000                 move.b     0(a0,d0.w),d1
 [00011456] 3001                      move.w     d1,d0
@@ -1123,7 +1165,7 @@ compute_preview:
 [0001145e] 226a 0822                 movea.l    2082(a2),a1 1426c set_slider
 [00011462] 4e91                      jsr        (a1)
 [00011464] 3013                      move.w     (a3),d0
-[00011466] 41ea 07fc                 lea.l      2044(a2),a0 14246
+[00011466] 41ea 07fc                 lea.l      2044(a2),a0 14246 datapoint_blue
 [0001146a] 4241                      clr.w      d1
 [0001146c] 1230 0000                 move.b     0(a0,d0.w),d1
 [00011470] 3001                      move.w     d1,d0

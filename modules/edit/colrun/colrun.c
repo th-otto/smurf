@@ -432,15 +432,42 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 {
-	double o132;
 	double o122;
+	double o112;
+	short o106;
+	short o104;
+	short o102;
+	uint8_t *o98;
 	short o64[NUM_DATA_POINTS];
 	short o62;
-	uint8_t *picdata;
+	short o60;
+	long o56;
+	long d6l;
+	long o52;
+	long o48;
+	long o44;
+	long d1l;
+	long o40;
+	long o36;
+	long o32;
+	long o28;
+	long o24;
+	long o20;
+	short d5w;
+	uint8_t *picdata; /* a3 */
+	long d3;
+	long d1;
+	long d5;
+	long d4;
+	long o16;
+	long o12;
+	long o8;
+	long o4;
 	WORD width; /* 2 */
 	WORD height; /* 0 */
 	short i;
-
+	uint8_t *a5;
+	
 	o62 = 0;
 	picdata = pic->pic_data;
 	width = pic->pic_width;
@@ -450,13 +477,11 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	for (i = 0; i < num_datapoints - 1; i++)
 	{
 		short j;
-
 		for (j = 0; j < num_datapoints - 1; j++)
 		{
-			if (x14257[j] < x14257[o64[j]])
+			if (x14257[o64[j + 1]] < x14257[o64[j]])
 			{
-				short tmp;
-				tmp = o64[j];
+				short tmp = o64[j];
 				o64[j] = o64[j + 1];
 				o64[j + 1] = tmp;
 			}
@@ -465,13 +490,137 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 
 	if (maintree[COLRUN_LINEAR].ob_state & OS_SELECTED)
 	{
-		o122 = fabs(cos((direction * 16384.0) / 16390.0));
-		o132 = fabs(sin((direction * 16384.0) / 16390.0));
+		o112 = fabs(cos((direction * 16384.0) / 16390.0));
+		o122 = fabs(sin((direction * 16384.0) / 16390.0));
+		d3 = pic->pic_width * o112 + pic->pic_height * o122;
 	} else
 	{
 		/* 10856 */
+		o8 = (long)(0 - mx) * (long)(0 - mx);
+		o4 = (long)(0 - my) * (long)(0 - my);
+		o112 = o8 + o4;
+		o122 = sqrt(o112);
+		o16 = o122;
+		o4 = (long)(height - my) * (long)(height - my);
+		o112 = o8 + o4;
+		o122 = sqrt(o112);
+		d5 = o122;
+		
+		o8 = (long)(width - mx) * (long)(width - mx);
+		o4 = (long)(0 - my) * (long)(0 - my);
+		o112 = o8 + o4;
+		o122 = sqrt(o112);
+		o12 = o122;
+		o4 = (long)(height - my) * (long)(height - my);
+		o112 = o8 + o4;
+		o122 = sqrt(o112);
+		d1 = o122;
+		
+		d3 = o16;
+		if (d5 > d3)
+			d3 = d5;
+		if (o12 > d3)
+			d3 = o12;
+		if (d1 > d3)
+			d3 = d1;
 	}
 	/* 109e4 */
+	
+	o122 = 16391.0 / d3;
+	a5 = smurf_struct->services->SMalloc(d3 * 3 + 2048);
+	o98 = a5;
+	for (i = 0; i < (d3 / 2) * 3; i += 3)
+	{
+		a5[i + 0] = datapoint_red[0];
+		a5[i + 1] = datapoint_green[0];
+		a5[i + 2] = datapoint_blue[0];
+	}
+	for (i = (d3 / 2) * 3; i < d3 * 3 + 1024; i += 3)
+	{
+		a5[i + 0] = datapoint_red[num_datapoints - 1];
+		a5[i + 1] = datapoint_green[num_datapoints - 1];
+		a5[i + 2] = datapoint_blue[num_datapoints - 1];
+	}
+	a5 += 1024;
+	for (o62 = 0; o62 < num_datapoints - 1; o62++)
+	{
+		o60 = o64[o62];
+		d5w = o64[o62 + 1];
+		o56 = (long)datapoint_red[o60] << 10;
+		d6l = (long)datapoint_green[o60] << 10;
+		o52 = (long)datapoint_blue[o60] << 10;
+		o104 = x14257[o60] / o122;
+		o102 = x14257[d5w] / o122;
+		o48 = (((long)datapoint_red[d5w] << 10) - o56) / (o102 - o104);
+		o44 = (((long)datapoint_green[d5w] << 10) - d6l) / (o102 - o104);
+		d1l = (((long)datapoint_blue[d5w] << 10) - o52) / (o102 - o104);
+		for (o106 = o104; o106 < o102; o106++)
+		{
+			a5[0] = o56 >> 10;
+			a5[1] = d6l >> 10;
+			a5[2] = o52 >> 10;
+			a5 += 3;
+			o56 += o48;
+			d6l += o44;
+			o52 += d1l;
+		}
+	}
+	/* 10c28 */
+	
+	a5 = o98 + (d3 / 2) * 3 + 1024;
+	o40 = cos((direction * 16384.0) / 16390.0) * 16393.0;
+	o36 = cos((direction * 16384.0) / 16390.0) * 16393.0;
+	o32 = o28 = 0;
+	o20 = (-o40 * pic->pic_width) >> 1;
+	o32 = (-o36 * pic->pic_height) >> 1;
+	d6l = (o32 >> 10) * 3;
+	if (maintree[COLRUN_LINEAR].ob_state & OS_SELECTED)
+	{
+		for (o106 = 0; o106 < pic->pic_height; o106++)
+		{
+			if ((o106 & 31) == 0)
+				smurf_struct->services->busybox((short)(((long)o106 << 7) / pic->pic_height));
+			o28 = o20;
+			o24 = (long)o106 * pic->pic_width * 3;
+			for (d5w = 0; d5w < pic->pic_width; d5w++)
+			{
+				d3 = (long)d5w * 3 + o24;
+				d4 = (o28 >> 10) * 3 + d6l;
+				picdata[d3 + 0] = a5[d4 + 0];
+				picdata[d3 + 1] = a5[d4 + 1];
+				picdata[d3 + 2] = a5[d4 + 2];
+				o28 += o40;
+			}
+			o32 += o36;
+			d6l = (o32 >> 10) * 3;
+		}
+	} else
+	{
+		/* 10e04 */
+		a5 = o98 + 1024;
+		for (o106 = 0; o106 < pic->pic_height; o106++)
+		{
+			if ((o106 & 31) == 0)
+				smurf_struct->services->busybox((short)(((long)o106 << 7) / pic->pic_height));
+			o24 = (long)o106 * pic->pic_width * 3;
+			o4 = (long)(o106 - my) * (long)(o106 - my);
+			d6l = mx;
+			for (d5w = 0; d5w < pic->pic_width; d5w++)
+			{
+				d6l--;
+				o8 = d6l * d6l;
+				o112 = o8 + o4;
+				o122 = sqrt(o112);
+				d4 = (long)o122 * 3;
+				d3 = (long)d5w * 3 + o24;
+				picdata[d3 + 0] = a5[d4 + 0];
+				picdata[d3 + 1] = a5[d4 + 1];
+				picdata[d3 + 2] = a5[d4 + 2];
+			}
+		}
+	}
+	/* 10efc */
+	smurf_struct->services->SMfree(o98);
 }
 
 
