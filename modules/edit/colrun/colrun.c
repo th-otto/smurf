@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include "import.h"
 #include "smurfine.h"
 #include "country.h"
@@ -114,9 +115,9 @@ short colrun_type = COLRUN_LINEAR; /* FIXME: should not use resource IDs here, b
 typedef struct {
 	uint8_t num_datapoints;
 	uint8_t colrun_type;
-	uint8_t x14224[NUM_DATA_POINTS + 1];
-	uint8_t x14235[NUM_DATA_POINTS + 1];
-	uint8_t x14246[NUM_DATA_POINTS + 1];
+	uint8_t datapoint_red[NUM_DATA_POINTS + 1];
+	uint8_t datapoint_green[NUM_DATA_POINTS + 1];
+	uint8_t datapoint_blue[NUM_DATA_POINTS + 1];
 	uint8_t x14257[NUM_DATA_POINTS + 1];
 	short colrun_direction;
 } CONFIG;
@@ -130,9 +131,9 @@ OBJECT *maintree;
 WINDOW *win;
 SMURF_PIC *smurf_pic;
 SMURF_PIC preview;
-uint8_t x14224[NUM_DATA_POINTS + 1];
-uint8_t x14235[NUM_DATA_POINTS + 1];
-uint8_t x14246[NUM_DATA_POINTS + 1];
+uint8_t datapoint_red[NUM_DATA_POINTS + 1];
+uint8_t datapoint_green[NUM_DATA_POINTS + 1];
+uint8_t datapoint_blue[NUM_DATA_POINTS + 1];
 uint8_t x14257[NUM_DATA_POINTS + 1];
 
 WORD mx, my;
@@ -143,7 +144,7 @@ void (*redraw_window)(WINDOW *, GRECT *, WORD, WORD);
 static SMURF_PIC *compute_preview(SMURF_PIC *preview);
 static short x11092(WORD button);
 static void x112b4(WORD mousey);
-static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic);
+static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction);
 static void x113d6(short x);
 
 
@@ -230,8 +231,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		blue_slider.window = win;
 		
 		/*--------------------- -------------------*/
-		x14224[0] = x14235[0] = x14246[0] = 0;
-		x14224[1] = x14235[1] = x14246[1] = 255;
+		datapoint_red[0] = datapoint_green[0] = datapoint_blue[0] = 0;
+		datapoint_red[1] = datapoint_green[1] = datapoint_blue[1] = 255;
 		x14257[0] = 0;
 		x14257[1] = 255;
 		
@@ -283,13 +284,13 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		mousex = mousex;
 		if (Button == M_RED_SLIDE || Button == M_RED_FHR)
 		{
-			x14224[x137f6] = slider(&red_slider);
+			datapoint_red[x137f6] = slider(&red_slider);
 		} else if (Button == M_GREEN_SLIDE || Button == M_GREEN_FHR)
 		{
-			x14235[x137f6] = slider(&green_slider);
+			datapoint_green[x137f6] = slider(&green_slider);
 		} else if (Button == M_BLUE_SLIDE || Button == M_BLUE_FHR)
 		{
-			x14246[x137f6] = slider(&blue_slider);
+			datapoint_blue[x137f6] = slider(&blue_slider);
 		} else if (Button >= DATAPOINT_FIRST && Button <= DATAPOINT_13)
 		{
 			d7 = x11092(Button);
@@ -361,7 +362,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	if (SmurfMessage == MEXEC)
 	{
 		colrun_direction = atoi(maintree[COLRUN_DIR].ob_spec.tedinfo->te_ptext);
-		do_colrun(smurf_struct, smurf_struct->smurf_pic);
+		do_colrun(smurf_struct, smurf_struct->smurf_pic, colrun_direction);
 		smurf_struct->module_mode = M_PICDONE;
 		return;
 	}
@@ -383,9 +384,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		config->colrun_direction = colrun_direction;
 		for (i = 0; i < NUM_DATA_POINTS; i++)
 		{
-			config->x14224[i] = x14224[i];
-			config->x14235[i] = x14235[i];
-			config->x14246[i] = x14246[i];
+			config->datapoint_red[i] = datapoint_red[i];
+			config->datapoint_green[i] = datapoint_green[i];
+			config->datapoint_blue[i] = datapoint_blue[i];
 			config->x14257[i] = x14257[i];
 		}
 		smurf_struct->event_par[0] = (WORD)((long)config >> 16);
@@ -410,9 +411,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		redraw_window(win, NULL, COLRUN_DIR, 0);
 		for (i = 0; i < NUM_DATA_POINTS - 2; i++) /* why -2 here? */
 		{
-			x14224[i] = config->x14224[i];
-			x14235[i] = config->x14235[i];
-			x14246[i] = config->x14246[i];
+			datapoint_red[i] = config->datapoint_red[i];
+			datapoint_green[i] = config->datapoint_green[i];
+			datapoint_blue[i] = config->datapoint_blue[i];
 			x14257[i] = config->x14257[i];
 		}
 		for (i = 2; i < NUM_DATA_POINTS; i++)
@@ -429,10 +430,48 @@ void edit_module_main(GARGAMEL *smurf_struct)
 }
 
 
-static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic)
+static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 {
-	(void)smurf_struct;
-	(void)pic;
+	double o132;
+	double o122;
+	short o64[NUM_DATA_POINTS];
+	short o62;
+	uint8_t *picdata;
+	WORD width; /* 2 */
+	WORD height; /* 0 */
+	short i;
+
+	o62 = 0;
+	picdata = pic->pic_data;
+	width = pic->pic_width;
+	height = pic->pic_height;
+	for (i = 0; i < NUM_DATA_POINTS; i++)
+		o64[i] = i;
+	for (i = 0; i < num_datapoints - 1; i++)
+	{
+		short j;
+
+		for (j = 0; j < num_datapoints - 1; j++)
+		{
+			if (x14257[j] < x14257[o64[j]])
+			{
+				short tmp;
+				tmp = o64[j];
+				o64[j] = o64[j + 1];
+				o64[j + 1] = tmp;
+			}
+		}
+	}
+
+	if (maintree[COLRUN_LINEAR].ob_state & OS_SELECTED)
+	{
+		o122 = fabs(cos((direction * 16384.0) / 16390.0));
+		o132 = fabs(sin((direction * 16384.0) / 16390.0));
+	} else
+	{
+		/* 10856 */
+	}
+	/* 109e4 */
 }
 
 
