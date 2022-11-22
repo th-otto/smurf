@@ -1,4 +1,3 @@
-do_colrun:
     movem.l    d3-d6/a2-a5,-(a7)
     lea.l      -152(a7),a7
     move.l     a0,108(a7)
@@ -8,16 +7,16 @@ do_colrun:
     movea.l    302(a2),a3
     move.w     310(a2),2(a7)
     move.w     312(a2),(a7)
-    clr.w      d6
+    clr.w      d7
     lea.l      64(a7),a4
     bra.s      $000106FA
-    move.w     d6,d0
+    move.w     d7,d0
     add.w      d0,d0
-    move.w     d6,0(a4,d0.w)
-    addq.w     #1,d6
-    cmp.w      #$0010,d6
+    move.w     d7,0(a4,d0.w)
+    addq.w     #1,d7
+    cmp.w      #$0010,d7
     blt.s      $000106F0
-    clr.w      d6
+    clr.w      d7
     bra.s      $0001074C
     clr.w      d0
     bra.s      $0001073E
@@ -43,10 +42,10 @@ do_colrun:
     add.w      num_datapoints,d1
     cmp.w      d1,d0
     blt.s      $00010708
-    addq.w     #1,d6
+    addq.w     #1,d7
     moveq.l    #-1,d0
     add.w      num_datapoints,d0
-    cmp.w      d0,d6
+    cmp.w      d0,d7
     blt.s      $00010704
 
     moveq.l    #1,d1
@@ -118,23 +117,23 @@ do_colrun:
     lea.l      142(a7),a1
     bsr        __xxadd
     lea.l      132(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.l     d0,d3
     bra        $000109E4
 
     clr.w      d0
-    sub.w      $00014268,d0 mx
+    sub.w      mx,d0
     ext.l      d0
     clr.w      d1
-    sub.w      $00014268,d1 mx
+    sub.w      mx,d1
     ext.l      d1
     bsr        _lmul
     move.l     d0,8(a7)
     clr.w      d0
-    sub.w      $0001426A,d0 my
+    sub.w      my,d0
     ext.l      d0
     clr.w      d1
-    sub.w      $0001426A,d1 my
+    sub.w      my,d1
     ext.l      d1
     bsr        _lmul
     move.l     d0,4(a7)
@@ -151,15 +150,15 @@ do_colrun:
     bsr        sqrt
     lea.l      14(a7),a7
     lea.l      122(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.l     d0,d0
     move.l     d0,16(a7)
 
     move.w     (a7),d0
-    sub.w      $0001426A,d0 my
+    sub.w      my,d0
     ext.l      d0
     move.w     (a7),d1
-    sub.w      $0001426A,d1 my
+    sub.w      my,d1
     ext.l      d1
     bsr        _lmul
     move.l     d0,4(a7)
@@ -176,21 +175,21 @@ do_colrun:
     bsr        sqrt
     lea.l      14(a7),a7
     lea.l      122(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.l     d0,d5
     move.w     2(a7),d0
-    sub.w      $00014268,d0 mx
+    sub.w      mx,d0
     ext.l      d0
     move.w     2(a7),d1
-    sub.w      $00014268,d1 mx
+    sub.w      mx,d1
     ext.l      d1
     bsr        _lmul
     move.l     d0,8(a7)
     clr.w      d0
-    sub.w      $0001426A,d0 my
+    sub.w      my,d0
     ext.l      d0
     clr.w      d1
-    sub.w      $0001426A,d1 my
+    sub.w      my,d1
     ext.l      d1
     bsr        _lmul
     move.l     d0,4(a7)
@@ -208,14 +207,14 @@ do_colrun:
     lea.l      14(a7),a7
 
     lea.l      122(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.l     d0,d0
     move.l     d0,12(a7)
     move.w     (a7),d0
-    sub.w      $0001426A,d0 my
+    sub.w      my,d0
     ext.l      d0
     move.w     (a7),d1
-    sub.w      $0001426A,d1 my
+    sub.w      my,d1
     ext.l      d1
     bsr        _lmul
     move.l     d0,4(a7)
@@ -232,7 +231,7 @@ do_colrun:
     bsr        sqrt
     lea.l      14(a7),a7
     lea.l      122(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.l     d0,d1
 
     move.l     16(a7),d3
@@ -267,13 +266,13 @@ do_colrun:
     movea.l    a0,a5
     move.l     a0,98(a7)
 
-    clr.w      d6
+    clr.w      d7
     bra.s      $00010A3C
-    move.b     datapoint_red,0(a5,d6.w)
-    move.b     datapoint_green,1(a5,d6.w)
-    move.b     datapoint_blue,2(a5,d6.w)
-    addq.w     #3,d6
-    move.w     d6,d0
+    move.b     datapoint_red,0(a5,d7.w)
+    move.b     datapoint_green,1(a5,d7.w)
+    move.b     datapoint_blue,2(a5,d7.w)
+    addq.w     #3,d7
+    move.w     d7,d0
     ext.l      d0
     move.l     d0,-(a7)
     move.l     d1,-(a7)
@@ -347,7 +346,7 @@ do_colrun:
     lea.l      122(a7),a1
     bsr        __xxdiv
     lea.l      112(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.w     d0,d0
     move.w     d0,104(a7)
 
@@ -361,7 +360,7 @@ do_colrun:
     lea.l      122(a7),a1
     bsr        __xxdiv
     lea.l      112(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.w     d0,d0
     move.w     d0,102(a7)
 
@@ -458,12 +457,11 @@ do_colrun:
     pea.l      132(a7)
     bsr        cos
     lea.l      14(a7),a7
-
     lea.l      122(a7),a0
     lea.l      $00013974,a1
     bsr        _xxmul
     lea.l      122(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.l     d0,d0
     move.l     d0,40(a7)
 
@@ -487,7 +485,7 @@ do_colrun:
     lea.l      $00013992,a1
     bsr        _xxmul
     lea.l      122(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.l     d0,d0
     move.l     d0,36(a7)
 
@@ -617,14 +615,14 @@ do_colrun:
     move.l     d1,24(a7)
 
     move.w     106(a7),d0
-    sub.w      $0001426A,d0 my
+    sub.w      my,d0
     ext.l      d0
     move.w     106(a7),d1
-    sub.w      $0001426A,d1 my
+    sub.w      my,d1
     ext.l      d1
     bsr        _lmul
     move.l     d0,4(a7)
-    move.w     $00014268,d6 mx
+    move.w     mx,d6
     ext.l      d6
     clr.w      d5
     bra.s      $00010EE6
@@ -645,7 +643,7 @@ do_colrun:
     lea.l      14(a7),a7
 
     lea.l      122(a7),a0
-    bsr        _xlcnv
+    bsr        _xwcnv
     move.l     d0,d0
     move.l     d0,d4
     add.l      d4,d4
@@ -674,5 +672,139 @@ do_colrun:
     jsr        (a1)
     lea.l      152(a7),a7
     movem.l    (a7)+,d3-d6/a2-a5
+    rts
+
+compute_preview:
+    movem.l    d3-d7/a2-a5,-(a7)
+    lea.l      -50(a7),a7
+    clr.w      10(a7)
+    movea.l    302(a0),a2
+    clr.w      d3
+    lea.l      12(a7),a3
+    bra.s      $00010F3A
+    move.w     d3,d0
+    add.w      d0,d0
+    move.w     d3,0(a3,d0.w)
+    addq.w     #1,d3
+    cmp.w      #$0010,d3
+    blt.s      $00010F30
+    clr.w      d3
+    lea.l      $00014257,a4
+    lea.l      num_datapoints,a5
+    bra.s      $00010F8A
+    clr.w      d4
+    bra.s      $00010F80
+    move.w     d4,d0
+    add.w      d0,d0
+    move.w     2(a3,d0.w),d1
+    move.b     0(a4,d1.w),d2
+    move.w     0(a3,d0.w),d1
+    cmp.b      0(a4,d1.w),d2
+    bcc.s      $00010F7E
+    move.w     d1,d0
+    move.w     d4,d2
+    add.w      d2,d2
+    move.w     d4,d1
+    add.w      d1,d1
+    move.w     2(a3,d2.w),0(a3,d1.w)
+    move.w     d0,2(a3,d1.w)
+    addq.w     #1,d4
+    moveq.l    #-1,d0
+    add.w      (a5),d0
+    cmp.w      d0,d4
+    blt.s      $00010F54
+    addq.w     #1,d3
+    moveq.l    #-1,d0
+    add.w      (a5),d0
+    cmp.w      d0,d3
+    blt.s      $00010F50
+    clr.w      10(a7)
+    bra        $0001107A
+    move.w     10(a7),d0
+    add.w      d0,d0
+    move.w     0(a3,d0.w),d0
+    move.w     10(a7),d1
+    add.w      d1,d1
+    move.w     2(a3,d1.w),8(a7)
+    moveq.l    #0,d5
+    move.b     -51(a4,d0.w),d5
+    moveq.l    #10,d2
+    lsl.l      d2,d5
+    moveq.l    #0,d6
+    move.b     -34(a4,d0.w),d6
+    lsl.l      d2,d6
+    moveq.l    #0,d7
+    move.b     -17(a4,d0.w),d7
+    lsl.l      d2,d7
+    clr.w      d3
+    move.b     0(a4,d0.w),d3
+    move.w     d3,48(a7)
+    move.w     8(a7),d0
+    clr.w      d4
+    move.b     0(a4,d0.w),d4
+    move.w     d4,46(a7)
+    moveq.l    #0,d1
+    move.b     -51(a4,d0.w),d1
+    move.l     d1,d0
+    lsl.l      d2,d0
+    sub.l      d5,d0
+    move.w     d4,d1
+    sub.w      d3,d1
+    ext.l      d1
+    bsr        _ldiv
+    move.l     d0,4(a7)
+    move.w     8(a7),d1
+    moveq.l    #0,d0
+    move.b     -34(a4,d1.w),d0
+    moveq.l    #10,d2
+    lsl.l      d2,d0
+    sub.l      d6,d0
+    move.w     46(a7),d1
+    sub.w      48(a7),d1
+    ext.l      d1
+    bsr        _ldiv
+    move.l     d0,(a7)
+    move.w     8(a7),d1
+    moveq.l    #0,d0
+    move.b     -17(a4,d1.w),d0
+    moveq.l    #10,d2
+    lsl.l      d2,d0
+    sub.l      d7,d0
+    move.w     46(a7),d1
+    sub.w      48(a7),d1
+    ext.l      d1
+    bsr        _ldiv
+    move.w     48(a7),d4
+    bra.s      $00011070
+    clr.w      d3
+    bra.s      $00011060
+    move.l     d5,d1
+    moveq.l    #10,d2
+    asr.l      d2,d1
+    move.b     d1,(a2)
+    move.l     d6,d1
+    asr.l      d2,d1
+    move.b     d1,1(a2)
+    move.l     d7,d1
+    asr.l      d2,d1
+    move.b     d1,2(a2)
+    addq.w     #3,a2
+    addq.w     #1,d3
+    cmp.w      #$0010,d3
+    blt.s      $00011044
+    add.l      4(a7),d5
+    add.l      (a7),d6
+    add.l      d0,d7
+    addq.w     #1,d4
+    cmp.w      46(a7),d4
+    blt.s      $00011040
+    addq.w     #1,10(a7)
+    moveq.l    #-1,d0
+    add.w      (a5),d0
+    move.w     10(a7),d1
+    cmp.w      d0,d1
+    blt        $00010F9A
+    lea.l      50(a7),a7
+    movem.l    (a7)+,d3-d7/a2-a5
     rts
 

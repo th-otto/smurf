@@ -157,7 +157,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	unsigned long hi;
 	unsigned short lo;
 	short SmurfMessage;
-	WORD i; /* d4 */
+	WORD i;
 	short module_id;
 	WORD Button;
 	WORD mousex;
@@ -434,17 +434,20 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 {
 	double o122;
 	double o112;
-	uint8_t *o98;
-	short o64[NUM_DATA_POINTS];
+	short y;
+	short ystart; /* 104 */
+	short yend; /* 102 */
+	uint8_t *buffer; /* 98 */
+	short o64[NUM_DATA_POINTS]; /* 64 */
 	short o62;
 	short o60;
 	short d5w;
-	long o56;
-	long d6l;
-	long o52;
-	long o48;
-	long o44;
-	long d1l;
+	long redval; /* 56 */
+	long greenval; /* d6 */
+	long blueval; /* 52 */
+	long redinc; /* 48 */
+	long greeninc; /* 44 */
+	long blueinc; /* d1 */
 	long o40;
 	long o36;
 	long o32;
@@ -452,19 +455,18 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	long o24;
 	long o20;
 	uint8_t *picdata; /* a3 */
-	long d3;
-	long d1;
-	long d5l;
-	long d4;
-	long o16;
-	long o12;
-	long o8;
-	long o4;
+	long distance; /* d3 */
+	long topleft_distance; /* 16 */
+	long topright_distance; /* 12 */
+	long xdiff; /* 8 */
+	long ydiff; /* 4 */
 	WORD width; /* 2 */
 	WORD height; /* 0 */
 	short i;
-	uint8_t *a5;
-	
+	uint8_t *ptr; /* a5 */
+
+#define d6l greenval
+
 	o62 = 0;
 	picdata = pic->pic_data;
 	width = pic->pic_width;
@@ -489,88 +491,91 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	{
 		o112 = fabs(cos((direction * 16384.0) / 16390.0));
 		o122 = fabs(sin((direction * 16384.0) / 16390.0));
-		d3 = pic->pic_width * o112 + pic->pic_height * o122;
+		distance = pic->pic_width * o112 + pic->pic_height * o122;
 	} else
 	{
+		long bottomleft_distance; /* d5 */
+		long bottomright_distance; /* d1 */
+
 		/* 10856 */
-		o8 = (long)(0 - mx) * (long)(0 - mx);
-		o4 = (long)(0 - my) * (long)(0 - my);
-		o112 = o8 + o4;
+		xdiff = (long)(0 - mx) * (long)(0 - mx);
+		ydiff = (long)(0 - my) * (long)(0 - my);
+		o112 = xdiff + ydiff;
 		o122 = sqrt(o112);
-		o16 = o122;
-		o4 = (long)(height - my) * (long)(height - my);
-		o112 = o8 + o4;
+		topleft_distance = o122;
+		ydiff = (long)(height - my) * (long)(height - my);
+		o112 = xdiff + ydiff;
 		o122 = sqrt(o112);
-		d5l = o122;
+		bottomleft_distance = o122;
 		
-		o8 = (long)(width - mx) * (long)(width - mx);
-		o4 = (long)(0 - my) * (long)(0 - my);
-		o112 = o8 + o4;
+		xdiff = (long)(width - mx) * (long)(width - mx);
+		ydiff = (long)(0 - my) * (long)(0 - my);
+		o112 = xdiff + ydiff;
 		o122 = sqrt(o112);
-		o12 = o122;
-		o4 = (long)(height - my) * (long)(height - my);
-		o112 = o8 + o4;
+		topright_distance = o122;
+		ydiff = (long)(height - my) * (long)(height - my);
+		o112 = xdiff + ydiff;
 		o122 = sqrt(o112);
-		d1 = o122;
+		bottomright_distance = o122;
 		
-		d3 = o16;
-		if (d5l > d3)
-			d3 = d5l;
-		if (o12 > d3)
-			d3 = o12;
-		if (d1 > d3)
-			d3 = d1;
+		distance = topleft_distance;
+		if (bottomleft_distance > distance)
+			distance = bottomleft_distance;
+		if (topright_distance > distance)
+			distance = topright_distance;
+		if (bottomright_distance > distance)
+			distance = bottomright_distance;
 	}
 	/* 109e4 */
 	
-	o122 = 16391.0 / d3;
-	a5 = smurf_struct->services->SMalloc(d3 * 3 + 2048);
-	o98 = a5;
-	for (i = 0; i < (d3 / 2) * 3; i += 3)
+	o122 = 16391.0 / distance;
+	ptr = smurf_struct->services->SMalloc(distance * 3 + 2048);
+	buffer = ptr;
+	for (i = 0; i < (distance / 2) * 3; i += 3)
 	{
-		a5[i + 0] = datapoint_red[0];
-		a5[i + 1] = datapoint_green[0];
-		a5[i + 2] = datapoint_blue[0];
+		ptr[i + 0] = datapoint_red[0];
+		ptr[i + 1] = datapoint_green[0];
+		ptr[i + 2] = datapoint_blue[0];
 	}
-	for (i = (d3 / 2) * 3; i < d3 * 3 + 1024; i += 3)
+	for (i = (distance / 2) * 3; i < distance * 3 + 1024; i += 3)
 	{
-		a5[i + 0] = datapoint_red[num_datapoints - 1];
-		a5[i + 1] = datapoint_green[num_datapoints - 1];
-		a5[i + 2] = datapoint_blue[num_datapoints - 1];
+		ptr[i + 0] = datapoint_red[num_datapoints - 1];
+		ptr[i + 1] = datapoint_green[num_datapoints - 1];
+		ptr[i + 2] = datapoint_blue[num_datapoints - 1];
 	}
-	a5 += 1024;
+	ptr += 1024;
 	for (o62 = 0; o62 < num_datapoints - 1; o62++)
 	{
-		short o106;
-		short o104;
-		short o102;
-
 		o60 = o64[o62];
 		d5w = o64[o62 + 1];
-		o56 = (long)datapoint_red[o60] << 10;
-		d6l = (long)datapoint_green[o60] << 10;
-		o52 = (long)datapoint_blue[o60] << 10;
-		o104 = x14257[o60] / o122;
-		o102 = x14257[d5w] / o122;
-		o48 = (((long)datapoint_red[d5w] << 10) - o56) / (o102 - o104);
-		o44 = (((long)datapoint_green[d5w] << 10) - d6l) / (o102 - o104);
-		d1l = (((long)datapoint_blue[d5w] << 10) - o52) / (o102 - o104);
-		for (o106 = o104; o106 < o102; o106++)
+		redval = (long)datapoint_red[o60] << 10;
+		greenval = (long)datapoint_green[o60] << 10;
+		blueval = (long)datapoint_blue[o60] << 10;
+		ystart = x14257[o60] / o122;
+		yend = x14257[d5w] / o122;
+		redinc = (((long)datapoint_red[d5w] << 10) - redval) / (yend - ystart);
+		greeninc = (((long)datapoint_green[d5w] << 10) - greenval) / (yend - ystart);
+		blueinc = (((long)datapoint_blue[d5w] << 10) - blueval) / (yend - ystart);
+		for (y = ystart; y < yend; y++)
 		{
-			a5[0] = o56 >> 10;
-			a5[1] = d6l >> 10;
-			a5[2] = o52 >> 10;
-			a5 += 3;
-			o56 += o48;
-			d6l += o44;
-			o52 += d1l;
+			ptr[0] = redval >> 10;
+			ptr[1] = greenval >> 10;
+			ptr[2] = blueval >> 10;
+			ptr += 3;
+			redval += redinc;
+			greenval += greeninc;
+			blueval += blueinc;
 		}
 	}
 	/* 10c28 */
 	
-	a5 = o98 + (d3 / 2) * 3 + 1024;
-	o40 = cos((direction * 16384.0) / 16390.0) * 16393.0;
-	o36 = cos((direction * 16384.0) / 16390.0) * 16393.0;
+	ptr = buffer + (distance / 2) * 3 + 1024;
+	o112 = (direction * 16384.0) / 16390.0;
+	o122 = cos(o112) * 16393.0;
+	o40 = o122;
+	o112 = (direction * 16384.0) / 16390.0;
+	o122 = sin(o112) * 16393.0;;
+	o36 = o122;
 	o32 = o28 = 0;
 	o20 = (-o40 * pic->pic_width) >> 1;
 	o32 = (-o36 * pic->pic_height) >> 1;
@@ -578,23 +583,22 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	if (maintree[COLRUN_LINEAR].ob_state & OS_SELECTED)
 	{
 		short x;
-		short o106;
 		long d3;
 		long d4;
 
-		for (o106 = 0; o106 < pic->pic_height; o106++)
+		for (y = 0; y < pic->pic_height; y++)
 		{
-			if ((o106 & 31) == 0)
-				smurf_struct->services->busybox((short)(((long)o106 << 7) / pic->pic_height));
+			if ((y & 31) == 0)
+				smurf_struct->services->busybox((short)(((long)y << 7) / pic->pic_height));
 			o28 = o20;
-			o24 = (long)o106 * pic->pic_width * 3;
+			o24 = (long)y * pic->pic_width * 3;
 			for (x = 0; x < pic->pic_width; x++)
 			{
 				d3 = (long)x * 3 + o24;
 				d4 = (o28 >> 10) * 3 + d6l;
-				picdata[d3 + 0] = a5[d4 + 0];
-				picdata[d3 + 1] = a5[d4 + 1];
-				picdata[d3 + 2] = a5[d4 + 2];
+				picdata[d3 + 0] = ptr[d4 + 0];
+				picdata[d3 + 1] = ptr[d4 + 1];
+				picdata[d3 + 2] = ptr[d4 + 2];
 				o28 += o40;
 			}
 			o32 += o36;
@@ -603,33 +607,34 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	} else
 	{
 		short x;
-		short o106;
+		long d3;
+		long d4;
 
 		/* 10e04 */
-		a5 = o98 + 1024;
-		for (o106 = 0; o106 < pic->pic_height; o106++)
+		ptr = buffer + 1024;
+		for (y = 0; y < pic->pic_height; y++)
 		{
-			if ((o106 & 31) == 0)
-				smurf_struct->services->busybox((short)(((long)o106 << 7) / pic->pic_height));
-			o24 = (long)o106 * pic->pic_width * 3;
-			o4 = (long)(o106 - my) * (long)(o106 - my);
+			if ((y & 15) == 0)
+				smurf_struct->services->busybox((short)(((long)y << 7) / pic->pic_height));
+			o24 = (long)y * pic->pic_width * 3;
+			ydiff = (long)(y - my) * (long)(y - my);
 			d6l = mx;
 			for (x = 0; x < pic->pic_width; x++)
 			{
 				d6l--;
-				o8 = d6l * d6l;
-				o112 = o8 + o4;
+				xdiff = d6l * d6l;
+				o112 = xdiff + ydiff;
 				o122 = sqrt(o112);
 				d4 = (long)o122 * 3;
 				d3 = (long)x * 3 + o24;
-				picdata[d3 + 0] = a5[d4 + 0];
-				picdata[d3 + 1] = a5[d4 + 1];
-				picdata[d3 + 2] = a5[d4 + 2];
+				picdata[d3 + 0] = ptr[d4 + 0];
+				picdata[d3 + 1] = ptr[d4 + 1];
+				picdata[d3 + 2] = ptr[d4 + 2];
 			}
 		}
 	}
 	/* 10efc */
-	smurf_struct->services->SMfree(o98);
+	smurf_struct->services->SMfree(buffer);
 }
 
 
