@@ -141,7 +141,7 @@ void (*set_slider)(SLIDER *, long);
 void (*redraw_window)(WINDOW *, GRECT *, WORD, WORD);
 
 
-static SMURF_PIC *compute_preview(SMURF_PIC *preview);
+static void compute_preview(SMURF_PIC *preview);
 static short x11092(WORD button);
 static void x112b4(WORD mousey);
 static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction);
@@ -434,13 +434,11 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 {
 	double o122;
 	double o112;
-	short o106;
-	short o104;
-	short o102;
 	uint8_t *o98;
 	short o64[NUM_DATA_POINTS];
 	short o62;
 	short o60;
+	short d5w;
 	long o56;
 	long d6l;
 	long o52;
@@ -453,11 +451,10 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	long o28;
 	long o24;
 	long o20;
-	short d5w;
 	uint8_t *picdata; /* a3 */
 	long d3;
 	long d1;
-	long d5;
+	long d5l;
 	long d4;
 	long o16;
 	long o12;
@@ -504,7 +501,7 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 		o4 = (long)(height - my) * (long)(height - my);
 		o112 = o8 + o4;
 		o122 = sqrt(o112);
-		d5 = o122;
+		d5l = o122;
 		
 		o8 = (long)(width - mx) * (long)(width - mx);
 		o4 = (long)(0 - my) * (long)(0 - my);
@@ -517,8 +514,8 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 		d1 = o122;
 		
 		d3 = o16;
-		if (d5 > d3)
-			d3 = d5;
+		if (d5l > d3)
+			d3 = d5l;
 		if (o12 > d3)
 			d3 = o12;
 		if (d1 > d3)
@@ -544,6 +541,10 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	a5 += 1024;
 	for (o62 = 0; o62 < num_datapoints - 1; o62++)
 	{
+		short o106;
+		short o104;
+		short o102;
+
 		o60 = o64[o62];
 		d5w = o64[o62 + 1];
 		o56 = (long)datapoint_red[o60] << 10;
@@ -576,15 +577,20 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	d6l = (o32 >> 10) * 3;
 	if (maintree[COLRUN_LINEAR].ob_state & OS_SELECTED)
 	{
+		short x;
+		short o106;
+		long d3;
+		long d4;
+
 		for (o106 = 0; o106 < pic->pic_height; o106++)
 		{
 			if ((o106 & 31) == 0)
 				smurf_struct->services->busybox((short)(((long)o106 << 7) / pic->pic_height));
 			o28 = o20;
 			o24 = (long)o106 * pic->pic_width * 3;
-			for (d5w = 0; d5w < pic->pic_width; d5w++)
+			for (x = 0; x < pic->pic_width; x++)
 			{
-				d3 = (long)d5w * 3 + o24;
+				d3 = (long)x * 3 + o24;
 				d4 = (o28 >> 10) * 3 + d6l;
 				picdata[d3 + 0] = a5[d4 + 0];
 				picdata[d3 + 1] = a5[d4 + 1];
@@ -596,6 +602,9 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 		}
 	} else
 	{
+		short x;
+		short o106;
+
 		/* 10e04 */
 		a5 = o98 + 1024;
 		for (o106 = 0; o106 < pic->pic_height; o106++)
@@ -605,14 +614,14 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 			o24 = (long)o106 * pic->pic_width * 3;
 			o4 = (long)(o106 - my) * (long)(o106 - my);
 			d6l = mx;
-			for (d5w = 0; d5w < pic->pic_width; d5w++)
+			for (x = 0; x < pic->pic_width; x++)
 			{
 				d6l--;
 				o8 = d6l * d6l;
 				o112 = o8 + o4;
 				o122 = sqrt(o112);
 				d4 = (long)o122 * 3;
-				d3 = (long)d5w * 3 + o24;
+				d3 = (long)x * 3 + o24;
 				picdata[d3 + 0] = a5[d4 + 0];
 				picdata[d3 + 1] = a5[d4 + 1];
 				picdata[d3 + 2] = a5[d4 + 2];
@@ -624,9 +633,9 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 }
 
 
-static SMURF_PIC *compute_preview(SMURF_PIC *preview)
+static void compute_preview(SMURF_PIC *preview)
 {
-	return preview;
+	(void)preview;
 }
 
 
