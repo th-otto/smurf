@@ -33,20 +33,17 @@
 #include "country.h"
 #include "colrun.rsh"
 
-#undef COUNTRY
-#define COUNTRY 1
-
 #if COUNTRY == 1
 #define TEXT1  "Farbverlauf"
-#define TITLE  "Farbverlauf V0.1"
+#define TITLE  "Farbverlauf V1.0"
 #define ALERT1 "[1][Es k”nnen nur 16 Sttzpunkte|gesetzt werden!][ Ok ]"
 #elif COUNTRY == 0
 #define TEXT1 "Color gradient"
-#define TITLE  "CoColor gradient V0.1"
+#define TITLE  "CoColor gradient V1.0"
 #define ALERT1 "[1][You can only define 16|interpolation points!][ Ok ]"
 #else
 #define TEXT1 "Color gradient"
-#define TITLE  "CoColor gradient V0.1"
+#define TITLE  "CoColor gradient V1.0"
 #define ALERT1 "[1][You can only define 16|interpolation points!][ Ok ]"
 #endif
 
@@ -148,292 +145,218 @@ static void (*set_slider)(SLIDER *, long);
 static void (*redraw_window)(WINDOW *, GRECT *, WORD, WORD);
 
 
-static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction);
-static void compute_preview(SMURF_PIC *preview);
-static BOOLEAN move_datapoint(WORD button);
-static void add_datapoint(WORD mousey);
-static void del_datapoint(short datapoint);
-static void select_datapoint(WORD button);
 
 
-void edit_module_main(GARGAMEL *smurf_struct)
+
+
+static void select_datapoint(WORD button)
 {
-	short wnum = 1;
-	short (*f_module_window)(WINDOW *);
-	short (*slider)(SLIDER *);
-	char title[] = TITLE;
-	unsigned long hi;
-	unsigned short lo;
-	short SmurfMessage;
 	WORD i;
-	short module_id;
-	WORD Button;
-	WORD mousex;
-	WORD mousey;
-	BOOLEAN changed;
-
-	SmurfMessage = smurf_struct->module_mode;
-	f_module_window = smurf_struct->services->f_module_window;
-	slider = smurf_struct->services->slider;
-	set_slider = smurf_struct->services->set_slider;
-	redraw_window = smurf_struct->services->redraw_window;
-	smurf_pic = smurf_struct->smurf_pic;
 	
-	if (SmurfMessage == MSTART)
+	for (i = DATAPOINT_FIRST; i < DATAPOINT_13; i++)
+		maintree[i].ob_state &= ~OS_SELECTED;
+	maintree[button].ob_state |= OS_SELECTED;
+	redraw_window(win, NULL, DATAPOINT_BOX, 0);
+	cur_datapoint = button - DATAPOINT_FIRST;
+	set_slider(&red_slider, datapoint_red[cur_datapoint]);
+	set_slider(&green_slider, datapoint_green[cur_datapoint]);
+	set_slider(&blue_slider, datapoint_blue[cur_datapoint]);
+}
+
+
+static void add_datapoint(WORD mousey)
+{
+	WORD boxx;
+	WORD boxy;
+
+	if (num_datapoints == NUM_DATA_POINTS)
 	{
-		mx = smurf_pic->pic_width / 2;
-		my = smurf_pic->pic_height / 2;
-		maintree = rs_trindex[COLRUN_MAIN];
+		form_alert(1, ALERT1);
+	} else
+	{
+		objc_offset(maintree, DATAPOINT_BOX, &boxx, &boxy);
+		datapoint_pos[num_datapoints] = mousey - boxy;
+		maintree[num_datapoints + DATAPOINT_FIRST].ob_y = mousey - boxy;
+		maintree[num_datapoints + DATAPOINT_FIRST].ob_flags &= ~OF_HIDETREE;
+		select_datapoint(num_datapoints + DATAPOINT_FIRST);
+		num_datapoints++;
+	}
+}
 
-		/* Resource fix ---------------------------------------- */
-		for (i = 0; i < NUM_OBS; i++)
-			rsrc_obfix(&rs_object[i], 0);
 
-		module_id = smurf_struct->module_number;
-		win = smurf_struct->services->SMalloc(sizeof(*win));
-		memset(win, 0, sizeof(*win));
-		
-		/*  ------------------- Fensterstruktur init -------------------    */
-		win->whandlem = 0;
-		win->module = module_id;
-		strcpy(win->wtitle, title);
-		win->wnum = wnum;
-		win->wx = -1;
-		win->wy = -1;
-		win->ww = maintree[ROOT].ob_width;
-		win->wh = maintree[ROOT].ob_height;
-		win->resource_form = maintree;
-		win->picture = NULL;
-		win->pic_xpos = maintree[PREVIEW].ob_x;
-		win->pic_ypos = maintree[PREVIEW].ob_y + 1;
-		win->clipwid = 15;
-		win->cliphgt = 256;
-		win->editob = COLRUN_DIR;
-		win->nextedit = COLRUN_DIR;
-		win->editx = 0;
-		smurf_struct->wind_struct = win;
-		
-		/*--------------------- Slider initialisieren -------------------*/
-		red_slider.regler = M_RED_SLIDE;
-		red_slider.schiene = M_RED_FHR;
-		red_slider.rtree = maintree;
-		red_slider.txt_obj = M_RED_EDIT;
-		red_slider.min_val = 0;
-		red_slider.max_val = 255;
-		red_slider.window = win;
-		
-		green_slider.regler = M_GREEN_SLIDE;
-		green_slider.schiene = M_GREEN_FHR;
-		green_slider.rtree = maintree;
-		green_slider.txt_obj = M_GREEN_EDIT;
-		green_slider.min_val = 0;
-		green_slider.max_val = 255;
-		green_slider.window = win;
-		
-		blue_slider.regler = M_BLUE_SLIDE;
-		blue_slider.schiene = M_BLUE_FHR;
-		blue_slider.rtree = maintree;
-		blue_slider.txt_obj = M_BLUE_EDIT;
-		blue_slider.min_val = 0;
-		blue_slider.max_val = 255;
-		blue_slider.window = win;
-		
-		/*--------------------- -------------------*/
-		datapoint_red[0] = datapoint_green[0] = datapoint_blue[0] = 0;
-		datapoint_red[1] = datapoint_green[1] = datapoint_blue[1] = 255;
-		datapoint_pos[0] = 0;
-		datapoint_pos[1] = 255;
-		
-		maintree[DATAPOINT_LAST].ob_y = 255;
-		for (i = DATAPOINT_00; i <= DATAPOINT_13; i++)
+static void del_datapoint(short datapoint)
+{
+	while (datapoint <= num_datapoints)
+	{
+		datapoint_pos[datapoint] = datapoint_pos[datapoint + 1];
+		datapoint_red[datapoint] = datapoint_red[datapoint + 1];
+		datapoint_green[datapoint] = datapoint_green[datapoint + 1];
+		datapoint_blue[datapoint] = datapoint_blue[datapoint + 1];
+		maintree[datapoint + DATAPOINT_FIRST].ob_y = maintree[datapoint + DATAPOINT_FIRST + 1].ob_y;
+		++datapoint;
+	}
+	datapoint_pos[num_datapoints - 1] = 0;
+	datapoint_red[num_datapoints - 1] = 0;
+	datapoint_green[num_datapoints - 1] = 0;
+	datapoint_blue[num_datapoints - 1] = 0;
+	maintree[num_datapoints + DATAPOINT_FIRST - 1].ob_flags |= OF_HIDETREE;
+	num_datapoints--;
+	select_datapoint(DATAPOINT_FIRST);
+}
+
+
+static BOOLEAN move_datapoint(WORD button)
+{
+	WORD dummy;
+	WORD bstate;
+	WORD boxx;
+	WORD boxy;
+	WORD buttonx;
+	WORD buttony;
+	WORD buttonw;
+	WORD buttonh;
+	WORD mox;
+	WORD moy;
+	GRECT gr;
+	WORD y;
+	WORD buttony_offset;
+	WORD orig_buttony_offset;
+	WORD ydiff;
+	WORD val;
+	short i;
+
+	select_datapoint(button);
+	objc_offset(maintree, DATAPOINT_BOX, &boxx, &boxy);
+	objc_offset(maintree, button, &buttonx, &buttony);
+	buttonw = maintree[button].ob_width;
+	buttonh = maintree[button].ob_height;
+	buttony_offset = maintree[button].ob_y;
+	orig_buttony_offset = buttony_offset;
+	if (button == DATAPOINT_FIRST || button == DATAPOINT_LAST)
+	{
+		do
 		{
-			maintree[i].ob_flags |= OF_HIDETREE;
-			datapoint_pos[i - DATAPOINT_00 + 2] = 0;
+			graf_mkstate(&dummy, &dummy, &bstate, &dummy);
+		} while (bstate != 0);
+	} else
+	{
+		graf_mkstate(&mox, &moy, &bstate, &dummy);
+		if (bstate != 0)
+		{
+			ydiff = moy - buttony;
+			y = moy;
+			graf_mouse(POINT_HAND, NULL);
+			do
+			{
+				do
+				{
+					graf_mkstate(&mox, &moy, &bstate, &dummy);
+				} while (moy == y && bstate != 0);
+				maintree[button].ob_y = moy - boxy - ydiff;
+				if (maintree[button].ob_y < 0)
+					maintree[button].ob_y = 0;
+				else if (maintree[button].ob_y > 255)
+					maintree[button].ob_y = 255;
+				redraw_window(win, NULL, button, 0);
+				gr.g_x = buttonx - 1;
+				gr.g_w = buttonw + 2;
+				gr.g_y = buttony_offset + boxy - 5;
+				gr.g_h = buttonh + 10;
+				redraw_window(win, &gr, DATAPOINT_BOX, 0);
+				y = moy;
+				buttony_offset = maintree[button].ob_y;
+				datapoint_pos[button - DATAPOINT_FIRST] = maintree[button].ob_y;
+			} while (bstate != 0);
+			graf_mouse(ARROW, NULL);
+			redraw_window(win, NULL, DATAPOINT_BOX, 0);
+			val = datapoint_pos[button - DATAPOINT_FIRST];
+			if (val == 0 || val == 255)
+			{
+				maintree[button].ob_y = orig_buttony_offset;
+				datapoint_pos[button - DATAPOINT_FIRST] = orig_buttony_offset;
+				del_datapoint(button - DATAPOINT_FIRST);
+			} else
+			{
+				for (i = 0; i < num_datapoints; i++)
+				{
+					if (i != button - DATAPOINT_FIRST && val == datapoint_pos[i])
+					{
+						maintree[button].ob_y = orig_buttony_offset;
+						datapoint_pos[button - DATAPOINT_FIRST] = orig_buttony_offset;
+						del_datapoint(button - DATAPOINT_FIRST);
+					}
+				}
+			}
+			return TRUE;
 		}
-		
-		preview.pic_width = 16;
-		preview.pic_height = 256;
-		preview.depth = 24;
-		preview.pic_data = smurf_struct->services->SMalloc(16 * (256 + 4) * 3L);
-		preview.screen_pic = NULL;
-		preview.changed = 0;
-		preview.format_type = FORM_PIXELPAK;
-		preview.col_format = RGB;
-		preview.zoom = 0;
-		preview.block = NULL;
-		preview.local_nct = NULL;
-		preview.prev_picture = NULL;
-		preview.next_picture = NULL;
-		memset(preview.pic_data, 0, 16 * 256 * 3L);
-		if ((unsigned short)f_module_window(win) == (unsigned short)-1)
-		{
-			smurf_struct->module_mode = M_EXIT;
-			smurf_struct->services->SMfree(win);
-		} else
-		{
-			smurf_struct->module_mode = M_WAITING;
-			set_slider(&red_slider, 0);
-			set_slider(&green_slider, 0);
-			set_slider(&blue_slider, 0);
-			compute_preview(&preview);
-			win->picture = &preview;
-			redraw_window(win, NULL, ROOT, 0);
-			smurf_struct->module_mode = M_MODPIC;
-		}
-		return;
 	}
-	
-	if (SmurfMessage == MBEVT)
-	{
-		Button = smurf_struct->event_par[0];
-		mousex = smurf_struct->mousex;
-		mousey = smurf_struct->mousey;
-		
-		mousex = mousex;
-		if (Button == M_RED_SLIDE || Button == M_RED_FHR)
-		{
-			datapoint_red[cur_datapoint] = slider(&red_slider);
-		} else if (Button == M_GREEN_SLIDE || Button == M_GREEN_FHR)
-		{
-			datapoint_green[cur_datapoint] = slider(&green_slider);
-		} else if (Button == M_BLUE_SLIDE || Button == M_BLUE_FHR)
-		{
-			datapoint_blue[cur_datapoint] = slider(&blue_slider);
-		} else if (Button >= DATAPOINT_FIRST && Button <= DATAPOINT_13)
-		{
-			changed = move_datapoint(Button);
-		} else if (Button == DATAPOINT_BOX)
-		{
-			add_datapoint(mousey);
-		} else if (Button == COLRUN_RADIAL && colrun_type != COLRUN_RADIAL)
-		{
-			smurf_struct->module_mode = M_CROSSHAIR;
-			colrun_type = COLRUN_RADIAL;
-		} else if (Button == COLRUN_LINEAR && colrun_type != COLRUN_LINEAR)
-		{
-			smurf_struct->module_mode = M_CH_OFF;
-			colrun_type = COLRUN_LINEAR;
-		} else if (Button == START)
-		{
-			smurf_struct->module_mode = M_STARTED;
-		} else
-		{
-			smurf_struct->module_mode = M_WAITING;
-		}
-		if (Button == M_RED_SLIDE ||
-			Button == M_GREEN_SLIDE ||
-			Button == M_BLUE_SLIDE ||
-			Button == M_RED_FHR ||
-			Button == M_GREEN_FHR ||
-			Button == M_BLUE_FHR ||
-			(Button >= DATAPOINT_00 && Button <= DATAPOINT_13 && changed) ||
-			Button == DATAPOINT_BOX ||
-			Button == PREVIEW)
-		{
-			compute_preview(&preview);
-			win->picture = &preview;
-			smurf_struct->module_mode = M_MODPIC;
-		}
-		return;
-	}
+	return FALSE;
+}
 
-	if (SmurfMessage == MKEVT)
-	{
-		if (smurf_struct->event_par[0] == START)
-			smurf_struct->module_mode = M_STARTED;
-		return;
-	}
 
-	if (SmurfMessage == MDITHER_READY)
-	{
-		redraw_window(win, NULL, PREVIEW, 0);
-		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
+static void compute_preview(SMURF_PIC *preview)
+{
+	uint8_t *picdata;
+	short ystart;
+	short yend;
+	short order[NUM_DATA_POINTS + 1];
+	short pointnum;
+	short startpoint;
+	short endpoint;
+	long redval;
+	long greenval;
+	long blueval;
+	long redinc;
+	long greeninc;
+	long blueinc;
 
-	if (smurf_struct->module_mode == MCH_DEFCOO) /* XXX */
+	picdata = preview->pic_data;
 	{
-		smurf_struct->event_par[0] = mx;
-		smurf_struct->event_par[1] = my;
-		smurf_struct->module_mode = M_CHDEFCOO;
-		return;
-	}
+		short i, j;
 
-	if (smurf_struct->module_mode == MCH_COORDS) /* XXX */
-	{
-		mx = smurf_struct->event_par[0];
-		my = smurf_struct->event_par[1];
-		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
-
-	if (SmurfMessage == MEXEC)
-	{
-		colrun_direction = atoi(maintree[COLRUN_DIR].ob_spec.tedinfo->te_ptext);
-		do_colrun(smurf_struct, smurf_struct->smurf_pic, colrun_direction);
-		smurf_struct->module_mode = M_PICDONE;
-		return;
-	}
-
-	if (SmurfMessage == MTERM)
-	{
-		smurf_struct->services->SMfree(win);
-		smurf_struct->services->SMfree(preview.pic_data);
-		smurf_struct->module_mode = M_EXIT;
-		return;
-	}
-
-	if (SmurfMessage == GETCONFIG)
-	{
-		colrun_direction = atoi(maintree[COLRUN_DIR].ob_spec.tedinfo->te_ptext);
-		config = smurf_struct->services->SMalloc(sizeof(*config));
-		config->num_datapoints = num_datapoints;
-		config->colrun_type = colrun_type;
-		config->colrun_direction = colrun_direction;
 		for (i = 0; i < NUM_DATA_POINTS; i++)
+			order[i] = i;
+		for (i = 0; i < num_datapoints - 1; i++)
 		{
-			config->datapoint_red[i] = datapoint_red[i];
-			config->datapoint_green[i] = datapoint_green[i];
-			config->datapoint_blue[i] = datapoint_blue[i];
-			config->datapoint_pos[i] = datapoint_pos[i];
+			for (j = 0; j < num_datapoints - 1; j++)
+			{
+				if (datapoint_pos[order[j + 1]] < datapoint_pos[order[j]])
+				{
+					short tmp = order[j];
+					order[j] = order[j + 1];
+					order[j + 1] = tmp;
+				}
+			}
 		}
-		smurf_struct->event_par[0] = (WORD)((long)config >> 16);
-		smurf_struct->event_par[1] = (WORD)((long)config);
-		smurf_struct->event_par[2] = (WORD)sizeof(*config);
-		smurf_struct->module_mode = M_CONFIG;
-		return;
 	}
 
-	if (SmurfMessage == CONFIG_TRANSMIT)
+	for (pointnum = 0; pointnum < num_datapoints - 1; pointnum++)
 	{
-		hi = (unsigned long)smurf_struct->event_par[0] << 16;
-		lo = smurf_struct->event_par[1];
-		config = (CONFIG *)(hi | lo);
-		num_datapoints = config->num_datapoints;
-		colrun_type = config->colrun_type;
-		colrun_direction = config->colrun_direction;
-		maintree[COLRUN_RADIAL].ob_state &= ~OS_SELECTED;
-		maintree[COLRUN_LINEAR].ob_state &= ~OS_SELECTED;
-		maintree[colrun_type].ob_state |= OS_SELECTED;
-		itoa(colrun_direction, maintree[COLRUN_DIR].ob_spec.tedinfo->te_ptext, 10);
-		redraw_window(win, NULL, COLRUN_DIR, 0);
-		for (i = 0; i < NUM_DATA_POINTS - 2; i++) /* why -2 here? */
+		short i, y;
+
+		startpoint = order[pointnum];
+		endpoint = order[pointnum + 1];
+		redval = (long)datapoint_red[startpoint] << 10;
+		greenval = (long)datapoint_green[startpoint] << 10;
+		blueval = (long)datapoint_blue[startpoint] << 10;
+		ystart = datapoint_pos[startpoint];
+		yend = datapoint_pos[endpoint];
+		redinc = (((long)datapoint_red[endpoint] << 10) - redval) / (yend - ystart);
+		greeninc = (((long)datapoint_green[endpoint] << 10) - greenval) / (yend - ystart);
+		blueinc = (((long)datapoint_blue[endpoint] << 10) - blueval) / (yend - ystart);
+		for (y = ystart; y < yend; y++)
 		{
-			datapoint_red[i] = config->datapoint_red[i];
-			datapoint_green[i] = config->datapoint_green[i];
-			datapoint_blue[i] = config->datapoint_blue[i];
-			datapoint_pos[i] = config->datapoint_pos[i];
+			for (i = 0; i < NUM_DATA_POINTS; i++)
+			{
+				picdata[0] = redval >> 10;
+				picdata[1] = greenval >> 10;
+				picdata[2] = blueval >> 10;
+				picdata += 3;
+			}
+			redval += redinc;
+			greenval += greeninc;
+			blueval += blueinc;
 		}
-		for (i = 2; i < NUM_DATA_POINTS; i++)
-		{
-			maintree[i + DATAPOINT_00 - 2].ob_y = datapoint_pos[i];
-			if (datapoint_pos[i] != 0)
-				maintree[i + DATAPOINT_00 - 2].ob_flags &= ~OF_HIDETREE;
-		}
-		select_datapoint(DATAPOINT_FIRST);
-		compute_preview(&preview);
-		smurf_struct->module_mode = M_MODPIC;
-		return;
 	}
 }
 
@@ -478,7 +401,6 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	long srcx;
 	long xstart;
 	
-	pointnum = 0;
 	picdata = pic->pic_data;
 	width = pic->pic_width;
 	height = pic->pic_height;
@@ -631,219 +553,279 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 }
 
 
-static void compute_preview(SMURF_PIC *preview)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
-	uint8_t *picdata;
-	short ystart;
-	short yend;
-	short order[NUM_DATA_POINTS + 1];
-	short pointnum;
-	short startpoint;
-	short endpoint;
-	long redval;
-	long greenval;
-	long blueval;
-	long redinc;
-	long greeninc;
-	long blueinc;
-
-	pointnum = 0;
-	picdata = preview->pic_data;
-	{
-		short i, j;
-
-		for (i = 0; i < NUM_DATA_POINTS; i++)
-			order[i] = i;
-		for (i = 0; i < num_datapoints - 1; i++)
-		{
-			for (j = 0; j < num_datapoints - 1; j++)
-			{
-				if (datapoint_pos[order[j + 1]] < datapoint_pos[order[j]])
-				{
-					short tmp = order[j];
-					order[j] = order[j + 1];
-					order[j + 1] = tmp;
-				}
-			}
-		}
-	}
-
-	for (pointnum = 0; pointnum < num_datapoints - 1; pointnum++)
-	{
-		short i, y;
-
-		startpoint = order[pointnum];
-		endpoint = order[pointnum + 1];
-		redval = (long)datapoint_red[startpoint] << 10;
-		greenval = (long)datapoint_green[startpoint] << 10;
-		blueval = (long)datapoint_blue[startpoint] << 10;
-		ystart = datapoint_pos[startpoint];
-		yend = datapoint_pos[endpoint];
-		redinc = (((long)datapoint_red[endpoint] << 10) - redval) / (yend - ystart);
-		greeninc = (((long)datapoint_green[endpoint] << 10) - greenval) / (yend - ystart);
-		blueinc = (((long)datapoint_blue[endpoint] << 10) - blueval) / (yend - ystart);
-		for (y = ystart; y < yend; y++)
-		{
-			for (i = 0; i < NUM_DATA_POINTS; i++)
-			{
-				picdata[0] = redval >> 10;
-				picdata[1] = greenval >> 10;
-				picdata[2] = blueval >> 10;
-				picdata += 3;
-			}
-			redval += redinc;
-			greenval += greeninc;
-			blueval += blueinc;
-		}
-	}
-}
-
-
-static BOOLEAN move_datapoint(WORD button)
-{
-	WORD dummy;
-	WORD bstate;
-	WORD boxx;
-	WORD boxy;
-	WORD buttonx;
-	WORD buttony;
-	WORD buttonw;
-	WORD buttonh;
-	WORD mox;
-	WORD moy;
-	GRECT gr;
-	MFORM mform;
-	WORD y;
-	WORD buttony_offset;
-	WORD orig_buttony_offset;
-	WORD ydiff;
-	WORD val;
-	short i;
-	WORD unused;
-
-	select_datapoint(button);
-	objc_offset(maintree, DATAPOINT_BOX, &boxx, &boxy);
-	unused = maintree[DATAPOINT_BOX].ob_width;
-	unused = maintree[DATAPOINT_BOX].ob_height;
-	unused = unused;
-	objc_offset(maintree, button, &buttonx, &buttony);
-	buttonw = maintree[button].ob_width;
-	buttonh = maintree[button].ob_height;
-	y = buttony;
-	buttony_offset = maintree[button].ob_y;
-	orig_buttony_offset = buttony_offset;
-	if (button == DATAPOINT_FIRST || button == DATAPOINT_LAST)
-	{
-		do
-		{
-			graf_mkstate(&dummy, &dummy, &bstate, &dummy);
-		} while (bstate != 0);
-	} else
-	{
-		graf_mkstate(&mox, &moy, &bstate, &dummy);
-		if (bstate != 0)
-		{
-			ydiff = moy - buttony;
-			graf_mouse(POINT_HAND, &mform);
-			do
-			{
-				do
-				{
-					graf_mkstate(&mox, &moy, &bstate, &dummy);
-				} while (moy == y && bstate != 0);
-				maintree[button].ob_y = moy - boxy - ydiff;
-				if (maintree[button].ob_y < 0)
-					maintree[button].ob_y = 0;
-				else if (maintree[button].ob_y > 255)
-					maintree[button].ob_y = 255;
-				redraw_window(win, NULL, button, 0);
-				gr.g_x = buttonx - 1;
-				gr.g_w = buttonw + 2;
-				gr.g_y = buttony_offset + boxy - 5;
-				gr.g_h = buttonh + 10;
-				redraw_window(win, &gr, DATAPOINT_BOX, 0);
-				y = moy;
-				buttony_offset = maintree[button].ob_y;
-				datapoint_pos[button - DATAPOINT_FIRST] = maintree[button].ob_y;
-			} while (bstate != 0);
-			graf_mouse(ARROW, &mform);
-			redraw_window(win, NULL, DATAPOINT_BOX, 0);
-			val = datapoint_pos[button - DATAPOINT_FIRST];
-			if (val == 0 || val == 255)
-			{
-				maintree[button].ob_y = orig_buttony_offset;
-				datapoint_pos[button - DATAPOINT_FIRST] = orig_buttony_offset;
-				del_datapoint(button - DATAPOINT_FIRST);
-			} else
-			{
-				for (i = 0; i < num_datapoints; i++)
-				{
-					if (i != button - DATAPOINT_FIRST && val == datapoint_pos[i])
-					{
-						maintree[button].ob_y = orig_buttony_offset;
-						datapoint_pos[button - DATAPOINT_FIRST] = orig_buttony_offset;
-						del_datapoint(button - DATAPOINT_FIRST);
-					}
-				}
-			}
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-
-static void add_datapoint(WORD mousey)
-{
-	WORD boxx;
-	WORD boxy;
-
-	if (num_datapoints == NUM_DATA_POINTS)
-	{
-		form_alert(1, ALERT1);
-	} else
-	{
-		objc_offset(maintree, DATAPOINT_BOX, &boxx, &boxy);
-		datapoint_pos[num_datapoints] = mousey - boxy;
-		maintree[num_datapoints + DATAPOINT_FIRST].ob_y = mousey - boxy;
-		maintree[num_datapoints + DATAPOINT_FIRST].ob_flags &= ~OF_HIDETREE;
-		select_datapoint(num_datapoints + DATAPOINT_FIRST);
-		num_datapoints++;
-	}
-}
-
-
-static void del_datapoint(short datapoint)
-{
-	while (datapoint <= num_datapoints)
-	{
-		datapoint_pos[datapoint] = datapoint_pos[datapoint + 1];
-		datapoint_red[datapoint] = datapoint_red[datapoint + 1];
-		datapoint_green[datapoint] = datapoint_green[datapoint + 1];
-		datapoint_blue[datapoint] = datapoint_blue[datapoint + 1];
-		maintree[datapoint + DATAPOINT_FIRST].ob_y = maintree[datapoint + DATAPOINT_FIRST + 1].ob_y;
-		++datapoint;
-	}
-	datapoint_pos[num_datapoints - 1] = 0;
-	datapoint_red[num_datapoints - 1] = 0;
-	datapoint_green[num_datapoints - 1] = 0;
-	datapoint_blue[num_datapoints - 1] = 0;
-	maintree[num_datapoints + DATAPOINT_FIRST - 1].ob_flags |= OF_HIDETREE;
-	num_datapoints--;
-	select_datapoint(DATAPOINT_FIRST);
-}
-
-
-static void select_datapoint(WORD button)
-{
+	short (*f_module_window)(WINDOW *);
+	short (*slider)(SLIDER *);
 	WORD i;
+	WORD Button;
+	WORD mousey;
+	BOOLEAN changed;
+
+	f_module_window = smurf_struct->services->f_module_window;
+	slider = smurf_struct->services->slider;
+	set_slider = smurf_struct->services->set_slider;
+	redraw_window = smurf_struct->services->redraw_window;
+	smurf_pic = smurf_struct->smurf_pic;
 	
-	for (i = DATAPOINT_FIRST; i < DATAPOINT_13; i++)
-		maintree[i].ob_state &= ~OS_SELECTED;
-	maintree[button].ob_state |= OS_SELECTED;
-	redraw_window(win, NULL, DATAPOINT_BOX, 0);
-	cur_datapoint = button - DATAPOINT_FIRST;
-	set_slider(&red_slider, datapoint_red[cur_datapoint]);
-	set_slider(&green_slider, datapoint_green[cur_datapoint]);
-	set_slider(&blue_slider, datapoint_blue[cur_datapoint]);
+	switch (smurf_struct->module_mode)
+	{
+	case MSTART:
+		mx = smurf_pic->pic_width / 2;
+		my = smurf_pic->pic_height / 2;
+		maintree = rs_trindex[COLRUN_MAIN];
+
+		/* Resource fix ---------------------------------------- */
+		for (i = 0; i < NUM_OBS; i++)
+			rsrc_obfix(&rs_object[i], 0);
+
+		win = smurf_struct->services->SMalloc(sizeof(*win));
+		memset(win, 0, sizeof(*win));
+		
+		/*  ------------------- Fensterstruktur init -------------------    */
+		win->whandlem = 0;
+		win->module = smurf_struct->module_number;
+		strcpy(win->wtitle, TITLE);
+		win->wnum = 1;
+		win->wx = -1;
+		win->wy = -1;
+		win->ww = maintree[ROOT].ob_width;
+		win->wh = maintree[ROOT].ob_height;
+		win->resource_form = maintree;
+		win->picture = NULL;
+		win->pic_xpos = maintree[PREVIEW].ob_x;
+		win->pic_ypos = maintree[PREVIEW].ob_y + 1;
+		win->clipwid = 15;
+		win->cliphgt = 256;
+		win->editob = COLRUN_DIR;
+		win->nextedit = COLRUN_DIR;
+		win->editx = 0;
+		smurf_struct->wind_struct = win;
+		
+		/*--------------------- Slider initialisieren -------------------*/
+		red_slider.regler = M_RED_SLIDE;
+		red_slider.schiene = M_RED_FHR;
+		red_slider.rtree = maintree;
+		red_slider.txt_obj = M_RED_EDIT;
+		red_slider.min_val = 0;
+		red_slider.max_val = 255;
+		red_slider.window = win;
+		
+		green_slider.regler = M_GREEN_SLIDE;
+		green_slider.schiene = M_GREEN_FHR;
+		green_slider.rtree = maintree;
+		green_slider.txt_obj = M_GREEN_EDIT;
+		green_slider.min_val = 0;
+		green_slider.max_val = 255;
+		green_slider.window = win;
+		
+		blue_slider.regler = M_BLUE_SLIDE;
+		blue_slider.schiene = M_BLUE_FHR;
+		blue_slider.rtree = maintree;
+		blue_slider.txt_obj = M_BLUE_EDIT;
+		blue_slider.min_val = 0;
+		blue_slider.max_val = 255;
+		blue_slider.window = win;
+		
+		/*--------------------- -------------------*/
+		datapoint_red[0] = datapoint_green[0] = datapoint_blue[0] = 0;
+		datapoint_red[1] = datapoint_green[1] = datapoint_blue[1] = 255;
+		datapoint_pos[0] = 0;
+		datapoint_pos[1] = 255;
+		
+		maintree[DATAPOINT_LAST].ob_y = 255;
+		for (i = DATAPOINT_00; i <= DATAPOINT_13; i++)
+		{
+			maintree[i].ob_flags |= OF_HIDETREE;
+			datapoint_pos[i - DATAPOINT_00 + 2] = 0;
+		}
+		
+		preview.pic_width = 16;
+		preview.pic_height = 256;
+		preview.depth = 24;
+		preview.pic_data = smurf_struct->services->SMalloc(16 * (256 + 4) * 3L);
+		preview.screen_pic = NULL;
+		preview.changed = 0;
+		preview.format_type = FORM_PIXELPAK;
+		preview.col_format = RGB;
+		preview.zoom = 0;
+		preview.block = NULL;
+		preview.local_nct = NULL;
+		preview.prev_picture = NULL;
+		preview.next_picture = NULL;
+		memset(preview.pic_data, 0, 16 * 256 * 3L);
+		if (f_module_window(win) == -1)
+		{
+			smurf_struct->module_mode = M_EXIT;
+			smurf_struct->services->SMfree(win);
+		} else
+		{
+			smurf_struct->module_mode = M_WAITING;
+			set_slider(&red_slider, 0);
+			set_slider(&green_slider, 0);
+			set_slider(&blue_slider, 0);
+			compute_preview(&preview);
+			win->picture = &preview;
+			redraw_window(win, NULL, ROOT, 0);
+			smurf_struct->module_mode = M_MODPIC;
+		}
+		break;
+	
+	case MBEVT:
+		Button = smurf_struct->event_par[0];
+		mousey = smurf_struct->mousey;
+		
+		switch (Button)
+		{
+		case M_RED_SLIDE:
+		case M_RED_FHR:
+			datapoint_red[cur_datapoint] = slider(&red_slider);
+			changed = TRUE;
+			break;
+		case M_GREEN_SLIDE:
+		case M_GREEN_FHR:
+			datapoint_green[cur_datapoint] = slider(&green_slider);
+			changed = TRUE;
+			break;
+		case M_BLUE_SLIDE:
+		case M_BLUE_FHR:
+			datapoint_blue[cur_datapoint] = slider(&blue_slider);
+			changed = TRUE;
+			break;
+		case DATAPOINT_FIRST:
+		case DATAPOINT_LAST:
+		case DATAPOINT_00:
+		case DATAPOINT_01:
+		case DATAPOINT_02:
+		case DATAPOINT_03:
+		case DATAPOINT_04:
+		case DATAPOINT_05:
+		case DATAPOINT_06:
+		case DATAPOINT_07:
+		case DATAPOINT_08:
+		case DATAPOINT_09:
+		case DATAPOINT_10:
+		case DATAPOINT_11:
+		case DATAPOINT_12:
+		case DATAPOINT_13:
+			changed = move_datapoint(Button);
+			break;
+		case DATAPOINT_BOX:
+			add_datapoint(mousey);
+			changed = TRUE;
+			break;
+		case COLRUN_RADIAL:
+			if (colrun_type != COLRUN_RADIAL)
+			{
+				smurf_struct->module_mode = M_CROSSHAIR;
+				colrun_type = COLRUN_RADIAL;
+				changed = TRUE;
+			}
+			break;
+		case COLRUN_LINEAR:
+			if (colrun_type != COLRUN_LINEAR)
+			{
+				smurf_struct->module_mode = M_CH_OFF;
+				colrun_type = COLRUN_LINEAR;
+				changed = TRUE;
+			}
+			break;
+		case START:
+			smurf_struct->module_mode = M_STARTED;
+			break;
+		case PREVIEW:
+			changed = TRUE;
+			break;
+		default:
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		}
+		if (changed)
+		{
+			compute_preview(&preview);
+			win->picture = &preview;
+			smurf_struct->module_mode = M_MODPIC;
+		}
+		break;
+
+	case MKEVT:
+		if (smurf_struct->event_par[0] == START)
+			smurf_struct->module_mode = M_STARTED;
+		break;
+
+	case MDITHER_READY:
+		redraw_window(win, NULL, PREVIEW, 0);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MCH_DEFCOO:
+		smurf_struct->event_par[0] = mx;
+		smurf_struct->event_par[1] = my;
+		smurf_struct->module_mode = M_CHDEFCOO;
+		break;
+
+	case MCH_COORDS:
+		mx = smurf_struct->event_par[0];
+		my = smurf_struct->event_par[1];
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MEXEC:
+		colrun_direction = atoi(maintree[COLRUN_DIR].ob_spec.tedinfo->te_ptext);
+		do_colrun(smurf_struct, smurf_struct->smurf_pic, colrun_direction);
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+	case MTERM:
+		smurf_struct->services->SMfree(win);
+		smurf_struct->services->SMfree(preview.pic_data);
+		smurf_struct->module_mode = M_EXIT;
+		break;
+
+	case GETCONFIG:
+		colrun_direction = atoi(maintree[COLRUN_DIR].ob_spec.tedinfo->te_ptext);
+		config = smurf_struct->services->SMalloc(sizeof(*config));
+		config->num_datapoints = num_datapoints;
+		config->colrun_type = colrun_type;
+		config->colrun_direction = colrun_direction;
+		for (i = 0; i < NUM_DATA_POINTS; i++)
+		{
+			config->datapoint_red[i] = datapoint_red[i];
+			config->datapoint_green[i] = datapoint_green[i];
+			config->datapoint_blue[i] = datapoint_blue[i];
+			config->datapoint_pos[i] = datapoint_pos[i];
+		}
+		*((CONFIG **)&smurf_struct->event_par[0]) = config;
+		smurf_struct->event_par[2] = (WORD)sizeof(*config);
+		smurf_struct->module_mode = M_CONFIG;
+		break;
+
+	case CONFIG_TRANSMIT:
+		config = *((CONFIG **)&smurf_struct->event_par[0]);
+		num_datapoints = config->num_datapoints;
+		colrun_type = config->colrun_type;
+		colrun_direction = config->colrun_direction;
+		maintree[COLRUN_RADIAL].ob_state &= ~OS_SELECTED;
+		maintree[COLRUN_LINEAR].ob_state &= ~OS_SELECTED;
+		maintree[colrun_type].ob_state |= OS_SELECTED;
+		itoa(colrun_direction, maintree[COLRUN_DIR].ob_spec.tedinfo->te_ptext, 10);
+		redraw_window(win, NULL, COLRUN_DIR, 0);
+		for (i = 0; i < NUM_DATA_POINTS - 2; i++) /* why -2 here? */
+		{
+			datapoint_red[i] = config->datapoint_red[i];
+			datapoint_green[i] = config->datapoint_green[i];
+			datapoint_blue[i] = config->datapoint_blue[i];
+			datapoint_pos[i] = config->datapoint_pos[i];
+		}
+		for (i = 2; i < NUM_DATA_POINTS; i++)
+		{
+			maintree[i + DATAPOINT_00 - 2].ob_y = datapoint_pos[i];
+			if (datapoint_pos[i] != 0)
+				maintree[i + DATAPOINT_00 - 2].ob_flags &= ~OF_HIDETREE;
+		}
+		select_datapoint(DATAPOINT_FIRST);
+		compute_preview(&preview);
+		smurf_struct->module_mode = M_MODPIC;
+		break;
+	}
 }

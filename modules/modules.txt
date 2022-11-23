@@ -16,7 +16,7 @@ chanel5.sem    0.50    0.50
 chanelmx.sem   0.20    -
 clip.sem       0.50    -        x
 clipnpic.sem   0.50    0.50
-colrun.sem     -       1.00
+colrun.sem     1.00    1.00
 colsat.sem     1.20    -
 displace.sem   -       1.00
 dropshdw.sem   1.21    2.00        !!!

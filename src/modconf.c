@@ -852,7 +852,7 @@ void memorize_emodConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 {
 	char cmp_modname[30];
 	char *textseg;
-	char *cnfblock;
+	void *cnfblock;
 	short index;
 	MOD_INFO *modinfo;
 
@@ -878,7 +878,7 @@ void memorize_emodConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 		free(edit_cnfblock[index]);
 
 
-	cnfblock = *((char **) &smurf_struct->event_par[0]);
+	cnfblock = *((void **) &smurf_struct->event_par[0]);
 	edit_cnflen[index] = smurf_struct->event_par[2];
 
 	edit_cnfblock[index] = malloc(edit_cnflen[index]);
@@ -954,7 +954,6 @@ void transmitConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 	short index;
 	MOD_INFO *modinfo;
 
-
 	/*
 	 * Erstmal muž der passende Index gefunden werden.
 	 * Dazu nehmen wir uns den Namen des Moduls und suchen
@@ -975,8 +974,7 @@ void transmitConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 
 	if (edit_cnfblock[index])
 	{
-		smurf_struct->event_par[0] = (short) ((unsigned long) edit_cnfblock[index] >> 16);
-		smurf_struct->event_par[1] = (short) ((long) edit_cnfblock[index] & 0xFFFF);
+		*((void **) &smurf_struct->event_par[0]) = edit_cnfblock[index];
 		smurf_struct->event_par[2] = edit_cnflen[index];
 
 		module.comm.start_edit_module("", modbase, CONFIG_TRANSMIT, smurf_struct->module_number, smurf_struct);

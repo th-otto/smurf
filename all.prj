@@ -17,6 +17,7 @@ modules\edit\chanel5\chanel5.prj
 modules\edit\chanelmx\chanelmx.prj
 modules\edit\clip.prj
 modules\edit\clipnpic.prj
+modules\edit\colrun\colrun.prj
 modules\edit\colsat.prj
 modules\edit\displace.prj
 modules\edit\dropshdw.prj
@@ -176,7 +177,6 @@ modules\plugin\print\prntplg.prj
 
 ; missing:
 ;modules\edit\bumber.prj
-;modules\edit\colrun.prj
 ;modules\plugin\mrm.prj
 
 ; do not compile:

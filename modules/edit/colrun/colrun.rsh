@@ -327,70 +327,109 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #endif
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
-	{ "Rot", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 4,1 },
-	{ "Richtung", "\0", "\0", SMALL, 0, TE_LEFT, 0x1100, 0x0, -1, 9,1 },
-	{ "linear", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
-	{ "radial", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
-	{ "Verlaufstyp", "\0", "\0", SMALL, 0, TE_LEFT, 0x1100, 0x0, -1, 12,1 },
-	{ "_____", "\0", "\0", SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 },
-	{ "Blau", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 },
-	{ "_____", "\0", "\0", SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 },
-	{ "Gr\201n", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 },
-	{ "_____", "\0", "\0", SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 },
-	{ "Verlauf:", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 9,1 },
-	{ "000", "___\370", "999", IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 4,5 }
+static char colrun_string_0[] = "Rot";
+static char colrun_string_1[] = "";
+static char colrun_string_2[] = "";
+static char colrun_string_3[] = "Richtung";
+static char colrun_string_4[] = "";
+static char colrun_string_5[] = "";
+static char colrun_string_6[] = "linear";
+static char colrun_string_7[] = "";
+static char colrun_string_8[] = "";
+static char colrun_string_9[] = "radial";
+static char colrun_string_10[] = "";
+static char colrun_string_11[] = "";
+static char colrun_string_12[] = "Verlaufstyp";
+static char colrun_string_13[] = "";
+static char colrun_string_14[] = "";
+static char colrun_string_15[] = "_____";
+static char colrun_string_16[] = "";
+static char colrun_string_17[] = "";
+static char colrun_string_18[] = "Blau";
+static char colrun_string_19[] = "";
+static char colrun_string_20[] = "";
+static char colrun_string_21[] = "_____";
+static char colrun_string_22[] = "";
+static char colrun_string_23[] = "";
+static char colrun_string_24[] = "Gr\201n";
+static char colrun_string_25[] = "";
+static char colrun_string_26[] = "";
+static char colrun_string_27[] = "_____";
+static char colrun_string_28[] = "";
+static char colrun_string_29[] = "";
+static char colrun_string_30[] = "Los!";
+static char colrun_string_31[] = "Verlauf:";
+static char colrun_string_32[] = "";
+static char colrun_string_33[] = "";
+static char colrun_string_34[] = "000";
+static char colrun_string_35[] = "___\370";
+static char colrun_string_36[] = "9";
+
+
+static TEDINFO rs_tedinfo[NUM_TI] = {
+	{ colrun_string_0, colrun_string_1, colrun_string_2, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 4,1 },
+	{ colrun_string_3, colrun_string_4, colrun_string_5, SMALL, 0, TE_LEFT, 0x1100, 0x0, -1, 9,1 },
+	{ colrun_string_6, colrun_string_7, colrun_string_8, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
+	{ colrun_string_9, colrun_string_10, colrun_string_11, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
+	{ colrun_string_12, colrun_string_13, colrun_string_14, SMALL, 0, TE_LEFT, 0x1100, 0x0, -1, 12,1 },
+	{ colrun_string_15, colrun_string_16, colrun_string_17, SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 }, /* M_RED_EDIT */
+	{ colrun_string_18, colrun_string_19, colrun_string_20, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 },
+	{ colrun_string_21, colrun_string_22, colrun_string_23, SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 }, /* M_BLUE_EDIT */
+	{ colrun_string_24, colrun_string_25, colrun_string_26, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 },
+	{ colrun_string_27, colrun_string_28, colrun_string_29, SMALL, 0, TE_CNTR, 0x1180, 0x0, -1, 6,1 }, /* M_GREEN_EDIT */
+	{ colrun_string_31, colrun_string_32, colrun_string_33, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 9,1 },
+	{ colrun_string_34, colrun_string_35, colrun_string_36, IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 4,5 } /* COLRUN_DIR */
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
-/* COLRUN */
+static OBJECT rs_object[NUM_OBS] = {
+/* COLRUN_MAIN */
 
 	{ -1, 1, 39, G_BOX, OF_FL3DBAK, OS_SHADOWED, C_UNION(0x11100L), 0,0, 37,2068 },
 	{ 2, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 1037,1, 514,2048 },
 	{ 3, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 1049,2060, 7,2048 },
 	{ 4, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[2]), 15,2061, 8,1 },
 	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[3]), 15,15, 8,1 },
-	{ 6, -1, -1, (43<<8)+G_IBOX, 0x11, OS_SELECTED, C_UNION(0xFF1100L), 12,2061, 10,1 },
-	{ 7, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF1100L), 12,15, 10,1 },
+	{ 6, -1, -1, (43<<8)+G_IBOX, 0x11, OS_SELECTED, C_UNION(0xFF1100L), 12,2061, 10,1 }, /* COLRUN_LINEAR */
+	{ 7, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF1100L), 12,15, 10,1 }, /* COLRUN_RADIAL */
 	{ 8, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[4]), 12,2060, 520,2048 },
-	{ 10, 9, 9, (21<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE8178L), 1805,2, 1,264 },
-	{ 8, -1, -1, (21<<8)+G_BOX, 0x640, OS_NORMAL, C_UNION(0xFF1178L), 0,2311, 1,2048 },
-	{ 11, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[5]), 1036,2058, 1539,3328 },
+	{ 10, 9, 9, (21<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE8178L), 1805,2, 1,264 }, /* M_RED_FHR */
+	{ 8, -1, -1, (21<<8)+G_BOX, 0x640, OS_NORMAL, C_UNION(0xFF1178L), 0,2311, 1,2048 }, /* M_RED_SLIDE */
+	{ 11, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[5]), 1036,2058, 1539,3328 }, /* M_RED_EDIT */
 	{ 12, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[6]), 29,1, 3,2048 },
-	{ 14, 13, 13, (21<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE8178L), 1821,2, 1,264 },
-	{ 12, -1, -1, (21<<8)+G_BOX, 0x640, OS_NORMAL, C_UNION(0xFF1178L), 0,2311, 1,2048 },
-	{ 15, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[7]), 1052,2058, 1539,3328 },
+	{ 14, 13, 13, (21<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE8178L), 1821,2, 1,264 }, /* M_BLUE_FHR */
+	{ 12, -1, -1, (21<<8)+G_BOX, 0x640, OS_NORMAL, C_UNION(0xFF1178L), 0,2311, 1,2048 }, /* M_BLUE_SLIDE */
+	{ 15, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[7]), 1052,2058, 1539,3328 }, /* M_BLUE_EDIT */
 	{ 16, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[8]), 21,1, 3,2048 },
-	{ 18, 17, 17, (21<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE8178L), 1813,2, 1,264 },
-	{ 16, -1, -1, (21<<8)+G_BOX, 0x640, OS_NORMAL, C_UNION(0xFF1178L), 0,2311, 1,2048 },
-	{ 19, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[9]), 1044,2058, 1539,3328 },
-	{ 20, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION("Los!"), 26,2066, 8,1 },
-	{ 21, -1, -1, G_BOX, OF_FL3DBAK, OS_SELECTED, C_UNION(0xFF1101L), 258,258, 2,16 },
-	{ 38, 22, 37, G_BOX, OF_FL3DBAK, OS_SELECTED, C_UNION(0xFE1101L), 1796,258, 2,2064 },
-	{ 23, -1, -1, (21<<8)+G_BOX, 0x201, OS_SELECTED, C_UNION(0x11100L), 0,0, 2,1280 },
-	{ 24, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,16, 2,1280 },
-	{ 25, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2050, 2,2048 },
-	{ 26, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2051, 2,2048 },
-	{ 27, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2052, 2,2048 },
-	{ 28, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2053, 2,2048 },
-	{ 29, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2054, 2,2048 },
-	{ 30, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2055, 2,2048 },
-	{ 31, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2056, 2,2048 },
-	{ 32, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2057, 2,2048 },
-	{ 33, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2058, 2,2048 },
-	{ 34, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2059, 2,2048 },
-	{ 35, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2060, 2,2048 },
-	{ 36, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2061, 2,2048 },
-	{ 37, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2062, 2,2048 },
-	{ 21, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,3328, 2,2048 },
+	{ 18, 17, 17, (21<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE8178L), 1813,2, 1,264 }, /* M_GREEN_FHR */
+	{ 16, -1, -1, (21<<8)+G_BOX, 0x640, OS_NORMAL, C_UNION(0xFF1178L), 0,2311, 1,2048 }, /* M_GREEN_SLIDE */
+	{ 19, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[9]), 1044,2058, 1539,3328 }, /* M_GREEN_EDIT */
+	{ 20, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(colrun_string_30), 26,2066, 8,1 }, /* START */
+	{ 21, -1, -1, G_BOX, OF_FL3DBAK, 0x11, C_UNION(0xFF1101L), 258,258, 2,16 }, /* PREVIEW */
+	{ 38, 22, 37, G_BOX, OF_FL3DBAK, OS_SELECTED, C_UNION(0xFE1101L), 1796,258, 2,2064 }, /* DATAPOINT_BOX */
+	{ 23, -1, -1, (21<<8)+G_BOX, 0x201, OS_SELECTED, C_UNION(0x11100L), 0,0, 2,1280 }, /* DATAPOINT_FIRST */
+	{ 24, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,16, 2,1280 }, /* DATAPOINT_LAST */
+	{ 25, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2050, 2,2048 }, /* DATAPOINT_00 */
+	{ 26, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2051, 2,2048 }, /* DATAPOINT_01 */
+	{ 27, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2052, 2,2048 }, /* DATAPOINT_02 */
+	{ 28, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2053, 2,2048 }, /* DATAPOINT_03 */
+	{ 29, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2054, 2,2048 }, /* DATAPOINT_04 */
+	{ 30, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2055, 2,2048 }, /* DATAPOINT_05 */
+	{ 31, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2056, 2,2048 }, /* DATAPOINT_06 */
+	{ 32, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2057, 2,2048 }, /* DATAPOINT_07 */
+	{ 33, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2058, 2,2048 }, /* DATAPOINT_08 */
+	{ 34, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2059, 2,2048 }, /* DATAPOINT_09 */
+	{ 35, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2060, 2,2048 }, /* DATAPOINT_10 */
+	{ 36, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2061, 2,2048 }, /* DATAPOINT_11 */
+	{ 37, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,2062, 2,2048 }, /* DATAPOINT_12 */
+	{ 21, -1, -1, (21<<8)+G_BOX, 0x201, OS_NORMAL, C_UNION(0x11100L), 0,3328, 2,2048 }, /* DATAPOINT_13 */
 	{ 39, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[10]), 1281,257, 6,2048 },
-	{ 0, -1, -1, G_FTEXT, 0x428, OS_NORMAL, C_UNION(&rs_tedinfo[11]), 1050,2061, 4,1 }
+	{ 0, -1, -1, G_FTEXT, 0x428, OS_NORMAL, C_UNION(&rs_tedinfo[11]), 1050,2061, 4,1 } /* COLRUN_DIR */
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
-	&rs_object[0] /* COLRUN */
+static OBJECT *rs_trindex[NUM_TREE] = {
+	&rs_object[0] /* COLRUN_MAIN */
 };
 
 
