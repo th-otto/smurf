@@ -51,6 +51,12 @@
 #endif
 #include "xrsrc.h"
 
+#ifndef cdecl
+#ifndef __PUREC__
+#define cdecl
+#endif
+#endif
+
 #ifndef TRUE
 #define TRUE	1
 #endif
