@@ -34,13 +34,18 @@
 #include "colrun.rsh"
 
 
+#undef COUNTRY
+#define COUNTRY 1
 
 #if COUNTRY == 1
-#define TEXT1 "Farbverlauf"
+#define TEXT1  "Farbverlauf"
+#define ALERT1 "[1][Es kînnen nur 16 StÅtzpunkte|gesetzt werden!][ Ok ]"
 #elif COUNTRY == 0
 #define TEXT1 "Color gradient"
+#define ALERT1 "[1][You can only define 16|interpolation points!][ Ok ]"
 #else
 #define TEXT1 "Color gradient"
+#define ALERT1 "[1][You can only define 16|interpolation points!][ Ok ]"
 #endif
 
 
@@ -105,10 +110,10 @@ MOD_ABILITY module_ability = {
 	0 /* Extra-Flag */ 
 };
 
-short num_datapoints = 2;
-short x137f6 = 0;
-short colrun_direction = 90;
-short colrun_type = COLRUN_LINEAR; /* FIXME: should not use resource IDs here, because written to config file */
+static short num_datapoints = 2;
+static short cur_datapoint = 0;
+static short colrun_direction = 90;
+static short colrun_type = COLRUN_LINEAR; /* FIXME: should not use resource IDs here, because written to config file */
 
 #define NUM_DATA_POINTS 16
 
@@ -118,33 +123,34 @@ typedef struct {
 	uint8_t datapoint_red[NUM_DATA_POINTS + 1];
 	uint8_t datapoint_green[NUM_DATA_POINTS + 1];
 	uint8_t datapoint_blue[NUM_DATA_POINTS + 1];
-	uint8_t x14257[NUM_DATA_POINTS + 1];
+	uint8_t datapoint_pos[NUM_DATA_POINTS + 1];
 	short colrun_direction;
 } CONFIG;
 
 
-CONFIG *config;
-SLIDER red_slider;
-SLIDER green_slider;
-SLIDER blue_slider;
-OBJECT *maintree;
-WINDOW *win;
-SMURF_PIC *smurf_pic;
-SMURF_PIC preview;
-uint8_t datapoint_red[NUM_DATA_POINTS + 1];
-uint8_t datapoint_green[NUM_DATA_POINTS + 1];
-uint8_t datapoint_blue[NUM_DATA_POINTS + 1];
-uint8_t x14257[NUM_DATA_POINTS + 1];
+static CONFIG *config;
+static SLIDER red_slider;
+static SLIDER green_slider;
+static SLIDER blue_slider;
+static OBJECT *maintree;
+static WINDOW *win;
+static SMURF_PIC *smurf_pic;
+static SMURF_PIC preview;
+static uint8_t datapoint_red[NUM_DATA_POINTS + 1];
+static uint8_t datapoint_green[NUM_DATA_POINTS + 1];
+static uint8_t datapoint_blue[NUM_DATA_POINTS + 1];
+static uint8_t datapoint_pos[NUM_DATA_POINTS + 1];
 
-WORD mx, my;
-void (*set_slider)(SLIDER *, long);
-void (*redraw_window)(WINDOW *, GRECT *, WORD, WORD);
+static WORD mx, my;
+static void (*set_slider)(SLIDER *, long);
+static void (*redraw_window)(WINDOW *, GRECT *, WORD, WORD);
 
 
+static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction);
 static void compute_preview(SMURF_PIC *preview);
 static BOOLEAN x11092(WORD button);
-static void x112b4(WORD mousey);
-static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction);
+static void add_datapoint(WORD mousey);
+static void del_datapoint(short datapoint);
 static void x113d6(WORD button);
 
 
@@ -233,14 +239,14 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		/*--------------------- -------------------*/
 		datapoint_red[0] = datapoint_green[0] = datapoint_blue[0] = 0;
 		datapoint_red[1] = datapoint_green[1] = datapoint_blue[1] = 255;
-		x14257[0] = 0;
-		x14257[1] = 255;
+		datapoint_pos[0] = 0;
+		datapoint_pos[1] = 255;
 		
 		maintree[DATAPOINT_LAST].ob_y = 255;
 		for (i = DATAPOINT_00; i <= DATAPOINT_13; i++)
 		{
 			maintree[i].ob_flags |= OF_HIDETREE;
-			x14257[i - DATAPOINT_00 + 2] = 0;
+			datapoint_pos[i - DATAPOINT_00 + 2] = 0;
 		}
 		
 		preview.pic_width = 16;
@@ -284,19 +290,19 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		mousex = mousex;
 		if (Button == M_RED_SLIDE || Button == M_RED_FHR)
 		{
-			datapoint_red[x137f6] = slider(&red_slider);
+			datapoint_red[cur_datapoint] = slider(&red_slider);
 		} else if (Button == M_GREEN_SLIDE || Button == M_GREEN_FHR)
 		{
-			datapoint_green[x137f6] = slider(&green_slider);
+			datapoint_green[cur_datapoint] = slider(&green_slider);
 		} else if (Button == M_BLUE_SLIDE || Button == M_BLUE_FHR)
 		{
-			datapoint_blue[x137f6] = slider(&blue_slider);
+			datapoint_blue[cur_datapoint] = slider(&blue_slider);
 		} else if (Button >= DATAPOINT_FIRST && Button <= DATAPOINT_13)
 		{
 			d7 = x11092(Button);
 		} else if (Button == DATAPOINT_BOX)
 		{
-			x112b4(mousey);
+			add_datapoint(mousey);
 		} else if (Button == COLRUN_RADIAL && colrun_type != COLRUN_RADIAL)
 		{
 			smurf_struct->module_mode = M_CROSSHAIR;
@@ -387,7 +393,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			config->datapoint_red[i] = datapoint_red[i];
 			config->datapoint_green[i] = datapoint_green[i];
 			config->datapoint_blue[i] = datapoint_blue[i];
-			config->x14257[i] = x14257[i];
+			config->datapoint_pos[i] = datapoint_pos[i];
 		}
 		smurf_struct->event_par[0] = (WORD)((long)config >> 16);
 		smurf_struct->event_par[1] = (WORD)((long)config);
@@ -414,12 +420,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			datapoint_red[i] = config->datapoint_red[i];
 			datapoint_green[i] = config->datapoint_green[i];
 			datapoint_blue[i] = config->datapoint_blue[i];
-			x14257[i] = config->x14257[i];
+			datapoint_pos[i] = config->datapoint_pos[i];
 		}
 		for (i = 2; i < NUM_DATA_POINTS; i++)
 		{
-			maintree[i + DATAPOINT_00 - 2].ob_y = x14257[i];
-			if (x14257[i] != 0)
+			maintree[i + DATAPOINT_00 - 2].ob_y = datapoint_pos[i];
+			if (datapoint_pos[i] != 0)
 				maintree[i + DATAPOINT_00 - 2].ob_flags &= ~OF_HIDETREE;
 		}
 		x113d6(DATAPOINT_FIRST);
@@ -481,7 +487,7 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 		short j;
 		for (j = 0; j < num_datapoints - 1; j++)
 		{
-			if (x14257[order[j + 1]] < x14257[order[j]])
+			if (datapoint_pos[order[j + 1]] < datapoint_pos[order[j]])
 			{
 				short tmp = order[j];
 				order[j] = order[j + 1];
@@ -492,8 +498,8 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 
 	if (maintree[COLRUN_LINEAR].ob_state & OS_SELECTED)
 	{
-		o112 = fabs(cos((direction * 16384.0) / 16390.0));
-		o122 = fabs(sin((direction * 16384.0) / 16390.0));
+		o112 = fabs(cos((direction * M_PI) / 180.0));
+		o122 = fabs(sin((direction * M_PI) / 180.0));
 		distance = pic->pic_width * o112 + pic->pic_height * o122;
 	} else
 	{
@@ -531,7 +537,7 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	}
 	/* 109e4 */
 	
-	o122 = 16391.0 / distance;
+	o122 = 256.0 / distance;
 	ptr = smurf_struct->services->SMalloc(distance * 3 + 2048);
 	buffer = ptr;
 	for (i = 0; i < (distance / 2) * 3; i += 3)
@@ -554,8 +560,8 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 		redval = (long)datapoint_red[startpoint] << 10;
 		greenval = (long)datapoint_green[startpoint] << 10;
 		blueval = (long)datapoint_blue[startpoint] << 10;
-		ystart = x14257[startpoint] / o122;
-		yend = x14257[endpoint] / o122;
+		ystart = datapoint_pos[startpoint] / o122;
+		yend = datapoint_pos[endpoint] / o122;
 		redinc = (((long)datapoint_red[endpoint] << 10) - redval) / (yend - ystart);
 		greeninc = (((long)datapoint_green[endpoint] << 10) - greenval) / (yend - ystart);
 		blueinc = (((long)datapoint_blue[endpoint] << 10) - blueval) / (yend - ystart);
@@ -573,8 +579,8 @@ static void do_colrun(GARGAMEL *smurf_struct, SMURF_PIC *pic, short direction)
 	/* 10c28 */
 	
 	ptr = buffer + (distance / 2) * 3 + 1024;
-	xdir = cos((direction * 16384.0) / 16390.0) * 16393.0;
-	ydir = sin((direction * 16384.0) / 16390.0) * 16393.0;
+	xdir = cos((direction * M_PI) / 180.0) * 1024.0;
+	ydir = sin((direction * M_PI) / 180.0) * 1024.0;
 	ypos = xpos = 0;
 	xposstart = (-xdir * pic->pic_width) >> 1;
 	ypos = (-ydir * pic->pic_height) >> 1;
@@ -654,7 +660,7 @@ static void compute_preview(SMURF_PIC *preview)
 		{
 			for (j = 0; j < num_datapoints - 1; j++)
 			{
-				if (x14257[order[j + 1]] < x14257[order[j]])
+				if (datapoint_pos[order[j + 1]] < datapoint_pos[order[j]])
 				{
 					short tmp = order[j];
 					order[j] = order[j + 1];
@@ -673,8 +679,8 @@ static void compute_preview(SMURF_PIC *preview)
 		redval = (long)datapoint_red[startpoint] << 10;
 		greenval = (long)datapoint_green[startpoint] << 10;
 		blueval = (long)datapoint_blue[startpoint] << 10;
-		ystart = x14257[startpoint];
-		yend = x14257[endpoint];
+		ystart = datapoint_pos[startpoint];
+		yend = datapoint_pos[endpoint];
 		redinc = (((long)datapoint_red[endpoint] << 10) - redval) / (yend - ystart);
 		greeninc = (((long)datapoint_green[endpoint] << 10) - greenval) / (yend - ystart);
 		blueinc = (((long)datapoint_blue[endpoint] << 10) - blueval) / (yend - ystart);
@@ -697,32 +703,37 @@ static void compute_preview(SMURF_PIC *preview)
 
 static BOOLEAN x11092(WORD button)
 {
-	WORD bstate; /* 100 */
-	WORD dummy; /* 98 */
-	WORD boxx; /* 96 */
-	WORD boxy; /* 94 */
-	WORD buttonx; /* 92 */
-	WORD buttony; /* 90 */
-	WORD buttonw; /* 88 */
-	WORD buttonh; /* 86 */
-	WORD mox; /* 84 */
-	WORD moy; /* 82 */
+	WORD dummy;
+	WORD bstate;
+	WORD boxx;
+	WORD boxy;
+	WORD buttonx;
+	WORD buttony;
+	WORD buttonw;
+	WORD buttonh;
+	WORD mox;
+	WORD moy;
+	GRECT gr;
 	MFORM mform;
-	WORD y; /* d6 */
-	WORD d5;
-	WORD d7;
-	WORD d4;
-	
+	WORD y;
+	WORD buttony_offset;
+	WORD orig_buttony_offset;
+	WORD ydiff;
+	WORD val;
+	short i;
+	WORD unused;
+
 	x113d6(button);
 	objc_offset(maintree, DATAPOINT_BOX, &boxx, &boxy);
-	(void)maintree[DATAPOINT_BOX].ob_width;
-	(void)maintree[DATAPOINT_BOX].ob_height;
+	unused = maintree[DATAPOINT_BOX].ob_width;
+	unused = maintree[DATAPOINT_BOX].ob_height;
+	unused = unused;
 	objc_offset(maintree, button, &buttonx, &buttony);
 	buttonw = maintree[button].ob_width;
 	buttonh = maintree[button].ob_height;
 	y = buttony;
-	d5 = maintree[button].ob_y;
-	d7 = d5;
+	buttony_offset = maintree[button].ob_y;
+	orig_buttony_offset = buttony_offset;
 	if (button == DATAPOINT_FIRST || button == DATAPOINT_LAST)
 	{
 		do
@@ -734,26 +745,107 @@ static BOOLEAN x11092(WORD button)
 		graf_mkstate(&mox, &moy, &bstate, &dummy);
 		if (bstate != 0)
 		{
-			d4 = moy - buttony;
+			ydiff = moy - buttony;
 			graf_mouse(POINT_HAND, &mform);
 			do
 			{
-				graf_mkstate(&mox, &moy, &bstate, &dummy);
-			} while (moy == y && bstate != 0);
+				do
+				{
+					graf_mkstate(&mox, &moy, &bstate, &dummy);
+				} while (moy == y && bstate != 0);
+				maintree[button].ob_y = moy - boxy - ydiff;
+				if (maintree[button].ob_y < 0)
+					maintree[button].ob_y = 0;
+				else if (maintree[button].ob_y > 255)
+					maintree[button].ob_y = 255;
+				redraw_window(win, NULL, button, 0);
+				gr.g_x = buttonx - 1;
+				gr.g_w = buttonw + 2;
+				gr.g_y = buttony_offset + boxy - 5;
+				gr.g_h = buttonh + 10;
+				redraw_window(win, &gr, DATAPOINT_BOX, 0);
+				y = moy;
+				buttony_offset = maintree[button].ob_y;
+				datapoint_pos[button - DATAPOINT_FIRST] = maintree[button].ob_y;
+			} while (bstate != 0);
+			graf_mouse(ARROW, &mform);
+			redraw_window(win, NULL, DATAPOINT_BOX, 0);
+			val = datapoint_pos[button - DATAPOINT_FIRST];
+			if (val == 0 || val == 255)
+			{
+				maintree[button].ob_y = orig_buttony_offset;
+				datapoint_pos[button - DATAPOINT_FIRST] = orig_buttony_offset;
+				del_datapoint(button - DATAPOINT_FIRST);
+			} else
+			{
+				for (i = 0; i < num_datapoints; i++)
+				{
+					if (i != button - DATAPOINT_FIRST && val == datapoint_pos[i])
+					{
+						maintree[button].ob_y = orig_buttony_offset;
+						datapoint_pos[button - DATAPOINT_FIRST] = orig_buttony_offset;
+						del_datapoint(button - DATAPOINT_FIRST);
+					}
+				}
+			}
+			return TRUE;
 		}
 	}
-	/* 112a8 */
 	return FALSE;
 }
 
 
-static void x112b4(WORD mousey)
+static void add_datapoint(WORD mousey)
 {
-	(void)mousey;
+	WORD boxx;
+	WORD boxy;
+
+	if (num_datapoints == NUM_DATA_POINTS)
+	{
+		form_alert(1, ALERT1);
+	} else
+	{
+		objc_offset(maintree, DATAPOINT_BOX, &boxx, &boxy);
+		datapoint_pos[num_datapoints] = mousey - boxy;
+		maintree[num_datapoints + DATAPOINT_FIRST].ob_y = mousey - boxy;
+		maintree[num_datapoints + DATAPOINT_FIRST].ob_flags &= ~OF_HIDETREE;
+		x113d6(num_datapoints + DATAPOINT_FIRST);
+		num_datapoints++;
+	}
+}
+
+
+static void del_datapoint(short datapoint)
+{
+	while (datapoint <= num_datapoints)
+	{
+		datapoint_pos[datapoint] = datapoint_pos[datapoint + 1];
+		datapoint_red[datapoint] = datapoint_red[datapoint + 1];
+		datapoint_green[datapoint] = datapoint_green[datapoint + 1];
+		datapoint_blue[datapoint] = datapoint_blue[datapoint + 1];
+		maintree[datapoint + DATAPOINT_FIRST].ob_y = maintree[datapoint + DATAPOINT_FIRST + 1].ob_y;
+		++datapoint;
+	}
+	datapoint_pos[num_datapoints - 1] = 0;
+	datapoint_red[num_datapoints - 1] = 0;
+	datapoint_green[num_datapoints - 1] = 0;
+	datapoint_blue[num_datapoints - 1] = 0;
+	maintree[num_datapoints + DATAPOINT_FIRST - 1].ob_flags |= OF_HIDETREE;
+	num_datapoints--;
+	x113d6(DATAPOINT_FIRST);
 }
 
 
 static void x113d6(WORD button)
 {
-	(void)button;
+	WORD i;
+	
+	for (i = DATAPOINT_FIRST; i < DATAPOINT_13; i++)
+		maintree[i].ob_state &= ~OS_SELECTED;
+	maintree[button].ob_state |= OS_SELECTED;
+	redraw_window(win, NULL, DATAPOINT_BOX, 0);
+	cur_datapoint = button - DATAPOINT_FIRST;
+	set_slider(&red_slider, datapoint_red[cur_datapoint]);
+	set_slider(&green_slider, datapoint_green[cur_datapoint]);
+	set_slider(&blue_slider, datapoint_blue[cur_datapoint]);
 }

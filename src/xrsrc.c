@@ -719,7 +719,7 @@ static void xfix_cicon(UWORD *col_data, LONG len, WORD old_planes, WORD new_plan
 
 /*****************************************************************************/
 
-static void xrect2array(CONST GRECT *rect, WORD *array)
+static void xrect2array(const GRECT *rect, WORD *array)
 {
 	*array++ = rect->g_x;
 	*array++ = rect->g_y;
@@ -763,7 +763,7 @@ static void draw_bitblk(WORD *p, WORD x, WORD y, WORD w, WORD h, WORD num_planes
 
 /*****************************************************************************/
 
-static WORD CDECL xdraw_cicon(PARMBLK *pb)
+static WORD cdecl xdraw_cicon(PARMBLK *pb)
 {
 	WORD ob_x;
 	WORD ob_y;
@@ -1482,7 +1482,7 @@ static void do_ciconfix(ULONG header, RSXHDR *rsxhdr, LONG rs_len)
 
 /*****************************************************************************/
 
-static WORD rs_read(WORD *global, CONST char *fname)
+static WORD rs_read(WORD *global, const char *fname)
 {
 	WORD i;
 	WORD fh;
@@ -1599,7 +1599,7 @@ void term_xrsrc(void)
 
 /*****************************************************************************/
 
-WORD xrsrc_load(CONST char *fname, WORD *global)
+WORD xrsrc_load(const char *fname, WORD *global)
 {
 	if (!rs_read(global, fname))
 		 return FALSE;
