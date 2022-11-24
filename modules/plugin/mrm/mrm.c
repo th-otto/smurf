@@ -33,8 +33,6 @@
 #include "globdefs.h"
 #include "plugin.h"
 #include "popdefin.h"
-#include "tools.h"
-#include "multi.h"
 
 #undef NUM_STRINGS
 #undef NUM_FRSTR
@@ -49,6 +47,9 @@
 #undef NUM_TREE
 
 #include "country.h"
+
+#undef COUNTRY
+#define COUNTRY 1
 
 #if COUNTRY==1
 #include "de/mrm.rsh"
@@ -71,3 +72,8 @@ PLUGIN_INFO plugin_info = {
 	0									/* und nicht resident. */
 };
 
+
+void plugin_main(PLUGIN_DATA *data)
+{
+	(void)data;
+}

@@ -43,6 +43,8 @@ typedef struct _rs_header {
 #define RSC_SIZEOF_USERBLK   8
 #define RSC_SIZEOF_OBJECT   24
 
+#define CICON_STR_SIZE      12
+
 static char rscname[1024];
 
 #define	 TRUE	1
@@ -210,7 +212,7 @@ int main(int argc, char **argv)
 	long data_size;
 	char *rscname_end;
 	uint32_t ciconsize;
-	uint32_t num_cicons;
+	uint32_t num_ciconblks;
 	
 	if (argc != 2)
 	{
@@ -315,7 +317,7 @@ int main(int argc, char **argv)
 				string_space = 0;
 				imdata_size = 0;
 				ciconsize = 0;
-				num_cicons = 0;
+				num_ciconblks = 0;
 				
 				while (address + gemhdr.rsh_ntree * RSC_SIZEOF_PTR < end &&
 					index >= text_size &&
@@ -363,7 +365,7 @@ int main(int argc, char **argv)
 							unsigned char *ted = buffer + index + file_offset;
 							string_space += getbeshort(ted + 24); /* te_txtlen */
 							string_space += getbeshort(ted + 26); /* te_tmplen */
-							string_space += strlen((char*)buffer + getbelong(ted + 8) + file_offset) + 1; /* te_pvalid */
+							string_space += strlen((char*)buffer + getbelong(ted + 8)) + 1; /* te_pvalid */
 							if (rsh_tedinfo == 0)
 								rsh_tedinfo = index;
 						}
@@ -414,7 +416,6 @@ int main(int argc, char **argv)
 						break;
 					
 					case G_CICON:
-						fprintf(stderr, "cicon %08x\n", index);
 						if (index <= 0 || index + file_offset >= file_size)
 						{
 							ok = FALSE;
@@ -427,8 +428,9 @@ int main(int argc, char **argv)
 							uint32_t data;
 							uint32_t mask;
 							uint32_t ptext;
-							uint32_t mainlist;
+							uint32_t next_res;
 							uint16_t planes;
+							size_t len;
 							
 							gemhdr.rsh_vrsn |= 0x04;
 							cicon = buffer + index + file_offset;
@@ -437,13 +439,16 @@ int main(int argc, char **argv)
 							data = getbelong(cicon + 0);
 							mask = getbelong(cicon + 4);
 							ptext = getbelong(cicon + 8);
-							mainlist = getbelong(cicon + 34);
-							fprintf(stderr, "mask=%08x data=%08x ptext=%08x mainlist=%08x\n", data, mask, ptext, mainlist);
+							next_res = getbelong(cicon + 34);
+							str = (char*)buffer + ptext + file_offset;
+							len = strlen(str) + 1;
+							if (len > CICON_STR_SIZE)
+								string_space += len; /* ib_ptext */
 							masksize = ((wb + 15) >> 4) * 2 * hl;
-							ciconsize += masksize * 2 + RSC_SIZEOF_CICONBLK + 12;
-							while (mainlist != 0)
+							ciconsize += masksize * 2 + RSC_SIZEOF_CICONBLK + CICON_STR_SIZE;
+							while (next_res != 0)
 							{
-								cicon = buffer + mainlist + file_offset;
+								cicon = buffer + next_res + file_offset;
 								planes = getbeshort(cicon + 0);
 								data = getbelong(cicon + 2);
 								if (data)
@@ -457,10 +462,10 @@ int main(int argc, char **argv)
 								mask = getbelong(cicon + 14);
 								if (mask)
 									ciconsize += masksize;
-								mainlist = getbelong(cicon + 18);
+								next_res = getbelong(cicon + 18);
 								ciconsize += RSC_SIZEOF_CICON;
 							}
-							num_cicons++;
+							num_ciconblks++;
 						}
 						break;
 					
@@ -577,6 +582,7 @@ int main(int argc, char **argv)
 				{
 					size_t len;
 					uint32_t cicon;
+					uint16_t num_ext = 3;
 					
 					found++;
 					
@@ -611,11 +617,11 @@ int main(int argc, char **argv)
 					print_header(&gemhdr);
 
 					cicon = 0;
-					if (num_cicons != 0)
+					if (num_ciconblks != 0)
 					{
-						ciconsize += (num_cicons + 1) * RSC_SIZEOF_LONG + 3 * RSC_SIZEOF_LONG;
-						cicon = gemhdr.rsh_rssize + 3 * RSC_SIZEOF_LONG + (num_cicons + 1) * RSC_SIZEOF_LONG;
-						num_cicons = 0;
+						ciconsize += (num_ciconblks + 1) * RSC_SIZEOF_LONG + num_ext * RSC_SIZEOF_LONG;
+						cicon = gemhdr.rsh_rssize + num_ext * RSC_SIZEOF_LONG + (num_ciconblks + 1) * RSC_SIZEOF_LONG;
+						num_ciconblks = 0;
 					}
 					file_size = gemhdr.rsh_rssize + ciconsize;
 					rscbuf = (unsigned char *)malloc(file_size);
@@ -765,26 +771,18 @@ int main(int argc, char **argv)
 								uint16_t wb = getbeshort(icon + 22);
 								uint32_t hl = getbeshort(icon + 24);
 								uint32_t masksize = ((wb + 15) >> 4) * 2 * hl;
-								uint32_t mainlist;
+								uint32_t next_res;
 								uint16_t planes;
-								uint32_t data, mask;
+								uint32_t data, mask, ptext;
+								uint32_t num_cicons;
+								uint32_t ciconblk;
 								
 								dest = cicon;
+								ciconblk = cicon;
 								memcpy(rscbuf + dest, icon, RSC_SIZEOF_CICONBLK);
-								putbelong(rscbuf + gemhdr.rsh_object + 12, num_cicons);
+								putbelong(rscbuf + gemhdr.rsh_object + 12, num_ciconblks);
 								dest += RSC_SIZEOF_CICONBLK;
 								
-								str = (char*)buffer + getbelong(icon + 8) + file_offset;
-								len = strlen(str) + 1;
-								if (len > 12)
-								{
-									fprintf(stderr, "warning: icon text too long\n");
-									len = 12;
-								}
-								memcpy(rscbuf + dest, str, len);
-								putbelong(rscbuf + cicon + 8, dest);
-								dest += 12;
-
 								str = (char*)buffer + getbelong(icon + 0) + file_offset;
 								memcpy(rscbuf + dest, str, masksize);
 								putbelong(rscbuf + cicon, dest);
@@ -792,43 +790,93 @@ int main(int argc, char **argv)
 								
 								str = (char*)buffer + getbelong(icon + 4) + file_offset;
 								memcpy(rscbuf + dest, str, masksize);
-								putbelong(rscbuf + cicon + 4, gemhdr.rsh_imdata);
+								putbelong(rscbuf + cicon + 4, dest);
 								dest += masksize;
 								
-								mainlist = getbelong(icon + 34);
-								while (mainlist != 0)
+								ptext = getbelong(icon + 8);
+								str = (char*)buffer + ptext + file_offset;
+								len = strlen(str) + 1;
+								if (len > CICON_STR_SIZE)
 								{
-									icon = buffer + mainlist + file_offset;
+									memcpy(rscbuf + gemhdr.rsh_string, str, len);
+									putbelong(rscbuf + cicon + 8, gemhdr.rsh_string);
+									gemhdr.rsh_string += len;
+									fprintf(stderr, "warning: icon text too long\n");
+									len = CICON_STR_SIZE;
+								} else
+								{
+									putbelong(rscbuf + cicon + 8, dest);
+								}
+								memcpy(rscbuf + dest, str, len);
+								dest += CICON_STR_SIZE;
+
+								next_res = getbelong(icon + 34);
+								if (next_res != 0)
+									putbelong(rscbuf + ciconblk + 34, dest);
+								else
+									putbelong(rscbuf + ciconblk + 34, 0);
+								num_cicons = 0;
+								while (next_res != 0)
+								{
+									cicon = dest;
+									dest += RSC_SIZEOF_CICON;
+									icon = buffer + next_res + file_offset;
 									planes = getbeshort(icon + 0);
+									putbeshort(rscbuf + cicon + 0, planes);
 									data = getbelong(icon + 2);
 									if (data)
 									{
 										memcpy(rscbuf + dest, buffer + data + file_offset, masksize * planes);
+										putbelong(rscbuf + cicon + 2, dest);
 										dest += masksize * planes;
+									} else
+									{
+										putbelong(rscbuf + cicon + 2, 0);
 									}
 									mask = getbelong(icon + 6);
 									if (mask)
 									{
 										memcpy(rscbuf + dest, buffer + mask + file_offset, masksize);
+										putbelong(rscbuf + cicon + 6, dest);
 										dest += masksize;
+									} else
+									{
+										putbelong(rscbuf + cicon + 6, 0);
 									}
 									data = getbelong(icon + 10);
 									if (data)
 									{
 										memcpy(rscbuf + dest, buffer + data + file_offset, masksize * planes);
+										putbelong(rscbuf + cicon + 10, dest);
 										dest += masksize * planes;
+									} else
+									{
+										putbelong(rscbuf + cicon + 10, 0);
 									}
 									mask = getbelong(icon + 14);
 									if (mask)
 									{
 										memcpy(rscbuf + dest, buffer + mask + file_offset, masksize);
+										putbelong(rscbuf + cicon + 14, dest);
 										dest += masksize;
+									} else
+									{
+										putbelong(rscbuf + cicon + 14, 0);
 									}
-									mainlist = getbelong(icon + 18);
-									ciconsize += RSC_SIZEOF_CICON;
+									next_res = getbelong(icon + 18);
+									if (next_res != 0)
+										putbelong(rscbuf + cicon + 18, dest);
+									else
+										putbelong(rscbuf + cicon + 18, 0);
+									num_cicons++;
 								}
-								num_cicons++;
+								num_ciconblks++;
 								cicon = dest;
+								/*
+								 * in a file, ciconblk.mainlist must be the number of
+								 * CICON structures
+								 */
+								putbelong(rscbuf + ciconblk + 34, num_cicons);
 							}
 							break;
 						}
@@ -873,22 +921,26 @@ int main(int argc, char **argv)
 					if (gemhdr.rsh_string & 1)
 						rscbuf[gemhdr.rsh_string] = '\0';
 					
-					if (num_cicons != 0)
+					if (num_ciconblks != 0)
 					{
 						unsigned char *list;
 						uint32_t i;
 						
 						list = rscbuf + gemhdr.rsh_rssize;
 						putbelong(list + 0 * RSC_SIZEOF_LONG, file_size);
-						putbelong(list + 1 * RSC_SIZEOF_LONG, gemhdr.rsh_rssize + 3 * RSC_SIZEOF_LONG);
+						putbelong(list + 1 * RSC_SIZEOF_LONG, gemhdr.rsh_rssize + num_ext * RSC_SIZEOF_LONG);
 						putbelong(list + 2 * RSC_SIZEOF_LONG, 0);
-						list += 3 * RSC_SIZEOF_LONG;
-						for (i = 0; i < num_cicons; i++)
+						list += num_ext * RSC_SIZEOF_LONG;
+						for (i = 0; i < num_ciconblks; i++)
 							putbelong(list + i * RSC_SIZEOF_LONG, 0);
-						putbelong(list + num_cicons * RSC_SIZEOF_LONG, -1);
+						putbelong(list + num_ciconblks * RSC_SIZEOF_LONG, -1);
 					}
 					
-					assert(cicon == file_size);
+					if (cicon != file_size)
+					{
+						fprintf(stderr, "%08x != %08lx\n", cicon, file_size);
+						assert(cicon == file_size);
+					}
 					write_file(fp, rscbuf, file_size);
 					fclose(fp);
 					free(rscbuf);
