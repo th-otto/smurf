@@ -59,8 +59,6 @@ typedef struct _window WINDOW;
 #  define ASM_NAME(x)
 #endif
 
-#define CNFVERSION  0x04
-
 /*  OS-defines  */
 #define MINT        1
 #define MTOS        2

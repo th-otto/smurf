@@ -423,7 +423,7 @@ void apply_setting(CONFIG *myConfig)
 	win_form[_BGR].ob_state &= ~OS_SELECTED;
 	win_form[Folge].ob_state |= OS_SELECTED;
 
-	redraw_window(&window, NULL, FORMAT_BOX, 1);
+	redraw_window(&window, NULL, FORMAT_BOX, DRAWNOPICTURE);
 
 	return;
 } /* apply_setting */

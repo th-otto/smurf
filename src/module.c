@@ -1164,23 +1164,15 @@ short inform_modules(short message, SMURF_PIC *picture)
 }
 
 
-/* get_proclen -------------------------------------------------
-	Ermittelt die Gesamtl„nge des Prozesses mit der Basepage baspag.
-	----------------------------------------------------------------*/
+/* get_proclen
+   -------------------------------------------------
+   Ermittelt die Gesamtl„nge des Prozesses mit der Basepage baspag.
+   ----------------------------------------------------------------
+ */
 long get_proclen(BASPAG *baspag)
 {
-	long TextLen;
-	long BSSLen;
-	long DataLen;
-	long ProcLen;
-
-	TextLen = baspag->p_tlen;
-	BSSLen = baspag->p_blen;
-	DataLen = baspag->p_dlen;
 	/* BASEPAGE + Textsegment + Datensegment + BSS + Stack */
-	ProcLen = sizeof(BASPAG) + TextLen + DataLen + BSSLen + 1024L;
-
-	return ProcLen;
+	return sizeof(*baspag) + baspag->p_tlen + baspag->p_dlen + baspag->p_blen + 1024L;
 }
 
 
@@ -1437,6 +1429,7 @@ void make_modpreview(WINDOW *wind)
 		SMfree(wind->picture->pic_data);
 		free(wind->picture->palette);
 	} else
+	{
 		for (t = 0; t < mod_inf->how_many_pix; t++)
 		{
 			if (add_pix[t])
@@ -1446,6 +1439,7 @@ void make_modpreview(WINDOW *wind)
 				SMfree(add_pix[t]);
 			}
 		}
+	}
 
 	Dialog.busy.ok();
 	Dialog.busy.dispRAM();

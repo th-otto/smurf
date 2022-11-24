@@ -21,9 +21,9 @@
 ; ***** END LICENSE BLOCK *****
 
 ..\..\..\dist\modules\plugin\mrm.plg
-.C [-C -K -M -P]
+.C [-C -K -M -G -P]
 .C [-I..\..\..\include]
-.C[-Ien]
+.C[-Ide]
 .S[-DPURE_C=1]
 .L [-S=7168]
 =                                       ; list of modules follows...
@@ -32,7 +32,5 @@
 mrm.c
 
 pcstdlib.lib        ; standard library
-pcfltlib.lib        ; floating point library
-pcextlib.lib        ; extended library
 pctoslib.lib        ; TOS library
 pcgemlib.lib        ; AES and VDI library

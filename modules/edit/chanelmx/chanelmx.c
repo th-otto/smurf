@@ -478,8 +478,8 @@ void apply_setting(CONFIG *myConfig)
 	win_form[QB].ob_state &= ~OS_SELECTED;
 	win_form[srcchanel].ob_state |= OS_SELECTED;
 
-	redraw_window(&window, NULL, DEST_BOX, 1);
-	redraw_window(&window, NULL, SRC_BOX, 1);
+	redraw_window(&window, NULL, DEST_BOX, DRAWNOPICTURE);
+	redraw_window(&window, NULL, SRC_BOX, DRAWNOPICTURE);
 
 	service->set_slider(&decksl, myConfig->sdeck);
 

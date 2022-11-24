@@ -20,11 +20,15 @@
  * Total file size:          5238
  */
 
+#ifdef RSC_NAME
 #undef RSC_NAME
+#endif
 #ifndef __ALCYON__
 #define RSC_NAME "mrm"
 #endif
+#ifdef RSC_ID
 #undef RSC_ID
+#endif
 #ifdef mrm
 #define RSC_ID mrm
 #else
@@ -50,7 +54,13 @@
 
 
 
-#define TREE001                            0 /* unknown form */
+#define MODCOMM                            0 /* free form */
+#define COMM_STEP                          2 /* IBOX in tree MODCOMM */
+#define COMM_BOX                           4 /* BOX in tree MODCOMM */
+#define COMM_FIRSTLINE                     5 /* TEXT in tree MODCOMM */
+#define COMM_LASTLINE                     24 /* TEXT in tree MODCOMM */
+#define COMM_LOGFILE                      35 /* IBOX in tree MODCOMM */
+#define COMM_CONT                         36 /* BUTTON in tree MODCOMM */
 
 
 

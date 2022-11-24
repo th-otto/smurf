@@ -365,7 +365,7 @@ int main(int argc, char **argv)
 							unsigned char *ted = buffer + index + file_offset;
 							string_space += getbeshort(ted + 24); /* te_txtlen */
 							string_space += getbeshort(ted + 26); /* te_tmplen */
-							string_space += strlen((char*)buffer + getbelong(ted + 8)) + 1; /* te_pvalid */
+							string_space += strlen((char*)buffer + getbelong(ted + 8) + file_offset) + 1; /* te_pvalid */
 							if (rsh_tedinfo == 0)
 								rsh_tedinfo = index;
 						}

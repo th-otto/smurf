@@ -892,7 +892,7 @@ void f_mpref_change(void)
 	case PREVZOOM_DEC:
 		prev_zoom++;
 		check_clipping();
-		f_make_preview(FALSE);
+		f_make_preview(0);
 		change_object(&wind_s[WIND_MODFORM], PREVZOOM_DEC, OS_UNSEL, 1);
 		break;
 
@@ -900,14 +900,14 @@ void f_mpref_change(void)
 		if (prev_zoom > 1)
 			prev_zoom--;
 		check_clipping();
-		f_make_preview(FALSE);
+		f_make_preview(0);
 		change_object(&wind_s[WIND_MODFORM], PREVZOOM_INC, OS_UNSEL, 1);
 		break;
 
 	case PREVZOOM_RESET:
 		prev_zoom = 1;
 		check_clipping();
-		f_make_preview(FALSE);
+		f_make_preview(0);
 		change_object(&wind_s[WIND_MODFORM], PREVZOOM_RESET, OS_UNSEL, 1);
 		break;
 

@@ -215,83 +215,84 @@ typedef struct
 typedef struct
 {
 	/*------------------ die komplette Resource -------------------*/
-	OBJECT 	*info_window;				/* Smurf-Info	*/
-	OBJECT 	*form_pop;					/* Farbtiefen-Popup	*/
-	OBJECT 	*edit_pop;					/* 	*/
-	OBJECT 	*col_pop;					/* Dithermodul-popup	*/
-	OBJECT 	*display_opt;				/* Display Options*/
-	OBJECT	*pic_form;					/* Pic-Window-Formular	*/
-	OBJECT	*pic_info_form;				/* Pic-Info-Formular	*/
-	OBJECT	*options_form;				/* Smurf-Options-Formular	*/
-	OBJECT	*alert_form;				/* WindAlert-Formular	*/
-	OBJECT	*module_form;				/* Modul-Einstell-Formular	*/
-	OBJECT	*busy_window;				/* Busywindow-Formular	*/
-	OBJECT	*modules_window;			/* Edit-Modullisten-Formular	*/
-	OBJECT	*newpic_window;				/* Neues-Bild-Formular	*/
-	OBJECT	*exmod_window;				/* Expormodul-Formular */
-	OBJECT	*form_picmanager;			/* Bild-Manager		*/
-	OBJECT	*export_form;				/* Export-Formular	*/
-	OBJECT	*exp_dp_popup;				/* Farbtiefen fÅr Export	*/
-	OBJECT	*picorder_popup;			/* Bildreihenfolge-Popup	*/
-	OBJECT	*colred_popup;				/* Palettenmodus-Popup */
-	OBJECT	*blockpopup;				/* Blockpopup */
-	OBJECT	*mod_information;			/* Edit-Modulinformation - Dialog */
-	OBJECT	*exmod_info;				/* Exportmodul - Info */
-	OBJECT	*image_order_window;		/* Bildreihenfolge-Window */
-	OBJECT	*transform_window;			/* Bild wandeln */
-	OBJECT	*blocktype_window;			/* Block eingeben */
+	/*   0 */ OBJECT 	*info_window;				/* Smurf-Info	*/
+	/*   4 */ OBJECT 	*form_pop;					/* Farbtiefen-Popup	*/
+	/*   8 */ OBJECT 	*edit_pop;					/* 	*/
+	/*  12 */ OBJECT 	*col_pop;					/* Dithermodul-popup	*/
+	/*  16 */ OBJECT 	*display_opt;				/* Display Options*/
+	/*  20 */ OBJECT	*pic_form;					/* Pic-Window-Formular	*/
+	/*  24 */ OBJECT	*pic_info_form;				/* Pic-Info-Formular	*/
+	/*  28 */ OBJECT	*options_form;				/* Smurf-Options-Formular	*/
+	/*  32 */ OBJECT	*alert_form;				/* WindAlert-Formular	*/
+	/*  36 */ OBJECT	*module_form;				/* Modul-Einstell-Formular	*/
+	/*  40 */ OBJECT	*busy_window;				/* Busywindow-Formular	*/
+	/*  44 */ OBJECT	*modules_window;			/* Edit-Modullisten-Formular	*/
+	/*  48 */ OBJECT	*newpic_window;				/* Neues-Bild-Formular	*/
+	/*  52 */ OBJECT	*exmod_window;				/* Expormodul-Formular */
+	/*  56 */ OBJECT	*form_picmanager;			/* Bild-Manager		*/
+	/*  60 */ OBJECT	*export_form;				/* Export-Formular	*/
+	/*  64 */ OBJECT	*exp_dp_popup;				/* Farbtiefen fÅr Export	*/
+	/*  68 */ OBJECT	*picorder_popup;			/* Bildreihenfolge-Popup	*/
+	/*  72 */ OBJECT	*colred_popup;				/* Palettenmodus-Popup */
+	/*  76 */ OBJECT	*blockpopup;				/* Blockpopup */
+	/*  80 */ OBJECT	*mod_information;			/* Edit-Modulinformation - Dialog */
+	/*  84 */ OBJECT	*exmod_info;				/* Exportmodul - Info */
+	/*  88 */ OBJECT	*image_order_window;		/* Bildreihenfolge-Window */
+	/*  92 */ OBJECT	*transform_window;			/* Bild wandeln */
+	/*  96 */ OBJECT	*blocktype_window;			/* Block eingeben */
 
-	OBJECT	*menu_tree;					/* MenÅleiste */
-	OBJECT 	*u_tree;					/* Radiobutton/Checkbox-Formular	*/
-	OBJECT	*alerts;					/* Alert-Strings */
+	/* 100 */ OBJECT	*menu_tree;					/* MenÅleiste */
+	/* 104 */ OBJECT 	*u_tree;					/* Radiobutton/Checkbox-Formular	*/
+	/* 108 */ OBJECT	*alerts;					/* Alert-Strings */
 
-	char *loadpath;				/* voller Pfad der zuletzt geladenen Datei (256 Bytes) */
-	char *savepath;				/* voller Pfad der zuletzt gespeicherten Datei (256 Bytes) */
-	char *commpath;				/* voller Pfad der zuletzt Åber ein Protokoll empfangenen Datei (256 Bytes)*/
-	char *DraufschmeissBild;	/* D&D-Flag (1 Byte!) */
+	/* 112 */ char *loadpath;				/* voller Pfad der zuletzt geladenen Datei (256 Bytes) */
+	/* 116 */ char *savepath;				/* voller Pfad der zuletzt gespeicherten Datei (256 Bytes) */
+	/* 120 */ char *commpath;				/* voller Pfad der zuletzt Åber ein Protokoll empfangenen Datei (256 Bytes)*/
+	/* 124 */ char *DraufschmeissBild;	/* D&D-Flag (1 Byte!) */
 
-	SYSTEM_INFO *Sys_info;			/* Systemkonfiguration */
+	/* 128 */ SYSTEM_INFO *Sys_info;			/* Systemkonfiguration */
 
-	WINDOW *wind_s;
-	WINDOW *picture_windows;
-	SMURF_PIC **smurf_picture;
-	GARGAMEL **smurf_struct;			/* öbergabestrukturen der Edit-Module */
-	BASPAG **edit_bp;
+	/* 132 */ WINDOW *wind_s;
+	/* 136 */ WINDOW *picture_windows;
+	/* 140 */ SMURF_PIC **smurf_picture;
+	/* 144 */ GARGAMEL **smurf_struct;			/* öbergabestrukturen der Edit-Module */
+	/* 148 */ BASPAG **edit_bp;
 
-	short *picwindthere;
-	short *dialwindthere;
-	short *picthere;
-	short *active_pic;
+	/* 152 */ short *picwindthere;
+	/* 156 */ short *dialwindthere;
+	/* 160 */ short *picthere;
+	/* 164 */ short *active_pic;
 	
-	LIST_FIELD *export_list;
-	LIST_FIELD *edit_list;
-	LIST_FIELD *picture_list;
-	POP_UP *pop_ups;
+	/* 168 */ LIST_FIELD *export_list;
+	/* 172 */ LIST_FIELD *edit_list;
+	/* 176 */ LIST_FIELD *picture_list;
+	/* 180 */ POP_UP *pop_ups;
 
-	DITHER_MOD_INFO * *ditmod_info;
+	/* 184 */ DITHER_MOD_INFO **ditmod_info;
 
-	EXPORT_CONFIG *exp_conf;
-	short anzahl_importmods;
-	short anzahl_editmods;
-	short anzahl_exporter;
-	short anzahl_dithermods;
+	/* 188 */ EXPORT_CONFIG *exp_conf;
+	/* 192 */ short anzahl_importmods;
+	/* 194 */ short anzahl_editmods;
+	/* 196 */ short anzahl_exporter;
+	/* 198 */ short anzahl_dithermods;
 
-	char **edit_modules;			/* Pfade fÅr bis zu 100 Edit-Module */
-	char **edit_module_names;		/* Namen fÅr bis zu 100 Edit-Module */
-	char **export_modules;			/* Pfade fÅr bis zu 100 Export-Module */
-	char **export_module_names;		/* Namen fÅr bis zu 100 Export-Module */
+	/* 200 */ char **edit_modules;			/* Pfade fÅr bis zu 100 Edit-Module */
+	/* 204 */ char **edit_module_names;		/* Namen fÅr bis zu 100 Edit-Module */
+	/* 208 */ char **export_modules;			/* Pfade fÅr bis zu 100 Export-Module */
+	/* 212 */ char **export_module_names;		/* Namen fÅr bis zu 100 Export-Module */
 
-	char **export_cnfblock;			/* Konfigurationsblîcke fÅr die Exporter */
-	short *export_cnflen;			/* LÑnge des jeweiligen Blockes */
+	/* 216 */ char **export_cnfblock;			/* Konfigurationsblîcke fÅr die Exporter */
+	/* 220 */ short *export_cnflen;			/* LÑnge des jeweiligen Blockes */
 
-	WORD *mouse_xpos;
-	WORD *mouse_ypos;
-	WORD *mouse_button;
-	WORD *klicks;
-	WORD *obj;
-	WORD *key_scancode;
-	WORD *key_ascii;
-	WORD *key_at_event;
+	/* 224 */ WORD *mouse_xpos;
+	/* 228 */ WORD *mouse_ypos;
+	/* 232 */ WORD *mouse_button;
+	/* 236 */ WORD *klicks;
+	/* 240 */ WORD *obj;
+	/* 244 */ WORD *key_scancode;
+	/* 248 */ WORD *key_ascii;
+	/* 252 */ WORD *key_at_event;
+	/* 256 */ 
 } SMURF_VARIABLES;
 
 
@@ -308,33 +309,35 @@ typedef struct
 	-----------------------------------------------------------------------*/
 typedef struct
 {
-	WINDOW *wind_struct;					/* evtl. Fenster des Plugins */
-	SERVICE_FUNCTIONS	*services;			/* die Åblichen Dienstfunktionen... */
+	/*  0 */ WINDOW *wind_struct;					/* evtl. Fenster des Plugins */
+	/*  4 */ SERVICE_FUNCTIONS *services;			/* die Åblichen Dienstfunktionen... */
 
 	/* vom Plugin Ñnderbarer Kram: */
-	PLUGIN_FUNCTIONS	*replace;			/* Funktionen zum Ersetzen */
-	ADD_FUNCTIONS		*call;				/* Funktionen zum DranhÑngen */
-	SMURF_VARIABLES		*smurf_vars;		/* Smurf-Variablen fÅrs Modul */
+	/*  8 */ PLUGIN_FUNCTIONS *replace;				/* Funktionen zum Ersetzen */
+	/* 12 */ ADD_FUNCTIONS *call;					/* Funktionen zum DranhÑngen */
+	/* 16 */ SMURF_VARIABLES *smurf_vars;			/* Smurf-Variablen fÅrs Modul */
 
 	/* nur fÅr Lesezugriff durch Plugin: */
-	PLUGIN_FUNCTIONS	*smurf_functions;	/* Smurf-Funktionen zum Aufrufen fÅrs Plugin */
+	/* 20 */ PLUGIN_FUNCTIONS *smurf_functions;	/* Smurf-Funktionen zum Aufrufen fÅrs Plugin */
 
 
 	/* Kommunikation und Information fÅr Smurf */
-	short message;					/* Message */
-	WORD event_par[10];				/* Beim Event betroffenes Objekt und weitere Daten*/
-	WORD mousex,mousey;				/* Mauspos beim Event 			*/
-	WORD klicks;						/* Mausklicks beim Event 		*/
+	/* 24 */ short message;							/* Message */
+	/* 26 */ WORD event_par[10];					/* Beim Event betroffenes Objekt und weitere Daten*/
+	/* 46 */ WORD mousex,mousey;					/* Mauspos beim Event 			*/
+	/* 50 */ WORD klicks;							/* Mausklicks beim Event 		*/
 
-	char	plugin_name[25];		/* erweiterter Plugin-Name f. MenÅtitel */
-	short	plugin_flag;			/* Bit 0+1: GewÅnschte Position in evtl.
-										Branch-Liste:	%_0: egal,
-										sonst			%01: ganz vorne,
-														%11: ganz hinten
-									falls sich mehrere Plugins an dieselbe
-									Funktion anhÑngen wollen. */
-	short id;
-	void /* struct moduleObj */ *module_object;
+	/* 52 */ char	plugin_name[25];				/* erweiterter Plugin-Name f. MenÅtitel */
+	/* 78 */ short	plugin_flag;					/* Bit 0+1: GewÅnschte Position in evtl.
+														Branch-Liste:	%_0: egal,
+														sonst			%01: ganz vorne,
+																		%11: ganz hinten
+														falls sich mehrere Plugins an dieselbe
+														Funktion anhÑngen wollen.
+													 */
+	/* 80 */ short id;
+	/* 82 */ void /* struct moduleObj */ *module_object;
+	/* 86 */
 } PLUGIN_DATA;
 
 

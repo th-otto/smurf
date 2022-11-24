@@ -46,6 +46,8 @@
 
 #define PLOADINFO	0x500c
 
+#define CNFVERSION  0x04
+
 struct ploadinfo
 {
 	short fnamelen;
