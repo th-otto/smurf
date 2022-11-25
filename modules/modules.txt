@@ -28,7 +28,7 @@ extrapol.sem   0.10    -
 freefilt.sem   0.50    0.70        !!!
 gamma.sem      0.20    0.20
 grau.sem       1.20    1.20
-highshad.sem   0.20    0.20
+highshad.sem   0.20    0.20     x
 hsv.sem        1.10    1.10
 interpo.sem    0.10    -
 invert.sem     0.50    0.50

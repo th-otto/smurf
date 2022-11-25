@@ -41,51 +41,52 @@
 
 #define TIMER 0
 
-MOD_INFO module_info = {"Highlight/Shadow",
-						0x0020,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						"Highlight",
-						"Shadow",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						0, 100,
-						0, 100,
-						0, 64,
-						0, 64,
-						0, 10,
-						0, 10,
-						0, 10,
-						0, 10,
-						100, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	"Highlight/Shadow",
+	0x0020,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	"Highlight",
+	"Shadow",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	0, 100,
+	0, 100,
+	0, 64,
+	0, 64,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	100, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						2, 4, 7, 8, 16,
-						24, 0, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						0
-						};
+	2, 4, 7, 8, 16,
+	24, 0, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	0
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -100,231 +101,231 @@ MOD_ABILITY module_ability = {
 
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-	char *data, highlighttab[256], shadowtab[256],
-		 BitsPerPixel, slidvalh, slidvals, r, g, b, bereich;
-
-	int module_id, i, val;
-	unsigned int *data16, width, height;
-
+	uint8_t *data;
+	uint8_t highlighttab[256];
+	uint8_t shadowtab[256];
+	uint8_t BitsPerPixel;
+	uint8_t slidvalh;
+	uint8_t slidvals;
+	uint8_t r, g, b;
+	uint8_t bereich;
+	short i;
+	short val;
+	uint16_t *data16;
+	uint16_t width, height;
 	long sval;
-	unsigned long length, hval;
+	unsigned long length;
+	unsigned long hval;
 
-
-	module_id = smurf_struct->module_number;
-
-/* Wenn das Modul zum ersten Mal gestartet wurde, */
-/* ein Einstellformular anfordern....             */
-	if(smurf_struct->module_mode == MSTART)
+	switch (smurf_struct->module_mode )
 	{
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
+	/* Wenn das Modul zum ersten Mal gestartet wurde, */
+	/* ein Einstellformular anfordern....             */
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
 		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
+		break;
 
-/* Einstellformular wurde mit START verlassen - Funktion ausf”ren */
-	else 
-		if(smurf_struct->module_mode == MEXEC)
-		{
+	case MEXEC:
+	/* Einstellformular wurde mit START verlassen - Funktion ausf”ren */
 #if TIMER
-/* wie schnell sind wir? */
-	init_timer();
+		/* wie schnell sind wir? */
+		init_timer();
 #endif
-			slidvalh = (int)smurf_struct->slide1 * 255 / 100;
-			slidvals = (int)smurf_struct->slide2 * 255 / 100;
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
+		slidvalh = smurf_struct->slide1 * 255 / 100;
+		slidvals = smurf_struct->slide2 * 255 / 100;
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
 
-			bereich = 255 - slidvals;
+		bereich = 255 - slidvals;
 
-			hval = (long)(255 - slidvalh) * 100 / slidvalh + 1;
-			i = 0;
-			do 
+		hval = (long) (255 - slidvalh) * 100 / slidvalh + 1;
+		i = 0;
+		do
+		{
+			val = (i + i * hval / 100);
+			if (val > 255)
+				val = 255;
+			highlighttab[i] = val;
+
+			sval = (bereich - (i - slidvals)) * 100 / (bereich + 10);
+			val = (i - i * sval / 100);
+			if (val < 0)
+				val = 0;
+			shadowtab[i] = val;
+		} while (++i < 255);
+
+		if (BitsPerPixel != 16)
+		{
+			if (BitsPerPixel == 24)
 			{
-				val = (int)(i + i * hval / 100);
-				if(val > 255)
-					val = 255;
-				highlighttab[i] = val;
+				width = smurf_struct->smurf_pic->pic_width;
+				height = smurf_struct->smurf_pic->pic_height;
+				data = smurf_struct->smurf_pic->pic_data;
 
-				sval = (bereich - (i - slidvals)) * 100 / (bereich + 10);
-				val = (int)(i - i * sval / 100);
-				if(val < 0)
-					val = 0;
-				shadowtab[i] = val;
-			} while(++i < 255);
-
-			if(BitsPerPixel != 16)
+				length = (unsigned long) width *(unsigned long) height;
+			} else
 			{
-				if(BitsPerPixel == 24)
-				{
-					width = smurf_struct->smurf_pic->pic_width;
-					height = smurf_struct->smurf_pic->pic_height;
-					data = smurf_struct->smurf_pic->pic_data;
+				data = smurf_struct->smurf_pic->palette;
+				length = 256L;
+			}
 
-					length = (unsigned long)width * (unsigned long)height;
-				}
-				else
+			if (slidvalh < 255 && slidvals > 0)
+			{
+				do
 				{
-					data = smurf_struct->smurf_pic->palette;
-					length = 256L;
-				}
+					/* Rot */
+					if (*data >= slidvalh)
+					{
+						*data++ = 255;
+					} else
+					{
+						*data = highlighttab[*data];
+						if (*data <= slidvals)
+							*data++ = 0;
+						else
+							*data++ = shadowtab[*data];
+					}
 
-				if(slidvalh < 255 && slidvals > 0)
-					do
+					/* Gr］ */
+					if (*data >= slidvalh)
+					{
+						*data++ = 255;
+					} else
+					{
+						*data = highlighttab[*data];
+						if (*data <= slidvals)
+							*data++ = 0;
+						else
+							*data++ = shadowtab[*data];
+					}
+
+					/* Blau */
+					if (*data >= slidvalh)
+						*data++ = 255;
+					else
+					{
+						*data = highlighttab[*data];
+						if (*data <= slidvals)
+							*data++ = 0;
+						else
+							*data++ = shadowtab[*data];
+					}
+				} while (--length);
+			} else
+			{
+				do
+				{
+					if (slidvalh < 255)
 					{
 						/* Rot */
-						if(*data >= slidvalh)
+						if (*data >= slidvalh)
 							*data++ = 255;
 						else
-						{
-							*data = highlighttab[*data];
-							if(*data <= slidvals)
-								*data++ = 0;
-							else
-								*data++ = shadowtab[*data];
-						}
+							*data++ = highlighttab[*data];
 
 						/* Gr］ */
-						if(*data >= slidvalh)
+						if (*data >= slidvalh)
 							*data++ = 255;
 						else
-						{
-							*data = highlighttab[*data];
-							if(*data <= slidvals)
-								*data++ = 0;
-							else
-								*data++ = shadowtab[*data];
-						}
+							*data++ = highlighttab[*data];
 
 						/* Blau */
-						if(*data >= slidvalh)
+						if (*data >= slidvalh)
 							*data++ = 255;
 						else
-						{
-							*data = highlighttab[*data];
-							if(*data <= slidvals)
-								*data++ = 0;
-							else
-								*data++ = shadowtab[*data];
-						}
-					} while(--length);
-				else
-					do
+							*data++ = highlighttab[*data];
+					}
+
+					if (slidvals > 0)
 					{
-						if(slidvalh < 255)
-						{
-							/* Rot */
-							if(*data >= slidvalh)
-								*data++ = 255;
-							else
-								*data++ = highlighttab[*data];
+						/* Rot */
+						if (*data <= slidvals)
+							*data++ = 0;
+						else
+							*data++ = shadowtab[*data];
 
-							/* Gr］ */
-							if(*data >= slidvalh)
-								*data++ = 255;
-							else
-								*data++ = highlighttab[*data];
+						/* Gr］ */
+						if (*data <= slidvals)
+							*data++ = 0;
+						else
+							*data++ = shadowtab[*data];
 
-							/* Blau */
-							if(*data >= slidvalh)
-								*data++ = 255;
-							else
-								*data++ = highlighttab[*data];
-						}
-	
-						if(slidvals > 0)
-						{
-							/* Rot */
-							if(*data <= slidvals)
-								*data++ = 0;
-							else
-								*data++ = shadowtab[*data];
+						/* Blau */
+						if (*data <= slidvals)
+							*data++ = 0;
+						else
+							*data++ = shadowtab[*data];
+					}
+				} while (--length);
+			}
+		} else
+		{
+			width = smurf_struct->smurf_pic->pic_width;
+			height = smurf_struct->smurf_pic->pic_height;
+			data16 = (uint16_t *) smurf_struct->smurf_pic->pic_data;
 
-							/* Gr］ */
-							if(*data <= slidvals)
-								*data++ = 0;
-							else
-								*data++ = shadowtab[*data];
+			length = (unsigned long) width * (unsigned long) height;
 
-							/* Blau */
-							if(*data <= slidvals)
-								*data++ = 0;
-							else
-								*data++ = shadowtab[*data];
-						}
-				} while(--length);
-			} /* BitsPerPixel != 16? */
-			else
-				if(BitsPerPixel == 16)
+			do
+			{
+				if (slidvalh < 255)
 				{
-					width = smurf_struct->smurf_pic->pic_width;
-					height = smurf_struct->smurf_pic->pic_height;
-					data16 = (unsigned int *)smurf_struct->smurf_pic->pic_data;
-			
-					length = (unsigned long)width * (unsigned long)height;
+					r = ((*data16 & 0xf800) >> 8);
+					if (r >= slidvalh)
+						r = 255;
+					else
+						r = highlighttab[*data];
 
-					do
-					{
-						if(slidvalh < 255)
-						{
-							r = (char)((*data16 & 0xf800) >> 8);
-							if(r >= slidvalh)
-								r = 255;
-							else
-								r = highlighttab[*data];
+					g = ((*data16 & 0x7e0) >> 3);
+					if (g >= slidvalh)
+						g = 255;
+					else
+						g = highlighttab[*data];
 
-							g = (char)((*data16 & 0x7e0) >> 3);
-							if(g >= slidvalh)
-								g = 255;
-							else
-								g = highlighttab[*data];
-
-							b = (char)((*data16 & 0x1f) << 3);
-							if(b >= slidvalh)
-								b = 255;
-							else
-								b = highlighttab[*data];
-						}
-
-						if(slidvals > 0)
-						{
-							r = (char)((*data16 & 0xf800) >> 8);
-							if(r <= slidvals)
-								r = 0;
-							else
-								r = shadowtab[*data];
-
-							g = (char)((*data16 & 0x7e0) >> 3);
-							if(g <= slidvals)
-								g = 0;
-							else
-								g = shadowtab[*data];
-
-							b = (char)((*data16 & 0x1f) << 3);
-							if(b <= slidvals)
-								b = 0;
-							else
-								b = shadowtab[*data];
-						}
-
-						*data16++ = ((r & 0x00f8) << 8) | ((g & 0x00fc) << 3) | (b >> 3);
-					} while(--length);
+					b = ((*data16 & 0x1f) << 3);
+					if (b >= slidvalh)
+						b = 255;
+					else
+						b = highlighttab[*data];
 				}
 
+				if (slidvals > 0)
+				{
+					r = ((*data16 & 0xf800) >> 8);
+					if (r <= slidvals)
+						r = 0;
+					else
+						r = shadowtab[*data];
+
+					g = ((*data16 & 0x7e0) >> 3);
+					if (g <= slidvals)
+						g = 0;
+					else
+						g = shadowtab[*data];
+
+					b = ((*data16 & 0x1f) << 3);
+					if (b <= slidvals)
+						b = 0;
+					else
+						b = shadowtab[*data];
+				}
+
+				*data16++ = ((r & 0x00f8) << 8) | ((g & 0x00fc) << 3) | (b >> 3);
+			} while (--length);
+		}
+
 #if TIMER
-/* wie schnell waren wir? */
-	printf("\n%lu", get_timer());
-	getch();
+		/* wie schnell waren wir? */
+		printf("\n%lu", get_timer());
+		getch();
 #endif
 
 		smurf_struct->module_mode = M_PICDONE;
-		return;
-	}
+		break;
 
 	/* Mterm empfangen - Speicher freigeben und beenden */
-	else 
-		if(smurf_struct->module_mode == MTERM)
-		{
-			smurf_struct->module_mode = M_EXIT;
-			return;
-		}
-
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }
