@@ -128,7 +128,7 @@ void save_config(void)
 
 	Dialog.busy.reset(128, "speichere SMURF.CNF");
 
-	graf_mouse(BUSYBEE, dummy_ptr);
+	graf_mouse(BUSYBEE, NULL);
 
 	strcpy(path, Sys_info.home_path);
 	strncat(path, "\\smurf.cnf", 11);
@@ -153,7 +153,7 @@ void save_config(void)
 		Dialog.busy.reset(128, "Fehler");
 	}
 
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 
 	Dialog.busy.ok();
 }

@@ -194,7 +194,7 @@ int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *par
 		memset(sc_picture, 0x0, mem);
 	}
 
-	graf_mouse(BUSYBEE, dummy_ptr);
+	graf_mouse(BUSYBEE, NULL);
 
 	/****************************************/
 	/*  Palette einfÅgen                    */
@@ -421,7 +421,7 @@ int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *par
 		}
 	}
 
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 	if (bplanes <= 8 || src_depth == 1)
 		free(standard_image);
 	dest->screen_pic = screenpic;
@@ -684,7 +684,7 @@ int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MOD
 		return -1;
 	}
 
-	graf_mouse(BUSYBEE, dummy_ptr);
+	graf_mouse(BUSYBEE, NULL);
 
 	/*
 	 * Zoom sichern und auf Null setzen
@@ -825,7 +825,7 @@ int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MOD
 
 	dest->zoom = oldzoom;
 
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 
 	dest->screen_pic = standard_image;
 

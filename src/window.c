@@ -381,7 +381,7 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, WORD startob, WORD flags)
 	Window.windGet(window->whandlem, WF_FIRSTXYWH, &box.g_x, &box.g_y, &box.g_w, &box.g_h);
 
 	if (!(flags & DRAWNOPICTURE))
-		graf_mouse(M_OFF, dummy_ptr);
+		graf_mouse(M_OFF, NULL);
 	if (wind_update(BEG_UPDATE) == 0)
 		return;
 
@@ -577,7 +577,7 @@ void f_redraw_window(WINDOW *window, GRECT *mwind, WORD startob, WORD flags)
 	wind_update(END_UPDATE);
 
 	if (!(flags & DRAWNOPICTURE))
-		graf_mouse(M_ON, dummy_ptr);
+		graf_mouse(M_ON, NULL);
 }
 /* draw_iconified ---------------------------------------------------
 	šbernimmt den Redraw eines Ikonifizierten Fensters window. vdiclip
@@ -1397,7 +1397,7 @@ void scrollWindowRT(WINDOW *window, WORD xamount, WORD yamount)
 	/*
 	 * sichtbare Ausschnitte anhand der Rechteckliste verschieben 
 	 */
-	graf_mouse(M_OFF, dummy_ptr);
+	graf_mouse(M_OFF, NULL);
 	while (box.g_w > 0 && box.g_h > 0)
 	{
 		if (Window.rcIntersect(&work, &box, &box))
@@ -1565,7 +1565,7 @@ void scrollWindowRT(WINDOW *window, WORD xamount, WORD yamount)
 		Window.windGet(window->whandlem, WF_NEXTXYWH, &box.g_x, &box.g_y, &box.g_w, &box.g_h);
 	}
 
-	graf_mouse(M_ON, dummy_ptr);
+	graf_mouse(M_ON, NULL);
 }
 
 
@@ -2048,7 +2048,7 @@ WORD f_alert(char *alertstring, char *b1, char *b2, char *b3, WORD defbt)
 	long len;
 	OBJECT *alert;
 
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 
 	if (Sys_info.window_alert & OS_SELECTED)
 	{

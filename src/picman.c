@@ -168,10 +168,10 @@ void f_picman(void)
 				objc_offset(ob, button, &drag_beginx, &drag_beginy);
 				old_scroll_offset = Dialog.picMan.pictureList.scroll_offset;
 
-				graf_mouse(FLAT_HAND, dummy_ptr);
+				graf_mouse(FLAT_HAND, NULL);
 				strncpy(u_tree[DRAGTXT_INSIDE].TextCast, ob[button].TextCast, 12);
 				f_drag_object(Dialog.picMan.window, button, &drag_endx, &drag_endy, 1, Dialog.picMan.autoScroll);
-				graf_mouse(ARROW, dummy_ptr);
+				graf_mouse(ARROW, NULL);
 
 				/* D&D-Target ermitteln */
 				endwh = wind_find(drag_endx, drag_endy);

@@ -239,12 +239,12 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 		if (mode != MQUERY)
 		{
 			if (mode == MEXEC)
-				graf_mouse(BUSYBEE, dummy_ptr);
+				graf_mouse(BUSYBEE, NULL);
 
 			module_main = (void (*)(GARGAMEL *smurf_struct)) (textseg_begin + MAIN_FUNCTION_OFFSET);
 			module_main(sm_struct);
 
-			graf_mouse(ARROW, dummy_ptr);
+			graf_mouse(ARROW, NULL);
 		}
 
 		if (mode == MQUERY)
@@ -341,12 +341,12 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 		if (message != MQUERY)
 		{
 			if (message == MEXEC)
-				graf_mouse(BUSYBEE, dummy_ptr);
+				graf_mouse(BUSYBEE, NULL);
 
 			export_module_main = (EXPORT_PIC *(*)(GARGAMEL *))(textseg_begin + MAIN_FUNCTION_OFFSET);	/* Main-Funktion holen...   */
 			encoded_pic = export_module_main(sm_struct);	/* ...und aufrufen  */
 
-			graf_mouse(ARROW, dummy_ptr);
+			graf_mouse(ARROW, NULL);
 		}
 
 		if (message == MQUERY || message == MEXTEND)
@@ -1377,7 +1377,7 @@ void make_modpreview(WINDOW *wind)
 
 
 	Dialog.busy.reset(0, "Preview...");
-	graf_mouse(BUSYBEE, dummy_ptr);
+	graf_mouse(BUSYBEE, NULL);
 
 	module.smStruct[mod_index]->event_par[0] = position_markers[mod_index].xpos[0] - wind->xoffset;
 	module.smStruct[mod_index]->event_par[1] = position_markers[mod_index].ypos[0] - wind->yoffset;
@@ -1420,7 +1420,7 @@ void make_modpreview(WINDOW *wind)
 
 	Dialog.busy.enable();
 
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 
 	wind->picture->changed = 0x80;		/* damit's vor dem n„xten Bewegen wieder freigegeben wird */
 

@@ -222,10 +222,10 @@ static void move_crosshair(WINDOW *window)
 
 	do
 	{
-		graf_mouse(M_OFF, dummy_ptr);
+		graf_mouse(M_OFF, NULL);
 		vs_clip(Sys_info.vdi_handle, TRUE, clip);
 		imageWindow.drawCrosshair(window);	/* Positionsmarker zeichnen */
-		graf_mouse(M_ON, dummy_ptr);
+		graf_mouse(M_ON, NULL);
 
 		do
 		{
@@ -238,14 +238,14 @@ static void move_crosshair(WINDOW *window)
 
 		imageWindow.displayCoords(window, omx, omy, 0);
 
-		graf_mouse(M_OFF, dummy_ptr);
+		graf_mouse(M_OFF, NULL);
 		vs_clip(Sys_info.vdi_handle, TRUE, clip);
 		wind_update(BEG_UPDATE);
 		wind_update(BEG_MCTRL);
 		imageWindow.drawCrosshair(window);	/* l”schen... */
 		wind_update(END_MCTRL);
 		wind_update(END_UPDATE);
-		graf_mouse(M_ON, dummy_ptr);
+		graf_mouse(M_ON, NULL);
 
 		/*--------------------- ggfs. Bild scrollen ------*/
 		window_redraw = 0;
@@ -667,7 +667,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 	{
 		imageWindow.removeBlock(picwindow);
 
-		graf_mouse(POINT_HAND, dummy_ptr);
+		graf_mouse(POINT_HAND, NULL);
 
 		picture->blockx = n_mx + picwindow->xoffset;
 		picture->blocky = n_my + picwindow->yoffset;
@@ -721,7 +721,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 	if (!new_block)
 	{
 #if 0
-		graf_mouse(M_OFF, dummy_ptr);
+		graf_mouse(M_OFF, NULL);
 		vs_clip(Sys_info.vdi_handle, TRUE, clip);
 		wind_update(BEG_UPDATE);
 #endif
@@ -730,7 +730,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 #if 0
 		imageWindow.drawBlockbox(picwindow);	/* Blockbox l”schen */
 		wind_update(END_UPDATE);
-		graf_mouse(M_ON, dummy_ptr);
+		graf_mouse(M_ON, NULL);
 #endif
 	}
 
@@ -745,7 +745,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 	do
 	{
 		/*---------------------- Blockbox/Blockicon zeichnen ------*/
-		graf_mouse(M_OFF, dummy_ptr);
+		graf_mouse(M_OFF, NULL);
 
 		if (display_mode == 0)
 		{
@@ -783,7 +783,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 			objc_draw(u_tree, BLOCK_DRAG, MAX_DEPTH, screen.g_x, screen.g_y, screen.g_w, screen.g_h);	/* Objekt neu zeichnen  */
 		}
 
-		graf_mouse(M_ON, dummy_ptr);
+		graf_mouse(M_ON, NULL);
 
 		imageWindow.displayCoords(picwindow, picture->blockx, picture->blocky, 1);
 #if 0
@@ -944,7 +944,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 		/*
 		 * Blockbox/Blockicon wieder l”schen 
 		 */
-		graf_mouse(M_OFF, dummy_ptr);
+		graf_mouse(M_OFF, NULL);
 
 		if (display_mode == 0)
 		{
@@ -967,7 +967,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 			vro_cpyfm(Sys_info.vdi_handle, S_ONLY, savepxy, &buffer, &screenm);	/* Hintergrund restoren */
 		}
 
-		graf_mouse(M_ON, dummy_ptr);
+		graf_mouse(M_ON, NULL);
 
 		/*
 		 * umschalten zwischen Blockbox und Block-Icon?
@@ -1221,7 +1221,7 @@ void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 				out_block = mouse_block_position(picwindow, mouse_xpos, mouse_ypos, &hmode, &vmode);
 				if (out_block)
 				{
-					graf_mouse(OUTLN_CROSS, dummy_ptr);
+					graf_mouse(OUTLN_CROSS, NULL);
 					mouse_type = OUTLN_CROSS;
 				} else
 				{
@@ -1232,11 +1232,11 @@ void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 					else if (hmode && vmode)
 						graf_mouse(USER_DEF, &lrud_arrow);
 					else if (!hmode && !vmode)
-						graf_mouse(FLAT_HAND, dummy_ptr);
+						graf_mouse(FLAT_HAND, NULL);
 				}
 			} else
 			{
-				graf_mouse(THIN_CROSS, dummy_ptr);
+				graf_mouse(THIN_CROSS, NULL);
 				mouse_type = THIN_CROSS;
 			}
 		} else if (event_type == MU_BUTTON)
@@ -1305,7 +1305,7 @@ void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 	{
 		if (!outpos)
 		{
-			graf_mouse(ARROW, dummy_ptr);
+			graf_mouse(ARROW, NULL);
 			imageWindow.nullCoords(picwindow);
 
 			if (!syspalset)

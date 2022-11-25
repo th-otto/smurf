@@ -122,7 +122,6 @@ OBJECT *menu_tree;
 
 OBJECT *u_tree;							/* Zeiger auf Radiobutton/Checkbox-Formular */
 
-MFORM *dummy_ptr;						/* Dummymouse fÅr Maus-Form */
 MFORM lr_arrow, ud_arrow, lrud_arrow;
 long f_len = 0x4b444100L;				/* LÑnge des letzten geladenen Files 'KDA\0' */
 WORD *messagebuf;						/* Zeiger fÅr Messageevents */
@@ -497,7 +496,7 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 
 	Startup = 1;
 
@@ -1549,7 +1548,7 @@ void f_event(void)
 						{
 							if (Display_Opt.palette_mode == PAL_MOUSE)
 								f_set_syspal();
-							graf_mouse(ARROW, dummy_ptr);
+							graf_mouse(ARROW, NULL);
 							if (!nullcoordset)
 								imageWindow.nullCoords(oldpicwin);
 						}
@@ -2205,7 +2204,7 @@ short f_loadpic(char *pic, char *picpath)
 	smurf_picture[picture_to_load] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
 	smurf_picture[picture_to_load]->pic_data = pic;
 
-	graf_mouse(BUSYBEE, dummy_ptr);
+	graf_mouse(BUSYBEE, NULL);
 
 	strcpy(smurf_picture[picture_to_load]->filename, picpath);
 
@@ -2293,7 +2292,7 @@ short f_loadpic(char *pic, char *picpath)
 	Dialog.busy.dispRAM();				/* Wieviel RAM? */
 	actualize_menu();					/* MenÅeintrÑge ENABLEn / DISABLEn */
 
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 
 	/*---- BBOK - Timer einschalten ---*/
 	timer_fx_max[1] = 30;
@@ -3078,7 +3077,7 @@ void f_init_bintable(OBJECT * rsc)
 	WORD index;
 	WORD pxy[4] = { 0, 0, 0, 0 };
 
-	graf_mouse(M_OFF, dummy_ptr);
+	graf_mouse(M_OFF, NULL);
 
 	objc_offset(rsc, 0, &pxy[0], &pxy[1]);
 	pxy[2] = pxy[0];
@@ -3100,7 +3099,7 @@ void f_init_bintable(OBJECT * rsc)
 		planetable[col] = (char) pel;
 	}
 
-	graf_mouse(M_ON, dummy_ptr);
+	graf_mouse(M_ON, NULL);
 }
 
 

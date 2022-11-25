@@ -164,7 +164,7 @@ short get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf)
 		} else if (dd_header.data_type == 0x2e494d47L)
 		{
 							/*----------------- XIMG wurde geschickt ----*/
-			graf_mouse(BUSYBEE, dummy_ptr);
+			graf_mouse(BUSYBEE, NULL);
 
 			f_len = dd_header.data_length;
 			my_wnum = Window.myWindow(window_to_handle->whandlem);
@@ -218,7 +218,7 @@ short get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf)
 			Dialog.busy.dispRAM();		/* Wieviel Ram? */
 			actualize_menu();			/* MenÅeintrÑge ENABLEn / DISABLEn */
 
-			graf_mouse(ARROW, dummy_ptr);
+			graf_mouse(ARROW, NULL);
 		}
 	}
 

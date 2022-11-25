@@ -403,7 +403,6 @@ extern WORD key_ascii;
 extern WORD obj;						/* Objekt beim loslassen des Buttons */
 extern WORD mouse_button, key_at_event;
 
-extern MFORM *dummy_ptr;				/* Dummymouse fÅr Maus-Form */
 extern MFORM lr_arrow, ud_arrow, lrud_arrow;
 extern long f_len;						/* LÑnge des letzten geladenen Files */
 extern WORD *messagebuf;

@@ -74,7 +74,7 @@ void init_roto(void)
 	phi = 0;
 
 	old_timer = Sys_info.Event_Timer;
-	graf_mouse(BUSYBEE, dummy_ptr);
+	graf_mouse(BUSYBEE, NULL);
 
 	Sin = SMalloc((long) 370 * sizeof(*Sin));
 	Cos = SMalloc((long) 370 * sizeof(*Cos));
@@ -158,7 +158,7 @@ void init_roto(void)
 	wind_s[WIND_INFO].resource_form[ROTOBOX].ob_flags &= ~OF_HIDETREE;
 
 	Window.redraw(&wind_s[WIND_INFO], NULL, 0, 0);
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 }
 
 

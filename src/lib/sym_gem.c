@@ -295,13 +295,13 @@ WORD f_pop(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree)
 
 		return (cycled_item);
 	} else
-		graf_mouse(ARROW, dummy_ptr);
+		graf_mouse(ARROW, NULL);
 
 	/*********** Popup ”ffnen: *************/
 	/*----------------------------------- menu_popup m”glich... ----------------*/
 	if (Sys_info.OSFeatures & MPOPUP)
 	{
-		graf_mouse(ARROW, dummy_ptr);
+		graf_mouse(ARROW, NULL);
 		popup_menu.mn_tree = popup_form;	/* Popup-Formular */
 		popup_menu.mn_menu = 0;			/* Vaterobjekt */
 		popup_menu.mn_scroll = 1;		/* Scrolling?   */
@@ -453,7 +453,7 @@ void f_drag(WORD obj, WORD parent, OBJECT *tree)
 		objc_draw(tree, obj, MAX_DEPTH, oxkoo + w - 5 + xmin, oykoo + ymin, 10, h + 10);	/* Neuzeichnen rechter Rand */
 		objc_draw(tree, obj, MAX_DEPTH, oxkoo + xmin, oykoo + h - 5 + ymin, w + 10, 10);	/* Neuzeichnen unterer Rand */
 
-		graf_mouse(FLAT_HAND, dummy_ptr);	/* Zeigehand - Mauszeiger */
+		graf_mouse(FLAT_HAND, NULL);	/* Zeigehand - Mauszeiger */
 		objc_offset(tree, obj, &xpos, &ypos);	/* Dragobjekt - Koo's ermitteln     */
 		graf_dragbox(w, h, xpos, ypos, xmin + 4, ymin + 4, clipw - 8, cliph - 8, &xkoo, &ykoo);	/* Objekt verschieben */
 		xkoo = ((xkoo + 4) >> 3) << 3;	/* Neue Koordinaten SNAPpen */
@@ -602,7 +602,7 @@ short f_rslid(SLIDER *slider_struct)
 	if (klickobj == regler)
 	{
 		objc_offset(rtree, fhr, &fhr_x, &fhr_y);
-		graf_mouse(POINT_HAND, dummy_ptr);	/* Zeigehand - Mauszeiger */
+		graf_mouse(POINT_HAND, NULL);	/* Zeigehand - Mauszeiger */
 
 		do
 		{
@@ -641,7 +641,7 @@ short f_rslid(SLIDER *slider_struct)
 			}
 		} while (ev != MU_BUTTON);
 
-		graf_mouse(ARROW, dummy_ptr);	/* Pfeil - Mauszeiger */
+		graf_mouse(ARROW, NULL);	/* Pfeil - Mauszeiger */
 	} else if (klickobj == fhr)
 	{
 		objc_offset(rtree, regler, &reg_x, &reg_y);
@@ -992,7 +992,7 @@ WORD f_listfield(WINDOW *window, WORD klick_obj, WORD key_scancode, LIST_FIELD *
 		/*--------------- RT-Sliden ----------------*/
 		else if (klick_obj == sl_ob)
 		{
-			graf_mouse(FLAT_HAND, dummy_ptr);
+			graf_mouse(FLAT_HAND, NULL);
 
 			change_object(window, sl_ob, OS_SELECTED, 1);
 
@@ -1062,7 +1062,7 @@ WORD f_listfield(WINDOW *window, WORD klick_obj, WORD key_scancode, LIST_FIELD *
 			}
 
 			change_object(window, sl_ob, OS_UNSEL, 1);
-			graf_mouse(ARROW, dummy_ptr);
+			graf_mouse(ARROW, NULL);
 		}
 
 
@@ -1392,13 +1392,13 @@ void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call,
 		/* Wenn kein Timerevent, Hintergrund retten und Objekt neu zeichnen */
 		if (omx != mousex || omy != mousey || redraw)
 		{
-			graf_mouse(M_OFF, dummy_ptr);
+			graf_mouse(M_OFF, NULL);
 			vro_cpyfm(Sys_info.vdi_handle, S_ONLY, savepxy, &screenm, &buffer);	/* Hintergrund retten */
 
 			u_tree[DRAGTXT].ob_x = obj_xpos;
 			u_tree[DRAGTXT].ob_y = obj_ypos;
 			objc_draw(u_tree, DRAGTXT, MAX_DEPTH, screen.g_x, screen.g_y, screen.g_w, screen.g_h);	/* Objekt neu zeichnen  */
-			graf_mouse(M_ON, dummy_ptr);
+			graf_mouse(M_ON, NULL);
 
 			obx = obj_xpos;
 			oby = obj_ypos;
@@ -1454,9 +1454,9 @@ void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call,
 			savepxy[6] = obw;
 			savepxy[7] = obh;
 
-			graf_mouse(M_OFF, dummy_ptr);
+			graf_mouse(M_OFF, NULL);
 			vro_cpyfm(Sys_info.vdi_handle, S_ONLY, deletepxy, &buffer, &screenm);	/* Hintergrund restoren */
-			graf_mouse(M_ON, dummy_ptr);
+			graf_mouse(M_ON, NULL);
 		}
 
 

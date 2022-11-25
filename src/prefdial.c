@@ -685,7 +685,7 @@ static void f_make_preview(short redraw_flag)
 	f_insert_prefs(&smurf_st, module_preview);
 
 	Dialog.busy.reset(0, "Preview...");
-	graf_mouse(BUSYBEE, dummy_ptr);
+	graf_mouse(BUSYBEE, NULL);
 
 	module.comm.start_edit_module(edit_modules[edit_mod_num], module.bp[edit_mod_num], MEXEC, module.smStruct[edit_mod_num]->module_number, &smurf_st);
 
@@ -734,7 +734,7 @@ static void f_make_preview(short redraw_flag)
 
 	Window.redraw(&wind_s[WIND_MODFORM], NULL, PREV_OUTER, redraw_flag);
 
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 
 	if (mod_inf->how_many_pix == 1)
 	{
@@ -1241,7 +1241,7 @@ void f_move_preview(WINDOW *window, SMURF_PIC *orig_pic, WORD redraw_object)
 
 	graf_mkstate(&omx, &omy, &mbutt, &dummy);	/* immer noch gedrckt? */
 
-	graf_mouse(FLAT_HAND, dummy_ptr);
+	graf_mouse(FLAT_HAND, NULL);
 	wind_update(BEG_UPDATE);
 	wind_update(BEG_MCTRL);
 
@@ -1312,7 +1312,7 @@ void f_move_preview(WINDOW *window, SMURF_PIC *orig_pic, WORD redraw_object)
 
 	wind_update(END_UPDATE);
 	wind_update(END_MCTRL);
-	graf_mouse(ARROW, dummy_ptr);
+	graf_mouse(ARROW, NULL);
 
 	window->picture = old_pic;
 }
