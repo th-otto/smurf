@@ -173,6 +173,6 @@ xga.sim        0.30    0.30
 xwd.sim        0.10    0.10
 
 plugin:
-mrm.plg        -       1.00       Smurf ModComm-Protokoll Plugin
+mrm.plg        1.00    1.00       Smurf ModComm-Protokoll Plugin
 multicon.plg   0.91    0.91     x
 print.plg      1.03    1.02     x

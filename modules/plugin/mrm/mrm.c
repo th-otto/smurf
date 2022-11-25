@@ -28,25 +28,13 @@
 #include <time.h>
 #include "import.h"
 #include "smurf_st.h"
-#include "../../../src/rsc/en/smurf.h"
 #include "smurfine.h"
 #include "globdefs.h"
 #include "plugin.h"
 #include "popdefin.h"
 #include "../../../src/smurf_f.h"
 #include "../../../src/smurfobs.h"
-
-#undef NUM_STRINGS
-#undef NUM_FRSTR
-#undef NUM_UD
-#undef NUM_IMAGES
-#undef NUM_BB
-#undef NUM_FRIMG
-#undef NUM_IB
-#undef NUM_CIB
-#undef NUM_TI
-#undef NUM_OBS
-#undef NUM_TREE
+#include "log.h"
 
 #include "country.h"
 
@@ -164,10 +152,10 @@ static char const result_names[][16] = {
 };
 
 static FILE *logfile = NULL;
-static SERVICE_FUNCTIONS *services;
+SERVICE_FUNCTIONS *services;
 static CLASS_MODULE *module_ptr;
 static CLASS_MODULE module;
-static SMURF_VARIABLES *smurf_vars;
+SMURF_VARIABLES *smurf_vars;
 static OBJECT *maintree;
 static WINDOW win;
 static short my_id;
@@ -271,7 +259,7 @@ void plugin_main(PLUGIN_DATA *data)
 }
 
 
-static void x10234(short message, short module_number, const char *mod_name)
+void log_line(short message, short module_number, const char *mod_name)
 {
 	short i;
 	WORD dummy;
@@ -377,110 +365,4 @@ static void init_windstruct(void)
 
 	win.prev_window = NULL;	/* prev window (WINDOW*) */
 	win.next_window = NULL;	/* next window (WINDOW*) */
-}
-
-
-short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
-{
-	char *textseg_begin;
-	char *dummy = NULL;
-	long mod_magic;
-	short (*module_main)(GARGAMEL *smurf_struct);
-	short module_return; /* d3 */
-	short back;
-	long ProcLen;
-	long temp; /* d4 */
-	long lback;
-	char alstring[80]; /* 86 */
-	BASPAG *mod_basepage; /* a5 */
-	MOD_INFO *module_info;
-	GARGAMEL sm_struct;
-
-	/* Modul als Overlay laden und Basepage ermitteln */
-	temp = Pexec(3, modpath, "", NULL);
-	if (temp < 0)
-	{
-		strcpy(alstring, AL_LOAD_MODULE);
-		strcat(alstring, strrchr(modpath, '\\') + 1);
-		services->f_alert(alstring, NULL, NULL, NULL, 1);
-		module_return = M_STARTERR;
-	} else
-	{
-		mod_basepage = (BASPAG *) temp;
-
-		/* Laenge des gesamten Tochterprozesses ermitteln */
-		ProcLen = get_proclen(mod_basepage);
-		back = _Mshrink(mod_basepage, ProcLen);	/* Speicherblock verkuerzen */
-
-		mod_basepage->p_hitpa = (void *) (mod_basepage + ProcLen); /* BUG: missing cast to char * */
-
-		if (back != 0)
-			services->f_alert(AL_ADJUST_TPA, NULL, NULL, NULL, 1);
-
-#if 0
-		mod_magic = get_modmagic(mod_basepage);	/* Zeiger auf Magic (muss MOD_MAGIC_IMPORT sein!) */
-#else
-		textseg_begin = mod_basepage->p_tbase;
-		mod_magic = *((long *) (textseg_begin + MAGIC_OFFSET));
-#endif
-		if (mod_magic != MOD_MAGIC_IMPORT)
-			return M_MODERR;
-
-		module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
-		sm_struct.smurf_pic = imp_pic;
-		sm_struct.services = services;
-		module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
-		/* BUG: module_number & module_mode not initialized */
-		x10234(sm_struct.module_mode, sm_struct.module_number, module_info->mod_name);
-		
-		lback = Pexec(4, NULL, (char *) mod_basepage, NULL);
-		if (lback < 0)
-			services->f_alert(AL_START_MODULE, NULL, NULL, NULL, 1);
-
-		module_main = (short (*)(GARGAMEL *)) (textseg_begin + MAIN_FUNCTION_OFFSET);
-		module_return = module_main(&sm_struct);
-		x10234(sm_struct.module_mode, -1, module_info->mod_name);
-
-#if 1
-		Pexec(102, dummy, mod_basepage, NULL);	/* Modul systemkonform toeten */
-#endif
-		Mfree(mod_basepage->p_env);
-		Mfree(mod_basepage);			/* Modul-Basepage freigeben */
-	}
-
-	return module_return;
-}
-
-
-BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, short mod_id, GARGAMEL *sm_struct)
-{
-	(void)modpath;
-	(void)edit_basepage;
-	(void)mode;
-	(void)mod_id;
-	(void)sm_struct;
-	x10234(0, 0, 0);
-	return 0;
-}
-
-
-/* get_proclen
-   -------------------------------------------------
-   Ermittelt die Gesamtlaenge des Prozesses mit der Basepage baspag.
-   ----------------------------------------------------------------
- */
-long get_proclen(BASPAG *baspag)
-{
-	long TextLen;
-	long BSSLen;
-	long DataLen;
-	long ProcLen;
-
-	TextLen = baspag->p_tlen;
-	BSSLen = baspag->p_blen;
-	DataLen = baspag->p_dlen;
-	/* BASEPAGE + Textsegment + Datensegment + BSS + Stack */
-	ProcLen = sizeof(*baspag) + TextLen + DataLen + BSSLen + 1001L; /* WTF? why 1001? */
-
-	return ProcLen;
 }

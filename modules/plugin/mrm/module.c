@@ -74,7 +74,7 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	GARGAMEL sm_struct;
 
 	/* Modul als Overlay laden und Basepage ermitteln */
-	temp = Pexec(3, modpath, "", NULL);
+	temp = Pexec(3, modpath, "\0", NULL);
 	if (temp < 0)
 	{
 		strcpy(alstring, AL_LOAD_MODULE);
@@ -139,8 +139,10 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 	long lback;
 	long mod_magic;
 	MOD_ABILITY *mod_abs;
+	MOD_INFO *module_info;
+	void *dummy_ptr;
 
-	if (mod_id < 0 || mod_id >= MAX_MODS - 1)
+	if (mod_id < 0 || mod_id > MAX_MODS - 1)
 		services->f_alert(AL_MODULE_ID, NULL, NULL, NULL, 1);
 
 	/*
@@ -165,75 +167,80 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 				services->f_alert(AL_ADJUST_TPA, NULL, NULL, NULL, 1);
 
 			edit_basepage->p_hitpa = (void *) (edit_basepage + ProcLen); /* BUG: missing cast to char * */
-			if (edit_basepage == NULL) /* BUG: too late */
-				return edit_basepage;
-#if 0
-			mod_magic = get_modmagic(edit_basepage);	/* Zeiger auf Magic (muss MOD_MAGIC_EDIT sein!) */
-#else
-			textseg_begin = edit_basepage->p_tbase;
-			mod_magic = *((long *) (textseg_begin + MAGIC_OFFSET));
-#endif
-			if (mod_magic != MOD_MAGIC_EDIT)
-			{
-				services->f_alert(AL_LOAD_MODULE, NULL, NULL, NULL, 1);
-				return NULL;
-			}
-
-			lback = Pexec(4, NULL, (char *) edit_basepage, NULL);
-			if (lback < 0)
-				services->f_alert(AL_START_MODULE, NULL, NULL, NULL, 1);
 		}
 	}
 
-	if (edit_basepage > 0)
+	if (edit_basepage != NULL)
 	{
-		textseg_begin = (char *) (edit_basepage->p_tbase);
+#if 0
+		mod_magic = get_modmagic(edit_basepage);	/* Zeiger auf Magic (muss MOD_MAGIC_EDIT sein!) */
+#else
+		textseg_begin = edit_basepage->p_tbase;
+		mod_magic = *((long *) (textseg_begin + MAGIC_OFFSET));
+#endif
+		if (mod_magic != MOD_MAGIC_EDIT)
+		{
+			services->f_alert(AL_LOAD_MODULE, NULL, NULL, NULL, 1);
+			return NULL;
+		}
 
 		/* Modulkennung (als wievieltes Modul gestartet?) */
 		if (mode == MSTART)
 			sm_struct->module_number = mod_id;
-
 		/* Message von Smurf */
 		sm_struct->module_mode = mode;	/* 0=laden und Starten, 1=Redraw ausfuehren , -1 = Beenden, 2=aktivieren */
-
+		
 		/* Funktionen einhaengen */
-		sm_struct->services = &global_services;
+		sm_struct->services = services;
 
 		/* EVENT im Modulfenster ! */
 		if (mode == MBEVT || mode == MKEVT || mode == SMURF_AES_MESSAGE)
 		{
-			sm_struct->mousex = mouse_xpos;
-			sm_struct->mousey = mouse_ypos;
-			sm_struct->klicks = klicks;
+			sm_struct->mousex = *smurf_vars->mouse_xpos;
+			sm_struct->mousey = *smurf_vars->mouse_ypos;
+			sm_struct->klicks = *smurf_vars->klicks;
 
 			if (mode != SMURF_AES_MESSAGE)
-				sm_struct->event_par[0] = obj;
+				sm_struct->event_par[0] = *smurf_vars->obj;
 
 			if (mode == MKEVT)
 			{
-				sm_struct->event_par[1] = key_scancode;
-				sm_struct->event_par[2] = key_ascii;
-				sm_struct->event_par[3] = key_at_event;
+				sm_struct->event_par[1] = *smurf_vars->key_scancode;
+				sm_struct->event_par[2] = *smurf_vars->key_ascii;
+				sm_struct->event_par[3] = *smurf_vars->key_at_event;
 			}
 		}
+
+		textseg_begin = (char *) (edit_basepage->p_tbase);
+		module_main = (void (*)(GARGAMEL *smurf_struct)) (textseg_begin + MAIN_FUNCTION_OFFSET);
 
 		if (mode != MQUERY)
 		{
 			if (mode == MEXEC)
 				graf_mouse(BUSYBEE, dummy_ptr);
 
-			module_main = (void (*)(GARGAMEL *smurf_struct)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+			module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+			log_line(sm_struct->module_mode, sm_struct->module_number, module_info->mod_name);
+
+			lback = Pexec(4, NULL, (char *) edit_basepage, NULL);
+			if (lback != 0)
+				services->f_alert(AL_START_MODULE, NULL, NULL, NULL, 1);
+
 			module_main(sm_struct);
+
+			log_line(sm_struct->module_mode, -1, module_info->mod_name);
 
 			graf_mouse(ARROW, dummy_ptr);
 		}
 
+#if 0 /* BUG: not handled */
 		if (mode == MQUERY)
 		{
 			module.bp[mod_id & 0xFF] = edit_basepage;
 			mod_abs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
-			return ((BASPAG *) mod_abs);
+			return (BASPAG *) mod_abs;
 		}
+#endif
 	}
 
 	return edit_basepage;
@@ -256,7 +263,7 @@ long get_proclen(BASPAG *baspag)
 	BSSLen = baspag->p_blen;
 	DataLen = baspag->p_dlen;
 	/* BASEPAGE + Textsegment + Datensegment + BSS + Stack */
-	ProcLen = sizeof(*baspag) + TextLen + DataLen + BSSLen + 1001L; /* WTF? why 1001? */
+	ProcLen = sizeof(*baspag) + TextLen + BSSLen + DataLen + 1001L; /* WTF? why 1001? */
 
 	return ProcLen;
 }

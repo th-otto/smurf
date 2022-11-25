@@ -1,7 +1,5 @@
-extern OBJECT *maintree;
-extern WINDOW win;
-extern void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 extern SERVICE_FUNCTIONS *services;
+extern SMURF_VARIABLES *smurf_vars;
 
 void log_line(short message, short module_number, const char *mod_name);
 

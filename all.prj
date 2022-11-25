@@ -172,12 +172,12 @@ modules\import\xbm.prj
 modules\import\xga.prj
 modules\import\xwd.prj
 
+modules\plugin\mrm\mrm.prj
 modules\plugin\multicnv\multicon.prj
 modules\plugin\print\prntplg.prj
 
 ; missing:
 ;modules\edit\bumber.prj
-;modules\plugin\mrm.prj
 
 ; do not compile:
 ;modules\edit\bumper1.prj

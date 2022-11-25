@@ -25,12 +25,14 @@
 .C [-I..\..\..\include]
 .C[-Ide]
 .S[-DPURE_C=1]
-.L [-S=7168]
+.L [-S=1024]
 =                                       ; list of modules follows...
 ..\plgstart.s                           ; startup code
 
 mrm.c
+module.c
 
+pcfltlib.lib        ; standard library
 pcstdlib.lib        ; standard library
 pctoslib.lib        ; TOS library
 pcgemlib.lib        ; AES and VDI library

@@ -7,7 +7,7 @@ LDFLAGS += -nostartfiles
 MODULES = \
 	$(empty)
 
-SUBDIRS = print multicnv
+SUBDIRS = print multicnv mrm
 
 all:: $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
