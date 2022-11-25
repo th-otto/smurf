@@ -45,6 +45,7 @@
 #include <errno.h>
 #include "import.h"
 #include "demolib.h"
+#include "startup.h"
 #include "smurf.h"
 #include "smurf_st.h"
 #include "smurfine.h"
@@ -203,7 +204,7 @@ WORD TOOLBAR_HEIGHT;
 
 char Smurf_locked;
 char Startup;							/* Hochfahren des ganzen Monster-Systems */
-char startupdial_exist = 0;
+static char startupdial_exist = FALSE;
 
 short num_of_pics;
 
@@ -246,6 +247,18 @@ static BOOLEAN open_vwork(void)
 	}
 	return FALSE;
 }
+
+
+/*---- String im Startup-Dialog setzen und redrawen. Nur verwenden, wenn der Dialog offen ist! ---*/
+void set_startupdial(const char *string)
+{
+	if (startupdial_exist)
+	{
+		strcpy(startrsc[STARTUP_TXT].TextCast, string);
+		objc_draw(startrsc, STARTUP_TXT, 1, sx, sy, sw, sh);
+	}
+}
+
 
 
 /* ------------------------------------------------------------*/
@@ -310,7 +323,7 @@ int main(int argc, const char *argv[])
 	xrsrc_mustexist = FALSE;
 	back = xrsrc_load(rsc_path, startuprsc_global);
 	if (back == TRUE)
-		startupdial_exist = 1;
+		startupdial_exist = TRUE;
 
 	if (startupdial_exist)
 	{
@@ -325,6 +338,7 @@ int main(int argc, const char *argv[])
 	/*
 	 * Smurf Resource Init
 	 */
+	/* FIXME: translate */
 	set_startupdial("Lade und initialisiere Resource...");
 	rsc_path = malloc(257);
 	strcpy(rsc_path, "smurf.rsc");
@@ -347,6 +361,7 @@ int main(int argc, const char *argv[])
 	wind_s[WIND_BUSY].editx = 0;
 
 	/* Display-Optionen  - Defaultwerte eintragen */
+	/* FIXME: translate */
 	set_startupdial("Lade Konfiguration...");
 
 	if (Dialog.dispOpt.tree[PAL_MOUSE].ob_state & OS_SELECTED)
@@ -361,6 +376,7 @@ int main(int argc, const char *argv[])
 	 */
 	if (load_config() == -1)
 	{
+		/* FIXME: translate */
 		set_startupdial("Keine Konfigurationsdatei!");
 		Sys_info.center_dialog = 0;
 		Sys_info.profi_mode = 0;
@@ -393,6 +409,7 @@ int main(int argc, const char *argv[])
 
 	free(stpath);
 
+	/* FIXME: translate */
 	set_startupdial("Initialisiere Oberfl„che...");
 	Dialog.smurfOpt.tree[OPT_CENTER].ob_state = Sys_info.center_dialog;
 	Dialog.smurfOpt.tree[OPT_WINDOWALERT].ob_state = Sys_info.window_alert;
@@ -437,6 +454,7 @@ int main(int argc, const char *argv[])
 	/*
 	 * Zeiger und Felder initialisieren
 	 */
+	/* FIXME: translate */
 	set_startupdial("Initialisiere System...");
 	for (t = 0; t < 25; t++)
 	{
@@ -487,7 +505,8 @@ int main(int argc, const char *argv[])
 
 	if (tt == -1)
 	{
-		wind_update(END_UPDATE);
+		if (startupdial_exist)
+			wind_update(END_UPDATE);
 		form_dial(FMD_FINISH, sx, sy, sw, sh, sx, sy, sw, sh);
 		xrsrc_free(startuprsc_global);
 
@@ -2650,6 +2669,7 @@ short f_init_system(void)
 	vq_extnd(Sys_info.vdi_handle, 1, work_out);
 	Sys_info.bitplanes = work_out[4];
 
+	/* FIXME: translate */
 	set_startupdial("initialisiere Objekte ...");
 	init_moduleObs();
 	init_GuiObs();
@@ -2665,6 +2685,7 @@ short f_init_system(void)
 	DEBUG_MSG(("Smurf AES-ID: %i\n", Sys_info.app_id));
 
 	/*----------------- Globale Dienstfunktionen fr Module einh„ngen --------------*/
+	/* FIXME: translate */
 	set_startupdial("Moduldienste");
 	global_services.busybox = Dialog.busy.draw;
 	global_services.reset_busybox = Dialog.busy.reset;
@@ -2693,6 +2714,7 @@ short f_init_system(void)
 	f_init_palette();
 
 	/*----------------------- Module suchen und Modullisten aufbauen -------------------*/
+	/* FIXME: translate */
 	set_startupdial("Lade Dithermodule...");
 
 	f_scan_dither();
@@ -2708,6 +2730,7 @@ short f_init_system(void)
 	DEBUG_MSG(("  %s, %s, %s, %s, %s \n", col_pop[1].TextCast, col_pop[2].TextCast,
 		col_pop[3].TextCast, col_pop[4].TextCast, col_pop[5].TextCast));
 
+	/* FIXME: translate */
 	set_startupdial("Lade Editmodule...");
 	f_scan_edit();
 	f_generate_listfield(UP_MODULE, DN_MODULE, SBACK_MODULE, SLID_MODULE, ENTRYPARENT,
@@ -2725,6 +2748,7 @@ short f_init_system(void)
 
 	DEBUG_MSG(("Editmodule: %i\n", Dialog.emodList.anzahl));
 
+	/* FIXME: translate */
 	set_startupdial("Lade Exportmodule...");
 	f_scan_export();
 	f_generate_listfield(EMOD_UP, EMOD_DN, EMODSL_PAR, EMOD_SLIDER, EMODULES_BOX,
@@ -2746,11 +2770,13 @@ short f_init_system(void)
 	DEBUG_MSG(("Exportmodule: %i\n", Dialog.expmodList.anzahl));
 
 	/* Plugins Scannen und initialisieren */
+	/* FIXME: translate */
 	set_startupdial("Lade Plugins...");
 	scan_plugins();
 
 	DEBUG_MSG(("Listfeldinit: Bildmanager, "));
 
+	/* FIXME: translate */
 	set_startupdial("Initialisiere Listen...");
 	f_generate_listfield(PM_UP, PM_DN, PMSL_PAR, PM_SLIDER, PM_BOX,
 		(char *) picnames, 0, 8, &Dialog.picMan.pictureList, -1);
