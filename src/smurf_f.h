@@ -464,7 +464,6 @@ extern WORD TOOLBAR_HEIGHT;
 
 extern char Smurf_locked;
 extern char Startup;				/* Hochfahren des ganzen Monster-Systems */
-extern char startupdial_exist;
 extern short num_of_pics;
 
 extern long timer_fx_max[10];
@@ -591,7 +590,7 @@ BOOLEAN get_cookie(unsigned long cookie, unsigned long *value);
 void *SMalloc(long amount);
 int SMfree(void *ptr);
 void exported_SMfree(void *ptr);
-void set_startupdial(char *string);
+void set_startupdial(const char *string);
 float convert_units(short oldunit, short newunit, float dpi);
 char *load_palfile(char *path, WORD *red, WORD *green, WORD *blue, WORD max_cols);
 long get_maxnamelen(const char *path);

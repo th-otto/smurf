@@ -262,7 +262,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 /*-----------------------------------------------------------------	*/
 /* 				Startfunktion fr Export-Modul						*/
 /*-----------------------------------------------------------------	*/
-EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, short module_number)
+EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *export_basepage, GARGAMEL *sm_struct, short module_number)
 {
 	char *textseg_begin;
 	short back;
@@ -273,9 +273,6 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 	MOD_ABILITY *mod_abs;
 	EXPORT_PIC *encoded_pic;
 	EXPORT_PIC *(*export_module_main)(GARGAMEL *smurf_struct);
-	BASPAG *export_basepage;
-
-	export_basepage = (BASPAG *) exbase;
 
 	/*
 	 * Modul als Overlay laden und Basepage ermitteln
@@ -891,7 +888,6 @@ void convert_icon(OBJECT *tree, WORD index)
 	CICONBLK *ciconblk;
 	SMURF_PIC smpic;
 
-
 	/* unter MagiC werden die Icons beim Zeichnen gewandelt */
 	if (Sys_info.OS & MATSCHIG)
 		return;
@@ -921,7 +917,10 @@ void convert_icon(OBJECT *tree, WORD index)
 					imgdata = (WORD *) SMalloc(icon_planelength * icon_bitplanes);
 					memset(imgdata, 0, icon_planelength * icon_bitplanes);
 					memcpy(imgdata, *img_data[t], icon_planelength * ciconblk->mainlist->num_planes);
+#if 0
+					/* original data is from builtin resource and must not be freed */
 					SMfree(*img_data[t]);
+#endif
 					*img_data[t] = imgdata;
 
 					pixbuf = SMalloc(icon_w + 15);
@@ -983,7 +982,10 @@ void convert_icon(OBJECT *tree, WORD index)
 				bplanes = Sys_info.bitplanes;
 				Dialog.busy.ok();
 
+#if 0
+				/* original data is from builtin resource and must not be freed */
 				SMfree(*img_data[t]);
+#endif
 				*img_data[t] = imgdata;
 			}
 		}

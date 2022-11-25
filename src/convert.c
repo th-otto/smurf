@@ -892,6 +892,7 @@ short tfm_rgb_to_grey(SMURF_PIC *picture, uint8_t mode)
 	uint16_t i, x, y, width, height, val16;
 	unsigned long planelength, length, w;
 
+	/* FIXME: translate */
 	Dialog.busy.reset(0, "RGB->Graustufen");
 
 	/* Struktur auslesen */
@@ -1050,13 +1051,15 @@ BOOLEAN test_if_grey(SMURF_PIC *picture)
 	}
 
 	if (BitsPerPixel != 16)
+	{
 		do
 		{
 			r = *data++;
 			g = *data++;
 			b = *data++;
 		} while (r == g && r == b && g == b && --length);
-	else
+	} else
+	{
 		do
 		{
 			pixel16 = *data16++;
@@ -1065,6 +1068,7 @@ BOOLEAN test_if_grey(SMURF_PIC *picture)
 			g = ((pixel16 & 0x7e0) >> 3);
 			b = ((pixel16 & 0x1f) << 3);
 		} while (r == g && r == b && g == b && --length);
+	}
 
 	if (r == g && r == b && g == b)
 	{

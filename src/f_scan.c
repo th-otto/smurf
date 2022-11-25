@@ -165,6 +165,7 @@ void f_scan_edit(void)
 				/*---- gescante Module im Startupdialog hochz„hlen */
 				if (!(Dialog.emodList.anzahl & 3))
 				{
+					/* FIXME: translate */
 					strcpy(edstring, itoa(Dialog.emodList.anzahl, strn, 10));
 					strcat(edstring, " Editmodule");
 					set_startupdial(edstring);
@@ -186,6 +187,7 @@ void f_scan_edit(void)
 		actual = actual->next;
 	}
 
+	/* FIXME: translate */
 	strcpy(edstring, itoa(Dialog.emodList.anzahl, strn, 10));
 	strcat(edstring, " Editmodule");
 	set_startupdial(edstring);
@@ -699,6 +701,7 @@ void f_scan_export(void)
 				if (!(Dialog.expmodList.anzahl & 3))
 				{
 					strcpy(edstring, itoa(Dialog.expmodList.anzahl, strn, 10));
+					/* FIXME: translate */
 					strcat(edstring, " Exporter");
 					set_startupdial(edstring);
 				}
@@ -720,6 +723,7 @@ void f_scan_export(void)
 	}
 
 	strcpy(edstring, itoa(Dialog.expmodList.anzahl, strn, 10));
+	/* FIXME: translate */
 	strcat(edstring, " Exporter");
 	set_startupdial(edstring);
 
@@ -821,7 +825,7 @@ void f_scan_dither(void)
 				dit_baspag->p_hitpa = (void *) ((char *) dit_baspag + ProcLen);
 
 				lback = Pexec(4, NULL, (char *) dit_baspag, NULL);
-				if (lback < 0L)
+				if (lback < 0)
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
 				textseg_begin = dit_baspag->p_tbase;	/* Textsegment-Startadresse holen */

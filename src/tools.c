@@ -28,7 +28,6 @@
 #include <errno.h>
 #include <ctype.h>
 #include "import.h"
-#include "startup.h"
 #include "smurf_st.h"
 #include "smurf_f.h"
 #include "smurf.h"
@@ -356,18 +355,6 @@ void exported_SMfree(void *ptr)
 {
 	SMfree(ptr);
 }
-
-/*---- String im Startup-Dialog setzen und redrawen. Nur verwenden, wenn der Dialog offen ist! ---*/
-void set_startupdial(char *string)
-{
-	if (startupdial_exist)
-	{
-		strcpy(startrsc[STARTUP_TXT].TextCast, string);
-		objc_draw(startrsc, STARTUP_TXT, 1, sx, sy, sw, sh);
-	}
-}
-
-
 
 /*-----------------------------------------------------------------	*/
 /* convert_units													*/
