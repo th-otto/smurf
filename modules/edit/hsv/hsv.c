@@ -247,7 +247,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		case MKEVT:
 			Button = smurf_struct->event_par[0];
 
-			if(Button == START)
+			if(Button == STARTIT)
 			{
 				smurf_struct->module_mode = M_STARTED;
 				return;
@@ -763,7 +763,7 @@ int handle_bevt(unsigned int Button)
 	
 	switch(Button)
 	{
-		case START:	ret = M_STARTED;
+		case STARTIT:	ret = M_STARTED;
 					break;
 
 		case S4_S:	slidcol = service->slider(&colsl);

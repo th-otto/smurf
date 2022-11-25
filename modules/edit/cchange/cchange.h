@@ -20,15 +20,11 @@
  * Total file size:          986
  */
 
-#ifdef RSC_NAME
 #undef RSC_NAME
-#endif
 #ifndef __ALCYON__
 #define RSC_NAME "cchange"
 #endif
-#ifdef RSC_ID
 #undef RSC_ID
-#endif
 #ifdef cchange
 #define RSC_ID cchange
 #else
@@ -55,7 +51,7 @@
 
 
 #define COL_CHANGE         0 /* form/dialog */
-#define START              1 /* BUTTON in tree COL_CHANGE */
+#define STARTIT            1 /* BUTTON in tree COL_CHANGE */
 #define SRC                2 /* IBOX in tree COL_CHANGE */
 #define DST                3 /* IBOX in tree COL_CHANGE */
 #define DST_SMP            4 /* BOX in tree COL_CHANGE */

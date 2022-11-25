@@ -20,15 +20,11 @@
  * Total file size:          990
  */
 
-#ifdef RSC_NAME
 #undef RSC_NAME
-#endif
 #ifndef __ALCYON__
 #define RSC_NAME "hsv"
 #endif
-#ifdef RSC_ID
 #undef RSC_ID
-#endif
 #ifdef hsv
 #define RSC_ID hsv
 #else
@@ -55,7 +51,7 @@
 
 
 #define HSVS_MIR           0 /* form/dialog */
-#define START              1 /* BUTTON in tree HSVS_MIR */
+#define STARTIT            1 /* BUTTON in tree HSVS_MIR */
 #define PREV_BOX           2 /* BOX in tree HSVS_MIR */
 #define S4_E               4 /* BOXTEXT in tree HSVS_MIR */
 #define S4_F               5 /* BOX in tree HSVS_MIR */

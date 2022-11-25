@@ -359,7 +359,7 @@ static char hsv_string_28[] = "";
 static char hsv_string_29[] = "";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ hsv_string_1, hsv_string_2, hsv_string_3, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 8,1 },
 	{ hsv_string_4, hsv_string_5, hsv_string_6, SMALL, 6, TE_CNTR, 0x1180, 0x0, -1, 4,1 }, /* S4_E */
 	{ hsv_string_7, hsv_string_8, hsv_string_9, SMALL, 6, TE_CNTR, 0x1100, 0x0, -1, 2,1 }, /* COMPONENT1 */
@@ -372,11 +372,11 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* HSVS_MIR */
 
 	{ -1, 1, 21, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 1060,2065 },
-	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(hsv_string_0), 1048,2063, 1033,1 }, /* START */
+	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(hsv_string_0), 1048,2063, 1033,1 }, /* STARTIT */
 	{ 3, -1, -1, (47<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFF1178L), 1042,1, 16,8 }, /* PREV_BOX */
 	{ 4, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 18,2057, 7,1 },
 	{ 5, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 1537,2058, 515,2816 }, /* S4_E */
@@ -404,7 +404,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* HSVS_MIR */
 };
 
@@ -514,7 +514,7 @@ void *gaddr;
 	case R_OBSPEC:
 		if (idx < 0 || idx >= NUM_OBS)
 			return 0;
-		*((_LONG_PTR **)gaddr) = &rs_object[idx].ob_spec.index;
+		*((_LONG **)gaddr) = &rs_object[idx].ob_spec.index;
 		break;
 #endif
 #if NUM_TI != 0

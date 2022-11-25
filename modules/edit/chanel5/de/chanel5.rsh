@@ -353,7 +353,7 @@ static char chanel5_string_22[] = "laden";
 static char chanel5_string_23[] = "speichern";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ chanel5_string_0, chanel5_string_1, chanel5_string_2, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 8,1 },
 	{ chanel5_string_4, chanel5_string_5, chanel5_string_6, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
 	{ chanel5_string_7, chanel5_string_8, chanel5_string_9, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 6,1 },
@@ -364,13 +364,13 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* CHANEL5 */
 
 	{ -1, 1, 19, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 1059,14 },
 	{ 2, -1, -1, (47<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFF1178L), 1041,1, 16,8 },
 	{ 3, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 17,2057, 7,1 },
-	{ 4, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(chanel5_string_3), 24,12, 1033,1 }, /* START */
+	{ 4, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(chanel5_string_3), 24,12, 1033,1 }, /* STARTIT */
 	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 2,1, 6,1 },
 	{ 6, -1, -1, G_BOX, OF_NONE, OS_NORMAL, C_UNION(0x1170L), 2,1794, 256,1031 },
 	{ 7, -1, -1, G_BOX, OF_NONE, OS_NORMAL, C_UNION(0x1171L), 1793,1538, 256,1031 },
@@ -390,7 +390,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* CHANEL5 */
 };
 
@@ -500,7 +500,7 @@ void *gaddr;
 	case R_OBSPEC:
 		if (idx < 0 || idx >= NUM_OBS)
 			return 0;
-		*((_LONG_PTR **)gaddr) = &rs_object[idx].ob_spec.index;
+		*((_LONG **)gaddr) = &rs_object[idx].ob_spec.index;
 		break;
 #endif
 #if NUM_TI != 0

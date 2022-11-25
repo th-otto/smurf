@@ -182,7 +182,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 						smurf_struct->module_mode = M_WAITING;
 					}
 					else
-						if(Button == START)
+						if(Button == STARTIT)
 							smurf_struct->module_mode = M_STARTED;
 
 					break;
@@ -190,7 +190,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		/* Keyboardevent */
 		case MKEVT:	Button = smurf_struct->event_par[0];
 
-					if(Button == START)
+					if(Button == STARTIT)
 						smurf_struct->module_mode = M_STARTED;
 
 					break;

@@ -730,7 +730,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				changed = TRUE;
 			}
 			break;
-		case START:
+		case STARTIT:
 			smurf_struct->module_mode = M_STARTED;
 			break;
 		case PREVIEW:
@@ -749,7 +749,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		break;
 
 	case MKEVT:
-		if (smurf_struct->event_par[0] == START)
+		if (smurf_struct->event_par[0] == STARTIT)
 			smurf_struct->module_mode = M_STARTED;
 		break;
 

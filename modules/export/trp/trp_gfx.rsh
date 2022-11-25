@@ -374,7 +374,7 @@ OBJECT rs_object[NUM_OBS] = {
 	{ 11, -1, -1, (19<<8)+G_IBOX, OF_NONE, OS_NORMAL, C_UNION(0xFF1100L), 13,6, 1031,1 }, /* BLAU_CB */
 	{ 12, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[5]), 16,8, 7,1 },
 	{ 13, -1, -1, (19<<8)+G_IBOX, OF_NONE, OS_NORMAL, C_UNION(0xFF1100L), 13,8, 1034,1 }, /* HUFF_CB */
-	{ 0, -1, -1, G_BUTTON, 0x627, OS_NORMAL, C_UNION(trp_gfx_string_18), 16,2058, 1031,1 } /* START */
+	{ 0, -1, -1, G_BUTTON, 0x627, OS_NORMAL, C_UNION(trp_gfx_string_18), 16,2058, 1031,1 } /* STARTIT */
 };
 
 

@@ -562,7 +562,7 @@ static OBJECT rs_object[NUM_OBS] = {
 	{ 18, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[7]), 1282,1812, 1028,2048 },
 	{ 19, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[8]), 1026,1556, 1028,2048 },
 	{ 20, -1, -1, G_BUTTON, OF_SELECTABLE|OF_EXIT|OF_FL3DACT, OS_NORMAL, C_UNION(texis_string_29), 1296,3606, 8,1 }, /* SAVETEX */
-	{ 21, -1, -1, G_BUTTON, OF_SELECTABLE|OF_DEFAULT|OF_EXIT|OF_FL3DACT, OS_NORMAL, C_UNION(texis_string_30), 46,23, 8,1 }, /* START */
+	{ 21, -1, -1, G_BUTTON, OF_SELECTABLE|OF_DEFAULT|OF_EXIT|OF_FL3DACT, OS_NORMAL, C_UNION(texis_string_30), 46,23, 8,1 }, /* STARTIT */
 	{ 23, 22, 22, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE8178L), 563,2306, 1,264 }, /* TS_PAR */
 	{ 21, -1, -1, (21<<8)+G_BOX, OF_TOUCHEXIT|OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2311, 1,2048 }, /* TURB_SLIDER */
 	{ 24, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[9]), 1841,267, 1539,3328 }, /* TS_A */
@@ -747,7 +747,7 @@ void *gaddr;
 	case R_OBSPEC:
 		if (idx < 0 || idx >= NUM_OBS)
 			return 0;
-		*((_LONG_PTR **)gaddr) = &rs_object[idx].ob_spec.index;
+		*((_LONG **)gaddr) = &rs_object[idx].ob_spec.index;
 		break;
 #endif
 #if NUM_TI != 0

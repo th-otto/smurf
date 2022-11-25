@@ -258,7 +258,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
                             deselect_popup(mwindow, TURB_PB, TURB_CB);
                             break;
 
-            case START:     smurf_struct->module_mode=M_STARTED;
+            case STARTIT:     smurf_struct->module_mode=M_STARTED;
                             return;
         }
     

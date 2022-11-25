@@ -404,7 +404,7 @@ static OBJECT rs_object[NUM_OBS] = {
 	{ 18, 17, 17, (21<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE8178L), 1813,2, 1,264 }, /* M_GREEN_FHR */
 	{ 16, -1, -1, (21<<8)+G_BOX, 0x640, OS_NORMAL, C_UNION(0xFF1178L), 0,2311, 1,2048 }, /* M_GREEN_SLIDE */
 	{ 19, -1, -1, G_BOXTEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[9]), 1044,2058, 1539,3328 }, /* M_GREEN_EDIT */
-	{ 20, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(colrun_string_30), 26,2066, 8,1 }, /* START */
+	{ 20, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(colrun_string_30), 26,2066, 8,1 }, /* STARTIT */
 	{ 21, -1, -1, G_BOX, OF_FL3DBAK, 0x11, C_UNION(0xFF1101L), 258,258, 2,16 }, /* PREVIEW */
 	{ 38, 22, 37, G_BOX, OF_FL3DBAK, OS_SELECTED, C_UNION(0xFE1101L), 1796,258, 2,2064 }, /* DATAPOINT_BOX */
 	{ 23, -1, -1, (21<<8)+G_BOX, 0x201, OS_SELECTED, C_UNION(0x11100L), 0,0, 2,1280 }, /* DATAPOINT_FIRST */
@@ -538,7 +538,7 @@ void *gaddr;
 	case R_OBSPEC:
 		if (idx < 0 || idx >= NUM_OBS)
 			return 0;
-		*((_LONG_PTR **)gaddr) = &rs_object[idx].ob_spec.index;
+		*((_LONG **)gaddr) = &rs_object[idx].ob_spec.index;
 		break;
 #endif
 #if NUM_TI != 0

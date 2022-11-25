@@ -20,15 +20,11 @@
  * Total file size:          1072
  */
 
-#ifdef RSC_NAME
 #undef RSC_NAME
-#endif
 #ifndef __ALCYON__
 #define RSC_NAME "chanelmx"
 #endif
-#ifdef RSC_ID
 #undef RSC_ID
-#endif
 #ifdef chanelmx
 #define RSC_ID chanelmx
 #else
@@ -55,7 +51,7 @@
 
 
 #define CHANELMIXER        0 /* form/dialog */
-#define START              3 /* BUTTON in tree CHANELMIXER */
+#define STARTIT            3 /* BUTTON in tree CHANELMIXER */
 #define S_F                6 /* BOX in tree CHANELMIXER */
 #define S_S                7 /* BOX in tree CHANELMIXER */
 #define S_E                8 /* BOXTEXT in tree CHANELMIXER */

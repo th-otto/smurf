@@ -43,6 +43,7 @@
 #include <string.h>
 #include "import.h"
 #include "smurfine.h"
+#include "globdefs.h"
 #include "demolib.h"
 
 #include "country.h"
@@ -206,7 +207,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				return;
 			}
 			else
-				if(Button == START)
+				if(Button == STARTIT)
 				{
 					smurf_struct->module_mode = M_STARTED;
 					return;
@@ -224,7 +225,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		case MKEVT:
 			Button = smurf_struct->event_par[0];
 
-			if(Button == START)
+			if(Button == STARTIT)
 			{
 				smurf_struct->module_mode = M_STARTED;
 				return;

@@ -40,6 +40,7 @@
 #include "import.h"
 #include "smurfine.h"
 #include "demolib.h"
+#include "globdefs.h"
 
 #include "chanelmx.rsh"
 
@@ -214,7 +215,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					if(Button == S_S)
 						sdeck = (int)service->slider(&decksl);
 					else
-						if(Button == START)
+						if(Button == STARTIT)
 							smurf_struct->module_mode = M_STARTED;
 						else
 							if(Button == LOAD)
@@ -229,7 +230,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		case MKEVT:
 			Button = smurf_struct->event_par[0];
 
-			if(Button == START)
+			if(Button == STARTIT)
 			{
 				smurf_struct->module_mode = M_STARTED;
 				return;

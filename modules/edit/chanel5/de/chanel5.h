@@ -20,15 +20,11 @@
  * Total file size:          798
  */
 
-#ifdef RSC_NAME
 #undef RSC_NAME
-#endif
 #ifndef __ALCYON__
 #define RSC_NAME "chanel5"
 #endif
-#ifdef RSC_ID
 #undef RSC_ID
-#endif
 #ifdef chanel5
 #define RSC_ID chanel5
 #else
@@ -55,7 +51,7 @@
 
 
 #define CHANEL5            0 /* form/dialog */
-#define START              3 /* BUTTON in tree CHANEL5 */
+#define STARTIT            3 /* BUTTON in tree CHANEL5 */
 #define FORMAT_BOX         7 /* IBOX in tree CHANEL5 */
 #define _RBG               9 /* IBOX in tree CHANEL5 */
 #define _GRB              11 /* IBOX in tree CHANEL5 */

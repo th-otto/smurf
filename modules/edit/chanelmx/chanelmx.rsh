@@ -362,7 +362,7 @@ static char chanelmx_string_31[] = "speichern";
 static char chanelmx_string_32[] = "laden";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ chanelmx_string_0, chanelmx_string_1, chanelmx_string_2, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 8,1 },
 	{ chanelmx_string_4, chanelmx_string_5, chanelmx_string_6, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 10,1 },
 	{ chanelmx_string_7, chanelmx_string_8, chanelmx_string_9, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 11,1 },
@@ -376,13 +376,13 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* CHANELMIXER */
 
 	{ -1, 1, 26, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 1075,15 },
 	{ 2, -1, -1, (47<<8)+G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFF1178L), 801,769, 16,8 },
 	{ 3, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 1824,2825, 7,1 },
-	{ 4, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(chanelmx_string_3), 1063,13, 1033,1 }, /* START */
+	{ 4, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(chanelmx_string_3), 1063,13, 1033,1 }, /* STARTIT */
 	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 3,1, 9,1 },
 	{ 6, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[2]), 1045,1, 10,1 },
 	{ 8, 7, 7, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE9178L), 1040,2050, 1,264 }, /* S_F */
@@ -409,7 +409,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* CHANELMIXER */
 };
 
@@ -519,7 +519,7 @@ void *gaddr;
 	case R_OBSPEC:
 		if (idx < 0 || idx >= NUM_OBS)
 			return 0;
-		*((_LONG_PTR **)gaddr) = &rs_object[idx].ob_spec.index;
+		*((_LONG **)gaddr) = &rs_object[idx].ob_spec.index;
 		break;
 #endif
 #if NUM_TI != 0

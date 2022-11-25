@@ -367,7 +367,7 @@ static char cchange_string_36[] = "";
 static char cchange_string_37[] = "";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ cchange_string_2, cchange_string_3, cchange_string_4, SMALL, 6, TE_RIGHT, 0x1180, 0x0, -1, 4,4 }, /* EDIT_DR */
 	{ cchange_string_5, cchange_string_6, cchange_string_7, SMALL, 6, TE_RIGHT, 0x1180, 0x0, -1, 4,4 }, /* EDIT_DG */
 	{ cchange_string_8, cchange_string_9, cchange_string_10, SMALL, 6, TE_RIGHT, 0x1180, 0x0, -1, 4,4 }, /* EDIT_DB */
@@ -383,11 +383,11 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* COL_CHANGE */
 
 	{ -1, 1, 14, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 28,12 },
-	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(cchange_string_0), 1040,10, 1033,1 }, /* START */
+	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(cchange_string_0), 1040,10, 1033,1 }, /* STARTIT */
 	{ 3, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF1100L), 1040,2, 2,1 }, /* SRC */
 	{ 4, -1, -1, (43<<8)+G_IBOX, 0x11, OS_SELECTED, C_UNION(0xFF1100L), 1025,2, 2,1 }, /* DST */
 	{ 5, -1, -1, G_BOX, OF_NONE, OS_NORMAL, C_UNION(0xFF1170L), 1028,1, 6,3 }, /* DST_SMP */
@@ -410,7 +410,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* COL_CHANGE */
 };
 
@@ -520,7 +520,7 @@ void *gaddr;
 	case R_OBSPEC:
 		if (idx < 0 || idx >= NUM_OBS)
 			return 0;
-		*((_LONG_PTR **)gaddr) = &rs_object[idx].ob_spec.index;
+		*((_LONG **)gaddr) = &rs_object[idx].ob_spec.index;
 		break;
 #endif
 #if NUM_TI != 0

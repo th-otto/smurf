@@ -198,7 +198,7 @@ else if(SmurfMessage==MBEVT)
     if(Button==XSLIDER) xmatrix=slider(SliderXmat);
     else if(Button==YSLIDER) ymatrix=slider(SliderYmat);
     else if(Button==SSLIDER) strength=slider(SliderStrength);
-    else if(Button==START)
+    else if(Button==STARTIT)
     { 
         f_doit(smurf_struct);
         smurf_struct->module_mode=M_PICDONE;        /* Ich warte... */

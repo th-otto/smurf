@@ -20,15 +20,11 @@
  * Total file size:          3830
  */
 
-#ifdef RSC_NAME
 #undef RSC_NAME
-#endif
 #ifndef __ALCYON__
 #define RSC_NAME "texis"
 #endif
-#ifdef RSC_ID
 #undef RSC_ID
-#endif
 #ifdef texis
 #define RSC_ID texis
 #else
@@ -69,7 +65,7 @@
 #define LOADTEX           15 /* BUTTON in tree TEX_MAIN */
 #define TEXNAME           16 /* TEXT in tree TEX_MAIN */
 #define SAVETEX           19 /* BUTTON in tree TEX_MAIN */
-#define START             20 /* BUTTON in tree TEX_MAIN */
+#define STARTIT           20 /* BUTTON in tree TEX_MAIN */
 #define TS_PAR            21 /* BOX in tree TEX_MAIN */
 #define TURB_SLIDER       22 /* BOX in tree TEX_MAIN */
 #define TS_A              23 /* BOXTEXT in tree TEX_MAIN */

@@ -20,15 +20,11 @@
  * Total file size:          1450
  */
 
-#ifdef RSC_NAME
 #undef RSC_NAME
-#endif
 #ifndef __ALCYON__
 #define RSC_NAME "colrun"
 #endif
-#ifdef RSC_ID
 #undef RSC_ID
-#endif
 #ifdef colrun
 #define RSC_ID colrun
 #else
@@ -66,7 +62,7 @@
 #define M_GREEN_FHR                       16 /* BOX in tree COLRUN_MAIN */
 #define M_GREEN_SLIDE                     17 /* BOX in tree COLRUN_MAIN */
 #define M_GREEN_EDIT                      18 /* BOXTEXT in tree COLRUN_MAIN */
-#define START                             19 /* BUTTON in tree COLRUN_MAIN */
+#define STARTIT                           19 /* BUTTON in tree COLRUN_MAIN */
 #define PREVIEW                           20 /* BOX in tree COLRUN_MAIN */
 #define DATAPOINT_BOX                     21 /* BOX in tree COLRUN_MAIN */
 #define DATAPOINT_FIRST                   22 /* BOX in tree COLRUN_MAIN */

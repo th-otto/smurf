@@ -208,7 +208,7 @@ else if(smurf_struct->module_mode == MBEVT)
     {
         case QUAL_SLID: quality=slider(&quality_slider);
                         break;
-        case START:     smurf_struct->module_mode=MEXEC;
+        case STARTIT:     smurf_struct->module_mode=MEXEC;
                         break;
     }
 
