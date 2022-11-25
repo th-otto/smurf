@@ -10,7 +10,7 @@ MODULES = \
 
 all:: $(MODULES)
 
-$(DISTDIR)/modules/plugin/mrm.plg: ../plgstart.o mrm.o module.o
+$(DISTDIR)/modules/plugin/mrm.plg: ../plgstart.o mrm.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean::

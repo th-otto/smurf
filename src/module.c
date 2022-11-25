@@ -94,11 +94,9 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	long temp;
 	long lback;
 	char alstring[80];
-
 	BASPAG *mod_basepage;
 	MOD_INFO *module_info;
 	GARGAMEL sm_struct;
-
 
 	/* Modul als Overlay laden und Basepage ermitteln */
 	temp = Pexec(3, modpath, "", NULL);
@@ -112,20 +110,20 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	{
 		mod_basepage = (BASPAG *) temp;
 
-		mod_magic = get_modmagic(mod_basepage);	/* Zeiger auf Magic (muž MOD_MAGIC_IMPORT sein!) */
+		mod_magic = get_modmagic(mod_basepage);	/* Zeiger auf Magic (muss MOD_MAGIC_IMPORT sein!) */
 		if (mod_magic != MOD_MAGIC_IMPORT)
 			return M_MODERR;
 
-		/* L„nge des gesamten Tochterprozesses ermitteln */
+		/* Laenge des gesamten Tochterprozesses ermitteln */
 		ProcLen = get_proclen(mod_basepage);
-		back = _Mshrink(mod_basepage, ProcLen);	/* Speicherblock verkrzen */
+		back = _Mshrink(mod_basepage, ProcLen);	/* Speicherblock verkuerzen */
 		if (back != 0)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
 
-		mod_basepage->p_hitpa = (void *) ((char *) mod_basepage + ProcLen);
+		mod_basepage->p_hitpa = (void *) ((char *)mod_basepage + ProcLen);
 
 		lback = Pexec(4, NULL, (char *) mod_basepage, NULL);
-		if (lback < 0L)
+		if (lback != 0)
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 
 		textseg_begin = mod_basepage->p_tbase;	/* Textsegment-Startadresse holen */
@@ -141,7 +139,7 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 		module_return = module_main(&sm_struct);
 
 #if 0
-		Pexec(102, NULL, mod_basepage, NULL);	/* Modul systemkonform t”ten */
+		Pexec(102, NULL, mod_basepage, NULL);	/* Modul systemkonform toeten */
 #endif
 		SMfree(mod_basepage->p_env);
 		SMfree(mod_basepage);			/* Modul-Basepage freigeben */
@@ -176,7 +174,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 	if (edit_basepage == NULL)			/* Modul wurde noch nicht gestartet! */
 	{
 		temp = Pexec(3, modpath, "", NULL);
-		if (temp < 0)
+		if (temp <= 0)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 			sm_struct->module_mode = M_STARTERR;
@@ -201,7 +199,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 			edit_basepage->p_hitpa = (void *) ((char *) edit_basepage + ProcLen);
 
 			lback = Pexec(4, NULL, (char *) edit_basepage, NULL);
-			if (lback < 0L)
+			if (lback < 0)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 		}
 	}

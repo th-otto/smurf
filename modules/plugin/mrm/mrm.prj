@@ -21,7 +21,7 @@
 ; ***** END LICENSE BLOCK *****
 
 ..\..\..\dist\modules\plugin\mrm.plg
-.C [-C -K -M -G -P]
+.C [-C -K -M- -G- -P-]
 .C [-I..\..\..\include]
 .C[-Ide]
 .S[-DPURE_C=1]
@@ -30,9 +30,7 @@
 ..\plgstart.s                           ; startup code
 
 mrm.c
-module.c
 
-pcfltlib.lib        ; standard library
 pcstdlib.lib        ; standard library
 pctoslib.lib        ; TOS library
 pcgemlib.lib        ; AES and VDI library

@@ -34,7 +34,6 @@
 #include "popdefin.h"
 #include "../../../src/smurf_f.h"
 #include "../../../src/smurfobs.h"
-#include "log.h"
 
 #include "country.h"
 
@@ -72,8 +71,6 @@
 #error "unsupported language"
 #endif
 
-#define TextCast ob_spec.tedinfo->te_ptext
-
 static char const name_string[] = TITLE;
 
 PLUGIN_INFO plugin_info = {
@@ -88,7 +85,7 @@ PLUGIN_INFO plugin_info = {
 void *_FilSysVec; /* missing in our startup code, needed by fopen() */
 #endif
 
-struct yy {
+struct logline {
 	char text[70];
 };
 #define NUM_LOGLINES 20
@@ -96,7 +93,7 @@ struct yy {
 # error
 #endif
 
-static char const message_names[][16] = {
+static char const message_names[CONFIG_TRANSMIT - MTERM + 1][16] = {
 	"MTERM",
 	"MSTART",
 	"MWRED",
@@ -122,8 +119,9 @@ static char const message_names[][16] = {
 	"CONFIG_TRANSMIT"
 };
 
-static char const result_names[][16] = {
-	/* BUG: M_SILENT_ERR & M_CONFSAVE missing */
+static char const result_names[M_WAITING - M_CONFSAVE + 1][16] = {
+	"M_CONFSAVE",
+	"M_SILENT_ERR",
 	"M_CONFIG",
 	"M_TERMINATED",
 	"ALL_MSGS",
@@ -152,114 +150,35 @@ static char const result_names[][16] = {
 };
 
 static FILE *logfile = NULL;
-SERVICE_FUNCTIONS *services;
+static SERVICE_FUNCTIONS *services;
 static CLASS_MODULE *module_ptr;
 static CLASS_MODULE module;
-SMURF_VARIABLES *smurf_vars;
+static SMURF_VARIABLES *smurf_vars;
 static OBJECT *maintree;
 static WINDOW win;
 static short my_id;
-struct yy logbuffer[NUM_LOGLINES + 1];
+struct logline logbuffer[NUM_LOGLINES + 1];
 static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
 static char logfile_name[256];
 
-static void init_rsh(void);
-static void init_windstruct(void);
 short start_imp_module(char *modpath, SMURF_PIC *imp_pic);
 BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, short mod_id, GARGAMEL *sm_struct);
 long get_proclen(BASPAG *baspag);
 
 
-void plugin_main(PLUGIN_DATA *data)
+/* get_proclen
+   -------------------------------------------------
+   Ermittelt die Gesamtlaenge des Prozesses mit der Basepage baspag.
+   ----------------------------------------------------------------
+ */
+long get_proclen(BASPAG *baspag)
 {
-	time_t t;
-
-	services = data->services;
-	redraw_window = services->redraw_window;
-	
-	switch (data->message)
-	{
-	case MSTART:
-		my_id = data->id;
-		strcpy(data->plugin_name, "Mr. Message");
-		module_ptr = data->module_object;
-		memcpy(&module, module_ptr, sizeof(*module_ptr));
-		init_rsh();
-		init_windstruct();
-		data->wind_struct = &win;
-		/* install plugin in plugin menu */
-		data->event_par[0] = 0;
-		data->message = MENU_ENTRY;
-		break;
-	
-	case PLGSELECTED:
-		if (services->f_module_window(&win) < 0)
-			data->message = M_EXIT;
-		smurf_vars = data->smurf_vars;
-		memcpy(&module, module_ptr, sizeof(*module_ptr));
-		module_ptr->comm.start_imp_module = start_imp_module;
-		module_ptr->comm.start_edit_module = start_edit_module;
-		data->message = M_WAITING; /* BUG: overwrites error from above */
-		strcpy(logfile_name, smurf_vars->Sys_info->standard_path);
-		strcat(logfile_name, "\\modcomm.log");
-		break;
-	
-	case MWINDCLOSED:
-		win.whandlem = -1;
-		memcpy(module_ptr, &module, sizeof(*module_ptr));
-		data->message = M_WAITING;
-		goto closelog;
-#if 0
-		if (logfile != NULL)
-		{
-			fclose(logfile);
-			/* FIXME: nullify */
-		}
-		break;
-#endif
-	
-	case MTERM:
-		data->message = M_TERMINATED;
-		memcpy(module_ptr, &module, sizeof(*module_ptr));
-	closelog:
-		if (logfile != NULL)
-		{
-			fclose(logfile);
-			/* FIXME: nullify */
-		}
-		break;
-	
-	case MBEVT:
-		if (data->event_par[0] == COMM_LOGFILE)
-		{
-			if (maintree[COMM_LOGFILE].ob_state & OS_SELECTED)
-			{
-				logfile = fopen(logfile_name, "w");
-				fprintf(logfile, "\n\nLogfile opened: ");
-				t = time(NULL);
-				fprintf(logfile, "%s", ctime(&t));
-				fprintf(logfile, "   Module                          ID     Message\n");
-				fprintf(logfile, "--------------------------------------------------\n");
-				fflush(logfile);
-			} else
-			{
-				fprintf(logfile, "\nLogfile closed: ");
-				t = time(NULL);
-				fprintf(logfile, "%s\n", ctime(&t));
-				fclose(logfile);
-				logfile = NULL;
-			}
-		}
-		break;
-	
-	default:
-		data->message = M_WAITING;
-		break;
-	}
+	/* BASEPAGE + Textsegment + Datensegment + BSS + Stack */
+	return sizeof(*baspag) + baspag->p_tlen + baspag->p_dlen + baspag->p_blen + 1024L;
 }
 
 
-void log_line(short message, short module_number, const char *mod_name)
+static void log_line(short message, short module_number, const char *mod_name)
 {
 	short i;
 	WORD dummy;
@@ -272,11 +191,10 @@ void log_line(short message, short module_number, const char *mod_name)
 		strcpy(logbuffer[i].text, logbuffer[i + 1].text);
 		maintree[i + COMM_FIRSTLINE].ob_spec.tedinfo->te_ptext = logbuffer[i].text;
 	}
-	memset(logbuffer[NUM_LOGLINES - 1].text, ' ', 50); /* FIXME: useless */
 	if (module_number >= 0)
-		strcpy(logbuffer[NUM_LOGLINES - 1].text, "  \0"); 
+		strcpy(logbuffer[NUM_LOGLINES - 1].text, "  "); 
 	else
-		strcpy(logbuffer[NUM_LOGLINES - 1].text, "r \0");
+		strcpy(logbuffer[NUM_LOGLINES - 1].text, "r ");
 	strncat(logbuffer[NUM_LOGLINES - 1].text, mod_name, 34);
 	strncat(logbuffer[NUM_LOGLINES - 1].text, "                                          ", 34 - strlen(mod_name));
 	if (module_number >= 0)
@@ -284,13 +202,15 @@ void log_line(short message, short module_number, const char *mod_name)
 		itoa(module_number, buf, 10);
 		strncat(logbuffer[NUM_LOGLINES - 1].text, buf, 3);
 		strncat(logbuffer[NUM_LOGLINES - 1].text, "     ", 5 - strlen(buf));
-		/* MTERM is -1, hence + 1 */
-		strcat(logbuffer[NUM_LOGLINES - 1].text, message_names[message + 1]);
+		if (message >= MTERM && message <= CONFIG_TRANSMIT)
+			strcat(logbuffer[NUM_LOGLINES - 1].text, message_names[message - MTERM]);
+		else
+			strcat(logbuffer[NUM_LOGLINES - 1].text, "<no msg>");
 	} else
 	{
 		strncat(logbuffer[NUM_LOGLINES - 1].text, "     ", 5);
-		if (message <= M_WAITING) /* FIXME: check range */
-			strcat(logbuffer[NUM_LOGLINES - 1].text, result_names[message - M_CONFIG]);
+		if (message >= M_CONFSAVE && message <= M_WAITING)
+			strcat(logbuffer[NUM_LOGLINES - 1].text, result_names[message - M_CONFSAVE]);
 		else
 			strcat(logbuffer[NUM_LOGLINES - 1].text, "<no msg>");
 	}
@@ -321,12 +241,10 @@ void log_line(short message, short module_number, const char *mod_name)
 		redraw_window(&win, NULL, COMM_CONT, 0);
 	}
 	
-	if (maintree[COMM_LOGFILE].ob_state & OS_SELECTED)
+	if ((maintree[COMM_LOGFILE].ob_state & OS_SELECTED) && logfile)
 	{
 		fprintf(logfile, "%s\n", logbuffer[NUM_LOGLINES - 1].text);
 		fflush(logfile);
-		fclose(logfile);
-		logfile = fopen(logfile_name, "a");
 	}
 }
 
@@ -365,4 +283,282 @@ static void init_windstruct(void)
 
 	win.prev_window = NULL;	/* prev window (WINDOW*) */
 	win.next_window = NULL;	/* next window (WINDOW*) */
+}
+
+
+short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
+{
+	char *textseg_begin;
+	long mod_magic;
+	short (*module_main)(GARGAMEL *smurf_struct);
+	short module_return;
+	short back;
+	long ProcLen;
+	long temp;
+	long lback;
+	char alstring[80];
+	BASPAG *mod_basepage;
+	MOD_INFO *module_info;
+	GARGAMEL sm_struct;
+
+	/* Modul als Overlay laden und Basepage ermitteln */
+	temp = Pexec(3, modpath, "", NULL);
+	if (temp < 0)
+	{
+		strcpy(alstring, AL_LOAD_MODULE);
+		strcat(alstring, strrchr(modpath, '\\') + 1);
+		services->f_alert(alstring, NULL, NULL, NULL, 1);
+		module_return = M_STARTERR;
+	} else
+	{
+		mod_basepage = (BASPAG *) temp;
+
+#if 0
+		mod_magic = get_modmagic(mod_basepage);	/* Zeiger auf Magic (muss MOD_MAGIC_IMPORT sein!) */
+#else
+		textseg_begin = mod_basepage->p_tbase;
+		mod_magic = *((long *) (textseg_begin + MAGIC_OFFSET));
+#endif
+		if (mod_magic != MOD_MAGIC_IMPORT)
+			return M_MODERR;
+
+		/* Laenge des gesamten Tochterprozesses ermitteln */
+		ProcLen = get_proclen(mod_basepage);
+		back = _Mshrink(mod_basepage, ProcLen);	/* Speicherblock verkuerzen */
+		if (back != 0)
+			services->f_alert(AL_ADJUST_TPA, NULL, NULL, NULL, 1);
+
+		mod_basepage->p_hitpa = (void *) ((char *)mod_basepage + ProcLen);
+
+		lback = Pexec(4, NULL, (char *) mod_basepage, NULL);
+		if (lback != 0)
+			services->f_alert(AL_START_MODULE, NULL, NULL, NULL, 1);
+
+		module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+		sm_struct.smurf_pic = imp_pic;
+		sm_struct.services = services;
+		sm_struct.module_mode = MEXEC;
+		
+		/* BUG: module_number not initialized */
+		log_line(sm_struct.module_mode, sm_struct.module_number, module_info->mod_name);
+		
+		module_main = (short (*)(GARGAMEL *)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+		module_return = module_main(&sm_struct);
+		log_line(sm_struct.module_mode, -1, module_info->mod_name);
+
+#if 0
+		Pexec(102, NULL, mod_basepage, NULL);	/* Modul systemkonform toeten */
+#endif
+		services->SMfree(mod_basepage->p_env);
+		services->SMfree(mod_basepage);			/* Modul-Basepage freigeben */
+	}
+
+	return module_return;
+}
+
+
+BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, short mod_id, GARGAMEL *sm_struct)
+{
+	void (*module_main)(GARGAMEL *smurf_struct);
+	char *textseg_begin;
+	short back;
+	long ProcLen;
+	long temp;
+	long lback;
+	long mod_magic;
+	MOD_ABILITY *mod_abs;
+	MOD_INFO *module_info;
+
+	if (mod_id < 0 || mod_id > MAX_MODS - 1)
+		services->f_alert(AL_MODULE_ID, NULL, NULL, NULL, 1);
+
+	/*
+	 * Modul als Overlay laden und Basepage ermitteln
+	 */
+	if (edit_basepage == NULL)			/* Modul wurde noch nicht gestartet! */
+	{
+		temp = Pexec(3, modpath, "", NULL);
+		if (temp <= 0)
+		{
+			services->f_alert(AL_LOAD_MODULES, NULL, NULL, NULL, 1);
+			sm_struct->module_mode = M_STARTERR;
+			return NULL;
+		} else
+		{
+			edit_basepage = (BASPAG *) temp;
+
+			/* Laenge des gesamten Tochterprozesses ermitteln */
+			ProcLen = get_proclen(edit_basepage);
+			back = _Mshrink(edit_basepage, ProcLen);	/* Speicherblock verkuerzen */
+			if (back != 0)
+				services->f_alert(AL_ADJUST_TPA, NULL, NULL, NULL, 1);
+
+			edit_basepage->p_hitpa = (void *) ((char *)edit_basepage + ProcLen);
+		}
+	}
+
+	if (edit_basepage != NULL)
+	{
+#if 0
+		mod_magic = get_modmagic(edit_basepage);	/* Zeiger auf Magic (muss MOD_MAGIC_EDIT sein!) */
+#else
+		textseg_begin = edit_basepage->p_tbase;
+		mod_magic = *((long *) (textseg_begin + MAGIC_OFFSET));
+#endif
+		if (mod_magic != MOD_MAGIC_EDIT)
+		{
+			services->f_alert(AL_LOAD_MODULE, NULL, NULL, NULL, 1);
+			return NULL;
+		}
+
+		/* Modulkennung (als wievieltes Modul gestartet?) */
+		if (mode == MSTART)
+			sm_struct->module_number = mod_id;
+		/* Message von Smurf */
+		sm_struct->module_mode = mode;	/* 0=laden und Starten, 1=Redraw ausfuehren , -1 = Beenden, 2=aktivieren */
+		
+		/* Funktionen einhaengen */
+		sm_struct->services = services;
+
+		/* EVENT im Modulfenster ! */
+		if (mode == MBEVT || mode == MKEVT || mode == SMURF_AES_MESSAGE)
+		{
+			sm_struct->mousex = *smurf_vars->mouse_xpos;
+			sm_struct->mousey = *smurf_vars->mouse_ypos;
+			sm_struct->klicks = *smurf_vars->klicks;
+
+			if (mode != SMURF_AES_MESSAGE)
+				sm_struct->event_par[0] = *smurf_vars->obj;
+
+			if (mode == MKEVT)
+			{
+				sm_struct->event_par[1] = *smurf_vars->key_scancode;
+				sm_struct->event_par[2] = *smurf_vars->key_ascii;
+				sm_struct->event_par[3] = *smurf_vars->key_at_event;
+			}
+		}
+
+		textseg_begin = (char *) (edit_basepage->p_tbase);
+		module_main = (void (*)(GARGAMEL *smurf_struct)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+
+		if (mode != MQUERY)
+		{
+			if (mode == MEXEC)
+				graf_mouse(BUSYBEE, NULL);
+
+			module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+			log_line(sm_struct->module_mode, sm_struct->module_number, module_info->mod_name);
+
+			lback = Pexec(4, NULL, (char *) edit_basepage, NULL);
+			if (lback != 0)
+				services->f_alert(AL_START_MODULE, NULL, NULL, NULL, 1);
+
+			module_main(sm_struct);
+
+			log_line(sm_struct->module_mode, -1, module_info->mod_name);
+
+			graf_mouse(ARROW, NULL);
+		}
+
+		if (mode == MQUERY)
+		{
+			module.bp[mod_id & 0xFF] = edit_basepage;
+			smurf_vars->edit_bp[mod_id & 0xFF] = edit_basepage;
+			mod_abs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
+			return (BASPAG *) mod_abs;
+		}
+	}
+
+	return edit_basepage;
+}
+
+
+void plugin_main(PLUGIN_DATA *data)
+{
+	time_t t;
+
+	services = data->services;
+	redraw_window = services->redraw_window;
+	
+	switch (data->message)
+	{
+	case MSTART:
+		my_id = data->id;
+		strcpy(data->plugin_name, "Mr. Message");
+		module_ptr = data->module_object;
+		memcpy(&module, module_ptr, sizeof(*module_ptr));
+		init_rsh();
+		init_windstruct();
+		data->wind_struct = &win;
+		/* install plugin in plugin menu */
+		data->event_par[0] = 0;
+		data->message = MENU_ENTRY;
+		break;
+	
+	case PLGSELECTED:
+		data->message = M_WAITING;
+		if (services->f_module_window(&win) < 0)
+			data->message = M_EXIT;
+		smurf_vars = data->smurf_vars;
+		memcpy(&module, module_ptr, sizeof(*module_ptr));
+		module_ptr->comm.start_imp_module = start_imp_module;
+		module_ptr->comm.start_edit_module = start_edit_module;
+		strcpy(logfile_name, smurf_vars->Sys_info->standard_path);
+		strcat(logfile_name, "\\modcomm.log");
+		break;
+	
+	case MWINDCLOSED:
+		win.whandlem = -1;
+		data->message = M_WAITING;
+		memcpy(module_ptr, &module, sizeof(*module_ptr));
+		if (logfile != NULL)
+		{
+			fclose(logfile);
+			logfile = NULL;
+		}
+		break;
+	
+	case MTERM:
+		data->message = M_TERMINATED;
+		memcpy(module_ptr, &module, sizeof(*module_ptr));
+		if (logfile != NULL)
+		{
+			fclose(logfile);
+			logfile = NULL;
+		}
+		break;
+	
+	case MBEVT:
+		if (data->event_par[0] == COMM_LOGFILE)
+		{
+			if (maintree[COMM_LOGFILE].ob_state & OS_SELECTED)
+			{
+				logfile = fopen(logfile_name, "w");
+				if (logfile != NULL)
+				{
+					fprintf(logfile, "\n\nLogfile opened: ");
+					t = time(NULL);
+					fprintf(logfile, "%s", ctime(&t));
+					fprintf(logfile, "   Module                          ID     Message\n");
+					fprintf(logfile, "--------------------------------------------------\n");
+					fflush(logfile);
+				}
+			} else
+			{
+				if (logfile != NULL)
+				{
+					fprintf(logfile, "\nLogfile closed: ");
+					t = time(NULL);
+					fprintf(logfile, "%s\n", ctime(&t));
+					fclose(logfile);
+					logfile = NULL;
+				}
+			}
+		}
+		break;
+	
+	default:
+		data->message = M_WAITING;
+		break;
+	}
 }
