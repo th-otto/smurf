@@ -162,7 +162,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	short (*slider)(SLIDER *slider_struct);	/* Funktion deklarieren */
 	short SmurfMessage;
 	short t;
-	WORD next_edit;
 	BUMP_CONFIG *Default;
 	unsigned long w1 = 0;
 	unsigned short w2 = 0;
@@ -392,11 +391,9 @@ short do_it(GARGAMEL *smurf_struct)
 	uint8_t *greypic;
 	uint8_t *coltab;
 	uint8_t *glanztab;
-	uint8_t *wurztab;
 	uint8_t *c_offset;
 	uint8_t *offset;
 	uint8_t *noffset;
-	uint8_t *y_offset;
 	uint8_t *y_goffset;
 	uint8_t *g_offset;
 	uint8_t *t_offset;
@@ -411,7 +408,7 @@ short do_it(GARGAMEL *smurf_struct)
 	long bpl;
 	long gbpl;
 	long tbpl;
-
+	
 	long col_size;
 	long coltab_size;
 	long coltab_size2;
@@ -420,13 +417,12 @@ short do_it(GARGAMEL *smurf_struct)
 	signed long glanz_x, glanz_y;
 	long bump_fakt;
 
-	signed short x_vekt, y_vekt, vekt;
+	signed short x_vekt, y_vekt;
 	uint8_t o_height;
 	signed long x_dif, y_dif;
 	long abstand;
 
 	long bs_diago;
-
 
 	/*---Bilddaten auslesen----------------------*/
 	picture = input_pictures[0];
@@ -449,17 +445,16 @@ short do_it(GARGAMEL *smurf_struct)
 	bs_diago = sqrt((long) width * width + (long) height * height);
 
 	/*---Slider umrechnen----------------------*/
-
 	col_size = (long) ((100L - diffuse_hard) * 6.0 + 50);
 	glanz_size = (long) ((100L - glanz_hard) / 2.04 + 1);
 
-	red2 = (uint8_t) ((long) red * diffuse_strengh / 100);
-	green2 = (uint8_t) ((long) green * diffuse_strengh / 100);
-	blue2 = (uint8_t) ((long) blue * diffuse_strengh / 100);
+	red2 = (uint8_t) ((long) red * (long) diffuse_strengh / 100);
+	green2 = (uint8_t) ((long) green * (long) diffuse_strengh / 100);
+	blue2 = (uint8_t) ((long) blue * (long) diffuse_strengh / 100);
 
-	gred2 = (uint8_t) ((long) gred * glanz_strengh / 100);
-	ggreen2 = (uint8_t) ((long) ggreen * glanz_strengh / 100);
-	gblue2 = (uint8_t) ((long) gblue * glanz_strengh / 100);
+	gred2 = (uint8_t) ((long) gred * (long) glanz_strengh / 100);
+	ggreen2 = (uint8_t) ((long) ggreen * (long) glanz_strengh / 100);
+	gblue2 = (uint8_t) ((long) gblue * (long) glanz_strengh / 100);
 
 	bump_fakt = (long) (bs_diago / 360.0F * (bm_strengh / 80.0F) * 1024.0F);
 
@@ -501,7 +496,6 @@ short do_it(GARGAMEL *smurf_struct)
 	for (t = 0; t < (coltab_size * 3L); t++)
 		*(g_offset++) = 0;
 
-
 	/*---Graubild erzeugen------------------------------------*/
 	offset = mainpic;
 	noffset = greypic;
@@ -517,7 +511,7 @@ short do_it(GARGAMEL *smurf_struct)
 				grey += *(offset++);
 				grey += *(offset++);
 				if (Obj_Selected(BM_INVERT))
-					*(noffset++) = 255 - (grey / 3);
+					*(noffset++) = 255 - (uint8_t) (grey / 3);
 				else
 					*(noffset++) = (uint8_t) (grey / 3);
 			}
@@ -568,9 +562,10 @@ short do_it(GARGAMEL *smurf_struct)
 		c_offset = coltab;
 		for (t = 0; t < glanztab_size; t++)
 		{
-			nred = (short) ((long) (*(c_offset + 0L)) + (long) ((long) gred2 * (glanztab_size - t) / glanztab_size));
-			ngreen = (short) ((long) (*(c_offset + 1L)) + (long) ((long) ggreen2 * (glanztab_size - t) / glanztab_size));
-			nblue = (short) ((long) (*(c_offset + 2L)) + (long) ((long) gblue2 * (glanztab_size - t) / glanztab_size));
+			n = glanztab_size - t;
+			nred = (short) ((long) (*(c_offset + 0L)) + (long) ((long) gred2 * n / glanztab_size));
+			ngreen = (short) ((long) (*(c_offset + 1L)) + (long) ((long) ggreen2 * n / glanztab_size));
+			nblue = (short) ((long) (*(c_offset + 2L)) + (long) ((long) gblue2 * n / glanztab_size));
 
 			if (nred > 255)
 				nred = 255;
@@ -591,7 +586,7 @@ short do_it(GARGAMEL *smurf_struct)
 		if ((y & 7) == 0)
 			smurf_struct->services->busybox((short)(((long) y << 7L) / (long) height));
 
-		offset = y_offset = mainpic + y * bpl;
+		offset = mainpic + y * bpl;
 		y_goffset = greypic + y * gbpl;
 
 		if (Obj_Selected(BM_TEXTURE))
@@ -643,9 +638,9 @@ short do_it(GARGAMEL *smurf_struct)
 				if (Obj_Selected(BM_TEXTURE))
 				{
 					g_offset = glanztab + abstand * 3L;
-					tred = ((*(t_offset++) * *(c_offset++)) >> 8) + *(g_offset++);
-					tgreen = ((*(t_offset++) * *(c_offset++)) >> 8) + *(g_offset++);
-					tblue = ((*(t_offset++) * *(c_offset++)) >> 8) + *(g_offset++);
+					tred = (short)((((long) t_offset[0] * (long) c_offset[0]) >> 8) + (long) g_offset[0]);
+					tgreen = (short)((((long) t_offset[1] * (long) c_offset[1]) >> 8) + (long) g_offset[1]);
+					tblue = (short)((((long) t_offset[2] * (long) c_offset[2]) >> 8) + (long) g_offset[2]);
 
 					if (tred > 255)
 						tred = 255;
@@ -657,25 +652,15 @@ short do_it(GARGAMEL *smurf_struct)
 					*(offset++) = tred;
 					*(offset++) = tgreen;
 					*(offset++) = tblue;
-
-					tex_x += 1;
-					if (tex_x >= twidth)
-					{
-						tex_x -= twidth;
-						t_offset -= tbpl;
-					}
 				} else
 				{
 					*(offset++) = *(c_offset++);
 					*(offset++) = *(c_offset++);
 					*(offset++) = *(c_offset++);
 				}
-			}							/* Hintergrund gerendert */
-
-			/*  Hintergrund einf„rben?
-			 */
-			else
+			} else
 			{
+				/*  Hintergrund einf„rben? */
 				if (Obj_Selected(WHITE_BAK))
 				{
 					*(offset++) = 255;
@@ -686,6 +671,19 @@ short do_it(GARGAMEL *smurf_struct)
 					*(offset++) = 0;
 					*(offset++) = 0;
 					*(offset++) = 0;
+				}
+			}
+
+			if (Obj_Selected(BM_TEXTURE))
+			{
+				tex_x += 1;
+				t_offset += 3;
+				c_offset += 3;
+				g_offset += 3;
+				if (tex_x >= twidth)
+				{
+					tex_x -= twidth;
+					t_offset -= tbpl;
 				}
 			}
 		}
@@ -829,11 +827,14 @@ static void load_setting(void)
 	memset(name, 0, 33);
 
 	myConfig = mconfLoad(&module_info, module_id, name);
-	strcpy(main_form[LOAD_SET].ob_spec.tedinfo->te_ptext, name);
-	redraw_window(my_window, NULL, LOAD_SET, 0);
-
-	apply_setting(myConfig);
-	SMfree(myConfig);
+	if (myConfig != NULL)
+	{
+		strcpy(main_form[LOAD_SET].ob_spec.tedinfo->te_ptext, name);
+		redraw_window(my_window, NULL, LOAD_SET, 0);
+	
+		apply_setting(myConfig);
+		SMfree(myConfig);
+	}
 }
 
 
@@ -852,7 +853,7 @@ static void apply_setting(BUMP_CONFIG *myConfig)
 	bm_strengh = myConfig->bump_str;
 	set_slider(&bm_str_slider, bm_strengh);
 
-	main_form[INVERT].ob_state = myConfig->invert;
+	main_form[BM_INVERT].ob_state = myConfig->invert;
 	main_form[BM_TEXTURE].ob_state = myConfig->texture;
 	main_form[BLACK_BAK].ob_state &= ~OS_SELECTED;
 	main_form[WHITE_BAK].ob_state &= ~OS_SELECTED;
@@ -872,7 +873,7 @@ static void apply_setting(BUMP_CONFIG *myConfig)
 	redraw_window(my_window, NULL, NORM_BAK, 0);
 	redraw_window(my_window, NULL, BM_PARALEL, 0);
 	redraw_window(my_window, NULL, BM_TEXTURE, 0);
-	redraw_window(my_window, NULL, INVERT, 0);
+	redraw_window(my_window, NULL, BM_INVERT, 0);
 
 	if (main_form[M_RADIO_DIFFUSE].ob_state & OS_SELECTED)
 	{
@@ -916,7 +917,7 @@ static void write_setting(BUMP_CONFIG *myConfig)
 
 	myConfig->parallel = main_form[BM_PARALEL].ob_state;
 	myConfig->texture = main_form[BM_TEXTURE].ob_state;
-	myConfig->invert = main_form[INVERT].ob_state;
+	myConfig->invert = main_form[BM_INVERT].ob_state;
 }
 
 
