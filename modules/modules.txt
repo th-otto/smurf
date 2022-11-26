@@ -1,4 +1,4 @@
-               src     106gpl   gcc
+               src     106gpl   gcc  bubble
 dither:
 fdfast.sdm     1.00    1.00     x
 floydst.sdm    1.00    1.00     x
@@ -18,7 +18,7 @@ clip.sem       0.50    -        x
 clipnpic.sem   0.50    0.50
 colrun.sem     1.00    1.00
 colsat.sem     1.20    -
-displace.sem   -       1.00
+displace.sem   1.00    1.00     x
 dropshdw.sem   1.21    2.00        !!!
 edgeokil.sem   1.10    1.10
 equalize.sem   0.10    0.10
@@ -29,7 +29,7 @@ freefilt.sem   0.50    0.70        !!!
 gamma.sem      0.20    0.20
 grau.sem       1.20    1.20
 highshad.sem   0.20    0.20     x
-hsv.sem        1.10    1.10
+hsv.sem        1.10    1.10     x     x
 interpo.sem    0.10    -
 invert.sem     0.50    0.50
 konform.sem    0.20    0.20

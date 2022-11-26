@@ -215,7 +215,7 @@ static short doit(GARGAMEL *smurf_struct)
 	for (y = 0; y < height; y++)
 	{
 		if ((y & 15) == 0)
-			smurf_struct->services->busybox((int) ((y << 7) / height));
+			smurf_struct->services->busybox((short) ((y << 7) / height));
 		dy = (WORD) y;
 		if (y > (bump_height - 1))
 			dy = (WORD)(y % (bump_height - 1));
