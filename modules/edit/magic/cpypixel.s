@@ -26,18 +26,7 @@
 *		Schnelle Punktkopierroutinen
 *	2,4,16,256 Farben & TrueColor
 
-.EXPORT fcopypoint
-.EXPORT fcopypoint2
-.EXPORT fcopypoint4
-.EXPORT fcopypoint16
-.EXPORT fcopypoint256
-.EXPORT fcopypoint256PP
-.EXPORT fcopypointTC16
-.EXPORT fcopypointTC24
-
-.TEXT
-
-fcopypoint : dc.l	0 /*		der Zeiger */
+	.text
 
 *	šbergabeparameter :
 *		A0 - Zeiger auf folgende Struktur :
@@ -49,15 +38,23 @@ fcopypoint : dc.l	0 /*		der Zeiger */
 *			W	X
 *			L	XY
 
-.MODULE fcopypoint2 :
+	.IFEQ PURE_C
+	.globl _fcopypoint2
+_fcopypoint2:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	.ENDC
 
-	movem.l	D3/A2-A3,-(sp)
+	.globl fcopypoint2
+fcopypoint2:
+
+	movem.l	D2-D3/A2-A3,-(sp)
 
 	movea.l	(A0)+,A2
 	move.w	(A0)+,D0
 	move.w	D0,D1
-	and.w	#$FFF0,D0	
-	and.w	#$F,D1	
+	and.w	#0xFFF0,D0	
+	and.w	#0xF,D1	
 	lsr.w	#3,D0
 	adda.w	D0,A2
 	moveq.l	#15,D0
@@ -66,8 +63,8 @@ fcopypoint : dc.l	0 /*		der Zeiger */
 	movea.l	(A1)+,A3
 	move.w	(A1)+,D2
 	move.w	D2,D3
-	and.w	#$FFF0,D2	
-	and.w	#$F,D3	
+	and.w	#0xFFF0,D2	
+	and.w	#0xF,D3	
 	lsr.w	#3,D2
 	adda.w	D2,A3
 	moveq.l	#15,D2
@@ -84,20 +81,26 @@ notset:
 tsch:
 	move.w	D3,(A3)
 
-	movem.l	(sp)+,D3/A2-A3
-
+	movem.l	(sp)+,D2-D3/A2-A3
 	rts
-.ENDMOD
 
-.MODULE fcopypoint4 :
 
-	movem.l	D3/A2-A3,-(sp)
+	.IFEQ PURE_C
+	.globl _fcopypoint4
+_fcopypoint4:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	.ENDC
+
+	.globl fcopypoint4
+fcopypoint4:
+	movem.l	D2-D3/A2-A3,-(sp)
 
 	movea.l	(A0)+,A2
 	move.w	(A0)+,D0
 	move.w	D0,D1
-	and.w	#$FFF0,D0	
-	and.w	#$F,D1	
+	and.w	#0xFFF0,D0	
+	and.w	#0xF,D1	
 	lsr.w	#3,D0
 	adda.w	D0,A2
 	moveq.l	#15,D0
@@ -106,8 +109,8 @@ tsch:
 	movea.l	(A1)+,A3
 	move.w	(A1)+,D2
 	move.w	D2,D3
-	and.w	#$FFF0,D2	
-	and.w	#$F,D3	
+	and.w	#0xFFF0,D2	
+	and.w	#0xF,D3	
 	lsr.w	#3,D2
 	adda.w	D2,A3
 	moveq.l	#15,D2
@@ -116,12 +119,12 @@ tsch:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset1
+	beq.b	notset4_1
 	bset.l	D2,D3
-	bra.b	tsch1
-notset1:
+	bra.b	tsch4_1
+notset4_1:
 	bclr.l	D2,D3
-tsch1:
+tsch4_1:
 	move.w	D3,(A3)
 
 	adda.l	(A0),A2
@@ -130,29 +133,37 @@ tsch1:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset2
+	beq.b	notset4_2
 	bset.l	D2,D3
-	bra.b	tsch2
-notset2:
+	bra.b	tsch4_2
+notset4_2:
 	bclr.l	D2,D3
-tsch2:
+tsch4_2:
 	move.w	D3,(A3)
 
-	movem.l	(sp)+,D3/A2-A3
+	movem.l	(sp)+,D2-D3/A2-A3
 
 	rts
-.ENDMOD
 
-.MODULE fcopypoint16 :
 
-	movem.l	D3-D5/A2-A3,-(sp)
+	.IFEQ PURE_C
+	.globl _fcopypoint16
+_fcopypoint16:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	.ENDC
+
+	.globl fcopypoint16
+fcopypoint16:
+
+	movem.l	D2-D5/A2-A3,-(sp)
 
 	movea.l	(A0)+,A2
 	move.w	(A0)+,D0
 	move.l	(A0),D4
 	move.w	D0,D1
-	and.w	#$FFF0,D0	
-	and.w	#$F,D1	
+	and.w	#0xFFF0,D0	
+	and.w	#0xF,D1	
 	lsr.w	#3,D0
 	adda.w	D0,A2
 	moveq.l	#15,D0
@@ -162,8 +173,8 @@ tsch2:
 	move.w	(A1)+,D2
 	move.l	(A1),D5
 	move.w	D2,D3
-	and.w	#$FFF0,D2	
-	and.w	#$F,D3	
+	and.w	#0xFFF0,D2	
+	and.w	#0xF,D3	
 	lsr.w	#3,D2
 	adda.w	D2,A3
 	moveq.l	#15,D2
@@ -172,12 +183,12 @@ tsch2:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset1
+	beq.b	notset16_1
 	bset.l	D2,D3
-	bra.b	tsch1
-notset1:
+	bra.b	tsch16_1
+notset16_1:
 	bclr.l	D2,D3
-tsch1:
+tsch16_1:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -186,12 +197,12 @@ tsch1:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset2
+	beq.b	notset16_2
 	bset.l	D2,D3
-	bra.b	tsch2
-notset2:
+	bra.b	tsch16_2
+notset16_2:
 	bclr.l	D2,D3
-tsch2:
+tsch16_2:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -200,12 +211,12 @@ tsch2:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset3
+	beq.b	notset16_3
 	bset.l	D2,D3
-	bra.b	tsch3
-notset3:
+	bra.b	tsch16_3
+notset16_3:
 	bclr.l	D2,D3
-tsch3:
+tsch16_3:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -214,29 +225,37 @@ tsch3:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset4
+	beq.b	notset16_4
 	bset.l	D2,D3
-	bra.b	tsch4
-notset4:
+	bra.b	tsch16_4
+notset16_4:
 	bclr.l	D2,D3
-tsch4:
+tsch16_4:
 	move.w	D3,(A3)
 
-	movem.l	(sp)+,D3-D5/A2-A3
+	movem.l	(sp)+,D2-D5/A2-A3
 
 	rts
-.ENDMOD
 
-.MODULE fcopypoint256 :
 
-	movem.l	D3-D5/A2-A3,-(sp)
+	.IFEQ PURE_C
+	.globl _fcopypoint256
+_fcopypoint256:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	.ENDC
+
+	.globl fcopypoint256
+fcopypoint256:
+
+	movem.l	D2-D5/A2-A3,-(sp)
 
 	movea.l	(A0)+,A2
 	move.w	(A0)+,D0
 	move.l	(A0),D4
 	move.w	D0,D1
-	and.w	#$FFF0,D0	
-	and.w	#$F,D1	
+	and.w	#0xFFF0,D0	
+	and.w	#0xF,D1	
 	lsr.w	#3,D0
 	adda.w	D0,A2
 	moveq.l	#15,D0
@@ -246,8 +265,8 @@ tsch4:
 	move.w	(A1)+,D2
 	move.l	(A1),D5
 	move.w	D2,D3
-	and.w	#$FFF0,D2	
-	and.w	#$F,D3	
+	and.w	#0xFFF0,D2	
+	and.w	#0xF,D3	
 	lsr.w	#3,D2
 	adda.w	D2,A3
 	moveq.l	#15,D2
@@ -256,12 +275,12 @@ tsch4:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset1
+	beq.b	notset256_1
 	bset.l	D2,D3
-	bra.b	tsch1
-notset1:
+	bra.b	tsch256_1
+notset256_1:
 	bclr.l	D2,D3
-tsch1:
+tsch256_1:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -270,12 +289,12 @@ tsch1:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset2
+	beq.b	notset256_2
 	bset.l	D2,D3
-	bra.b	tsch2
-notset2:
+	bra.b	tsch256_2
+notset256_2:
 	bclr.l	D2,D3
-tsch2:
+tsch256_2:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -284,12 +303,12 @@ tsch2:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset3
+	beq.b	notset256_3
 	bset.l	D2,D3
-	bra.b	tsch3
-notset3:
+	bra.b	tsch256_3
+notset256_3:
 	bclr.l	D2,D3
-tsch3:
+tsch256_3:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -298,12 +317,12 @@ tsch3:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset4
+	beq.b	notset256_4
 	bset.l	D2,D3
-	bra.b	tsch4
-notset4:
+	bra.b	tsch256_4
+notset256_4:
 	bclr.l	D2,D3
-tsch4:
+tsch256_4:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -312,12 +331,12 @@ tsch4:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset5
+	beq.b	notset256_5
 	bset.l	D2,D3
-	bra.b	tsch5
-notset5:
+	bra.b	tsch256_5
+notset256_5:
 	bclr.l	D2,D3
-tsch5:
+tsch256_5:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -326,12 +345,12 @@ tsch5:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset6
+	beq.b	notset256_6
 	bset.l	D2,D3
-	bra.b	tsch6
-notset6:
+	bra.b	tsch256_6
+notset256_6:
 	bclr.l	D2,D3
-tsch6:
+tsch256_6:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -340,12 +359,12 @@ tsch6:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset7
+	beq.b	notset256_7
 	bset.l	D2,D3
-	bra.b	tsch7
-notset7:
+	bra.b	tsch256_7
+notset256_7:
 	bclr.l	D2,D3
-tsch7:
+tsch256_7:
 	move.w	D3,(A3)
 
 	adda.l	D4,A2
@@ -354,21 +373,30 @@ tsch7:
 	move.w	(A2),D1
 	move.w	(A3),D3
 	btst.l	D0,D1
-	beq.b	notset8
+	beq.b	notset256_8
 	bset.l	D2,D3
-	bra.b	tsch8
-notset8:
+	bra.b	tsch256_8
+notset256_8:
 	bclr.l	D2,D3
-tsch8:
+tsch256_8:
 	move.w	D3,(A3)
 
-	movem.l	(sp)+,D3-D5/A2-A3
+	movem.l	(sp)+,D2-D5/A2-A3
 
 	rts
-.ENDMOD
 
-.MODULE fcopypoint256PP
+	.IFEQ PURE_C
+	.globl _fcopypoint256PP
+_fcopypoint256PP:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	.ENDC
 
+	.globl fcopypoint256PP
+fcopypoint256PP:
+	.IFEQ PURE_C
+	move.l d2,-(a7)
+	.ENDC
 	move.l	(A0)+,D1
 	move.w	(A0),D2
 	movea.l	(A1)+,A0
@@ -376,14 +404,24 @@ tsch8:
 	adda.w	D0,A0
 	move.l	D1,A1
 	adda.w	D2,A1
-
 	move.b	(A1),(A0)
-
+	.IFEQ PURE_C
+	move.l (a7)+,d2
+	.ENDC
 	rts
-.ENDMOD
 
-.MODULE fcopypointTC16
+	.IFEQ PURE_C
+	.globl _fcopypointTC16
+_fcopypointTC16:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	.ENDC
 
+	.globl fcopypointTC16
+fcopypointTC16:
+	.IFEQ PURE_C
+	move.l d2,-(a7)
+	.ENDC
 	move.l	(A0)+,D1
 	move.w	(A0),D2
 	movea.l	(A1)+,A0
@@ -393,14 +431,25 @@ tsch8:
 	move.l	D1,A1
 	adda.w	D2,A1
 	adda.w	D2,A1
-
 	move.w	(A1),(A0)
-
+	.IFEQ PURE_C
+	move.l (a7)+,d2
+	.ENDC
 	rts
-.ENDMOD
 
-MODULE fcopypointTC24
 
+	.IFEQ PURE_C
+	.globl _fcopypointTC24
+_fcopypointTC24:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	.ENDC
+
+	.globl fcopypointTC24
+fcopypointTC24:
+	.IFEQ PURE_C
+	move.l d2,-(a7)
+	.ENDC
 	move.l	(A0)+,D1
 	move.w	(A0),D2
 	movea.l	(A1)+,A0
@@ -416,8 +465,7 @@ MODULE fcopypointTC24
 	move.b	(A1)+,(A0)+
 	move.b	(A1)+,(A0)+
 	move.b	(A1),(A0)
-
+	.IFEQ PURE_C
+	move.l (a7)+,d2
+	.ENDC
 	rts
-.ENDMOD
-
-.END

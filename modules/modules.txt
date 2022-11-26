@@ -34,7 +34,7 @@ interpo.sem    0.10    -
 invert.sem     0.50    0.50
 konform.sem    0.20    0.20
 litlgrad.sem   0.20    0.20
-magicpic.sem   0.60    0.60
+magicpic.sem   0.60    0.60     x
 minmax.sem     0.20    0.20
 mirror.sem     0.30    0.30
 noise.sem      0.40    0.40
