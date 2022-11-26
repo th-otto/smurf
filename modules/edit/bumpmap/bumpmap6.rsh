@@ -396,9 +396,9 @@ static char bumpmap6_string_65[] = "";
 static char bumpmap6_string_66[] = "";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ bumpmap6_string_1, bumpmap6_string_2, bumpmap6_string_3, IBM, 6, TE_CNTR, 0x1100, 0x0, -1, 7,1 },
-	{ bumpmap6_string_4, bumpmap6_string_5, bumpmap6_string_6, SMALL, 6, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* BM_STRENGH_EDIT */
+	{ bumpmap6_string_4, bumpmap6_string_5, bumpmap6_string_6, SMALL, 6, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* BM_STRENGTH_EDIT */
 	{ bumpmap6_string_7, bumpmap6_string_8, bumpmap6_string_9, IBM, 6, TE_LEFT, 0x1100, 0x0, 0, 15,1 },
 	{ bumpmap6_string_10, bumpmap6_string_11, bumpmap6_string_12, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 4,1 },
 	{ bumpmap6_string_13, bumpmap6_string_14, bumpmap6_string_15, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 5,1 },
@@ -412,7 +412,7 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 	{ bumpmap6_string_37, bumpmap6_string_38, bumpmap6_string_39, IBM, 6, TE_CNTR, 0x1100, 0x0, -1, 2,1 },
 	{ bumpmap6_string_40, bumpmap6_string_41, bumpmap6_string_42, IBM, 6, TE_CNTR, 0x1100, 0x0, -1, 2,1 },
 	{ bumpmap6_string_43, bumpmap6_string_44, bumpmap6_string_45, SMALL, 6, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_HARD_EDIT */
-	{ bumpmap6_string_46, bumpmap6_string_47, bumpmap6_string_48, SMALL, 6, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_STRENGH_EDIT */
+	{ bumpmap6_string_46, bumpmap6_string_47, bumpmap6_string_48, SMALL, 6, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_BRIGHTNESS_EDIT */
 	{ bumpmap6_string_49, bumpmap6_string_50, bumpmap6_string_51, SMALL, 6, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_RED_EDIT */
 	{ bumpmap6_string_52, bumpmap6_string_53, bumpmap6_string_54, SMALL, 6, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_GREEN_EDIT */
 	{ bumpmap6_string_55, bumpmap6_string_56, bumpmap6_string_57, SMALL, 6, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_BLUE_EDIT */
@@ -422,7 +422,7 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* BUMPMAIN */
 
 	{ -1, 1, 46, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 63,18 },
@@ -430,9 +430,9 @@ OBJECT rs_object[NUM_OBS] = {
 	{ 3, -1, -1, G_IBOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x10100L), 289,257, 28,2061 },
 	{ 19, 4, 18, G_IBOX, OF_NONE, OS_NORMAL, C_UNION(0x11100L), 33,1, 28,2061 },
 	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 2,1, 6,1 },
-	{ 7, 6, 6, G_BOX, 0x201, OS_SELECTED, C_UNION(0xFE9178L), 4,2050, 1025,264 }, /* BM_STRENGH_FHR */
-	{ 5, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2823, 1025,1536 }, /* BM_STRENGH_SLIDE */
-	{ 8, -1, -1, G_BOXTEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 1027,11, 1026,2048 }, /* BM_STRENGH_EDIT */
+	{ 7, 6, 6, G_BOX, 0x201, OS_SELECTED, C_UNION(0xFE9178L), 4,2050, 1025,264 }, /* BM_STRENGTH_FHR */
+	{ 5, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2823, 1025,1536 }, /* BM_STRENGTH_SLIDE */
+	{ 8, -1, -1, G_BOXTEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 1027,11, 1026,2048 }, /* BM_STRENGTH_EDIT */
 	{ 9, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[2]), 1035,1, 14,1 },
 	{ 10, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[3]), 15,3, 3,1 },
 	{ 11, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF2100L), 1036,3, 1029,1 }, /* HW_RADIO_RED */
@@ -455,9 +455,9 @@ OBJECT rs_object[NUM_OBS] = {
 	{ 29, 28, 28, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE9178L), 793,3075, 1025,264 }, /* M_HARD_FHR */
 	{ 27, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2823, 1025,1536 }, /* M_HARD_SLIDE */
 	{ 30, -1, -1, G_BOXTEXT, OF_RBUTTON, OS_NORMAL, C_UNION(&rs_tedinfo[14]), 1816,1036, 1026,2048 }, /* M_HARD_EDIT */
-	{ 32, 31, 31, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE9178L), 786,3075, 1025,264 }, /* M_STRENGH_FHR */
-	{ 30, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2823, 1025,1536 }, /* M_STRENGH_SLIDE */
-	{ 33, -1, -1, G_BOXTEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[15]), 1809,1036, 1026,2048 }, /* M_STRENGH_EDIT */
+	{ 32, 31, 31, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE9178L), 786,3075, 1025,264 }, /* M_BRIGHTNESS_FHR */
+	{ 30, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2823, 1025,1536 }, /* M_BRIGHTNESS_SLIDE */
+	{ 33, -1, -1, G_BOXTEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[15]), 1809,1036, 1026,2048 }, /* M_BRIGHTNESS_EDIT */
 	{ 35, 34, 34, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE9178L), 1796,3075, 1025,264 }, /* M_RED_FHR */
 	{ 33, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1172L), 0,2823, 1025,1536 }, /* M_RED_SLIDE */
 	{ 37, 36, 36, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE9178L), 776,3075, 1025,264 }, /* M_GREEN_FHR */
@@ -475,7 +475,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* BUMPMAIN */
 };
 
@@ -585,7 +585,7 @@ void *gaddr;
 	case R_OBSPEC:
 		if (idx < 0 || idx >= NUM_OBS)
 			return 0;
-		*((_LONG **)gaddr) = &rs_object[idx].ob_spec.index;
+		*((_LONG_PTR **)gaddr) = &rs_object[idx].ob_spec.index;
 		break;
 #endif
 #if NUM_TI != 0

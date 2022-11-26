@@ -10,7 +10,7 @@ edit:
 beule.sem      0.80    0.80     x
 border.sem     0.10    -        x
 bumber.sem     -       1.00
-bumpmap.sem    1.20    -
+bumpmap.sem    1.20    -        x
 cchange.sem    0.10    -
 chanel5.sem    0.50    0.50
 chanelmx.sem   0.20    -

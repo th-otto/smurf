@@ -28,7 +28,7 @@
 =
 ..\edstart.s ; Startup-Code fÅr EDIT-Module
 
-bumpmap7.c
+bumpmap.c
 
 pcfltlib.lib    ; Floating Point LIB
 pcstdlib.lib  ; Standard LIB

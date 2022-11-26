@@ -54,33 +54,33 @@
 
 
 
-#define BUMPMAIN           0 /* form/dialog */
-#define DO_IT              1 /* BUTTON in tree BUMPMAIN */
-#define BM_STRENGH_FHR     5 /* BOX in tree BUMPMAIN */
-#define BM_STRENGH_SLIDE   6 /* BOX in tree BUMPMAIN */
-#define BM_STRENGH_EDIT    7 /* BOXTEXT in tree BUMPMAIN */
-#define HW_RADIO_RED      10 /* IBOX in tree BUMPMAIN */
-#define HW_RADIO_GREEN    12 /* IBOX in tree BUMPMAIN */
-#define HW_RADIO_BLUE     14 /* IBOX in tree BUMPMAIN */
-#define HW_RADIO_GREY     16 /* IBOX in tree BUMPMAIN */
-#define BM_PARALEL        18 /* IBOX in tree BUMPMAIN */
-#define M_HARD_FHR        27 /* BOX in tree BUMPMAIN */
-#define M_HARD_SLIDE      28 /* BOX in tree BUMPMAIN */
-#define M_HARD_EDIT       29 /* BOXTEXT in tree BUMPMAIN */
-#define M_STRENGH_FHR     30 /* BOX in tree BUMPMAIN */
-#define M_STRENGH_SLIDE   31 /* BOX in tree BUMPMAIN */
-#define M_STRENGH_EDIT    32 /* BOXTEXT in tree BUMPMAIN */
-#define M_RED_FHR         33 /* BOX in tree BUMPMAIN */
-#define M_RED_SLIDE       34 /* BOX in tree BUMPMAIN */
-#define M_GREEN_FHR       35 /* BOX in tree BUMPMAIN */
-#define M_GREEN_SLIDE     36 /* BOX in tree BUMPMAIN */
-#define M_BLUE_FHR        37 /* BOX in tree BUMPMAIN */
-#define M_BLUE_SLIDE      38 /* BOX in tree BUMPMAIN */
-#define M_RED_EDIT        39 /* BOXTEXT in tree BUMPMAIN */
-#define M_GREEN_EDIT      40 /* BOXTEXT in tree BUMPMAIN */
-#define M_BLUE_EDIT       41 /* BOXTEXT in tree BUMPMAIN */
-#define M_RADIO_DIFFUSE   44 /* IBOX in tree BUMPMAIN */
-#define M_RADIO_GLANZ     46 /* IBOX in tree BUMPMAIN */
+#define BUMPMAIN                           0 /* form/dialog */
+#define DO_IT                              1 /* BUTTON in tree BUMPMAIN */
+#define BM_STRENGTH_FHR                    5 /* BOX in tree BUMPMAIN */
+#define BM_STRENGTH_SLIDE                  6 /* BOX in tree BUMPMAIN */
+#define BM_STRENGTH_EDIT                   7 /* BOXTEXT in tree BUMPMAIN */
+#define HW_RADIO_RED                      10 /* IBOX in tree BUMPMAIN */
+#define HW_RADIO_GREEN                    12 /* IBOX in tree BUMPMAIN */
+#define HW_RADIO_BLUE                     14 /* IBOX in tree BUMPMAIN */
+#define HW_RADIO_GREY                     16 /* IBOX in tree BUMPMAIN */
+#define BM_PARALEL                        18 /* IBOX in tree BUMPMAIN */
+#define M_HARD_FHR                        27 /* BOX in tree BUMPMAIN */
+#define M_HARD_SLIDE                      28 /* BOX in tree BUMPMAIN */
+#define M_HARD_EDIT                       29 /* BOXTEXT in tree BUMPMAIN */
+#define M_BRIGHTNESS_FHR                  30 /* BOX in tree BUMPMAIN */
+#define M_BRIGHTNESS_SLIDE                31 /* BOX in tree BUMPMAIN */
+#define M_BRIGHTNESS_EDIT                 32 /* BOXTEXT in tree BUMPMAIN */
+#define M_RED_FHR                         33 /* BOX in tree BUMPMAIN */
+#define M_RED_SLIDE                       34 /* BOX in tree BUMPMAIN */
+#define M_GREEN_FHR                       35 /* BOX in tree BUMPMAIN */
+#define M_GREEN_SLIDE                     36 /* BOX in tree BUMPMAIN */
+#define M_BLUE_FHR                        37 /* BOX in tree BUMPMAIN */
+#define M_BLUE_SLIDE                      38 /* BOX in tree BUMPMAIN */
+#define M_RED_EDIT                        39 /* BOXTEXT in tree BUMPMAIN */
+#define M_GREEN_EDIT                      40 /* BOXTEXT in tree BUMPMAIN */
+#define M_BLUE_EDIT                       41 /* BOXTEXT in tree BUMPMAIN */
+#define M_RADIO_DIFFUSE                   44 /* IBOX in tree BUMPMAIN */
+#define M_RADIO_GLANZ                     46 /* IBOX in tree BUMPMAIN */
 
 
 
