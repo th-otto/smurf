@@ -73,10 +73,8 @@ void f_scan_edit(void)
 	short tt;
 	short biggest;
 	short pathlen;
-	long ProcLen;
 	long entrlen;
 	long temp;
-	long lback;
 	BASPAG *edit_baspag;
 	MOD_INFO *module_info;
 	struct DIRENTRY *filelist;
@@ -109,15 +107,15 @@ void f_scan_edit(void)
 		strcat(edit_path, actual->modname);
 
 		temp = Pexec(3, edit_path, "", NULL);
-		if (temp < 0)
+		if (temp <= 0)
 		{
 			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
 			if (temp == EACCDN)
 			{
-				sprintf(alert, "[1][Modul|%s|besitzt keine Berechtigung|ausgefhrt zu werden|(Exec-Flag?)!][ OK ]", actual->modname);	/* FIMXE: translate */
+				sprintf(alert, "[1][Modul|%s|besitzt keine Berechtigung|ausgefhrt zu werden|(Exec-Flag?)!][ OK ]", actual->modname);	/* FIXME: translate */
 			} else
 			{
-				sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\edit\\!][ OK ]", actual->modname);	/* FIMXE: translate */
+				sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\edit\\!][ OK ]", actual->modname);	/* FIXME: translate */
 			}
 
 			form_alert(1, alert);
@@ -128,20 +126,14 @@ void f_scan_edit(void)
 			mod_magic = get_modmagic(edit_baspag);	/* Zeiger auf Magic (muž MOD_MAGIC_EDIT sein!) */
 			if (mod_magic != MOD_MAGIC_EDIT)
 			{
-				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\edit\\|ist kein Editmodul!][ OK ]", actual->modname);	/* FIMXE: translate */
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\edit\\|ist kein Editmodul!][ OK ]", actual->modname);	/* FIXME: translate */
 				form_alert(1, alert);
 			} else
 			{
 				/*
 				 * L„nge des gesamten Tochterprozesses ermitteln
 				 */
-				ProcLen = get_proclen(edit_baspag);
-				_Mshrink(edit_baspag, ProcLen);	/* Speicherblock verkrzen */
-				edit_baspag->p_hitpa = (void *) ((char *) edit_baspag + ProcLen);
-
-				lback = Pexec(4, NULL, (char *) edit_baspag, NULL);
-				if (lback < 0L)
-					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
+				start_module(edit_baspag);
 
 				textseg_begin = edit_baspag->p_tbase;	/* Textsegment-Startadresse holen */
 
@@ -163,7 +155,7 @@ void f_scan_edit(void)
 				Dialog.emodList.anzahl++;
 
 				/*---- gescante Module im Startupdialog hochz„hlen */
-				if (!(Dialog.emodList.anzahl & 3))
+				if ((Dialog.emodList.anzahl & 3) == 0)
 				{
 					/* FIXME: translate */
 					strcpy(edstring, itoa(Dialog.emodList.anzahl, strn, 10));
@@ -343,9 +335,7 @@ void f_scan_import(void)
 	short anzahl_extensions;
 	short t;
 	short tt;
-	long ProcLen;
 	long temp;
-	long lback;
 	BASPAG *import_baspag;
 	MOD_INFO *module_info;
 	struct DIRENTRY *filelist;
@@ -392,10 +382,10 @@ void f_scan_import(void)
 		strcat(import_path, actual->modname);
 
 		temp = Pexec(3, import_path, "", NULL);
-		if (temp < 0)
+		if (temp <= 0)
 		{
 			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
-			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\import\\!][ OK ]", actual->modname);	/* FIMXE: translate */
+			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\import\\!][ OK ]", actual->modname);	/* FIXME: translate */
 			form_alert(1, alert);
 		} else
 		{
@@ -404,18 +394,12 @@ void f_scan_import(void)
 			mod_magic = get_modmagic(import_baspag);	/* Zeiger auf Magic (muž MOD_MAGIC_IMPORT sein!) */
 			if (mod_magic != MOD_MAGIC_IMPORT)
 			{
-				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\import\\|ist kein importmodul!][ OK ]", actual->modname);	/* FIMXE: translate */
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\import\\|ist kein importmodul!][ OK ]", actual->modname);	/* FIXME: translate */
 				form_alert(1, alert);
 			} else
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
-				ProcLen = get_proclen(import_baspag);
-				_Mshrink(import_baspag, ProcLen);	/* Speicherblock verkrzen */
-				import_baspag->p_hitpa = (void *) ((char *) import_baspag + ProcLen);
-
-				lback = Pexec(4, NULL, (char *) import_baspag, NULL);
-				if (lback < 0L)
-					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
+				start_module(import_baspag);
 
 				textseg_begin = import_baspag->p_tbase;	/* Textsegment-Startadresse holen */
 
@@ -622,10 +606,8 @@ void f_scan_export(void)
 	short tt;
 	short biggest;
 	short pathlen;
-	long ProcLen;
 	long entrlen;
 	long temp;
-	long lback;
 	BASPAG *export_baspag;
 	MOD_INFO *module_info;
 	struct DIRENTRY *filelist;
@@ -656,10 +638,10 @@ void f_scan_export(void)
 		strcat(ex_path, actual->modname);
 
 		temp = Pexec(3, ex_path, "", NULL);
-		if (temp < 0)
+		if (temp <= 0)
 		{
 			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
-			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\export\\!][ OK ]", actual->modname);	/* FIMXE: translate */
+			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\export\\!][ OK ]", actual->modname);	/* FIXME: translate */
 			form_alert(1, alert);
 		} else
 		{
@@ -673,13 +655,7 @@ void f_scan_export(void)
 			} else
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
-				ProcLen = get_proclen(export_baspag);
-				_Mshrink(export_baspag, ProcLen);	/* Speicherblock verkrzen */
-				export_baspag->p_hitpa = (void *) ((char *) export_baspag + ProcLen);
-
-				lback = Pexec(4, NULL, (char *) export_baspag, NULL);
-				if (lback < 0L)
-					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
+				start_module(export_baspag);
 
 				textseg_begin = export_baspag->p_tbase;	/* Textsegment-Startadresse holen */
 
@@ -767,9 +743,7 @@ void f_scan_dither(void)
 	char *textseg_begin;
 	long mod_magic;
 	short pathlen;
-	long ProcLen;
 	long temp;
-	long lback;
 	BASPAG *dit_baspag;
 	struct DIRENTRY *filelist;
 	struct DIRENTRY *actual;
@@ -799,11 +773,10 @@ void f_scan_dither(void)
 		DEBUG_MSG(("  anzahl_dithermods:  %i\n", anzahl_dithermods));
 		DEBUG_MSG(("  dit_path:  %s\n", dit_path));
 		DEBUG_MSG(("  Speicher %li\n", Malloc(-1)));
-		;
 
 		temp = Pexec(3, dit_path, "", NULL);
 
-		if (temp < 0)
+		if (temp <= 0)
 		{
 			DEBUG_MSG(("  Fehler bei %s: %li\n", actual->modname, temp));
 			sprintf(alert, "[1][Fehler '%li' in File|%s|im Ordner|\\modules\\dither\\!][ OK ]", temp, actual->modname);	/* FIXME: translate */
@@ -815,18 +788,12 @@ void f_scan_dither(void)
 			mod_magic = get_modmagic(dit_baspag);	/* Zeiger auf Magic (muž MOD_MAGIC_DITHER sein!) */
 			if (mod_magic != MOD_MAGIC_DITHER)
 			{
-				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\dither\\|ist kein Dithermodul!][ OK ]", actual->modname);	/* FIMXE: translate */
+				sprintf(alert, "[1][Datei %s|im Ordner|\\modules\\dither\\|ist kein Dithermodul!][ OK ]", actual->modname);	/* FIXME: translate */
 				form_alert(1, alert);
 			} else
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
-				ProcLen = get_proclen(dit_baspag);
-				_Mshrink(dit_baspag, ProcLen);	/* Speicherblock verkrzen */
-				dit_baspag->p_hitpa = (void *) ((char *) dit_baspag + ProcLen);
-
-				lback = Pexec(4, NULL, (char *) dit_baspag, NULL);
-				if (lback < 0)
-					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
+				start_module(dit_baspag);
 
 				textseg_begin = dit_baspag->p_tbase;	/* Textsegment-Startadresse holen */
 

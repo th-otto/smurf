@@ -256,7 +256,7 @@ void convert_icon(OBJECT *tree, WORD index);
 SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short form, short col);
 short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number);       /* mehrere Bilder ans Modul Åbergeben */
 short inform_modules(short message, SMURF_PIC *picture);    /* Informiert alle Module und Plugins Åber message */
-long get_proclen(BASPAG *baspag);
+void start_module(BASPAG *baspag);
 long get_modmagic(BASPAG *basepage);
 void AESmsg_to_modules(WORD *msgbuf);
 void make_modpreview(WINDOW *wind);
@@ -383,7 +383,6 @@ void fulldisable_busybox(void);
 /* **********************************************************************/
 
 /*----- Smurf-Systemspezifisches ----*/
-/*----- Smurf-Systemspezifisches ----*/
 extern DISPLAY_MODES Display_Opt;
 extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
 extern SERVICE_FUNCTIONS global_services;
@@ -421,7 +420,6 @@ extern WORD orig_blue[256];
 extern uint8_t planetable[260];
 
 /*--------- Exporterspezifisches ------*/
-extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
 extern char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
 extern char *export_cnfblock[50];		/* Konfigurationsblîcke fÅr die Exporter */
 extern short export_cnflen[50];			/* LÑnge des jeweiligen Blockes */

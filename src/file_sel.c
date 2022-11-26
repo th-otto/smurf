@@ -195,7 +195,7 @@ BOOLEAN file_save(char *stext, uint8_t *buf, long length)
 	/* mit einem Trick testen, ob die Datei da ist */
 	/* Ergebnis < 0 wenn die Datei noch nicht vorhanden ist */
 	if (Fattrib(savepath, 0, 0) >= 0)
-		if (Dialog.winAlert.openAlert("Es existiert bereits eine Datei dieses Namens! Soll Sie ersetzt werden?", "Nein", " Ja ", NULL, 2) == 1)	/* FIMXE: translate */
+		if (Dialog.winAlert.openAlert("Es existiert bereits eine Datei dieses Namens! Soll Sie ersetzt werden?", "Nein", " Ja ", NULL, 2) == 1)	/* FIXME: translate */
 			goto start;
 
 	if ((fh = (int) Fcreate(savepath, 0)) >= 0)
@@ -206,9 +206,9 @@ BOOLEAN file_save(char *stext, uint8_t *buf, long length)
 		if (check != length)
 		{
 			if (check < 0)
-				Dialog.winAlert.openAlert("Es ist ein fataler Schreibfehler aufgetreten! Laufwerk voll, oder schlimmeres.", NULL, NULL, NULL, 1);	/* FIMXE: translate */
+				Dialog.winAlert.openAlert("Es ist ein fataler Schreibfehler aufgetreten! Laufwerk voll, oder schlimmeres.", NULL, NULL, NULL, 1);	/* FIXME: translate */
 			else
-				Dialog.winAlert.openAlert("Die Datei konnte nicht vollst„ndig geschrieben werden. Wahrscheinlich ist das Laufwerk voll.", NULL, NULL, NULL, 1);	/* FIMXE: translate */
+				Dialog.winAlert.openAlert("Die Datei konnte nicht vollst„ndig geschrieben werden. Wahrscheinlich ist das Laufwerk voll.", NULL, NULL, NULL, 1);	/* FIXME: translate */
 		}
 
 										  /*------- "Laufwerksinhalt ver„ndert" ans Desktop -------*/
@@ -233,7 +233,7 @@ BOOLEAN file_save(char *stext, uint8_t *buf, long length)
 
 	} else
 	{
-		Dialog.winAlert.openAlert("Es ist ein Fehler beim Anlegen der Datei aufgetreten!", NULL, NULL, NULL, 1);	/* FIMXE: translate */
+		Dialog.winAlert.openAlert("Es ist ein Fehler beim Anlegen der Datei aufgetreten!", NULL, NULL, NULL, 1);	/* FIXME: translate */
 		return FALSE;
 	}
 
@@ -394,7 +394,7 @@ BOOLEAN f_fsbox(char *Path, const char *fbtext, uint8_t selectart)
 
 	if (back == FALSE)
 	{
-		Dialog.winAlert.openAlert("Fehler beim Aufruf der Dateiauswahl!", NULL, NULL, NULL, 1);	/* FIMXE: translate */
+		Dialog.winAlert.openAlert("Fehler beim Aufruf der Dateiauswahl!", NULL, NULL, NULL, 1);	/* FIXME: translate */
 		return FALSE;
 	}
 

@@ -108,8 +108,7 @@ void scan_plugins(void)
 	PLUGIN_INFO *info;
 	PLUGIN_INFO installed_infos[20];
 	long mod_magic;
-	long ProcLen;
-	long temp, lback;
+	long temp;
 	struct DIRENTRY *actual;
 	struct DIRENTRY *filelist;
 
@@ -145,7 +144,7 @@ void scan_plugins(void)
 		strcat(edit_path, actual->modname);
 
 		temp = Pexec(3, edit_path, "", NULL);
-		if (temp < 0)
+		if (temp <= 0)
 		{
 			/* FIXME: translate */
 			strcpy(alert, "[1][Fehler in File|");
@@ -176,13 +175,7 @@ void scan_plugins(void)
 			else
 			{
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
-				ProcLen = get_proclen(plugin_bp[anzahl_plugins]);
-				_Mshrink(plugin_bp[anzahl_plugins], ProcLen);	/* Speicherblock verkrzen */
-				plugin_bp[anzahl_plugins]->p_hitpa = (void *) ((char *) plugin_bp[anzahl_plugins] + ProcLen);
-
-				lback = Pexec(4, NULL, (char *) plugin_bp[anzahl_plugins], NULL);
-				if (lback < 0L)
-					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
+				start_module(plugin_bp[anzahl_plugins]);
 
 				textseg_begin = plugin_bp[anzahl_plugins]->p_tbase;	/* Textsegment-Startadresse holen */
 
@@ -483,15 +476,13 @@ static short load_plugin(short plugin_number)
 {
 	char alert[128];
 	long temp;
-	long lback;
-	long ProcLen;
 	long mod_magic;
 
 	/* FIXME: translate */
 	Dialog.busy.reset(128, "Lade Plugin");
 
 	temp = Pexec(3, plugin_paths[plugin_number], "", NULL);
-	if (temp < 0)
+	if (temp <= 0)
 	{
 		/* FIXME: translate */
 		strcpy(alert, "[1][Fehler beim Nachladen|");
@@ -503,17 +494,7 @@ static short load_plugin(short plugin_number)
 	{
 		plugin_bp[plugin_number] = (BASPAG *) temp;
 
-		/*---- L„nge des gesamten Tochterprozesses ermitteln */
-		ProcLen = get_proclen(plugin_bp[plugin_number]);
-		_Mshrink(plugin_bp[plugin_number], ProcLen);	/* Speicherblock verkrzen */
-		plugin_bp[plugin_number]->p_hitpa = (void *) ((char *) plugin_bp[plugin_number] + ProcLen);
-
-		lback = Pexec(4, NULL, (char *) plugin_bp[plugin_number], NULL);
-		if (lback < 0L)
-			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
-
 		mod_magic = get_modmagic(plugin_bp[plugin_number]);	/* Zeiger auf Magic (muž 'PLGN' sein!) */
-
 		if (mod_magic != MOD_MAGIC_PLUGIN)
 		{
 			/* FIXME: translate */
@@ -521,6 +502,9 @@ static short load_plugin(short plugin_number)
 			form_alert(1, alert);
 			return -1;
 		}
+
+		/*---- L„nge des gesamten Tochterprozesses ermitteln */
+		start_module(plugin_bp[plugin_number]);
 	}
 
 	return 0;

@@ -380,7 +380,7 @@ static short open_modconf_popup(MOD_INFO * modinfo)
 	ôffnet das Pseudopopup und lÑdt eine Konfiguration. Diese wird
 	an das Modul zurÅckgegeben.
 	------------------------------------------------------*/
-void *mconfLoad(MOD_INFO * modinfo, short mod_id, char *name)
+void *mconfLoad(MOD_INFO *modinfo, short mod_id, char *name)
 {
 	char cnfname[33];
 	short back;

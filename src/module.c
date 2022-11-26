@@ -89,10 +89,7 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	long mod_magic;
 	short (*module_main)(GARGAMEL *smurf_struct);
 	short module_return;
-	short back;
-	long ProcLen;
 	long temp;
-	long lback;
 	char alstring[80];
 	BASPAG *mod_basepage;
 	MOD_INFO *module_info;
@@ -100,7 +97,7 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 
 	/* Modul als Overlay laden und Basepage ermitteln */
 	temp = Pexec(3, modpath, "", NULL);
-	if (temp < 0)
+	if (temp <= 0)
 	{
 		strcpy(alstring, Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast);
 		strcat(alstring, strrchr(modpath, '\\') + 1);
@@ -115,22 +112,13 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 			return M_MODERR;
 
 		/* Laenge des gesamten Tochterprozesses ermitteln */
-		ProcLen = get_proclen(mod_basepage);
-		back = _Mshrink(mod_basepage, ProcLen);	/* Speicherblock verkuerzen */
-		if (back != 0)
-			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
-
-		mod_basepage->p_hitpa = (void *) ((char *)mod_basepage + ProcLen);
-
-		lback = Pexec(4, NULL, (char *) mod_basepage, NULL);
-		if (lback != 0)
-			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
+		start_module(mod_basepage);
 
 		textseg_begin = mod_basepage->p_tbase;	/* Textsegment-Startadresse holen */
 
 		module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
-		memset(modname, 0x0, 25);
-		strncpy(modname, module_info->mod_name, 24);
+		memset(modname, 0, sizeof(modname));
+		strncpy(modname, module_info->mod_name, sizeof(modname) - 1);
 
 		sm_struct.smurf_pic = imp_pic;
 		sm_struct.services = &global_services;
@@ -156,14 +144,9 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 {
 	void (*module_main)(GARGAMEL *smurf_struct);
 	char *textseg_begin;
-	short back;
-	long ProcLen;
 	long temp;
-	long lback;
 	long mod_magic;
-
 	MOD_ABILITY *mod_abs;
-
 
 	if (mod_id < 0 || mod_id >= MAX_MODS)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[SMURF_ID_ERR].TextCast, NULL, NULL, NULL, 1);
@@ -191,16 +174,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 			}
 
 			/* L„nge des gesamten Tochterprozesses ermitteln */
-			ProcLen = get_proclen(edit_basepage);
-			back = _Mshrink(edit_basepage, ProcLen);	/* Speicherblock verkrzen */
-			if (back != 0)
-				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
-
-			edit_basepage->p_hitpa = (void *) ((char *) edit_basepage + ProcLen);
-
-			lback = Pexec(4, NULL, (char *) edit_basepage, NULL);
-			if (lback < 0)
-				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
+			start_module(edit_basepage);
 		}
 	}
 
@@ -265,10 +239,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *export_basepage, GARGAMEL *sm_struct, short module_number)
 {
 	char *textseg_begin;
-	short back;
-	long ProcLen;
 	long temp;
-	long lback;
 	long mod_magic;
 	MOD_ABILITY *mod_abs;
 	EXPORT_PIC *encoded_pic;
@@ -297,16 +268,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 			}
 
 			/* L„nge des gesamten Tochterprozesses ermitteln */
-			ProcLen = get_proclen(export_basepage);
-			back = _Mshrink(export_basepage, ProcLen);	/* Speicherblock verkrzen */
-			if (back != 0)
-				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
-
-			export_basepage->p_hitpa = (void *) ((char *) export_basepage + ProcLen);
-
-			lback = Pexec(4, NULL, (char *) export_basepage, NULL);
-			if (lback < 0)
-				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
+			start_module(export_basepage);
 		}
 	}
 
@@ -1164,15 +1126,26 @@ short inform_modules(short message, SMURF_PIC *picture)
 }
 
 
-/* get_proclen
+/* start_module
    -------------------------------------------------
-   Ermittelt die Gesamtl„nge des Prozesses mit der Basepage baspag.
+   Ermittelt die Gesamtlange des Prozesses mit der Basepage baspag,
+   und verkuerzt die TPA entsprechend.
    ----------------------------------------------------------------
  */
-long get_proclen(BASPAG *baspag)
+void start_module(BASPAG *basepage)
 {
+	long ProcLen;
+	long lback;
+
 	/* BASEPAGE + Textsegment + Datensegment + BSS + Stack */
-	return sizeof(*baspag) + baspag->p_tlen + baspag->p_dlen + baspag->p_blen + 1024L;
+	ProcLen = sizeof(*basepage) + basepage->p_tlen + basepage->p_dlen + basepage->p_blen + 1024L;
+	basepage->p_hitpa = (void *) ((char *)basepage + ProcLen);
+	if (_Mshrink(basepage, ProcLen) != 0)	/* Speicherblock verkuerzen */
+		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_SHRINK_ERR].TextCast, NULL, NULL, NULL, 1);
+
+	lback = Pexec(4, NULL, (char *) basepage, NULL);
+	if (lback < 0)
+		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 }
 
 

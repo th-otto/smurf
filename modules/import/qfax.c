@@ -760,7 +760,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	if (type > 1)
 	{
 		/* FIXME: translate */
-		/* FIMXE: must not call AES functions in modules */
+		/* FIXME: must not call AES functions in modules */
 		form_alert(0, "[1][2-dimensionale Komprimierung wird | noch nicht unterstÅtzt][ OK ]");
 		return M_UNKNOWN_TYPE;
 	}

@@ -279,7 +279,7 @@ int main(int argc, const char *argv[])
 	 */
 	if (open_vwork() == FALSE)
 	{
-		form_alert(1, "[3][Fehler beim ™ffnen der VDI-Workstation!][Ups]");	/* FIMXE: translate */
+		form_alert(1, "[3][Fehler beim ™ffnen der VDI-Workstation!][Ups]");	/* FIXME: translate */
 		return 1;
 	}
 
@@ -2737,7 +2737,7 @@ short f_init_system(void)
 	if (Dialog.emodList.anzahl == 0)
 	{
 		DEBUG_MSG(("***** Keine Editmodule!\n"));
-		form_alert(1, "[1][Keine Editmodule gefunden!][ Oh! ]");	/* FIMXE: translate */
+		form_alert(1, "[1][Keine Editmodule gefunden!][ Oh! ]");	/* FIXME: translate */
 		change_object(&wind_s[WIND_MODULES], START_MODULE, OS_DISABLED, 1);
 		change_object(&wind_s[WIND_MODULES], INFO_MODULE, OS_DISABLED, 1);
 
