@@ -122,7 +122,7 @@ OBJECT *menu_tree;
 
 OBJECT *u_tree;							/* Zeiger auf Radiobutton/Checkbox-Formular */
 
-MFORM lr_arrow, ud_arrow, lrud_arrow;
+MFORM *lr_arrow, *ud_arrow, *lrud_arrow;
 long f_len = 0x4b444100L;				/* LÑnge des letzten geladenen Files 'KDA\0' */
 WORD *messagebuf;						/* Zeiger fÅr Messageevents */
 WORD klicks;							/* Anzahl Mausklicks beim letzten Buttonevent */

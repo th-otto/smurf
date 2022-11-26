@@ -1226,12 +1226,12 @@ void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 				} else
 				{
 					if (hmode && !vmode)
-						graf_mouse(USER_DEF, &lr_arrow);
+						graf_mouse(USER_DEF, lr_arrow);
 					else if (!hmode && vmode)
-						graf_mouse(USER_DEF, &ud_arrow);
+						graf_mouse(USER_DEF, ud_arrow);
 					else if (hmode && vmode)
-						graf_mouse(USER_DEF, &lrud_arrow);
-					else if (!hmode && !vmode)
+						graf_mouse(USER_DEF, lrud_arrow);
+					else
 						graf_mouse(FLAT_HAND, NULL);
 				}
 			} else

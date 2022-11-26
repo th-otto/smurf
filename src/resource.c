@@ -47,14 +47,6 @@
 #include "debug.h"
 
 
-/*------ Icondaten fr die Mauszeiger ------*/
-#include "lrarrow.icn"
-#include "lrarrow.icm"
-#include "udarrow.icn"
-#include "udarrow.icm"
-#include "lrud_arr.icn"
-#include "lrud_arr.icm"
-
 short add_flags[40];						/* zus„tzliche Fensterelemente */
 
 /* f_init_popup */
@@ -238,6 +230,7 @@ void init_smurfrsc(const char *rscpath)
 	short t;
 	WORD dummy;
 	GRECT desk;
+	BITBLK *bit;
 
 	/* ----- Startup-Dialog initialisieren --- */
 	desk.g_x = 0;
@@ -250,7 +243,7 @@ void init_smurfrsc(const char *rscpath)
 	if (back == FALSE)
 	{
 		form_alert(1, "[3][Resource-File SMURF.RSC nicht|gefunden! Prfen Sie, ob sich|die Datei im Smurf-Pfad|befindet.][ Ups ]");
-		exit(-1);
+		exit(1);
 	}
 
 	xrsrc_gaddr(R_TREE, MENU1, &menu_tree, resource_global);
@@ -478,29 +471,12 @@ void init_smurfrsc(const char *rscpath)
 	add_flags[WIND_EXPORT] = INFO;
 
 	/*----------- MFORMs fertigmachen --------*/
-	lr_arrow.mf_xhot = 7;
-	lr_arrow.mf_yhot = 7;
-	lr_arrow.mf_nplanes = 1;
-	lr_arrow.mf_fg = 0;
-	lr_arrow.mf_bg = 1;
-	memcpy(lr_arrow.mf_mask, lrarrow_mask, 16 * 2);
-	memcpy(lr_arrow.mf_data, lrarrow, 16 * 2);
-
-	ud_arrow.mf_xhot = 7;
-	ud_arrow.mf_yhot = 7;
-	ud_arrow.mf_nplanes = 1;
-	ud_arrow.mf_fg = 0;
-	ud_arrow.mf_bg = 1;
-	memcpy(ud_arrow.mf_mask, udarrow_mask, 16 * 2);
-	memcpy(ud_arrow.mf_data, udarrow, 16 * 2);
-
-	lrud_arrow.mf_xhot = 7;
-	lrud_arrow.mf_yhot = 7;
-	lrud_arrow.mf_nplanes = 1;
-	lrud_arrow.mf_fg = 0;
-	lrud_arrow.mf_bg = 1;
-	memcpy(lrud_arrow.mf_mask, lrud_arr_mask, 16 * 2);
-	memcpy(lrud_arrow.mf_data, lrud_arr, 16 * 2);
+	xrsrc_gaddr(R_IMAGEDATA, LRARROW, &bit, resource_global);
+	lr_arrow = (MFORM *)bit->bi_pdata;
+	xrsrc_gaddr(R_IMAGEDATA, UDARROW, &bit, resource_global);
+	ud_arrow = (MFORM *)bit->bi_pdata;
+	xrsrc_gaddr(R_IMAGEDATA, LRUDARROW, &bit, resource_global);
+	lrud_arrow = (MFORM *)bit->bi_pdata;
 }
 
 

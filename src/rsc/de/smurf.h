@@ -6,18 +6,18 @@
 
 /*
  * Number of Strings:        1381
- * Number of Bitblks:        2
+ * Number of Bitblks:        5
  * Number of Iconblks:       1
  * Number of Color Iconblks: 42
  * Number of Color Icons:    42
  * Number of Tedinfos:       409
  * Number of Free Strings:   0
- * Number of Free Images:    0
+ * Number of Free Images:    3
  * Number of Objects:        749
  * Number of Trees:          36
  * Number of Userblks:       0
- * Number of Images:         4
- * Total file size:          82102
+ * Number of Images:         7
+ * Total file size:          82378
  */
 
 #ifdef RSC_NAME
@@ -42,9 +42,9 @@
 #define NUM_STRINGS 1381
 #define NUM_FRSTR 0
 #define NUM_UD 0
-#define NUM_IMAGES 4
-#define NUM_BB 2
-#define NUM_FRIMG 0
+#define NUM_IMAGES 7
+#define NUM_BB 5
+#define NUM_FRIMG 3
 #define NUM_IB 1
 #define NUM_CIB 42
 #define NUM_TI 409
@@ -647,6 +647,12 @@
 #define WT_TRANSFORM                      13 /* TEXT in tree WINDOW_TITLES */
 #define WT_BTYPEIN                        14 /* TEXT in tree WINDOW_TITLES */
 #define WT_BLOCKMODE                      15 /* TEXT in tree WINDOW_TITLES */
+
+#define LRARROW                            0 /* Mouse cursor */
+
+#define UDARROW                            1 /* Mouse cursor */
+
+#define LRUDARROW                          2 /* Mouse cursor */
 
 #define EDITMODULE_INFO                    0 /* BubbleUser */
 
