@@ -313,13 +313,13 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #undef NUM_OBS
 #undef NUM_TREE
 #undef NUM_UD
-#define NUM_STRINGS 102
+#define NUM_STRINGS 104
 #define NUM_BB		0
 #define NUM_IB		0
 #define NUM_CIB     0
 #define NUM_CIC     0
 #define NUM_TI		33
-#define NUM_FRSTR	0
+#define NUM_FRSTR	2
 #define NUM_FRIMG	0
 #define NUM_OBS     54
 #define NUM_TREE	1
@@ -327,42 +327,152 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #endif
 
 
+static char freefilt_string_0[] = "Start";
+static char freefilt_string_1[] = "load WF5";
+static char freefilt_string_2[] = "save WF5";
+static char freefilt_string_3[] = "Noname\0\0\0\0\0\0\0\0\0\0\0\0\0";
+static char freefilt_string_4[] = "___________________";
+static char freefilt_string_5[] = "X";
+static char freefilt_string_6[] = "+00";
+static char freefilt_string_7[] = "___";
+static char freefilt_string_8[] = "X9";
+static char freefilt_string_9[] = "+00";
+static char freefilt_string_10[] = "___";
+static char freefilt_string_11[] = "X9";
+static char freefilt_string_12[] = "+00";
+static char freefilt_string_13[] = "___";
+static char freefilt_string_14[] = "X9";
+static char freefilt_string_15[] = "+00";
+static char freefilt_string_16[] = "___";
+static char freefilt_string_17[] = "X9";
+static char freefilt_string_18[] = "+00";
+static char freefilt_string_19[] = "___";
+static char freefilt_string_20[] = "X9";
+static char freefilt_string_21[] = "+00";
+static char freefilt_string_22[] = "___";
+static char freefilt_string_23[] = "X9";
+static char freefilt_string_24[] = "+00";
+static char freefilt_string_25[] = "___";
+static char freefilt_string_26[] = "X9";
+static char freefilt_string_27[] = "+00";
+static char freefilt_string_28[] = "___";
+static char freefilt_string_29[] = "X9";
+static char freefilt_string_30[] = "+00";
+static char freefilt_string_31[] = "___";
+static char freefilt_string_32[] = "X9";
+static char freefilt_string_33[] = "+00";
+static char freefilt_string_34[] = "___";
+static char freefilt_string_35[] = "X9";
+static char freefilt_string_36[] = "+00";
+static char freefilt_string_37[] = "___";
+static char freefilt_string_38[] = "X9";
+static char freefilt_string_39[] = "+00";
+static char freefilt_string_40[] = "___";
+static char freefilt_string_41[] = "X9";
+static char freefilt_string_42[] = "+01";
+static char freefilt_string_43[] = "___";
+static char freefilt_string_44[] = "X9";
+static char freefilt_string_45[] = "+00";
+static char freefilt_string_46[] = "___";
+static char freefilt_string_47[] = "X9";
+static char freefilt_string_48[] = "+00";
+static char freefilt_string_49[] = "___";
+static char freefilt_string_50[] = "X9";
+static char freefilt_string_51[] = "+00";
+static char freefilt_string_52[] = "___";
+static char freefilt_string_53[] = "X9";
+static char freefilt_string_54[] = "+00";
+static char freefilt_string_55[] = "___";
+static char freefilt_string_56[] = "X9";
+static char freefilt_string_57[] = "+00";
+static char freefilt_string_58[] = "___";
+static char freefilt_string_59[] = "X9";
+static char freefilt_string_60[] = "+00";
+static char freefilt_string_61[] = "___";
+static char freefilt_string_62[] = "X9";
+static char freefilt_string_63[] = "+00";
+static char freefilt_string_64[] = "___";
+static char freefilt_string_65[] = "X9";
+static char freefilt_string_66[] = "+00";
+static char freefilt_string_67[] = "___";
+static char freefilt_string_68[] = "X9";
+static char freefilt_string_69[] = "+00";
+static char freefilt_string_70[] = "___";
+static char freefilt_string_71[] = "X9";
+static char freefilt_string_72[] = "+00";
+static char freefilt_string_73[] = "___";
+static char freefilt_string_74[] = "X9";
+static char freefilt_string_75[] = "+00";
+static char freefilt_string_76[] = "___";
+static char freefilt_string_77[] = "X9";
+static char freefilt_string_78[] = "+00";
+static char freefilt_string_79[] = "___";
+static char freefilt_string_80[] = "X9";
+static char freefilt_string_81[] = "+1\0\0";
+static char freefilt_string_82[] = "Div.: ____";
+static char freefilt_string_83[] = "X9";
+static char freefilt_string_84[] = "+0\0\0";
+static char freefilt_string_85[] = "Bias: ____";
+static char freefilt_string_86[] = "X9";
+static char freefilt_string_87[] = "Clip";
+static char freefilt_string_88[] = "";
+static char freefilt_string_89[] = "";
+static char freefilt_string_90[] = "Invert";
+static char freefilt_string_91[] = "";
+static char freefilt_string_92[] = "";
+static char freefilt_string_93[] = "Strength";
+static char freefilt_string_94[] = "";
+static char freefilt_string_95[] = "";
+static char freefilt_string_96[] = "123";
+static char freefilt_string_97[] = "";
+static char freefilt_string_98[] = "";
+static char freefilt_string_99[] = "Preview:";
+static char freefilt_string_100[] = "";
+static char freefilt_string_101[] = "";
+static char freefilt_string_102[] = "Load Filter";
+static char freefilt_string_103[] = "Save Filter";
+
+
+static char *rs_frstr[NUM_FRSTR] = {
+	freefilt_string_102,
+	freefilt_string_103
+};
 
 
 static TEDINFO rs_tedinfo[NUM_TI] = {
-	{ "Noname\0\0\0\0\0\0\0\0\0\0\0\0\0", "___________________", "XXXXXXXXXXXXXXXXXXX", IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 20,20 }, /* FILTER_NAME */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_00 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_01 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_02 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_03 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, 0, 4,4 }, /* MATRIX_04 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_10 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_11 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_12 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_13 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_14 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_20 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_21 */
-	{ "+01", "___", "X99", IBM, 0, TE_LEFT, 0x1A80, 0x0, -1, 4,4 }, /* MATRIX_22 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_23 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_24 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_30 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_31 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_32 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_33 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_34 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_40 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_41 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_42 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_43 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_44 */
-	{ "+1\0\0", "Div.: ____", "X999", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 5,11 }, /* DIV */
-	{ "+0\0\0", "Bias: ____", "X999", IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 5,11 }, /* BIAS */
-	{ "Clip", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 5,1 },
-	{ "Invert", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
-	{ "Strength", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 9,1 },
-	{ "123", "\0", "\0", IBM, 0, TE_CNTR, 0x180, 0x0, 0, 4,1 }, /* STRENGTH_EDIT */
-	{ "Preview:", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 9,1 }
+	{ freefilt_string_3, freefilt_string_4, freefilt_string_5, IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 20,20 }, /* FILTER_NAME */
+	{ freefilt_string_6, freefilt_string_7, freefilt_string_8, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_00 */
+	{ freefilt_string_9, freefilt_string_10, freefilt_string_11, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_01 */
+	{ freefilt_string_12, freefilt_string_13, freefilt_string_14, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_02 */
+	{ freefilt_string_15, freefilt_string_16, freefilt_string_17, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_03 */
+	{ freefilt_string_18, freefilt_string_19, freefilt_string_20, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_04 */
+	{ freefilt_string_21, freefilt_string_22, freefilt_string_23, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_10 */
+	{ freefilt_string_24, freefilt_string_25, freefilt_string_26, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_11 */
+	{ freefilt_string_27, freefilt_string_28, freefilt_string_29, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_12 */
+	{ freefilt_string_30, freefilt_string_31, freefilt_string_32, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_13 */
+	{ freefilt_string_33, freefilt_string_34, freefilt_string_35, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_14 */
+	{ freefilt_string_36, freefilt_string_37, freefilt_string_38, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_20 */
+	{ freefilt_string_39, freefilt_string_40, freefilt_string_41, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_21 */
+	{ freefilt_string_42, freefilt_string_43, freefilt_string_44, IBM, 0, TE_LEFT, 0x1A80, 0x0, -1, 4,4 }, /* MATRIX_22 */
+	{ freefilt_string_45, freefilt_string_46, freefilt_string_47, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_23 */
+	{ freefilt_string_48, freefilt_string_49, freefilt_string_50, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_24 */
+	{ freefilt_string_51, freefilt_string_52, freefilt_string_53, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_30 */
+	{ freefilt_string_54, freefilt_string_55, freefilt_string_56, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_31 */
+	{ freefilt_string_57, freefilt_string_58, freefilt_string_59, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_32 */
+	{ freefilt_string_60, freefilt_string_61, freefilt_string_62, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_33 */
+	{ freefilt_string_63, freefilt_string_64, freefilt_string_65, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_34 */
+	{ freefilt_string_66, freefilt_string_67, freefilt_string_68, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_40 */
+	{ freefilt_string_69, freefilt_string_70, freefilt_string_71, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_41 */
+	{ freefilt_string_72, freefilt_string_73, freefilt_string_74, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_42 */
+	{ freefilt_string_75, freefilt_string_76, freefilt_string_77, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_43 */
+	{ freefilt_string_78, freefilt_string_79, freefilt_string_80, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_44 */
+	{ freefilt_string_81, freefilt_string_82, freefilt_string_83, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 5,11 }, /* DIV */
+	{ freefilt_string_84, freefilt_string_85, freefilt_string_86, IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 5,11 }, /* BIAS */
+	{ freefilt_string_87, freefilt_string_88, freefilt_string_89, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 5,1 },
+	{ freefilt_string_90, freefilt_string_91, freefilt_string_92, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
+	{ freefilt_string_93, freefilt_string_94, freefilt_string_95, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 9,1 },
+	{ freefilt_string_96, freefilt_string_97, freefilt_string_98, IBM, 0, TE_CNTR, 0x180, 0x0, 0, 4,1 }, /* STRENGTH_EDIT */
+	{ freefilt_string_99, freefilt_string_100, freefilt_string_101, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 9,1 }
 };
 
 
@@ -370,10 +480,10 @@ static OBJECT rs_object[NUM_OBS] = {
 /* FREE_FILTER */
 
 	{ -1, 1, 53, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 1071,2065 },
-	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION("Start"), 37,2063, 8,1 }, /* DO_IT */
-	{ 3, -1, -1, G_BUTTON, 0x605, OS_NORMAL, C_UNION("load WF5"), 2,2063, 1035,1 }, /* LOAD_FILTER */
-	{ 4, -1, -1, G_BUTTON, 0x605, OS_NORMAL, C_UNION("save WF5"), 16,2063, 1036,1 }, /* SAVE_FILTER */
-	{ 52, 5, 51, G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1100L), 1025,2048, 1055,14 }, /* STRENGTH_SLIDE */
+	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(freefilt_string_0), 37,2063, 8,1 }, /* DO_IT */
+	{ 3, -1, -1, G_BUTTON, 0x605, OS_NORMAL, C_UNION(freefilt_string_1), 2,2063, 1035,1 }, /* LOAD_FILTER */
+	{ 4, -1, -1, G_BUTTON, 0x605, OS_NORMAL, C_UNION(freefilt_string_2), 16,2063, 1036,1 }, /* SAVE_FILTER */
+	{ 52, 5, 51, G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1100L), 1025,2048, 1055,14 },
 	{ 6, -1, -1, G_FTEXT, 0x408, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 257,2048, 1811,1 }, /* FILTER_NAME */
 	{ 42, 7, 7, G_IBOX, OF_NONE, OS_NORMAL, C_UNION(0x1100L), 1024,2049, 21,2056 },
 	{ 6, 8, 36, G_BOX, OF_FL3DACT, OS_SELECTED, C_UNION(0x1100L), 1536,1536, 1811,3335 },
@@ -419,7 +529,7 @@ static OBJECT rs_object[NUM_OBS] = {
 	{ 48, -1, -1, (44<<8)+G_IBOX, OF_SELECTABLE, OS_NORMAL, C_UNION(0xFF2100L), 14,12, 1033,1 }, /* INVERT */
 	{ 49, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[30]), 1047,2048, 6,2048 },
 	{ 51, 50, 50, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE9178L), 1817,1281, 1025,264 }, /* STRENGTH_FHR */
-	{ 49, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2823, 1025,1536 },
+	{ 49, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2823, 1025,1536 }, /* STRENGTH_SLIDE */
 	{ 4, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[31]), 1816,2825, 1027,1 }, /* STRENGTH_EDIT */
 	{ 53, -1, -1, (47<<8)+G_BOX, OF_FL3DACT, OS_SELECTED, C_UNION(0xFF1100L), 546,3329, 12,6 }, /* PREVIEW */
 	{ 0, -1, -1, G_TEXT, OF_LASTOB, OS_NORMAL, C_UNION(&rs_tedinfo[32]), 34,3840, 6,2048 }
@@ -625,8 +735,8 @@ _WORD freefilt_rsc_free()
 
 #else /* !RSC_STATIC_FILE */
 #if 0
-_WORD rs_numstrings = 102;
-_WORD rs_numfrstr = 0;
+_WORD rs_numstrings = 104;
+_WORD rs_numfrstr = 2;
 
 _WORD rs_nuser = 0;
 _WORD rs_numimages = 0;

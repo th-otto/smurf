@@ -35,54 +35,30 @@
 
 #include "country.h"
 
-#if COUNTRY == 1
-# define STR_LOAD_FILTER "Matrix laden"
-# define STR_SAVE_FILTER "Matrix sichern"
-#elif COUNTRY == 0
-# define STR_LOAD_FILTER "Load Filter"
-# define STR_SAVE_FILTER "Save Filter"
-#else
-# define STR_LOAD_FILTER "Load Filter"
-# define STR_SAVE_FILTER "Save Filter"
-#endif
-
 #define Obj_Selected(a) (main_form[a].ob_state & OS_SELECTED)
 #define GET_Edit_Object(x) (main_form[x].ob_spec.tedinfo->te_ptext)
 
-void Set_Edit_Object(OBJECT *obj, short wert); /* BUG: wrong type */
-
-
-void Calc_filtervalues(void);
-short do_it(GARGAMEL *smurf_struct);
-
 /*-- Globale deklarationen fr 'Calc_filtervalues' --------*/
-short f_div;
-short f_bias;
-long f_mul;
-uint8_t f_clip;
-uint8_t f_invert;
+static short f_div;
+static short f_bias;
+static long f_mul;
+static uint8_t f_clip;
+static uint8_t f_invert;
 
-short fak_o, fak_f;
+static short fak_o, fak_f;
 
-long red, green, blue;
-uint8_t *offset;
+static long red, green, blue;
+static uint8_t *offset;
 
 /*----------------------------------------------------------*/
 
-void f_init_sliders(void);
-void f_init_window(short mod_id);
-void f_default_sliders(void);
+void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview);
 
-void prev(SMURF_PIC * smurfpic, SMURF_PIC * preview);
-
-char p1string[20] = "Picture";
+static char p1string[20] = "Picture";
 
 
-void *Load_Filter(char *path);
-short Save_Filter(char *path);
-
-char inpath[255];
-uint8_t *file;
+static char inpath[255];
+static uint8_t *file;
 
 typedef struct
 {
@@ -158,180 +134,328 @@ MOD_ABILITY module_ability = {
 };
 
 
-unsigned long busycount;
-unsigned long busymax;
-unsigned long busycall;
+static unsigned long busycount;
+static unsigned long busymax;
+static unsigned long busycall;
 
-short strength;
+static short strength;
 
-OBJECT *main_form;
+static OBJECT *main_form;
 
-WINDOW *my_window;
+static WINDOW my_window;
 
-SLIDER strength_slider;
+static SLIDER strength_slider;
 
+static SERVICE_FUNCTIONS *services;
 
-void (*set_slider)(SLIDER *sliderstruct, short value);	/* Funktion deklarieren */
+static char const kennung[] = "WINFILT5";
 
-/*---------------------------  FUNCTION MAIN -----------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+static void *Load_Filter(char *path)
 {
-	short (*slider)(SLIDER *slider_struct);	/* Funktion deklarieren */
-	static short module_id;
-	short SmurfMessage;
-	short t;
-	WORD object;
-	DAS_FILTER *WF5_filter;
-	short (*f_module_window)(WINDOW *mod_window);
+	void *infile;
 
-	SmurfMessage = smurf_struct->module_mode;
+	char filename[15];
+	char *namepos;
+	char loadpath[255];
+	WORD exitbutton;
 
-	f_module_window = smurf_struct->services->f_module_window;
+	char file_kennung[15];
+	int k_cmp;
 
-	slider = smurf_struct->services->slider;
+	short err;
+	long len;
 
-	set_slider = smurf_struct->services->set_slider;
+	long back;
+	int handle;
 
-	main_form = rs_trindex[FREE_FILTER];
+	if (strlen(inpath) == 0)
+		strcpy(inpath, path);
 
-/* Wenn das Modul aufgerufen wurde -----------------------------*/
-	if (SmurfMessage == MSTART)
+	strcpy(filename, "");
+
+	len = sizeof(DAS_FILTER);
+
+	err = fsel_exinput(inpath, filename, &exitbutton, rs_frstr[STR_LOAD_FILTER]);
+
+	if (err == 0)
 	{
-
-		for (t = 0; t < NUM_OBS; t++)
-			rsrc_obfix(&rs_object[t], 0);
-
-		module_id = smurf_struct->module_number;
-
-		my_window = (WINDOW *)Malloc(sizeof(WINDOW));
-
-		f_init_sliders();
-		f_init_window(module_id);
-
-		smurf_struct->wind_struct = my_window;
-
-		f_module_window(my_window);
-
-		f_default_sliders();
-
-		smurf_struct->module_mode = M_WAITING;
-		return;
+		return (void *) -1;
 	}
-
-/* Wenn Button-Event kommt ----------------------------------*/
-	else if (SmurfMessage == MBEVT)
+	if (exitbutton == 0)
 	{
-		object = smurf_struct->event_par[0];
+		return (void *) -2;
+	} else
+	{
+		strcpy(loadpath, inpath);
+		namepos = strrchr(loadpath, '\\');
+		strcpy(namepos + 1, filename);
 
-		switch (object)
+		back = Fopen(loadpath, FO_READ);
+		if (back < 0)
 		{
-		case DO_IT:
-			smurf_struct->module_mode = M_STARTED;
-			return;
+			return (void *) -3;
+		} else
+		{
+			handle = (int) back;
+			Fread(handle, 8, file_kennung);
 
-		case STRENGTH_SLIDE:
-			strength = slider(&strength_slider);
-			break;
-
-		case SAVE_FILTER:
-			if (0 > Save_Filter("D:\\*.WF5")) /* BUG */
+			k_cmp = strncmp(kennung, file_kennung, 8);
+			if (k_cmp != 0)
 			{
-				/* Fehler beim Speichern */
-			}
-			break;
-
-
-		case LOAD_FILTER:
-			file = Load_Filter("C:\\*.WF5"); /* BUG */
-			if ((long) file <= 0)
+				return (void *) -4;
+			} else
 			{
-				break;
+				infile = (void *)Malloc(len);
+				if (infile == NULL)
+				{
+					return (void *) -5;
+				} else
+				{
+					Fseek(0, handle, 0);
+					if (len != Fread(handle, len, infile))
+					{
+						Fclose(handle);
+						Mfree(infile);
+						return (void *) -6;
+					} else
+					{
+						Fclose(handle);
+					}
+				}
 			}
-			WF5_filter = (DAS_FILTER *) file;
-
-			Set_Edit_Object(&main_form[MATRIX_00], WF5_filter->das_matrix[0][0]);
-			Set_Edit_Object(&main_form[MATRIX_10], WF5_filter->das_matrix[0][1]);
-			Set_Edit_Object(&main_form[MATRIX_20], WF5_filter->das_matrix[0][2]);
-			Set_Edit_Object(&main_form[MATRIX_30], WF5_filter->das_matrix[0][3]);
-			Set_Edit_Object(&main_form[MATRIX_40], WF5_filter->das_matrix[0][4]);
-
-			Set_Edit_Object(&main_form[MATRIX_01], WF5_filter->das_matrix[1][0]);
-			Set_Edit_Object(&main_form[MATRIX_11], WF5_filter->das_matrix[1][1]);
-			Set_Edit_Object(&main_form[MATRIX_21], WF5_filter->das_matrix[1][2]);
-			Set_Edit_Object(&main_form[MATRIX_31], WF5_filter->das_matrix[1][3]);
-			Set_Edit_Object(&main_form[MATRIX_41], WF5_filter->das_matrix[1][4]);
-
-			Set_Edit_Object(&main_form[MATRIX_02], WF5_filter->das_matrix[2][0]);
-			Set_Edit_Object(&main_form[MATRIX_12], WF5_filter->das_matrix[2][1]);
-			Set_Edit_Object(&main_form[MATRIX_22], WF5_filter->das_matrix[2][2]);
-			Set_Edit_Object(&main_form[MATRIX_32], WF5_filter->das_matrix[2][3]);
-			Set_Edit_Object(&main_form[MATRIX_42], WF5_filter->das_matrix[2][4]);
-
-			Set_Edit_Object(&main_form[MATRIX_03], WF5_filter->das_matrix[3][0]);
-			Set_Edit_Object(&main_form[MATRIX_13], WF5_filter->das_matrix[3][1]);
-			Set_Edit_Object(&main_form[MATRIX_23], WF5_filter->das_matrix[3][2]);
-			Set_Edit_Object(&main_form[MATRIX_33], WF5_filter->das_matrix[3][3]);
-			Set_Edit_Object(&main_form[MATRIX_43], WF5_filter->das_matrix[3][4]);
-
-			Set_Edit_Object(&main_form[MATRIX_04], WF5_filter->das_matrix[4][0]);
-			Set_Edit_Object(&main_form[MATRIX_14], WF5_filter->das_matrix[4][1]);
-			Set_Edit_Object(&main_form[MATRIX_24], WF5_filter->das_matrix[4][2]);
-			Set_Edit_Object(&main_form[MATRIX_34], WF5_filter->das_matrix[4][3]);
-			Set_Edit_Object(&main_form[MATRIX_44], WF5_filter->das_matrix[4][4]);
-
-			Set_Edit_Object(&main_form[DIV], WF5_filter->das_div);
-			Set_Edit_Object(&main_form[BIAS], WF5_filter->das_bias);
-
-			strncpy(main_form[FILTER_NAME].ob_spec.tedinfo->te_ptext, WF5_filter->das_matrix_name, 19);
-
-			if (WF5_filter->das_clipnv & 0x80)
-				main_form[CLIP].ob_state |= OS_SELECTED;
-			else
-				main_form[CLIP].ob_state &= ~OS_SELECTED;
-
-			if (WF5_filter->das_clipnv & 0x40)
-				main_form[INVERT].ob_state |= OS_SELECTED;
-			else
-				main_form[INVERT].ob_state &= ~OS_SELECTED;
-
-			strength = WF5_filter->das_strength;
-			set_slider(&strength_slider, strength);
-
-			smurf_struct->services->redraw_window(my_window, NULL, 0, 0);
-
-			Mfree(WF5_filter);
-			break;
 		}
-
-		smurf_struct->module_mode = M_WAITING;
-		return;
 	}
 
+	return infile;
+}
 
-/* Wenn das Modul gestartet wurde ----------------------------*/
-	else if (SmurfMessage == MEXEC)
+
+static short Save_Filter(char *path)
+{
+	DAS_FILTER *outfile;
+
+	char filename[15];
+	char *namepos;
+	char loadpath[255];
+	WORD exitbutton;
+
+	short err;
+	long len;
+
+	long back;
+	int handle;
+
+	if (strlen(inpath) == 0)
+		strcpy(inpath, path);
+
+	strcpy(filename, "");
+
+	len = sizeof(DAS_FILTER);
+
+	err = fsel_exinput(inpath, filename, &exitbutton, rs_frstr[STR_SAVE_FILTER]);
+
+	if (err == 0)
 	{
-		smurf_struct->module_mode = do_it(smurf_struct);
-		return;
+		return -1;
 	}
-
-
-/* Wenn das Modul sich verpissen soll --------------------------*/
-	if (SmurfMessage == MTERM)
+	if (exitbutton == 0)
 	{
-		Mfree(my_window);
-		smurf_struct->module_mode = M_EXIT;
-		return;
+		return -2;
+	} else
+	{
+		strcpy(loadpath, inpath);
+		namepos = strrchr(loadpath, '\\');
+		strcpy(namepos + 1, filename);
+
+		outfile = (DAS_FILTER *)Malloc(len);
+		if (outfile == NULL)
+		{
+			return -5;
+		} else
+		{
+			strncpy(outfile->das_kennung, kennung, 8);
+
+			strncpy(outfile->das_matrix_name, "___________________", 20);
+			strncpy(outfile->das_matrix_name, GET_Edit_Object(FILTER_NAME), 20);
+
+			outfile->das_matrix[0][0] = atoi(GET_Edit_Object(MATRIX_00));
+			outfile->das_matrix[0][1] = atoi(GET_Edit_Object(MATRIX_10));
+			outfile->das_matrix[0][2] = atoi(GET_Edit_Object(MATRIX_20));
+			outfile->das_matrix[0][3] = atoi(GET_Edit_Object(MATRIX_30));
+			outfile->das_matrix[0][4] = atoi(GET_Edit_Object(MATRIX_40));
+
+			outfile->das_matrix[1][0] = atoi(GET_Edit_Object(MATRIX_01));
+			outfile->das_matrix[1][1] = atoi(GET_Edit_Object(MATRIX_11));
+			outfile->das_matrix[1][2] = atoi(GET_Edit_Object(MATRIX_21));
+			outfile->das_matrix[1][3] = atoi(GET_Edit_Object(MATRIX_31));
+			outfile->das_matrix[1][4] = atoi(GET_Edit_Object(MATRIX_41));
+
+			outfile->das_matrix[2][0] = atoi(GET_Edit_Object(MATRIX_02));
+			outfile->das_matrix[2][1] = atoi(GET_Edit_Object(MATRIX_12));
+			outfile->das_matrix[2][2] = atoi(GET_Edit_Object(MATRIX_22));
+			outfile->das_matrix[2][3] = atoi(GET_Edit_Object(MATRIX_32));
+			outfile->das_matrix[2][4] = atoi(GET_Edit_Object(MATRIX_42));
+
+			outfile->das_matrix[3][0] = atoi(GET_Edit_Object(MATRIX_03));
+			outfile->das_matrix[3][1] = atoi(GET_Edit_Object(MATRIX_13));
+			outfile->das_matrix[3][2] = atoi(GET_Edit_Object(MATRIX_23));
+			outfile->das_matrix[3][3] = atoi(GET_Edit_Object(MATRIX_33));
+			outfile->das_matrix[3][4] = atoi(GET_Edit_Object(MATRIX_43));
+
+			outfile->das_matrix[4][0] = atoi(GET_Edit_Object(MATRIX_04));
+			outfile->das_matrix[4][1] = atoi(GET_Edit_Object(MATRIX_14));
+			outfile->das_matrix[4][2] = atoi(GET_Edit_Object(MATRIX_24));
+			outfile->das_matrix[4][3] = atoi(GET_Edit_Object(MATRIX_34));
+			outfile->das_matrix[4][4] = atoi(GET_Edit_Object(MATRIX_44));
+
+			outfile->das_div = atoi(GET_Edit_Object(DIV));
+			outfile->das_bias = atoi(GET_Edit_Object(BIAS));
+
+			outfile->das_strength = strength;
+
+			outfile->das_unknown1 = 0;
+
+			if (Obj_Selected(CLIP))
+				outfile->das_clipnv = 0x80;
+			else
+				outfile->das_clipnv = 0;
+
+			if (Obj_Selected(INVERT))
+				outfile->das_clipnv |= 0x40;
+
+			outfile->das_unknown2 = 0;
+
+
+			back = Fcreate(loadpath, 0);
+			if (back < 0)
+			{
+				return -3;
+			} else
+			{
+				handle = (int) back;
+
+				if (len != Fwrite(handle, len, outfile))
+					err = -7;
+				else
+					err = 0;
+
+				Fclose(handle);
+			}
+
+			Mfree(outfile);
+		}
 	}
 
-} /*---ende-----------------------------------------------------*/
+	return err;
+}
 
-/*---------------------------------------------------------------*/
 
+/*--------------------- Slider initialisieren -------------------*/
+
+static void f_init_sliders(void)
+{
+	strength_slider.regler = STRENGTH_SLIDE;
+	strength_slider.schiene = STRENGTH_FHR;
+	strength_slider.rtree = main_form;
+	strength_slider.txt_obj = STRENGTH_EDIT;
+	strength_slider.min_val = 0;
+	strength_slider.max_val = 255;
+	strength_slider.window = &my_window;
+}
+
+
+/*--------------------- Slider auf defaults setzen -------------------*/
+static void f_default_sliders(void)
+{
+	strength = 255;
+
+	services->set_slider(&strength_slider, strength);
+}
+
+
+/*  ------------------- Fensterstruktur init -------------------    */
+static void f_init_window(short mod_id)
+{
+	memset(&my_window, 0, sizeof(WINDOW));
+	my_window.whandlem = 0;
+	my_window.module = mod_id;
+	my_window.wnum = 1;
+	my_window.wx = -1;
+	my_window.wy = -1;
+	my_window.ww = main_form->ob_width;
+	my_window.wh = main_form->ob_height;
+	my_window.editob = DIV;
+	strcpy(my_window.wtitle, "5x5 filter");
+	my_window.resource_form = main_form;
+	my_window.picture = NULL;
+	my_window.clipwid = main_form[PREVIEW].ob_width;
+	my_window.cliphgt = main_form[PREVIEW].ob_height;
+	my_window.pic_xpos = main_form[PREVIEW].ob_x;
+	my_window.pic_ypos = main_form[PREVIEW].ob_y;
+}
+
+
+
+/*-- Funktion um die Werte einzurechnen (Div, Bias, Clip, Invert) -*/
+static void Calc_filtervalues(void)
+{
+			/*---DIVisor einrechen--------------*/
+	if (f_div != 1)
+	{
+		red = (red * f_mul) >> 14;
+		green = (green * f_mul) >> 14;
+		blue = (blue * f_mul) >> 14;
+	}
+
+			/*---BIAS einrechen ---------------------------*/
+	if (f_bias != 0)
+	{
+		red += f_bias;
+		green += f_bias;
+		blue += f_bias;
+	}
+
+			/*---Cliping ---------------------------*/
+	if (f_clip == 1)
+	{
+		if (red < 0)
+			red = 0;
+		else if (red > 255)
+			red = 255;
+
+		if (green < 0)
+			green = 0;
+		else if (green > 255)
+			green = 255;
+
+		if (blue < 0)
+			blue = 0;
+		else if (blue > 255)
+			blue = 255;
+	} else			  /*-------- kein cliping ---------*/
+	{
+		red = (uint8_t) red;
+		green = (uint8_t) green;
+		blue = (uint8_t) blue;
+	}
+
+			/*----------- Invertieren ----------------------*/
+	if (f_invert == 1)
+	{
+		red = ~red;
+		green = ~green;
+		blue = ~blue;
+	}
+
+					  /*--- mit Original filtern --------------------------------*/
+	red = (*(offset++) * fak_o + red * fak_f) >> 8;
+	green = (*(offset++) * fak_o + green * fak_f) >> 8;
+	blue = (*(offset++) * fak_o + blue * fak_f) >> 8;
+}
 
 
 /*------------------------- Filtern ------------------------*/
-short do_it(GARGAMEL *smurf_struct)
+static short do_it(GARGAMEL *smurf_struct)
 {
 	SMURF_PIC *picture;
 	short width, height;
@@ -453,21 +577,14 @@ short do_it(GARGAMEL *smurf_struct)
 
 	/*---Speicher anfordern-----------------------------------*/
 
-	i = 0;
+	line_buf[0] = (uint8_t *)Malloc(lb_len * 5);
+	if (line_buf[0] == NULL)
+		return M_MEMORY;
+	i = 1;
 	do
 	{
-		line_buf[i] = malloc(lb_len);
-	} while ((++i < 5) && (line_buf[i - 1] != NULL));
-
-	if (i < 5)
-	{
-		for (x = 0; x < i; x++)
-		{
-			free(line_buf[x]);
-		}
-		return M_MEMORY;
-	}
-
+		line_buf[i] = line_buf[0] + i * lb_len;
+	} while (++i < 5);
 
 	/*--- BusyBox Vorberechnungen ----------------------*/
 	busycount = 0;
@@ -766,117 +883,150 @@ short do_it(GARGAMEL *smurf_struct)
 			memcpy(line_buf_addr[i], line_buf[i], lb_len);
 	}
 
-	for (i = 0; i < 5; i++)
-		free(line_buf[i]);
+	Mfree(line_buf[0]);
 
 	return M_PICDONE;
 }
 
 
-/*-- Funktion um die Werte einzurechnen (Div, Bias, Clip, Invert) -*/
-void Calc_filtervalues(void)
+
+static void Set_Edit_Object(OBJECT *obj, short wert)
 {
-			/*---DIVisor einrechen--------------*/
-	if (f_div != 1)
-	{
-		red = (red * f_mul) >> 14;
-		green = (green * f_mul) >> 14;
-		blue = (blue * f_mul) >> 14;
-	}
+	char string[4];
 
-			/*---BIAS einrechen ---------------------------*/
-	if (f_bias != 0)
-	{
-		red += f_bias;
-		green += f_bias;
-		blue += f_bias;
-	}
+	itoa(wert, string, 10);
 
-			/*---Cliping ---------------------------*/
-	if (f_clip == 1)
-	{
-		if (red < 0)
-			red = 0;
-		else if (red > 255)
-			red = 255;
-
-		if (green < 0)
-			green = 0;
-		else if (green > 255)
-			green = 255;
-
-		if (blue < 0)
-			blue = 0;
-		else if (blue > 255)
-			blue = 255;
-	} else			  /*-------- kein cliping ---------*/
-	{
-		red = (uint8_t) red;
-		green = (uint8_t) green;
-		blue = (uint8_t) blue;
-	}
-
-			/*----------- Invertieren ----------------------*/
-	if (f_invert == 1)
-	{
-		red = ~red;
-		green = ~green;
-		blue = ~blue;
-	}
-
-					  /*--- mit Original filtern --------------------------------*/
-	red = (*(offset++) * fak_o + red * fak_f) >> 8;
-	green = (*(offset++) * fak_o + green * fak_f) >> 8;
-	blue = (*(offset++) * fak_o + blue * fak_f) >> 8;
+	strncpy(obj->ob_spec.tedinfo->te_ptext, string, 4);
 }
 
 
-/*  ------------------- Fensterstruktur init -------------------    */
-void f_init_window(short mod_id)
+/*---------------------------  FUNCTION MAIN -----------------------------*/
+void edit_module_main(GARGAMEL *smurf_struct)
 {
-	memset(my_window, 0, sizeof(WINDOW));
-	my_window->whandlem = 0;
-	my_window->module = mod_id;
-	my_window->wnum = 1;
-	my_window->wx = -1;
-	my_window->wy = -1;
-	my_window->ww = main_form->ob_width;
-	my_window->wh = main_form->ob_height;
-	my_window->editob = DIV;
-	strncpy(my_window->wtitle, "5x5 filter", 40);
-	my_window->resource_form = main_form;
-	my_window->picture = NULL;
-	my_window->clipwid = 96;
-	my_window->cliphgt = 96;
-	my_window->pic_xpos = main_form[53].ob_x; /* BUG: PREVIEW is 52 */
-	my_window->pic_ypos = main_form[53].ob_y;
+	short t;
+	WORD object;
+	DAS_FILTER *WF5_filter;
+
+	services = smurf_struct->services;
+	
+	main_form = rs_trindex[FREE_FILTER];
+
+	switch (smurf_struct->module_mode)
+	{
+	/* Wenn das Modul aufgerufen wurde -----------------------------*/
+	case MSTART:
+		for (t = 0; t < NUM_OBS; t++)
+			rsrc_obfix(rs_object, t);
+
+		f_init_sliders();
+		f_init_window(smurf_struct->module_number);
+
+		smurf_struct->wind_struct = &my_window;
+
+		services->f_module_window(&my_window);
+
+		f_default_sliders();
+
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MBEVT:
+		/* Wenn Button-Event kommt ----------------------------------*/
+		object = smurf_struct->event_par[0];
+
+		switch (object)
+		{
+		case DO_IT:
+			smurf_struct->module_mode = M_STARTED;
+			return;
+
+		case STRENGTH_SLIDE:
+			strength = services->slider(&strength_slider);
+			break;
+
+		case SAVE_FILTER:
+			if (0 > Save_Filter("*.WF5"))
+			{
+				/* Fehler beim Speichern */
+			}
+			break;
+
+		case LOAD_FILTER:
+			file = Load_Filter("*.WF5");
+			if ((long) file <= 0)
+			{
+				break;
+			}
+			WF5_filter = (DAS_FILTER *) file;
+
+			Set_Edit_Object(&main_form[MATRIX_00], WF5_filter->das_matrix[0][0]);
+			Set_Edit_Object(&main_form[MATRIX_10], WF5_filter->das_matrix[0][1]);
+			Set_Edit_Object(&main_form[MATRIX_20], WF5_filter->das_matrix[0][2]);
+			Set_Edit_Object(&main_form[MATRIX_30], WF5_filter->das_matrix[0][3]);
+			Set_Edit_Object(&main_form[MATRIX_40], WF5_filter->das_matrix[0][4]);
+
+			Set_Edit_Object(&main_form[MATRIX_01], WF5_filter->das_matrix[1][0]);
+			Set_Edit_Object(&main_form[MATRIX_11], WF5_filter->das_matrix[1][1]);
+			Set_Edit_Object(&main_form[MATRIX_21], WF5_filter->das_matrix[1][2]);
+			Set_Edit_Object(&main_form[MATRIX_31], WF5_filter->das_matrix[1][3]);
+			Set_Edit_Object(&main_form[MATRIX_41], WF5_filter->das_matrix[1][4]);
+
+			Set_Edit_Object(&main_form[MATRIX_02], WF5_filter->das_matrix[2][0]);
+			Set_Edit_Object(&main_form[MATRIX_12], WF5_filter->das_matrix[2][1]);
+			Set_Edit_Object(&main_form[MATRIX_22], WF5_filter->das_matrix[2][2]);
+			Set_Edit_Object(&main_form[MATRIX_32], WF5_filter->das_matrix[2][3]);
+			Set_Edit_Object(&main_form[MATRIX_42], WF5_filter->das_matrix[2][4]);
+
+			Set_Edit_Object(&main_form[MATRIX_03], WF5_filter->das_matrix[3][0]);
+			Set_Edit_Object(&main_form[MATRIX_13], WF5_filter->das_matrix[3][1]);
+			Set_Edit_Object(&main_form[MATRIX_23], WF5_filter->das_matrix[3][2]);
+			Set_Edit_Object(&main_form[MATRIX_33], WF5_filter->das_matrix[3][3]);
+			Set_Edit_Object(&main_form[MATRIX_43], WF5_filter->das_matrix[3][4]);
+
+			Set_Edit_Object(&main_form[MATRIX_04], WF5_filter->das_matrix[4][0]);
+			Set_Edit_Object(&main_form[MATRIX_14], WF5_filter->das_matrix[4][1]);
+			Set_Edit_Object(&main_form[MATRIX_24], WF5_filter->das_matrix[4][2]);
+			Set_Edit_Object(&main_form[MATRIX_34], WF5_filter->das_matrix[4][3]);
+			Set_Edit_Object(&main_form[MATRIX_44], WF5_filter->das_matrix[4][4]);
+
+			Set_Edit_Object(&main_form[DIV], WF5_filter->das_div);
+			Set_Edit_Object(&main_form[BIAS], WF5_filter->das_bias);
+
+			strncpy(main_form[FILTER_NAME].ob_spec.tedinfo->te_ptext, WF5_filter->das_matrix_name, 19);
+
+			if (WF5_filter->das_clipnv & 0x80)
+				main_form[CLIP].ob_state |= OS_SELECTED;
+			else
+				main_form[CLIP].ob_state &= ~OS_SELECTED;
+
+			if (WF5_filter->das_clipnv & 0x40)
+				main_form[INVERT].ob_state |= OS_SELECTED;
+			else
+				main_form[INVERT].ob_state &= ~OS_SELECTED;
+
+			strength = WF5_filter->das_strength;
+			services->set_slider(&strength_slider, strength);
+
+			services->redraw_window(&my_window, NULL, 0, 0);
+
+			Mfree(WF5_filter);
+			break;
+		}
+
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MEXEC:
+		/* Wenn das Modul gestartet wurde ----------------------------*/
+		smurf_struct->module_mode = do_it(smurf_struct);
+		break;
+
+	case MTERM:
+		/* Wenn das Modul sich verpissen soll --------------------------*/
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }
-
-
-
-/*--------------------- Slider initialisieren -------------------*/
-
-void f_init_sliders(void)
-{
-	strength_slider.regler = STRENGTH_SLIDE;
-	strength_slider.schiene = STRENGTH_FHR;
-	strength_slider.rtree = main_form;
-	strength_slider.txt_obj = STRENGTH_EDIT;
-	strength_slider.min_val = 0;
-	strength_slider.max_val = 255;
-	strength_slider.window = my_window;
-}
-
-
-/*--------------------- Slider auf defaults setzen -------------------*/
-void f_default_sliders(void)
-{
-	strength = 255;
-
-	set_slider(&strength_slider, strength);
-}
-
-
 
 
 /*------ Previewfunktion - wird von Smurf bei Klick aufs Preview aufgerufen.------- */
@@ -894,220 +1044,4 @@ void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview)
 	/* Ich mach' noch nix. */
 	(void) smurfpic;
 	(void) preview;
-}
-
-
-
-void *Load_Filter(char *path)
-{
-	void *infile;
-
-	char filename[15];
-	char *namepos;
-	char loadpath[255];
-	WORD exitbutton;
-	char headline[] = STR_LOAD_FILTER;
-
-	char kennung[] = "WINFILT5";
-	char file_kennung[15];
-	int k_cmp;
-
-	short err;
-	long len;
-
-	long back;
-	int handle;
-
-	if (strlen(inpath) == 0)
-		strcpy(inpath, path);
-
-	strcpy(filename, "");
-
-	len = sizeof(DAS_FILTER);
-
-	err = fsel_exinput(inpath, filename, &exitbutton, headline);
-
-	if (err == 0)
-	{
-		return (void *) -1;
-	}
-	if (exitbutton == 0)
-	{
-		return (void *) -2;
-	} else
-	{
-		strcpy(loadpath, inpath);
-		namepos = strrchr(loadpath, '\\');
-		strcpy(namepos + 1, filename);
-
-		back = Fopen(loadpath, FO_READ);
-		if (back < 0)
-		{
-			return (void *) -3;
-		} else
-		{
-			handle = (int) back;
-			Fread(handle, 8, file_kennung);
-
-			k_cmp = strncmp(kennung, file_kennung, 8);
-			if (k_cmp != 0)
-			{
-				return (void *) -4;
-			} else
-			{
-				infile = (void *)Malloc(len);
-				if (infile == NULL)
-				{
-					return (void *) -5;
-				} else
-				{
-					Fseek(0, handle, 0);
-					if (len != Fread(handle, len, infile))
-					{
-						Fclose(handle);
-						Mfree(infile);
-						return (void *) -6;
-					} else
-					{
-						Fclose(handle);
-					}
-				}
-			}
-		}
-	}
-
-	return infile;
-}
-
-void Set_Edit_Object(OBJECT *obj, short wert)
-{
-	char string[4];
-
-	itoa(wert, string, 10);
-
-	strncpy(obj->ob_spec.tedinfo->te_ptext, string, 4);
-}
-
-
-short Save_Filter(char *path)
-{
-	DAS_FILTER *outfile;
-
-	char filename[15];
-	char *namepos;
-	char loadpath[255];
-	WORD exitbutton;
-	char headline[] = STR_SAVE_FILTER;
-
-	char kennung[] = "WINFILT5";
-
-	short err;
-	long len;
-
-	long back;
-	int handle;
-
-	if (strlen(inpath) == 0)
-		strcpy(inpath, path);
-
-	strcpy(filename, "");
-
-	len = sizeof(DAS_FILTER);
-
-	err = fsel_exinput(inpath, filename, &exitbutton, headline);
-
-	if (err == 0)
-	{
-		return -1;
-	}
-	if (exitbutton == 0)
-	{
-		return -2;
-	} else
-	{
-		strcpy(loadpath, inpath);
-		namepos = strrchr(loadpath, '\\');
-		strcpy(namepos + 1, filename);
-
-		outfile = (DAS_FILTER *)Malloc(len);
-		if (outfile == NULL)
-		{
-			return -5;
-		} else
-		{
-			strncpy(outfile->das_kennung, kennung, 8);
-
-			strncpy(outfile->das_matrix_name, "___________________", 20);
-			strncpy(outfile->das_matrix_name, GET_Edit_Object(FILTER_NAME), 20);
-
-			outfile->das_matrix[0][0] = atoi(GET_Edit_Object(MATRIX_00));
-			outfile->das_matrix[0][1] = atoi(GET_Edit_Object(MATRIX_10));
-			outfile->das_matrix[0][2] = atoi(GET_Edit_Object(MATRIX_20));
-			outfile->das_matrix[0][3] = atoi(GET_Edit_Object(MATRIX_30));
-			outfile->das_matrix[0][4] = atoi(GET_Edit_Object(MATRIX_40));
-
-			outfile->das_matrix[1][0] = atoi(GET_Edit_Object(MATRIX_01));
-			outfile->das_matrix[1][1] = atoi(GET_Edit_Object(MATRIX_11));
-			outfile->das_matrix[1][2] = atoi(GET_Edit_Object(MATRIX_21));
-			outfile->das_matrix[1][3] = atoi(GET_Edit_Object(MATRIX_31));
-			outfile->das_matrix[1][4] = atoi(GET_Edit_Object(MATRIX_41));
-
-			outfile->das_matrix[2][0] = atoi(GET_Edit_Object(MATRIX_02));
-			outfile->das_matrix[2][1] = atoi(GET_Edit_Object(MATRIX_12));
-			outfile->das_matrix[2][2] = atoi(GET_Edit_Object(MATRIX_22));
-			outfile->das_matrix[2][3] = atoi(GET_Edit_Object(MATRIX_32));
-			outfile->das_matrix[2][4] = atoi(GET_Edit_Object(MATRIX_42));
-
-			outfile->das_matrix[3][0] = atoi(GET_Edit_Object(MATRIX_03));
-			outfile->das_matrix[3][1] = atoi(GET_Edit_Object(MATRIX_13));
-			outfile->das_matrix[3][2] = atoi(GET_Edit_Object(MATRIX_23));
-			outfile->das_matrix[3][3] = atoi(GET_Edit_Object(MATRIX_33));
-			outfile->das_matrix[3][4] = atoi(GET_Edit_Object(MATRIX_43));
-
-			outfile->das_matrix[4][0] = atoi(GET_Edit_Object(MATRIX_04));
-			outfile->das_matrix[4][1] = atoi(GET_Edit_Object(MATRIX_14));
-			outfile->das_matrix[4][2] = atoi(GET_Edit_Object(MATRIX_24));
-			outfile->das_matrix[4][3] = atoi(GET_Edit_Object(MATRIX_34));
-			outfile->das_matrix[4][4] = atoi(GET_Edit_Object(MATRIX_44));
-
-			outfile->das_div = atoi(GET_Edit_Object(DIV));
-			outfile->das_bias = atoi(GET_Edit_Object(BIAS));
-
-			outfile->das_strength = strength;
-
-			outfile->das_unknown1 = 0;
-
-			if (Obj_Selected(CLIP))
-				outfile->das_clipnv = 0x80;
-			else
-				outfile->das_clipnv = 0;
-
-			if (Obj_Selected(INVERT))
-				outfile->das_clipnv |= 0x40;
-
-			outfile->das_unknown2 = 0;
-
-
-
-			back = Fcreate(loadpath, 0);
-			if (back < 0)
-			{
-				return -3;
-			} else
-			{
-				handle = (int) back;
-
-				if (len != Fwrite(handle, len, outfile))
-					err = -7;
-				else
-					err = 0;
-
-				Fclose(handle);
-			}
-
-			Mfree(outfile);
-		}
-	}
-
-	return err;
 }
