@@ -106,7 +106,7 @@ doodle.sim     0.50    0.50
 dta.sim        0.50    0.50
 egarx.sim      0.50    0.50
 eps.sim        0.50    0.50
-esm.sim        0.10    0.50        !!!
+esm.sim        0.50    0.50     x
 fal.sim        0.10    0.10
 fckpaint.sim   1.10    1.10
 gem_img.sim    1.60    1.40       version bumped by GS

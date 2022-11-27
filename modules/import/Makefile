@@ -6,6 +6,7 @@ LDFLAGS += -nostartfiles
 
 MODULES = \
 	$(DISTDIR)/modules/import/bmp.sim \
+	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -20,6 +21,9 @@ all:: impstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
 
 $(DISTDIR)/modules/import/bmp.sim: impstart.o bmp.o setlines.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/esm.sim: impstart.o esm.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/godpaint.sim: impstart.o godpaint.o
