@@ -28,115 +28,96 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-
 #include "import.h"
 #include "smurfine.h"
+
+#include "country.h"
+
+#if COUNTRY == 1
+#define STR_STRENGTH "St„rke"
+#define STR_SOFT "Weich"
+#define STR_SIZE "Gr\224\236e"
+#define STR_ROUNDED "Abgerundet"
+#define STR_XDIST "X-Abstand"
+#define STR_YDIST "Y-Abstand"
+#elif COUNTRY == 0
+#define STR_STRENGTH "Strength"
+#define STR_SOFT "Soft"
+#define STR_SIZE "Size"
+#define STR_ROUNDED "Rounded"
+#define STR_XDIST "X-dist"
+#define STR_YDIST "Y-dist"
+#else
+#define STR_STRENGTH "Strength"
+#endif
 
 /*--------------- Funktionen -------------------*/
 /*----------------------------------------------*/
 /*-----> Smurf --------*/
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview);
 
-/*-----> Modul --------*/
-int do_it(GARGAMEL *smurf_struct);
-
-
 /*--------------- Globale Variablen --------------------------*/
-unsigned long busycount, busymax, busycall;
+static unsigned long busycount;
+static unsigned long busymax;
+static unsigned long busycall;
 
 
 /*--------------- Infostruktur fr Hauptprogramm -----*/
-MOD_INFO    module_info=
-{
-    "Drop Shadow",                     /* Name des Moduls */
-    0x0121,
-    "J”rg Dittmer",                                 /* Autor */
-    "","","","","","","","","","",  /* 10 Extensionen fr Importer */
+MOD_INFO module_info = {
+	"Drop Shadow",						/* Name des Moduls */
+	0x0200,
+	"J\224rg Dittmer",						/* Autor */
+	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fr Importer */
 /* 4 Sliderberschriften: max 8 */
-    "St„rke",
-    "Weich",
-    "X-Abstand",
-    "Y-Abstand",
+	STR_STRENGTH,
+	STR_SOFT,
+	STR_SIZE,
+	"",
 /* 4 Checkboxberschriften: */
-    "",
-    "",
-    "",
-    "",
+	STR_ROUNDED,
+	"",
+	"",
+	"",
 /* 4 Edit-Objekt-šberschriften: */
-    "",
-    "",
-    "",
-    "",
+	STR_XDIST,
+	STR_YDIST,
+	"",
+	"",
 /* min/max-Werte fr Slider */
-    1,255,
-    1,20,
-    -30,30,
-    -30,30,
+	1, 255,
+	1, 20,
+	-64, 64,
+	0, 0,
 /* min/max fr Editobjekte */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	-4096, 4096,
+	-4096, 4096,
+	0, 0,
+	0, 0,
 /* Defaultwerte fr Slider, Check und Edit */
-    128,2,5,5,
-    0,0,0,0,
-    0,0,0,0,
-    1,
-    "Bild 1"
+	128, 3, 0, 0,
+	0, 0, 0, 0,
+	5, 5, 0, 0,
+	1,
+	"", NULL, NULL, NULL, NULL, NULL
 };
- 
+
 
 /*--------------------- Was kann ich ? ----------------------*/
-MOD_ABILITY  module_ability = {
-                        24, 0, 0, 0, 0, 0, 0, 0,    /* Farbtiefen */
-            /* Grafikmodi: */
-                        FORM_PIXELPAK,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        0 /* Extra-Flag */ 
-                        };
+MOD_ABILITY module_ability = {
+	24, 0, 0, 0, 0, 0, 0, 0,			/* Farbtiefen */
+	/* Grafikmodi: */
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0									/* Extra-Flag */
+};
 
 
-
-
-/*-----------------------  FUNCTION MAIN --------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
-{
-int SmurfMessage;
-static int module_id;
-
-SmurfMessage = smurf_struct->module_mode;
-
-/* Wenn das Modul aufgerufen wurde, */
-if(SmurfMessage == MSTART)
-{
-    module_id=smurf_struct->module_number;
-
-    smurf_struct->services->f_module_prefs(&module_info, module_id);
-    smurf_struct->module_mode=M_WAITING;
-    return; 
-}
-
-/* Wenn das Modul gestartet wurde */
-if(SmurfMessage == MEXEC)
-{
-    smurf_struct->module_mode = do_it(smurf_struct);
-    return;
-}
-
-/* Wenn das Modul sich verpissen soll */
-if(SmurfMessage==MTERM)
-{
-    smurf_struct->module_mode=M_EXIT;
-    return;
-}
-
-} /*ende*/
 
 
 /*------ Previewfunktion - wird von Smurf bei Klick aufs Preview aufgerufen.------- */
@@ -149,405 +130,477 @@ if(SmurfMessage==MTERM)
 /* angefordert. Das Preview (im Smurf-Standardformat) wird dann vom Hauptprogramm   */
 /* fr die Screen-Farbtiefe gedithert und im Einstellformular dargestellt.          */
 
-void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
-
-    /* Ich mach' noch nix. */
-    (void)smurfpic;
-    (void)preview;
+void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview)
+{
+	/* Ich mach' noch nix. */
+	(void) smurfpic;
+	(void) preview;
 }
 
 
 
 /*--------------- Soft-Shadow ----------------------------*/
-int do_it(GARGAMEL *smurf_struct)
+static short do_it(GARGAMEL *smurf_struct)
 {
-    SMURF_PIC *picture;
-    int width, height, strengh, softness;
-    char *pic, *greypic, *tcyoffset, *tcoffset, *offset, *moffset, *mxoffset;
-    long bpl;
-    int x, y, mx, my;
-    int mgx_o, mgy_o;
-    int x_start, x_end, y_start, y_end;
-    int mw, mh;
-    long shadowfak, shadowcount;
-    char grey, mred, mgreen, mblue;
-    
-    int radius;
-    int x_quad,y_quad;
-    
-    int mx_s[50];
-    int mx_e[50];
-    int mx_cs,mx_ce,my_cs;
-    int x_o, y_o;
+	SMURF_PIC *picture;
+	short width, height;
+	short strength;
+	short softness;
+	uint8_t *pic;
+	uint8_t *greypic;
+	uint8_t *tcyoffset;
+	uint8_t *tcoffset;
+	uint8_t *offset;
+	uint8_t *moffset;
+	uint8_t *mxoffset;
+	long bpl;
+	short x;
+	short y;
+	short mx, my;
+	short mgx_o, mgy_o;
+	short x_start;
+	short x_end;
+	short y_start;
+	short y_end;
+	short mw, mh;
+	long shadowcount;
+	uint8_t mred, mgreen, mblue;
 
-    /*--- Slider auslesen ---------------------- */ 
-    
-    strengh = (int)smurf_struct->slide1;
-    if (strengh == 0) return(M_PICDONE);   /*--- Keine Žnderung --> BEENDEN --------*/
+	short radius;
+	short x_quad, y_quad;
 
-    softness = (int)smurf_struct->slide2;
+	short mx_s[50];
+	short mx_e[50];
+	short mx_ce;
+	short my_cs;
+	short x_o, y_o;
+	uint8_t *redbuf;
+	uint8_t *greenbuf;
+	uint8_t *bluebuf;
+	short mx_cs;
+	short size;
+	long shadowfak;
 
-    x_o = (int)smurf_struct->slide3;
-    y_o = (int)smurf_struct->slide4;
-    
-    mw = mh = softness*2 + 1;
-    
-    
-    /*--- Radius-Maske generieren ------------------------*/
-    shadowcount = 0;
-    for(y=0; y<mh; y++)
-    {
-        y_quad = (y-softness)*(y-softness);
-        x=0;
-        do
-        {
-            x_quad = (x-softness)*(x-softness);
-            radius = 0.5 + sqrt(x_quad + y_quad);
-            x++;
-        }while(radius > softness);
-        mx_s[y] = x-1;
-        
-        do
-        {
-            x_quad = (x-softness)*(x-softness);
-            radius = 0.5 + sqrt(x_quad + y_quad);
-            x++;
-        }while( (radius <= softness) && (x<=mw));
-        mx_e[y] = x-1;
-        shadowcount += mx_e[y] - mx_s[y];
-    }
-    
-    shadowfak = 65535L / shadowcount;
-    
-    
-    /*--- Bilddaten auslesen --------------------*/
- 
-    picture = smurf_struct->smurf_pic;  
-    width   = picture->pic_width;
-    height  = picture->pic_height; 
-    pic     = picture->pic_data;
-    
-    bpl = width*3L;
+	/*--- Slider auslesen ---------------------- */
 
+	strength = (short) smurf_struct->slide1;
+	if (strength == 0)
+		return M_PICDONE;				   /*--- Keine Žnderung --> BEENDEN --------*/
 
-/*---GRAU-BILD generieren ---------------------------------*/
-    mred   = *(pic);
-    mgreen = *(pic+1);
-    mblue  = *(pic+2);
+	softness = (short) smurf_struct->slide2;
 
-    greypic = Malloc((long)width * height);
-    if(greypic == NULL)
-    {
-        printf("MEMORY !!!!");
-        return(M_MEMORY);
-    }
+	size = (short) smurf_struct->slide3;
+	x_o = (short) smurf_struct->edit1;
+	y_o = (short) smurf_struct->edit2;
 
-    offset = pic;
-    moffset = greypic;
-    for(y=0; y<height; y++)
-    {
-        for(x=0; x<width; x++)
-        {
-            
-            if( (*(offset++) != mred) | 
-                    (*(offset++) != mgreen) | 
-                    (*(offset++) != mblue)
-                )
-            {
-                *(moffset++) = (char)strengh;
-            }
-            else
-            {
-                *(moffset++) = 0;
-            }
-        }
-    }
+	mw = mh = softness * 2 + 1;
 
-    /*--- Pre-Calcs ---------------------------------------*/
-    
-    x_start = softness + x_o;
-    if(x_start < 0) x_start = 0;
-    x_end = width - softness + x_o;
-    if(x_end > width) x_end = width;
-    
-    y_start = softness + y_o;
-    if(y_start < 0) y_start = 0;
-    y_end = height - softness + y_o;
-    if(y_end > height) y_end = height;
+	if (smurf_struct->check1)
+	{
+		/* rounded */
+		/*--- Radius-Maske generieren ------------------------*/
+		shadowcount = 0;
+		for (y = 0; y < mh; y++)
+		{
+			y_quad = (y - softness) * (y - softness);
+			x = 0;
+			do
+			{
+				x_quad = (x - softness) * (x - softness);
+				radius = 0.5 + sqrt(x_quad + y_quad);
+				x++;
+			} while (radius > softness);
+			mx_s[y] = x - 1;
+	
+			do
+			{
+				x_quad = (x - softness) * (x - softness);
+				radius = 0.5 + sqrt(x_quad + y_quad);
+				x++;
+			} while (radius <= softness && x <= mw);
+			mx_e[y] = x - 1;
+			shadowcount += mx_e[y] - mx_s[y];
+		}
+	} else
+	{
+		/*--- Radius-Maske generieren ------------------------*/
+		shadowcount = 0;
+		for (y = 0; y < mh; y++)
+		{
+			mx_s[y] = 0;
+			mx_e[y] = mw - 1;
+			shadowcount += mw;
+		}
+	}
 
+	/*--- Bilddaten auslesen --------------------*/
 
+	picture = smurf_struct->smurf_pic;
+	width = picture->pic_width;
+	height = picture->pic_height;
+	pic = picture->pic_data;
 
-    /*--- BusyBox Vorberechnungen ----------------------*/
-    busycount = 0;
-    busycall =  31;
-    busymax = y_end - y_start;
-    if(busymax >  32) busycall = 15;
-    if(busymax > 256) busycall = 1;
-    busymax = (busymax<<10) /127;
+	bpl = width * 3L;
 
+	/*---GRAU-BILD generieren ---------------------------------*/
+	mred = 255;
+	mgreen = 255;
+	mblue = 255;
 
-    /*--- Hauptroutine --------------------*/
+	greypic = (uint8_t *)Malloc((long) width * height);
+	if (greypic == NULL)
+	{
+		return M_MEMORY;
+	}
 
-    for(y=y_start; y<y_end; y++)
-    {
-        busycount++;
-        if(!(busycount & busycall)) smurf_struct->services->busybox((int)((busycount<<10) / busymax));
-        
-        /*--- main-part -----------------*/
-        tcyoffset = pic + (long)y*bpl;
-        offset = greypic + (long)y*width + (long)x_start;
-        for(x=x_start; x<x_end; x++)
-        {
-            if(*(offset++) == 0)
-            {
-                mgx_o = x-x_o-softness;
-                mgy_o = y-y_o-softness;
-                shadowcount = 0;
+	offset = pic;
+	moffset = greypic;
+	for (y = 0; y < height; y++)
+	{
+		for (x = 0; x < width; x++)
+		{
+			if ((*(offset++) != mred) | (*(offset++) != mgreen) | (*(offset++) != mblue))
+			{
+				*(moffset++) = 1;
+			} else
+			{
+				*(moffset++) = 0;
+			}
+		}
+	}
 
-                mxoffset = greypic + (long)mgy_o*width;
-    
-                for(my=0; my<mh; my++)
-                {
-                    mxoffset+=width;
-                    for(mx=mx_s[my]; mx<mx_e[my]; mx++)
-                    {
-                        shadowcount += *(mxoffset + (long)(mgx_o+mx));
-                    }
-                }
-            
-                grey = 255 - ((shadowcount * shadowfak) >> 16);
-                
-                tcoffset = tcyoffset + x*3L;
-                
-                *(tcoffset++) = grey;   
-                *(tcoffset++) = grey;   
-                *(tcoffset++) = grey;                   
-            
-            }
-        }   
-        
-        /*--- left-part -------------------------------------*/
-        tcyoffset = pic + (long)y*bpl;
-        offset = greypic + (long)y*width;
-        for(x=0; x<x_start; x++)
-        {
-            if(*(offset++) == 0)
-            {
-                shadowcount = 0;
-                mgx_o = x-x_o-softness;
-                mgy_o = y-y_o-softness;
-                for(my=0; my<mh; my++)
-                {
-                    if((mgx_o + mx_e[my]) > 0)
-                    {
-                        mx_cs = mx_s[my];
-                        if((mgx_o + mx_cs) < 0) mx_cs -= (mgx_o + mx_cs);
-                        
-                        mxoffset = greypic + (long)(mgy_o + my)*width;
-                        for(mx=mx_cs; mx<mx_e[my]; mx++)
-                        {
-                            shadowcount += *(mxoffset + (long)(mgx_o+mx));
-                        }
-                    }
-                }
-            
-                grey = 255 - ((shadowcount * shadowfak) >> 16);
-                
-                tcoffset = tcyoffset + x*3L;
-                
-                *(tcoffset++) = grey;   
-                *(tcoffset++) = grey;   
-                *(tcoffset++) = grey;                   
-            
-            }
-        }
-            
-        /*--- right-part ------------------------------------*/
-        tcyoffset = pic + (long)y*bpl;
-        offset = greypic + (long)y*width + x_end;
-        for(x=x_end; x<width; x++)
-        {
-            if(*(offset++) == 0)
-            {
-                shadowcount = 0;
-                mgx_o = x-x_o-softness;
-                mgy_o = y-y_o-softness;
-                for(my=0; my<mh; my++)
-                {
-                    if((mgx_o + mx_s[my]) < width)
-                    {
-                        mx_cs = mx_e[my];
-                        if((mgx_o + mx_cs) > width) mx_cs -= (width-(mgx_o + mx_cs));
-                        
-                        mxoffset = greypic + (long)(mgy_o + my)*width;
-                        for(mx=mx_s[my]; mx<mx_cs; mx++)
-                        {
-                            shadowcount += *(mxoffset + (long)(mgx_o+mx));
-                        }
-                    }
-                }
-            
-                grey = 255 - ((shadowcount * shadowfak) >> 16);
-                
-                tcoffset = tcyoffset + x*3L;
-                
-                *(tcoffset++) = grey;   
-                *(tcoffset++) = grey;   
-                *(tcoffset++) = grey;                   
-            
-            }
-        }
-                    
-    } /*--- ende Y-schleife ----------------*/
+	redbuf = (uint8_t *)Malloc((shadowcount + 1) * 3L * sizeof(*redbuf));
+	if (redbuf == NULL)
+	{
+		Mfree(greypic);
+		return M_MEMORY;
+	}
+	greenbuf = redbuf + shadowcount + 1;
+	bluebuf = greenbuf + shadowcount + 1;
+
+	/*--- Pre-Calcs ---------------------------------------*/
+
+	{
+		double strengthfak;
+	
+		strengthfak = strength / (shadowcount / 2.0);
+		shadowfak = (1.0 - (size + 64.0) / 128.0) * (shadowcount / 2.0);
+		for (x = 0; x <= shadowcount; x++)
+		{
+			short xx = (x - (double)shadowfak) * strengthfak;
+			if (xx < 0)
+				xx = 0;
+			if (xx > strength)
+				xx = strength;
+			redbuf[x] = 255 - xx;
+			greenbuf[x] = 255 - xx;
+			bluebuf[x] = 255 - xx;
+		}
+	}
+
+	x_start = softness + x_o;
+	if (x_start < 0)
+		x_start = 0;
+	x_end = width - softness + x_o;
+	if (x_end > width)
+		x_end = width;
+
+	y_start = softness + y_o;
+	if (y_start < 0)
+		y_start = 0;
+	y_end = height - softness + y_o;
+	if (y_end > height)
+		y_end = height;
 
 
-    /*--- upper-part ---------------------------------------*/
-    for(y=0; y<y_start; y++)
-    {
-        busycount++;
-        if(!(busycount & busycall)) smurf_struct->services->busybox((int)((busycount<<10) / busymax));
-        
-        mgy_o = y-y_o-softness;
-        if((mgy_o + mh) > 0)
-        {
-            tcyoffset = pic + (long)y*bpl;
-            offset = greypic + (long)y*width;
-            for(x=0; x<width; x++)
-            {
-                if(*(offset++) == 0)
-                {
-                    shadowcount = 0;
-                    mgx_o = x-x_o-softness;
-                    
-                    my_cs =0;
-                    if((mgy_o + my_cs) < 0) my_cs -= (mgy_o + my_cs);
-                    
-                    for(my=my_cs; my<mh; my++)
-                    {
-                        if( ((mgx_o+mx_e[my])>0) || ((mgx_o+mx_s[my])<width))
-                        {
-                            mx_cs = mx_s[my];
-                            if((mgx_o + mx_cs) < 0) mx_cs -= (mgx_o + mx_cs);
-                            mx_ce = mx_e[my];
-                            if((mgx_o + mx_ce) > width) mx_ce += width -(mgx_o + mx_ce);
-                            
-                            mxoffset = greypic + (long)(mgy_o + my)*width;
-                            for(mx=mx_cs; mx<mx_ce; mx++)
-                            {
-                                shadowcount += *(mxoffset + (long)(mgx_o+mx));
-                            }
-                        }
-                    }
-                
-                    grey = 255 - ((shadowcount * shadowfak) >> 16);
-                    
-                    tcoffset = tcyoffset + x*3L;
-                    
-                    *(tcoffset++) = grey;   
-                    *(tcoffset++) = grey;   
-                    *(tcoffset++) = grey;                   
-                
-                }
-            }   
-        }
-        else
-        {
-            tcyoffset = pic + (long)y*bpl;
-            offset = greypic + (long)y*width;
-            for(x=0; x<width; x++)
-            {
-                if(*(offset++) == 0)
-                {
-                    *tcyoffset++ = 255;
-                    *tcyoffset++ = 255;
-                    *tcyoffset++ = 255;
-                }
-                else
-                {
-                 tcyoffset += 3;
-                }
-            }
-        }
-                    
-    } /* Y-schleife ----------------*/
+	/*--- BusyBox Vorberechnungen ----------------------*/
+	busycount = 0;
+	busycall = 31;
+	busymax = y_end - y_start;
+	if (busymax > 32)
+		busycall = 15;
+	if (busymax > 256)
+		busycall = 1;
+	busymax = (busymax << 10) / 127;
+
+	/*--- Hauptroutine --------------------*/
+
+	for (y = y_start; y < y_end; y++)
+	{
+		busycount++;
+		if ((busycount & busycall) == 0)
+			smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
+
+		/*--- main-part -----------------*/
+		tcyoffset = pic + (long) y * bpl;
+		offset = greypic + (long) y * width + (long) x_start;
+
+		for (x = x_start; x < x_end; x++)
+		{
+			if (*(offset++) == 0)
+			{
+				mgx_o = x - x_o - softness;
+				mgy_o = y - y_o - softness;
+				shadowcount = 0;
+
+				for (my = 0; my < mh; my++)
+				{
+					mxoffset = greypic + mgx_o + (long) (mgy_o + my) * width;
+					for (mx = mx_s[my]; mx < mx_e[my]; mx++)
+					{
+						shadowcount += *(mxoffset + mx);
+					}
+				}
+
+				tcoffset = tcyoffset + x * 3L;
+
+				*(tcoffset++) = redbuf[shadowcount];
+				*(tcoffset++) = redbuf[shadowcount];
+				*(tcoffset++) = redbuf[shadowcount];
+			}
+		}
+
+		/*--- left-part -------------------------------------*/
+		tcyoffset = pic + (long) y * bpl;
+		offset = greypic + (long) y * width;
+
+		for (x = 0; x < x_start; x++)
+		{
+			if (*(offset++) == 0)
+			{
+				shadowcount = 0;
+				mgx_o = x - x_o - softness;
+				mgy_o = y - y_o - softness;
+				for (my = 0; my < mh; my++)
+				{
+					if ((mgx_o + mx_e[my]) > 0)
+					{
+						mx_cs = mx_s[my];
+						if ((mgx_o + mx_cs) < 0)
+							mx_cs -= (mgx_o + mx_cs);
+
+						mxoffset = greypic + mgx_o + (long) (mgy_o + my) * width;
+						for (mx = mx_cs; mx < mx_e[my]; mx++)
+						{
+							shadowcount += *(mxoffset + mx);
+						}
+					}
+				}
+
+				tcoffset = tcyoffset + x * 3L;
+
+				*(tcoffset++) = redbuf[shadowcount];
+				*(tcoffset++) = redbuf[shadowcount];
+				*(tcoffset++) = redbuf[shadowcount];
+			}
+		}
+
+		/*--- right-part ------------------------------------*/
+		tcyoffset = pic + (long) y * bpl;
+		offset = greypic + (long) y * width + x_end;
+
+		for (x = x_end; x < width; x++)
+		{
+			if (*(offset++) == 0)
+			{
+				shadowcount = 0;
+				mgx_o = x - x_o - softness;
+				mgy_o = y - y_o - softness;
+				for (my = 0; my < mh; my++)
+				{
+					if ((mgx_o + mx_s[my]) < width)
+					{
+						mx_cs = mx_e[my];
+						if ((mgx_o + mx_cs) > width)
+							mx_cs -= (width - (mgx_o + mx_cs));
+
+						mxoffset = greypic + mgx_o + (long) (mgy_o + my) * width;
+						for (mx = mx_s[my]; mx < mx_cs; mx++)
+						{
+							shadowcount += *(mxoffset + mx);
+						}
+					}
+				}
+
+				tcoffset = tcyoffset + x * 3L;
+
+				*(tcoffset++) = redbuf[shadowcount];
+				*(tcoffset++) = redbuf[shadowcount];
+				*(tcoffset++) = redbuf[shadowcount];
+
+			}
+		}
+
+	} /*--- ende Y-schleife ----------------*/
 
 
+	/*--- upper-part ---------------------------------------*/
+	for (y = 0; y < y_start; y++)
+	{
+		busycount++;
+		if ((busycount & busycall) == 0)
+			smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
 
-    /*--- lower-part ---------------------------------------*/
-    for(y=y_end; y<height; y++)
-    {
-        busycount++;
-        if(!(busycount & busycall)) smurf_struct->services->busybox((int)((busycount<<10) / busymax));
-        
-        mgy_o = y-y_o-softness;
-        if(mgy_o < height )
-        {
-            tcyoffset = pic + (long)y*bpl;
-            offset = greypic + (long)y*width;
-            for(x=0; x<width; x++)
-            {
-                if(*(offset++) == 0)
-                {
-                    shadowcount = 0;
-                    mgx_o = x-x_o-softness;
-                    
-                    my_cs = mh;
-                    if((mgy_o + my_cs) > height) my_cs += height - (mgy_o + my_cs);
-                    
-                    for(my=0; my<my_cs; my++)
-                    {
-                        if( ((mgx_o+mx_e[my])>0) || ((mgx_o+mx_s[my])<width))
-                        {
-                            mx_cs = mx_s[my];
-                            if((mgx_o + mx_cs) < 0) mx_cs -= (mgx_o + mx_cs);
-                            mx_ce = mx_e[my];
-                            if((mgx_o + mx_ce) > width) mx_ce += width -(mgx_o + mx_ce);
-                            
-                            mxoffset = greypic + (long)(mgy_o + my)*width;
-                            for(mx=mx_cs; mx<mx_ce; mx++)
-                            {
-                                shadowcount += *(mxoffset + (long)(mgx_o+mx));
-                            }
-                        }
-                    }
-                
-                    grey = 255 - ((shadowcount * shadowfak) >> 16);
-                    
-                    tcoffset = tcyoffset + x*3L;
-                    
-                    *(tcoffset++) = grey;   
-                    *(tcoffset++) = grey;   
-                    *(tcoffset++) = grey;                   
-                
-                }
-            }   
-        
-        }
-        else
-        {
-            tcyoffset = pic + (long)y*bpl;
-            offset = greypic + (long)y*width;
-            for(x=0; x<width; x++)
-            {
-                if(*(offset++) == 0)
-                {
-                    *tcyoffset++ = 255;
-                    *tcyoffset++ = 255;
-                    *tcyoffset++ = 255;
-                }
-                else
-                {
-                 tcyoffset += 3;
-                }
-            }
-        }           
-    } /* Y-schleife ----------------*/
+		mgy_o = y - y_o - softness;
+		if ((mgy_o + mh) > 0)
+		{
+			tcyoffset = pic + (long) y * bpl;
+			offset = greypic + (long) y * width;
 
+			for (x = 0; x < width; x++)
+			{
+				if (*(offset++) == 0)
+				{
+					shadowcount = 0;
+					mgx_o = x - x_o - softness;
+
+					my_cs = 0;
+					if ((mgy_o + my_cs) < 0)
+						my_cs -= (mgy_o + my_cs);
+
+					for (my = my_cs; my < mh; my++)
+					{
+						if ((mgx_o + mx_e[my]) > 0 || (mgx_o + mx_s[my]) < width)
+						{
+							mx_cs = mx_s[my];
+							if ((mgx_o + mx_cs) < 0)
+								mx_cs -= (mgx_o + mx_cs);
+							mx_ce = mx_e[my];
+							if ((mgx_o + mx_ce) > width)
+								mx_ce += width - (mgx_o + mx_ce);
+
+							mxoffset = greypic + mgx_o + (long) (mgy_o + my) * width;
+							for (mx = mx_cs; mx < mx_ce; mx++)
+							{
+								shadowcount += *(mxoffset + mx);
+							}
+						}
+					}
+
+					tcoffset = tcyoffset + x * 3L;
+
+					*(tcoffset++) = redbuf[shadowcount];
+					*(tcoffset++) = greenbuf[shadowcount];
+					*(tcoffset++) = bluebuf[shadowcount];
+				}
+			}
+		} else
+		{
+			tcyoffset = pic + (long) y * bpl;
+			offset = greypic + (long) y * width;
+
+			for (x = 0; x < width; x++)
+			{
+				if (*(offset++) == 0)
+				{
+					*tcyoffset++ = 255;
+					*tcyoffset++ = 255;
+					*tcyoffset++ = 255;
+				} else
+				{
+					tcyoffset += 3;
+				}
+			}
+		}
+	}									/* Y-schleife ---------------- */
 
 
-    Mfree(greypic);
-    
-    return(M_PICDONE);
+	/*--- lower-part ---------------------------------------*/
+	for (y = y_end; y < height; y++)
+	{
+		busycount++;
+		if ((busycount & busycall) == 0)
+			smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
+
+		mgy_o = y - y_o - softness;
+		if (mgy_o < height)
+		{
+			tcyoffset = pic + (long) y * bpl;
+			offset = greypic + (long) y * width;
+
+			for (x = 0; x < width; x++)
+			{
+				if (*(offset++) == 0)
+				{
+					shadowcount = 0;
+					mgx_o = x - x_o - softness;
+
+					my_cs = mh;
+					if ((mgy_o + my_cs) > height)
+						my_cs += height - (mgy_o + my_cs);
+
+					for (my = 0; my < my_cs; my++)
+					{
+						if ((mgx_o + mx_e[my]) > 0 || (mgx_o + mx_s[my]) < width)
+						{
+							mx_cs = mx_s[my];
+							if ((mgx_o + mx_cs) < 0)
+								mx_cs -= (mgx_o + mx_cs);
+							mx_ce = mx_e[my];
+							if ((mgx_o + mx_ce) > width)
+								mx_ce += width - (mgx_o + mx_ce);
+
+							mxoffset = greypic + mgx_o + (long) (mgy_o + my) * width;
+							for (mx = mx_cs; mx < mx_ce; mx++)
+							{
+								shadowcount += *(mxoffset + mx);
+							}
+						}
+					}
+
+					tcoffset = tcyoffset + x * 3L;
+
+					*(tcoffset++) = redbuf[shadowcount];
+					*(tcoffset++) = greenbuf[shadowcount];
+					*(tcoffset++) = bluebuf[shadowcount];
+				}
+			}
+		} else
+		{
+			tcyoffset = pic + (long) y * bpl;
+			offset = greypic + (long) y * width;
+
+			for (x = 0; x < width; x++)
+			{
+				if (*(offset++) == 0)
+				{
+					*tcyoffset++ = 255;
+					*tcyoffset++ = 255;
+					*tcyoffset++ = 255;
+				} else
+				{
+					tcyoffset += 3;
+				}
+			}
+		}
+	}
+
+	Mfree(redbuf);
+	Mfree(greypic);
+
+	return M_PICDONE;
 }
 
 
+/*-----------------------  FUNCTION MAIN --------------------------*/
+void edit_module_main(GARGAMEL *smurf_struct)
+{
+	switch (smurf_struct->module_mode)
+	{
+	case MSTART:
+		/* Wenn das Modul aufgerufen wurde, */
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MEXEC:
+		/* Wenn das Modul gestartet wurde */
+		smurf_struct->module_mode = do_it(smurf_struct);
+		break;
+
+	case MTERM:
+		/* Wenn das Modul sich verpissen soll */
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
+}

@@ -681,7 +681,7 @@ short f_rslid(SLIDER *slider_struct)
 /******************************************************************	*/
 /*			Slider aus *sliderstruct auf Wert value setzen			*/
 /******************************************************************	*/
-void setslider(SLIDER * sliderstruct, long value)
+void setslider(SLIDER *sliderstruct, long value)
 {
 	char string[8];
 	WORD ypos;
@@ -717,7 +717,7 @@ void setslider(SLIDER * sliderstruct, long value)
 	else if (ypos < 0)
 		ypos = 0;
 
-	sliderstruct->rtree[sliderob].ob_y = ypos;
+	tree[sliderob].ob_y = ypos;
 
 	ltoa(value, string, 10);
 	strcpy(tree[slidertxt].TextCast, string);

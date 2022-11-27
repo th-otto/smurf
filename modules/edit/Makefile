@@ -8,6 +8,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/border.sem \
 	$(DISTDIR)/modules/edit/clip.sem \
 	$(DISTDIR)/modules/edit/displace.sem \
+	$(DISTDIR)/modules/edit/dropshdw.sem \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(empty)
 
@@ -23,6 +24,9 @@ $(DISTDIR)/modules/edit/clip.sem: edstart.o clip.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/displace.sem: edstart.o displace.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/dropshdw.sem: edstart.o dropshdw.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/highshad.sem: edstart.o highshad.o
