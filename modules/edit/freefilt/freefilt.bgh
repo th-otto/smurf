@@ -2,35 +2,37 @@
 
  BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
-#Dial 000
-# 008 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 009 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 010 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 011 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 012 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 013 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 014 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 015 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 016 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 017 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 018 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 019 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 020 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 021 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 023 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 024 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 025 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 026 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 027 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 029 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 030 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 031 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 032 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 034 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 035 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 036 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 037 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 041 Hier k馬nen Sie eine DA's Picture-Filtermatrix (*.WF5) laden.
-# 042 Hier k馬nen Sie die aktuelle Filtermatrix im DA's Picture-Format (*.WF5) speichern.
-# 048 Hier k馬nen Sie die Stвke der Filterung einstellen.
+#Dial 000 Hiermit k?nnen Sie anhand einer Matrix frei definierbare Filter erstellen.
+# 002 Hier k馬nen Sie eine DA's Picture-Filtermatrix (*.WF5) laden.
+# 003 Hier k馬nen Sie die aktuelle Filtermatrix im DA's Picture-Format (*.WF5) speichern.
+# 012 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 013 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 014 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 015 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 016 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 017 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 018 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 019 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 020 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 021 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 022 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 023 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 024 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 025 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 026 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 027 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 028 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 029 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 030 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 031 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 032 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 033 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 034 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 035 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 036 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 037 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 038 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 039 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 040 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 041 Hier k馬nen Sie eine Filtermatrix eingeben.
 # 049 Hier k馬nen Sie die Stвke der Filterung einstellen.
