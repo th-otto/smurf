@@ -58,7 +58,6 @@
 #define DO_IT                              1 /* BUTTON in tree FREE_FILTER */
 #define LOAD_FILTER                        2 /* BUTTON in tree FREE_FILTER */
 #define SAVE_FILTER                        3 /* BUTTON in tree FREE_FILTER */
-#define STRENGTH_SLIDE                     4 /* BOX in tree FREE_FILTER */
 #define FILTER_NAME                        5 /* FTEXT in tree FREE_FILTER */
 #define MATRIX_00                         13 /* FTEXT in tree FREE_FILTER */
 #define MATRIX_01                         14 /* FTEXT in tree FREE_FILTER */
@@ -90,6 +89,7 @@
 #define CLIP                              46 /* IBOX in tree FREE_FILTER */
 #define INVERT                            47 /* IBOX in tree FREE_FILTER */
 #define STRENGTH_FHR                      49 /* BOX in tree FREE_FILTER */
+#define STRENGTH_SLIDE                    50 /* BOX in tree FREE_FILTER */
 #define STRENGTH_EDIT                     51 /* TEXT in tree FREE_FILTER */
 #define PREVIEW                           52 /* BOX in tree FREE_FILTER */
 

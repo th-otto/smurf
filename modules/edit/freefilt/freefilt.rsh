@@ -330,7 +330,7 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 
 
 static TEDINFO rs_tedinfo[NUM_TI] = {
-	{ "Noname\0\0\0\0\0\0\0\0\0\0\0\0\0", "___________________", "X", IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 20,20 }, /* FILTER_NAME */
+	{ "Noname\0\0\0\0\0\0\0\0\0\0\0\0\0", "___________________", "XXXXXXXXXXXXXXXXXXX", IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 20,20 }, /* FILTER_NAME */
 	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_00 */
 	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_01 */
 	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_02 */
@@ -343,7 +343,7 @@ static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_14 */
 	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_20 */
 	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_21 */
-	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1A80, 0x0, -1, 4,4 }, /* MATRIX_22 */
+	{ "+01", "___", "X99", IBM, 0, TE_LEFT, 0x1A80, 0x0, -1, 4,4 }, /* MATRIX_22 */
 	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_23 */
 	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_24 */
 	{ "+00", "___", "X99", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 4,4 }, /* MATRIX_30 */

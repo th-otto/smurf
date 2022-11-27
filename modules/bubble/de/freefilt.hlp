@@ -1,12 +1,10 @@
 #BGH 000 000 000
 
- BubbleGEM Help-File for Editmodul Freefilt
+ BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
-#Dial 000 Hiermit k馬nen Sie anhand einer Matrix frei definierbare Filter erstellen.
-# 008 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 009 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 010 Hier k馬nen Sie eine Filtermatrix eingeben.
-# 011 Hier k馬nen Sie eine Filtermatrix eingeben.
+#Dial 000 Hiermit k?nnen Sie anhand einer Matrix frei definierbare Filter erstellen.
+# 002 Hier k馬nen Sie eine DA's Picture-Filtermatrix (*.WF5) laden.
+# 003 Hier k馬nen Sie die aktuelle Filtermatrix im DA's Picture-Format (*.WF5) speichern.
 # 012 Hier k馬nen Sie eine Filtermatrix eingeben.
 # 013 Hier k馬nen Sie eine Filtermatrix eingeben.
 # 014 Hier k馬nen Sie eine Filtermatrix eingeben.
@@ -33,10 +31,9 @@
 # 035 Hier k馬nen Sie eine Filtermatrix eingeben.
 # 036 Hier k馬nen Sie eine Filtermatrix eingeben.
 # 037 Hier k馬nen Sie eine Filtermatrix eingeben.
-
-# 041 Hier k馬nen Sie eine DA's Picture-Filtermatrix (*.WF5) laden.
-# 042 Hier k馬nen Sie die aktuelle Filtermatrix im DA's Picture-Format (*.WF5) speichern.
-
-# 048 Hier k馬nen Sie die Stвke der Filterung einstellen.
+# 038 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 039 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 040 Hier k馬nen Sie eine Filtermatrix eingeben.
+# 041 Hier k馬nen Sie eine Filtermatrix eingeben.
 # 049 Hier k馬nen Sie die Stвke der Filterung einstellen.
-
+# 050 Hier k馬nen Sie die Stвke der Filterung einstellen.

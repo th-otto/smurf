@@ -33,10 +33,23 @@
 #include "smurfine.h"
 #include "freefilt.rsh"
 
+#include "country.h"
+
+#if COUNTRY == 1
+# define STR_LOAD_FILTER "Matrix laden"
+# define STR_SAVE_FILTER "Matrix sichern"
+#elif COUNTRY == 0
+# define STR_LOAD_FILTER "Load Filter"
+# define STR_SAVE_FILTER "Save Filter"
+#else
+# define STR_LOAD_FILTER "Load Filter"
+# define STR_SAVE_FILTER "Save Filter"
+#endif
+
 #define Obj_Selected(a) (main_form[a].ob_state & OS_SELECTED)
 #define GET_Edit_Object(x) (main_form[x].ob_spec.tedinfo->te_ptext)
 
-void Set_Edit_Object(OBJECT *obj, short wert);
+void Set_Edit_Object(OBJECT *obj, short wert); /* BUG: wrong type */
 
 
 void Calc_filtervalues(void);
@@ -89,10 +102,10 @@ typedef struct
 
 /*------ Infostruktur fÅr Hauptprogramm -----*/
 MOD_INFO module_info = {
-	"5x5 Matrix Filter",				/* Name des Moduls */
-	0x0050,
-	"Jîrg Dittmer",						/* Autor */
-	"", "", "", "", "", "", "", "", "", "",	/* 10 Extensionen fÅr Importer */
+	"5x5 Filter",				/* Name des Moduls */
+	0x0070,
+	"J\224rg Dittmer/Olaf Piesche",		/* Autor */
+	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fÅr Importer */
 /* 4 SliderÅberschriften: max 8 */
 	"",
 	"",
@@ -158,20 +171,22 @@ WINDOW *my_window;
 SLIDER strength_slider;
 
 
-void (*set_slider)(SLIDER * sliderstruct, long value);	/* Funktion deklarieren */
+void (*set_slider)(SLIDER *sliderstruct, short value);	/* Funktion deklarieren */
 
 /*---------------------------  FUNCTION MAIN -----------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
-	short (*slider)(SLIDER * slider_struct);	/* Funktion deklarieren */
+	short (*slider)(SLIDER *slider_struct);	/* Funktion deklarieren */
 	static short module_id;
 	short SmurfMessage;
 	short t;
 	WORD object;
-
 	DAS_FILTER *WF5_filter;
+	short (*f_module_window)(WINDOW *mod_window);
 
 	SmurfMessage = smurf_struct->module_mode;
+
+	f_module_window = smurf_struct->services->f_module_window;
 
 	slider = smurf_struct->services->slider;
 
@@ -195,7 +210,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 		smurf_struct->wind_struct = my_window;
 
-		smurf_struct->services->f_module_window(my_window);
+		f_module_window(my_window);
 
 		f_default_sliders();
 
@@ -213,14 +228,13 @@ void edit_module_main(GARGAMEL * smurf_struct)
 		case DO_IT:
 			smurf_struct->module_mode = M_STARTED;
 			return;
-			/*  break;  */
 
 		case STRENGTH_SLIDE:
 			strength = slider(&strength_slider);
 			break;
 
 		case SAVE_FILTER:
-			if (0 > Save_Filter("*.WF5"))
+			if (0 > Save_Filter("D:\\*.WF5")) /* BUG */
 			{
 				/* Fehler beim Speichern */
 			}
@@ -228,8 +242,8 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 
 		case LOAD_FILTER:
-			file = Load_Filter("*.WF5");
-			if ((long) file < 0L)
+			file = Load_Filter("C:\\*.WF5"); /* BUG */
+			if ((long) file <= 0)
 			{
 				break;
 			}
@@ -343,8 +357,6 @@ short do_it(GARGAMEL *smurf_struct)
 
 	long bpl;
 	short i, x, y;
-
-
 
 	/*---Bilddaten auslesen----------------------*/
 	picture = smurf_struct->smurf_pic;
@@ -816,7 +828,6 @@ void Calc_filtervalues(void)
 	red = (*(offset++) * fak_o + red * fak_f) >> 8;
 	green = (*(offset++) * fak_o + green * fak_f) >> 8;
 	blue = (*(offset++) * fak_o + blue * fak_f) >> 8;
-	return;
 }
 
 
@@ -827,15 +838,18 @@ void f_init_window(short mod_id)
 	my_window->whandlem = 0;
 	my_window->module = mod_id;
 	my_window->wnum = 1;
-	my_window->wx = 100;
-	my_window->wy = 50;
+	my_window->wx = -1;
+	my_window->wy = -1;
 	my_window->ww = main_form->ob_width;
 	my_window->wh = main_form->ob_height;
 	my_window->editob = DIV;
-	strncpy(my_window->wtitle, "Freier 5x5 Filter", 40);
+	strncpy(my_window->wtitle, "5x5 filter", 40);
 	my_window->resource_form = main_form;
 	my_window->picture = NULL;
-
+	my_window->clipwid = 96;
+	my_window->cliphgt = 96;
+	my_window->pic_xpos = main_form[53].ob_x; /* BUG: PREVIEW is 52 */
+	my_window->pic_ypos = main_form[53].ob_y;
 }
 
 
@@ -875,9 +889,8 @@ void f_default_sliders(void)
 /* angefordert. Das Preview (im Smurf-Standardformat) wird dann vom Hauptprogramm   */
 /* fÅr die Screen-Farbtiefe gedithert und im Einstellformular dargestellt.          */
 
-void prev(SMURF_PIC * smurfpic, SMURF_PIC * preview)
+void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview)
 {
-
 	/* Ich mach' noch nix. */
 	(void) smurfpic;
 	(void) preview;
@@ -893,7 +906,7 @@ void *Load_Filter(char *path)
 	char *namepos;
 	char loadpath[255];
 	WORD exitbutton;
-	char headline[] = "Matrix laden";
+	char headline[] = STR_LOAD_FILTER;
 
 	char kennung[] = "WINFILT5";
 	char file_kennung[15];
@@ -952,6 +965,7 @@ void *Load_Filter(char *path)
 					if (len != Fread(handle, len, infile))
 					{
 						Fclose(handle);
+						Mfree(infile);
 						return (void *) -6;
 					} else
 					{
@@ -983,7 +997,7 @@ short Save_Filter(char *path)
 	char *namepos;
 	char loadpath[255];
 	WORD exitbutton;
-	char headline[] = "Matrix sichern";
+	char headline[] = STR_SAVE_FILTER;
 
 	char kennung[] = "WINFILT5";
 

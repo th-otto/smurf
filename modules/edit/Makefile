@@ -12,7 +12,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(empty)
 
-SUBDIRS = beule bumpmap colrun hsv magic
+SUBDIRS = beule bumpmap colrun freefilt hsv magic
 
 all:: edstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
