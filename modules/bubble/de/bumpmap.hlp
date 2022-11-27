@@ -17,7 +17,7 @@
 # 025 Wenn dieser Radiobutton selektiert ist, k”nnen Sie die Einstellungen fr diffuses Licht vornehmen.
 # 027 Wenn dieser Radiobutton selektiert ist, k”nnen Sie die Einstellungen fr den Glanzpunkt vornehmen.
 # 030 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
-# 031 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
-# 032 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
-# 037 Wenn diese Checkbox selektiert ist wird das Licht parallel, ansonsten als punktf”rmige Lichtquelle berechnet.
-# 039 Wenn diese Checkbox selektiert ist, wird eine Textur auf die Bumpmap berechnet. Die Textur mssen Sie, wie die Bumpmap, aus dem Bildmanager auf dieses Fenster ziehen.
+# 048 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
+# 049 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
+# 053 Wenn diese Checkbox selektiert ist wird das Licht parallel, ansonsten als punktf”rmige Lichtquelle berechnet.
+# 055 Wenn diese Checkbox selektiert ist, wird eine Textur auf die Bumpmap berechnet. Die Textur mssen Sie, wie die Bumpmap, aus dem Bildmanager auf dieses Fenster ziehen.

@@ -30,8 +30,7 @@
 
 bumpmap.c
 
-pcfltlib.lib    ; Floating Point LIB
 pcstdlib.lib  ; Standard LIB
-pcextlib.lib  ; Extended LIB
+pcfltlib.lib    ; Floating Point LIB
 pctoslib.lib  ; TOS LIB
 pcgemlib.lib  ; GEM LIB

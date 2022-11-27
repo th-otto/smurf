@@ -1,5 +1,5 @@
 /*
- * GEM resource C output of bumber
+ * GEM resource C output of bumpmap
  *
  * created by ORCS 2.18
  */
@@ -252,7 +252,7 @@
 #undef RSC_STATIC_FILE
 #define RSC_STATIC_FILE 1
 
-#include "bumber.h"
+#include "bumpmap.h"
 
 #ifndef RSC_NAMED_FUNCTIONS
 #  define RSC_NAMED_FUNCTIONS 0
@@ -313,56 +313,167 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #undef NUM_OBS
 #undef NUM_TREE
 #undef NUM_UD
-#define NUM_STRINGS 83
+#define NUM_STRINGS 99
 #define NUM_BB		0
 #define NUM_IB		0
 #define NUM_CIB     0
 #define NUM_CIC     0
-#define NUM_TI		27
-#define NUM_FRSTR	0
+#define NUM_TI		32
+#define NUM_FRSTR	1
 #define NUM_FRIMG	0
-#define NUM_OBS     53
+#define NUM_OBS     64
 #define NUM_TREE	1
 #define NUM_UD		0
 #endif
 
 
+static char bumpmap_string_0[] = "Bump!";
+static char bumpmap_string_1[] = "123";
+static char bumpmap_string_2[] = "";
+static char bumpmap_string_3[] = "";
+static char bumpmap_string_4[] = "123";
+static char bumpmap_string_5[] = "";
+static char bumpmap_string_6[] = "";
+static char bumpmap_string_7[] = "123";
+static char bumpmap_string_8[] = "";
+static char bumpmap_string_9[] = "";
+static char bumpmap_string_10[] = "123";
+static char bumpmap_string_11[] = "";
+static char bumpmap_string_12[] = "";
+static char bumpmap_string_13[] = "123";
+static char bumpmap_string_14[] = "";
+static char bumpmap_string_15[] = "";
+static char bumpmap_string_16[] = "B";
+static char bumpmap_string_17[] = "";
+static char bumpmap_string_18[] = "";
+static char bumpmap_string_19[] = "G";
+static char bumpmap_string_20[] = "";
+static char bumpmap_string_21[] = "";
+static char bumpmap_string_22[] = "H\204rte";
+static char bumpmap_string_23[] = "";
+static char bumpmap_string_24[] = "";
+static char bumpmap_string_25[] = "Helligkeit";
+static char bumpmap_string_26[] = "";
+static char bumpmap_string_27[] = "";
+static char bumpmap_string_28[] = "R";
+static char bumpmap_string_29[] = "";
+static char bumpmap_string_30[] = "";
+static char bumpmap_string_31[] = "Diffuses Licht";
+static char bumpmap_string_32[] = "";
+static char bumpmap_string_33[] = "";
+static char bumpmap_string_34[] = "Glanzpunkt";
+static char bumpmap_string_35[] = "";
+static char bumpmap_string_36[] = "";
+static char bumpmap_string_37[] = "Plastik";
+static char bumpmap_string_38[] = "";
+static char bumpmap_string_39[] = "";
+static char bumpmap_string_40[] = "Metall";
+static char bumpmap_string_41[] = "";
+static char bumpmap_string_42[] = "";
+static char bumpmap_string_43[] = "Material";
+static char bumpmap_string_44[] = "";
+static char bumpmap_string_45[] = "";
+static char bumpmap_string_46[] = "Material";
+static char bumpmap_string_47[] = "";
+static char bumpmap_string_48[] = "";
+static char bumpmap_string_49[] = "Preview";
+static char bumpmap_string_50[] = "";
+static char bumpmap_string_51[] = "";
+static char bumpmap_string_52[] = "Setting";
+static char bumpmap_string_53[] = "";
+static char bumpmap_string_54[] = "";
+static char bumpmap_string_55[] = "speichern";
+static char bumpmap_string_56[] = "12345678901234567890123";
+static char bumpmap_string_57[] = "";
+static char bumpmap_string_58[] = "";
+static char bumpmap_string_59[] = "H\224henwert von:";
+static char bumpmap_string_60[] = "";
+static char bumpmap_string_61[] = "";
+static char bumpmap_string_62[] = "Rot";
+static char bumpmap_string_63[] = "";
+static char bumpmap_string_64[] = "";
+static char bumpmap_string_65[] = "Blau";
+static char bumpmap_string_66[] = "";
+static char bumpmap_string_67[] = "";
+static char bumpmap_string_68[] = "Gr\201n";
+static char bumpmap_string_69[] = "";
+static char bumpmap_string_70[] = "";
+static char bumpmap_string_71[] = "Grau";
+static char bumpmap_string_72[] = "";
+static char bumpmap_string_73[] = "";
+static char bumpmap_string_74[] = "123";
+static char bumpmap_string_75[] = "";
+static char bumpmap_string_76[] = "";
+static char bumpmap_string_77[] = "Bump-H\224he";
+static char bumpmap_string_78[] = "";
+static char bumpmap_string_79[] = "";
+static char bumpmap_string_80[] = "Licht parallel";
+static char bumpmap_string_81[] = "";
+static char bumpmap_string_82[] = "";
+static char bumpmap_string_83[] = "mit Textur";
+static char bumpmap_string_84[] = "";
+static char bumpmap_string_85[] = "";
+static char bumpmap_string_86[] = "Hintergrund schwarz";
+static char bumpmap_string_87[] = "";
+static char bumpmap_string_88[] = "";
+static char bumpmap_string_89[] = "Hintergrund wei\236";
+static char bumpmap_string_90[] = "";
+static char bumpmap_string_91[] = "";
+static char bumpmap_string_92[] = "Hintergrund normal";
+static char bumpmap_string_93[] = "";
+static char bumpmap_string_94[] = "";
+static char bumpmap_string_95[] = "umkehren";
+static char bumpmap_string_96[] = "";
+static char bumpmap_string_97[] = "";
+static char bumpmap_string_98[] = "Laden";
+
+
+static char *rs_frstr[NUM_FRSTR] = {
+	bumpmap_string_98
+};
+
+
 static TEDINFO rs_tedinfo[NUM_TI] = {
-	{ "123", "\0", "\0", SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_BLUE_EDIT */
-	{ "123", "\0", "\0", SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_GREEN_EDIT */
-	{ "123", "\0", "\0", SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_RED_EDIT */
-	{ "123", "\0", "\0", SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_BRIGHTNESS_EDIT */
-	{ "123", "\0", "\0", SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_HARD_EDIT */
-	{ "B", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 2,1 },
-	{ "G", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 2,1 },
-	{ "H\204rte", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 6,1 },
-	{ "Helligkeit", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 11,1 },
-	{ "R", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 2,1 },
-	{ "Diffuses Licht", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 15,1 },
-	{ "Glanzpunkt", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 11,1 },
-	{ "Plastik", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 8,1 },
-	{ "Metall", "\0", "\0", SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 7,1 },
-	{ "Material", "\0", "\0", IBM, 0, TE_CNTR, 0x1080, 0x0, 0, 9,1 },
-	{ "123", "\0", "\0", SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* BM_STRENGTH_EDIT */
-	{ "Material", "\0", "\0", IBM, 0, TE_CNTR, 0x1100, 0x0, 0, 9,1 },
-	{ "Bump-H\224he", "\0", "\0", SMALL, 0, TE_LEFT, 0x1180, 0x0, -1, 10,1 },
-	{ "Licht parallel", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 15,1 },
-	{ "mit Textur", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 11,1 },
-	{ "Preview", "\0", "\0", SMALL, 0, TE_LEFT, 0x1180, 0x0, -1, 8,1 },
-	{ "Hintergrund schwarz", "\0", "\0", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 20,1 },
-	{ "Hintergrund wei\236", "\0", "\0", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 17,1 },
-	{ "Hintergrund normal", "\0", "\0", IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 19,1 },
-	{ "umkehren", "\0", "\0", IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 9,1 },
-	{ "Setting", "\0", "\0", SMALL, 0, TE_LEFT, 0x1180, 0x0, -1, 8,1 },
-	{ "123456789012345678901234567890123", "\0", "\0", IBM, 0, TE_CNTR, 0x1180, 0x0, -1, 34,1 } /* BM_SETTING */
+	{ bumpmap_string_1, bumpmap_string_2, bumpmap_string_3, SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_BLUE_EDIT */
+	{ bumpmap_string_4, bumpmap_string_5, bumpmap_string_6, SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_GREEN_EDIT */
+	{ bumpmap_string_7, bumpmap_string_8, bumpmap_string_9, SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_RED_EDIT */
+	{ bumpmap_string_10, bumpmap_string_11, bumpmap_string_12, SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_BRIGHTNESS_EDIT */
+	{ bumpmap_string_13, bumpmap_string_14, bumpmap_string_15, SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* M_HARD_EDIT */
+	{ bumpmap_string_16, bumpmap_string_17, bumpmap_string_18, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 2,1 },
+	{ bumpmap_string_19, bumpmap_string_20, bumpmap_string_21, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 2,1 },
+	{ bumpmap_string_22, bumpmap_string_23, bumpmap_string_24, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 6,1 },
+	{ bumpmap_string_25, bumpmap_string_26, bumpmap_string_27, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 11,1 },
+	{ bumpmap_string_28, bumpmap_string_29, bumpmap_string_30, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 2,1 },
+	{ bumpmap_string_31, bumpmap_string_32, bumpmap_string_33, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 15,1 },
+	{ bumpmap_string_34, bumpmap_string_35, bumpmap_string_36, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 11,1 },
+	{ bumpmap_string_37, bumpmap_string_38, bumpmap_string_39, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 8,1 },
+	{ bumpmap_string_40, bumpmap_string_41, bumpmap_string_42, SMALL, 0, TE_CNTR, 0x1100, 0x0, -1, 7,1 },
+	{ bumpmap_string_43, bumpmap_string_44, bumpmap_string_45, IBM, 0, TE_CNTR, 0x1080, 0x0, 0, 9,1 },
+	{ bumpmap_string_46, bumpmap_string_47, bumpmap_string_48, IBM, 0, TE_CNTR, 0x1100, 0x0, 0, 9,1 },
+	{ bumpmap_string_49, bumpmap_string_50, bumpmap_string_51, SMALL, 0, TE_LEFT, 0x1180, 0x0, -1, 8,1 },
+	{ bumpmap_string_52, bumpmap_string_53, bumpmap_string_54, SMALL, 0, TE_LEFT, 0x1180, 0x0, -1, 8,1 },
+	{ bumpmap_string_56, bumpmap_string_57, bumpmap_string_58, IBM, 0, TE_CNTR, 0x11F0, 0x0, -2, 24,1 }, /* LOAD_SET */
+	{ bumpmap_string_59, bumpmap_string_60, bumpmap_string_61, SMALL, 6, TE_LEFT, 0x1100, 0x0, 0, 15,1 },
+	{ bumpmap_string_62, bumpmap_string_63, bumpmap_string_64, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 4,1 },
+	{ bumpmap_string_65, bumpmap_string_66, bumpmap_string_67, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 5,1 },
+	{ bumpmap_string_68, bumpmap_string_69, bumpmap_string_70, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 5,1 },
+	{ bumpmap_string_71, bumpmap_string_72, bumpmap_string_73, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 5,1 },
+	{ bumpmap_string_74, bumpmap_string_75, bumpmap_string_76, SMALL, 0, TE_CNTR, 0x1178, 0x0, -1, 4,1 }, /* BM_STRENGTH_EDIT */
+	{ bumpmap_string_77, bumpmap_string_78, bumpmap_string_79, SMALL, 0, TE_LEFT, 0x1180, 0x0, -1, 10,1 },
+	{ bumpmap_string_80, bumpmap_string_81, bumpmap_string_82, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 15,1 },
+	{ bumpmap_string_83, bumpmap_string_84, bumpmap_string_85, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 11,1 },
+	{ bumpmap_string_86, bumpmap_string_87, bumpmap_string_88, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 20,1 },
+	{ bumpmap_string_89, bumpmap_string_90, bumpmap_string_91, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 17,1 },
+	{ bumpmap_string_92, bumpmap_string_93, bumpmap_string_94, IBM, 0, TE_LEFT, 0x1180, 0x0, -1, 19,1 },
+	{ bumpmap_string_95, bumpmap_string_96, bumpmap_string_97, IBM, 0, TE_LEFT, 0x1100, 0x0, -1, 9,1 }
 };
 
 
 static OBJECT rs_object[NUM_OBS] = {
 /* BUMPMAIN */
 
-	{ -1, 1, 52, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 65,2069 },
-	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION("Bump!"), 1076,2067, 1034,1 }, /* DO_IT */
+	{ -1, 1, 47, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 65,2069 },
+	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(bumpmap_string_0), 1076,2067, 1034,1 }, /* DO_IT */
 	{ 3, -1, -1, G_IBOX, OF_NONE, OS_NORMAL, C_UNION(0x10100L), 2,1, 287,3600 },
 	{ 30, 4, 29, G_IBOX, OF_NONE, OS_NORMAL, C_UNION(0x11100L), 1793,3840, 287,3600 },
 	{ 5, -1, -1, G_BOXTEXT, OF_FL3DIND, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 520,2062, 1026,2048 }, /* M_BLUE_EDIT */
@@ -392,28 +503,39 @@ static OBJECT rs_object[NUM_OBS] = {
 	{ 29, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[12]), 281,6, 517,2048 },
 	{ 3, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[13]), 793,1805, 1028,2048 },
 	{ 31, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[14]), 1027,2048, 1801,1 },
-	{ 33, 32, 32, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE9179L), 1060,2561, 1025,264 }, /* BM_STRENGTH_FHR */
-	{ 31, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2823, 1025,1536 }, /* BM_STRENGTH_SLIDE */
-	{ 34, -1, -1, G_BOXTEXT, OF_FL3DIND, OS_NORMAL, C_UNION(&rs_tedinfo[15]), 36,522, 1026,2048 }, /* BM_STRENGTH_EDIT */
-	{ 35, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[16]), 260,2048, 1032,1 },
-	{ 36, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[17]), 1825,3328, 1542,1536 },
-	{ 37, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[18]), 1068,2049, 1039,1 },
-	{ 38, -1, -1, (44<<8)+G_IBOX, OF_SELECTABLE, OS_NORMAL, C_UNION(0xFF2100L), 42,2049, 17,1 }, /* BM_PARALEL */
-	{ 39, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[19]), 1068,3, 15,1 },
-	{ 40, -1, -1, (44<<8)+G_IBOX, OF_SELECTABLE, OS_NORMAL, C_UNION(0xFF2100L), 42,3, 13,1 }, /* BM_TEXTURE */
-	{ 41, -1, -1, (47<<8)+G_BOX, OF_FL3DACT, OS_SELECTED, C_UNION(0xFF1100L), 1315,3851, 12,6 },
-	{ 42, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[20]), 1315,1291, 517,1536 },
-	{ 43, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[21]), 1068,2052, 20,1 },
-	{ 44, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[22]), 1068,6, 18,1 },
-	{ 45, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF2100L), 42,2052, 22,1 }, /* BM_BLACK_BG */
-	{ 46, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF2100L), 42,6, 19,1 }, /* BM_WHITE_BG */
-	{ 47, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[23]), 1068,2055, 1043,1 },
-	{ 48, -1, -1, (43<<8)+G_IBOX, 0x11, OS_SELECTED, C_UNION(0xFF2100L), 42,2055, 21,1 }, /* BM_NORMAL_BG */
-	{ 49, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[24]), 1068,9, 1033,1 },
-	{ 50, -1, -1, (44<<8)+G_IBOX, OF_SELECTABLE, OS_NORMAL, C_UNION(0xFF2100L), 42,9, 11,1 }, /* BM_INVERT */
-	{ 51, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[25]), 258,2322, 517,1536 },
-	{ 52, -1, -1, G_BUTTON, 0x605, OS_NORMAL, C_UNION("speichern"), 1061,2067, 1034,1 }, /* BM_SAVE */
-	{ 0, -1, -1, G_BOXTEXT, 0x627, OS_SHADOWED, C_UNION(&rs_tedinfo[26]), 2,2067, 1057,1 } /* BM_SETTING */
+	{ 32, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[15]), 260,2048, 1032,1 },
+	{ 33, -1, -1, (47<<8)+G_BOX, OF_FL3DACT, OS_SELECTED, C_UNION(0xFF1100L), 1315,3851, 12,6 },
+	{ 34, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[16]), 1315,1291, 517,1536 },
+	{ 35, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[17]), 258,2322, 517,1536 },
+	{ 36, -1, -1, G_BUTTON, 0x605, OS_NORMAL, C_UNION(bumpmap_string_55), 35,2067, 13,1 }, /* SAVE_SET */
+	{ 37, -1, -1, G_BOXTEXT, 0x605, OS_NORMAL, C_UNION(&rs_tedinfo[18]), 2,2067, 31,1 }, /* LOAD_SET */
+	{ 47, 38, 46, G_IBOX, OF_NONE, OS_NORMAL, C_UNION(0x1100L), 48,11, 17,7 },
+	{ 39, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[19]), 1,0, 14,1 },
+	{ 40, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[20]), 3,1, 3,1 },
+	{ 41, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF2100L), 1,1, 6,1 }, /* HW_RADIO_RED */
+	{ 42, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[21]), 11,1, 4,1 },
+	{ 43, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF2100L), 9,1, 1030,1 }, /* HW_RADIO_BLUE */
+	{ 44, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[22]), 3,3, 4,1 },
+	{ 45, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF2100L), 1,3, 1030,1 }, /* HW_RADIO_GREEN */
+	{ 46, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[23]), 11,3, 4,1 },
+	{ 37, -1, -1, (43<<8)+G_IBOX, 0x11, OS_SELECTED, C_UNION(0xFF2100L), 9,3, 1030,1 }, /* HW_RADIO_GREY */
+	{ 0, 48, 63, G_IBOX, OF_NONE, OS_NORMAL, C_UNION(0x1100L), 34,1, 31,10 },
+	{ 50, 49, 49, G_BOX, OF_FL3DIND, OS_SELECTED, C_UNION(0xFE9179L), 1026,2560, 1025,264 }, /* BM_STRENGTH_FHR */
+	{ 48, -1, -1, (21<<8)+G_BOX, OF_FL3DACT, OS_NORMAL, C_UNION(0xFF1178L), 0,2823, 1025,1536 }, /* BM_STRENGTH_SLIDE */
+	{ 51, -1, -1, G_BOXTEXT, OF_FL3DIND, OS_NORMAL, C_UNION(&rs_tedinfo[24]), 2,521, 1026,2048 }, /* BM_STRENGTH_EDIT */
+	{ 52, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[25]), 1,0, 1542,1536 },
+	{ 53, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[26]), 1034,2048, 1039,1 },
+	{ 54, -1, -1, (44<<8)+G_IBOX, OF_SELECTABLE, OS_NORMAL, C_UNION(0xFF2100L), 8,2048, 17,1 }, /* BM_PARALEL */
+	{ 55, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[27]), 1034,2, 15,1 },
+	{ 56, -1, -1, (44<<8)+G_IBOX, OF_SELECTABLE, OS_NORMAL, C_UNION(0xFF2100L), 8,2, 13,1 }, /* BM_TEXTURE */
+	{ 57, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[28]), 1034,2051, 20,1 },
+	{ 58, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[29]), 1034,5, 18,1 },
+	{ 59, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF2100L), 8,2051, 22,1 }, /* BLACK_BAK */
+	{ 60, -1, -1, (43<<8)+G_IBOX, 0x11, OS_NORMAL, C_UNION(0xFF2100L), 8,5, 19,1 }, /* WHITE_BAK */
+	{ 61, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[30]), 1034,2054, 1043,1 },
+	{ 62, -1, -1, (43<<8)+G_IBOX, 0x11, OS_SELECTED, C_UNION(0xFF2100L), 8,2054, 21,1 }, /* NORM_BAK */
+	{ 63, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[31]), 1034,8, 1033,1 },
+	{ 47, -1, -1, (44<<8)+G_IBOX, 0x21, OS_NORMAL, C_UNION(0xFF2100L), 8,8, 11,1 } /* BM_INVERT */
 };
 
 
@@ -429,9 +551,9 @@ static OBJECT *rs_trindex[NUM_TREE] = {
 
 #if RSC_NAMED_FUNCTIONS
 #ifdef __STDC__
-_WORD bumber_rsc_load(_WORD wchar, _WORD hchar)
+_WORD bumpmap_rsc_load(_WORD wchar, _WORD hchar)
 #else
-_WORD bumber_rsc_load(wchar, hchar)
+_WORD bumpmap_rsc_load(wchar, hchar)
 _WORD wchar;
 _WORD wchar;
 #endif
@@ -464,9 +586,9 @@ _WORD wchar;
 
 
 #ifdef __STDC__
-_WORD bumber_rsc_gaddr(_WORD type, _WORD idx, void *gaddr)
+_WORD bumpmap_rsc_gaddr(_WORD type, _WORD idx, void *gaddr)
 #else
-_WORD bumber_rsc_gaddr(type, idx, gaddr)
+_WORD bumpmap_rsc_gaddr(type, idx, gaddr)
 _WORD type;
 _WORD idx;
 void *gaddr;
@@ -601,9 +723,9 @@ void *gaddr;
 
 
 #ifdef __STDC__
-_WORD bumber_rsc_free(void)
+_WORD bumpmap_rsc_free(void)
 #else
-_WORD bumber_rsc_free()
+_WORD bumpmap_rsc_free()
 #endif
 {
 #if NUM_OBS != 0
@@ -616,8 +738,8 @@ _WORD bumber_rsc_free()
 
 #else /* !RSC_STATIC_FILE */
 #if 0
-_WORD rs_numstrings = 83;
-_WORD rs_numfrstr = 0;
+_WORD rs_numstrings = 99;
+_WORD rs_numfrstr = 1;
 
 _WORD rs_nuser = 0;
 _WORD rs_numimages = 0;
@@ -625,11 +747,11 @@ _WORD rs_numbb = 0;
 _WORD rs_numfrimg = 0;
 _WORD rs_numib = 0;
 _WORD rs_numcib = 0;
-_WORD rs_numti = 27;
-_WORD rs_numobs = 53;
+_WORD rs_numti = 32;
+_WORD rs_numobs = 64;
 _WORD rs_numtree = 1;
 
-char rs_name[] = "bumber.rsc";
+char rs_name[] = "bumpmap.rsc";
 
 _WORD _rsc_format = 2; /* RSC_FORM_SOURCE2 */
 #endif

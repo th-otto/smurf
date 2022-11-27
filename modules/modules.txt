@@ -9,8 +9,7 @@ ordered.sdm    1.00    1.00     x
 edit:
 beule.sem      0.80    0.80     x
 border.sem     0.10    -        x
-bumber.sem     -       1.00     x     x
-bumpmap.sem    1.20    -        x
+bumpmap.sem    1.21    1.00     x     x
 cchange.sem    0.10    -
 chanel5.sem    0.50    0.50
 chanelmx.sem   0.20    -
@@ -60,7 +59,6 @@ spin.sem       0.20    0.20
 strudel.sem    1.00    1.00
 sw.sem         0.10    0.50        !!!
 tachyon.sem    0.10    0.10
-texbump.sem    1.21    -
 texshdow.sem   0.30    -
 text.sem       1.05    1.05
 weight.sem     0.40    0.40
