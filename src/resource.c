@@ -281,26 +281,26 @@ void init_smurfrsc(const char *rscpath)
 
 	xrsrc_gaddr(R_TREE, BUTTONS, &u_tree, resource_global);	/* Userdefs */
 
-	f_treewalk(form_pop, 0);
-	f_treewalk(edit_pop, 0);
-	f_treewalk(col_pop, 0);
-	f_treewalk(Dialog.dispOpt.tree, 0);
-	f_treewalk(u_tree, 0);
-	f_treewalk(Dialog.smurfOpt.tree, 0);
-	f_treewalk(module_form, 0);
-	f_treewalk(Dialog.emodList.infoTree, 0);
-	f_treewalk(Dialog.emodList.tree, 0);
-	f_treewalk(blocktype_window, 0);
-	f_treewalk(newpic_window, 0);
-	f_treewalk(Dialog.picMan.tree, 0);
-	f_treewalk(export_form, 0);
-	f_treewalk(Dialog.expmodList.tree, 0);
-	f_treewalk(Dialog.expmodList.infoTree, 0);
-	f_treewalk(pic_info_form, 0);
-	f_treewalk(transform_window, 0);
-	f_treewalk(blockmode_window, 0);
-	f_treewalk(confsave_dialog, 0);
-	f_treewalk(modconf_popup, 0);
+	f_treewalk(form_pop);
+	f_treewalk(edit_pop);
+	f_treewalk(col_pop);
+	f_treewalk(Dialog.dispOpt.tree);
+	f_treewalk(u_tree);
+	f_treewalk(Dialog.smurfOpt.tree);
+	f_treewalk(module_form);
+	f_treewalk(Dialog.emodList.infoTree);
+	f_treewalk(Dialog.emodList.tree);
+	f_treewalk(blocktype_window);
+	f_treewalk(newpic_window);
+	f_treewalk(Dialog.picMan.tree);
+	f_treewalk(export_form);
+	f_treewalk(Dialog.expmodList.tree);
+	f_treewalk(Dialog.expmodList.infoTree);
+	f_treewalk(pic_info_form);
+	f_treewalk(transform_window);
+	f_treewalk(blockmode_window);
+	f_treewalk(confsave_dialog);
+	f_treewalk(modconf_popup);
 
 	/* Formularkoordinaten in Felder eintragen */
 	form_center(Dialog.dispOpt.tree, &(wind_s[WIND_DOPT].wx), &(wind_s[WIND_DOPT].wy), &(wind_s[WIND_DOPT].ww), &(wind_s[WIND_DOPT].wh));

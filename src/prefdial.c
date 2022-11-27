@@ -158,7 +158,7 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 	/*
 	 * unbenutzte Elemente verstecken
 	 */
-	if (strlen(infostruct->slide1) == 0)
+	if (infostruct->slide1 == NULL || infostruct->slide1[0] == '\0')
 	{
 		pref_form[S1_F].ob_flags |= OF_HIDETREE;
 		pref_form[S1_A].ob_flags |= OF_HIDETREE;
@@ -170,7 +170,7 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 		pref_form[S1_R].ob_flags &= ~OF_HIDETREE;
 	}
 
-	if (strlen(infostruct->slide2) == 0)
+	if (infostruct->slide2 == NULL || infostruct->slide2[0] == '\0')
 	{
 		pref_form[S2_F].ob_flags |= OF_HIDETREE;
 		pref_form[S2_A].ob_flags |= OF_HIDETREE;
@@ -182,7 +182,7 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 		pref_form[S2_R].ob_flags &= ~OF_HIDETREE;
 	}
 
-	if (strlen(infostruct->slide3) == 0)
+	if (infostruct->slide3 == NULL || infostruct->slide3[0] == '\0')
 	{
 		pref_form[S3_F].ob_flags |= OF_HIDETREE;
 		pref_form[S3_A].ob_flags |= OF_HIDETREE;
@@ -194,7 +194,7 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 		pref_form[S3_R].ob_flags &= ~OF_HIDETREE;
 	}
 
-	if (strlen(infostruct->slide4) == 0)
+	if (infostruct->slide4 == NULL || infostruct->slide4[0] == '\0')
 	{
 		pref_form[S4_F].ob_flags |= OF_HIDETREE;
 		pref_form[S4_A].ob_flags |= OF_HIDETREE;
@@ -206,42 +206,42 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 		pref_form[S4_R].ob_flags &= ~OF_HIDETREE;
 	}
 
-	if (strlen(infostruct->check1) == 0)
+	if (infostruct->check1 == NULL || infostruct->check1[0] == '\0')
 		pref_form[CHECK1].ob_flags |= OF_HIDETREE;
 	else
 		pref_form[CHECK1].ob_flags &= ~OF_HIDETREE;
 
-	if (strlen(infostruct->check2) == 0)
+	if (infostruct->check2 == NULL || infostruct->check2[0] == '\0')
 		pref_form[CHECK2].ob_flags |= OF_HIDETREE;
 	else
 		pref_form[CHECK2].ob_flags &= ~OF_HIDETREE;
 
-	if (strlen(infostruct->check3) == 0)
+	if (infostruct->check3 == NULL || infostruct->check3[0] == '\0')
 		pref_form[CHECK3].ob_flags |= OF_HIDETREE;
 	else
 		pref_form[CHECK3].ob_flags &= ~OF_HIDETREE;
 
-	if (strlen(infostruct->check4) == 0)
+	if (infostruct->check4 == NULL || infostruct->check4[0] == '\0')
 		pref_form[CHECK4].ob_flags |= OF_HIDETREE;
 	else
 		pref_form[CHECK4].ob_flags &= ~OF_HIDETREE;
 
-	if (strlen(infostruct->edit1) == 0)
+	if (infostruct->edit1 == NULL || infostruct->edit1[0] == '\0')
 		pref_form[ED1].ob_flags |= OF_HIDETREE;
 	else
 		pref_form[ED1].ob_flags &= ~OF_HIDETREE;
 
-	if (strlen(infostruct->edit2) == 0)
+	if (infostruct->edit2 == NULL || infostruct->edit2[0] == '\0')
 		pref_form[ED2].ob_flags |= OF_HIDETREE;
 	else
 		pref_form[ED2].ob_flags &= ~OF_HIDETREE;
 
-	if (strlen(infostruct->edit3) == 0)
+	if (infostruct->edit3 == NULL || infostruct->edit3[0] == '\0')
 		pref_form[ED3].ob_flags |= OF_HIDETREE;
 	else
 		pref_form[ED3].ob_flags &= ~OF_HIDETREE;
 
-	if (strlen(infostruct->edit4) == 0)
+	if (infostruct->edit4 == NULL || infostruct->edit4[0] == '\0')
 		pref_form[ED4].ob_flags |= OF_HIDETREE;
 	else
 		pref_form[ED4].ob_flags &= ~OF_HIDETREE;
@@ -265,8 +265,10 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 	/* 
 	 * Muž der Cursor komplett ausgeschaltet werden (kein Editobjekt da)?
 	 */
-	if (strlen(infostruct->edit1) == 0 && strlen(infostruct->edit2) == 0 &&
-		strlen(infostruct->edit3) == 0 && strlen(infostruct->edit4) == 0)
+	if ((pref_form[ED1].ob_flags & OF_HIDETREE) &&
+		(pref_form[ED2].ob_flags & OF_HIDETREE) &&
+		(pref_form[ED3].ob_flags & OF_HIDETREE) &&
+		(pref_form[ED4].ob_flags & OF_HIDETREE))
 		wind_s[WIND_MODFORM].editob = 0;
 	else
 		wind_s[WIND_MODFORM].editob = ED1;
@@ -286,18 +288,18 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 	memset(pref_form[ED4_TIT].TextCast, 0x0, 10);
 #endif
 	/*----------------------------- neue Formulartexte eintragen */
-	strcpy(pref_form[S1_TIT].TextCast, infostruct->slide1);
-	strcpy(pref_form[S2_TIT].TextCast, infostruct->slide2);
-	strcpy(pref_form[S3_TIT].TextCast, infostruct->slide3);
-	strcpy(pref_form[S4_TIT].TextCast, infostruct->slide4);
-	strcpy(pref_form[ED1_TIT].TextCast, infostruct->edit1);
-	strcpy(pref_form[ED2_TIT].TextCast, infostruct->edit2);
-	strcpy(pref_form[ED3_TIT].TextCast, infostruct->edit3);
-	strcpy(pref_form[ED4_TIT].TextCast, infostruct->edit4);
-	strcpy(pref_form[CHECK1_TEXT].TextCast, infostruct->check1);
-	strcpy(pref_form[CHECK2_TEXT].TextCast, infostruct->check2);
-	strcpy(pref_form[CHECK3_TEXT].TextCast, infostruct->check3);
-	strcpy(pref_form[CHECK4_TEXT].TextCast, infostruct->check4);
+	strcpy(pref_form[S1_TIT].TextCast, infostruct->slide1 ? infostruct->slide1 : "");
+	strcpy(pref_form[S2_TIT].TextCast, infostruct->slide2 ? infostruct->slide2 : "");
+	strcpy(pref_form[S3_TIT].TextCast, infostruct->slide3 ? infostruct->slide3 : "");
+	strcpy(pref_form[S4_TIT].TextCast, infostruct->slide4 ? infostruct->slide4 : "");
+	strcpy(pref_form[ED1_TIT].TextCast, infostruct->edit1 ? infostruct->edit1 : "");
+	strcpy(pref_form[ED2_TIT].TextCast, infostruct->edit2 ? infostruct->edit2 : "");
+	strcpy(pref_form[ED3_TIT].TextCast, infostruct->edit3 ? infostruct->edit3 : "");
+	strcpy(pref_form[ED4_TIT].TextCast, infostruct->edit4 ? infostruct->edit4 : "");
+	strcpy(pref_form[CHECK1_TEXT].TextCast, infostruct->check1 ? infostruct->check1 : "");
+	strcpy(pref_form[CHECK2_TEXT].TextCast, infostruct->check2 ? infostruct->check2 : "");
+	strcpy(pref_form[CHECK3_TEXT].TextCast, infostruct->check3 ? infostruct->check3 : "");
+	strcpy(pref_form[CHECK4_TEXT].TextCast, infostruct->check4 ? infostruct->check4 : "");
 
 	/*------------------------------ Slider-Mins / Maxs auslesen */
 	max_val = (WORD) infostruct->smax1;
@@ -412,7 +414,7 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 		pref_form[CHECK4].ob_flags &= ~OF_RBUTTON;
 	}
 
-	f_treewalk(pref_form, 0);
+	f_treewalk(pref_form);
 
 	if (infostruct->cdef1 != 0 && infostruct->cdef1 != 3)
 		pref_form[CHECK1].ob_state |= OS_SELECTED;

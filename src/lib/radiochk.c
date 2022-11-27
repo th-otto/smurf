@@ -529,50 +529,42 @@ static WORD cdecl drawAngleObject(PARMBLK *parm)
 #endif
 
 
-static void f_init_tree(OBJECT *baum, WORD element)
+void f_treewalk(OBJECT *tree)
 {
-	switch (baum[element].ob_type >> 8)
+	for (;;)
 	{
-	case CHECKBOX:
-		baum[element].ob_type = (baum[element].ob_type & 0xff00) | G_USERDEF;
-		baum[element].ob_spec.userblk = &check_user;
-		check_user.ub_code = f_do_checkbox;
-		break;
-	case RADIOBUTTON:
-		baum[element].ob_type = (baum[element].ob_type & 0xff00) | G_USERDEF;
-		baum[element].ob_spec.userblk = &radio_user;
-		radio_user.ub_code = f_do_radio;
-		break;
-	case CYCLEBUTTON:
-		baum[element].ob_type = (baum[element].ob_type & 0xff00) | G_USERDEF;
-		baum[element].ob_spec.userblk = &cycle_user;
-		cycle_user.ub_code = f_do_cycle;
-		break;
-	case CORNER_IMAGE:
-		baum[element].ob_type = (baum[element].ob_type & 0xff00) | G_USERDEF;
-		baum[element].ob_spec.userblk = &corner_user;
-		corner_user.ub_code = f_do_corner;
-		break;
+		switch (tree->ob_type >> 8)
+		{
+		case CHECKBOX:
+			tree->ob_type = (tree->ob_type & 0xff00) | G_USERDEF;
+			tree->ob_spec.userblk = &check_user;
+			check_user.ub_code = f_do_checkbox;
+			break;
+		case RADIOBUTTON:
+			tree->ob_type = (tree->ob_type & 0xff00) | G_USERDEF;
+			tree->ob_spec.userblk = &radio_user;
+			radio_user.ub_code = f_do_radio;
+			break;
+		case CYCLEBUTTON:
+			tree->ob_type = (tree->ob_type & 0xff00) | G_USERDEF;
+			tree->ob_spec.userblk = &cycle_user;
+			cycle_user.ub_code = f_do_cycle;
+			break;
+		case CORNER_IMAGE:
+			tree->ob_type = (tree->ob_type & 0xff00) | G_USERDEF;
+			tree->ob_spec.userblk = &corner_user;
+			corner_user.ub_code = f_do_corner;
+			break;
 #if 0
-	case ANGLE_OBJECT:
-		baum[element].ob_type = (baum[element].ob_type & 0xff00) | G_USERDEF;
-		baum[element].ob_spec.userblk = angle_user;
-		angle_user.ub_code = drawAngleObject;
-		break;
+		case ANGLE_OBJECT:
+			tree->ob_type = (tree->ob_type & 0xff00) | G_USERDEF;
+			tree->ob_spec.userblk = angle_user;
+			angle_user.ub_code = drawAngleObject;
+			break;
 #endif
-	}
-
-	return;
-}
-
-
-void f_treewalk(OBJECT *tree, WORD start)
-{
-	WORD index = 0;
-
-	for (index = tree[start].ob_head; index != -1 && index != start; index = tree[index].ob_next)
-	{
-		f_init_tree(tree, index);
-		f_treewalk(tree, index);		/* rekursiv fr alle Kinder! */
+		}
+		if (tree->ob_flags & OF_LASTOB)
+			break;
+		tree++;
 	}
 }

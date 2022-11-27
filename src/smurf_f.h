@@ -333,7 +333,7 @@ void f_pic_changed(WINDOW *window, BOOLEAN onoff);
 /*
  * lib/radiochk.c
  */
-void f_treewalk(OBJECT *tree, WORD start);                 /* Userdefined Objects eintragen */
+void f_treewalk(OBJECT *tree);                 /* Userdefined Objects eintragen */
 WORD cdecl f_do_checkbox(PARMBLK *parm);
 WORD cdecl f_do_cycle(PARMBLK *parm);
 

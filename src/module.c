@@ -613,7 +613,7 @@ short f_open_module_window(WINDOW *module_window)
 	wind_calc(WC_BORDER, flags, m_wind_x, m_wind_y, m_wind_w, m_wind_h, &m_wind_x, &m_wind_y, &m_wind_w, &m_wind_h);
 
 	/*------ Userdefs initialisieren */
-	f_treewalk(module_window->resource_form, 0);
+	f_treewalk(module_window->resource_form);
 
 	walk_module_tree(module_window, 0);
 
