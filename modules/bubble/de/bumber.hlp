@@ -1,21 +1,23 @@
 #BGH 000 000 000
 
- BubbleGEM Help-File for Editmodul Bump it up
+ BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
 #Dial 000 Mit diesem Modul k”nnen Sie beleuchtete, reliefartige Oberfl„chenstrukturen aus Bildern erzeugen.
-# 025 Wenn dieser Radiobutton selektiert ist, k”nnen Sie die Einstellungen fr diffuses Licht vornehmen.
-# 027 Wenn dieser Radiobutton selektiert ist, k”nnen Sie die Einstellungen fr den Glanzpunkt vornehmen.
+# 001 Mit diesem Button wird die Berechnung gestartet.
+# 007 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
+# 008 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
 # 009 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
 # 010 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
 # 011 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
 # 012 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
-# 007 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
-# 008 Hier k”nnen Sie die Lichtfarbe fr Glanzpunkt oder diffuses Licht einstellen.
 # 014 Hier k”nnen Sie die Helligkeit fr Glanzpunkt oder diffuses Licht einstellen.
 # 015 Hier k”nnen Sie die Helligkeit fr Glanzpunkt oder diffuses Licht einstellen.
-# 017 Hier k”nnen Sie die St„rke des Glanzpunktes/diffusen Lichtes einstellen. Je mehr, desto kleiner und h„rter wird der Lichtverlauf.
-# 018 Hier k”nnen Sie die St„rke des Glanzpunktes/diffusen Lichtes einstellen. Je mehr, desto kleiner und h„rter wird der Lichtverlauf.
-# 036 Wenn diese Checkbox selektiert ist wird das Licht parallel, ansonsten als punktf”rmige Lichtquelle berechnet.
-# 038 Wenn diese Checkbox selektiert ist, wird eine Textur auf die Bumpmap berechnet. Die Textur mssen Sie, wie die Bumpmap, aus dem Bildmanager auf dieses Fenster ziehen.
+# 017 Hier k”nnen Sie die Helligkeit fr Glanzpunkt oder diffuses Licht einstellen.
+# 018 Hier k”nnen Sie die Helligkeit fr Glanzpunkt oder diffuses Licht einstellen.
+# 025 Wenn dieser Radiobutton selektiert ist, k”nnen Sie die Einstellungen fr diffuses Licht vornehmen.
+# 027 Wenn dieser Radiobutton selektiert ist, k”nnen Sie die Einstellungen fr den Glanzpunkt vornehmen.
 # 030 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
-# 001 Mit diesem Button wird die Berechnung gestartet.
+# 031 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
+# 032 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
+# 037 Wenn diese Checkbox selektiert ist wird das Licht parallel, ansonsten als punktf”rmige Lichtquelle berechnet.
+# 039 Wenn diese Checkbox selektiert ist, wird eine Textur auf die Bumpmap berechnet. Die Textur mssen Sie, wie die Bumpmap, aus dem Bildmanager auf dieses Fenster ziehen.

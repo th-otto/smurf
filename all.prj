@@ -11,6 +11,7 @@ modules\dither\ordered\ordered.prj
 modules\edit\beule\beule.prj
 modules\edit\border.prj
 modules\edit\bumpmap\bumpmap.prj
+modules\edit\bumpmap\bumber.prj
 modules\edit\bumpmap\texbump.prj
 modules\edit\cchange\cchange.prj
 modules\edit\chanel5\chanel5.prj
@@ -176,10 +177,6 @@ modules\plugin\mrm\mrm.prj
 modules\plugin\multicnv\multicon.prj
 modules\plugin\print\prntplg.prj
 
-; missing:
-;modules\edit\bumber.prj
-
 ; do not compile:
-;modules\edit\bumper1.prj
 ;modules\edit\kratzer.prj
 ;modules\import\neonshp.prj

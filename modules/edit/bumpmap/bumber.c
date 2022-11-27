@@ -360,7 +360,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		Default = smurf_struct->services->SMalloc(sizeof(BUMP_CONFIG));
 		write_setting(Default);
 		smurf_struct->event_par[0] = (short) ((unsigned long) Default >> 16);
-		smurf_struct->event_par[1] = (short) Default;
+		smurf_struct->event_par[1] = (short) (long) Default;
 		smurf_struct->event_par[2] = (short) sizeof(BUMP_CONFIG);
 		smurf_struct->module_mode = M_CONFIG;
 	}
