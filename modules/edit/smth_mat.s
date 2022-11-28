@@ -28,10 +28,15 @@
 *    Offset table
 *
 
-GLOBL smooth_me
-
+	.IFEQ PURE_C
+	.globl _smooth_me
+_smooth_me:
+	move.l 4(a7),a0
+	.ENDC
+	
+	.globl smooth_me
 smooth_me:
-    movem.l d3-d5/a2,-(sp)
+    movem.l d2-d5/a2,-(sp)
 
 move.l (a0)+,d0        /* counter */
 move.l (a0)+,a1        /* Source */
@@ -50,11 +55,11 @@ loop:
     add.l   (a0)+,a1
 
     move.b (a1)+,d5        /* rot */
-    add.l   d5.b,d1.l
+    add.l   d5,d1
     move.b (a1)+,d5        /* grÅn */
-    add.l   d5.b,d2.l
+    add.l   d5,d2
     move.b (a1),d5         /* blau */
-    add.l   d5.b,d3.l
+    add.l   d5,d3
 
     dbra d0,loop
 
@@ -68,7 +73,6 @@ loop:
     divu.w  d4,d3
     move.b d3,(a2)
 
-    movem.l (sp)+,d3-d5/a2
+    movem.l (sp)+,d2-d5/a2
 
-
-rts
+	rts
