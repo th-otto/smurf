@@ -478,8 +478,8 @@ void GetSMPath(void)
 
 	/* ***************Nur fÅr den Debugger: ******************* */
 #if DEBUGGER
-	if (stricmp(stpath, "E:\\PURE-C") == 0)
-		strcpy(stpath, "e:\\smurf");
+	if (stricmp(stpath, "C:\\PC") == 0)
+		strcpy(stpath, "H:\\smurf\\dist");
 #endif
 
 #if 0

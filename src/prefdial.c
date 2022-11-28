@@ -1129,6 +1129,7 @@ void f_mpref_change(void)
 			module.smStruct[edit_mod_num]->event_par[1] = position_markers[edit_mod_num & 0xFF].ypos[0];
 			module.comm.start_edit_module("", module.bp[edit_mod_num], MCH_COORDS, edit_mod_num, module.smStruct[edit_mod_num]);
 
+			/* FIXME: translate */
 			Dialog.busy.reset(0, "Modul arbeitet...");
 			if (key_at_event & KEY_ALT)
 				close_me = TRUE;

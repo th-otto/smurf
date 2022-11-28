@@ -36,7 +36,7 @@ _smooth_me:
 	
 	.globl smooth_me
 smooth_me:
-    movem.l d3-d5/a2,-(sp)
+    movem.l d2-d5/a2,-(sp)
 
 	move.l (a0)+,d0        /* counter */
 	move.l (a0)+,a1        /* Source */
@@ -46,6 +46,7 @@ smooth_me:
 	clr.l   d1
 	clr.l   d2
 	clr.l   d3
+	clr.l   d5
 	move.l  d0,d4
 	subq.l  #1,d0
 
@@ -73,6 +74,6 @@ loop:
     divu.w  d4,d3
     move.b d3,(a2)
 
-    movem.l (sp)+,d3-d5/a2
+    movem.l (sp)+,d2-d5/a2
 
 	rts

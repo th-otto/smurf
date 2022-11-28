@@ -89,6 +89,7 @@ extern short _app;
 #define OF_EDITABLE   EDITABLE
 #define OF_RBUTTON    RBUTTON
 #define OF_HIDETREE   HIDETREE
+#define OF_LASTOB     LASTOB
 #endif
 
 typedef struct

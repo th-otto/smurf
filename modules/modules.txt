@@ -43,7 +43,7 @@ paletout.sem   0.20    -
 pepsip.sem     0.10    -
 picfade.sem    0.50    -
 pixel.sem      0.40    0.40
-quicksmt.sem   0.80    1.00        !!!
+quicksmt.sem   0.80    1.00     x     x
 rahmen.sem     0.70    0.70
 rotate.sem     0.30    0.30
 scale.sem      1.30    1.30

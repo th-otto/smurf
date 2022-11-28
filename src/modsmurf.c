@@ -2558,6 +2558,7 @@ short f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 					/*-------- Return-Message prÅfen */
 					if (module_ret == M_PICDONE || module_ret == M_DONEEXIT)
 					{
+						/* FIXME: translate */
 						Dialog.busy.reset(128, "loaded...");
 						break;
 					}

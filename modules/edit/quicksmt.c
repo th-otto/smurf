@@ -44,11 +44,6 @@
 #define TEXT4 "Picture adjust..."
 #endif
 
-#undef TEXT2
-#define TEXT2 "Weichzeichnen..."
-#undef TEXT4
-#define TEXT4 "Bildanpassung..."
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -121,7 +116,7 @@ struct smooth_par {
 };
 
 
-void smooth_me(long *par) ASM_NAME("_smooth_me");
+void smooth_me(struct smooth_par *par) ASM_NAME("_smooth_me");
 
 
 /*---------------------------  FUNCTION MAIN -----------------------------*/
@@ -130,7 +125,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	SMURF_PIC *picture;
 	void *(*SMalloc)(long amount);
 	void (*SMfree)(void *ptr);
-	short module_id;
 	short width, height;
 	short x;
 	short y;
@@ -149,26 +143,22 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	short math;
 	short xpos;
 	short ypos;
-	long par[10];
-	long bpp;
-	short d5;
+	struct smooth_par par;
+	short w;
 	long red;
 	long green;
 	long blue;
 	
-	bpp = 3;
-	/* Wenn das Modul aufgerufen wurde, */
-	if (smurf_struct->module_mode == MSTART)
+	switch (smurf_struct->module_mode)
 	{
-		module_id = smurf_struct->module_number;
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
+	case MSTART:
+		/* Wenn das Modul aufgerufen wurde, */
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
 		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
+		break;
 
-	/* Wenn das Modul gestartet wurde */
-	if (smurf_struct->module_mode == MEXEC)
-	{
+	case MEXEC:
+		/* Wenn das Modul gestartet wurde */
 		picture = smurf_struct->smurf_pic;
 		data = picture->pic_data;
 		width = picture->pic_width;
@@ -178,10 +168,15 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		SMalloc = smurf_struct->services->SMalloc;
 		SMfree = smurf_struct->services->SMfree;
 		
-		linelen = (long) width * bpp;
+		linelen = (long) width * 3L;
 		
 		dest_data = dest = (uint8_t *)SMalloc((long) height * linelen);
-		memset(dest_data, '*', (long) height * linelen);
+		if (dest_data == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return;
+		}
+		memset(dest_data, 0, (long) height * linelen);
 		
 		/*-------------------- Offset-Table vorbereiten --------------  */
 		/*--------------------- Delta-Table (schnell!)  --------------- */
@@ -191,6 +186,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		counter = ((long) matw * 2 + 1) * ((long) math * 2 + 1);
 
 		offset_table = (long *)SMalloc(counter * sizeof(*offset_table) + 100);
+		if (offset_table == NULL)
+		{
+			SMfree(dest);
+			smurf_struct->module_mode = M_MEMORY;
+			return;
+		}
 		curr_counter = 0;
 		old_offset = 0;
 
@@ -211,23 +212,23 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 		smurf_struct->services->reset_busybox(0, TEXT2);
 
-		d5 = matw;
-		par[0] = counter;
-		par[3] = (long) offset_table;
+		w = matw;
+		par.counter = counter;
+		par.offset_table = offset_table;
 
 		for (y = math; y < height - math; y++)
 		{
-			par[1] = (long)(datacopy + y * linelen + d5 * bpp);
-			par[2] = (long)(dest + y * linelen + d5 * bpp);
+			par.src = datacopy + y * linelen + w * 3L;
+			par.dst = dest + y * linelen + w * 3L;
 			
 			if ((y & 15) == 0)
 				smurf_struct->services->busybox((short) (((long) y << 7L) / (long) height));
 
 			for (x = matw; x < width - matw; x++)
 			{
-				smooth_me(par);
-				par[2] += 3;
-				par[1] += 3;
+				smooth_me(&par);
+				par.dst += 3;
+				par.src += 3;
 			}
 		}
 
@@ -247,17 +248,19 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					{
 						if (x + xpos > 0 && x + xpos < width)
 						{
-							red += *(datacopy + xpos * 3L + 0 + ypos * linelen);
-							green += *(datacopy + xpos * 3L + 1 + ypos * linelen);
-							blue += *(datacopy + xpos * 3L + 2 + ypos * linelen);
+							red += datacopy[ypos * linelen + xpos * 3L + 0];
+							green += datacopy[ypos * linelen + xpos * 3L + 1];
+							blue += datacopy[ypos * linelen + xpos * 3L + 2];
 							counter++;
 						}
 					}
 				}
-				/* BUG: divide by zero */
-				red /= counter;
-				green /= counter;
-				blue /= counter;
+				if (counter != 0)
+				{
+					red /= counter;
+					green /= counter;
+					blue /= counter;
+				}
 				dest[0] = red;
 				dest[1] = green;
 				dest[2] = blue;
@@ -280,17 +283,19 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					{
 						if (x + xpos > 0 && x + xpos < width)
 						{
-							red += *(datacopy + xpos * 3L + 0 + ypos * linelen);
-							green += *(datacopy + xpos * 3L + 1 + ypos * linelen);
-							blue += *(datacopy + xpos * 3L + 2 + ypos * linelen);
+							red += datacopy[ypos * linelen + xpos * 3L + 0];
+							green += datacopy[ypos * linelen + xpos * 3L + 1];
+							blue += datacopy[ypos * linelen + xpos * 3L + 2];
 							counter++;
 						}
 					}
 				}
-				/* BUG: divide by zero */
-				red /= counter;
-				green /= counter;
-				blue /= counter;
+				if (counter != 0)
+				{
+					red /= counter;
+					green /= counter;
+					blue /= counter;
+				}
 				dest[0] = red;
 				dest[1] = green;
 				dest[2] = blue;
@@ -313,17 +318,19 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					{
 						if (y + ypos > 0 && y + ypos < height)
 						{
-							red += *(datacopy + xpos * 3L + 0 + ypos * linelen);
-							green += *(datacopy + xpos * 3L + 1 + ypos * linelen);
-							blue += *(datacopy + xpos * 3L + 2 + ypos * linelen);
+							red += datacopy[ypos * linelen + xpos * 3L + 0];
+							green += datacopy[ypos * linelen + xpos * 3L + 1];
+							blue += datacopy[ypos * linelen + xpos * 3L + 2];
 							counter++;
 						}
 					}
 				}
-				/* BUG: divide by zero */
-				red /= counter;
-				green /= counter;
-				blue /= counter;
+				if (counter != 0)
+				{
+					red /= counter;
+					green /= counter;
+					blue /= counter;
+				}
 				dest[0] = red;
 				dest[1] = green;
 				dest[2] = blue;
@@ -334,8 +341,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 		for (y = 0; y < height; y++)
 		{
-			datacopy = data + y * linelen + (width - matw) * bpp;
-			dest = dest_data + y * linelen + (width - matw) * bpp;
+			datacopy = data + y * linelen + (width - matw) * 3L;
+			dest = dest_data + y * linelen + (width - matw) * 3L;
 			for (x = 0; x < matw; x++)
 			{
 				red = green = blue = 0;
@@ -346,17 +353,19 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					{
 						if (y + ypos > 0 && y + ypos < height)
 						{
-							red += *(datacopy + xpos * 3L + 0 + ypos * linelen);
-							green += *(datacopy + xpos * 3L + 1 + ypos * linelen);
-							blue += *(datacopy + xpos * 3L + 2 + ypos * linelen);
+							red += datacopy[ypos * linelen + xpos * 3L + 0];
+							green += datacopy[ypos * linelen + xpos * 3L + 1];
+							blue += datacopy[ypos * linelen + xpos * 3L + 2];
 							counter++;
 						}
 					}
 				}
-				/* BUG: divide by zero */
-				red /= counter;
-				green /= counter;
-				blue /= counter;
+				if (counter != 0)
+				{
+					red /= counter;
+					green /= counter;
+					blue /= counter;
+				}
 				dest[0] = red;
 				dest[1] = green;
 				dest[2] = blue;
@@ -364,22 +373,21 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				dest += 3;
 			}
 		}
-		
+
 		SMfree(smurf_struct->smurf_pic->pic_data);
 		smurf_struct->smurf_pic->pic_data = dest_data;
 		SMfree(offset_table);
 
 		smurf_struct->module_mode = M_PICDONE;
+		break;
 
-		return;
-	}
-
-	/* Wenn das Modul sich verpissen soll */
-	if (smurf_struct->module_mode == MTERM)
-	{
+	case MTERM:
+		/* Wenn das Modul sich verpissen soll */
 		smurf_struct->module_mode = M_EXIT;
-		return;
-	}
+		break;
 
-	smurf_struct->module_mode = M_WAITING;
+	default:
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	}
 }
