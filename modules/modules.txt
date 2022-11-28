@@ -52,7 +52,7 @@ scheren.sem    0.40    0.40
 sharp.sem      0.20    -
 sinusw.sem     0.20    0.20
 solarize.sem   0.20    0.20
-speedom.sem    0.50    0.80        !!!
+speedom.sem    0.50    0.80     x     x
 sphere.sem     0.50    -
 spherfpu.sem   0.50    -
 spin.sem       0.20    0.20

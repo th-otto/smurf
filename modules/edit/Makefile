@@ -11,6 +11,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/dropshdw.sem \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
+	$(DISTDIR)/modules/edit/speedom.sem \
 	$(empty)
 
 SUBDIRS = beule bumpmap colrun freefilt hsv magic
@@ -34,6 +35,9 @@ $(DISTDIR)/modules/edit/highshad.sem: edstart.o highshad.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/quicksmt.sem: edstart.o quicksmt.o smth_mat.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/speedom.sem: edstart.o speedom.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean::

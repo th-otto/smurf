@@ -31,7 +31,7 @@
 =                  ; list of modules follows...
 edstart.s          ; startup code
 
-spedomov.c
+speedom.c
 
 pcfltlib.lib       ; floating point library
 pcstdlib.lib       ; standard library
