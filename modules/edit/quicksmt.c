@@ -36,13 +36,18 @@
 #define TEXT1 "Blur"
 #define TEXT2 "Blurring..."
 #define TEXT3 "Strength"
-#define TEXT4 "Bildanpassung..."
+#define TEXT4 "Picture adjust..."
 #else
 #define TEXT1 "Blur"
 #define TEXT2 "Blurring..."
 #define TEXT3 "Strength"
-#define TEXT4 "Bildanpassung..."
+#define TEXT4 "Picture adjust..."
 #endif
+
+#undef TEXT2
+#define TEXT2 "Weichzeichnen..."
+#undef TEXT4
+#define TEXT4 "Bildanpassung..."
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -108,6 +113,13 @@ MOD_ABILITY module_ability = {
 };
 
 
+struct smooth_par {
+	long counter;
+	uint8_t *src;
+	uint8_t *dst;
+	long *offset_table;
+};
+
 
 void smooth_me(long *par) ASM_NAME("_smooth_me");
 
@@ -115,28 +127,34 @@ void smooth_me(long *par) ASM_NAME("_smooth_me");
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-	SMURF_PIC *picture; /* a0 */
-	void *(*SMalloc)(long amount); /* 88 */
-	void (*SMfree)(void *ptr); /* 84 */
-	short module_id; /* 82 */
-	short width, height; /* 80, 78 */
-	short x, y; /* 76, 74 */
-	uint8_t *data; /* 72 */
-	uint8_t *datacopy; /* a4 */
-	uint8_t *dest_data; /* 68 */
-	uint8_t *dest; /* a3 */
+	SMURF_PIC *picture;
+	void *(*SMalloc)(long amount);
+	void (*SMfree)(void *ptr);
+	short module_id;
+	short width, height;
+	short x;
+	short y;
+	uint8_t *data;
+	uint8_t *datacopy;
+	uint8_t *dest_data;
+	uint8_t *dest;
 
-	/* long red, green, blue; */
-	long linelen; /* d6 */
-	long *offset_table; /* 64 */
-	long counter; /* 60 */
-	long curr_counter; /* 56 */
+	long linelen;
+	long *offset_table;
+	long counter;
+	long curr_counter;
 	long offset;
-	long old_offset; /* d5 */
-	short matw, math; /* 54, 52 */
-	short ypos, xpos;
+	long old_offset;
+	short matw;
+	short math;
+	short xpos;
+	short ypos;
 	long par[10];
 	long bpp;
+	short d5;
+	long red;
+	long green;
+	long blue;
 	
 	bpp = 3;
 	/* Wenn das Modul aufgerufen wurde, */
@@ -170,21 +188,17 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		matw = (short) smurf_struct->slide1;
 		math = matw;
 
-		counter = ((long) matw + 1) * ((long) math + 1);
+		counter = ((long) matw * 2 + 1) * ((long) math * 2 + 1);
 
 		offset_table = (long *)SMalloc(counter * sizeof(*offset_table) + 100);
 		curr_counter = 0;
 		old_offset = 0;
 
-		x = -matw;
-		for (y = 0; y < math; y++)
+		for (y = -math; y <= math; y++)
 		{
-			for (x = 0; x < matw; x++)
+			for (x = -matw; x <= matw; x++)
 			{
-				xpos = x - (matw / 2);
-				ypos = y - (math / 2);
-
-				offset = ((long) ypos * linelen) + (xpos * 3L);
+				offset = ((long) y * linelen) + (x * 3L);
 
 				offset_table[curr_counter] = offset - old_offset;
 
@@ -197,17 +211,19 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 		smurf_struct->services->reset_busybox(0, TEXT2);
 
+		d5 = matw;
 		par[0] = counter;
-		par[1] = (long) datacopy;
-		par[2] = (long) dest;
 		par[3] = (long) offset_table;
 
-		for (y = 0; y < height; y++)
+		for (y = math; y < height - math; y++)
 		{
+			par[1] = (long)(datacopy + y * linelen + d5 * bpp);
+			par[2] = (long)(dest + y * linelen + d5 * bpp);
+			
 			if ((y & 15) == 0)
 				smurf_struct->services->busybox((short) (((long) y << 7L) / (long) height));
 
-			for (x = 0; x < width; x++)
+			for (x = matw; x < width - matw; x++)
 			{
 				smooth_me(par);
 				par[2] += 3;
@@ -215,11 +231,144 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			}
 		}
 
+		smurf_struct->services->reset_busybox(0, TEXT4);
 
-		SMfree(offset_table);
-		SMfree(data);
+		for (y = 0; y < math; y++)
+		{
+			datacopy = data + y * linelen;
+			dest = dest_data + y * linelen;
+			for (x = 0; x < width; x++)
+			{
+				red = green = blue = 0;
+				counter = 0;
+				for (ypos = -y; ypos <= math; ypos++)
+				{
+					for (xpos = -matw; xpos <= matw; xpos++)
+					{
+						if (x + xpos > 0 && x + xpos < width)
+						{
+							red += *(datacopy + xpos * 3L + 0 + ypos * linelen);
+							green += *(datacopy + xpos * 3L + 1 + ypos * linelen);
+							blue += *(datacopy + xpos * 3L + 2 + ypos * linelen);
+							counter++;
+						}
+					}
+				}
+				/* BUG: divide by zero */
+				red /= counter;
+				green /= counter;
+				blue /= counter;
+				dest[0] = red;
+				dest[1] = green;
+				dest[2] = blue;
+				datacopy += 3;
+				dest += 3;
+			}
+		}
 
+		for (y = 0; y < math; y++)
+		{
+			datacopy = data + y * linelen + (height - math) * linelen;
+			dest = dest_data + y * linelen + (height - math) * linelen;
+			for (x = 0; x < width; x++)
+			{
+				red = green = blue = 0;
+				counter = 0;
+				for (ypos = -math; ypos < math - y; ypos++)
+				{
+					for (xpos = -matw; xpos <= matw; xpos++)
+					{
+						if (x + xpos > 0 && x + xpos < width)
+						{
+							red += *(datacopy + xpos * 3L + 0 + ypos * linelen);
+							green += *(datacopy + xpos * 3L + 1 + ypos * linelen);
+							blue += *(datacopy + xpos * 3L + 2 + ypos * linelen);
+							counter++;
+						}
+					}
+				}
+				/* BUG: divide by zero */
+				red /= counter;
+				green /= counter;
+				blue /= counter;
+				dest[0] = red;
+				dest[1] = green;
+				dest[2] = blue;
+				datacopy += 3;
+				dest += 3;
+			}
+		}
+		
+		for (y = 0; y < height; y++)
+		{
+			datacopy = data + y * linelen;
+			dest = dest_data + y * linelen;
+			for (x = 0; x < matw; x++)
+			{
+				red = green = blue = 0;
+				counter = 0;
+				for (ypos = -math; ypos <= math; ypos++)
+				{
+					for (xpos = -x; xpos <= matw; xpos++)
+					{
+						if (y + ypos > 0 && y + ypos < height)
+						{
+							red += *(datacopy + xpos * 3L + 0 + ypos * linelen);
+							green += *(datacopy + xpos * 3L + 1 + ypos * linelen);
+							blue += *(datacopy + xpos * 3L + 2 + ypos * linelen);
+							counter++;
+						}
+					}
+				}
+				/* BUG: divide by zero */
+				red /= counter;
+				green /= counter;
+				blue /= counter;
+				dest[0] = red;
+				dest[1] = green;
+				dest[2] = blue;
+				datacopy += 3;
+				dest += 3;
+			}
+		}
+
+		for (y = 0; y < height; y++)
+		{
+			datacopy = data + y * linelen + (width - matw) * bpp;
+			dest = dest_data + y * linelen + (width - matw) * bpp;
+			for (x = 0; x < matw; x++)
+			{
+				red = green = blue = 0;
+				counter = 0;
+				for (ypos = -math; ypos <= math; ypos++)
+				{
+					for (xpos = -matw; xpos < matw - x; xpos++)
+					{
+						if (y + ypos > 0 && y + ypos < height)
+						{
+							red += *(datacopy + xpos * 3L + 0 + ypos * linelen);
+							green += *(datacopy + xpos * 3L + 1 + ypos * linelen);
+							blue += *(datacopy + xpos * 3L + 2 + ypos * linelen);
+							counter++;
+						}
+					}
+				}
+				/* BUG: divide by zero */
+				red /= counter;
+				green /= counter;
+				blue /= counter;
+				dest[0] = red;
+				dest[1] = green;
+				dest[2] = blue;
+				datacopy += 3;
+				dest += 3;
+			}
+		}
+		
+		SMfree(smurf_struct->smurf_pic->pic_data);
 		smurf_struct->smurf_pic->pic_data = dest_data;
+		SMfree(offset_table);
+
 		smurf_struct->module_mode = M_PICDONE;
 
 		return;
