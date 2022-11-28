@@ -54,9 +54,6 @@
 #define TEXT5 "Accelerate..."
 #endif
 
-#undef TEXT4
-#define TEXT4 "Gas geben..."
-
 #define betrag(a)   ((a) < 0 ? -(a) : (a))
 
 /* Infostruktur fr Hauptmodul */
@@ -111,9 +108,6 @@ MOD_ABILITY module_ability = {
 
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-	void (*f_module_prefs)(MOD_INFO *infostruct, short mod_id); /* 72 */
-	short mod_id;
-	short SmurfMessage;
 	uint8_t *picdata;
 	uint8_t *pd;
 	uint8_t *dest;
@@ -128,18 +122,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	short red, green, blue;
 	short strcounter;
 	short divide;
-	short divide2;
 	short count_orig;
-	long yoffset = 0;
-	long xoffset = 0;
+	long yoffset;
 	long bytewidth;
 	long offset;
 	short angle;
-
-#if 1
-	long maxoffset;
-	short ox1, ox2;
-#endif
 	short x1;
 	short y1;
 	short x2;
@@ -153,38 +140,25 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	long incy;
 	long xpos;
 	long ypos;
-	long yinc10;
 
-#if 1
-	long maxx, maxy;
-#endif
 	float dist;
 	float bog;
 	long *offset_buffer;
 	long *current_offset;
-	short x0;
-	short y0;
-	short w;
-	short h;
 	
-	SmurfMessage = smurf_struct->module_mode;
-	f_module_prefs = smurf_struct->services->f_module_prefs;
-
 	/* Hier werden die Funktionen aus der GARGAMEL-Struktur geholt. */
 
 	/*--------------------- Wenn das Modul zum ersten Mal gestartet wurde */
-	if (SmurfMessage == MSTART)
+	switch (smurf_struct->module_mode)
 	{
-		mod_id = smurf_struct->module_number;
-		f_module_prefs(&module_info, mod_id);	/* Gib mir 'n PD! */
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);	/* Gib mir 'n PD! */
 
 		smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
-		return;
-	}
+		break;
 
-	/*------------------------------------- Modul soll loslegen */
-	else if (SmurfMessage == MEXEC)
-	{
+	case MEXEC:
+		/*------------------------------------- Modul soll loslegen */
 		picture = smurf_struct->smurf_pic;	/* Bild         */
 		pd = picdata = picture->pic_data;
 		sliderval = smurf_struct->slide1;	/* Sliderwert auslesen */
@@ -193,7 +167,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		width = picture->pic_width;		/* Bildabmessungen */
 		height = picture->pic_height;
 		bytewidth = (long) width * 3L;
-
 
 		/*--------------- Vorberechnungen -------------*/
 
@@ -213,13 +186,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		incx = (dx * 1024L) / dist;
 		incy = (dy * 1024L) / dist;
 
-#if 1
-		ox1 = x1;
-		ox2 = x2;
-
-		maxoffset = (long) (height - 1) * bytewidth;
-#endif
-
 		dest_data = dest = (uint8_t *)Malloc((long) width * (long) height * 3L);
 
 		if (sliderval < 0)
@@ -228,17 +194,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		dxabs = abs(dx);
 		dyabs = abs(dy);
 
-#if 1
-		maxx = (width - 1) * 1024L;
-		maxy = (height - 1) * 1024L;
-#endif
-
-
 		/*--------------------- Counter vorbestimmen -----------*/
 
 		count_orig = dyabs;
 		if (dxabs > dyabs)
-			divide = count_orig = dxabs;
+			count_orig = dxabs;
 
 		/*--------------------- Offsettabelle anlegen -----------*/
 
@@ -262,26 +222,13 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			ypos += incy;
 		}
 
-		y0 = 0;
-		x0 = 0;
-		w = width;
-		h = height;
-		if (x1 < 0)
-			x0 = -x1;
-		else if (x1 > 0)
-			w = width - x1;
-		if (y1 < 0)
-			y0 = -y1;
-		else if (y1 > 0)
-			h = height - y1;
-		
 		/*--------------------- Hauptschleife --------------------*/
 
 		smurf_struct->services->reset_busybox(0, TEXT4);
 
 		for (y = 0; y < height; y++)
 		{
-			if (!(y & 7))
+			if ((y & 7) == 0)
 				smurf_struct->services->busybox((short) (((long) y << 7L) / (long) height));
 
 			for (x = 0; x < width; x++)
@@ -321,13 +268,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		picture->pic_data = dest_data;
 
 		smurf_struct->module_mode = M_PICDONE;
-		return;
-	}
+		break;
 
-	/* --------------------------------------Mterm empfangen - Speicher freigeben und beenden */
-	else if (SmurfMessage == MTERM)
-	{
+	case MTERM:
+		/* --------------------------------------Mterm empfangen - Speicher freigeben und beenden */
 		smurf_struct->module_mode = M_EXIT;
-		return;
+		break;
 	}
 }
