@@ -3,7 +3,7 @@
  BubbleGEM Help-File for Editmodul "verrauschen"
 
 #Dial 000 Mit diesem Modul k馬nen Sie Bilder verrauschen.
-# 001 Hier k馬nen Sie angeben, wie stark das Bild verrauscht werden soll.
-# 002 Hier k馬nen Sie angeben, wie stark das Bild verrauscht werden soll.
-# 006 Soll Graurauschen oder farbiges Rauschen erzeugt werden?
-# 010 Soll farbiges Rauschen oder Graurauschen erzeugt werden?
+# 009 Hier k馬nen Sie angeben, wie stark das Bild verrauscht werden soll.
+# 010 Hier k馬nen Sie angeben, wie stark das Bild verrauscht werden soll.
+# 025 Soll Graurauschen oder farbiges Rauschen erzeugt werden?
+# 027 Soll farbiges Rauschen oder Graurauschen erzeugt werden?

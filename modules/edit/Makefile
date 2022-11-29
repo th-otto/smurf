@@ -24,6 +24,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/konform.sem \
 	$(DISTDIR)/modules/edit/litlgrad.sem \
 	$(DISTDIR)/modules/edit/minmax.sem \
+	$(DISTDIR)/modules/edit/noise.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
 	$(DISTDIR)/modules/edit/sw.sem \
@@ -89,6 +90,9 @@ $(DISTDIR)/modules/edit/litlgrad.sem: edstart.o litlgrad.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/minmax.sem: edstart.o minmax.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/noise.sem: edstart.o noise.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/quicksmt.sem: edstart.o quicksmt.o smth_mat.o

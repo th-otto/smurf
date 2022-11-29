@@ -80,145 +80,65 @@
 #define TIMER 0
 
 #undef random
-#define random( x ) (rand() % (x))
+#define random(x) (rand() % (x))
 
-void noise_grey(char *data, int width, int height, int amountgrey);
-void noise_color(char *data, int width, int height, int amountr, int amountg, int amountb);
+static short (*busybox)(short pos);
 
-short (*busybox)(short pos);
-
-MOD_INFO module_info = {TEXT1,
-						0x0040,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						TEXT2,
-						TEXT3,
-						TEXT4,
-						TEXT5,
-						TEXT6,
-						TEXT7,
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						0,100,
-						0,100,
-						0,100,
-						0,100,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						20, 20, 20, 20,
-						4, 3, 3, 3,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	TEXT1,
+	0x0040,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	TEXT2,
+	TEXT3,
+	TEXT4,
+	TEXT5,
+	TEXT6,
+	TEXT7,
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	0, 100,
+	0, 100,
+	0, 100,
+	0, 100,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	20, 20, 20, 20,
+	4, 3, 3, 3,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						24, 0, 0, 0, 0,
-						0, 0, 0,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0,
-						};
+	24, 0, 0, 0, 0, 0, 0, 0,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0,
+};
 
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-/*					Verrauschen						*/
-/*		24 Bit										*/
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+
+static void noise_grey(uint8_t *data, short width, short height, short amountgrey)
 {
-	char *data,
-		 mode;
-	
-	int module_id, amountgrey, amountr, amountg, amountb;
-	unsigned int width, height;
-
-
-	module_id = smurf_struct->module_number;
-
-/* Wenn das Modul zum ersten Mal gestartet wurde */
-	if(smurf_struct->module_mode == MSTART)
-	{
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
-		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
-	else
-		if(smurf_struct->module_mode == MEXEC)
-		{
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-
-			busybox = smurf_struct->services->busybox;
-
-			if(smurf_struct->check1 > smurf_struct->check2)
-				mode = 0;
-			else
-				mode = 1;
-			/* mit den Shiftings 5 Bit hoch und 6 Bit herunter */
-			/* ergibt sich somit eine Skalierung von 100 auf 250 */
-			amountgrey = (int)((int)smurf_struct->slide1 * 5);
-			amountr = (int)((int)smurf_struct->slide2 * 5);
-			amountg = (int)((int)smurf_struct->slide3 * 5);
-			amountb = (int)((int)smurf_struct->slide4 * 5);
-
-			/* Zufallsgenerator zufÑllig initialisieren */
-			srand((unsigned int)time(NULL));
-
-			/* BitsPerPixel = smurf_struct->smurf_pic->depth; */
-	
-			data = smurf_struct->smurf_pic->pic_data;
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-
-			if(mode == 0)
-				noise_grey(data, width, height, amountgrey);
-			else
-				noise_color(data, width, height, amountr, amountg, amountb);
-
-#if TIMER
-/* wie schnell waren wir? */
-	printf("%lu\n", get_timer());
-	getch();
-#endif
-
-			smurf_struct->module_mode = M_PICDONE;
-			return;
-		}
-
-		/* Mterm empfangen - Speicher freigeben und beenden */
-		else 
-			if(smurf_struct->module_mode == MTERM)
-			{
-				smurf_struct->module_mode = M_EXIT;
-				return;
-			}
-}
-
-
-void noise_grey(char *data, int width, int height, int amountgrey)
-{
-	char cliptable_grey[512],
-		 newpix;
-	
-	int plusval;
-	unsigned int x, y, bh, bl, i, j, k;
+	uint8_t cliptable_grey[512];
+	uint8_t newpix;
+	short plusval;
+	unsigned short x, y;
+	unsigned short bh, bl;
+	unsigned short i, j, k;
 
 
 	/* amountgrey auf Wert zwischen 0 und 16000 hochschieben */
@@ -228,22 +148,22 @@ void noise_grey(char *data, int width, int height, int amountgrey)
 	k = amountgrey >> 7;
 
 	/* erstellen der Cliptable */
-	for(i = 0; i < k; i++)
+	for (i = 0; i < k; i++)
 		cliptable_grey[i] = 0;
-	for(k += 255, j = 0; i < k; i++, j++)
+	for (k += 255, j = 0; i < k; i++, j++)
 		cliptable_grey[i] = j;
-	for(k += amountgrey >> 7; i < k; i++)
+	for (k += amountgrey >> 7; i < k; i++)
 		cliptable_grey[i] = 255;
 
 
-	if((bh = height / 10) == 0) 	/* busy-height */
+	if ((bh = height / 10) == 0)		/* busy-height */
 		bh = height;
-	bl = 0;							/* busy-length */
+	bl = 0;								/* busy-length */
 
 	y = 0;
 	do
 	{
-		if(!(y%bh))
+		if (!(y % bh))
 		{
 			busybox(bl);
 			bl += 12;
@@ -255,40 +175,41 @@ void noise_grey(char *data, int width, int height, int amountgrey)
 			/* plusval aus dem Bereich von 0 bis 250 erzeugen. */
 			/* Damit werden zwar die neuen Pixel nur um */
 			/* +/- 125 bewegt, aber das langt IMHO. */
-			plusval = (int)(random(amountgrey) >> 6);
+			plusval = (random(amountgrey) >> 6);
 
-			newpix = cliptable_grey[(int)*data + plusval];
+			newpix = cliptable_grey[*data + plusval];
 			*data++ = newpix;
 
-			newpix = cliptable_grey[(int)*data + plusval];
+			newpix = cliptable_grey[*data + plusval];
 			*data++ = newpix;
 
-			newpix = cliptable_grey[(int)*data + plusval];
+			newpix = cliptable_grey[*data + plusval];
 			*data++ = newpix;
-		} while(++x < width);
-	} while(++y < height);
-
-	return;
-} /* noise_grey */
+		} while (++x < width);
+	} while (++y < height);
+}
 
 
-void noise_color(char *data, int width, int height, int amountr, int amountg, int amountb)
+static void noise_color(uint8_t *data, short width, short height, short amountr, short amountg, short amountb)
 {
-	char cliptable_r[512], cliptable_g[512], cliptable_b[512],
-		 newpix;
-	
-	unsigned int x, y, bh, bl, i, j, k;
+	uint8_t cliptable_r[512];
+	uint8_t cliptable_g[512];
+	uint8_t cliptable_b[512];
+	uint8_t newpix;
+	unsigned short x, y;
+	unsigned short bh, bl;
+	unsigned short i, j, k;
 
 
 	amountr <<= 5;
 	k = amountr >> 7;
 
 	/* Erstellen der Cliptable fÅr Rot */
-	for(i = 0; i < k; i++)
+	for (i = 0; i < k; i++)
 		cliptable_r[i] = 0;
-	for(k += 255, j = 0; i < 255; i++, j++)
+	for (k += 255, j = 0; i < 255; i++, j++)
 		cliptable_r[i] = j;
-	for(k += amountr >> 7; i < k; i++)
+	for (k += amountr >> 7; i < k; i++)
 		cliptable_r[i] = 255;
 
 
@@ -296,11 +217,11 @@ void noise_color(char *data, int width, int height, int amountr, int amountg, in
 	k = amountg >> 7;
 
 	/* Erstellen der Cliptable fÅr GrÅn */
-	for(i = 0; i < k; i++)
+	for (i = 0; i < k; i++)
 		cliptable_g[i] = 0;
-	for(k += 255, j = 0; i < 255; i++, j++)
+	for (k += 255, j = 0; i < 255; i++, j++)
 		cliptable_g[i] = j;
-	for(k += amountg >> 7; i < k; i++)
+	for (k += amountg >> 7; i < k; i++)
 		cliptable_g[i] = 255;
 
 
@@ -308,22 +229,22 @@ void noise_color(char *data, int width, int height, int amountr, int amountg, in
 	k = amountb >> 7;
 
 	/* Erstellen der Cliptable fÅr Blau */
-	for(i = 0; i < k; i++)
+	for (i = 0; i < k; i++)
 		cliptable_b[i] = 0;
-	for(k += 255, j = 0; i < 255; i++, j++)
+	for (k += 255, j = 0; i < 255; i++, j++)
 		cliptable_b[i] = j;
-	for(k += amountb >> 7; i < k; i++)
+	for (k += amountb >> 7; i < k; i++)
 		cliptable_b[i] = 255;
 
 
-	if((bh = height / 10) == 0) 	/* busy-height */
+	if ((bh = height / 10) == 0)		/* busy-height */
 		bh = height;
-	bl = 0;							/* busy-length */
+	bl = 0;								/* busy-length */
 
 	y = 0;
 	do
 	{
-		if(!(y%bh))
+		if (!(y % bh))
 		{
 			busybox(bl);
 			bl += 12;
@@ -332,16 +253,85 @@ void noise_color(char *data, int width, int height, int amountr, int amountg, in
 		x = 0;
 		do
 		{
-			newpix = cliptable_r[*data + (int)(random(amountr) >> 6)];
-			*data++ = (char)newpix;
+			newpix = cliptable_r[*data + (random(amountr) >> 6)];
+			*data++ = newpix;
 
-			newpix = cliptable_g[*data + (int)(random(amountg) >> 6)];
-			*data++ = (char)newpix;
+			newpix = cliptable_g[*data + (random(amountg) >> 6)];
+			*data++ = newpix;
 
-			newpix = cliptable_b[*data + (int)(random(amountb) >> 6)];
-			*data++ = (char)newpix;
-		} while(++x < width);
-	} while(++y < height);
+			newpix = cliptable_b[*data + (random(amountb) >> 6)];
+			*data++ = newpix;
+		} while (++x < width);
+	} while (++y < height);
+}
 
-	return;
-} /* noise_color */
+
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+/*					Verrauschen						*/
+/*		24 Bit										*/
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+void edit_module_main(GARGAMEL *smurf_struct)
+{
+	uint8_t *data;
+	uint8_t mode;
+	short amountgrey, amountr, amountg, amountb;
+	unsigned short width, height;
+
+	switch (smurf_struct->module_mode)
+	{
+	/* Wenn das Modul zum ersten Mal gestartet wurde */
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	
+	case MEXEC:
+#if TIMER
+		/* wie schnell sind wir? */
+		init_timer();
+#endif
+
+		busybox = smurf_struct->services->busybox;
+
+		if (smurf_struct->check1 > smurf_struct->check2)
+			mode = 0;
+		else
+			mode = 1;
+		/* mit den Shiftings 5 Bit hoch und 6 Bit herunter */
+		/* ergibt sich somit eine Skalierung von 100 auf 250 */
+		amountgrey = ((short) smurf_struct->slide1 * 5);
+		amountr = ((short) smurf_struct->slide2 * 5);
+		amountg = ((short) smurf_struct->slide3 * 5);
+		amountb = ((short) smurf_struct->slide4 * 5);
+
+		/* Zufallsgenerator zufÑllig initialisieren */
+		srand((unsigned int)Random());
+
+		/* BitsPerPixel = smurf_struct->smurf_pic->depth; */
+
+		data = smurf_struct->smurf_pic->pic_data;
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+
+		if (mode == 0)
+			noise_grey(data, width, height, amountgrey);
+		else
+			noise_color(data, width, height, amountr, amountg, amountb);
+
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("%lu\n", get_timer());
+		(void)Cnecin();
+#endif
+
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+	/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
+}
