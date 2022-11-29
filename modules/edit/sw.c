@@ -40,17 +40,10 @@
 #define TEXT2 "Threshold"
 #define TEXT3 "Convert to mono"
 #else
-#define TEXT1 "s/w Schwellwert"
-#define TEXT2 "Schwellwert"
+#define TEXT1 "b/w Threshold"
+#define TEXT2 "Threshold"
 #define TEXT3 "Convert to mono"
 #endif
-
-#undef TEXT1
-#undef TEXT2
-#undef TEXT3
-#define TEXT1 "s/w Schwellwert"
-#define TEXT2 "Schwellwert"
-#define TEXT3 "1 Bit ausgeben"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -108,125 +101,26 @@ MOD_ABILITY module_ability = {
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
-static void do_mode1(SMURF_PIC *pic, unsigned long grenze);
-static void do_mode2(SMURF_PIC *pic, unsigned long grenze);
 
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-/*	Sonderversion um 16 Farben Snapshots verlustfrei*/
-/*	nach 2 Faren zu bringen.						*/
-/*		1-8, 16 und 24 Bit							*/
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+#if defined(__PUREC__)
+static unsigned long ulmul(unsigned short w, unsigned short h) 0xc0c1; /* mulu d1,d0 */
+#elif defined(__GNUC__)
+static unsigned long ulmul(unsigned short w, unsigned short h)
 {
-	short module_id;
-	unsigned long grenze;
-
-	module_id = smurf_struct->module_number;
-
-	/* Wenn das Modul zum ersten Mal gestartet wurde, */
-	/* ein Einstellformular anfordern....             */
-	if (smurf_struct->module_mode == MSTART)
-	{
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
-		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
-	/* Einstellformular wurde mit START verlassen - Funktion ausfhren */
-	else if (smurf_struct->module_mode == MEXEC)
-	{
-		SMalloc = smurf_struct->services->SMalloc;
-		SMfree = smurf_struct->services->SMfree;
-		
-#if TIMER
-		/* wie schnell sind wir? */
-		init_timer();
+	unsigned long ret;
+	__asm__ __volatile__(
+		"\tmulu %2,%0\n"
+		: "=d"(ret)
+		: "0"(w), "g"(h)
+		: "cc");
+	return ret;
+}
+#else
+#define ulmul(w, h) ((unsigned long)(w) * (unsigned long)(h))
 #endif
 
-		grenze = smurf_struct->slide1 << 12;
 
-		if (smurf_struct->check1)
-			do_mode1(smurf_struct->smurf_pic, grenze);
-		else
-			do_mode2(smurf_struct->smurf_pic, grenze);
-
-#if TIMER
-		/* wie schnell waren wir? */
-		printf("\n%lu\n", get_timer());
-		getch();
-#endif
-
-		smurf_struct->module_mode = M_PICDONE;
-		return;
-	}
-	/* Mterm empfangen - Speicher freigeben und beenden */
-	else if (smurf_struct->module_mode == MTERM)
-	{
-		smurf_struct->module_mode = M_EXIT;
-		return;
-	}
-}
-
-
-static void do_mode2(SMURF_PIC *smurf_pic, unsigned long grenze)
-{
-	uint8_t *data;
-	uint16_t *data16;
-	unsigned short width, height;
-	unsigned long length;
-	uint8_t depth;
-	
-	depth = smurf_pic->depth;
-	
-	if (depth != 16)
-	{
-		if (depth == 24)
-		{
-			data = smurf_pic->pic_data;
-			width = smurf_pic->pic_width;
-			height = smurf_pic->pic_height;
-			length = (unsigned long) width * (unsigned long) height;
-		} else
-		{
-			data = smurf_pic->palette;
-			length = 256;
-		}
-		do
-		{
-			if (((unsigned long) *data * 872L + (unsigned long) *(data + 1) * 2930L + (unsigned long) *(data + 2) * 296L) < grenze)
-			{
-				*data++ = 0x0;
-				*data++ = 0x0;
-				*data++ = 0x0;
-			} else
-			{
-				*data++ = 0xff;
-				*data++ = 0xff;
-				*data++ = 0xff;
-			}
-		} while (--length != 0);
-	} else if (depth == 16)
-	{
-		data16 = (uint16_t *)smurf_pic->pic_data;
-		width = smurf_pic->pic_width;
-		height = smurf_pic->pic_height;
-		length = (unsigned long) width * (unsigned long) height;
-		do
-		{
-			if (((unsigned long) ((*data16 & 0xf800) >> 8) * 872L + (unsigned long) ((*data16 & 0x7e0u) >> 3) * 2930L + (unsigned long) ((*data16 & 0x1fu) << 3) * 296L) < grenze)
-			{
-				*data16++ = 0;
-			} else
-			{
-				*data16++ = 0xffff;
-			}
-		} while (--length != 0);
-	}
-}
-
-
-static void do_mode1(SMURF_PIC *smurf_pic, unsigned long grenze)
+static short do_mode1(SMURF_PIC *smurf_pic, unsigned long grenze)
 {
 	uint8_t *data;
 	uint8_t *dest;
@@ -253,18 +147,26 @@ static void do_mode1(SMURF_PIC *smurf_pic, unsigned long grenze)
 	height = smurf_pic->pic_height;
 	depth = smurf_pic->depth;
 	
-	linelen = (long)(width + 7) / 8L;
-	length = linelen * height;
+	linelen = (width + 7) >> 3;
+	length = ulmul(linelen, height);
 
 	orig_dest = dest = SMalloc(length);
+	if (dest == NULL)
+		return M_MEMORY;
 	linebuf = SMalloc(width + 7);
-	
+	if (linebuf == NULL)
+	{
+		SMfree(dest);
+		return M_MEMORY;
+	}
 	pal = smurf_pic->palette;
 
 	pad = (width & 7) == 0 ? 0 : 1;
 	y = 0;
 	do
 	{
+		i = 0;
+		bit = 0x80;
 		if (depth <= 8)
 		{
 			if (smurf_pic->format_type == FORM_STANDARD)
@@ -278,47 +180,41 @@ static void do_mode1(SMURF_PIC *smurf_pic, unsigned long grenze)
 				src = data;
 				data += width;
 			}
-			i = 0;
-			bit = 7;
 			do
 			{
 				pixval = *src++;
 				ppal = pal + pixval + pixval + pixval;
 				if (((unsigned long) *ppal++ * 872L + (unsigned long) *ppal++ * 2930L + (unsigned long) *ppal * 296L) < grenze)
-					*dest |= 1 << bit;
-				if (bit-- == 0)
+					*dest |= bit;
+				if ((bit >>= 1) == 0)
 				{
-					bit = 7;
+					bit = 0x80;
 					dest++;
 				}
 			} while (++i < width);
 		} else if (depth == 24)
 		{
-			i = 0;
-			bit = 7;
 			do
 			{
 				if (((unsigned long) *data++ * 872L + (unsigned long) *data++ * 2930L + (unsigned long) *data++ * 296L) < grenze)
-					*dest |= 1 << bit;
-				if (bit-- == 0)
+					*dest |= bit;
+				if ((bit >>= 1) == 0)
 				{
-					bit = 7;
+					bit = 0x80;
 					dest++;
 				}
 			} while (++i < width);
 			
 		} else
 		{
-			i = 0;
-			bit = 7;
 			do
 			{
 				pixval = *data16++;
 				if (((unsigned long) ((pixval & 0xf800) >> 8) * 872L + (unsigned long) ((pixval & 0x7e0u) >> 3) * 2930L + (unsigned long) ((pixval & 0x1fu) << 3) * 296L) < grenze)
-					*dest |= 1 << bit;
-				if (bit-- == 0)
+					*dest |= bit;
+				if ((bit >>= 1) == 0)
 				{
-					bit = 7;
+					bit = 0x80;
 					dest++;
 				}
 			} while (++i < width);
@@ -326,7 +222,6 @@ static void do_mode1(SMURF_PIC *smurf_pic, unsigned long grenze)
 		dest += pad;
 	} while (++y < height);
 	
-	dest = orig_dest;
 	pal[0] = 255;
 	pal[1] = 255;
 	pal[2] = 255;
@@ -335,7 +230,115 @@ static void do_mode1(SMURF_PIC *smurf_pic, unsigned long grenze)
 	pal[5] = 0;
 	SMfree(linebuf);
 	SMfree(smurf_pic->pic_data);
-	smurf_pic->pic_data = dest;
+	smurf_pic->pic_data = orig_dest;
 	smurf_pic->format_type = FORM_STANDARD;
 	smurf_pic->depth = 1;
+
+	return M_PICDONE;
+}
+
+
+static short do_mode2(SMURF_PIC *smurf_pic, unsigned long grenze)
+{
+	uint8_t *data;
+	uint16_t *data16;
+	unsigned long length;
+	uint8_t depth;
+	
+	depth = smurf_pic->depth;
+	
+	if (depth != 16)
+	{
+		if (depth == 24)
+		{
+			data = smurf_pic->pic_data;
+			length = ulmul(smurf_pic->pic_width, smurf_pic->pic_height);
+		} else
+		{
+			data = smurf_pic->palette;
+			length = 256;
+		}
+		do
+		{
+			if (((unsigned long) *data * 872L + (unsigned long) *(data + 1) * 2930L + (unsigned long) *(data + 2) * 296L) < grenze)
+			{
+				*data++ = 0x0;
+				*data++ = 0x0;
+				*data++ = 0x0;
+			} else
+			{
+				*data++ = 0xff;
+				*data++ = 0xff;
+				*data++ = 0xff;
+			}
+		} while (--length != 0);
+	} else
+	{
+		data16 = (uint16_t *)smurf_pic->pic_data;
+		length = ulmul(smurf_pic->pic_width, smurf_pic->pic_height);
+		do
+		{
+			if (((unsigned long) ((*data16 & 0xf800) >> 8) * 872L + (unsigned long) ((*data16 & 0x7e0u) >> 3) * 2930L + (unsigned long) ((*data16 & 0x1fu) << 3) * 296L) < grenze)
+			{
+				*data16++ = 0;
+			} else
+			{
+				*data16++ = 0xffff;
+			}
+		} while (--length != 0);
+	}
+
+	return M_PICDONE;
+}
+
+
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+/*	Sonderversion um 16 Farben Snapshots verlustfrei*/
+/*	nach 2 Faren zu bringen.						*/
+/*		1-8, 16 und 24 Bit							*/
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+void edit_module_main(GARGAMEL *smurf_struct)
+{
+	unsigned long grenze;
+
+	switch (smurf_struct->module_mode)
+	{
+	case MSTART:
+		/* Wenn das Modul zum ersten Mal gestartet wurde, */
+		/* ein Einstellformular anfordern....             */
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	
+	case MEXEC:
+		/* Einstellformular wurde mit START verlassen - Funktion ausfhren */
+		SMalloc = smurf_struct->services->SMalloc;
+		SMfree = smurf_struct->services->SMfree;
+		
+#if TIMER
+		/* wie schnell sind wir? */
+		init_timer();
+#endif
+
+		grenze = smurf_struct->slide1 << 12;
+
+		if (smurf_struct->check1)
+			smurf_struct->module_mode = do_mode1(smurf_struct->smurf_pic, grenze);
+		else
+			smurf_struct->module_mode = do_mode2(smurf_struct->smurf_pic, grenze);
+
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("\n%lu\n", get_timer());
+		(void)Cnecin();
+#endif
+		break;
+
+	case MTERM:
+		/* Mterm empfangen - Speicher freigeben und beenden */
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }
