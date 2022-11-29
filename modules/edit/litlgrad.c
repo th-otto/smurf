@@ -84,51 +84,51 @@
 
 #define TIMER 0
 
-MOD_INFO module_info = {TEXT1,
-						0x0020,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						TEXT2,
-						TEXT3,
-						"",
-						"",
-						TEXT4,
-						TEXT5,
-						TEXT6,
-						"",
-						"",
-						"",
-						"",
-						"",
-						-255, 255,
-						-128, 127,
-						0, 64,
-						0, 64,
-						0, 10,
-						0, 10,
-						0, 10,
-						0, 10,
-						0, 0, 0, 0,
-						1, 1, 1, 0,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	TEXT1,
+	0x0020,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	TEXT2,
+	TEXT3,
+	"",
+	"",
+	TEXT4,
+	TEXT5,
+	TEXT6,
+	"",
+	"",
+	"",
+	"",
+	"",
+	-255, 255,
+	-128, 127,
+	0, 64,
+	0, 64,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						1, 2, 4, 7, 8,
-						16, 24, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						0
-						};
+	1, 2, 4, 7, 8, 16, 24, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	0
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -137,180 +137,180 @@ MOD_ABILITY module_ability = {
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 
-void edit_module_main(GARGAMEL *smurf_struct)
+void edit_module_main(GARGAMEL * smurf_struct)
 {
-	char *data,
-		 BitsPerPixel, rc, gc, bc;
+	uint8_t *data;
+	uint8_t BitsPerPixel;
+	uint8_t rc, gc, bc;
 
-	int module_id;
-	int slidvalb, slidvalk, i, abs, m1, m2, transtab[256];
+	short slidvalb;
+	short slidvalk;
+	unsigned short i;
+	short abs;
+	short m1;
+	short m2;
+	short transtab[256];
 
-	unsigned int *data16, width, height, t_pos, val;
+	uint16_t *data16;
+	unsigned short width, height;
+	unsigned short t_pos;
+	unsigned short val;
 
 	unsigned long length;
 
 
-	module_id = smurf_struct->module_number;
-
+	switch (smurf_struct->module_mode)
+	{
 /* Wenn das Modul zum ersten Mal gestartet wurde, */
 /* ein Einstellformular anfordern....             */
-	if(smurf_struct->module_mode == MSTART)
-	{
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
 		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
+		break;
 
 /* Einstellformular wurde mit START verlassen - Funktion ausfhren */
-	else 
-		if(smurf_struct->module_mode == MEXEC)
-		{
+	case MEXEC:
 #if TIMER
-/* wie schnell sind wir? */
-	init_timer();
+		/* wie schnell sind wir? */
+		init_timer();
 #endif
 
-			slidvalb = (int)smurf_struct->slide1;
-			slidvalk = (int)smurf_struct->slide2;
-			rc = (int)smurf_struct->check1;
-			gc = (int)smurf_struct->check2;
-			bc = (int)smurf_struct->check3;
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
+		slidvalb = (short) smurf_struct->slide1;
+		slidvalk = (short) smurf_struct->slide2;
+		rc = smurf_struct->check1;
+		gc = smurf_struct->check2;
+		bc = smurf_struct->check3;
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
 
-			if(rc != 1 && gc != 1 && bc != 1)
-			{
-				smurf_struct->module_mode = M_WAITING;
-				return;
-			}
-
-			if(slidvalb != 0 || slidvalk != 0)
-			{
-				i = 0;
-				t_pos = 0;
-				if(slidvalk >= 0)
-				{
-					m2 = 256 - (2 * slidvalk);
-					abs = slidvalk * 256 / m2;
-					do
-					{
-						transtab[t_pos] = (unsigned int)i * 256 / m2 - abs + slidvalb;
-						if(transtab[t_pos] < 0)
-							transtab[t_pos] = 0;
-						else
-							if(transtab[t_pos] > 255)
-								transtab[t_pos] = 255;
-						t_pos++;
-					} while(++i < 256);
-				}
-				else
-					if(slidvalk < 0)
-					{
-						m1 = 128 + slidvalk;
-						do
-						{
-							transtab[t_pos] = (unsigned int)i * m1 / 128 - slidvalk + slidvalb;
-							if(transtab[t_pos] < 0)
-								transtab[t_pos] = 0;
-							else
-								if(transtab[t_pos] > 255)
-									transtab[t_pos] = 255;
-							t_pos++;
-						} while(++i < 256);
-					}
-			}
-			else
-			{
-				smurf_struct->module_mode = M_WAITING;
-				return;
-			}
-
-			if(BitsPerPixel != 16)
-			{
-				if(BitsPerPixel == 24)
-				{
-					width = smurf_struct->smurf_pic->pic_width;
-					height = smurf_struct->smurf_pic->pic_height;
-					data = smurf_struct->smurf_pic->pic_data;
-
-					length = (unsigned long)width * (unsigned long)height;
-				}
-				else
-				{
-					data = smurf_struct->smurf_pic->palette;
-					length = 256L;
-				}
-
-				if(rc == 1 && gc == 1 && bc == 1)
-					do
-					{
-						*data++ = transtab[*data];
-						*data++ = transtab[*data];
-						*data++ = transtab[*data];
-					} while(--length);
-				else
-					do
-					{
-						if(rc == 1)
-							*data++ = transtab[*data];
-						else
-							data++;
-						if(gc == 1)
-							*data++ = transtab[*data];
-						else
-							data++;
-						if(bc == 1)
-							*data++ = transtab[*data];
-						else
-							data++;
-					} while(--length);
-				
-			} /* BitsPerPixel != 16? */
-			else
-				if(BitsPerPixel == 16)
-				{
-					width = smurf_struct->smurf_pic->pic_width;
-					height = smurf_struct->smurf_pic->pic_height;
-					data16 = (unsigned int *)smurf_struct->smurf_pic->pic_data;
-			
-					length = (unsigned long)width * (unsigned long)height;
-
-					if(rc == 1 && gc == 1 && bc == 1)
-						do
-						{
-							val = *data16;
-							*data16 = ((transtab[(val & 0xf800) >> 8] & 0x00f8) << 8);
-							*data16 |= ((transtab[(val & 0x7e0) >> 3] & 0x00fc) << 3);
-							*data16++ |= (transtab[(val & 0x1f) << 3] >> 3);
-						} while(--length);
-					else
-						do
-						{
-							if(rc == 1)
-								*data16 &= ((transtab[(*data16 & 0xf800) >> 8] & 0x00f8) << 8);
-							if(gc == 1)
-								*data16 &= ((transtab[(*data16 & 0x7e0) >> 3] & 0x00fc) << 3);
-							if(bc == 1)
-								*data16 &= (transtab[(*data16 & 0x1f) << 3] >> 3);
-							data16++;
-						} while(--length);
-				}
-
-#if TIMER
-/* wie schnell waren wir? */
-	printf("\n%lu", get_timer());
-	getch();
-#endif
-
-		smurf_struct->module_mode = M_PICDONE;
-		return;
-	}
-
-	/* Mterm empfangen - Speicher freigeben und beenden */
-	else 
-		if(smurf_struct->module_mode == MTERM)
+		if (rc != 1 && gc != 1 && bc != 1)
 		{
-			smurf_struct->module_mode = M_EXIT;
+			smurf_struct->module_mode = M_WAITING;
 			return;
 		}
 
+		if (slidvalb != 0 || slidvalk != 0)
+		{
+			i = 0;
+			t_pos = 0;
+			if (slidvalk >= 0)
+			{
+				m2 = 256 - (2 * slidvalk);
+				abs = slidvalk * 256 / m2;
+				do
+				{
+					transtab[t_pos] = i * 256 / m2 - abs + slidvalb;
+
+					if (transtab[t_pos] < 0)
+						transtab[t_pos] = 0;
+					else if (transtab[t_pos] > 255)
+						transtab[t_pos] = 255;
+					t_pos++;
+				} while (++i < 256);
+			} else if (slidvalk < 0)
+			{
+				m1 = 128 + slidvalk;
+				do
+				{
+					transtab[t_pos] = i * m1 / 128 - slidvalk + slidvalb;
+
+					if (transtab[t_pos] < 0)
+						transtab[t_pos] = 0;
+					else if (transtab[t_pos] > 255)
+						transtab[t_pos] = 255;
+					t_pos++;
+				} while (++i < 256);
+			}
+		} else
+		{
+			smurf_struct->module_mode = M_WAITING;
+			return;
+		}
+
+		if (BitsPerPixel != 16)
+		{
+			if (BitsPerPixel == 24)
+			{
+				width = smurf_struct->smurf_pic->pic_width;
+				height = smurf_struct->smurf_pic->pic_height;
+				data = smurf_struct->smurf_pic->pic_data;
+
+				length = (unsigned long) width * (unsigned long) height;
+			} else
+			{
+				data = smurf_struct->smurf_pic->palette;
+				length = 256L;
+			}
+
+			if (rc == 1 && gc == 1 && bc == 1)
+			{
+				do
+				{
+					*data++ = transtab[*data];
+					*data++ = transtab[*data];
+					*data++ = transtab[*data];
+				} while (--length);
+			} else
+			{
+				do
+				{
+					if (rc == 1)
+						*data++ = transtab[*data];
+					else
+						data++;
+					if (gc == 1)
+						*data++ = transtab[*data];
+					else
+						data++;
+					if (bc == 1)
+						*data++ = transtab[*data];
+					else
+						data++;
+				} while (--length);
+			}
+		} else
+		{
+			width = smurf_struct->smurf_pic->pic_width;
+			height = smurf_struct->smurf_pic->pic_height;
+			data16 = smurf_struct->smurf_pic->pic_data;
+
+			length = (unsigned long) width * (unsigned long) height;
+
+			if (rc == 1 && gc == 1 && bc == 1)
+			{
+				do
+				{
+					val = *data16;
+					*data16 = ((transtab[(val & 0xf800) >> 8] & 0x00f8) << 8);
+					*data16 |= ((transtab[(val & 0x7e0) >> 3] & 0x00fc) << 3);
+					*data16++ |= (transtab[(val & 0x1f) << 3] >> 3);
+				} while (--length);
+			} else
+			{
+				do
+				{
+					if (rc == 1)
+						*data16 &= ((transtab[(*data16 & 0xf800) >> 8] & 0x00f8) << 8);
+					if (gc == 1)
+						*data16 &= ((transtab[(*data16 & 0x7e0) >> 3] & 0x00fc) << 3);
+					if (bc == 1)
+						*data16 &= (transtab[(*data16 & 0x1f) << 3] >> 3);
+					data16++;
+				} while (--length);
+			}
+		}
+
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("\n%lu", get_timer());
+		getch();
+#endif
+
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+	/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }

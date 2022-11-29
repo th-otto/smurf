@@ -3,10 +3,10 @@
  BubbleGEM Help-File for Editmodul "Helligkeit/Kontrast"
 
 #Dial 000 Hiermit k”nnen Sie Helligkeit und Kontrast eines Bildes einstellen.
-# 001 Hier k”nnen Sie einstellen, wie stark das Bild aufgehellt/abgedunkelt werden soll.
-# 002 Hier k”nnen Sie einstellen, wie stark das Bild aufgehellt/abgedunkelt werden soll.
-# 027 Hier k”nnen Sie einstellen, wie sehr der Kontrast des Bildes verst„rkt/abgeschw„cht werden soll.
-# 028 Hier k”nnen Sie einstellen, wie sehr der Kontrast des Bildes verst„rkt/abgeschw„cht werden soll.
-# 006 Hier k”nnen Sie w„hlen, ob die roten Farbanteile beeinflut werden sollen.
-# 010 Hier k”nnen Sie w„hlen, ob die grnen Farbanteile beeinflut werden sollen.
-# 011 Hier k”nnen Sie w„hlen, ob die blauen Farbanteile beeinflut werden sollen.
+# 009 Hier k”nnen Sie einstellen, wie stark das Bild aufgehellt/abgedunkelt werden soll.
+# 010 Hier k”nnen Sie einstellen, wie stark das Bild aufgehellt/abgedunkelt werden soll.
+# 011 Hier k”nnen Sie einstellen, wie sehr der Kontrast des Bildes verst„rkt/abgeschw„cht werden soll.
+# 012 Hier k”nnen Sie einstellen, wie sehr der Kontrast des Bildes verst„rkt/abgeschw„cht werden soll.
+# 025 Hier k”nnen Sie w„hlen, ob die roten Farbanteile beeinflut werden sollen.
+# 027 Hier k”nnen Sie w„hlen, ob die grnen Farbanteile beeinflut werden sollen.
+# 029 Hier k”nnen Sie w„hlen, ob die blauen Farbanteile beeinflut werden sollen.
