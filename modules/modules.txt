@@ -33,8 +33,8 @@ interpo.sem    0.10    -        x
 invert.sem     0.50    0.50     x     x
 konform.sem    0.20    0.20     x     x
 litlgrad.sem   0.20    0.20     x     x
-magicpic.sem   0.60    0.60     x
-minmax.sem     0.20    0.20
+magicpic.sem   0.60    0.60     x     x
+minmax.sem     0.20    0.20     x
 mirror.sem     0.30    0.30
 noise.sem      0.40    0.40
 ntsc.sem       0.10    0.10

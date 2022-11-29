@@ -60,173 +60,76 @@
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
-void min_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height, char radius, long realwidth);
-void max_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height, char radius, long realwidth);
-
 static short (*busybox)(short pos);
 
-MOD_INFO module_info = {TEXT1,
-						0x0020,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						"",
-						"",
-						"",
-						"",
-						"Min",
-						"Max",
-						"",
-						"",
-						"Radius",
-						"",
-						"",
-						"",
-						0,64,
-						0,64,
-						0,64,
-						0,64,
-						3,8,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						2, 3, 0, 0,
-						3, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	TEXT1,
+	0x0020,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	"",
+	"",
+	"",
+	"",
+	"Min",
+	"Max",
+	"",
+	"",
+	"Radius",
+	"",
+	"",
+	"",
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 64,
+	3, 8,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	2, 3, 0, 0,
+	3, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						24, 0, 0, 0, 0,
-						0, 0, 0,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0,
-						};
+	24, 0, 0, 0, 0,	0, 0, 0,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0,
+};
 
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-/*				Minimum/Maximum-Modul				*/
-/* Jedes Pixel wird durch die in der einstellbaren	*/
-/* Nachbarschaft dunkelste/hellste Farbe setzt.		*/
-/*		24 Bit 										*/
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+
+static void max_24Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, unsigned short height, uint8_t radius, long realwidth)
 {
-	char *buffer, *obuffer, *ziel, *oziel,
-		 BitsPerPixel, BytesPerPixel, radius, min;
+	uint8_t *temp;
+	uint8_t help;
+	unsigned short i, j, k;
+	unsigned short paintwidth;
+	unsigned short xoffset;
+	unsigned short max;
+	uint8_t r, g, b;
 
-	int module_id;
-	unsigned int width, height;
+	unsigned short x, y;
+	unsigned short bh;
+	unsigned short bl;
 
-	long realwidth;
-
-	module_id = smurf_struct->module_number;
-
-/* Wenn das Modul zum ersten Mal gestartet wurde */
-	switch(smurf_struct->module_mode)
-	{
-		case MSTART:
-			smurf_struct->services->f_module_prefs(&module_info, module_id);
-			smurf_struct->module_mode = M_WAITING;
-			return;
-
-		case MEXEC:
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;
-
-			busybox = smurf_struct->services->busybox;
-
-			if(smurf_struct->check1 == 1)
-				min = 1;
-			else
-				min = 0;
-			radius = smurf_struct->edit1 - 2;
-
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-
-			BytesPerPixel = BitsPerPixel >> 3;
-
-			if(BitsPerPixel != 16)
-			{
-				buffer = smurf_struct->smurf_pic->pic_data;
-				obuffer = buffer;
-
-				realwidth = width * BytesPerPixel;
-
-				if((ziel = (char *)SMalloc((long)realwidth * (long)height)) == 0)
-				{
-					smurf_struct->module_mode = M_MEMORY;
-					return;
-				}
-				else
-				{
-					oziel = ziel;
-					memcpy(ziel, buffer, (long)realwidth * (long)height);
-
-					buffer += realwidth * radius;
-					ziel += realwidth * radius;
-
-					if(min == 1)
-						min_24Bit(ziel, buffer, width, height, radius, realwidth);
-					else
-						max_24Bit(ziel, buffer, width, height, radius, realwidth);
-				}
-
-				buffer = obuffer;
-				ziel = oziel;
-
-				smurf_struct->smurf_pic->pic_data = ziel;
-				SMfree(buffer);
-			}
-
-#if TIMER
-/* wie schnell waren wir? */
-	printf("%lu\n", get_timer());
-	getch();
-#endif
-
-			smurf_struct->module_mode = M_PICDONE;
-			return;
-
-		/* Mterm empfangen - Speicher freigeben und beenden */
-		case MTERM:
-			smurf_struct->module_mode = M_EXIT;
-			return;
-	}
-}
-
-
-void max_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height, char radius, long realwidth)
-{
-	char *temp,
-		 help, i, j, k, paintwidth, xoffset, max, r, g, b;
-
-	unsigned int x, y, bh, bl;
-
-
-	if((bh = height / 10) == 0) 	/* busy-height */
+	if ((bh = height / 10) == 0)		/* busy-height */
 		bh = height;
-	bl = 0;							/* busy-length */
+	bl = 0;								/* busy-length */
 
 	xoffset = radius * 3;
 
-	if(radius&1)				/* Radius ungerade? */
+	if (radius & 1)						/* Radius ungerade? */
 		help = 1;
 	else
 		help = 0;
@@ -236,7 +139,7 @@ void max_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height
 	y = radius;
 	do
 	{
-		if(!(y%bh))
+		if (!(y % bh))
 		{
 			busybox(bl);
 			bl += 12;
@@ -253,17 +156,15 @@ void max_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height
 			g = 0;
 			b = 0;
 
-			for(i = 0; i < paintwidth; i++)
+			for (i = 0; i < paintwidth; i++)
 			{
 				temp = buffer - (radius - i) * realwidth - (radius * 3);
 
-				for(j = 0; j < paintwidth; j++)
+				for (j = 0; j < paintwidth; j++)
 				{
 					/* obere Zeilen */
-					k = (char)((((long)*temp * 872L)
-							  + ((long)*(temp + 1) * 2930L)
-							  + ((long)*(temp + 2) * 296L)) >> 12);
-					if(k > max)
+					k = ((((long) *temp * 872L) + ((long) *(temp + 1) * 2930L) + ((long) *(temp + 2) * 296L)) >> 12);
+					if (k > max)
 					{
 						max = k;
 						r = *temp;
@@ -279,31 +180,34 @@ void max_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height
 			*ziel++ = r;
 			*ziel++ = g;
 			*ziel++ = b;
-		} while(++x < width - radius);
+		} while (++x < width - radius);
 
 		buffer += xoffset;
 		ziel += xoffset;
-	} while(++y < height - radius);
-
-	return;
-} /* max_24Bit */
+	} while (++y < height - radius);
+}
 
 
-void min_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height, char radius, long realwidth)
+static void min_24Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, unsigned short height, uint8_t radius, long realwidth)
 {
-	char *temp,
-		 help, i, j, k, paintwidth, xoffset, max, r, g, b;
+	uint8_t *temp;
+	uint8_t help;
+	unsigned short i, j, k;
+	unsigned short paintwidth;
+	unsigned short xoffset;
+	unsigned short max;
+	uint8_t r, g, b;
+	unsigned short x, y;
+	unsigned short bh;
+	unsigned short bl;
 
-	unsigned int x, y, bh, bl;
-
-
-	if((bh = height / 10) == 0) 	/* busy-height */
+	if ((bh = height / 10) == 0)		/* busy-height */
 		bh = height;
-	bl = 0;							/* busy-length */
+	bl = 0;								/* busy-length */
 
 	xoffset = radius * 3;
 
-	if(radius&1)				/* Radius ungerade? */
+	if (radius & 1)						/* Radius ungerade? */
 		help = 1;
 	else
 		help = 0;
@@ -313,7 +217,7 @@ void min_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height
 	y = radius;
 	do
 	{
-		if(!(y%bh))
+		if (!(y % bh))
 		{
 			busybox(bl);
 			bl += 12;
@@ -330,17 +234,15 @@ void min_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height
 			g = 255;
 			b = 255;
 
-			for(i = 0; i < paintwidth; i++)
+			for (i = 0; i < paintwidth; i++)
 			{
 				temp = buffer - (radius - i) * realwidth - (radius * 3);
 
-				for(j = 0; j < paintwidth; j++)
+				for (j = 0; j < paintwidth; j++)
 				{
 					/* obere Zeilen */
-					k = (char)((((long)*temp * 872L)
-							  + ((long)*(temp + 1) * 2930L)
-							  + ((long)*(temp + 2) * 296L)) >> 12);
-					if(k < max)
+					k = ((((long) *temp * 872L) + ((long) *(temp + 1) * 2930L) + ((long) *(temp + 2) * 296L)) >> 12);
+					if (k < max)
 					{
 						max = k;
 						r = *temp;
@@ -356,11 +258,111 @@ void min_24Bit(char *ziel, char *buffer, unsigned int width, unsigned int height
 			*ziel++ = r;
 			*ziel++ = g;
 			*ziel++ = b;
-		} while(++x < width - radius);
+		} while (++x < width - radius);
 
 		buffer += xoffset;
 		ziel += xoffset;
-	} while(++y < height - radius);
+	} while (++y < height - radius);
+}
 
-	return;
-} /* min_24Bit */
+
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+/*				Minimum/Maximum-Modul				*/
+/* Jedes Pixel wird durch die in der einstellbaren	*/
+/* Nachbarschaft dunkelste/hellste Farbe setzt.		*/
+/*		24 Bit 										*/
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+void edit_module_main(GARGAMEL *smurf_struct)
+{
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t BitsPerPixel;
+	uint8_t BytesPerPixel;
+	uint8_t radius;
+	uint8_t min;
+	unsigned short width, height;
+	long realwidth;
+
+	switch (smurf_struct->module_mode)
+	{
+/* Wenn das Modul zum ersten Mal gestartet wurde */
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MEXEC:
+#if TIMER
+		/* wie schnell sind wir? */
+		init_timer();
+#endif
+		SMalloc = smurf_struct->services->SMalloc;
+		SMfree = smurf_struct->services->SMfree;
+
+		busybox = smurf_struct->services->busybox;
+
+		if (smurf_struct->check1 == 1)
+			min = 1;
+		else
+			min = 0;
+		radius = smurf_struct->edit1 - 2;
+
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+
+		BytesPerPixel = BitsPerPixel >> 3;
+
+		if (BitsPerPixel != 16)
+		{
+			buffer = smurf_struct->smurf_pic->pic_data;
+			obuffer = buffer;
+
+			realwidth = width * BytesPerPixel;
+
+			if ((ziel = (uint8_t *) SMalloc((long) realwidth * (long) height)) == 0)
+			{
+				smurf_struct->module_mode = M_MEMORY;
+				return;
+			} else
+			{
+				oziel = ziel;
+				memcpy(ziel, buffer, (long) realwidth * (long) height);
+
+				buffer += realwidth * radius;
+				ziel += realwidth * radius;
+
+				if (min == 1)
+					min_24Bit(ziel, buffer, width, height, radius, realwidth);
+				else
+					max_24Bit(ziel, buffer, width, height, radius, realwidth);
+			}
+
+			buffer = obuffer;
+			ziel = oziel;
+
+			smurf_struct->smurf_pic->pic_data = ziel;
+			SMfree(buffer);
+		}
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("%lu\n", get_timer());
+		(void)Cnecin();
+#endif
+
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+		/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
+}
+
+

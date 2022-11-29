@@ -2,7 +2,7 @@
 
  BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
-#Dial 000
+#Dial 000 Mit diesem Modul k”nnen Sie "Magic Eye" Stereogramme erstellen.
 # 001 Hier wird die fr die Textur zu benutzende Spaltenbreite eingestellt.
 # 008 Berechnungsart, nur fr Objekttexturen.
 # 010 Berechnungsart, nur fr Objekttexturen.
