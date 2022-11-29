@@ -29,19 +29,19 @@
 #define TEXT2 "X-Scale"
 #define TEXT3 "Y-Scale"
 #define TEXT4 "Destination"
-#define TEXT5 "Displacment-Map"
+#define TEXT5 "Displacement-Map"
 #elif COUNTRY==0
 #define TEXT1 "Displacement"
 #define TEXT2 "X-Scale"
 #define TEXT3 "Y-Scale"
 #define TEXT4 "Destination"
-#define TEXT5 "Displacment-Map"
+#define TEXT5 "Displacement-Map"
 #elif COUNTRY==2
 #define TEXT1 "Displacement"
 #define TEXT2 "X-Scale"
 #define TEXT3 "Y-Scale"
 #define TEXT4 "Destination"
-#define TEXT5 "Displacment-Map"
+#define TEXT5 "Displacement-Map"
 #else
 #error "Keine Sprache!"
 #endif
@@ -82,12 +82,7 @@ MOD_INFO module_info = {
 	/* how many pics? */
 	2,
 	/* description for pictures */
-	TEXT4,
-	TEXT5,
-	"",
-	"",
-	"",
-	""
+	TEXT4, TEXT5, NULL, NULL, NULL, NULL
 };
 
 
@@ -106,78 +101,6 @@ MOD_ABILITY module_ability = {
 
 static SMURF_PIC *picture;
 static SMURF_PIC *bump_pic;
-
-static short doit(GARGAMEL *smurf_struct);
-
-void edit_module_main(GARGAMEL *smurf_struct)
-{
-	short SmurfMessage;
-	static short module_id;
-
-	SmurfMessage = smurf_struct->module_mode;
-	if (SmurfMessage == MSTART)
-	{
-		module_id = smurf_struct->module_number;
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
-		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
-	
-	if (SmurfMessage == MPICS)
-	{
-		switch (smurf_struct->event_par[0])
-		{
-		case DEST_PIC:
-			smurf_struct->event_par[0] = 24;
-			smurf_struct->event_par[1] = FORM_PIXELPAK;
-			smurf_struct->event_par[2] = RGB;
-			smurf_struct->module_mode = M_PICTURE;
-			break;
-		
-		case BUMP_PIC:
-			smurf_struct->event_par[0] = 8;
-			smurf_struct->event_par[1] = FORM_PIXELPAK;
-			smurf_struct->event_par[2] = GREY;
-			smurf_struct->module_mode = M_PICTURE;
-			break;
-		
-		default:
-			smurf_struct->module_mode = M_WAITING;
-			break;
-		}
-		return;
-	}
-
-	if (SmurfMessage == MPICTURE)
-	{
-		switch (smurf_struct->event_par[0])
-		{
-		case DEST_PIC:
-			picture = smurf_struct->smurf_pic;
-			break;
-		case BUMP_PIC:
-			bump_pic = smurf_struct->smurf_pic;
-			break;
-		}
-		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
-
-	if (SmurfMessage == MEXEC)
-	{
-		smurf_struct->module_mode = doit(smurf_struct);
-		smurf_struct->event_par[0] = 0;
-		return;
-	}
-	
-	if (SmurfMessage == MTERM)
-	{
-		smurf_struct->module_mode = M_EXIT;
-		return;
-	}
-
-	smurf_struct->module_mode = M_WAITING;
-}
 
 
 static short doit(GARGAMEL *smurf_struct)
@@ -250,4 +173,62 @@ static short doit(GARGAMEL *smurf_struct)
 	picture->pic_data = buffer;
 	
 	return M_PICDONE;
+}
+
+
+void edit_module_main(GARGAMEL *smurf_struct)
+{
+	switch (smurf_struct->module_mode)
+	{
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	
+	case MPICS:
+		switch (smurf_struct->event_par[0])
+		{
+		case DEST_PIC:
+			smurf_struct->event_par[0] = 24;
+			smurf_struct->event_par[1] = FORM_PIXELPAK;
+			smurf_struct->event_par[2] = RGB;
+			smurf_struct->module_mode = M_PICTURE;
+			break;
+		
+		case BUMP_PIC:
+			smurf_struct->event_par[0] = 8;
+			smurf_struct->event_par[1] = FORM_PIXELPAK;
+			smurf_struct->event_par[2] = GREY;
+			smurf_struct->module_mode = M_PICTURE;
+			break;
+		
+		default:
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		}
+		break;
+
+	case MPICTURE:
+		switch (smurf_struct->event_par[0])
+		{
+		case DEST_PIC:
+			picture = smurf_struct->smurf_pic;
+			break;
+		case BUMP_PIC:
+			bump_pic = smurf_struct->smurf_pic;
+			break;
+		}
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MEXEC:
+		smurf_struct->module_mode = doit(smurf_struct);
+		smurf_struct->event_par[0] = 0;
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }

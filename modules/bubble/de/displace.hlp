@@ -3,7 +3,7 @@
  BubbleGEM Help-File for Editmodul "Displacement"
 
 #Dial 000 Erm”glicht beliebige Verzerrungen eines Bildes anhand eines Graustufenbildes.
-# 001 Gibt die St„rke der horizontalen Verzerrung an.
-# 002 Gibt die St„rke der horizontalen Verzerrung an.
-# 027 Gibt die St„rke der vertikalen Verzerrung an.
-# 028 Gibt die St„rke der vertikalen Verzerrung an.
+# 009 Gibt die St„rke der horizontalen Verzerrung an.
+# 010 Gibt die St„rke der horizontalen Verzerrung an.
+# 011 Gibt die St„rke der vertikalen Verzerrung an.
+# 012 Gibt die St„rke der vertikalen Verzerrung an.

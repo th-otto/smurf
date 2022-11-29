@@ -17,7 +17,7 @@ clip.sem       0.50    -        x
 clipnpic.sem   0.50    0.50     x     x
 colrun.sem     1.00    1.00     x     x
 colsat.sem     1.20    -        x     x
-displace.sem   1.00    1.00     x
+displace.sem   1.00    1.00     x     x
 dropshdw.sem   2.00    2.00     x     x
 edgeokil.sem   1.10    1.10
 equalize.sem   0.10    0.10
