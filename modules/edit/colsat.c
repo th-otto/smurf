@@ -36,105 +36,252 @@
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview);
 
 /*-----> Modul --------*/
-int do_it(GARGAMEL *smurf_struct);
+
+/*--------------- Infostruktur fr Hauptprogramm -----*/
+MOD_INFO module_info = {
+	"Farb-S„ttigung",					/* Name des Moduls */
+	0x0120,
+	"J”rg Dittmer",						/* Autor */
+	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fr Importer */
+/* 4 Sliderberschriften: max 8 */
+	"F-S„t %",
+	"",
+	"",
+	"",
+/* 4 Checkboxberschriften: */
+	"",
+	"",
+	"",
+	"",
+/* 4 Edit-Objekt-šberschriften: */
+	"",
+	"",
+	"",
+	"",
+/* min/max-Werte fr Slider */
+	0, 200,
+	0, 0,
+	0, 0,
+	0, 0,
+/* min/max fr Editobjekte */
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
+/* Defaultwerte fr Slider, Check und Edit */
+	100, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	1,
+	"Bild 1"
+};
+
+
+/*--------------------- Was kann ich ? ----------------------*/
+MOD_ABILITY module_ability = {
+	24, 0, 0, 0, 0, 0, 0, 0,			/* Farbtiefen */
+	/* Grafikmodi: */
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0									/* Extra-Flag */
+};
 
 
 /*--------------- Globale Variablen --------------------------*/
-unsigned long busycount, busymax, busycall;
+static unsigned long busycount;
+static unsigned long busymax;
+static unsigned long busycall;
 
 
-/*--------------- Infostruktur fr Hauptprogramm -----*/
-MOD_INFO    module_info=
+/*--------------- Farb-S„ttigung ----------------------------*/
+static short do_it(GARGAMEL *smurf_struct)
 {
-    "Farb-S„ttigung",                      /* Name des Moduls */
-    0x0120,
-    "J”rg Dittmer",                                 /* Autor */
-    "","","","","","","","","","",  /* 10 Extensionen fr Importer */
-/* 4 Sliderberschriften: max 8 */
-    "F-S„t %",
-    "",
-    "",
-    "",
-/* 4 Checkboxberschriften: */
-    "",
-    "",
-    "",
-    "",
-/* 4 Edit-Objekt-šberschriften: */
-    "",
-    "",
-    "",
-    "",
-/* min/max-Werte fr Slider */
-    0,200,
-    0,0,
-    0,0,
-    0,0,
-/* min/max fr Editobjekte */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
-/* Defaultwerte fr Slider, Check und Edit */
-    100,0,0,0,
-    0,0,0,0,
-    0,0,0,0,
-    1,
-    "Bild 1"
-};
- 
+	SMURF_PIC *picture;
+	short width, height;
+	short colsat;
+	uint8_t *pic;
+	uint8_t *cs_tab;
+	uint8_t *offset;
+	uint8_t *cs_offset;
+	short *div_tab;
+	short *div_offset;
+	long div;
+	float cs_fak;
+	short x, y;
+	long red, green, blue, grey;
 
-/*--------------------- Was kann ich ? ----------------------*/
-MOD_ABILITY  module_ability = {
-                        24, 0, 0, 0, 0, 0, 0, 0,    /* Farbtiefen */
-            /* Grafikmodi: */
-                        FORM_PIXELPAK,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        0 /* Extra-Flag */ 
-                        };
+	/*--- Slider auslesen ---------------------- */
+
+	colsat = (short) smurf_struct->slide1;
+	if (colsat == 100 || smurf_struct->smurf_pic->col_format == GREY)
+		return M_PICDONE;													  /*--- Keine Žnderung --> BEENDEN --------*/
+
+	cs_fak = colsat / 100.0;
+
+	/*--- Bilddaten auslesen --------------------*/
+
+	picture = smurf_struct->smurf_pic;
+	width = picture->pic_width;
+	height = picture->pic_height;
+	pic = picture->pic_data;
+
+	if (colsat != 0)
+	{
+		/*--- Speicher anfordern ----------------------*/
+		cs_tab = (uint8_t *)Malloc(256L * 256L * sizeof(*cs_tab));
+		if (cs_tab == NULL)
+			return M_MEMORY;			/*  Kein Speicher !!! */
+		div_tab = (short *)Malloc(512L * sizeof(*div_tab));
+		if (div_tab == NULL)
+		{
+			Mfree(cs_tab);
+			return M_MEMORY;			/*  Kein Speicher !!! */
+		}
+		/*--- Farb-S„ttigungs-Tabelle berechnen ------------*/
+
+		div_offset = div_tab;
+		for (x = 0; x < 512; x++)
+		{
+			*(div_offset++) = ((x - 255) * cs_fak);
+		}
+
+		offset = cs_tab;
+		for (y = 0; y < 256; y++)
+		{
+			for (x = 0; x < 256; x++)
+			{
+				div = y + *(div_tab + (long) ((x - y) + 255));
+				if (div < 0)
+					div = 0;
+				if (div > 255)
+					div = 255;
+
+				*(offset++) = div;
+			}
+		}
+	}
 
 
+	/*--- BusyBox Vorberechnungen ----------------------*/
+	busycount = 0;
+	busycall = 3;
+	busymax = height;
+	if (busymax > 32)
+		busycall = 15;
+	if (busymax > 256)
+		busycall = 63;
+	busymax = (busymax << 10) / 127;
+
+
+	/*--- Hauptroutine --------------------*/
+	if (colsat != 0)
+	{						/*--- Freie Farb-S„ttigung ----------*/
+		offset = pic;
+		for (y = 0; y < height; y++)
+		{
+			busycount++;
+			if (!(busycount & busycall))
+				smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
+			for (x = 0; x < width; x++)
+			{
+				red = *(offset++);
+				green = *(offset++);
+				blue = *(offset);
+				offset -= 2;
+
+				if (red > green)
+				{
+					grey = red;
+					if (green > blue)
+					{
+						grey += green;
+					} else
+					{
+						grey += blue;
+					}
+				} else
+				{
+					grey = green;
+					if (red > blue)
+					{
+						grey += red;
+					} else
+					{
+						grey += blue;
+					}
+				}
+
+				grey = (grey >> 1L);
+
+				cs_offset = cs_tab + (grey << 8L);
+
+				*(offset++) = *(cs_offset + red);
+				*(offset++) = *(cs_offset + green);
+				*(offset++) = *(cs_offset + blue);
+
+			}
+		}
+	} else
+	{						/*--- Farb-S„ttigung ist NULL --> Graubild -------*/
+		offset = pic;
+		for (y = 0; y < height; y++)
+		{
+			busycount++;
+			if (!(busycount & busycall))
+				smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
+			for (x = 0; x < width; x++)
+			{
+				red = *(offset++);
+				green = *(offset++);
+				blue = *(offset);
+				offset -= 2;
+
+				grey = ((red + green + blue) * 21846L) >> 16;
+
+				*(offset++) = grey;
+				*(offset++) = grey;
+				*(offset++) = grey;
+			}
+		}
+	}
+
+	if (colsat != 0)
+	{
+		Mfree(div_tab);
+		Mfree(cs_tab);
+	}
+	return M_PICDONE;
+}
 
 
 /*-----------------------  FUNCTION MAIN --------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-int SmurfMessage;
-static int module_id;
+	switch (smurf_struct->module_mode)
+	{
+	/* Wenn das Modul aufgerufen wurde, */
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
+		smurf_struct->module_mode = M_WAITING;
+		break;
 
-SmurfMessage = smurf_struct->module_mode;
-    
-/* Wenn das Modul aufgerufen wurde, */
-if(SmurfMessage == MSTART)
-{
-    module_id=smurf_struct->module_number;
+	/* Wenn das Modul gestartet wurde */
+	case MEXEC:
+		smurf_struct->module_mode = do_it(smurf_struct);
+		break;
 
-    smurf_struct->services->f_module_prefs(&module_info, module_id);
-    smurf_struct->module_mode=M_WAITING;
-    return; 
+	/* Wenn das Modul sich verpissen soll */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }
-
-/* Wenn das Modul gestartet wurde */
-if(SmurfMessage == MEXEC)
-{
-    smurf_struct->module_mode = do_it(smurf_struct);
-    return;
-}
-
-/* Wenn das Modul sich verpissen soll */
-if(SmurfMessage == MTERM)
-{
-    smurf_struct->module_mode=M_EXIT;
-    return; 
-}
-
-} /*ende*/
 
 
 /*------ Previewfunktion - wird von Smurf bei Klick aufs Preview aufgerufen.------- */
@@ -147,165 +294,9 @@ if(SmurfMessage == MTERM)
 /* angefordert. Das Preview (im Smurf-Standardformat) wird dann vom Hauptprogramm   */
 /* fr die Screen-Farbtiefe gedithert und im Einstellformular dargestellt.          */
 
-void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
-
-    /* Ich mach' noch nix. */
-    (void)smurfpic;
-    (void)preview;
-}
-
-
-
-/*--------------- Farb-S„ttigung ----------------------------*/
-int do_it(GARGAMEL *smurf_struct)
+void prev(SMURF_PIC * smurfpic, SMURF_PIC * preview)
 {
-    SMURF_PIC *picture;
-    int width, height, colsat;
-    char *pic, *cs_tab, *offset, *cs_offset;
-    signed int *div_tab, *div_offset;
-    long div;
-    float cs_fak;
-    signed int x, y;
-    long red,green,blue,grey;
-
-    /*--- Slider auslesen ---------------------- */ 
-    
-    colsat = (int)smurf_struct->slide1;
-    if (colsat == 100 || 
-            smurf_struct->smurf_pic->col_format == GREY) return(M_PICDONE);   /*--- Keine Žnderung --> BEENDEN --------*/
-    
-    cs_fak = colsat / 100.0;
-    
-    /*--- Bilddaten auslesen --------------------*/
- 
-    picture = smurf_struct->smurf_pic;  
-    width   = picture->pic_width;
-    height  = picture->pic_height; 
-    pic     = picture->pic_data;
-    
-    if(colsat != 0) 
-    {
-        /*--- Speicher anfordern ----------------------*/
-        cs_tab = Malloc(256L*256L*2L);
-        if(cs_tab == NULL) return(M_MEMORY); /*  Kein Speicher !!! */
-        div_tab = Malloc(512L*2L);
-        if(div_tab == NULL) 
-        {
-            Mfree(cs_tab);
-            return(M_MEMORY); /*  Kein Speicher !!! */
-        }
-        /*--- Farb-S„ttigungs-Tabelle berechnen ------------*/
-        
-        div_offset = div_tab;
-        for(x=0; x<512; x++)
-        {       
-            *(div_offset++) = (signed int)((x-255) * cs_fak);
-        }   
-        
-        offset = cs_tab;
-        for(y=0; y<256; y++)
-        {
-            for(x=0; x<256; x++)
-            {
-                div = y + *(div_tab + (long)((x-y) + 255));
-                if(div < 0) div = 0;
-                if(div > 255) div = 255;
-                
-                *(offset++) = (char)div;
-            }
-        }
-    }
-    
-    
-    /*--- BusyBox Vorberechnungen ----------------------*/
-    busycount = 0;
-    busycall =  3;
-    busymax = height;
-    if(busymax >  32) busycall = 15;
-    if(busymax > 256) busycall = 63;
-    busymax = (busymax<<10) /127;
-
-
-    /*--- Hauptroutine --------------------*/
-    if(colsat != 0)
-    {                       /*--- Freie Farb-S„ttigung ----------*/         
-        offset = pic;
-        for(y=0; y<height; y++)
-        {
-            busycount++;
-            if(!(busycount & busycall)) smurf_struct->services->busybox((int)((busycount<<10) / busymax));
-            for(x=0; x<width; x++)
-            {
-                red   = *(offset++);
-                green = *(offset++);
-                blue  = *(offset);
-                offset -= 2L;
-                
-                if(red > green)
-                {
-                    grey = red;
-                    if(green > blue)
-                    {
-                        grey += green;
-                    }
-                    else
-                    {
-                        grey += blue;
-                    }
-                }
-                else
-                {
-                    grey = green;
-                    if(red > blue)
-                    {
-                        grey += red;
-                    }
-                    else
-                    {
-                        grey += blue;
-                    }
-                }
-
-                grey = (grey>>1L);
-
-                cs_offset = cs_tab +(grey<<8L);
-
-                *(offset++) = *(cs_offset + red);
-                *(offset++) = *(cs_offset + green);
-                *(offset++) = *(cs_offset + blue);
-
-            }
-        }
-    }
-    else
-    {                       /*--- Farb-S„ttigung ist NULL --> Graubild -------*/
-        offset = pic;
-        for(y=0; y<height; y++)
-        {
-            busycount++;
-            if(!(busycount & busycall)) smurf_struct->services->busybox((int)((busycount<<10) / busymax));
-            for(x=0; x<width; x++)
-            {
-                red   = *(offset++);
-                green = *(offset++);
-                blue  = *(offset);
-                offset -= 2;
-                
-                grey = ((red + green + blue) * 21846L)>>16;
-                                
-                *(offset++) = grey;
-                *(offset++) = grey;
-                *(offset++) = grey; 
-            }
-        }
-    }
-
-    if(colsat != 0)
-    {
-        Mfree(div_tab);
-        Mfree(cs_tab);
-    }
-    return(M_PICDONE);
+	/* Ich mach' noch nix. */
+	(void) smurfpic;
+	(void) preview;
 }
-
-

@@ -8,6 +8,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/border.sem \
 	$(DISTDIR)/modules/edit/clip.sem \
 	$(DISTDIR)/modules/edit/clipnpic.sem \
+	$(DISTDIR)/modules/edit/colsat.sem \
 	$(DISTDIR)/modules/edit/displace.sem \
 	$(DISTDIR)/modules/edit/dropshdw.sem \
 	$(DISTDIR)/modules/edit/highshad.sem \
@@ -28,6 +29,9 @@ $(DISTDIR)/modules/edit/clip.sem: edstart.o clip.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/clipnpic.sem: edstart.o clipnpic.o $(top_srcdir)/src/getlines.o $(top_srcdir)/src/getpix.o $(top_srcdir)/src/rearr.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/colsat.sem: edstart.o colsat.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/displace.sem: edstart.o displace.o
