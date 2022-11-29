@@ -31,7 +31,7 @@ highshad.sem   0.20    0.20     x     x
 hsv.sem        1.10    1.10     x     x
 interpo.sem    0.10    -        x
 invert.sem     0.50    0.50     x     x
-konform.sem    0.20    0.20
+konform.sem    0.20    0.20     x     x
 litlgrad.sem   0.20    0.20
 magicpic.sem   0.60    0.60     x
 minmax.sem     0.20    0.20

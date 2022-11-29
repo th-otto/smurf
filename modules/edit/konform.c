@@ -57,56 +57,56 @@
 
 #define TIMER 0
 
-#define VDI		1
-#define HARD	2
+#define VDI		0
+#define HARD	1
 
 short (*busybox)(short pos);
 
-MOD_INFO module_info = {TEXT1,
-						0x0020,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						"",
-						"",
-						"",
-						"",
-						TEXT2,
-						TEXT3,
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						0,64,
-						0,64,
-						0,64,
-						0,64,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						2, 3, 0, 0,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	TEXT1,
+	0x0020,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	"",
+	"",
+	"",
+	"",
+	TEXT2,
+	TEXT3,
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	2, 3, 0, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						2, 3, 4, 5, 6,
-						7, 8, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_BOTH,
-						0,
-						};
+	2, 3, 4, 5, 6, 7, 8, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_BOTH,
+	0,
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -121,141 +121,147 @@ MOD_ABILITY module_ability = {
 /* -------------------------------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-	char table2_to_vdi[] = {0, 2, 3, 1};
-	char table3_to_vdi[] = {0, 2, 3, 6, 4, 7, 5, 1};
-	char table4_to_vdi[] = {0, 15, 1, 2, 4, 6, 3, 5, 7, 8, 9, 10, 12, 14, 11, 13};
-	char table2_to_hard[] = {0, 2, 3, 1};
-	char table3_to_hard[] = {0, 2, 3, 6, 4, 7, 5, 1};
-	char table4_to_hard[] = {0, 2, 3, 6, 4, 7, 5, 8, 9, 10, 11, 14, 12, 15, 13, 1};
-	char *data, *pixbuf, *line, *plane_table,
-		 BitsPerPixel, mode;
-	
-	int module_id;
-	unsigned int x, y, width, height, bh, bl;
+	static uint8_t const table2_to_vdi[] = { 0, 2, 3, 1 };
+	static uint8_t const table3_to_vdi[] = { 0, 2, 3, 6, 4, 7, 5, 1 };
+	static uint8_t const table4_to_vdi[] = { 0, 15, 1, 2, 4, 6, 3, 5, 7, 8, 9, 10, 12, 14, 11, 13 };
+	static uint8_t const table2_to_hard[] = { 0, 2, 3, 1 };
+	static uint8_t const table3_to_hard[] = { 0, 2, 3, 6, 4, 7, 5, 1 };
+	static uint8_t const table4_to_hard[] = { 0, 2, 3, 6, 4, 7, 5, 8, 9, 10, 11, 14, 12, 15, 13, 1 };
+	uint8_t *data;
+	uint8_t *pixbuf;
+	uint8_t *line;
+	const uint8_t *plane_table;
+	uint8_t BitsPerPixel;
+	uint8_t mode;
 
-	unsigned long planelength, w;
-	
+	unsigned short x, y;
+	unsigned short width, height;
+	unsigned short bh, bl;
 
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
+	unsigned long planelength;
+	unsigned long w;
 
-	module_id = smurf_struct->module_number;
-
-/* Wenn das Modul zum ersten Mal gestartet wurde */
-	if(smurf_struct->module_mode == MSTART)
+	switch (smurf_struct->module_mode)
 	{
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
+/* Wenn das Modul zum ersten Mal gestartet wurde */
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
 		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
-	else
-		if(smurf_struct->module_mode == MEXEC)
-		{
-			if(smurf_struct->check1 > smurf_struct->check2)
-				mode = VDI;
-			else
-				mode = HARD;
-
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-
-			data = smurf_struct->smurf_pic->pic_data;
-
-			busybox = smurf_struct->services->busybox;
-
-			if(mode == VDI)
-				switch(BitsPerPixel)
-				{
-					case 2: plane_table = table2_to_vdi;
-							break;
-					case 3: plane_table = table3_to_vdi;
-							break;
-					case 4: plane_table = table4_to_vdi;
-							break;
-				}
-			else
-				switch(BitsPerPixel)
-				{
-					case 2: plane_table = table2_to_hard;
-							break;
-					case 3: plane_table = table3_to_hard;
-							break;
-					case 4: plane_table = table4_to_hard;
-							break;
-				}			
-
-			pixbuf = (char *)Malloc(width + 7);
-
-			if((bh = height / 10) == 0) 	/* busy-height */
-				bh = height;
-			bl = 0;							/* busy-length */
+		break;
 	
-			if(smurf_struct->smurf_pic->format_type == FORM_PIXELPAK)
-			{
-				y = 0;
-				do
-				{
-					if(!(y%bh))
-					{
-						busybox(bl);
-						bl += 12;
-					}
-
-					x = 0;
-					do
-					{
-						*data++ = plane_table[*data];
-					} while(++x < width);
-				} while(++y < height);
-			}
-			else
-			{
-				w = (unsigned long)((width + 7) / 8);
-				planelength = (unsigned long)((width + 7) / 8) * (unsigned long)height;   /* L„nge einer Plane in Bytes */
-
-				y = 0;
-				do
-				{
-					if(!(y%bh))
-					{
-						busybox(bl);
-						bl += 12;
-					}
-
-					memset(pixbuf, 0x0, width);
-					getpix_std_line(data, pixbuf, BitsPerPixel, planelength, width);
-					line = pixbuf;
-
-					x = 0;
-					do
-					{
-						*line++ = plane_table[*line];
-					} while(++x < width);
-					setpix_std_line(pixbuf, data, BitsPerPixel, planelength, width);
-					data += w;
-				} while(++y < height);
-			}
-
-			Mfree(pixbuf);
-	
+	case MEXEC:
 #if TIMER
-/* wie schnell waren wir? */
-	printf("%lu\n", get_timer());
-	getch();
+		/* wie schnell sind wir? */
+		init_timer();
 #endif
+	
+		if (smurf_struct->check1 > smurf_struct->check2)
+			mode = VDI;
+		else
+			mode = HARD;
 
-			smurf_struct->module_mode = M_PICDONE;
-			return;
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+
+		data = smurf_struct->smurf_pic->pic_data;
+
+		busybox = smurf_struct->services->busybox;
+
+		if (mode == VDI)
+		{
+			switch (BitsPerPixel)
+			{
+			case 2:
+				plane_table = table2_to_vdi;
+				break;
+			case 3:
+				plane_table = table3_to_vdi;
+				break;
+			case 4:
+				plane_table = table4_to_vdi;
+				break;
+			}
+		} else
+		{
+			switch (BitsPerPixel)
+			{
+			case 2:
+				plane_table = table2_to_hard;
+				break;
+			case 3:
+				plane_table = table3_to_hard;
+				break;
+			case 4:
+				plane_table = table4_to_hard;
+				break;
+			}
+		}
+		pixbuf = (uint8_t *) Malloc(width + 7);
+
+		if ((bh = height / 10) == 0)	/* busy-height */
+			bh = height;
+		bl = 0;							/* busy-length */
+
+		if (smurf_struct->smurf_pic->format_type == FORM_PIXELPAK)
+		{
+			y = 0;
+			do
+			{
+				if (!(y % bh))
+				{
+					busybox(bl);
+					bl += 12;
+				}
+
+				x = 0;
+				do
+				{
+					*data++ = plane_table[*data];
+				} while (++x < width);
+			} while (++y < height);
+		} else
+		{
+			w = (unsigned long) ((width + 7) / 8);
+			planelength = (unsigned long) ((width + 7) / 8) * (unsigned long) height;	/* L„nge einer Plane in Bytes */
+
+			y = 0;
+			do
+			{
+				if (!(y % bh))
+				{
+					busybox(bl);
+					bl += 12;
+				}
+
+				memset(pixbuf, 0, width);
+				getpix_std_line(data, pixbuf, BitsPerPixel, planelength, width);
+				line = pixbuf;
+
+				x = 0;
+				do
+				{
+					*line++ = plane_table[*line];
+				} while (++x < width);
+				setpix_std_line(pixbuf, data, BitsPerPixel, planelength, width);
+				data += w;
+			} while (++y < height);
 		}
 
-		/* Mterm empfangen - Speicher freigeben und beenden */
-		else 
-			if(smurf_struct->module_mode == MTERM)
-			{
-				smurf_struct->module_mode = M_EXIT;
-				return;
-			}
+		Mfree(pixbuf);
+
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("%lu\n", get_timer());
+		(void)Cnecin();
+#endif
+
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+	/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }

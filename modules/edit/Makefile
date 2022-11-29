@@ -21,6 +21,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(DISTDIR)/modules/edit/interpo.sem \
 	$(DISTDIR)/modules/edit/invert.sem \
+	$(DISTDIR)/modules/edit/konform.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
 	$(DISTDIR)/modules/edit/sw.sem \
@@ -77,6 +78,9 @@ $(DISTDIR)/modules/edit/interpo.sem: edstart.o interpo.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/invert.sem: edstart.o invert.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/konform.sem: edstart.o konform.o $(top_srcdir)/src/getlines.o $(top_srcdir)/src/setlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/quicksmt.sem: edstart.o quicksmt.o smth_mat.o
