@@ -738,7 +738,7 @@ static _UBYTE print_RS2_4CMASK[] = {
 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF, 0xFE, 0x7F, 0xFF, 0xFF, 0xFC, 
 0x1F, 0xFF, 0xFF, 0xF0, 0x1F, 0xFF, 0xFF, 0xF0, 0x1F, 0xFF, 0xFF, 0xF0, 0x1F, 0xFF, 0xFF, 0xF0};
 
-static char *rs_frstr[NUM_FRSTR] = {
+char *rs_frstr[NUM_FRSTR] = {
 	print_string_205,
 	print_string_206,
 	print_string_207,
@@ -754,14 +754,14 @@ static char *rs_frstr[NUM_FRSTR] = {
 };
 
 
-static CICON rs_cicon[] = {
+CICON rs_cicon[] = {
 	{ 4, (_WORD *) print_RS0_4CDATA, (_WORD *) print_RS0_4CMASK, 0, 0, 0 },
 	{ 4, (_WORD *) print_RS1_4CDATA, (_WORD *) print_RS1_4CMASK, 0, 0, 0 },
 	{ 4, (_WORD *) print_RS2_4CDATA, (_WORD *) print_RS2_4CMASK, 0, 0, 0 }
 };
 
 
-static CICONBLK rs_ciconblk[] = {
+CICONBLK rs_ciconblk[] = {
 	{ { (_WORD *) print_RS0_MMASK, (_WORD *) print_RS0_MDATA, print_string_16, 4096,24,23, 0,0,32,32, 13,13,6,8 }, &rs_cicon[0] },
 	{ { (_WORD *) print_RS1_MMASK, (_WORD *) print_RS1_MDATA, print_string_17, 4096,24,23, 0,0,32,32, 13,13,6,8 }, &rs_cicon[1] },
 	{ { (_WORD *) print_RS2_MMASK, (_WORD *) print_RS2_MDATA, print_string_66, 4096,17,26, 0,0,32,32, 6,15,6,8 }, &rs_cicon[2] }
@@ -777,7 +777,7 @@ static CICONBLK rs_ciconblk[] = {
 #if RSC_USE_PALETTE && !RSC_NAMED_FUNCTIONS && RSC_STATIC_FILE
 _WORD rgb_palette[][4] = {
 #else
-static _WORD rgb_palette[][4] = {
+_WORD rgb_palette[][4] = {
 #endif
 	{ 0x03E8, 0x03E8, 0x03E8, 0x0000 },
 	{ 0x03E8, 0x0000, 0x0000, 0x0002 },
@@ -1039,7 +1039,7 @@ static _WORD rgb_palette[][4] = {
 #endif
 
 
-static TEDINFO rs_tedinfo[NUM_TI] = {
+TEDINFO rs_tedinfo[NUM_TI] = {
 	{ print_string_0, print_string_1, print_string_2, IBM, 6, TE_CNTR, 0x1100, 0x0, -1, 38,1 }, /* DRIVER_POPBUT */
 	{ print_string_3, print_string_4, print_string_5, SMALL, 6, TE_LEFT, 0x1100, 0x0, -1, 7,1 },
 	{ print_string_6, print_string_7, print_string_8, IBM, 6, TE_CNTR, 0x1100, 0x0, -1, 16,1 }, /* PAPER_POPBUT */
@@ -1110,7 +1110,7 @@ static TEDINFO rs_tedinfo[NUM_TI] = {
 };
 
 
-static OBJECT rs_object[NUM_OBS] = {
+OBJECT rs_object[NUM_OBS] = {
 /* PRINT_MAIN */
 
 	{ -1, 1, 43, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 54,2070 },
@@ -1216,7 +1216,7 @@ static OBJECT rs_object[NUM_OBS] = {
 };
 
 
-static OBJECT *rs_trindex[NUM_TREE] = {
+OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0], /* PRINT_MAIN */
 	&rs_object[44], /* DRIVERS */
 	&rs_object[75], /* PAPERS */

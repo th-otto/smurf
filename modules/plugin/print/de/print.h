@@ -17,7 +17,7 @@
  * Number of Trees:          4
  * Number of Userblks:       0
  * Number of Images:         0
- * Total file size:          11264
+ * Total file size:          11248
  */
 
 #ifdef RSC_NAME

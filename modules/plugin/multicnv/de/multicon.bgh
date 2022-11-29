@@ -2,9 +2,9 @@
 
  BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
-#Dial 000
+#Dial 000 Multikonverter
 # 001 Startet die Konvertierung.
-# 006 006 Hiermit k”nnen Sie die Optionen fr das gew„hlte Exportformat einstellen.
+# 006 Hiermit k”nnen Sie die Optionen fr das gew„hlte Exportformat einstellen.
 # 008 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
 # 009 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.
 # 010 Hier k”nnen Sie das Grafikformat w„hlen, in das die Bilder konvertiert werden sollen.

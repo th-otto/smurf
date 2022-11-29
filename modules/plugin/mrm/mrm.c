@@ -51,8 +51,8 @@
 #define AL_LOAD_MODULES "Error loading modules."
 #elif COUNTRY==0
 #include "en/mrm.rsh"
-#define TITLE           "Smurf ModComm-Protocoll Plugin"
-#define WINTITLE        "Communication protocoll"
+#define TITLE           "Smurf ModComm-Protocol Plugin"
+#define WINTITLE        "Communication protocol"
 #define AL_LOAD_MODULE  "Error loading module!"
 #define AL_ADJUST_TPA   "Error adjusting module TPA!"
 #define AL_START_MODULE "Error starting module!"
@@ -60,8 +60,8 @@
 #define AL_LOAD_MODULES "Error loading modules."
 #elif COUNTRY==2
 #include "en/mrm.rsh"		/* missing french resource */
-#define TITLE           "Smurf ModComm-Protocoll Plugin"
-#define WINTITLE        "Communication protocoll"
+#define TITLE           "Smurf ModComm-Protocol Plugin"
+#define WINTITLE        "Communication protocol"
 #define AL_LOAD_MODULE  "Error loading module!"
 #define AL_ADJUST_TPA   "Error adjusting module TPA!"
 #define AL_START_MODULE "Error starting module!"
