@@ -20,7 +20,7 @@ colsat.sem     1.20    -        x     x
 displace.sem   1.00    1.00     x     x
 dropshdw.sem   2.00    2.00     x     x
 edgeokil.sem   1.10    1.10     x     x
-equalize.sem   0.10    0.10
+equalize.sem   0.10    0.10     x     x
 erode.sem      0.10    -
 expander.sem   0.30    0.30
 extrapol.sem   0.10    -
