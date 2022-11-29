@@ -29,7 +29,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/sw.sem \
 	$(empty)
 
-SUBDIRS = beule bumpmap cchange chanel5 chanelmx colrun freefilt hsv magic
+SUBDIRS = beule bumpmap cchange chanel5 chanelmx colrun freefilt hsv magic mirror
 
 all:: edstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done

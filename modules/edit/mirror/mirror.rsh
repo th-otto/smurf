@@ -339,14 +339,14 @@ static char mirror_string_8[] = "";
 static char mirror_string_9[] = "";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ mirror_string_1, mirror_string_2, mirror_string_3, IBM, 0, TE_CNTR, 0x1100, 0x0, -1, 11,1 }, /* HORIZONT */
 	{ mirror_string_4, mirror_string_5, mirror_string_6, IBM, 0, TE_CNTR, 0x1100, 0x0, -1, 9,1 }, /* VERTIKAL */
 	{ mirror_string_7, mirror_string_8, mirror_string_9, IBM, 0, TE_CNTR, 0x1100, 0x0, -1, 6,1 } /* BOTH */
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* MIRROR_POP */
 
 	{ -1, 1, 4, G_BOX, OF_FL3DBAK, OS_SHADOWED, C_UNION(0x11100L), 0,0, 13,261 },
@@ -357,7 +357,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* MIRROR_POP */
 };
 
@@ -467,7 +467,7 @@ void *gaddr;
 	case R_OBSPEC:
 		if (idx < 0 || idx >= NUM_OBS)
 			return 0;
-		*((_LONG **)gaddr) = &rs_object[idx].ob_spec.index;
+		*((_LONG_PTR **)gaddr) = &rs_object[idx].ob_spec.index;
 		break;
 #endif
 #if NUM_TI != 0

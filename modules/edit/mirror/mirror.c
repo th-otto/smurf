@@ -44,53 +44,54 @@
 
 #define TIMER 0
 
-WORD (*popup)(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree);
+static WORD (*popup) (POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree);
 
-MOD_INFO module_info = {"Spiegeln",
-						0x0030,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,64,
-						0,64,
-						0,64,
-						0,64,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	"Spiegeln",
+	0x0030,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-						1, 2, 4, 7, 8,
-						16, 24, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						0,
-						};
+MOD_ABILITY module_ability = {
+	1, 2, 4, 7, 8,
+	16, 24, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	0,
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -100,24 +101,39 @@ MOD_ABILITY  module_ability = {
 /*	und Umkehrbarkeit der Funktion als sinnlos an.	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+void edit_module_main(GARGAMEL * smurf_struct)
 {
-	char *data, *data2, *buffer, *cbuffer,
-		 BitsPerPixel, byte, p, Planes, t;
-	static char hor = 0, vert = 0, translate[256];
+	uint8_t *data;
+	uint8_t *data2;
+	uint8_t *buffer;
+	uint8_t *cbuffer;
+	uint8_t BitsPerPixel;
+	uint8_t byte;
+	uint8_t p;
+	uint8_t Planes;
+	static uint8_t hor = 0;
+	static uint8_t vert = 0;
+	static uint8_t translate[256];
 
- 	int item;
-	unsigned int *data16, *cbuffer16, width, height, y, i;
+	WORD item;
+	uint16_t *data16;
+	uint16_t *cbuffer16;
+	unsigned short width, height;
+	unsigned short y;
+	unsigned short i;
 
-	unsigned long x, realwidth, length;
+	unsigned long x;
+	unsigned long realwidth;
+	unsigned long length;
 
 	OBJECT *pop_form;
 	POP_UP pop_up;
 
 
-/* Wenn das Modul zum ersten Mal gestartet wurde */
-	if(smurf_struct->module_mode == MSTART)
+	switch (smurf_struct->module_mode)
 	{
+/* Wenn das Modul zum ersten Mal gestartet wurde */
+	case MSTART:
 		i = 0;
 		do
 		{
@@ -129,10 +145,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			translate[i] |= (i & 0x20) >> 3;
 			translate[i] |= (i & 0x40) >> 5;
 			translate[i] |= (i & 0x80) >> 7;
-		} while(++i < 256);
+		} while (++i < 256);
 
-		for(t = 0; t < NUM_OBS; t++)
-			rsrc_obfix(&rs_object[t], 0);
+		for (i = 0; i < NUM_OBS; i++)
+			rsrc_obfix(rs_object, i);
 
 		pop_form = rs_trindex[MIRROR_POP];
 
@@ -146,207 +162,212 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		item = popup(&pop_up, 1, 1, pop_form);
 
 #if TIMER
-/* wie schnell sind wir? */
-	init_timer();
+		/* wie schnell sind wir? */
+		init_timer();
 #endif
 
-		switch(item)
+		switch (item)
 		{
-			case -1: smurf_struct->module_mode = M_EXIT; 
-					 return;
-			case HORIZONT:	hor = 1;
-							break;
-			case VERTIKAL:	vert = 1;
-							break;						
-			case BOTH:	hor = 1;
-						vert = 1;
-						break;
-			default: break;
+		case -1:
+			smurf_struct->module_mode = M_EXIT;
+			return;
+		case HORIZONT:
+			hor = 1;
+			break;
+		case VERTIKAL:
+			vert = 1;
+			break;
+		case BOTH:
+			hor = 1;
+			vert = 1;
+			break;
+		default:
+			break;
 		}
 
 		smurf_struct->module_mode = M_STARTED;
-		return;
-	}
-	else
-		if(smurf_struct->module_mode == MEXEC)
+		break;
+	
+	case MEXEC:
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		data = smurf_struct->smurf_pic->pic_data;
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+
+		/* Spiegelung an der horizontalen Achse */
+
+		if (vert)
 		{
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-	
-			data = smurf_struct->smurf_pic->pic_data;
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-	
-	/* Spiegelung an der horizontalen Achse */
-	
-			if(vert)
+			if (smurf_struct->smurf_pic->format_type == FORM_PIXELPAK)
 			{
-				if(smurf_struct->smurf_pic->format_type == FORM_PIXELPAK)
+				byte = BitsPerPixel >> 3;
+
+				realwidth = width * byte;
+				if ((buffer = (uint8_t *)Malloc(realwidth)) == 0)
 				{
-					byte = BitsPerPixel >> 3;
-		
-					realwidth = width * byte;
-					if((buffer = Malloc(realwidth)) == 0)
-					{
-						smurf_struct->module_mode = M_MEMORY;
-						return;
-					}
-	
+					smurf_struct->module_mode = M_MEMORY;
+					return;
+				}
+
+				data2 = data + (height - 1) * realwidth;
+
+				y = height >> 1;
+				do
+				{
+					memcpy(buffer, data, realwidth);
+					memcpy(data, data2, realwidth);
+					memcpy(data2, buffer, realwidth);
+
+					data += realwidth;
+					data2 -= realwidth;
+				} while (--y);
+
+				Mfree(buffer);
+			}							/* pixelpacked oder Standardformat? */
+			else if (smurf_struct->smurf_pic->format_type == FORM_STANDARD)
+			{
+				Planes = BitsPerPixel;
+
+				realwidth = (width + 7) / 8;
+				if ((buffer = (uint8_t *)Malloc(realwidth)) == 0)
+				{
+					smurf_struct->module_mode = M_MEMORY;
+					return;
+				}
+
+				length = ((height >> 1) + height % 2) * realwidth;
+				p = Planes;
+				do
+				{
 					data2 = data + (height - 1) * realwidth;
-	
+
 					y = height >> 1;
 					do
 					{
 						memcpy(buffer, data, realwidth);
 						memcpy(data, data2, realwidth);
 						memcpy(data2, buffer, realwidth);
-
 						data += realwidth;
 						data2 -= realwidth;
-					} while(--y);
-	
-					Mfree(buffer);
-				}	/* pixelpacked oder Standardformat? */
-				else
-					if(smurf_struct->smurf_pic->format_type == FORM_STANDARD)
-					{
-						Planes = BitsPerPixel;
-	
-						realwidth = (width + 7) / 8;
-						if((buffer = Malloc(realwidth)) == 0)
-						{
-							smurf_struct->module_mode = M_MEMORY;
-							return;
-						}
-	
-						length = ((height >> 1) + height%2)* realwidth;
-						p = Planes;
-						do
-						{
-							data2 = data + (height - 1) * realwidth;
-	
-							y = height >> 1;
-							do
-							{
-								memcpy(buffer, data, realwidth);
-								memcpy(data, data2, realwidth);
-								memcpy(data2, buffer, realwidth);
-								data += realwidth;
-								data2 -= realwidth;
-							} while(--y);
-							if(--p != 0)
-								data += length;
-						} while(p);	/* Planes */
-						
-						Mfree(buffer);
-					}	/* pixelpacked oder Standardformat? */
-			}	/* horizontal? */
-	
-	
-	/* Spiegelung an der vertikalen Achse */
-	
-			data = smurf_struct->smurf_pic->pic_data;
-	
-			if(hor)
+					} while (--y);
+					if (--p != 0)
+						data += length;
+				} while (p);			/* Planes */
+
+				Mfree(buffer);
+			}							/* pixelpacked oder Standardformat? */
+		}								/* horizontal? */
+
+
+		/* Spiegelung an der vertikalen Achse */
+
+		data = smurf_struct->smurf_pic->pic_data;
+
+		if (hor)
+		{
+			if (smurf_struct->smurf_pic->format_type == FORM_PIXELPAK)
 			{
-				if(smurf_struct->smurf_pic->format_type == FORM_PIXELPAK)
+				byte = BitsPerPixel >> 3;
+
+				realwidth = width * byte;
+				if ((buffer = (uint8_t *)Malloc(realwidth)) == 0)
 				{
-					byte = BitsPerPixel >> 3;
-		
-					realwidth = width * byte;
-					if((buffer = Malloc(realwidth)) == 0)
+					smurf_struct->module_mode = M_MEMORY;
+					return;
+				}
+
+				switch (BitsPerPixel)
+				{
+				case 8:
+					y = height;
+					do
 					{
-						smurf_struct->module_mode = M_MEMORY;
-						return;
-					}
-	
-					switch(BitsPerPixel)
-					{
-						case 8:	y = height;
-								do
-								{
-									memcpy(buffer, data, realwidth);
-									cbuffer = buffer + realwidth - 1;
-									x = width;
-									do
-									{
-										*data++ = *cbuffer--;
-									} while(--x);
-								} while(--y);
-								break;
-						case 16: y = height;
-								 data16 = (unsigned int *)data;
-								 do
-								 {
-									 memcpy(buffer, data, realwidth);
-									 cbuffer16 = (unsigned int *)(buffer + realwidth - 1);
-									 x = width;
-									 do
-									 {
-										 *data16++ = *cbuffer16--;
-									 }
-									 while(--x);
-								 } while(--y);
-								 break;
-						case 24: y = height;
-								 do
-								 {
-									 memcpy(buffer, data, realwidth);
-									 cbuffer = buffer + realwidth - 1;
-									 x = width;
-									 do
-									 {
-										 *(data + 2) = *cbuffer--;
-										 *(data + 1) = *cbuffer--;
-										 *data = *cbuffer--;
-									 	 data += 3;
-									 } while(--x);
-								 } while(--y);
-								 break;
-						default: break;
-					} /* BitsPerPixel */
-	
-					Mfree(buffer);
-				}	/* pixelpacked oder Standardformat? */
-				else
-					if(smurf_struct->smurf_pic->format_type == FORM_STANDARD)
-					{
-						Planes = BitsPerPixel;
-	
-						realwidth = (width + 7) / 8;
-						if((buffer = Malloc(realwidth)) == 0)
-						{
-							smurf_struct->module_mode = M_MEMORY;
-							return;
-						}
-	
-						p = Planes;
+						memcpy(buffer, data, realwidth);
+						cbuffer = buffer + realwidth - 1;
+						x = width;
 						do
 						{
-							y = height * 3;
-							do
-							{
-								memcpy(buffer, data, realwidth);
-								cbuffer = buffer + realwidth - 1;
-								x = realwidth;
-								do
-								{
-									*data++ = translate[*cbuffer--];
-								} while(--x);
-							} while(y -= 3);
-	
-						} while(--p);	/* Planes */
-						
-						Mfree(buffer);
-					}	/* pixelpacked oder Standardformat? */
-			}	/* vertikal? */
-	
+							*data++ = *cbuffer--;
+						} while (--x);
+					} while (--y);
+					break;
+				case 16:
+					y = height;
+					data16 = (uint16_t *) data;
+					do
+					{
+						memcpy(buffer, data, realwidth);
+						cbuffer16 = (uint16_t *) (buffer + realwidth - 1);
+						x = width;
+						do
+						{
+							*data16++ = *cbuffer16--;
+						}
+						while (--x);
+					} while (--y);
+					break;
+				case 24:
+					y = height;
+					do
+					{
+						memcpy(buffer, data, realwidth);
+						cbuffer = buffer + realwidth - 1;
+						x = width;
+						do
+						{
+							*(data + 2) = *cbuffer--;
+							*(data + 1) = *cbuffer--;
+							*data = *cbuffer--;
+							data += 3;
+						} while (--x);
+					} while (--y);
+					break;
+				default:
+					break;
+				}						/* BitsPerPixel */
+
+				Mfree(buffer);
+			}							/* pixelpacked oder Standardformat? */
+			else if (smurf_struct->smurf_pic->format_type == FORM_STANDARD)
+			{
+				Planes = BitsPerPixel;
+
+				realwidth = (width + 7) / 8;
+				if ((buffer = (uint8_t *)Malloc(realwidth)) == 0)
+				{
+					smurf_struct->module_mode = M_MEMORY;
+					return;
+				}
+
+				p = Planes;
+				do
+				{
+					y = height * 3;
+					do
+					{
+						memcpy(buffer, data, realwidth);
+						cbuffer = buffer + realwidth - 1;
+						x = realwidth;
+						do
+						{
+							*data++ = translate[*cbuffer--];
+						} while (--x);
+					} while (y -= 3);
+
+				} while (--p);			/* Planes */
+
+				Mfree(buffer);
+			}							/* pixelpacked oder Standardformat? */
+		}								/* vertikal? */
+
 #if TIMER
-	/* wie schnell waren wir? */
-	printf("\n%lu", get_timer());
-	getch();
+		/* wie schnell waren wir? */
+		printf("\n%lu", get_timer());
+		(void)Cnecin();
 #endif
-	
-			smurf_struct->module_mode = M_DONEEXIT;
-			return;
-		}
+
+		smurf_struct->module_mode = M_DONEEXIT;
+		break;
+	}
 }

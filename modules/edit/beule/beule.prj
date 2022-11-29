@@ -34,7 +34,12 @@ bang5.c
 bang5f.c [-8]
 
 pcfltlib.lib
-pc881lib.lib
+; We must not link pc881flt.lib.
+; We must only use basic, builtin functions,
+; any other would lead to duplicate symbols,
+; or the wrong function being linked for
+; either of the two modules
+;pc881lib.lib
 pctoslib.lib
 pcextlib.lib
 pcstdlib.lib
