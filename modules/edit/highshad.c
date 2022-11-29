@@ -75,8 +75,7 @@ MOD_INFO module_info = {
 
 
 MOD_ABILITY module_ability = {
-	2, 4, 7, 8, 16,
-	24, 0, 0,
+	2, 4, 7, 8, 16, 24, 0, 0,
 	FORM_STANDARD,
 	FORM_STANDARD,
 	FORM_STANDARD,
@@ -317,7 +316,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 #if TIMER
 		/* wie schnell waren wir? */
 		printf("\n%lu", get_timer());
-		getch();
+		(void)Cnecin();
 #endif
 
 		smurf_struct->module_mode = M_PICDONE;

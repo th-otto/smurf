@@ -194,7 +194,7 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, 
 #if TIMER
 	/* wie schnell waren wir? */
 	printf("\n%lu", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
 	if (mode & SCALEPAL)

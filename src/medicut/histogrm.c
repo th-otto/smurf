@@ -438,7 +438,7 @@ static void cut_box(int16_t num_of_boxes, int16_t box_to_cut, int16_t edge, long
 	printf("\n Box 2 (Nr. %i): %i-%i-%i, %i-%i-%i   ", num_of_boxes,
 		   boxes[num_of_boxes].xbox, boxes[num_of_boxes].ybox, boxes[num_of_boxes].zbox,
 		   boxes[num_of_boxes].boxwid, boxes[num_of_boxes].boxhgt, boxes[num_of_boxes].boxdepth);
-	getch();
+	(void)Cnecin();
 #endif
 }
 

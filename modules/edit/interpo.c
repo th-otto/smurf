@@ -35,172 +35,177 @@ void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview);
 
 
 /*------ Infostruktur fÅr Hauptprogramm -----*/
-MOD_INFO    module_info=
-    {
-    "Interpolieren x2",                        /* Name des Moduls */
-    0x0010,
-    "Jîrg Dittmer",                                 /* Autor */
-    "","","","","","","","","","",  /* 10 Extensionen fÅr Importer */
+MOD_INFO module_info = {
+	"Interpolieren x2",					/* Name des Moduls */
+	0x0010,
+	"Jîrg Dittmer",						/* Autor */
+	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fÅr Importer */
 /* 4 SliderÅberschriften: max 8 */
-    "",
-    "",
-    "",
-    "",
+	"",
+	"",
+	"",
+	"",
 /* 4 CheckboxÅberschriften: */
-    "",
-    "",
-    "",
-    "",
+	"",
+	"",
+	"",
+	"",
 /* 4 Edit-Objekt-öberschriften: */
-    "",
-    "",
-    "",
-    "",
+	"",
+	"",
+	"",
+	"",
 /* min/max-Werte fÅr Slider */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* min/max fÅr Editobjekte */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Defaultwerte fÅr Slider, Check und Edit */
-    0,0,0,0,
-    0,0,0,0,
-    0,0,0,0,
-    };
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 /*--------------------- Was kann ich ? ----------------------*/
-MOD_ABILITY  module_ability = {
-                        24, 0, 0, 0, 0, 0, 0, 0,    /* Farbtiefen */
-            /* Grafikmodi: */
-                        FORM_PIXELPAK,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        0 /* Extra-Flag */ 
-                        };
+MOD_ABILITY module_ability = {
+	24, 0, 0, 0, 0, 0, 0, 0,			/* Farbtiefen */
+	/* Grafikmodi: */
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0									/* Extra-Flag */
+};
 
 
 
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-SMURF_PIC *picture;
-int width, height, n_width, n_height;
-int x,y;
-char *pic,*n_pic,*offset,*noffset;
-unsigned int red, green, blue;
-long bpl, nbpl;
+	SMURF_PIC *picture;
+	short width, height;
+	short n_width, n_height;
+	short x, y;
+	uint8_t *pic;
+	uint8_t *n_pic;
+	uint8_t *offset;
+	uint8_t *noffset;
+	unsigned short red, green, blue;
+	long bpl, nbpl;
 
-
+	switch (smurf_struct->module_mode)
+	{
 /* Wenn das Modul aufgerufen wurde, */
-if(smurf_struct->module_mode == MSTART)
-{
-    picture=smurf_struct->smurf_pic;
-    pic=picture->pic_data;
-    width=picture->pic_width;
-    height=picture->pic_height;
-    bpl = (long)width*3L;
-    
-    n_width = (int)(width*2L - 1);
-    n_height = (int)(height*2L - 1);
-    nbpl = (long)n_width * 3L;
-    
-    if((n_pic = Malloc((long)n_width*(long)n_height*3L)) == NULL) 
-    {
-        smurf_struct->module_mode=M_MEMORY;
-        return;
-    }
-    
-    for(y=0;y<n_height;y++)
-    {
-        noffset = n_pic + y*nbpl;
-        for(x=0;x<n_width;x++)
-        {
-            *(noffset++) = 0;
-            *(noffset++) = 0;
-            *(noffset++) = 0;
-        }
-    }
-    
+	case MSTART:
+		picture = smurf_struct->smurf_pic;
+		pic = picture->pic_data;
+		width = picture->pic_width;
+		height = picture->pic_height;
+		bpl = (long) width * 3L;
+
+		n_width = (short) (width * 2L - 1);
+		n_height = (short) (height * 2L - 1);
+		nbpl = (long) n_width * 3L;
+
+		if ((n_pic = (uint8_t *)Malloc((long) n_width * (long) n_height * 3L)) == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return;
+		}
+
+		for (y = 0; y < n_height; y++)
+		{
+			noffset = n_pic + y * nbpl;
+			for (x = 0; x < n_width; x++)
+			{
+				*(noffset++) = 0;
+				*(noffset++) = 0;
+				*(noffset++) = 0;
+			}
+		}
+
 /*---Orginalbild kopieren------------------------------*/
-    for (y=0;y<height;y++)
-    {
-        offset = pic + (long)y*bpl;
-        noffset = n_pic + (long)y*2L*nbpl;
-        for(x=0;x<width;x++)
-        {
-            *(noffset++) = *(offset++);
-            *(noffset++) = *(offset++);
-            *(noffset++) = *(offset++);
-            noffset += 3;
-        }
-    }
+		for (y = 0; y < height; y++)
+		{
+			offset = pic + (long) y *bpl;
+			noffset = n_pic + (long) y *2L * nbpl;
+
+			for (x = 0; x < width; x++)
+			{
+				*(noffset++) = *(offset++);
+				*(noffset++) = *(offset++);
+				*(noffset++) = *(offset++);
+				noffset += 3;
+			}
+		}
 
 
 /*---In X-Richtung skalieren---------------------------------*/
-    for (x=1;x<n_width;x+=2)
-    {
-        noffset = n_pic + (long)x*3L;
-        for(y=0;y<n_height;y++)
-        {
-            red   = *(noffset - 3L) + *(noffset + 3L);
-            green = *(noffset - 2L) + *(noffset + 4L);
-            blue  = *(noffset - 1L) + *(noffset + 5L);
-            
-            *(noffset     ) = (char)(red  >>1);
-            *(noffset + 1L) = (char)(green>>1);
-            *(noffset + 2L) = (char)(blue >>1);
-        
-            noffset += nbpl;
-        }
-    }
+		for (x = 1; x < n_width; x += 2)
+		{
+			noffset = n_pic + (long) x * 3L;
+
+			for (y = 0; y < n_height; y++)
+			{
+				red = *(noffset - 3L) + *(noffset + 3L);
+				green = *(noffset - 2L) + *(noffset + 4L);
+				blue = *(noffset - 1L) + *(noffset + 5L);
+
+				*(noffset) = (red >> 1);
+				*(noffset + 1L) = (green >> 1);
+				*(noffset + 2L) = (blue >> 1);
+
+				noffset += nbpl;
+			}
+		}
 
 /*---In Y-Richtung skalieren---------------------------------*/
-    for (y=1;y<n_height;y+=2)
-    {
-        noffset = n_pic + (long)y*nbpl;
-        for(x=0;x<n_width;x++)
-        {
-            red   = *(noffset - nbpl     ) + *(noffset + nbpl);
-            green = *(noffset - nbpl +1L ) + *(noffset + nbpl + 1L);
-            blue  = *(noffset - nbpl +2L ) + *(noffset + nbpl + 2L);
-            
-            *(noffset     ) = (char)(red  >>1);
-            *(noffset + 1L) = (char)(green>>1);
-            *(noffset + 2L) = (char)(blue >>1);
-        
-            noffset += 3;
-        }
-    }   
+		for (y = 1; y < n_height; y += 2)
+		{
+			noffset = n_pic + (long) y *nbpl;
 
-    
-    picture->pic_width  = n_width;
-    picture->pic_height = n_height;
-    picture->pic_data   = n_pic;
-    
-    Mfree(pic);
+			for (x = 0; x < n_width; x++)
+			{
+				red = *(noffset - nbpl) + *(noffset + nbpl);
+				green = *(noffset - nbpl + 1L) + *(noffset + nbpl + 1L);
+				blue = *(noffset - nbpl + 2L) + *(noffset + nbpl + 2L);
 
-smurf_struct->module_mode=M_DONEEXIT;
-return;
-}
+				*(noffset) = (red >> 1);
+				*(noffset + 1L) = (green >> 1);
+				*(noffset + 2L) = (blue >> 1);
+
+				noffset += 3;
+			}
+		}
+
+
+		picture->pic_width = n_width;
+		picture->pic_height = n_height;
+		picture->pic_data = n_pic;
+
+		Mfree(pic);
+
+		smurf_struct->module_mode = M_DONEEXIT;
+		break;
 
 /* Wenn das Modul sich verpissen soll */
-if(smurf_struct->module_mode==MTERM)
-    {
-    smurf_struct->module_mode=M_EXIT;
-    return; 
-    }
-
-} /*ende*/
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
+}
 
 
 /*------ Previewfunktion - wird von Smurf bei Klick aufs Preview aufgerufen.------- */
@@ -213,9 +218,9 @@ if(smurf_struct->module_mode==MTERM)
 /* angefordert. Das Preview (im Smurf-Standardformat) wird dann vom Hauptprogramm   */
 /* fÅr die Screen-Farbtiefe gedithert und im Einstellformular dargestellt.          */
 
-void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
-
-    /* Ich mach' noch nix. */
-    (void)smurfpic;
-    (void)preview;
+void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview)
+{
+	/* Ich mach' noch nix. */
+	(void) smurfpic;
+	(void) preview;
 }

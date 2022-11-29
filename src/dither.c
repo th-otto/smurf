@@ -496,7 +496,7 @@ void f_transform_to_standard(SMURF_PIC *picture, uint8_t *paddr)
 #if TIMER
 	/* wie schnell waren wir? */
 	printf("timer: %lu\n", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 }
 

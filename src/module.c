@@ -821,7 +821,7 @@ void init_modtree(OBJECT *tree, WORD index)
 		printf("best_img->next_res == NULL\n");
 	else
 		printf("best_img->next_res != NULL\n");
-	getch();
+	(void)Cnecin();
 #endif
 
 	tree[index].ob_spec.ciconblk->mainlist = best_img;

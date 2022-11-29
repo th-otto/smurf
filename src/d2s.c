@@ -322,7 +322,7 @@ void direct2screen(SMURF_PIC *picture, uint8_t *where_to, GRECT *part)
 #if TIMER
 	/* wie schnell waren wir? */
 	printf("\n%lu", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 }
 

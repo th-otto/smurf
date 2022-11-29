@@ -165,7 +165,7 @@ short f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, uint8_t modcolform, ui
 #if 0
 		printf("\nsrcmode: %d, dstmode: %d, piccolform: %d, modcolform: %d, picdepth: %d, moddepth[%d]: %d",
 			srcmode, modform[t], piccolform, modcolform, picdepth, t, moddepth[t]);
-		getch();
+		(void)Cnecin();
 #endif
 		/* will der User das Bild vielleicht in eine h”here Farbtiefe gewandelt haben? */
 		if (g_ask)
@@ -408,7 +408,7 @@ short tfm_std_to_pp(SMURF_PIC *picture, uint8_t dst_depth, uint8_t mode)
 #if TIMER
 	/* wie schnell waren wir? */
 	printf("%lu\n", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
 	if (mode == SAME)
@@ -476,7 +476,7 @@ short tfm_pp_to_std8(SMURF_PIC *picture, uint8_t mode)
 #if TIMER
 	/* wie schnell waren wir? */
 	printf("%lu\n", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
 	if (mode == SAME)					/* wenn ersetzen, */

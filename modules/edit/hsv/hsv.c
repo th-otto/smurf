@@ -449,7 +449,7 @@ static void do_HSV(uint8_t *data, unsigned short width, unsigned short height, u
 
 #if DEBUG
 	printf("colval: %lu, hnew: %d\n", colval, hnew);
-	getch();
+	(void)Cnecin();
 #endif
 
 
@@ -493,7 +493,7 @@ static void do_HSV(uint8_t *data, unsigned short width, unsigned short height, u
 
 #if DEBUG
 			printf("r: %u, g: %u, b: %u, max: %u, min: %u\n", r, g, b, max, min);
-			getch();
+			(void)Cnecin();
 #endif
 
 			v = max;
@@ -604,7 +604,7 @@ static void do_HSV(uint8_t *data, unsigned short width, unsigned short height, u
 
 #if DEBUG
 				printf("r: %u, g: %u, b: %u\n", r, g, b);
-				getch();
+				(void)Cnecin();
 #endif
 
 				/* Werte zurckschreiben */
@@ -682,7 +682,7 @@ static void do_HLS(uint8_t *data, unsigned short width, unsigned short height, u
 
 #if DEBUG
 			printf("r: %u, g: %u, b: %u, max: %u, min: %u\n", r, g, b, max, min);
-			getch();
+			(void)Cnecin();
 #endif
 
 			sum = max + min;
@@ -808,7 +808,7 @@ static void do_HLS(uint8_t *data, unsigned short width, unsigned short height, u
 
 #if DEBUG
 				printf("r: %u, g: %u, b: %u\n\n", r, g, b);
-				getch();
+				(void)Cnecin();
 #endif
 
 				/* Werte zurckschreiben */
@@ -970,7 +970,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 #if TIMER
 		/* wie schnell waren wir? */
 		printf("\n%lu", get_timer());
-		getch();
+		(void)Cnecin();
 #endif
 
 		smurf_struct->module_mode = M_PICDONE;

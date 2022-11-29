@@ -388,7 +388,7 @@ static void inquire_clipboard(void)
 	else
 		printf("scrp_path: NULL\n");
 
-	getch();
+	(void)Cnecin();
 #endif
 }
 
@@ -403,7 +403,7 @@ static void check_and_create(char *chpath)
 	else
 		printf("scrp_path: NULL\n");
 
-	getch();
+	(void)Cnecin();
 #endif
 
 	if (Sys_info.scrp_path[strlen(Sys_info.scrp_path) - 1] == '\\')

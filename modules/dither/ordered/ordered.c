@@ -261,7 +261,7 @@ static void orderedto1(SMURF_PIC *picture, uint8_t *ziel)
 #if TIMER
 	/* wie schnell waren wir? */
 	printf("%lu\n", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
 	Mfree(pixbuf);
@@ -341,7 +341,7 @@ static void orderedto4(SMURF_PIC *picture, uint8_t *ziel)
 	unsigned long planelengthr;
 
 #if TIMER
-/* wie schnell sind wir? */
+	/* wie schnell sind wir? */
 	init_timer();
 #endif
 
@@ -462,9 +462,9 @@ static void orderedto4(SMURF_PIC *picture, uint8_t *ziel)
 	} while (++y < endhgt);
 
 #if TIMER
-/* wie schnell waren wir? */
+	/* wie schnell waren wir? */
 	printf("%lu\n", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
 	Mfree(pixbuf);
@@ -736,9 +736,9 @@ static void f_dither_orderedcol(SMURF_PIC *picture, uint8_t *ziel, DITHER_DATA *
 	} while (++y < endhgt);
 
 #if TIMER
-/* wie schnell waren wir? */
+	/* wie schnell waren wir? */
 	printf("%lu\n", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
 	Mfree(pixbuf);
