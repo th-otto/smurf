@@ -22,7 +22,7 @@ dropshdw.sem   2.00    2.00     x     x
 edgeokil.sem   1.10    1.10     x     x
 equalize.sem   0.10    0.10     x     x
 erode.sem      0.10    -        x
-expander.sem   0.30    0.30
+expander.sem   0.30    0.30     x     x
 extrapol.sem   0.10    -
 freefilt.sem   0.70    0.70     x     x
 gamma.sem      0.20    0.20
