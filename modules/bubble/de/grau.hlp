@@ -3,7 +3,7 @@
  BubbleGEM Help-File for Editmodul "Greyscale"
 
 #Dial 000 Hiermit k馬nen Sie Farbbilder in Graustufenbilder wandeln.
-# 001 Hier k馬nen Sie einstellen, wie stark das Graustufenresultat im Bild zu sehen sein soll (100 = ganz grau, 2 = nur ganz schwach angegraut).
-# 002 Hier k馬nen Sie einstellen, wie stark das Graustufenresultat im Bild zu sehen sein soll (100 = ganz grau, 2 = nur ganz schwach angegraut).
-# 006 Wenn diese Checkbox selektiert ist, werden immer 256 Graustufen erzeugt. Ansonsten wird die bei 'Stufen' angegebene Anzahl an Graustufen erzeugt.
-# 013 Hier k馬nen Sie die Anzahl an Graustufen eingeben, die erzeugt werden sollen. Wenn jedoch links die Checkbox '256 Stufen' selektiert ist, werden immer 256 Graustufen erzeugt!
+# 009 Hier k馬nen Sie einstellen, wie stark das Graustufenresultat im Bild zu sehen sein soll (100 = ganz grau, 2 = nur ganz schwach angegraut).
+# 010 Hier k馬nen Sie einstellen, wie stark das Graustufenresultat im Bild zu sehen sein soll (100 = ganz grau, 2 = nur ganz schwach angegraut).
+# 025 Wenn diese Checkbox selektiert ist, werden immer 256 Graustufen erzeugt. Ansonsten wird die bei 'Stufen' angegebene Anzahl an Graustufen erzeugt.
+# 033 Hier k馬nen Sie die Anzahl an Graustufen eingeben, die erzeugt werden sollen. Wenn jedoch links die Checkbox '256 Stufen' selektiert ist, werden immer 256 Graustufen erzeugt!

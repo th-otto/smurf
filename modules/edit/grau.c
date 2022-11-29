@@ -96,51 +96,51 @@
 #define TIMER 0
 
 
-MOD_INFO module_info = {TEXT1,
-						0x0120,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						TEXT2,
-						"",
-						"",
-						"",
-						TEXT3,
-						"",
-						"",
-						"",
-						TEXT4,
-						"",
-						"",
-						"",
-						1,100,
-						0,64,
-						0,64,
-						0,64,
-						2,256,
-						0,10,
-						0,10,
-						0,10,
-						100, 0, 0, 0,
-						1, 0, 0, 0,
-						2, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	TEXT1,
+	0x0120,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	TEXT2,
+	"",
+	"",
+	"",
+	TEXT3,
+	"",
+	"",
+	"",
+	TEXT4,
+	"",
+	"",
+	"",
+	1, 100,
+	0, 64,
+	0, 64,
+	0, 64,
+	2, 256,
+	0, 10,
+	0, 10,
+	0, 10,
+	100, 0, 0, 0,
+	1, 0, 0, 0,
+	2, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						1, 2, 4, 7, 8,
-						16, 24, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						0,
-						};
+	1, 2, 4, 7, 8, 16, 24, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	0,
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -148,263 +148,231 @@ MOD_ABILITY module_ability = {
 /*		1-8, 16 und 24 Bit							*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+void edit_module_main(GARGAMEL * smurf_struct)
 {
-	char *data, *pal, *palette, *line, *pixbuf,
-		 BitsPerPixel, val, r, g, b,
-		 grenze, grenzen[256], stepwidth,
-		 smooth, i, j, l;
-	
-	int module_id;
-	unsigned int *data16,
-				 x, y, width, height, intens, k, stufen;
-	
-	unsigned long length, planelength;
-	
+	uint8_t *data;
+	uint8_t *pal;
+	uint8_t *palette;
+	uint8_t *line;
+	uint8_t *pixbuf;
+	uint8_t BitsPerPixel;
+	uint8_t val;
+	uint8_t r, g, b;
+	uint8_t grenze;
+	uint8_t grenzen[256];
+	uint8_t stepwidth;
+	uint8_t smooth;
+	unsigned short i, j, l;
 
-	module_id = smurf_struct->module_number;
+	uint16_t *data16;
+	unsigned short x;
+	unsigned short y;
+	unsigned short width;
+	unsigned short height;
+	unsigned short intens;
+	unsigned short k;
+	unsigned short stufen;
 
-/* Wenn das Modul zum ersten Mal gestartet wurde */
-	if(smurf_struct->module_mode == MSTART)
+	unsigned long length;
+	unsigned long planelength;
+
+
+	switch (smurf_struct->module_mode)
 	{
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
+/* Wenn das Modul zum ersten Mal gestartet wurde */
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
 		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
+		break;
 
 /* Einstellformular wurde mit START verlassen - Funktion ausfhren */
-	else 
-		if(smurf_struct->module_mode == MEXEC)
+	case MEXEC:
+#if TIMER
+		/* wie schnell sind wir? */
+		init_timer();
+#endif
+		if (smurf_struct->smurf_pic->col_format == GREY)
 		{
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-			if(smurf_struct->smurf_pic->col_format == GREY)
-			{
-				smurf_struct->module_mode = M_WAITING;
-				return;			
-			}
-
-			intens = ((int)smurf_struct->slide1 * 64) / 100;
-			stufen = (unsigned int)smurf_struct->edit1;
-			if(smurf_struct->check1 || stufen == 256)
-				smooth = 1;
-
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-
-			if(smooth == 1)
-			{
-				k = 0;
-				do
-				{
-					grenzen[k] = (char)k;
-				} while(++k < 256);
-			}
-			else
-			{
-				stepwidth = 256 / (stufen - 1);
-				grenze = 256 / stufen;
-				stufen--;
-
-				k = 0;
-				l = 0;
-				i = 0;
-				do
-				{
-					j = 0;
-					do
-					{
-						grenzen[k++] = l;
-					} while(++j < grenze);
-
-					l += stepwidth;
-				} while(++i < stufen);
-				do
-				{
-					grenzen[k] = 255;
-				} while(++k < 256);
-			}
-
-			if(BitsPerPixel != 16)
-			{
-				if(BitsPerPixel == 24 || (BitsPerPixel == 8 && intens == 64))
-				{
-					data = smurf_struct->smurf_pic->pic_data;
-
-					length = (unsigned long)width * (unsigned long)height;
-				}
-				else
-				{
-					data = smurf_struct->smurf_pic->palette;
-
-					length = 256L;
-				}
-
-				if(intens == 64)
-					if(BitsPerPixel == 8)
-					{
-						palette = smurf_struct->smurf_pic->palette;
-
-						if(smurf_struct->smurf_pic->format_type == FORM_PIXELPAK)
-							do
-							{
-								val = *data;
-								pal = palette + val + val + val;
-								*data++ = grenzen[(((long)*pal++ * 872L)
-												 + ((long)*pal++ * 2930L)
-												 + ((long)*pal * 296L)) >> 12];
-							} while(--length);
-						else
-						{
-							planelength = (long)(width + 7) / 8 * (long)height;
-
-							pixbuf = (char *)Malloc(width + 7);
-
-							y = 0;
-							do
-							{
-								memset(pixbuf, 0x0, width);
-								getpix_std_line(data, pixbuf, BitsPerPixel, planelength, width);
-								line = pixbuf;
-
-								x = 0;
-								do
-								{
-									val = *line;
-									pal = palette + val + val + val;
-									*line++ = grenzen[(((long)*pal++ * 872L)
-													 + ((long)*pal++ * 2930L)
-													 + ((long)*pal * 296L)) >> 12];
-								} while(++x < width);
-
-								data += setpix_std_line(pixbuf, data, BitsPerPixel, planelength, width);
-							} while(++y < height);
-
-							Mfree(pixbuf);
-						}
-
-						/* lineare Palette erzeugen */
-						pal = smurf_struct->smurf_pic->palette;
-						for(k = 0; k < 256; k++)
-						{
-							*pal++ = (char)k;
-							*pal++ = (char)k;
-							*pal++ = (char)k;
-						}
-					}
-					else
-					{
-						do
-						{
-							val = grenzen[(((long)*data * 872L)
-										 + ((long)*(data + 1) * 2930L)
-										 + ((long)*(data + 2) * 296L)) >> 12];
-
-							*data++ = val;
-							*data++ = val;
-							*data++ = val;
-						} while(--length);
-					}
-				else
-					do
-					{
-						val = grenzen[(((long)*data * 872L)
-									 + ((long)*(data + 1) * 2930L)
-									 + ((long)*(data + 2) * 296L)) >> 12];
-
-						*data++ = (char)((val * intens + *data * (64 - intens)) >> 6);
-						*data++ = (char)((val * intens + *data * (64 - intens)) >> 6);
-						*data++ = (char)((val * intens + *data * (64 - intens)) >> 6);
-					} while(--length);
-			}
-			else
-				if(BitsPerPixel == 16)
-				{
-					data16 = (unsigned int *)smurf_struct->smurf_pic->pic_data;
-			
-					length = (unsigned long)width * (unsigned long)height;
-	
-					if(intens == 64)
-						do
-						{
-							val = grenzen[(((long)((*data16 & 0xf800) >> 8) * 872L)
-										 + ((long)((*data16 & 0x7e0) >> 3) * 2930L)
-										 + ((long)((*data16 & 0x1f) << 3) * 296L)) >> 12];
-
-							*data16++ = ((val & 0x00f8) << 8) | ((val & 0x00fc) << 3) | (val >> 3);
-						} while(--length);
-					else
-						do
-						{
-							val = grenzen[(((long)(r = (*data16 & 0xf800) >> 8) * 872L)
-										 + ((long)(g = (*data16 & 0x7e0) >> 3) * 2930L)
-										 + ((long)(b = (*data16 & 0x1f) << 3) * 296L)) >> 12];
-
-							*data16 = (((val * intens + r * (64 - intens)) >> 6) & 0x00f8) << 8;
-							*data16 |= ((((val * intens + g * (64 - intens)) >> 6) & 0x00fc) << 3);
-							*data16++ |= ((((val * intens + b * (64 - intens)) >> 6)) >> 3);
-						} while(--length);
-				}
-
-
-			if(intens == 64)
-				smurf_struct->smurf_pic->col_format = GREY;
-
-#if TIMER
-/* wie schnell waren wir? */
-	printf("\n%lu", get_timer());
-	getch();
-#endif
-
-			smurf_struct->module_mode = M_PICDONE;
+			smurf_struct->module_mode = M_WAITING;
 			return;
 		}
 
-/* Mterm empfangen - Speicher freigeben und beenden */
-		else 
-			if(smurf_struct->module_mode == MTERM)
+		intens = ((short) smurf_struct->slide1 * 64) / 100;
+		stufen = (unsigned short) smurf_struct->edit1;
+		if (smurf_struct->check1 || stufen == 256)
+			smooth = 1;
+
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+
+		if (smooth == 1)
+		{
+			k = 0;
+			do
 			{
-				smurf_struct->module_mode = M_EXIT;
-				return;
-			}
-}
+				grenzen[k] = k;
+			} while (++k < 256);
+		} else
+		{
+			stepwidth = 256 / (stufen - 1);
+			grenze = 256 / stufen;
+			stufen--;
 
-#if 0
-	upper = 230;
-	lower = 50;
-	areawidth = upper - lower + 1;
-				stepwidth = areawidth / stufen;
-				grenze = areawidth / stufen;
-				stufen--;
-
-				k = 0;
-				l = lower;
-				i = 0;
+			k = 0;
+			l = 0;
+			i = 0;
+			do
+			{
+				j = 0;
 				do
 				{
 					grenzen[k++] = l;
-				} while(k < lower);
+				} while (++j < grenze);
 
 				l += stepwidth;
-				do
+			} while (++i < stufen);
+			do
+			{
+				grenzen[k] = 255;
+			} while (++k < 256);
+		}
+
+		if (BitsPerPixel != 16)
+		{
+			if (BitsPerPixel == 24 || (BitsPerPixel == 8 && intens == 64))
+			{
+				data = smurf_struct->smurf_pic->pic_data;
+
+				length = (unsigned long) width *(unsigned long) height;
+			} else
+			{
+				data = smurf_struct->smurf_pic->palette;
+
+				length = 256L;
+			}
+
+			if (intens == 64)
+			{
+				if (BitsPerPixel == 8)
 				{
-					j = 0;
+					palette = smurf_struct->smurf_pic->palette;
+
+					if (smurf_struct->smurf_pic->format_type == FORM_PIXELPAK)
+					{
+						do
+						{
+							val = *data;
+							pal = palette + val + val + val;
+							*data++ = grenzen[(((long) *pal++ * 872L)
+											   + ((long) *pal++ * 2930L) + ((long) *pal * 296L)) >> 12];
+						} while (--length);
+					} else
+					{
+						planelength = (long) (width + 7) / 8 * (long) height;
+
+						pixbuf = (uint8_t *) Malloc(width + 7);
+
+						y = 0;
+						do
+						{
+							memset(pixbuf, 0x0, width);
+							getpix_std_line(data, pixbuf, BitsPerPixel, planelength, width);
+							line = pixbuf;
+
+							x = 0;
+							do
+							{
+								val = *line;
+								pal = palette + val + val + val;
+								*line++ = grenzen[(((long) *pal++ * 872L)
+												   + ((long) *pal++ * 2930L) + ((long) *pal * 296L)) >> 12];
+							} while (++x < width);
+
+							data += setpix_std_line(pixbuf, data, BitsPerPixel, planelength, width);
+						} while (++y < height);
+
+						Mfree(pixbuf);
+					}
+
+					/* lineare Palette erzeugen */
+					pal = smurf_struct->smurf_pic->palette;
+					for (k = 0; k < 256; k++)
+					{
+						*pal++ = k;
+						*pal++ = k;
+						*pal++ = k;
+					}
+				} else
+				{
 					do
 					{
-						grenzen[k++] = l;
-						printf("k: %d, l: %d\n", (int)k - 1, (int)l);
-					} while(++j < grenze);
+						val = grenzen[(((long) *data * 872L)
+									   + ((long) *(data + 1) * 2930L) + ((long) *(data + 2) * 296L)) >> 12];
 
-					l += stepwidth;
-				} while(++i < stufen);
-	getch();
+						*data++ = val;
+						*data++ = val;
+						*data++ = val;
+					} while (--length);
+				}
+			} else
 				do
 				{
-					grenzen[k++] = upper;
-				} while(k < 256);
+					val = grenzen[(((long) *data * 872L)
+								   + ((long) *(data + 1) * 2930L) + ((long) *(data + 2) * 296L)) >> 12];
+
+					*data++ = ((val * intens + *data * (64 - intens)) >> 6);
+					*data++ = ((val * intens + *data * (64 - intens)) >> 6);
+					*data++ = ((val * intens + *data * (64 - intens)) >> 6);
+				} while (--length);
+		} else
+		{
+			data16 = (uint16_t *) smurf_struct->smurf_pic->pic_data;
+
+			length = (unsigned long) width * (unsigned long) height;
+
+			if (intens == 64)
+			{
+				do
+				{
+					val = grenzen[(((long) ((*data16 & 0xf800) >> 8) * 872L)
+								   + ((long) ((*data16 & 0x7e0) >> 3) * 2930L)
+								   + ((long) ((*data16 & 0x1f) << 3) * 296L)) >> 12];
+
+					*data16++ = ((val & 0x00f8) << 8) | ((val & 0x00fc) << 3) | (val >> 3);
+				} while (--length);
+			} else
+			{
+				do
+				{
+					val = grenzen[(((long) (r = (*data16 & 0xf800) >> 8) * 872L)
+								   + ((long) (g = (*data16 & 0x7e0) >> 3) * 2930L)
+								   + ((long) (b = (*data16 & 0x1f) << 3) * 296L)) >> 12];
+
+					*data16 = (((val * intens + r * (64 - intens)) >> 6) & 0x00f8) << 8;
+					*data16 |= ((((val * intens + g * (64 - intens)) >> 6) & 0x00fc) << 3);
+					*data16++ |= ((((val * intens + b * (64 - intens)) >> 6)) >> 3);
+				} while (--length);
+			}
+		}
+
+
+		if (intens == 64)
+			smurf_struct->smurf_pic->col_format = GREY;
+
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("\n%lu", get_timer());
+		(void)Cnecin();
 #endif
 
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
+}

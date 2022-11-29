@@ -176,7 +176,7 @@ void f_edit_pop(void)
 					{
 						strcpy(alert, "[2][");
 						strcat(alert, Dialog.emodList.modNames[mod_index]);
-						strcat(alert, "|ausfÅhren?][ Ja | Nein ]");
+						strcat(alert, "|ausfÅhren?][ Ja | Nein ]"); /* FIXME: translate */
 
 						if (form_alert(1, alert) == 2)
 						{

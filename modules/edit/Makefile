@@ -17,6 +17,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/expander.sem \
 	$(DISTDIR)/modules/edit/extrapol.sem \
 	$(DISTDIR)/modules/edit/gamma.sem \
+	$(DISTDIR)/modules/edit/grau.sem \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
@@ -64,6 +65,9 @@ $(DISTDIR)/modules/edit/extrapol.sem: edstart.o extrapol.o
 $(DISTDIR)/modules/edit/gamma.sem: edstart.o gamma.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+$(DISTDIR)/modules/edit/grau.sem: edstart.o grau.o $(top_srcdir)/src/getlines.o $(top_srcdir)/src/setlines.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 $(DISTDIR)/modules/edit/highshad.sem: edstart.o highshad.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
@@ -77,5 +81,5 @@ $(DISTDIR)/modules/edit/sw.sem: edstart.o sw.o $(top_srcdir)/src/getlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean::
-	$(RM) *.o $(top_srcdir)/src/getlines.o $(top_srcdir)/src/getpix.o $(top_srcdir)/src/rearr.o $(MODULES)
+	$(RM) *.o $(top_srcdir)/src/getlines.o $(top_srcdir)/src/setlines.o $(top_srcdir)/src/getpix.o $(top_srcdir)/src/rearr.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@; done
