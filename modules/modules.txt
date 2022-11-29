@@ -11,7 +11,7 @@ beule.sem      0.80    0.80     x
 border.sem     0.10    -        x
 bumpmap.sem    1.21    1.00     x     x
 cchange.sem    0.10    -        x
-chanel5.sem    0.50    0.50
+chanel5.sem    0.50    0.50     x
 chanelmx.sem   0.20    -
 clip.sem       0.50    -        x
 clipnpic.sem   0.50    0.50

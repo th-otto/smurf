@@ -55,7 +55,7 @@
 #elif COUNTRY==0
 #include "en/chanel5.rsh"
 #elif COUNTRY==2
-#include "en/chanel5.rsh" /* missing french resource */
+#include "en/chanel5.rsh"				/* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif
@@ -63,357 +63,65 @@
 typedef struct
 {
 	long version;
-	char Folge;
+	uint8_t Folge;
 } CONFIG;
 
-static void (*SMfree)(void *ptr);
-static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
-static void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
-static void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
-static SERVICE_FUNCTIONS *service;
+static SERVICE_FUNCTIONS *services;
 
-void save_setting(void);
-void load_setting(void);
-void apply_setting(CONFIG *myConfig);
-void write_setting(CONFIG *myConfig);
-
-MOD_INFO module_info = {"Chanel No.5",
-						0x0050,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,64,
-						0,64,
-						0,64,
-						0,64,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	"Chanel No.5",
+	0x0050,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-						2, 4, 7, 8, 16,
-						24, 0, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						0,
-						};
+MOD_ABILITY module_ability = {
+	2, 4, 7, 8, 16, 24, 0, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	0
+};
 
 
-char Folge;
-
-int module_id;
-
+static uint8_t Folge;
+static short module_id;
 static WINDOW window;
 static OBJECT *win_form;
 
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-/*					Chanel No.5						*/
-/*		1-8, 16 und 24 Bit							*/
-/* Und wieder ein Modul mit so einem sch”nen Namen.	*/
-/* Hiermit darf der User die drei Farbkan„le R, G	*/
-/* und B eines Bildes verteilen wie er will.		*/
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
-{
-	char *data,
-		 t, pixval, BitsPerPixel;
-	char wt[] = "Chanel No.5";
 
-	unsigned int *data16, pixval16, width, height, Button;
-
-	unsigned long length;
-
-	CONFIG *config;
-
-
-	service = smurf_struct->services;
-
-/* Wenn das Modul zum ersten Mal gestartet wurde */
-	switch(smurf_struct->module_mode)
-	{
-		case MSTART:
-			win_form = rs_trindex[CHANEL5];					/* Resourcebaum holen */
-	
-			/* Resource umbauen */
-			for(t = 0; t < NUM_OBS; t++)
-				rsrc_obfix(&rs_object[t], 0);
-
-			module_id = smurf_struct->module_number;
-			SMfree = smurf_struct->services->SMfree;
-			redraw_window = smurf_struct->services->redraw_window;
-			mconfLoad = service->mconfLoad;
-			mconfSave = service->mconfSave;
-
-			window.whandlem = 0;				/* evtl. Handle l”schen */
-			window.module = smurf_struct->module_number;	/* ID in die Fensterstruktur eintragen  */
-			window.wnum = 1;					/* Fenster nummer 1...  */
-			window.wx = -1;						/* Fenster X- ...    	*/
-			window.wy = -1;						/* ... und Y-Pos     	*/
-			window.ww = win_form->ob_width;		/* Fensterbreite    	*/
-			window.wh = win_form->ob_height;	/* Fensterh”he      	*/
-			strcpy(window.wtitle, wt);			/* Titel reinkopieren   */
-			window.resource_form = win_form;	/* Resource         	*/
-			window.picture = NULL;				/* kein Bild.       	*/ 
-			window.editob = 0;					/* erstes Editobjekt	*/
-			window.nextedit = 0;				/* n„chstes Editobjekt	*/
-			window.editx = 0;
-
-			smurf_struct->wind_struct = &window;  /* und die Fensterstruktur in die Gargamel */
-
-			Folge = _RBG;						/* Default bestcken */
-
-			if(smurf_struct->services->f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
-				smurf_struct->module_mode = M_EXIT;		/* keins mehr da? */
-			else 
-				smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
-
-			break;
-
-/* Buttonevent */
-		case MBEVT:
-			Button = smurf_struct->event_par[0];
-
-			if(Button >= _RBG && Button <= _BGR)
-			{
-				Folge = (char)Button;
-				smurf_struct->module_mode = M_WAITING;
-				return;
-			}
-			else
-				if(Button == STARTIT)
-				{
-					smurf_struct->module_mode = M_STARTED;
-					return;
-				}
-				else
-					if(Button == MCONF_LOAD)
-						load_setting();
-					else
-						if(Button == MCONF_SAVE)
-							save_setting();
-
-			break;
-
-/* Keyboardevent */
-		case MKEVT:
-			Button = smurf_struct->event_par[0];
-
-			if(Button == STARTIT)
-			{
-				smurf_struct->module_mode = M_STARTED;
-				return;
-			}
-
-			break;
-
-		case MEXEC:
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-
-			if(BitsPerPixel != 16)
-			{
-				if(BitsPerPixel == 24)
-				{
-					data = smurf_struct->smurf_pic->pic_data;
-
-					length = (unsigned long)width * (unsigned long)height;
-				}
-				else
-				{
-					data = smurf_struct->smurf_pic->palette;
-
-					length = 256L;
-				}
-
-				switch(Folge)
-				{
-					case _RBG:	do
-								{
-									data++;
-									pixval = *data;
-									*data++ = *(data + 1);
-									*data++ = pixval;
-								} while(--length);
-								break;
-					case _GRB:	do
-								{
-									pixval = *data;
-									*data++ = *(data + 1);
-									*data++ = pixval;
-									data++;
-								} while(--length);
-								break;
-					case _GBR:	do
-								{
-									pixval = *data;
-									*data++ = *(data + 1);
-									*data++ = *(data + 1);
-									*data++ = pixval;
-								} while(--length);
-								break;
-					case _BRG:	do
-								{
-									pixval = *data;
-									*data++ = *(data + 2);
-									*(data++ + 1) = *data;
-									*(data++ - 1) = pixval;
-								} while(--length);
-								break;
-					case _BGR:	do
-								{
-									pixval = *data;
-									*data++ = *(data + 2);
-									data++;
-									*data++ = pixval;
-								} while(--length);
-								break;
-					default: break;
-				}
-			}
-			else
-			{
-				data16 = (unsigned int *)smurf_struct->smurf_pic->pic_data;
-
-				length = (unsigned long)width * (unsigned long)height;
-
-				switch(Folge)
-				{
-					case _RBG:	do
-								{
-									pixval16 = *data16;
-									*data16++ = (pixval16 & 0xf800) | ((pixval16 & 0x7c0) >> 6) | ((pixval16 & 0x1f) << 6);
-								} while(--length);
-								break;
-					case _GRB:	do
-								{
-									pixval16 = *data16;
-									*data16++ = ((pixval16 & 0xf800) >> 5) | ((pixval16 & 0x7c0) << 5) | (pixval16 & 0x1f);
-								} while(--length);
-								break;
-					case _GBR:	do
-								{
-									pixval16 = *data16;
-									*data16++ = ((pixval16 & 0xf800) >> 11) | ((pixval16 & 0x7c0) << 5) | ((pixval16 & 0x1f) << 6);
-								} while(--length);	
-								break;
-					case _BRG:	do
-								{
-									pixval16 = *data16;
-									*data16++ = ((pixval16 & 0xf800) >> 5) | ((pixval16 & 0x7c0) >> 6) | ((pixval16 & 0x1f) << 11);
-								} while(--length);	
-								break;
-					case _BGR:	do
-								{
-									pixval16 = *data16;
-									*data16++ = ((pixval16 & 0xf800) >> 11) | (pixval16 & 0x7e0) | ((pixval16 & 0x1f) << 11);
-								} while(--length);	
-								break;
-					default: break;
-				}
-			}
-
-#if TIMER
-/* wie schnell waren wir? */
-	printf("\n%lu\n", get_timer());
-	getch();
-#endif
-
-			smurf_struct->module_mode = M_PICDONE;
-			break;
-
-		case GETCONFIG:	config = smurf_struct->services->SMalloc(sizeof(CONFIG));
-						write_setting(config);
-						smurf_struct->event_par[0] = (int)((unsigned long)config >> 16);
-						smurf_struct->event_par[1] = (int)config;
-						smurf_struct->event_par[2] = (int)sizeof(CONFIG);
-						smurf_struct->module_mode = M_CONFIG;
-						break;
-
-		case CONFIG_TRANSMIT:	config = (CONFIG *)(((unsigned long)smurf_struct->event_par[0] << 16)|((unsigned long)smurf_struct->event_par[1]&0xffff));
-								apply_setting(config);
-								smurf_struct->module_mode = M_WAITING;
-								break;
-
-/* Mterm empfangen - Speicher freigeben und beenden */
-		case MTERM:
-			smurf_struct->module_mode = M_EXIT;
-			break;
-	} /* switch */
-
-	return;
-}
-
-
-void load_setting(void)
-{
-	char name[33];
-
-	CONFIG *myConfig;
-
-
-	memset(name, 0x0, 33);
-
-	if((myConfig = mconfLoad(&module_info, module_id, name)) != NULL)
-	{
-		apply_setting(myConfig);	
-		SMfree(myConfig);
-	}
-
-	return;
-} /* load_setting */
-
-
-void save_setting(void)
-{
-	char name[33];
-
-	CONFIG myConfig;
-
-
-	write_setting(&myConfig);
-	
-	memset(name, 0x0, 33);
-	mconfSave(&module_info, module_id, &myConfig, sizeof(CONFIG), name);
-
-	return;
-} /* save_setting */
-
-
-void apply_setting(CONFIG *myConfig)
+static void apply_setting(CONFIG *myConfig)
 {
 	Folge = myConfig->Folge;
 
@@ -424,17 +132,284 @@ void apply_setting(CONFIG *myConfig)
 	win_form[_BGR].ob_state &= ~OS_SELECTED;
 	win_form[Folge].ob_state |= OS_SELECTED;
 
-	redraw_window(&window, NULL, FORMAT_BOX, DRAWNOPICTURE);
-
-	return;
-} /* apply_setting */
+	services->redraw_window(&window, NULL, FORMAT_BOX, DRAWNOPICTURE);
+}
 
 
-void write_setting(CONFIG *myConfig)
+static void load_setting(void)
 {
-	myConfig->version = 0x0050;
+	char name[33];
+	CONFIG *myConfig;
+
+	if ((myConfig = services->mconfLoad(&module_info, module_id, name)) != NULL)
+	{
+		apply_setting(myConfig);
+		services->SMfree(myConfig);
+	}
+}
+
+
+static void write_setting(CONFIG * myConfig)
+{
+	myConfig->version = module_info.version;
 
 	myConfig->Folge = Folge;
+}
 
-	return;
-} /* write_setting */
+
+static void save_setting(void)
+{
+	char name[33];
+	CONFIG myConfig;
+
+	write_setting(&myConfig);
+
+	services->mconfSave(&module_info, module_id, &myConfig, sizeof(CONFIG), name);
+}
+
+
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+/*					Chanel No.5						*/
+/*		1-8, 16 und 24 Bit							*/
+/* Und wieder ein Modul mit so einem sch”nen Namen.	*/
+/* Hiermit darf der User die drei Farbkan„le R, G	*/
+/* und B eines Bildes verteilen wie er will.		*/
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+void edit_module_main(GARGAMEL * smurf_struct)
+{
+	uint8_t *data;
+	uint8_t t;
+	uint8_t pixval;
+	uint8_t BitsPerPixel;
+	uint16_t *data16;
+	uint16_t pixval16;
+	unsigned short width, height;
+	unsigned long length;
+	CONFIG *config;
+
+	services = smurf_struct->services;
+
+/* Wenn das Modul zum ersten Mal gestartet wurde */
+	switch (smurf_struct->module_mode)
+	{
+	case MSTART:
+		win_form = rs_trindex[CHANEL5];	/* Resourcebaum holen */
+
+		/* Resource umbauen */
+		for (t = 0; t < NUM_OBS; t++)
+			rsrc_obfix(rs_object, t);
+
+		module_id = smurf_struct->module_number;
+
+		window.whandlem = 0;			/* evtl. Handle l”schen */
+		window.module = smurf_struct->module_number;	/* ID in die Fensterstruktur eintragen  */
+		window.wnum = 1;				/* Fenster nummer 1...  */
+		window.wx = -1;					/* Fenster X- ...       */
+		window.wy = -1;					/* ... und Y-Pos        */
+		window.ww = win_form->ob_width;	/* Fensterbreite        */
+		window.wh = win_form->ob_height;	/* Fensterh”he          */
+		strcpy(window.wtitle, module_info.mod_name);		/* Titel reinkopieren   */
+		window.resource_form = win_form;	/* Resource             */
+		window.picture = NULL;			/* kein Bild.           */
+		window.editob = 0;				/* erstes Editobjekt    */
+		window.nextedit = 0;			/* n„chstes Editobjekt  */
+		window.editx = 0;
+
+		smurf_struct->wind_struct = &window;	/* und die Fensterstruktur in die Gargamel */
+
+		Folge = _RBG;					/* Default bestcken */
+
+		if (smurf_struct->services->f_module_window(&window) == -1)	/* Gib mir 'n Fenster! */
+			smurf_struct->module_mode = M_EXIT;	/* keins mehr da? */
+		else
+			smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
+		break;
+
+/* Buttonevent */
+	case MBEVT:
+		switch (smurf_struct->event_par[0])
+		{
+		case _RBG:
+		case _GRB:
+		case _GBR:
+		case _BRG:
+		case _BGR:
+			Folge = smurf_struct->event_par[0];
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		case STARTIT:
+			smurf_struct->module_mode = M_STARTED;
+			break;
+		case MCONF_LOAD:
+			load_setting();
+			break;
+		case MCONF_SAVE:
+			save_setting();
+			break;
+		}
+		break;
+
+/* Keyboardevent */
+	case MKEVT:
+		switch (smurf_struct->event_par[0])
+		{
+		case STARTIT:
+			smurf_struct->module_mode = M_STARTED;
+			break;
+		}
+		break;
+
+	case MEXEC:
+#if TIMER
+		/* wie schnell sind wir? */
+		init_timer();
+#endif
+
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+
+		if (BitsPerPixel != 16)
+		{
+			if (BitsPerPixel == 24)
+			{
+				data = smurf_struct->smurf_pic->pic_data;
+
+				length = (unsigned long) width *(unsigned long) height;
+			} else
+			{
+				data = smurf_struct->smurf_pic->palette;
+
+				length = 256L;
+			}
+
+			switch (Folge)
+			{
+			case _RBG:
+				do
+				{
+					data++;
+					pixval = *data;
+					*data++ = *(data + 1);
+					*data++ = pixval;
+				} while (--length);
+				break;
+			case _GRB:
+				do
+				{
+					pixval = *data;
+					*data++ = *(data + 1);
+					*data++ = pixval;
+					data++;
+				} while (--length);
+				break;
+			case _GBR:
+				do
+				{
+					pixval = *data;
+					*data++ = *(data + 1);
+					*data++ = *(data + 1);
+					*data++ = pixval;
+				} while (--length);
+				break;
+			case _BRG:
+				do
+				{
+					pixval = *data;
+					*data++ = *(data + 2);
+					*(data++ + 1) = *data;
+					*(data++ - 1) = pixval;
+				} while (--length);
+				break;
+			case _BGR:
+				do
+				{
+					pixval = *data;
+					*data++ = *(data + 2);
+					data++;
+					*data++ = pixval;
+				} while (--length);
+				break;
+			default:
+				break;
+			}
+		} else
+		{
+			data16 = (uint16_t *) smurf_struct->smurf_pic->pic_data;
+
+			length = (unsigned long) width * (unsigned long) height;
+
+			switch (Folge)
+			{
+			case _RBG:
+				do
+				{
+					pixval16 = *data16;
+					*data16++ = (pixval16 & 0xf800) | ((pixval16 & 0x7c0) >> 6) | ((pixval16 & 0x1f) << 6);
+				} while (--length);
+				break;
+			case _GRB:
+				do
+				{
+					pixval16 = *data16;
+					*data16++ = ((pixval16 & 0xf800) >> 5) | ((pixval16 & 0x7c0) << 5) | (pixval16 & 0x1f);
+				} while (--length);
+				break;
+			case _GBR:
+				do
+				{
+					pixval16 = *data16;
+					*data16++ = ((pixval16 & 0xf800) >> 11) | ((pixval16 & 0x7c0) << 5) | ((pixval16 & 0x1f) << 6);
+				} while (--length);
+				break;
+			case _BRG:
+				do
+				{
+					pixval16 = *data16;
+					*data16++ = ((pixval16 & 0xf800) >> 5) | ((pixval16 & 0x7c0) >> 6) | ((pixval16 & 0x1f) << 11);
+				} while (--length);
+				break;
+			case _BGR:
+				do
+				{
+					pixval16 = *data16;
+					*data16++ = ((pixval16 & 0xf800) >> 11) | (pixval16 & 0x7e0) | ((pixval16 & 0x1f) << 11);
+				} while (--length);
+				break;
+			default:
+				break;
+			}
+		}
+
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("\n%lu\n", get_timer());
+		(void)Cnecin();
+#endif
+
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+	case GETCONFIG:
+		config = smurf_struct->services->SMalloc(sizeof(CONFIG));
+		write_setting(config);
+		*((CONFIG **)&smurf_struct->event_par[0]) = config;
+		smurf_struct->event_par[2] = (short) sizeof(CONFIG);
+		smurf_struct->module_mode = M_CONFIG;
+		break;
+
+	case CONFIG_TRANSMIT:
+		config = *((CONFIG **)&smurf_struct->event_par[0]);
+		apply_setting(config);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
+}
