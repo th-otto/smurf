@@ -11,11 +11,11 @@ beule.sem      0.80    0.80     x
 border.sem     0.10    -        x
 bumpmap.sem    1.21    1.00     x     x
 cchange.sem    0.10    -        x
-chanel5.sem    0.50    0.50     x
+chanel5.sem    0.50    0.50     x     x
 chanelmx.sem   0.20    -        x
 clip.sem       0.50    -        x
 clipnpic.sem   0.50    0.50     x     x
-colrun.sem     1.00    1.00
+colrun.sem     1.00    1.00     x     x
 colsat.sem     1.20    -
 displace.sem   1.00    1.00     x
 dropshdw.sem   2.00    2.00     x     x

@@ -2,7 +2,7 @@
 
  BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
-#Dial 000
+#Dial 000 Hiermit k”nnen Sie beliebige lineare und radiale Farbverl„ufe erzeugen.@ 
 # 005 Ist dieser Radiobutton selektiert, wird ein linearer Verlauf ins aktive Bild erzeugt.
 # 006 Wenn dieser Radiobutton gew„hlt ist, wird ein kreisf”rmiger Verlauf ins aktive Bild erzeugt, dessen Mittelpunkt mit dem Positionsmarker eingestellt werden kann.
 # 008 Mit diesem Slider k”nnen Sie die rote Farbkomponente fr den gew„hlten Sttzpunkt einstellen.

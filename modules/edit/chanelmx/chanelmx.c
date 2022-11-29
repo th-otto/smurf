@@ -168,7 +168,7 @@ static void load_setting(void)
 
 static void write_setting(CONFIG *myConfig)
 {
-	myConfig->version = 0x0030;
+	myConfig->version = module_info.version;
 
 	myConfig->srcchanel = srcchanel;
 	myConfig->destchanel = destchanel;
