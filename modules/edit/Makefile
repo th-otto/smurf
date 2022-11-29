@@ -12,6 +12,8 @@ MODULES = \
 	$(DISTDIR)/modules/edit/displace.sem \
 	$(DISTDIR)/modules/edit/dropshdw.sem \
 	$(DISTDIR)/modules/edit/edgeokil.sem \
+	$(DISTDIR)/modules/edit/equalize.sem \
+	$(DISTDIR)/modules/edit/erode.sem \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
@@ -42,6 +44,12 @@ $(DISTDIR)/modules/edit/dropshdw.sem: edstart.o dropshdw.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/edgeokil.sem: edstart.o edgeokil.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/equalize.sem: edstart.o equalize.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/erode.sem: edstart.o erode.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/highshad.sem: edstart.o highshad.o
