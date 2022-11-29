@@ -60,6 +60,7 @@ loop:
 /*
  * void rearrange_line2(char *src, char *dst, long bytes, unsigned int pixels)
  */
+	.IFEQ PURE_C
 /* gcc cdecl entry point */
 	.globl _rearrange_line2
 _rearrange_line2:
@@ -72,9 +73,7 @@ _rearrange_line2:
 	move.w 16(a7),d1
 #endif
 	move.l d2,-(a7)
-	bsr.s rearrange_line2
-	move.l (a7)+,d2
-	rts
+	.ENDC
 
 	.globl rearrange_line2
 rearrange_line2:
@@ -91,5 +90,9 @@ loop2:
     move.b  d2,(a1)+        /* Low-Byte(!) zurÅckschreiben */
 
     dbra    d0,loop2
+
+	.IFEQ PURE_C
+	move.l (a7)+,d2
+	.ENDC
 
     rts
