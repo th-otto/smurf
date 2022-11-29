@@ -29,170 +29,172 @@
 #include <string.h>
 #include "import.h"
 #include "smurfine.h"
- 
+
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview);
 
 
 /*------ Infostruktur fÅr Hauptprogramm -----*/
-MOD_INFO    module_info=
-    {
-    "Extrapolieren",                       /* Name des Moduls */
-    0x0010,
-    "Jîrg Dittmer",                                 /* Autor */
-    "","","","","","","","","","",  /* 10 Extensionen fÅr Importer */
+MOD_INFO module_info = {
+	"Extrapolieren",					/* Name des Moduls */
+	0x0010,
+	"Jîrg Dittmer",						/* Autor */
+	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fÅr Importer */
 /* 4 SliderÅberschriften: max 8 */
-    "X-Fk 1/x",
-    "Y-Fk 1/x",
-    "",
-    "",
+	"X-Fk 1/x",
+	"Y-Fk 1/x",
+	"",
+	"",
 /* 4 CheckboxÅberschriften: */
-    "",
-    "",
-    "",
-    "",
+	"",
+	"",
+	"",
+	"",
 /* 4 Edit-Objekt-öberschriften: */
-    "",
-    "",
-    "",
-    "",
+	"",
+	"",
+	"",
+	"",
 /* min/max-Werte fÅr Slider */
-    1,16,
-    1,16,
-    0,0,
-    0,0,
+	1, 16,
+	1, 16,
+	0, 0,
+	0, 0,
 /* min/max fÅr Editobjekte */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Defaultwerte fÅr Slider, Check und Edit */
-    1,0,0,0,
-    1,0,0,0,
-    0,0,0,0,
-    1,
-    "Bild 1"};
- 
+	1, 0, 0, 0,
+	1, 0, 0, 0,
+	0, 0, 0, 0,
+	1,
+	"Bild 1", NULL, NULL, NULL, NULL, NULL
+};
+
 
 /*--------------------- Was kann ich ? ----------------------*/
-MOD_ABILITY  module_ability = {
-                        24, 0, 0, 0, 0, 0, 0, 0,    /* Farbtiefen */
-            /* Grafikmodi: */
-                        FORM_PIXELPAK,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        0 /* Extra-Flag */ 
-                        };
+MOD_ABILITY module_ability = {
+	24, 0, 0, 0, 0, 0, 0, 0,			/* Farbtiefen */
+	/* Grafikmodi: */
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0									/* Extra-Flag */
+};
 
 
 /*---------------------------  FUNCTION MAIN -----------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+void edit_module_main(GARGAMEL * smurf_struct)
 {
-SMURF_PIC *picture;
-int module_id;
-int width, height, n_width, n_height;
-int x,y,xm,ym,xmax,ymax;
-char *pic,*n_pic,*n_offset;
-unsigned int red, green, blue;
-long bpl;
-long yoffset;
-char *moffset;
-int x_fak,y_fak,div;
+	SMURF_PIC *picture;
+	short width, height;
+	short n_width, n_height;
+	short x, y;
+	short xm, ym;
+	short xmax, ymax;
+	uint8_t *pic;
+	uint8_t *n_pic;
+	uint8_t *n_offset;
+	unsigned short red, green, blue;
+	long bpl;
+	long yoffset;
+	uint8_t *moffset;
+	short x_fak, y_fak;
+	short div;
 
-module_id=smurf_struct->module_number;
+	switch (smurf_struct->module_mode)
+	{
+	/* Wenn das Modul aufgerufen wurde, */
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
+		smurf_struct->module_mode = M_WAITING;
+		break;
 
-/* Wenn das Modul aufgerufen wurde, */
-if(smurf_struct->module_mode == MSTART)
-{
-    smurf_struct->services->f_module_prefs(&module_info, module_id);
-    smurf_struct->module_mode=M_WAITING;
-    return; 
+	/* Wenn das Modul gestartet wurde */
+	case MEXEC:
+		picture = smurf_struct->smurf_pic;
+		pic = picture->pic_data;
+		width = picture->pic_width;
+		height = picture->pic_height;
+
+		x_fak = (short) smurf_struct->slide1;
+		y_fak = (short) smurf_struct->slide2;
+
+		if (x_fak == 1 && y_fak == 1)	/* Keine Scalierung (->beenden) */
+		{
+			smurf_struct->module_mode = M_PICDONE;
+			return;
+		}
+
+		bpl = width * 3L;
+		n_width = (width + x_fak - 1) / x_fak;
+		n_height = (height + y_fak - 1) / y_fak;
+		n_offset = n_pic = (uint8_t *)Malloc((long) n_width * n_height * 3L);
+
+		if (n_pic == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return;
+		}
+
+		for (y = 0; y < height; y += y_fak)
+		{
+			if (!(y % 20))
+				smurf_struct->services->busybox((short) (((long) y << 7L) / (long) height));
+			for (x = 0; x < width; x += x_fak)
+			{
+				xmax = x + y_fak;
+				if (xmax > width)
+					xmax = width;
+				ymax = y + y_fak;
+				if (ymax > height)
+					ymax = height;
+
+				div = 0;
+				red = green = blue = 0;
+				yoffset = y * bpl + x * 3L;
+				for (ym = y; ym < ymax; ym++)
+				{
+					moffset = pic + yoffset;
+					for (xm = x; xm < xmax; xm++)
+					{
+						red += *(moffset++);
+						green += *(moffset++);
+						blue += *(moffset++);
+						div++;
+
+					}
+					yoffset += bpl;
+				}
+
+				*(n_offset++) = red / div;
+				*(n_offset++) = green / div;
+				*(n_offset++) = blue / div;
+
+			}
+		}
+
+		Mfree(pic);
+
+		picture->pic_width = n_width;
+		picture->pic_height = n_height;
+		picture->pic_data = n_pic;
+
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+	/* Wenn das Modul sich verpissen soll */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }
-
-/* Wenn das Modul gestartet wurde */
-if(smurf_struct->module_mode == MEXEC)
-{
-    picture=smurf_struct->smurf_pic;
-    pic=picture->pic_data;
-    width=picture->pic_width;
-    height=picture->pic_height;
-
-    x_fak = (int)smurf_struct->slide1;
-    y_fak = (int)smurf_struct->slide2;
-    
-    if(x_fak == 1 && y_fak == 1)  /* Keine Scalierung (->beenden) */
-    {
-        smurf_struct->module_mode = M_PICDONE;
-        return;
-    }
-        
-    bpl = width*3L;
-    n_width = (width + x_fak - 1) / x_fak;
-    n_height = (height + y_fak -1) / y_fak;
-    n_offset = n_pic = Malloc((long)n_width*n_height*3L);
-    
-    if(n_pic == NULL) 
-    {
-        smurf_struct->module_mode = M_MEMORY;
-        return;
-    }
-    
-    for(y=0; y<height; y+=y_fak)
-    {
-    if(! (y%20)) smurf_struct->services->busybox((int)(((long)y<<7L)/(long)height));
-        for(x=0; x<width; x+=x_fak)
-        {
-            xmax = x+y_fak;
-            if(xmax>width) xmax = width;
-            ymax = y+y_fak;
-            if(ymax>height) ymax = height;
-            
-            div = 0;
-            red=green=blue= 0;
-            yoffset = y*bpl +x*3L;
-            for(ym=y;ym<ymax; ym++)
-            {
-                moffset = pic + yoffset;
-                for(xm=x;xm<xmax; xm++)
-                {
-                    red += *(moffset++);
-                  green += *(moffset++);
-                  blue +=  *(moffset++);  
-                    div++;
-                    
-                }
-                yoffset += bpl;
-            }
-
-            *(n_offset++) = (char) (red/div);
-            *(n_offset++) = (char) (green/div);
-            *(n_offset++) = (char) (blue/div);
-             
-        }
-    }
-
-Mfree(pic);
-
-picture->pic_width = n_width;
-picture->pic_height = n_height;
-picture->pic_data = n_pic;
-
-smurf_struct->module_mode=M_PICDONE;
-return;
-}
-
-/* Wenn das Modul sich verpissen soll */
-if(smurf_struct->module_mode==MTERM)
-    {
-    smurf_struct->module_mode=M_EXIT;
-    return; 
-    }
-
-} /*ende*/
 
 
 /*------ Previewfunktion - wird von Smurf bei Klick aufs Preview aufgerufen.------- */
@@ -205,9 +207,9 @@ if(smurf_struct->module_mode==MTERM)
 /* angefordert. Das Preview (im Smurf-Standardformat) wird dann vom Hauptprogramm   */
 /* fÅr die Screen-Farbtiefe gedithert und im Einstellformular dargestellt.          */
 
-void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
-
-    /* Ich mach' noch nix. */
-    (void)smurfpic;
-    (void)preview;
+void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview)
+{
+	/* Ich mach' noch nix. */
+	(void) smurfpic;
+	(void) preview;
 }

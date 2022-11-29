@@ -15,6 +15,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/equalize.sem \
 	$(DISTDIR)/modules/edit/erode.sem \
 	$(DISTDIR)/modules/edit/expander.sem \
+	$(DISTDIR)/modules/edit/extrapol.sem \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
@@ -54,6 +55,9 @@ $(DISTDIR)/modules/edit/erode.sem: edstart.o erode.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/expander.sem: edstart.o expander.o $(top_srcdir)/src/getlines.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/extrapol.sem: edstart.o extrapol.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/highshad.sem: edstart.o highshad.o

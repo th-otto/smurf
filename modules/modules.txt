@@ -23,7 +23,7 @@ edgeokil.sem   1.10    1.10     x     x
 equalize.sem   0.10    0.10     x     x
 erode.sem      0.10    -        x
 expander.sem   0.30    0.30     x     x
-extrapol.sem   0.10    -
+extrapol.sem   0.10    -        x
 freefilt.sem   0.70    0.70     x     x
 gamma.sem      0.20    0.20
 grau.sem       1.20    1.20
