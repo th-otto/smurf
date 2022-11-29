@@ -20,6 +20,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/grau.sem \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(DISTDIR)/modules/edit/interpo.sem \
+	$(DISTDIR)/modules/edit/invert.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
 	$(DISTDIR)/modules/edit/sw.sem \
@@ -73,6 +74,9 @@ $(DISTDIR)/modules/edit/highshad.sem: edstart.o highshad.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/interpo.sem: edstart.o interpo.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/invert.sem: edstart.o invert.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/quicksmt.sem: edstart.o quicksmt.o smth_mat.o
