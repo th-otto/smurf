@@ -3,10 +3,10 @@
  BubbleGEM Help-File for Editmodul Edge O Kill
 
 #Dial 000 Mit diesem Modul k”nnen Sie die Kanten eines Bildes ineinander berblenden, um kachelbare Texturen zu erzeugen.
-# 001 Mit diesem Regler k”nnen Sie die horizontale šberblendung (in %) einstellen.
-# 027 Mit diesem Regler k”nnen Sie die vertikale šberblendung (in %) einstellen.
+# 009 Mit diesem Regler k”nnen Sie die horizontale šberblendung (in %) einstellen.
+# 011 Mit diesem Regler k”nnen Sie die vertikale šberblendung (in %) einstellen.
 
-# 006 Wenn diese Checkbox selektiert ist, werden die rechts eingestellten Angaben fr die šberblendung benutzt, ansonsten die mit den Reglern eingestellten.
+# 025 Wenn diese Checkbox selektiert ist, werden die rechts eingestellten Angaben fr die šberblendung benutzt, ansonsten die mit den Reglern eingestellten.
 
-# 013 Hier k”nnen Sie die horizontale šberblendung der Kanten (in Pixeln) angeben. Diese Eingabe wird nur beachtet, wenn die Checkbox 'use res' links angew„hlt ist.
-# 014 Hier k”nnen Sie die vertikale šberblendung der Kanten (in Pixeln) angeben. Diese Eingabe wird nur beachtet, wenn die Checkbox 'use res' links angew„hlt ist.
+# 033 Hier k”nnen Sie die horizontale šberblendung der Kanten (in Pixeln) angeben. Diese Eingabe wird nur beachtet, wenn die Checkbox 'use res' links angew„hlt ist.
+# 035 Hier k”nnen Sie die vertikale šberblendung der Kanten (in Pixeln) angeben. Diese Eingabe wird nur beachtet, wenn die Checkbox 'use res' links angew„hlt ist.

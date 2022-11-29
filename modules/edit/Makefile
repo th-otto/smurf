@@ -11,6 +11,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/colsat.sem \
 	$(DISTDIR)/modules/edit/displace.sem \
 	$(DISTDIR)/modules/edit/dropshdw.sem \
+	$(DISTDIR)/modules/edit/edgeokil.sem \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
@@ -38,6 +39,9 @@ $(DISTDIR)/modules/edit/displace.sem: edstart.o displace.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/dropshdw.sem: edstart.o dropshdw.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/edgeokil.sem: edstart.o edgeokil.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/highshad.sem: edstart.o highshad.o
