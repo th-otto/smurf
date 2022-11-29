@@ -163,6 +163,7 @@ looppix_8:
 *   d1: PlanelÑnge im Quellbild
 *   d2: Pixelanzahl
 
+	.IFNE 0
     movem.l d3-d4/a2,-(sp)  /* Register retten */
     moveq.l #7,d3
     subq.w #1,d0
@@ -192,6 +193,7 @@ plane:
 
     dbra d2,loop               /* fÅr d2 Pixel */
 
-
     movem.l (sp)+,d3-d4/a2     /* Register restaurieren */
     rts                         /* und tschÅss */
+
+	.ENDC

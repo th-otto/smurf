@@ -10,8 +10,8 @@ MODULES = \
 
 all:: $(MODULES)
 
-$(DISTDIR)/modules/dither/greyscal.sdm: ../ditstart.o greyscal.o setpix16.o ../../../src/getlines.o
+$(DISTDIR)/modules/dither/greyscal.sdm: ../ditstart.o greyscal.o setpix16.o $(top_srcdir)/src/getlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean::
-	$(RM) *.o ../ditstart.o ../../../src/getlines.o $(MODULES)
+	$(RM) *.o ../ditstart.o $(top_srcdir)/src/getlines.o $(MODULES)

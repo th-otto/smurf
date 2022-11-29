@@ -24,14 +24,16 @@
 ; fÅr Smurf
 
 ..\..\dist\modules\edit\sw.sem
-.C [-C -K -M -P-]
+.C [-C -K -M -Z -P]
 .C [-I..\..\include]
 .S[-DPURE_C=1]
 .L [-S=1024]
 =                  ; list of modules follows...
 edstart.s          ; startup code
 
-sw16to2.c
+..\..\src\getlines.s
+
+sw.c
 
 pcfltlib.lib       ; floating point library
 pcstdlib.lib       ; standard library

@@ -10,8 +10,8 @@ MODULES = \
 
 all:: $(MODULES)
 
-$(DISTDIR)/modules/plugin/print.plg: ../plgstart.o print.o gdos.o bindings.o ../../../src/getlines.o
+$(DISTDIR)/modules/plugin/print.plg: ../plgstart.o print.o gdos.o bindings.o $(top_srcdir)/src/getlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean::
-	$(RM) *.o ../plgstart.o ../../../src/getlines.o $(MODULES)
+	$(RM) *.o ../plgstart.o $(top_srcdir)/src/getlines.o $(MODULES)

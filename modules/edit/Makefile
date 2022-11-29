@@ -12,6 +12,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/highshad.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
+	$(DISTDIR)/modules/edit/sw.sem \
 	$(empty)
 
 SUBDIRS = beule bumpmap colrun freefilt hsv magic
@@ -40,6 +41,9 @@ $(DISTDIR)/modules/edit/quicksmt.sem: edstart.o quicksmt.o smth_mat.o
 $(DISTDIR)/modules/edit/speedom.sem: edstart.o speedom.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+$(DISTDIR)/modules/edit/sw.sem: edstart.o sw.o $(top_srcdir)/src/getlines.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 clean::
-	$(RM) *.o $(MODULES)
+	$(RM) *.o $(top_srcdir)/src/getlines.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@; done
