@@ -25,7 +25,7 @@ erode.sem      0.10    -        x
 expander.sem   0.30    0.30     x     x
 extrapol.sem   0.10    -        x
 freefilt.sem   0.70    0.70     x     x
-gamma.sem      0.20    0.20
+gamma.sem      0.20    0.20     x     x
 grau.sem       1.20    1.20
 highshad.sem   0.20    0.20     x
 hsv.sem        1.10    1.10     x     x

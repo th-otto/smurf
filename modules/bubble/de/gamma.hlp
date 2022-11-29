@@ -3,9 +3,9 @@
  BubbleGEM Help-File for Editmodul "Gammakorrektur"
 
 #Dial 000 Hiermit k”nnen Sie den Gammawert eines Bildes korrigieren.
-# 001 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Rotanteil angeben.
-# 003 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Rotanteil angeben.
-# 027 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Grnanteil angeben.
-# 033 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Grnanteil angeben.
-# 029 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Blauanteil angeben.
-# 034 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Blauanteil angeben.
+# 009 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Rotanteil angeben.
+# 020 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Rotanteil angeben.
+# 011 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Grnanteil angeben.
+# 021 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Grnanteil angeben.
+# 013 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Blauanteil angeben.
+# 022 Hier k”nnen Sie die St„rke der Gammakorrektur fr den Blauanteil angeben.
