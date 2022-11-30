@@ -77,57 +77,371 @@ static void (*SMfree)(void *ptr);
 
 short (*busybox)(short pos);
 
-char *sinus_vertikal(char *buffer, long *sinustab, unsigned int width, unsigned int height, unsigned int sinheight, char BitsPerPixel);
-char *sinus_vertikal2(char *buffer, long *sinustab, unsigned int width, unsigned int height, char BitsPerPixel);
-char *sinus_vertikal3(char *buffer, long *sinustab, unsigned int width, unsigned int height, char BitsPerPixel);
-char *sinus_horizontal(char *buffer, long *sinustab, unsigned int width, unsigned int height, unsigned int sinheight, char BitsPerPixel);
-char *sinus_horizontal3(char *buffer, long *sinustab, unsigned int width, unsigned int height, char BitsPerPixel);
-
-MOD_INFO module_info = {TEXT1,
-						0x0020,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						TEXT2,
-						TEXT3,
-						"",
-						"",
-						TEXT4,
-						TEXT5,
-						TEXT6,
-						"",
-						"",
-						"",
-						"",
-						"",
-						0,255,
-						0,255,
-						0,100,
-						0,100,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						16, 40, 20, 20,
-						3, 4, 0, 0,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	TEXT1,
+	0x0020,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	TEXT2,
+	TEXT3,
+	"",
+	"",
+	TEXT4,
+	TEXT5,
+	TEXT6,
+	"",
+	"",
+	"",
+	"",
+	"",
+	0, 255,
+	0, 255,
+	0, 100,
+	0, 100,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	16, 40, 20, 20,
+	3, 4, 0, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						8, 24, 0, 0, 0,
-						0, 0, 0,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0,
-						};
+	8, 24, 0, 0, 0, 0, 0, 0,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0,
+};
+
+
+
+
+
+/* Generiert die Sinuswelle in Y-Richtung */
+static uint8_t *sinus_horizontal(uint8_t *buffer, long *sinustab, unsigned short width, unsigned short height, unsigned short sinheight, uint8_t BitsPerPixel)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	unsigned short x, y;
+	long newrealwidth;
+
+	newrealwidth = ((long) (width + 2 * sinheight) * BitsPerPixel) >> 3;
+
+	if ((ziel = (uint8_t *) SMalloc(newrealwidth * (long) height)) == 0)
+		return NULL;
+	oziel = ziel;
+
+	if (BitsPerPixel == 8)
+	{
+		y = 0;
+		do
+		{
+			ziel = oziel + (newrealwidth * y) + sinheight + *sinustab++;
+
+			x = 0;
+			do
+			{
+				*ziel++ = *buffer++;
+			} while (++x < width);
+		} while (++y < height);
+	} else if (BitsPerPixel == 24)
+	{
+		y = 0;
+		do
+		{
+			ziel = oziel + (newrealwidth * y) + (sinheight + *sinustab++) * 3L;
+
+			x = 0;
+			do
+			{
+				*ziel++ = *buffer++;
+				*ziel++ = *buffer++;
+				*ziel++ = *buffer++;
+			} while (++x < width);
+		} while (++y < height);
+	}
+
+	return oziel;
+}
+
+
+/* Generiert die Sinuswelle in Y-Richtung */
+static uint8_t *sinus_horizontal3(uint8_t *buffer, long *sinustab, unsigned short width, unsigned short height, uint8_t BitsPerPixel)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *addr;
+	uint8_t *begin;
+	uint8_t *end;
+	unsigned short x, y;
+	long realwidth;
+
+	realwidth = ((long) width * BitsPerPixel) >> 3;
+
+	if ((ziel = (uint8_t *) SMalloc(realwidth * (long) height)) == 0)
+		return NULL;
+	oziel = ziel;
+
+	if (BitsPerPixel == 8)
+	{
+		y = 0;
+		do
+		{
+			ziel = oziel + realwidth * y;
+
+			begin = ziel;
+			end = ziel + realwidth - 1;
+
+			ziel += *sinustab++;
+
+			x = 0;
+			do
+			{
+				if (ziel < begin)
+					addr = ziel++ + realwidth;
+				else if (ziel > end)
+					addr = ziel++ - realwidth;
+				else
+					addr = ziel++;
+
+				*addr = *buffer++;
+			} while (++x < width);
+		} while (++y < height);
+	} else if (BitsPerPixel == 24)
+	{
+		y = 0;
+		do
+		{
+			ziel = oziel + realwidth * y;
+
+			begin = ziel;
+			end = ziel + realwidth - 3;
+
+			ziel += *sinustab++ * 3L;
+
+			x = 0;
+			do
+			{
+				if (ziel < begin)
+					addr = ziel + realwidth;
+				else if (ziel > end)
+					addr = ziel - realwidth;
+				else
+					addr = ziel;
+
+				*addr++ = *buffer++;
+				*addr++ = *buffer++;
+				*addr = *buffer++;
+				ziel += 3;
+			} while (++x < width);
+		} while (++y < height);
+	}
+
+	return oziel;
+}
+
+
+/* Generiert die Sinuswelle in X-Richtung */
+static uint8_t *sinus_vertikal(uint8_t *buffer, long *sinustab, unsigned short width, unsigned short height, unsigned short sinheight, uint8_t BitsPerPixel)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	unsigned short x, y;
+	long *osinustab = sinustab;
+	long realwidth;
+
+	realwidth = ((long) width * BitsPerPixel) >> 3;
+
+	if ((ziel = (uint8_t *) SMalloc(realwidth * ((long) height + 2 * sinheight))) == 0)
+		return NULL;
+	oziel = ziel;
+
+	ziel += realwidth * sinheight;
+
+	if (BitsPerPixel == 8)
+	{
+		y = 0;
+		do
+		{
+			sinustab = osinustab;
+
+			x = 0;
+			do
+			{
+				*(ziel++ + *sinustab++) = *buffer++;
+			} while (++x < width);
+		} while (++y < height);
+	} else if (BitsPerPixel == 24)
+	{
+		y = 0;
+		do
+		{
+			sinustab = osinustab;
+
+			x = 0;
+			do
+			{
+				*(ziel++ + *sinustab) = *buffer++;
+				*(ziel++ + *sinustab) = *buffer++;
+				*(ziel++ + *sinustab++) = *buffer++;
+			} while (++x < width);
+		} while (++y < height);
+	}
+
+	return oziel;
+}
+
+
+/* Generiert die Sinuswelle in X-Richtung unter Beibehaltung der Bildgr”že */
+static uint8_t *sinus_vertikal2(uint8_t *buffer, long *sinustab, unsigned short width, unsigned short height, uint8_t BitsPerPixel)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *addr;
+	uint8_t *begin;
+	uint8_t *end;
+	unsigned short x, y;
+	long *osinustab = sinustab;
+	long picheight;
+
+	picheight = (((long) width * BitsPerPixel) >> 3) * (long) height;
+
+	if ((ziel = (uint8_t *) SMalloc(picheight)) == 0)
+		return NULL;
+	oziel = ziel;
+
+	begin = ziel;
+
+	if (BitsPerPixel == 8)
+	{
+		end = ziel + picheight - 1;
+
+		y = 0;
+		do
+		{
+			sinustab = osinustab;
+
+			x = 0;
+			do
+			{
+				if ((addr = ziel + *sinustab++) >= begin && addr <= end)
+					*addr = *buffer;
+
+				ziel++;
+				buffer++;
+			} while (++x < width);
+		} while (++y < height);
+	} else if (BitsPerPixel == 24)
+	{
+		end = ziel + picheight - 3;
+
+		y = 0;
+		do
+		{
+			sinustab = osinustab;
+
+			x = 0;
+			do
+			{
+				if ((addr = ziel + *sinustab++) >= begin && addr <= end)
+				{
+					*addr = *buffer;
+					*(addr + 1) = *(buffer + 1);
+					*(addr + 2) = *(buffer + 2);
+				}
+
+				ziel += 3;
+				buffer += 3;
+			} while (++x < width);
+		} while (++y < height);
+	}
+
+	return oziel;
+}
+
+
+/* Generiert die Sinuswelle in X-Richtung unter Beibehaltung der Bildgr”že */
+static uint8_t *sinus_vertikal3(uint8_t *buffer, long *sinustab, unsigned short width, unsigned short height, uint8_t BitsPerPixel)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *addr;
+	uint8_t *begin;
+	uint8_t *end;
+	unsigned short x, y;
+	long *osinustab = sinustab;
+	long picheight;
+
+
+	picheight = (((long) width * BitsPerPixel) >> 3) * (long) height;
+
+	if ((ziel = (uint8_t *) SMalloc(picheight)) == 0)
+		return NULL;
+	oziel = ziel;
+
+	begin = ziel;
+
+	if (BitsPerPixel == 8)
+	{
+		end = ziel + picheight - 1;
+
+		y = 0;
+		do
+		{
+			sinustab = osinustab;
+
+			x = 0;
+			do
+			{
+				if ((addr = ziel + *sinustab++) < begin)
+					addr += picheight;
+				else if (addr > end)
+					addr -= picheight;
+
+				*addr = *buffer++;
+
+				ziel++;
+			} while (++x < width);
+		} while (++y < height);
+	} else if (BitsPerPixel == 24)
+	{
+		end = ziel + picheight - 3;
+
+		y = 0;
+		do
+		{
+			sinustab = osinustab;
+
+			x = 0;
+			do
+			{
+				if ((addr = ziel + *sinustab++) < begin)
+					addr += picheight;
+				else if (addr > end)
+					addr -= picheight;
+
+				*addr = *buffer++;
+				*(addr + 1) = *buffer++;
+				*(addr + 2) = *buffer++;
+
+				ziel += 3;
+			} while (++x < width);
+		} while (++y < height);
+	}
+
+	return oziel;
+}
+
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -137,472 +451,120 @@ MOD_ABILITY module_ability = {
 /* -------------------------------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *ziel,
-		 BitsPerPixel, direction, mode;
-	
-	int	module_id;
-	unsigned int i, width, height, sinheight, wide;
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t BitsPerPixel;
+	uint8_t direction;
+	uint8_t mode;
+	unsigned short i;
+	unsigned short width, height;
+	unsigned short sinheight;
+	unsigned short wide;
+	long *sinustab;
+	long realwidth;
+	long offset;
 
-	long *sinustab,
-		 realwidth, offset;
+	double sindiv = 180.0 / M_PI;
+	double widemul;
 
-	double sindiv = 180.0 / M_PI, widemul;
-
-
-	module_id = smurf_struct->module_number;
-
-/* Wenn das Modul zum ersten Mal gestartet wurde */
-	if(smurf_struct->module_mode == MSTART)
+	switch (smurf_struct->module_mode)
 	{
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
+		/* Wenn das Modul zum ersten Mal gestartet wurde */
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
 		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
-	else
-		if(smurf_struct->module_mode == MEXEC)
-		{
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;
-
-			busybox = smurf_struct->services->busybox;
-
-			if(smurf_struct->check1 > smurf_struct->check2)
-				direction = HORIZONTAL;
-			else
-				direction = VERTIKAL;
-
-			mode = smurf_struct->check3;
-
-			sinheight = (int)smurf_struct->slide1;
-			wide = (int)smurf_struct->slide2;
-			widemul = 180 / wide;
-
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
+		break;
 	
-			buffer = smurf_struct->smurf_pic->pic_data;
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-
-			sinustab = (long *)Malloc(width * 4);
-
-			realwidth = (width * BitsPerPixel) >> 3;
-
-			if(direction == HORIZONTAL)
-				offset = 1;
-			else
-				offset = realwidth;
-
-			i = 0;
-			do
-			{
-				sinustab[i] = (long)(sin(i * widemul / sindiv) * (double)sinheight) * offset;
-			} while(++i < width);
-
-			if(direction == HORIZONTAL)
-				if(mode == HOLD)
-					ziel = sinus_horizontal3(buffer, sinustab, width, height, BitsPerPixel);
-				else
-					ziel = sinus_horizontal(buffer, sinustab, width, height, sinheight, BitsPerPixel);
-			else
-				if(mode == HOLD)
-					ziel = sinus_vertikal3(buffer, sinustab, width, height, BitsPerPixel);
-				else
-					ziel = sinus_vertikal(buffer, sinustab, width, height, sinheight, BitsPerPixel);
-
-			Mfree(sinustab);
-
-			if(ziel == NULL)
-			{
-				smurf_struct->module_mode = M_MEMORY;
-				return;
-			}
-			else
-			{
-				if(mode == EXTEND)
-					if(direction == HORIZONTAL)
-						smurf_struct->smurf_pic->pic_width = width + 2 * sinheight;
-					else
-						smurf_struct->smurf_pic->pic_height = height + 2 * sinheight;
-				smurf_struct->smurf_pic->pic_data = ziel;
-				SMfree(buffer);
-			}
-
+	case MEXEC:
 #if TIMER
-/* wie schnell waren wir? */
-	printf("%lu\n", get_timer());
-	getch();
+		/* wie schnell sind wir? */
+		init_timer();
 #endif
+		SMalloc = smurf_struct->services->SMalloc;
+		SMfree = smurf_struct->services->SMfree;
 
-			smurf_struct->module_mode = M_PICDONE;
+		busybox = smurf_struct->services->busybox;
+
+		if (smurf_struct->check1 > smurf_struct->check2)
+			direction = HORIZONTAL;
+		else
+			direction = VERTIKAL;
+
+		mode = smurf_struct->check3;
+
+		sinheight = (short) smurf_struct->slide1;
+		wide = (short) smurf_struct->slide2;
+		widemul = 180 / wide;
+
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		buffer = smurf_struct->smurf_pic->pic_data;
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+
+		sinustab = (long *) Malloc(width * sizeof(*sinustab));
+		if (sinustab == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
 			return;
 		}
+		realwidth = (width * BitsPerPixel) >> 3;
 
-		/* Mterm empfangen - Speicher freigeben und beenden */
-		else 
-			if(smurf_struct->module_mode == MTERM)
+		if (direction == HORIZONTAL)
+			offset = 1;
+		else
+			offset = realwidth;
+
+		i = 0;
+		do
+		{
+			sinustab[i] = (long) (sin(i * widemul / sindiv) * (double) sinheight) * offset;
+		} while (++i < width);
+
+		if (direction == HORIZONTAL)
+		{
+			if (mode == HOLD)
+				ziel = sinus_horizontal3(buffer, sinustab, width, height, BitsPerPixel);
+			else
+				ziel = sinus_horizontal(buffer, sinustab, width, height, sinheight, BitsPerPixel);
+		} else if (mode == HOLD)
+		{
+			ziel = sinus_vertikal3(buffer, sinustab, width, height, BitsPerPixel);
+		} else
+		{
+			ziel = sinus_vertikal(buffer, sinustab, width, height, sinheight, BitsPerPixel);
+		}
+		Mfree(sinustab);
+
+		if (ziel == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return;
+		} else
+		{
+			if (mode == EXTEND)
 			{
-				smurf_struct->module_mode = M_EXIT;
-				return;
+				if (direction == HORIZONTAL)
+					smurf_struct->smurf_pic->pic_width = width + 2 * sinheight;
+				else
+					smurf_struct->smurf_pic->pic_height = height + 2 * sinheight;
 			}
+			smurf_struct->smurf_pic->pic_data = ziel;
+			SMfree(buffer);
+		}
+
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("%lu\n", get_timer());
+		(void)Cnecin();
+#endif
+
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+	/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }
-
-
-/* Generiert die Sinuswelle in Y-Richtung */
-char *sinus_horizontal(char *buffer, long *sinustab, unsigned int width, unsigned int height, unsigned int sinheight, char BitsPerPixel)
-{
-	char *ziel, *oziel;
-
-	unsigned int x, y;
-
-	long newrealwidth;
-
-
-	newrealwidth = ((long)(width + 2 * sinheight) * BitsPerPixel) >> 3;
-
-	if((ziel = (char *)SMalloc(newrealwidth * (long)height)) == 0)
-		return(NULL);
-	else
-	{
-		oziel = ziel;
-
-		if(BitsPerPixel == 8)
-		{
-			y = 0;
-			do
-			{
-				ziel = oziel + (newrealwidth * y) + sinheight + *sinustab++;
-
-				x = 0;
-				do
-				{
-					*ziel++ = *buffer++;
-				} while(++x < width);
-			} while(++y < height);
-		}
-		else
-			if(BitsPerPixel == 24)
-			{
-				y = 0;
-				do
-				{
-					ziel = oziel + (newrealwidth * y) + (sinheight + *sinustab++) * 3L;
-
-					x = 0;
-					do
-					{
-						*ziel++ = *buffer++;
-						*ziel++ = *buffer++;
-						*ziel++ = *buffer++;
-					} while(++x < width);
-				} while(++y < height);
-			}
-	}
-
-	ziel = oziel;
-
-	return(ziel);
-} /* sinus_horizontal */
-
-
-/* Generiert die Sinuswelle in Y-Richtung */
-char *sinus_horizontal3(char *buffer, long *sinustab, unsigned int width, unsigned int height, char BitsPerPixel)
-{
-	char *ziel, *oziel, *addr, *begin, *end;
-
-	unsigned int x, y;
-
-	long realwidth;
-
-
-	realwidth = ((long)width * BitsPerPixel) >> 3;
-
-	if((ziel = (char *)SMalloc(realwidth * (long)height)) == 0)
-		return(NULL);
-	else
-	{
-		oziel = ziel;
-
-		if(BitsPerPixel == 8)
-		{
-			y = 0;
-			do
-			{
-				ziel = oziel + realwidth * y;
-
-				begin = ziel;
-				end = ziel + realwidth - 1;
-
-				ziel += *sinustab++;
-
-				x = 0;
-				do
-				{
-					if(ziel < begin)
-						addr = ziel++ + realwidth;
-					else
-						if(ziel > end)
-							addr = ziel++ - realwidth;
-						else
-							addr = ziel++;
-
-					*addr = *buffer++;
-				} while(++x < width);
-			} while(++y < height);
-		}
-		else
-			if(BitsPerPixel == 24)
-			{
-				y = 0;
-				do
-				{
-					ziel = oziel + realwidth * y;
-
-					begin = ziel;
-					end = ziel + realwidth - 3;
-
-					ziel += *sinustab++ * 3L;
-
-					x = 0;
-					do
-					{
-						if(ziel < begin)
-							addr = ziel + realwidth;
-						else
-							if(ziel > end)
-								addr = ziel - realwidth;
-							else
-								addr = ziel;
-
-						*addr++ = *buffer++;
-						*addr++ = *buffer++;
-						*addr = *buffer++;
-						ziel += 3;
-					} while(++x < width);
-				} while(++y < height);
-			}
-	}
-
-	ziel = oziel;
-
-	return(ziel);
-} /* sinus_horizontal3 */
-
-
-/* Generiert die Sinuswelle in X-Richtung */
-char *sinus_vertikal(char *buffer, long *sinustab, unsigned int width, unsigned int height, unsigned int sinheight, char BitsPerPixel)
-{
-	char *ziel, *oziel;
-
-	unsigned int x, y;
-
-	long *osinustab = sinustab,
-		 realwidth;
-
-
-	realwidth = ((long)width * BitsPerPixel) >> 3;
-
-	if((ziel = (char *)SMalloc(realwidth * ((long)height + 2 * sinheight))) == 0)
-		return(NULL);
-	else
-	{
-		oziel = ziel;
-
-		ziel += realwidth * sinheight;
-
-		if(BitsPerPixel == 8)
-		{
-			y = 0;
-			do
-			{
-				sinustab = osinustab;
-
-				x = 0;
-				do
-				{
-					*(ziel++ + *sinustab++) = *buffer++;
-				} while(++x < width);
-			} while(++y < height);
-		}
-		else
-			if(BitsPerPixel == 24)
-			{
-				y = 0;
-				do
-				{
-					sinustab = osinustab;
-
-					x = 0;
-					do
-					{
-						*(ziel++ + *sinustab) = *buffer++;
-						*(ziel++ + *sinustab) = *buffer++;
-						*(ziel++ + *sinustab++) = *buffer++;
-					} while(++x < width);
-				} while(++y < height);
-			}
-	}
-
-	ziel = oziel;
-
-	return(ziel);
-} /* sinus_vertikal */
-
-
-/* Generiert die Sinuswelle in X-Richtung unter Beibehaltung der Bildgr”že */
-char *sinus_vertikal2(char *buffer, long *sinustab, unsigned int width, unsigned int height, char BitsPerPixel)
-{
-	char *ziel, *oziel, *addr, *begin, *end;
-
-	unsigned int x, y;
-
-	long *osinustab = sinustab,
-		 picheight;
-
-
-	picheight = (((long)width * BitsPerPixel) >> 3) * (long)height;
-
-	if((ziel = (char *)SMalloc(picheight)) == 0)
-		return(NULL);
-	else
-	{
-		oziel = ziel;
-
-		begin = ziel;
-
-		if(BitsPerPixel == 8)
-		{
-			end = ziel + picheight - 1;
-
-			y = 0;
-			do
-			{
-				sinustab = osinustab;
-
-				x = 0;
-				do
-				{
-					if((addr = ziel + *sinustab++) >= begin &&
-					   addr <= end)
-						*addr = *buffer;
-
-					ziel++;
-					buffer++;
-				} while(++x < width);
-			} while(++y < height);
-		}
-		else
-			if(BitsPerPixel == 24)
-			{
-				end = ziel + picheight - 3;
-
-				y = 0;
-				do
-				{
-					sinustab = osinustab;
-
-					x = 0;
-					do
-					{
-						if((addr = ziel + *sinustab++) >= begin &&
-						   addr <= end)
-						{
-							*addr = *buffer;
-							*(addr + 1) = *(buffer + 1);
-							*(addr + 2) = *(buffer + 2);
-						}
-
-						ziel += 3;
-						buffer += 3;
-					} while(++x < width);
-				} while(++y < height);
-			}
-	}
-
-	ziel = oziel;
-
-	return(ziel);
-} /* sinus_vertikal2 */
-
-
-/* Generiert die Sinuswelle in X-Richtung unter Beibehaltung der Bildgr”že */
-char *sinus_vertikal3(char *buffer, long *sinustab, unsigned int width, unsigned int height, char BitsPerPixel)
-{
-	char *ziel, *oziel, *addr, *begin, *end;
-
-	unsigned int x, y;
-
-	long *osinustab = sinustab,
-		 picheight;
-
-
-	picheight = (((long)width * BitsPerPixel) >> 3) * (long)height;
-
-	if((ziel = (char *)SMalloc(picheight)) == 0)
-		return(NULL);
-	else
-	{
-		oziel = ziel;
-
-		begin = ziel;
-
-		if(BitsPerPixel == 8)
-		{
-			end = ziel + picheight - 1;
-
-			y = 0;
-			do
-			{
-				sinustab = osinustab;
-
-				x = 0;
-				do
-				{
-					if((addr = ziel + *sinustab++) < begin)
-						addr += picheight;
-					else
-						if(addr > end)
-							addr -= picheight;
-
-					*addr = *buffer++;
-
-					ziel++;
-				} while(++x < width);
-			} while(++y < height);
-		}
-		else
-			if(BitsPerPixel == 24)
-			{
-				end = ziel + picheight - 3;
-
-				y = 0;
-				do
-				{
-					sinustab = osinustab;
-
-					x = 0;
-					do
-					{
-						if((addr = ziel + *sinustab++) < begin)
-							addr += picheight;
-						else
-							if(addr > end)
-								addr -= picheight;
-
-						*addr = *buffer++;
-						*(addr + 1) = *buffer++;
-						*(addr + 2) = *buffer++;
-
-						ziel += 3;
-					} while(++x < width);
-				} while(++y < height);
-			}
-	}
-
-	ziel = oziel;
-
-	return(ziel);
-} /* sinus_vertikal3 */

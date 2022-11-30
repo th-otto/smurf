@@ -33,6 +33,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/scale.sem \
 	$(DISTDIR)/modules/edit/scatman.sem \
 	$(DISTDIR)/modules/edit/sharp.sem \
+	$(DISTDIR)/modules/edit/sinusw.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
 	$(DISTDIR)/modules/edit/sw.sem \
 	$(empty)
@@ -133,6 +134,9 @@ $(DISTDIR)/modules/edit/scatman.sem: edstart.o scatman.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/sharp.sem: edstart.o sharp.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/sinusw.sem: edstart.o sinusw.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/speedom.sem: edstart.o speedom.o
