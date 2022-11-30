@@ -27,6 +27,10 @@
 #include "import.h"
 #include "fontsel.h"
 #include "de/text.h"
+#include "bindings.h"
+#ifdef __PORTAES_H__
+#include <wdlgfslx.h>
+#endif
 
 #ifndef _AESversion
 #define _AESversion _GemParBlk.global[0]
@@ -34,97 +38,33 @@
 
 #define	TextCast	ob_spec.tedinfo->te_ptext
 
-extern int work_in[25], work_out[50];
-extern OBJECT *alerts;
-extern SERVICE_FUNCTIONS *services;
 
-
-extern	int get_cookie(unsigned long cookie, unsigned long *value);
-int call_xfsl(int handle, FONT_INFO *fontinfo, xFSL *fontsel_struct);
-int call_magic_fsl(int handle, FONT_INFO *fontinfo);
-
-int call_fontsel(int handle, FONT_INFO *fontinfo)
+static WORD call_magic_fsl(WORD handle, FONT_INFO *fontinfo)
 {
-	int back, idummy;
-
-	xFSL *fontsel_struct;
-
-
-	if(get_cookie(0x7846534CL, (unsigned long *)&fontsel_struct)) /* 'xFSL' */
-		back = call_xfsl(handle, fontinfo, fontsel_struct);
-	else
-		if((_AESversion >= 0x400 || appl_find("?AGI") >= 0) &&
-		   appl_getinfo(7, &back, &idummy, &idummy, &idummy) && back&0x04)
-			back = call_magic_fsl(handle, fontinfo);
-		else
-		{
-			services->f_alert(alerts[NO_FSEL].TextCast, NULL, NULL, NULL, 1);
-			return(-1);
-		}
-
-	return(back);
-} /* call_fontsel */
-
-
-int call_xfsl(int handle, FONT_INFO *fontinfo, xFSL *fontsel_struct)
-{
-	int new_id, new_size, back;
-    int cdecl(*xfsl_input)(int vdihandle, unsigned int fontflags,
-                    	const char *headline, int *id, int *size);
-
-	(void)handle;
-	new_id = fontinfo->ID;
-	new_size = fontinfo->size;
-
-	xfsl_input = fontsel_struct->xfsl_input;
-	back = xfsl_input(0, 0x00FE, NULL, &new_id, &new_size);
-
-	if(back>0)
-	{
-/*		printf("gew„hlt wurde der Font mit ID: %d in der Gr”že %d Punkt.\n", new_id, new_size); */
-		fontinfo->size = new_size;
-		fontinfo->ID = new_id;
-	}
-	else
-		if(back<0)
-			services->f_alert(alerts[ERROR_XFSL_FSEL].TextCast, NULL, NULL, NULL, 1);
-
-	return(back);
-} /* call_xfsl */
-
-
-int call_magic_fsl(int handle, FONT_INFO *fontinfo)
-{
-	int back, dummy_handle;
-
+	WORD back;
+	WORD dummy_handle;
 	long new_id, new_size, ratio;
-
 	FNT_DIALOG *fnt_dialog;
-
-
-	(void)handle;
+	WORD check_boxes;
+	
+	(void) handle;
 	new_id = fontinfo->ID;
-	new_size = (long)fontinfo->size << 16;
+	new_size = (long) fontinfo->size << 16;
 	ratio = 1L << 16;
-
-/*	printf("ID: %d, size: %d\n", fontinfo->ID, fontinfo->size); */
 
 	/* Workaround weil das bescheuerte MagiC die Attribute */
 	/* der bergebenen Workstation verstellt ... */
 	v_opnvwk(work_in, &dummy_handle, work_out);
 	fnt_dialog = fnts_create(dummy_handle, 0, 0xf, FNTS_3D, "The quick blue Smurf ...", 0L);
 
-	if(fnt_dialog)
+	if (fnt_dialog)
 	{
-		back = fnts_do(fnt_dialog, new_id, new_size, ratio, &new_id, &new_size, &ratio);
+		back = fnts_do(fnt_dialog, 0, new_id, new_size, ratio, &check_boxes, &new_id, &new_size, &ratio);
 
-/*		printf("ID: %ld, size: %ld\n", new_id, new_size); */
-
-		if(back == FNTS_OK || back == FNTS_SET)
+		if (back == FNTS_OK || back == FNTS_SET)
 		{
-/*			printf("gew„hlt wurde der Font mit ID: %d in der Gr”že %d Punkt.\n", (int)new_id, (int)(new_size >> 16)); */
-			fontinfo->ID = (int)new_id;
-			fontinfo->size = (int)(new_size >> 16);
+			fontinfo->ID = (WORD) new_id;
+			fontinfo->size = (WORD) (new_size >> 16);
 		}
 
 		fnts_delete(fnt_dialog, 0);
@@ -140,5 +80,67 @@ int call_magic_fsl(int handle, FONT_INFO *fontinfo)
 
 	v_clsvwk(dummy_handle);
 
-	return(back);
+	return back;
+}
+
+
+
+static WORD call_xfsl(WORD handle, FONT_INFO *fontinfo, xFSL *fontsel_struct)
+{
+	WORD new_id;
+	WORD new_size;
+	WORD back;
+
+	(void) handle;
+	new_id = fontinfo->ID;
+	new_size = fontinfo->size;
+
+#if defined(__PUREC__) || (defined(__GNUC__) && defined(__MSHORT__))
+	back = fontsel_struct->xfsl_input(0, 0x00FE, NULL, &new_id, &new_size);
+#else
+	{
+		struct xfsl_input_args args;
+		
+		args.vdihandle = 0;
+		args.fontflags = 0x00FE;
+		args.headline = NULL;
+		args.id = &new_id;
+		args.size = &new_size;
+		back = fontsel_struct->xfsl_input(args);
+	}
+#endif
+
+	if (back > 0)
+	{
+		fontinfo->size = new_size;
+		fontinfo->ID = new_id;
+	} else if (back < 0)
+	{
+		services->f_alert(alerts[ERROR_XFSL_FSEL].TextCast, NULL, NULL, NULL, 1);
+	}
+	
+	return back;
+}
+
+
+WORD call_fontsel(WORD handle, FONT_INFO *fontinfo)
+{
+	WORD back;
+	WORD idummy;
+	xFSL *fontsel_struct;
+
+	if (get_cookie(0x7846534CL, (unsigned long *) &fontsel_struct))	/* 'xFSL' */
+	{
+		back = call_xfsl(handle, fontinfo, fontsel_struct);
+	} else if ((_AESversion >= 0x400 || appl_find("?AGI") >= 0) &&
+			 appl_getinfo(7, &back, &idummy, &idummy, &idummy) && back & 0x04)
+	{
+		back = call_magic_fsl(handle, fontinfo);
+	} else
+	{
+		services->f_alert(alerts[NO_FSEL].TextCast, NULL, NULL, NULL, 1);
+		return -1;
+	}
+
+	return back;
 }

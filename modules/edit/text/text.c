@@ -43,413 +43,156 @@
 #include "smurfine.h"
 #include <math.h>
 #include "fontsel.h"
+#include "bindings.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "de/text.rsh"
+#include "de/text.rsh"
 #elif COUNTRY==0
-	#include "en/text.rsh"
+#include "en/text.rsh"
 #elif COUNTRY==2
-	#include "en/text.rsh" /* missing french resource */
+#include "en/text.rsh"					/* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif
 
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
-#define	TextCast	ob_spec.tedinfo->te_ptext
-
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Text",
-						0x0105,
-						"Olaf Piesche",
-						"","","","","","","","","","",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						1,			/* Bildanzahl */
-						"","","","","",""
-						};
-
-
-SERVICE_FUNCTIONS *services;
-
-MOD_ABILITY	module_ability=
-{
-	/* Farbtiefen, die vom Modul untersttzt werden:			*/
-	1,2,4,6,7,8,16,24,
-	/*	Dazugeh”rige Datenformate (FORM_PIXELPAK/FORM_STANDARD/FORM_BOTH) */
-	FORM_STANDARD,FORM_STANDARD,FORM_STANDARD,FORM_STANDARD,FORM_STANDARD,
-	FORM_BOTH,FORM_PIXELPAK,FORM_PIXELPAK,
-	0	
+MOD_INFO module_info = { "Text",
+	0x0105,
+	"Olaf Piesche",
+	{"", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	1,									/* Bildanzahl */
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-extern	long vst_arbpt32(int handle, long height, int *char_width, int *char_height,
-                           int *cell_width, int *cell_height);
 
-extern	int get_cookie(unsigned long cookie, unsigned long *value);
-extern	void v_opnbm(int *work_in, MFDB *bitmap, int *handle, int *work_out);
-extern	void v_clsbm(int handle);
-extern	int vqt_xfntinfo(int handle, int flags, int id, int index, XFNT_INFO *info);
-extern	void vqt_real_extent( int handle, int x, int y, const char *string,  int *extent );
-int		call_fontsel(int handle, FONT_INFO *fontinfo);
-int		handle_aesmsg(GARGAMEL *smurf_struct, FONT_INFO *font);
+MOD_ABILITY module_ability = {
+	/* Farbtiefen, die vom Modul untersttzt werden:            */
+	1, 2, 4, 6, 7, 8, 16, 24,
+	/*  Dazugeh”rige Datenformate (FORM_PIXELPAK/FORM_STANDARD/FORM_BOTH) */
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	0
+};
 
-OBJECT *maintree, *alerts;
-WINDOW *mwindow;
-SMURF_PIC *picture;
-SMURF_PIC preview;
-
-MFDB offscreen;
-int oshandle;
-int work_in[25], work_out[57];
-int char_height, cell_height, char_width, cell_width;
-int black[]={0,0,0};
-
-
-XFNT_INFO font_info;
-
-void 	(*set_slider)(SLIDER *sliderstruct, long value);
-void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
-void f_doit(GARGAMEL *smurfstruct, SMURF_PIC *picture, FONT_INFO *font);
-void compute_preview(void);
+WORD work_in[25];
+WORD work_out[57];
+OBJECT *alerts;
+SERVICE_FUNCTIONS *services;
 
 
+static OBJECT *maintree;
+static WINDOW *mwindow;
+static SMURF_PIC *picture;
+static SMURF_PIC preview;
 
-/*---------------------------  FUNCTION MAIN -----------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+static MFDB offscreen;
+static WORD oshandle;
+static WORD char_height, cell_height, char_width, cell_width;
+
+static XFNT_INFO font_info;
+
+
+static BOOLEAN handle_aesmsg(GARGAMEL *smurf_struct, FONT_INFO *font)
 {
-int t, back;
-int mod_id;
-int wind_num=1;
-int SmurfMessage;
-char wt[]="Text V0.1";
-int Button;
-long dummy;
+	WORD *msg;
+	char name[40];
+	char str[10];
 
-char name[40];
-char str[6];
-static FONT_INFO font;
+	msg = smurf_struct->event_par;
 
-
-	SmurfMessage = smurf_struct->module_mode;
-
-	/*
-	 * Hier werden die Funktionen aus der GARGAMEL-Struktur geholt.
-	 */
-	set_slider = smurf_struct->services->set_slider;
-	redraw_window = smurf_struct->services->redraw_window;
-
-	picture=smurf_struct->smurf_pic;
-	services = smurf_struct->services;
-
-	/* 
-	 * Wenn das Modul zum ersten Mal gestartet wurde 
-	 */
-	if(SmurfMessage==MSTART)
+	if (msg[0] == 0x7A18)				/* FONT_CHANGED */
 	{
-		maintree = rs_trindex[TEXT_MAIN];		/* Resourcebaum holen */
-		alerts = rs_trindex[ALERT_STRINGS];		/* Resourcebaum holen */
-
-		if(get_cookie('EdDI', &(unsigned long)dummy)==0)
+		if (msg[4])
 		{
-			services->f_alert(alerts[NO_NVDI].TextCast, NULL, NULL, NULL, 1);
-			smurf_struct->module_mode = M_MODERR;
-			return; 
+			font->ID = msg[4];
+			font->ID = vst_font(oshandle, font->ID);
+
+			font_info.size = 890;
+			vqt_xfntinfo(oshandle, 0xFF, font->ID, 0, &font_info);
+			font->index = font_info.index;
+
+			vqt_name(oshandle, font->index, name);
+			strncpy(maintree[FONTNAME].ob_spec.tedinfo->te_ptext, name, 50);
 		}
 
-	
-		/* Resource umbauen */
-		for(t = 0; t < NUM_OBS; t++)
-			rsrc_obfix (&rs_object[t], 0);
-	
-		mod_id=smurf_struct->module_number;			/* Welche ID habe ich?	*/
-
-		mwindow = (WINDOW*)smurf_struct->services->SMalloc(sizeof(WINDOW));
-		memset(mwindow, 0, sizeof(WINDOW));
-		mwindow->whandlem = 0;						/* evtl. Handle l”schen	*/
-		mwindow->module = mod_id;					/* ID in die Fensterstruktur eintragen	*/
-		strcpy(mwindow->wtitle, wt);				/* Titel reinkopieren 	*/
-		mwindow->wnum = wind_num;					/* Fenster nummer 1... 	*/
-		mwindow->wx = -1;							/* Fenster X-...	*/
-		mwindow->wy = -1;							/* ...und Y-Pos		*/
-		mwindow->ww = maintree[0].ob_width;			/* Fensterbreite	*/
-		mwindow->wh = maintree[0].ob_height;		/* Fensterh”he		*/
-		mwindow->resource_form = maintree;			/* Resource			*/
-		mwindow->picture = NULL;					/* Preview als Bild	*/
-		mwindow->pic_xpos = maintree[PREVIEW].ob_x;
-		mwindow->pic_ypos = maintree[PREVIEW].ob_y+1;
-		mwindow->clipwid = 404;
-		mwindow->cliphgt = 72;
-		mwindow->editob = TEXT_OB;
-		mwindow->nextedit = FONTSIZE;
-		mwindow->editx = 0;
-	
-		smurf_struct->wind_struct = mwindow;		/* und die Fensterstruktur in die Gargamel */
-	
-		/*
-		 * Preview-Smurfpic-Struktur
-		 */
-		preview.pic_width = 416;
-		preview.pic_height = 72;
-		preview.depth = 1;
-		preview.pic_data = smurf_struct->services->SMalloc( 416L*72L/8L);
-		preview.screen_pic = NULL;
-		preview.changed = 0;
-		preview.format_type = FORM_STANDARD;
-		preview.col_format = RGB;
-		preview.zoom = 0;
-		preview.block = NULL;
-		preview.local_nct = NULL;
-		preview.prev_picture = NULL;
-		preview.next_picture = NULL;
-		memset(preview.pic_data, 0, 416L*72L/8L);
-
-		/*
-		 * MFDB vorbereiten und Offscreen-Bitmap anmelden 
-		 */
-		offscreen.fd_addr = preview.pic_data;
-		offscreen.fd_w = 416;
-		offscreen.fd_h = 72;
-		offscreen.fd_wdwidth = (416 + 15) / 16;
-		offscreen.fd_stand = 0;
-		offscreen.fd_nplanes = 1;
-		memset(work_in, 0x0, 40);
-		work_in[11] = offscreen.fd_w - 1;
-		work_in[12] = offscreen.fd_h - 1;
-		v_opnbm(work_in, &offscreen, &oshandle, work_out);
-	
-		/*
-		 * Font-Voreinstellungen
-		 */
-		Goto_pos(1, 0);
-		font.size = 24;
-		vst_load_fonts(oshandle, 0);
-
-		vst_color(oshandle, 1);
-		vst_rotation(oshandle, 0);								/* unrotiert... */
-		vswr_mode(oshandle, MD_REPLACE);
-		vst_effects(oshandle, 0);
-		vst_skew(oshandle, 0);
-		vst_kern(oshandle, 0,1, &(int)dummy, &(int)dummy);		/* Pair-Kerning ein */
-
-		vst_arbpt32(oshandle, (long)font.size*65536L, &char_width, &char_height, &cell_width, &cell_height);
-
-		vst_alignment(oshandle, 0,5, &(int)dummy, &(int)dummy);
-		
-		font.ID = vst_font(oshandle, 0);
-/*		printf("font.ID: %d\n", font.ID); */
-		
-		font_info.size = sizeof(XFNT_INFO);
-		vqt_xfntinfo(oshandle, 0xFF, font.ID, 0, &font_info);
-/*		printf("font_info.index: %d, font_info.id: %d\n", font_info.index, font_info.id); */
-		font.index = font_info.index;
-/*		printf("font.index: %d\n", font.index); */
-	
-		vqt_name(oshandle, font.index, name);
-		strncpy(maintree[FONTNAME].ob_spec.tedinfo->te_ptext, name, 50);
-	
-		font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
-		vst_arbpt32(oshandle, (long)font.size*65536L, &char_width, &char_height, &cell_width, &cell_height);
-
-		strcpy(maintree[TEXT_OB].ob_spec.tedinfo->te_ptext, "The quick blue Smurf jumps over the lazy pic");
-		strcpy(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext, "24");
-
-		back = smurf_struct->services->f_module_window(mwindow);						/* Gib mir 'n Fenster! */
-		if(back==-1)									/* keins mehr da? */
+		if (msg[5])
 		{
-			smurf_struct->module_mode=M_EXIT;
-			smurf_struct->services->SMfree(mwindow);
-			v_clsbm(oshandle);
-			return;
+			font->size = msg[5];
+			itoa(font->size, str, 10);
+			strcpy(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext, str);
+			vst_arbpt32(oshandle, (long) font->size * 65536L, &char_width, &char_height, &cell_width, &cell_height);
 		}
-		else											/* doch? Ich warte... */
-			smurf_struct->module_mode=M_WAITING;
 
-		compute_preview();
-		mwindow->picture = &preview;
-		smurf_struct->module_mode=M_MODPIC;		
-
-		return;
-	}
-	
-	/*
-	 * Buttonevent im Modulfenster
-	 */
-	else if(SmurfMessage==MBEVT)
-	{
-		Button=smurf_struct->event_par[0];
-		
-		if(Button==FONTNAME)
-		{
-			if(call_fontsel(oshandle, &font) > 0)
-			{
-				font.ID = vst_font(oshandle, font.ID);
-/*				printf("font.ID: %d\n", font.ID); */
-
-				font_info.size = 890;
-				vqt_xfntinfo(oshandle, 0xFF, font.ID, 0, &font_info);
-/*				printf("font_info.index: %d, font_info.id: %d\n", font_info.index, font_info.id);
-				printf("Name lt. vqt_xfntinfo: %s\n", font_info.font_name); */
-				font.index = font_info.index;
-/*				printf("font.index: %d\n", font.index); */
-				
-				vqt_name(oshandle, font.index, name);
-/*				printf("Name lt. vqt_name: %s\n", name); */
-				strncpy(maintree[FONTNAME].ob_spec.tedinfo->te_ptext, name, 50);
-				
-				itoa(font.size, str, 10);
-				strcpy(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext, str);
-				vst_arbpt32(oshandle, (long)font.size*65536L, &char_width, &char_height, &cell_width, &cell_height);
-			
-				compute_preview();
-				mwindow->picture = &preview;
-				redraw_window(mwindow, NULL, FONTNAME, 0);
-				redraw_window(mwindow, NULL, FONTSIZE, 0);
-				smurf_struct->module_mode=M_MODPIC;
-			}
-		}
-		else if(Button==TEXT_START)
-		{
-			font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
-			smurf_struct->module_mode=M_STARTED;			/* Ich will loslegen!... */
-		}
-		else if(Button==PREVIEW || Button==TEXT_OB || Button==FONTSIZE)
-		{
-			font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
-			vst_arbpt32(oshandle, (long)font.size*65536L, &char_width, &char_height, 
-									&cell_width, &cell_height);
-
-			compute_preview();
-			mwindow->picture = &preview;
-			smurf_struct->module_mode=M_MODPIC;		
-		}
-		else smurf_struct->module_mode=M_WAITING;			/* Ich warte... */
-	
-		return;
+		services->redraw_window(mwindow, NULL, FONTNAME, 0);
+		services->redraw_window(mwindow, NULL, FONTSIZE, 0);
+		return TRUE;
 	}
 
-	/*
-	 * Keyboardevent
-	 */
-	else if(SmurfMessage==MKEVT)
-	{
-		if(smurf_struct->event_par[0]==TEXT_OB || smurf_struct->event_par[0]==FONTSIZE)
-		{
-			if(smurf_struct->event_par[0]==FONTSIZE)
-			{
-				font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
-				vst_arbpt32(oshandle, (long)font.size*65536L, &char_width, &char_height, 
-										&cell_width, &cell_height);
-			}
-
-			compute_preview();
-			mwindow->picture = &preview;
-			smurf_struct->module_mode=M_MODPIC;
-		}
-		else if(smurf_struct->event_par[0]==TEXT_START)
-		{
-			font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
-			smurf_struct->module_mode = M_STARTED;			/* Ich will loslegen!... */
-		}
-	}
-
-	/*
-	 * Preview fertig?
-	 */
-	else if(SmurfMessage==MDITHER_READY)
-	{
-		redraw_window(mwindow, NULL, PREVIEW, 0);
-		smurf_struct->module_mode = M_WAITING;
-	}
-
-	/*
-	 * Los gehts
-	 */
-	else if(SmurfMessage==MEXEC)
-	{
-		f_doit(smurf_struct, picture, &font);
-		smurf_struct->module_mode=M_PICDONE;			/* Fertig!... */
-	}
-
-	/* 
-	 * Mterm empfangen - Speicher freigeben und beenden
-	 */
-	else if(SmurfMessage==MTERM)
-	{
-		smurf_struct->services->SMfree(mwindow);
-		smurf_struct->services->SMfree(preview.pic_data);
-		vst_unload_fonts(oshandle, 0);
-		v_clsbm(oshandle);
-		smurf_struct->module_mode = M_EXIT;
-		return;
-	}
-	else if(SmurfMessage == SMURF_AES_MESSAGE)
-	{
-		if(handle_aesmsg(smurf_struct, &font)>0)
-		{
-			compute_preview();
-			mwindow->picture = &preview;
-			smurf_struct->module_mode = M_MODPIC;
-		}
-		else smurf_struct->module_mode = M_WAITING;
-	}
-	
-
-	return;	
+	return FALSE;
 }
 
 
 
 
-void f_doit(GARGAMEL *smurfstruct, SMURF_PIC *picture, FONT_INFO *font)
+static void f_doit(GARGAMEL *smurfstruct, SMURF_PIC *picture, FONT_INFO *font)
 {
-	int pxy[10];
-	int extent[10], doithandle;
+	WORD pxy[10];
+	WORD extent[10];
+	WORD doithandle;
 	MFDB osbmp;
 	long size;
 	long byte_width;
-	int dummy;
+	WORD dummy;
 	SMURF_PIC *destination;
-
 
 	/*
 	 * MFDB vorbereiten und Offscreen-Bitmap anmelden 
 	 */
-	vqt_real_extent(oshandle, 0,0, maintree[TEXT_OB].ob_spec.tedinfo->te_ptext, extent);
+	vqt_real_extent(oshandle, 0, 0, maintree[TEXT_OB].ob_spec.tedinfo->te_ptext, extent);
 
-	byte_width = ((extent[2]+15)/16) *2;
-	size = byte_width * (long)extent[5];
+	byte_width = ((extent[2] + 15) / 16) * 2;
+	size = byte_width * (long) extent[5];
 	osbmp.fd_addr = smurfstruct->services->SMalloc(size);
-	osbmp.fd_w = ((extent[2]+15)/16)*16;
+	osbmp.fd_w = ((extent[2] + 15) / 16) * 16;
 	osbmp.fd_h = extent[5];
-	osbmp.fd_wdwidth = (extent[2]+15)/16;
+	osbmp.fd_wdwidth = (extent[2] + 15) / 16;
 	osbmp.fd_stand = 0;
 	osbmp.fd_nplanes = 1;
 
-	memset(work_in, 0, 40);
+	memset(work_in, 0, sizeof(work_in));
 	memset(osbmp.fd_addr, 0, size);
 	work_in[11] = osbmp.fd_w - 1;
 	work_in[12] = osbmp.fd_h - 1;
@@ -461,37 +204,35 @@ void f_doit(GARGAMEL *smurfstruct, SMURF_PIC *picture, FONT_INFO *font)
 	vst_load_fonts(doithandle, 0);
 	vst_font(doithandle, font->ID);
 	vst_color(doithandle, 1);
-	vst_rotation(doithandle, 0);							/* unrotiert... */
+	vst_rotation(doithandle, 0);		/* unrotiert... */
 	vswr_mode(doithandle, MD_REPLACE);
 	vst_effects(doithandle, 0);
 	vst_skew(doithandle, 0);
-	vst_kern(doithandle, 0,1, &dummy,&dummy);				/* Pair-Kerning ein */
-	vst_alignment(doithandle, 0,5, &dummy, &dummy);
+	vst_kern(doithandle, 0, 1, &dummy, &dummy);	/* Pair-Kerning ein */
+	vst_alignment(doithandle, 0, 5, &dummy, &dummy);
 
-	vst_arbpt32(doithandle, (long)font->size*65536L, &char_width, &char_height, &cell_width, &cell_height);
+	vst_arbpt32(doithandle, (long) font->size * 65536L, &char_width, &char_height, &cell_width, &cell_height);
 
 	/*
 	 * Clipping ein und rein mit dem Text
 	 */
-	pxy[0]=0;
-	pxy[1]=0;
-	pxy[2]=extent[4]-1;
-	pxy[3]=extent[5]-1;
+	pxy[0] = 0;
+	pxy[1] = 0;
+	pxy[2] = extent[4] - 1;
+	pxy[3] = extent[5] - 1;
 	vs_clip(doithandle, TRUE, pxy);
-	
-	v_ftext(doithandle, 0,0, maintree[TEXT_OB].ob_spec.tedinfo->te_ptext);
 
-	if(picture->changed==255)					/* bergebenes Bild ist schon ein Block */
+	v_ftext(doithandle, 0, 0, maintree[TEXT_OB].ob_spec.tedinfo->te_ptext);
+
+	if (picture->changed == 255)		/* bergebenes Bild ist schon ein Block */
 	{
 		Mfree(picture->pic_data);
 		destination = picture;
-	}
-	else if(picture->block!=NULL)				/* kein Block aber einer im bergebenen Bild */
+	} else if (picture->block != NULL)	/* kein Block aber einer im bergebenen Bild */
 	{
 		Mfree(picture->block->pic_data);
 		destination = picture->block;
-	}
-	else if(picture->block==NULL)				/* Block muž neu erstellt werden */
+	} else								/* Block muž neu erstellt werden */
 	{
 		picture->block = smurfstruct->services->SMalloc(sizeof(SMURF_PIC));
 		destination = picture->block;
@@ -506,17 +247,24 @@ void f_doit(GARGAMEL *smurfstruct, SMURF_PIC *picture, FONT_INFO *font)
 	destination->prev_picture = NULL;
 	destination->next_picture = NULL;
 	destination->screen_pic = NULL;
+	/*
+	 * BUG: cannot do malloc() here,
+	 * because it uses *our* static variables in the library,
+	 * not the ones from smurf.
+	 */
+#ifndef __GNUC__
 	destination->palette = malloc(1025);
+#endif
 	destination->format_type = FORM_STANDARD;
 	destination->col_format = RGB;
 	destination->zoom = 0;
 
-	destination->palette[0]=255;
-	destination->palette[1]=255;
-	destination->palette[2]=255;
-	destination->palette[3]=0;
-	destination->palette[4]=0;
-	destination->palette[5]=0;
+	destination->palette[0] = 255;
+	destination->palette[1] = 255;
+	destination->palette[2] = 255;
+	destination->palette[3] = 0;
+	destination->palette[4] = 0;
+	destination->palette[5] = 0;
 
 	vst_unload_fonts(doithandle, 0);
 	v_clsbm(doithandle);
@@ -524,61 +272,279 @@ void f_doit(GARGAMEL *smurfstruct, SMURF_PIC *picture, FONT_INFO *font)
 
 
 
-
-void compute_preview(void)
+static void compute_preview(void)
 {
-	int pxy[10];
+	WORD pxy[10];
 
-	pxy[0]=0;
-	pxy[1]=0;
-	pxy[2]=403;
-	pxy[3]=71;
+	pxy[0] = 0;
+	pxy[1] = 0;
+	pxy[2] = 403;
+	pxy[3] = 71;
 
 	/*
 	 * Preview l”schen und Text reinschreiben
 	 */
-	memset(preview.pic_data, 0, 416L*72L/8L);
+	memset(preview.pic_data, 0, 416L * 72L / 8L);
 	vs_clip(oshandle, TRUE, pxy);
-	v_ftext(oshandle, 0,0, maintree[TEXT_OB].ob_spec.tedinfo->te_ptext);
+	v_ftext(oshandle, 0, 0, maintree[TEXT_OB].ob_spec.tedinfo->te_ptext);
 }
 
-
-
-int handle_aesmsg(GARGAMEL *smurf_struct, FONT_INFO *font)
+/*---------------------------  FUNCTION MAIN -----------------------------*/
+void edit_module_main(GARGAMEL *smurf_struct)
 {
-	int *msg;
+	WORD t;
+	short back;
+	short wind_num = 1;
+	WORD Button;
+	unsigned long dummyl;
+	WORD dummy;
 	char name[40];
-	char str[10];
-	
-	msg = smurf_struct->event_par;
+	char str[6];
+	static FONT_INFO font;
 
-	if(msg[0]==0x7A18)				/* FONT_CHANGED */
+
+	/*
+	 * Hier werden die Funktionen aus der GARGAMEL-Struktur geholt.
+	 */
+	services = smurf_struct->services;
+
+	picture = smurf_struct->smurf_pic;
+
+	switch (smurf_struct->module_mode)
 	{
-		if(msg[4])
-		{
-			font->ID = msg[4];
-			font->ID = vst_font(oshandle, font->ID);
+	/* 
+	 * Wenn das Modul zum ersten Mal gestartet wurde 
+	 */
+	case MSTART:
+		maintree = rs_trindex[TEXT_MAIN];	/* Resourcebaum holen */
+		alerts = rs_trindex[ALERT_STRINGS];	/* Resourcebaum holen */
 
-			font_info.size = 890;
-			vqt_xfntinfo(oshandle, 0xFF, font->ID, 0, &font_info);
-			font->index = font_info.index;
-		
-			vqt_name(oshandle, font->index, name);
-			strncpy(maintree[FONTNAME].ob_spec.tedinfo->te_ptext, name, 50);
+		if (get_cookie(0x45644449L, &dummyl) == 0) /* 'EdDI' */
+		{
+			services->f_alert(alerts[NO_NVDI].ob_spec.tedinfo->te_ptext, NULL, NULL, NULL, 1);
+			smurf_struct->module_mode = M_MODERR;
+			return;
 		}
 
-		if(msg[5])
-		{
-			font->size = msg[5];
-			itoa(font->size, str, 10);
-			strcpy(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext, str);
-			vst_arbpt32(oshandle, (long)font->size*65536L, &char_width, &char_height, &cell_width, &cell_height);
-		}
 
-		redraw_window(mwindow, NULL, FONTNAME, 0);
-		redraw_window(mwindow, NULL, FONTSIZE, 0);
-		return(1);
+		/* Resource umbauen */
+		for (t = 0; t < NUM_OBS; t++)
+			rsrc_obfix(rs_object, t);
+
+		mwindow = (WINDOW *) smurf_struct->services->SMalloc(sizeof(WINDOW));
+		memset(mwindow, 0, sizeof(WINDOW));
+		mwindow->whandlem = 0;			/* evtl. Handle l”schen */
+		mwindow->module = smurf_struct->module_number;		/* ID in die Fensterstruktur eintragen  */
+		strcpy(mwindow->wtitle, "Text V0.1");	/* Titel reinkopieren   */
+		mwindow->wnum = wind_num;		/* Fenster nummer 1...  */
+		mwindow->wx = -1;				/* Fenster X-...    */
+		mwindow->wy = -1;				/* ...und Y-Pos     */
+		mwindow->ww = maintree[0].ob_width;	/* Fensterbreite    */
+		mwindow->wh = maintree[0].ob_height;	/* Fensterh”he      */
+		mwindow->resource_form = maintree;	/* Resource         */
+		mwindow->picture = NULL;		/* Preview als Bild */
+		mwindow->pic_xpos = maintree[PREVIEW].ob_x;
+		mwindow->pic_ypos = maintree[PREVIEW].ob_y + 1;
+		mwindow->clipwid = 404;
+		mwindow->cliphgt = 72;
+		mwindow->editob = TEXT_OB;
+		mwindow->nextedit = FONTSIZE;
+		mwindow->editx = 0;
+
+		smurf_struct->wind_struct = mwindow;	/* und die Fensterstruktur in die Gargamel */
+
+		/*
+		 * Preview-Smurfpic-Struktur
+		 */
+		preview.pic_width = 416;
+		preview.pic_height = 72;
+		preview.depth = 1;
+		preview.pic_data = smurf_struct->services->SMalloc(416L * 72L / 8L);
+		preview.screen_pic = NULL;
+		preview.changed = 0;
+		preview.format_type = FORM_STANDARD;
+		preview.col_format = RGB;
+		preview.zoom = 0;
+		preview.block = NULL;
+		preview.local_nct = NULL;
+		preview.prev_picture = NULL;
+		preview.next_picture = NULL;
+		memset(preview.pic_data, 0, 416L * 72L / 8L);
+
+		/*
+		 * MFDB vorbereiten und Offscreen-Bitmap anmelden 
+		 */
+		offscreen.fd_addr = preview.pic_data;
+		offscreen.fd_w = 416;
+		offscreen.fd_h = 72;
+		offscreen.fd_wdwidth = (416 + 15) / 16;
+		offscreen.fd_stand = 0;
+		offscreen.fd_nplanes = 1;
+		memset(work_in, 0, sizeof(work_in));
+		work_in[11] = offscreen.fd_w - 1;
+		work_in[12] = offscreen.fd_h - 1;
+		v_opnbm(work_in, &offscreen, &oshandle, work_out);
+
+		/*
+		 * Font-Voreinstellungen
+		 */
+		Goto_pos(1, 0);
+		font.size = 24;
+		vst_load_fonts(oshandle, 0);
+
+		vst_color(oshandle, 1);
+		vst_rotation(oshandle, 0);		/* unrotiert... */
+		vswr_mode(oshandle, MD_REPLACE);
+		vst_effects(oshandle, 0);
+		vst_skew(oshandle, 0);
+		vst_kern(oshandle, 0, 1, &dummy, &dummy);	/* Pair-Kerning ein */
+
+		vst_arbpt32(oshandle, (long) font.size * 65536L, &char_width, &char_height, &cell_width, &cell_height);
+
+		vst_alignment(oshandle, 0, 5, &dummy, &dummy);
+
+		font.ID = vst_font(oshandle, 0);
+
+		font_info.size = sizeof(XFNT_INFO);
+		vqt_xfntinfo(oshandle, 0xFF, font.ID, 0, &font_info);
+		font.index = font_info.index;
+
+		vqt_name(oshandle, font.index, name);
+		strncpy(maintree[FONTNAME].ob_spec.tedinfo->te_ptext, name, 50);
+
+		font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
+		vst_arbpt32(oshandle, (long) font.size * 65536L, &char_width, &char_height, &cell_width, &cell_height);
+
+		strcpy(maintree[TEXT_OB].ob_spec.tedinfo->te_ptext, "The quick blue Smurf jumps over the lazy pic");
+		strcpy(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext, "24");
+
+		back = smurf_struct->services->f_module_window(mwindow);	/* Gib mir 'n Fenster! */
+		if (back == -1)					/* keins mehr da? */
+		{
+			smurf_struct->services->SMfree(mwindow);
+			v_clsbm(oshandle);
+			smurf_struct->module_mode = M_EXIT;
+		} else							/* doch? Ich warte... */
+		{
+			compute_preview();
+			mwindow->picture = &preview;
+			smurf_struct->module_mode = M_MODPIC;
+		}
+		break;
+
+	/*
+	 * Buttonevent im Modulfenster
+	 */
+	case MBEVT:
+		Button = smurf_struct->event_par[0];
+
+		switch (Button)
+		{
+		case FONTNAME:
+			if (call_fontsel(oshandle, &font) > 0)
+			{
+				font.ID = vst_font(oshandle, font.ID);
+
+				font_info.size = 890;
+				vqt_xfntinfo(oshandle, 0xFF, font.ID, 0, &font_info);
+				font.index = font_info.index;
+
+				vqt_name(oshandle, font.index, name);
+				strncpy(maintree[FONTNAME].ob_spec.tedinfo->te_ptext, name, 50);
+
+				itoa(font.size, str, 10);
+				strcpy(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext, str);
+				vst_arbpt32(oshandle, (long) font.size * 65536L, &char_width, &char_height, &cell_width, &cell_height);
+
+				compute_preview();
+				mwindow->picture = &preview;
+				smurf_struct->services->redraw_window(mwindow, NULL, FONTNAME, 0);
+				smurf_struct->services->redraw_window(mwindow, NULL, FONTSIZE, 0);
+				smurf_struct->module_mode = M_MODPIC;
+			} else
+			{
+				smurf_struct->module_mode = M_WAITING;	/* Ich warte... */
+			}
+			break;
+		case TEXT_START:
+			font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
+			smurf_struct->module_mode = M_STARTED;	/* Ich will loslegen!... */
+			break;
+		case PREVIEW:
+		case TEXT_OB:
+		case FONTSIZE:
+			font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
+			vst_arbpt32(oshandle, (long) font.size * 65536L, &char_width, &char_height, &cell_width, &cell_height);
+
+			compute_preview();
+			mwindow->picture = &preview;
+			smurf_struct->module_mode = M_MODPIC;
+			break;
+		default:
+			smurf_struct->module_mode = M_WAITING;	/* Ich warte... */
+			break;
+		}
+		break;
+
+	/*
+	 * Keyboardevent
+	 */
+	case MKEVT:
+		if (smurf_struct->event_par[0] == TEXT_OB || smurf_struct->event_par[0] == FONTSIZE)
+		{
+			if (smurf_struct->event_par[0] == FONTSIZE)
+			{
+				font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
+				vst_arbpt32(oshandle, (long) font.size * 65536L, &char_width, &char_height, &cell_width, &cell_height);
+			}
+
+			compute_preview();
+			mwindow->picture = &preview;
+			smurf_struct->module_mode = M_MODPIC;
+		} else if (smurf_struct->event_par[0] == TEXT_START)
+		{
+			font.size = atoi(maintree[FONTSIZE].ob_spec.tedinfo->te_ptext);
+			smurf_struct->module_mode = M_STARTED;	/* Ich will loslegen!... */
+		}
+		break;
+
+	/*
+	 * Preview fertig?
+	 */
+	case MDITHER_READY:
+		smurf_struct->services->redraw_window(mwindow, NULL, PREVIEW, 0);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	/*
+	 * Los gehts
+	 */
+	case MEXEC:
+		f_doit(smurf_struct, picture, &font);
+		smurf_struct->module_mode = M_PICDONE;	/* Fertig!... */
+		break;
+
+	/* 
+	 * Mterm empfangen - Speicher freigeben und beenden
+	 */
+	case MTERM:
+		smurf_struct->services->SMfree(mwindow);
+		smurf_struct->services->SMfree(preview.pic_data);
+		vst_unload_fonts(oshandle, 0);
+		v_clsbm(oshandle);
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	
+	case SMURF_AES_MESSAGE:
+		if (handle_aesmsg(smurf_struct, &font) > 0)
+		{
+			compute_preview();
+			mwindow->picture = &preview;
+			smurf_struct->module_mode = M_MODPIC;
+		} else
+		{
+			smurf_struct->module_mode = M_WAITING;
+		}
+		break;
 	}
-
-	return(0);
 }

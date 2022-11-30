@@ -2,7 +2,7 @@
 
  BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
-#Dial 000
+#Dial 000 Erzeugt einzeilige Texte als Grafik in einen neuen Block ins aktive Bild. GDOS wird ben”tigt!
 # 001 Hier wird eine Vorschau auf den zu erzeugenden Text angezeigt.
 # 002 Dies ist der zu erzeugende Text.
 # 004 Klick auf diesen Button erzeugt einen Block (!) im aktiven Bild, in dem sich der Text mit den gew„hlten Zeichensatzeinstelungen befindet.

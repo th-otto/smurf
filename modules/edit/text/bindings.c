@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
-#include "fontsel.h"
 #include "import.h"
+#include "fontsel.h"
 
 #if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
 AESPB aespb;
@@ -61,8 +61,6 @@ void v_clsbm(int handle)
     vdipb.contrl[6] = handle;
 
     vdi(&vdipb);
-
-    return;
 } /* v_clsbm */
 
 
@@ -128,18 +126,13 @@ void vqt_real_extent( int handle, int x, int y, const char *string,  int *extent
 	vdipb.ptsin[0] = x;
 	vdipb.ptsin[1] = y;
 	
-	intin = malloc(strlen(string)*2L);
+	intin = vdipb.intin;
 	for(t=0; string[t] != '\0'; t++)
 		intin[t]=(unsigned char)string[t];
 	
-	vdipb.intin = intin;
-
     vdi(&vdipb);
 
-	free(intin);
 	memcpy(extent, vdipb.ptsout, 8*2);
-
-    return;
 }
 
 
@@ -175,9 +168,9 @@ long vst_arbpt32( int handle, long height,
 }
 
 
-FNT_DIALOG *fnts_create(int handle, int no_fonts,
-						int font_flags, int dialog_flags,
-						char *sample, char *opt_button)
+FNT_DIALOG *fnts_create(WORD handle, WORD no_fonts,
+						WORD font_flags, WORD dialog_flags,
+						const char *sample, const char *opt_button)
 {
 	aespb.contrl = _GemParBlk.contrl;
 	aespb.global = _GemParBlk.global;
@@ -233,8 +226,8 @@ int fnts_delete(FNT_DIALOG *fnt_dialog, int handle)
 
 /* leicht ver„ndertes Binding fr fnts_do() */
 /* button_flags und check_boxes werden nicht nach aužen gefhrt */
-int fnts_do(FNT_DIALOG *fnt_dialog, long id_in, long pt_in, 
-			long ratio_in, long *id, long *pt, long *ratio)
+int fnts_do(FNT_DIALOG *fnt_dialog, WORD flags, long id_in, long pt_in, 
+			long ratio_in, WORD *check_boxes, long *id, long *pt, long *ratio)
 {
 	aespb.contrl = _GemParBlk.contrl;
 	aespb.global = _GemParBlk.global;
@@ -249,8 +242,7 @@ int fnts_do(FNT_DIALOG *fnt_dialog, long id_in, long pt_in,
 	aespb.contrl[2] = 8;
 	aespb.contrl[4] = 0;
 
-/*	aespb.intin[0] = button_flags; */
-	aespb.intin[0] = 0;
+	aespb.intin[0] = flags;
 	aespb.intin[1] = (int)(id_in>>16);
 	aespb.intin[2] = (int)id_in;
 	aespb.intin[3] = (int)(pt_in>>16);
@@ -262,12 +254,12 @@ int fnts_do(FNT_DIALOG *fnt_dialog, long id_in, long pt_in,
 
 	_crystal(&aespb);
 
-/*	*check_boxes = aespb.intout[1]; */
-	*id = ((long)aespb.intout[2]<<16) | aespb.intout[3];
-	*pt = ((long)aespb.intout[4]<<16) | aespb.intout[5];
-	*ratio = ((long)aespb.intout[6]<<16) | aespb.intout[7];
+	*check_boxes = aespb.intout[1];
+	*id = *((long *)&aespb.intout[2]);
+	*pt = *((long *)&aespb.intout[4]);
+	*ratio = *((long *)&aespb.intout[6]);
 
-	return(aespb.intout[0]);
+	return aespb.intout[0];
 }
 
 #endif

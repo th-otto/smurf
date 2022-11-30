@@ -61,7 +61,7 @@ sw.sem         0.50    0.50     x     x
 tachyon.sem    0.10    0.10     x     x
 texis.sem      0.30    -
 texshdow.sem   0.30    -        x     x
-text.sem       1.05    1.05
+text.sem       1.05    1.05     x     x
 weight.sem     0.40    0.40
 wind.sem       0.20    0.20
 zoom.sem       0.80    0.80

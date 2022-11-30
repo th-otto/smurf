@@ -366,7 +366,7 @@ static char text_string_35[] = "";
 static char text_string_36[] = "";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ text_string_0, text_string_1, text_string_2, IBM, 6, TE_CNTR, 0x1180, 0x0, -1, 46,46 }, /* TEXT_OB */
 	{ text_string_3, text_string_4, text_string_5, SMALL, 6, TE_LEFT, 0x1100, 0x0, -1, 9,1 },
 	{ text_string_7, text_string_8, text_string_9, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 13,1 },
@@ -382,7 +382,7 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* TEXT_MAIN */
 
 	{ -1, 1, 11, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 820,3342 },
@@ -408,7 +408,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0], /* TEXT_MAIN */
 	&rs_object[12] /* ALERT_STRINGS */
 };

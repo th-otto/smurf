@@ -4,11 +4,20 @@
 /* Smurfstruktur */
 typedef struct
 {
-	int index;
-	int ID;
-	int size;
-	int FX;
+	WORD index;
+	WORD ID;
+	WORD size;
+	WORD FX;
 } FONT_INFO;
+
+
+struct xfsl_input_args {
+	WORD vdihandle;
+	unsigned short fontflags;
+	const char *headline;
+	WORD *id;
+	WORD *size;
+};
 
 
 /* Strukturen, Funktionen und Deklarationen */
@@ -19,30 +28,33 @@ typedef struct
 	unsigned int  revision;		/* Schnittstellen-Revision */
 	unsigned long product;		/* Kennung des Fontselektors */
 	unsigned int  version;		/* Version des Fontselektors */
-    int cdecl(*xfsl_input)(int vdihandle, unsigned int fontflags,
-						   const char *headline, int *id, int *size);
-	int	xfsl_init;				/* Init-Aufruf */
-	int	xfsl_event;				/* Event-Aufruf */
-	int	xfsl_exit;				/* Exit-Aufruf */
-	int	xfsl_info;				/* Info-Aufruf */
+#if defined(__PUREC__) || (defined(__GNUC__) && defined(__MSHORT__))
+    WORD cdecl (*xfsl_input)(WORD vdihandle, unsigned short fontflags, const char *headline, WORD *id, WORD *size);
+#else
+    WORD cdecl (*xfsl_input)(struct xfsl_input_args args);
+#endif
+	WORD cdecl (*xfsl_init)(WORD vdihandle, void *xpar);				/* Init-Aufruf */
+	WORD cdecl (*xfsl_event)(WORD handle, void *event);			/* Event-Aufruf */
+	WORD cdecl (*xfsl_exit)(WORD handle);				/* Exit-Aufruf */
+	WORD cdecl (*xfsl_info)(void);				/* Info-Aufruf */
 } xFSL;
 
-#ifndef __XFNT_INFO
+#if !defined(__XFNT_INFO) && !defined(__GEMLIB__)
 #define __XFNT_INFO
 typedef struct
 {
 	long size;					/* LÑnge der Struktur, muû vor vqt_xfntinfo() gesetzt werden */
-	int format;					/* Fontformat, z.B. 4 fÅr TrueType */
-	int id;						/* Font-ID, z.B. 6059 */
-	int index;					/* Index */
+	WORD format;				/* Fontformat, z.B. 4 fÅr TrueType */
+	WORD id;					/* Font-ID, z.B. 6059 */
+	WORD index;					/* Index */
 	char font_name[50];			/* vollstÑndiger Fontname, z.B. "Century 725 Italic BT" */
 	char family_name[50];		/* Name der Fontfamilie, z.B. "Century725 BT" */
 	char style_name[50];		/* Name des Fontstils, z.B. "Italic" */
 	char file_name1[200];		/* Name der 1. Fontdatei, z.B. "C:\FONTS\TT1059M_.TTF" */
 	char file_name2[200];		/* Name der optionalen 2. Fontdatei */
 	char file_name3[200];		/* Name der optionalen 3. Fontdatei */
-	int pt_cnt;					/* Anzahl der Punkthîhen fÅr vst_point(), z.B. 10 */
-	int pt_sizes[64];			/* verfÅgbare Punkthîhen,*/
+	WORD pt_cnt;				/* Anzahl der Punkthîhen fÅr vst_point(), z.B. 10 */
+	WORD pt_sizes[64];			/* verfÅgbare Punkthîhen,*/
 } XFNT_INFO;
 #endif
 
@@ -85,14 +97,28 @@ typedef struct
 #define	FNTS_MARK		4		/* "markieren" wurde betÑtigt */
 #define	FNTS_OPT		5		/* der applikationseigene Button wurde ausgewÑhlt */
 
+#if !defined(__GEMLIB__) && !defined(__PORTAES_H__)
+
 typedef	void	*FNT_DIALOG;
 
+FNT_DIALOG *fnts_create(WORD vdi_handle, WORD no_fonts, WORD font_flags, WORD dialog_flags, const char *sample, const char *opt_button);
 
-FNT_DIALOG *fnts_create(int vdi_handle, int no_fonts,
-						int font_flags, int dialog_flags,
-						char *sample, char *opt_button);
+WORD fnts_delete(FNT_DIALOG *fnt_dialog, WORD handle);
+WORD fnts_do(FNT_DIALOG *fnt_dialog, WORD flags, long id_in, long pt_in, long ratio_in, WORD *check_boxes, long *id, long *pt, long *ratio);
 
-int fnts_delete(FNT_DIALOG *fnt_dialog, int handle);
 
-int fnts_do(FNT_DIALOG *fnt_dialog, long id_in, long pt_in, 
-			long ratio_in, long *id, long *pt, long *ratio);
+long vst_arbpt32(int handle, long height, int *char_width, int *char_height, int *cell_width, int *cell_height);
+void v_opnbm(int *work_in, MFDB * bitmap, int *handle, int *work_out);
+void v_clsbm(int handle);
+int vqt_xfntinfo(int handle, int flags, int id, int index, XFNT_INFO * info);
+void vqt_real_extent(int handle, int x, int y, const char *string, int *extent);
+#endif
+
+
+extern WORD work_in[25];
+extern WORD work_out[57];
+extern OBJECT *alerts;
+extern SERVICE_FUNCTIONS *services;
+
+int get_cookie(unsigned long cookie, unsigned long *value);
+WORD call_fontsel(WORD  handle, FONT_INFO *fontinfo);

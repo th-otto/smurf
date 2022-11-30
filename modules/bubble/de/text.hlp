@@ -1,13 +1,11 @@
 #BGH 000 000 000
 
- BubbleGEM Help-File for Editmodul "Text"
+ BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
 #Dial 000 Erzeugt einzeilige Texte als Grafik in einen neuen Block ins aktive Bild. GDOS wird ben”tigt!
-# 010 Mit Klick auf diesen Button wird die externe Zeichensatzauswahl aufgerufen.
-
-# 007 Hier kann die Gr”že der Zeichen eingestellt werden.
-# 002 Dies ist der zu erzeugende Text.
-
 # 001 Hier wird eine Vorschau auf den zu erzeugenden Text angezeigt.
+# 002 Dies ist der zu erzeugende Text.
 # 004 Klick auf diesen Button erzeugt einen Block (!) im aktiven Bild, in dem sich der Text mit den gew„hlten Zeichensatzeinstelungen befindet.
 # 006 Ist dieser Radiobutton selektiert, werden die Kanten des zu erzeugenden Textes gegl„ttet.
+# 007 Hier kann die Gr”že der Zeichen eingestellt werden.
+# 010 Mit Klick auf diesen Button wird die externe Zeichensatzauswahl aufgerufen.

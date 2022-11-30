@@ -45,7 +45,7 @@ MODULES = \
 # MODULES += $(DISTDIR)/modules/edit/pepsip.sem # does not do anything
 # MODULES += $(DISTDIR)/modules/edit/picfade.sem # does not do anything
 
-SUBDIRS = beule bumpmap cchange chanel5 chanelmx colrun freefilt hsv magic mirror pixel rotate scheren spherica spin texis
+SUBDIRS = beule bumpmap cchange chanel5 chanelmx colrun freefilt hsv magic mirror pixel rotate scheren spherica spin texis text
 
 all:: edstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
