@@ -28,10 +28,21 @@
 * Deklaration:
 *	void do_block(unsigned char *data, unsigned long *pixtab, int blocksize);
 
-GLOBL do_block
+	.IFEQ PURE_C
+	.globl _do_block
+_do_block:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+#ifndef __MSHORT__
+	move.l 12(a7),d0
+#else
+	move.w 12(a7),d0
+#endif
+	.ENDC
 
+	.globl do_block
 do_block:
-	movem.l d3-d5/a2-a3, -(sp)
+	movem.l d2-d5/a2-a3,-(sp)
 
 	clr.l d1				/* blockvalr, */
 	clr.l d2				/* blockvalg und */
@@ -52,11 +63,11 @@ loop1:
 	adda.l (a1)+,a2		/* Offset aus Pixtab aufrechnen ... */
 
 	move.b (a2)+,d4		/* Byte holen */
-	add.l	d4.b,d1.l		/* und in die vollen 32Bit von d1 addieren */
+	add.l	d4,d1		/* und in die vollen 32Bit von d1 addieren */
 	move.b (a2)+,d4
-	add.l	d4.b,d2.l
+	add.l	d4,d2
 	move.b (a2)+,d4
-	add.l	d4.b,d3.l
+	add.l	d4,d3
 
 	dbra d0,loop1			/* Test und zurÅckschleifen */
 
@@ -85,7 +96,7 @@ loop2:
 
 	dbra d0,loop2			/* Test und zurÅckschleifen */
 
-	movem.l (sp)+,d3-d5/a2-a3
+	movem.l (sp)+,d2-d5/a2-a3
 	rts
 
 

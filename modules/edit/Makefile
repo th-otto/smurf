@@ -29,6 +29,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/paint.sem \
 	$(DISTDIR)/modules/edit/paletout.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
+	$(DISTDIR)/modules/edit/rahmen.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
 	$(DISTDIR)/modules/edit/sw.sem \
 	$(empty)
@@ -36,7 +37,7 @@ MODULES = \
 # MODULES += $(DISTDIR)/modules/edit/pepsip.sem # does not do anything
 # MODULES += $(DISTDIR)/modules/edit/picfade.sem # does not do anything
 
-SUBDIRS = beule bumpmap cchange chanel5 chanelmx colrun freefilt hsv magic mirror
+SUBDIRS = beule bumpmap cchange chanel5 chanelmx colrun freefilt hsv magic mirror pixel
 
 all:: edstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
@@ -114,6 +115,9 @@ $(DISTDIR)/modules/edit/pepsip.sem: edstart.o pepsip.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/picfade.sem: edstart.o picfade.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/rahmen.sem: edstart.o rahmen.o $(top_srcdir)/src/getlines.o $(top_srcdir)/src/setlines.o $(top_srcdir)/src/rearr.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/quicksmt.sem: edstart.o quicksmt.o smth_mat.o
