@@ -3,9 +3,9 @@
  BubbleGEM Help-File for Editmodul "Weight of Color"
 
 #Dial 000 Mit diesem Modul k”nnen Sie die Farbbalance eines Bildes einstellen.
-# 001 Hier k”nnen Sie angeben, in welchem Mae der Rotanteil des Bildes ge„ndert werden soll.
-# 002 Hier k”nnen Sie angeben, in welchem Mae der Rotanteil des Bildes ge„ndert werden soll.
-# 027 Hier k”nnen Sie angeben, in welchem Mae der Grnanteil des Bildes ge„ndert werden soll.
-# 028 Hier k”nnen Sie angeben, in welchem Mae der Grnanteil des Bildes ge„ndert werden soll.
-# 029 Hier k”nnen Sie angeben, in welchem Mae der Blauanteil des Bildes ge„ndert werden soll.
-# 030 Hier k”nnen Sie angeben, in welchem Mae der Blauanteil des Bildes ge„ndert werden soll.
+# 009 Hier k”nnen Sie angeben, in welchem Mae der Rotanteil des Bildes ge„ndert werden soll.
+# 010 Hier k”nnen Sie angeben, in welchem Mae der Rotanteil des Bildes ge„ndert werden soll.
+# 011 Hier k”nnen Sie angeben, in welchem Mae der Grnanteil des Bildes ge„ndert werden soll.
+# 012 Hier k”nnen Sie angeben, in welchem Mae der Grnanteil des Bildes ge„ndert werden soll.
+# 013 Hier k”nnen Sie angeben, in welchem Mae der Blauanteil des Bildes ge„ndert werden soll.
+# 014 Hier k”nnen Sie angeben, in welchem Mae der Blauanteil des Bildes ge„ndert werden soll.

@@ -184,7 +184,7 @@ static void do_tachyon(uint8_t *data, unsigned short width, unsigned short heigh
 			printf(": %ld\n", l);
 			printf("r2: %d, g2: %d, b2: %d\n", r2, g2, b2);
 			printf("r: %d, g: %d, b: %d\n\n", r, g, b);
-			getch();
+			(void)Cnecin();
 #endif
 
 			*data++ = r2;
