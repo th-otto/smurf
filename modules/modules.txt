@@ -40,7 +40,7 @@ noise.sem      0.40    0.40     x     x
 ntsc.sem       0.10    0.10     x     x
 paint.sem      0.20    0.20     x     x
 paletout.sem   0.20    -        x
-pepsip.sem     0.10    -
+pepsip.sem     0.10    -        x
 picfade.sem    0.50    -
 pixel.sem      0.40    0.40
 quicksmt.sem   0.80    1.00     x     x
