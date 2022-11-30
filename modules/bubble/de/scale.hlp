@@ -3,9 +3,9 @@
  BubbleGEM Help-File for Editmodul "Skalieren"
 
 #Dial 000 Skaliert ein Bild, auf Wunsch mit Interpolation.
-# 010 Wenn dieser Button angew„hlt ist, wird beim Skalieren interpoliert. Das erh”ht die Qualit„t vor allem bei Farbbildern.
-# 006 Wenn dieser Button selektiert ist, wird die Zielaufl”sung aus den Textfeldern rechts entnommen.
-# 001 Mit diesem Regler k”nnen Sie die horizontale Skalierung (%) einstellen, wenn "Use-Res" nicht selektiert ist.
-# 027 Mit diesem Regler k”nnen Sie die vertikale Skalierung (%) einstellen, wenn "Use-Res" nicht selektiert ist.
-# 013 Hier k”nnen Sie die neue Breite des Bildes angeben. Wird nur ausgewertet, wenn "Use-Res" selektiert ist.
-# 014 Hier k”nnen Sie die neue H”he des Bildes angeben. Wird nur ausgewertet, wenn "Use-Res" selektiert ist.
+# 009 Mit diesem Regler k”nnen Sie die horizontale Skalierung (%) einstellen, wenn "Use-Res" nicht selektiert ist.
+# 011 Mit diesem Regler k”nnen Sie die vertikale Skalierung (%) einstellen, wenn "Use-Res" nicht selektiert ist.
+# 025 Wenn dieser Button selektiert ist, wird die Zielaufl”sung aus den Textfeldern rechts entnommen.
+# 027 Wenn dieser Button angew„hlt ist, wird beim Skalieren interpoliert. Das erh”ht die Qualit„t vor allem bei Farbbildern.
+# 033 Hier k”nnen Sie die neue Breite des Bildes angeben. Wird nur ausgewertet, wenn "Use-Res" selektiert ist.
+# 035 Hier k”nnen Sie die neue H”he des Bildes angeben. Wird nur ausgewertet, wenn "Use-Res" selektiert ist.

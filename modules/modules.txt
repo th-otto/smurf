@@ -46,7 +46,7 @@ pixel.sem      0.40    0.40     x     x
 quicksmt.sem   0.80    1.00     x     x
 rahmen.sem     0.70    0.70     x     x
 rotate.sem     0.30    0.30     x     x
-scale.sem      1.30    1.30
+scale.sem      1.30    1.30     x     x
 scatman.sem    0.30    0.30
 scheren.sem    0.40    0.40
 sharp.sem      0.20    -

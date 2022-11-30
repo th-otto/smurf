@@ -211,7 +211,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 #if TIMER
 		/* wie schnell waren wir? */
 		printf("\n%lu", get_timer());
-		getch();
+		(void)Cnecin();
 #endif
 
 		smurf_struct->module_mode = M_PICDONE;

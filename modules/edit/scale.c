@@ -99,12 +99,12 @@ MOD_ABILITY module_ability = {
 
 
 
-static void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, int height, int nwidth, GARGAMEL *smurf_struct)
+static void X_Scale(uint8_t *opic, uint8_t *npic, long obpl, long nbpl, short owidth, short height, short nwidth, GARGAMEL *smurf_struct)
 {
-	char *o_offset;
-	char *n_offset;
-	unsigned int basestep;
-	unsigned int coldiv;
+	uint8_t *o_offset;
+	uint8_t *n_offset;
+	unsigned short basestep;
+	unsigned short coldiv;
 	unsigned long count;
 	unsigned long lastcount;
 	unsigned long lcount;
@@ -112,17 +112,17 @@ static void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, in
 	long red, green, blue;
 	long sred, sgreen, sblue;
 	long ered, egreen, eblue;
-	unsigned int x;
-	unsigned int y;
-	unsigned int i;
+	unsigned short x;
+	unsigned short y;
+	unsigned short i;
 
 	if (nwidth < owidth)
 	{									/* -Extrapolieren */
 		step = ((long) owidth << 16) / nwidth;
-		basestep = (unsigned int) (step >> 16);
+		basestep = (unsigned short) (step >> 16);
 		step -= ((long) basestep << 16);
 		basestep -= 1;
-		coldiv = (int) ((((long) nwidth) << 16) / (owidth));
+		coldiv = (short) ((((long) nwidth) << 16) / (owidth));
 
 		if (step != 0)
 		{
@@ -134,7 +134,7 @@ static void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, in
 
 				busycount++;
 				if (!(busycount & busycall))
-					smurf_struct->services->busybox((int) ((busycount << 10) / busymax));
+					smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
 
 				sred = *(o_offset++);
 				sgreen = *(o_offset++);
@@ -174,9 +174,9 @@ static void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, in
 					green += ((sgreen * lcount + egreen * count) + 32767) >> 16;
 					blue += ((sblue * lcount + eblue * count) + 32767) >> 16;
 
-					*(n_offset++) = (char) (((red * coldiv) + 32767) >> 16);
-					*(n_offset++) = (char) (((green * coldiv) + 32767) >> 16);
-					*(n_offset++) = (char) (((blue * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((red * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((green * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((blue * coldiv) + 32767) >> 16);
 
 					sred = ered;
 					sgreen = egreen;
@@ -195,7 +195,7 @@ static void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, in
 
 				busycount++;
 				if (!(busycount & busycall))
-					smurf_struct->services->busybox((int) ((busycount << 10) / busymax));
+					smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
 
 				for (x = 0; x < nwidth; x++)
 				{
@@ -208,9 +208,9 @@ static void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, in
 						blue += *(o_offset++);
 					}
 
-					*(n_offset++) = (char) (((red * coldiv) + 32767) >> 16);
-					*(n_offset++) = (char) (((green * coldiv) + 32767) >> 16);
-					*(n_offset++) = (char) (((blue * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((red * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((green * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((blue * coldiv) + 32767) >> 16);
 				}
 			}
 		}
@@ -225,7 +225,7 @@ static void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, in
 			count = 0;
 			busycount++;
 			if (!(busycount & busycall))
-				smurf_struct->services->busybox((int) ((busycount << 10) / busymax));
+				smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
 
 			ered = *(o_offset++);
 			egreen = *(o_offset++);
@@ -238,9 +238,9 @@ static void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, in
 			for (x = 0; x < nwidth; x++)
 			{
 				lcount = 0xffff - count;
-				*(n_offset++) = (char) (((sred * lcount + ered * count) + 32767) >> 16);
-				*(n_offset++) = (char) (((sgreen * lcount + egreen * count) + 32767) >> 16);
-				*(n_offset) = (char) (((sblue * lcount + eblue * count) + 32767) >> 16);
+				*(n_offset++) = (((sred * lcount + ered * count) + 32767) >> 16);
+				*(n_offset++) = (((sgreen * lcount + egreen * count) + 32767) >> 16);
+				*(n_offset) = (((sblue * lcount + eblue * count) + 32767) >> 16);
 				n_offset -= 5;
 
 				count += step;
@@ -261,12 +261,12 @@ static void X_Scale(char *opic, char *npic, long obpl, long nbpl, int owidth, in
 }
 
 
-static void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int oheight, int nheight, GARGAMEL *smurf_struct)
+static void Y_Scale(uint8_t *opic, uint8_t *npic, long obpl, long nbpl, short width, short oheight, short nheight, GARGAMEL *smurf_struct)
 {
-	char *o_offset;
-	char *n_offset;
-	unsigned int basestep;
-	unsigned int coldiv;
+	uint8_t *o_offset;
+	uint8_t *n_offset;
+	unsigned short basestep;
+	unsigned short coldiv;
 	unsigned long count;
 	unsigned long lastcount;
 	unsigned long lcount;
@@ -274,17 +274,17 @@ static void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int
 	long red, green, blue;
 	long sred, sgreen, sblue;
 	long ered, egreen, eblue;
-	unsigned int x;
-	unsigned int y;
-	unsigned int i;
+	unsigned short x;
+	unsigned short y;
+	unsigned short i;
 
 	if (nheight < oheight)
 	{									/* -Extrapolieren */
 		step = ((long) oheight << 16) / nheight;
-		basestep = (unsigned int) (step >> 16);
+		basestep = (unsigned short) (step >> 16);
 		step -= ((long) basestep << 16);
 		basestep -= 1;
-		coldiv = (int) ((((long) nheight) << 16) / (oheight));
+		coldiv = (short) ((((long) nheight) << 16) / (oheight));
 
 		if (step != 0)
 		{
@@ -296,7 +296,7 @@ static void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int
 
 				busycount++;
 				if (!(busycount & busycall))
-					smurf_struct->services->busybox((int) ((busycount << 10) / busymax));
+					smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
 
 				sred = *(o_offset++);
 				sgreen = *(o_offset++);
@@ -339,9 +339,9 @@ static void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int
 					green += ((sgreen * lcount + egreen * count) + 32767) >> 16;
 					blue += ((sblue * lcount + eblue * count) + 32767) >> 16;
 
-					*(n_offset++) = (char) (((red * coldiv) + 32767) >> 16);
-					*(n_offset++) = (char) (((green * coldiv) + 32767) >> 16);
-					*(n_offset) = (char) (((blue * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((red * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((green * coldiv) + 32767) >> 16);
+					*(n_offset) = (((blue * coldiv) + 32767) >> 16);
 					n_offset += (nbpl - 2);
 
 					sred = ered;
@@ -361,7 +361,7 @@ static void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int
 
 				busycount++;
 				if (!(busycount & busycall))
-					smurf_struct->services->busybox((int) ((busycount << 10) / busymax));
+					smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
 
 				for (y = 0; y < nheight; y++)
 				{
@@ -375,9 +375,9 @@ static void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int
 						o_offset += (obpl - 2);
 					}
 
-					*(n_offset++) = (char) (((red * coldiv) + 32767) >> 16);
-					*(n_offset++) = (char) (((green * coldiv) + 32767) >> 16);
-					*(n_offset) = (char) (((blue * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((red * coldiv) + 32767) >> 16);
+					*(n_offset++) = (((green * coldiv) + 32767) >> 16);
+					*(n_offset) = (((blue * coldiv) + 32767) >> 16);
 					n_offset += (nbpl - 2);
 				}
 			}
@@ -394,7 +394,7 @@ static void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int
 			count = 0;
 			busycount++;
 			if (!(busycount & busycall))
-				smurf_struct->services->busybox((int) ((busycount << 10) / busymax));
+				smurf_struct->services->busybox((short) ((busycount << 10) / busymax));
 
 			ered = *(o_offset++);
 			egreen = *(o_offset++);
@@ -408,9 +408,9 @@ static void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int
 			for (y = 0; y < nheight; y++)
 			{
 				lcount = 0xffff - count;
-				*(n_offset++) = (char) (((sred * lcount + ered * count) + 32767) >> 16);
-				*(n_offset++) = (char) (((sgreen * lcount + egreen * count) + 32767) >> 16);
-				*(n_offset) = (char) (((sblue * lcount + eblue * count) + 32767) >> 16);
+				*(n_offset++) = (((sred * lcount + ered * count) + 32767) >> 16);
+				*(n_offset++) = (((sgreen * lcount + egreen * count) + 32767) >> 16);
+				*(n_offset) = (((sblue * lcount + eblue * count) + 32767) >> 16);
 				n_offset -= (nbpl + 2L);
 
 				count += step;
@@ -431,28 +431,28 @@ static void Y_Scale(char *opic, char *npic, long obpl, long nbpl, int width, int
 }
 
 
-static int do_interpolate(GARGAMEL *smurf_struct)
+static short do_interpolate(GARGAMEL *smurf_struct)
 {
-	SMURF_PIC *picture; /* a3 */
-	int x_fak;
-	int y_fak;
-	int x_res;
-	int y_res;
-	int width;
-	int height;
-	int n_width;
-	int n_height;
-	char *pic;
-	char *n_pic;
+	SMURF_PIC *picture;
+	short x_fak;
+	short y_fak;
+	short x_res;
+	short y_res;
+	short width;
+	short height;
+	short n_width;
+	short n_height;
+	uint8_t *pic;
+	uint8_t *n_pic;
 	long bpl;
 	long n_bpl;
 
 	/*--- Slider auslesen ---------------------- */
 
-	x_fak = (int) smurf_struct->slide1;
-	y_fak = (int) smurf_struct->slide2;
-	x_res = (int) smurf_struct->edit1;
-	y_res = (int) smurf_struct->edit2;
+	x_fak = (short) smurf_struct->slide1;
+	y_fak = (short) smurf_struct->slide2;
+	x_res = (short) smurf_struct->edit1;
+	y_res = (short) smurf_struct->edit2;
 
 	/*--- Bilddaten auslesen --------------------*/
 
@@ -469,8 +469,8 @@ static int do_interpolate(GARGAMEL *smurf_struct)
 		n_height = y_res;
 	} else
 	{
-		n_width = (int) ((long) x_fak * (long) width / 100);
-		n_height = (int) ((long) y_fak * (long) height / 100);
+		n_width = (short) ((long) x_fak * (long) width / 100);
+		n_height = (short) ((long) y_fak * (long) height / 100);
 	}
 
 	/*--- BusyBox Vorberechnungen ----------------------*/
@@ -492,7 +492,7 @@ static int do_interpolate(GARGAMEL *smurf_struct)
 		return M_WAITING;
 
 	/*--- Speicher fr neues Bild ---------------------*/
-	n_pic = Malloc((long) n_width * (long) n_height * 3L);
+	n_pic = (uint8_t *)Malloc((long) n_width * (long) n_height * 3L);
 
 	if (n_pic == NULL)
 		return M_MEMORY;				/*  Kein Speicher !!! */
@@ -555,10 +555,10 @@ static int do_interpolate(GARGAMEL *smurf_struct)
 	return M_PICDONE;
 }
 
-static void scale_line(char *dst, char *src, int nwidth, long width)
+static void scale_line(uint8_t *dst, uint8_t *src, short nwidth, long width)
 {
 	long pos;
-	int x;
+	short x;
 	long offset;
 	
 	pos = 0;
@@ -573,31 +573,31 @@ static void scale_line(char *dst, char *src, int nwidth, long width)
 }
 
 /*--------------- SCALING ----------------------------*/
-static int do_it(GARGAMEL *smurf_struct)
+static short do_it(GARGAMEL *smurf_struct)
 {
 	SMURF_PIC *picture;
-	int x_fak;
-	int y_fak;
-	int x_res;
-	int y_res;
-	int width;
-	int height;
-	int n_width;
-	int n_height;
-	int y;
-	char *pic;
-	char *n_pic;
+	short x_fak;
+	short y_fak;
+	short x_res;
+	short y_res;
+	short width;
+	short height;
+	short n_width;
+	short n_height;
+	short y;
+	uint8_t *pic;
+	uint8_t *n_pic;
 	long bpl;
 	long n_bpl;
-	char *dst;
-	char *src;
+	uint8_t *dst;
+	uint8_t *src;
 	
 	/*--- Slider auslesen ---------------------- */
 
-	x_fak = (int) smurf_struct->slide1;
-	y_fak = (int) smurf_struct->slide2;
-	x_res = (int) smurf_struct->edit1;
-	y_res = (int) smurf_struct->edit2;
+	x_fak = (short) smurf_struct->slide1;
+	y_fak = (short) smurf_struct->slide2;
+	x_res = (short) smurf_struct->edit1;
+	y_res = (short) smurf_struct->edit2;
 
 	/*--- Bilddaten auslesen --------------------*/
 
@@ -614,8 +614,8 @@ static int do_it(GARGAMEL *smurf_struct)
 		n_height = y_res;
 	} else
 	{
-		n_width = (int) ((long) x_fak * (long) width / 100);
-		n_height = (int) ((long) y_fak * (long) height / 100);
+		n_width = (short) ((long) x_fak * (long) width / 100);
+		n_height = (short) ((long) y_fak * (long) height / 100);
 	}
 
 	/*--- BusyBox Vorberechnungen ----------------------*/
@@ -637,7 +637,7 @@ static int do_it(GARGAMEL *smurf_struct)
 		n_height = height / ((float) width / n_width);
 
 	/*--- Speicher fr neues Bild ---------------------*/
-	n_pic = Malloc((long) n_width * (long) n_height * 3L);
+	n_pic = (uint8_t *)Malloc((long) n_width * (long) n_height * 3L);
 
 	if (n_pic == NULL)
 		return M_MEMORY;				/*  Kein Speicher !!! */
@@ -691,15 +691,11 @@ void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview)
 /*-----------------------  FUNCTION MAIN --------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-	int module_id;
-
 	switch (smurf_struct->module_mode)
 	{
 	case MSTART:
 		/* Wenn das Modul aufgerufen wurde, */
-		module_id = smurf_struct->module_number;
-
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
 		smurf_struct->module_mode = M_WAITING;
 		break;
 
