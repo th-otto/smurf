@@ -3,6 +3,6 @@
  BubbleGEM Help-File for Editmodul "Scheren"
 
 #Dial 000 Schert Bilder horizontal oder Vertikal.
-# 006 Ist "interpolierend" angeschaltet, wird das Ergebnis viel feiner. Auf Kosten der Geschwindigkeit.
-# 013 Hier k”nnen Sie den X-Winkel angeben (-90 bis +90ø).
-# 014 Hier k”nnen Sie den Y-Winkel angeben (-90 bis +90ø).
+# 025 Ist "interpolierend" angeschaltet, wird das Ergebnis viel feiner. Auf Kosten der Geschwindigkeit.
+# 033 Hier k”nnen Sie den X-Winkel angeben (-90 bis +90ø).
+# 035 Hier k”nnen Sie den Y-Winkel angeben (-90 bis +90ø).

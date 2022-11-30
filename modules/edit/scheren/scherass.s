@@ -37,10 +37,20 @@
 *		par[3] = buffer;		unsigned char
 *
 
-GLOBL scheren_xschleife
-
+	.IFEQ PURE_C
+	.globl _scheren_xschleife
+_scheren_xschleife:
+	move.l 4(a7),a0
+#ifndef __MSHORT__
+	move.l 8(a7),d0
+#else
+	move.w 8(a7),d0
+#endif
+	.ENDC
+	
+	.globl scheren_xschleife
 scheren_xschleife:
-    movem.l d3-d7,-(sp)	/* Register retten */
+    movem.l d2-d7,-(sp)	/* Register retten */
 
     /* Parameter holen */
     move.l (a0)+,d4	/* fracnew0 */
@@ -124,7 +134,7 @@ beq xnofracnew0			/* if(fracnew0), einen weiteren Pixel */
 
 xnofracnew0:
 
-    movem.l (sp)+,d3-d7	/* Register restore */
+    movem.l (sp)+,d2-d7	/* Register restore */
     rts						/* und tschÅss */
 
 
@@ -171,10 +181,20 @@ xnofracnew0:
 *		par[4] = buffer;		unsigned char
 *
 
-GLOBL scheren_yschleife
-
+	.IFEQ PURE_C
+	.globl _scheren_yschleife
+_scheren_yschleife:
+	move.l 4(a7),a0
+#ifndef __MSHORT__
+	move.l 8(a7),d0
+#else
+	move.w 8(a7),d0
+#endif
+	.ENDC
+	
+	.globl scheren_yschleife
 scheren_yschleife:
-	movem.l d3-d7,-(sp)	/* Register retten */
+	movem.l d2-d7,-(sp)	/* Register retten */
 
 	/* Parameter holen */
 	move.l (a0)+,d4	/* fracnew0 */
@@ -262,7 +282,7 @@ beq ynofracnew0			/* if(fracnew0), einen weiteren Pixel */
 
 ynofracnew0:
 
-    movem.l (sp)+,d3-d7	/* Register restore */
+    movem.l (sp)+,d2-d7	/* Register restore */
     rts						/* und tschÅss */
 
 
