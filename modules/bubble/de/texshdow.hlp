@@ -1,0 +1,9 @@
+#BGH 000 000 000
+
+ BubbleGEM Help-File for Editmodul "Drop Tex-Shadow"
+
+#Dial 000 Wirft einen weichen Schatten auf ein beliebiges Hintergrundbild
+# 009 Dieser Regler gibt an, wie dunkel der Schatten sein soll (oben=schwarz, unten=weiž).
+# 011 Mit diesem Regler k”nnen Sie einstellen, wie weich der Schatten sein soll.
+# 013 Hier k”nnen Sie den horizontalen Abstand eingeben, den der Schatten von den Bildelementen haben soll.
+# 015 Hier k”nnen Sie den vertikalen Abstand eingeben, den der Schatten von den Bildelementen haben soll.

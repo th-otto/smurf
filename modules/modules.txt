@@ -59,7 +59,7 @@ spin.sem       0.20    0.20     x
 strudel.sem    1.00    1.00     x
 sw.sem         0.50    0.50     x     x
 tachyon.sem    0.10    0.10     x     x
-texshdow.sem   0.30    -
+texshdow.sem   0.30    -        x     x
 text.sem       1.05    1.05
 weight.sem     0.40    0.40
 wind.sem       0.20    0.20

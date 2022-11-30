@@ -49,6 +49,11 @@
 #define STR_YDIST "Y-dist"
 #else
 #define STR_STRENGTH "Strength"
+#define STR_SOFT "Soft"
+#define STR_SIZE "Size"
+#define STR_ROUNDED "Rounded"
+#define STR_XDIST "X-dist"
+#define STR_YDIST "Y-dist"
 #endif
 
 /*--------------- Funktionen -------------------*/
