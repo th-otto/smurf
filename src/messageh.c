@@ -771,7 +771,7 @@ WORD f_handle_message(void)
 		if (Comm.avComm.type != (AV_IMAGE | 0xf0))
 			Comm.sendAESMsg(Sys_info.ENV_avserver, AV_STARTED, LONG2_2INT(argback), -1);
 		else
-			Dialog.busy.noEvents = 0;
+			Dialog.busy.noEvents = FALSE;
 		break;
 
 

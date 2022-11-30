@@ -1919,6 +1919,8 @@ void top_window_now(WINDOW *window)
 	WORD  toph;
 	WORD dummy;
 
+	if (window->whandlem <= 0)
+		return;
 	Window.windGet(0, WF_TOP, &toph, &dummy, &dummy, &dummy);
 	if (toph != window->whandlem)		/* nicht schon top? */
 	{

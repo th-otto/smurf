@@ -635,7 +635,9 @@ short f_open_module_window(WINDOW *module_window)
 
 		Window.windowToList(module_window);
 	} else
+	{
 		Window.top(m_whandle);
+	}
 
 	/* aus Bruttokoordinaten wieder Nettokoordinaten machen */
 	wind_calc(WC_WORK, flags, m_wind_x, m_wind_y, m_wind_w, m_wind_h, &m_wind_x, &m_wind_y, &m_wind_w, &m_wind_h);

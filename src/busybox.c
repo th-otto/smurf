@@ -92,7 +92,7 @@ short draw_busybox(short lft)
 	OBJECT *busytree = Dialog.busy.busyTree;
 	GRECT box;
 
-	if (Dialog.busy.disabled)
+	if (Dialog.busy.disabled || wind_s[WIND_BUSY].whandlem <= 0)
 		return 0;
 
 	if (!Startup && !Dialog.busy.noEvents)
@@ -132,6 +132,9 @@ void actualize_ram(void)
 	GRECT box;
 
 	DEBUG_MSG(("actualize_ram...\n"));
+
+	if (Dialog.busy.disabled || wind_s[WIND_BUSY].whandlem <= 0)
+		return;
 
 	frei_mem = (long) Malloc(-1);
 	frei_mem /= 1024L;					/* 1024 = Kilobyte */
@@ -193,7 +196,7 @@ static void empty_rbb(short lft, const char *txt)
 	------------------------------------------------------------*/
 void enable_busybox(void)
 {
-	Dialog.busy.disabled = 0;
+	Dialog.busy.disabled = FALSE;
 	global_services.busybox = Dialog.busy.draw;
 	global_services.reset_busybox = Dialog.busy.reset;
 }
@@ -208,7 +211,7 @@ void disable_busybox(void)
 
 void fulldisable_busybox(void)
 {
-	Dialog.busy.disabled = 1;
+	Dialog.busy.disabled = TRUE;
 	global_services.busybox = fullempty_bb;
 	global_services.reset_busybox = empty_rbb;
 }

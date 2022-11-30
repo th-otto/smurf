@@ -144,9 +144,9 @@ void init_GuiObs(void)
 	Dialog.busy.disable = disable_busybox;
 	Dialog.busy.enable = enable_busybox;
 	Dialog.busy.fullDisable = fulldisable_busybox;
-	Dialog.busy.noEvents = 0;
+	Dialog.busy.noEvents = FALSE;
 	Dialog.busy.resetClock = 0;
-	Dialog.busy.disabled = 0;
+	Dialog.busy.disabled = FALSE;
 
 	/*
 	 * Editmodulliste

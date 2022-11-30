@@ -1725,7 +1725,7 @@ void reload_pic(WINDOW *picwindow)
 	/*
 	 * Bildfenster schliežen
 	 */
-	Dialog.busy.noEvents = 1;
+	Dialog.busy.noEvents = TRUE;
 	strcpy(loadpath, picwindow->picture->filename);	/* Filename retten */
 	Window.close(picwindow->whandlem);
 #if 0
