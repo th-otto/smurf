@@ -49,7 +49,7 @@ rotate.sem     0.30    0.30     x     x
 scale.sem      1.30    1.30     x     x
 scatman.sem    0.30    0.30     x     x
 scheren.sem    0.40    0.40     x     x
-sharp.sem      0.20    -
+sharp.sem      0.20    -        x
 sinusw.sem     0.20    0.20
 solarize.sem   0.20    0.20
 speedom.sem    0.50    0.80     x     x
