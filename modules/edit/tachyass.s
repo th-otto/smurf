@@ -28,35 +28,45 @@
 * Deklaration:
 *	void tachyon_pixel(char *data, char *cliptab, unsigned int width);
 
-
-GLOBL tachyon_pixel
-
+	.IFEQ PURE_C
+	.globl _tachyon_pixel
+_tachyon_pixel:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+#ifndef __MSHORT__
+	move.l 12(a7),d0
+#else
+	move.w 12(a7),d0
+#endif
+	.ENDC
+	
+	.globl tachyon_pixel
 tachyon_pixel:
-movem.l d3-d7/a2-a6,-(sp)
-
-move.l	a0,a2					/*data */
-subq.w	#1,d0					/*width-1 fÅr dbra */
-
-moveq.l #12,d1					/*Shiftwert in Register packen */
-move.l #1050624,d7				/*a2 als Datenregister miûbrauchen */
-								/*1048576+2048 (256,5<<12) */
+	movem.l d2-d7/a2,-(sp)
+	
+	move.l	a0,a2					/*data */
+	subq.w	#1,d0					/*width-1 fÅr dbra */
+	
+	moveq.l #12,d1					/*Shiftwert in Register packen */
+	move.l #1050624,d7				/*a2 als Datenregister miûbrauchen */
+									/*1048576+2048 (256,5<<12) */
 
 _loopx:
 *---------------------------
 * Luminanz holen und aufbereiten
 *---------------------------
-	moveq.l	#$0,d4				/*zeroing */
+	moveq.l	#0,d4				/*zeroing */
 	move.b 	(a0)+,d4			/*R holen */
 	move.l	d4,d3				/*und zwischenspeichern */
 	mulu.w  #1225,d3			/**1225L */
 
-	moveq.l	#$0,d5				/*zeroing */
+	moveq.l	#0,d5				/*zeroing */
 	move.b 	(a0)+,d5			/*G holen */
 	move.l	d5,d2				/*und zwischenspeichern */
 	mulu.w  #2404,d2			/**2404L */
 	add.l	d2,d3				/*R+G */
 
-	moveq.l	#$0,d6				/*zeroing */
+	moveq.l	#0,d6				/*zeroing */
 	move.b 	(a0)+,d6			/*B holen */
 	move.l	d6,d2				/*und zwischenspeichern */
 	mulu.w  #467,d2				/**467L */
@@ -101,5 +111,5 @@ _loopx:
 
 dbra d0,_loopx
 
-movem.l (sp)+,d3-d7/a2-a6
-rts
+	movem.l (sp)+,d2-d7/a2
+	rts

@@ -38,6 +38,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/speedom.sem \
 	$(DISTDIR)/modules/edit/strudel.sem \
 	$(DISTDIR)/modules/edit/sw.sem \
+	$(DISTDIR)/modules/edit/tachyon.sem \
 	$(empty)
 
 # MODULES += $(DISTDIR)/modules/edit/pepsip.sem # does not do anything
@@ -152,6 +153,10 @@ $(DISTDIR)/modules/edit/strudel.sem: edstart.o strudel.o
 
 $(DISTDIR)/modules/edit/sw.sem: edstart.o sw.o $(top_srcdir)/src/getlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/tachyon.sem: edstart.o tachyon.o tachyass.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 
 clean::
 	$(RM) *.o $(top_srcdir)/src/getlines.o $(top_srcdir)/src/setlines.o $(top_srcdir)/src/getpix.o $(top_srcdir)/src/rearr.o $(MODULES)
