@@ -33,120 +33,88 @@
 
 void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview);
 
-char p1string[20]="Fadebild 1";
-char p2string[20]="Fadebild 2";
+static char p1string[] = "Fadebild 1";
+static char p2string[] = "Fadebild 2";
 
 
 /*------ Infostruktur fÅr Hauptprogramm -----*/
-MOD_INFO    module_info=
-    {
-    "öberblenden (24Bit)",
-    0x0050,
-    "Olaf Piesche",
-    "","","","","","","","","","",
-    "StÑrke",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    0,100,
-    0,128,
-    0,128,
-    0,128,
-    0,10,
-    0,10,
-    0,10,
-    0,10,
-    0,0,0,0,
-    0,0,0,0,
-    0,0,0,0,
-    2,
-    p1string,
-    p2string
-    };
+MOD_INFO module_info = {
+	"öberblenden (24Bit)",
+	0x0050,
+	"Olaf Piesche",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	"StÑrke", "", "", "",
+	"", "", "", "",
+	"", "", "", "",
+	0, 100,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	2,
+	p1string, p2string, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-                        24, 0, 0, 0, 0, 0, 0, 0,    /* Farbtiefen */
-            /* Grafikmodi: */
-                        FORM_PIXELPAK,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        0 /* Extra-Flag */ 
-                        };
+MOD_ABILITY module_ability = {
+	24, 0, 0, 0, 0, 0, 0, 0,			/* Farbtiefen */
+	/* Grafikmodi: */
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0									/* Extra-Flag */
+};
 
-SMURF_PIC *picture[3];
+static SMURF_PIC *picture[3];
 
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-int my_id;
-/* int x,y; */
-long slidval=0;
-/* int r,g,b; */
-/* char *data; */
+	long slidval;
 
+	switch (smurf_struct->module_mode)
+	{
+	case MSTART:
+		/*---------- Wenn das Modul zum ersten Mal gestartet wurde, */
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);	/* PD aufrufen */
+		smurf_struct->module_mode = M_WAITING;
+		break;
 
+	case MPICTURE:
+		/*--------- MPICTURE-Message (Bilder werden geliefert) */
+		/* Jetzt schickt Smurf der Reihe nach die einzelnen Bilder. Die
+		    Nummer des Bildes, das beim Eintreten der Message in der
+		    Gargamel hÑngt, steht in GARGAMEL -> event_par und liegt
+		    zwischen 1 und 6.               */
+		/* Bild holen */
+		picture[smurf_struct->event_par[0]] = smurf_struct->smurf_pic;	/*picture; */
 
-/*---------- Wenn das Modul zum ersten Mal gestartet wurde, */
-if(smurf_struct->module_mode==MSTART)
-{
-    my_id=smurf_struct->module_number;
+		/* und weiter warten */
+		smurf_struct->module_mode = M_WAITING;
+		break;
 
-    smurf_struct->services->f_module_prefs(&module_info, my_id);  /* PD aufrufen */
+	case MEXEC:
+		/*--------- MEXEC-Message (Los gehts!) */
+		slidval = smurf_struct->slide1;	/* Slider holen */
+		(void) slidval;
+		break;
 
-    smurf_struct->module_mode=M_WAITING;
-    return;
-}
-
-
-/*--------- MPICTURE-Message (Bilder werden geliefert) */
-/* Jetzt schickt Smurf der Reihe nach die einzelnen Bilder. Die
-    Nummer des Bildes, das beim Eintreten der Message in der
-    Gargamel hÑngt, steht in GARGAMEL -> event_par und liegt
-    zwischen 1 und 6.               */
-else if(smurf_struct->module_mode == MPICTURE)
-{
-    /* Bild holen */
-    picture[smurf_struct->event_par] = smurf_struct->smurf_pic; /*picture;*/
-
-    /* und weiter warten */
-    smurf_struct->module_mode=M_WAITING;
-    return;
-}
-
-
-
-/*--------- MEXEC-Message (Los gehts!) */
-else if(smurf_struct->module_mode == MEXEC)
-{
-    slidval=smurf_struct->slide1;       /* Slider holen */
-	(void)slidval;
-}
-
-
-
-
-/* Mterm empfangen - Speicher freigeben und beenden */
-else if(smurf_struct->module_mode == MTERM)
-{
-    smurf_struct->module_mode=M_EXIT;
-    return;
-}
-
-
+	case MTERM:
+		/* Mterm empfangen - Speicher freigeben und beenden */
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }
 
 
@@ -160,9 +128,9 @@ else if(smurf_struct->module_mode == MTERM)
 /* angefordert. Das Preview (im Smurf-Standardformat) wird dann vom Hauptprogramm   */
 /* fÅr die Screen-Farbtiefe gedithert und im Einstellformular dargestellt.          */
 
-void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview){
-
-    /* Ich mach' noch nix. */
-    (void)smurfpic;
-    (void)preview;
+void prev(SMURF_PIC *smurfpic, SMURF_PIC *preview)
+{
+	/* Ich mach' noch nix. */
+	(void) smurfpic;
+	(void) preview;
 }

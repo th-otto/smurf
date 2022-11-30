@@ -42,7 +42,7 @@ modules\edit\ntsc.prj
 modules\edit\paint.prj
 modules\edit\paletout.prj
 ;modules\edit\pepsip.prj ; does not do anything
-modules\edit\picfade.prj
+;modules\edit\picfade.prj ; does not do anything
 modules\edit\pixel\pixel.prj
 modules\edit\quicksmt.prj
 modules\edit\rahmen.prj

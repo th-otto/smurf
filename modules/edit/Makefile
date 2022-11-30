@@ -33,7 +33,8 @@ MODULES = \
 	$(DISTDIR)/modules/edit/sw.sem \
 	$(empty)
 
-00000000 += $(DISTDIR)/modules/edit/pepsip.sem # does not do anything
+# MODULES += $(DISTDIR)/modules/edit/pepsip.sem # does not do anything
+# MODULES += $(DISTDIR)/modules/edit/picfade.sem # does not do anything
 
 SUBDIRS = beule bumpmap cchange chanel5 chanelmx colrun freefilt hsv magic mirror
 
@@ -110,6 +111,9 @@ $(DISTDIR)/modules/edit/paletout.sem: edstart.o paletout.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/pepsip.sem: edstart.o pepsip.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/picfade.sem: edstart.o picfade.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/quicksmt.sem: edstart.o quicksmt.o smth_mat.o
