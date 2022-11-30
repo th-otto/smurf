@@ -36,6 +36,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/sinusw.sem \
 	$(DISTDIR)/modules/edit/solarize.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
+	$(DISTDIR)/modules/edit/strudel.sem \
 	$(DISTDIR)/modules/edit/sw.sem \
 	$(empty)
 
@@ -144,6 +145,9 @@ $(DISTDIR)/modules/edit/solarize.sem: edstart.o solarize.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/speedom.sem: edstart.o speedom.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/strudel.sem: edstart.o strudel.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/sw.sem: edstart.o sw.o $(top_srcdir)/src/getlines.o

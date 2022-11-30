@@ -60,41 +60,35 @@
 #include "smurfine.h"
 
 
-#define betrag(a)   (a<0 ? -a : a)
-
-BITBLK *prev(GARGAMEL *prev_struct);        /* Previewfunktion */
-void f_doit(GARGAMEL *smurfstruct);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO    module_info={
-                        TEXT1,
-						0x0100,
-                        "Olaf Piesche",
-                        "", "", "", "", "",
-                        "", "", "", "", "",
-                        TEXT2, "","","",
-                        TEXT3, TEXT4,  "", "",
-                        "", "", "", "",
-                        0,360,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        90,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        1
-                        };
+MOD_INFO module_info = {
+	TEXT1,
+	0x0100,
+	"Olaf Piesche",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	TEXT2, "", "", "",
+	TEXT3, TEXT4, "", "",
+	"", "", "", "",
+	0, 360,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	90, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
-MOD_ABILITY	module_ability=
-{
+MOD_ABILITY module_ability = {
 /* Farbtiefen, die vom Modul untersttzt werden:			*/
-	24,0,0,0,0,0,0,0,
+	24, 0, 0, 0, 0, 0, 0, 0,
 /*	Dazugeh”rige Datenformate (FORM_PIXELPAK/FORM_STANDARD/FORM_BOTH) */
-	FORM_PIXELPAK,1,1,1,1,1,1,1,
+	FORM_PIXELPAK, 1, 1, 1, 1, 1, 1, 1,
 
 /* Untersttzte Orientierung (0=o->u, 1=u->o)):				*/
 	1
@@ -105,201 +99,185 @@ MOD_ABILITY	module_ability=
 /*---------------------------  FUNCTION MAIN -----------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-short mod_id, t;
-int SmurfMessage;
-int umgekehrt;
-char *picdata, *pdat;
-char *destpic, *dest;
+	short t;
+	BOOLEAN umgekehrt;
+	uint8_t *picdata;
+	uint8_t *pdat;
+	uint8_t *destpic;
+	uint8_t *dest;
+	short width, height;
+	short xmax, ymax;
+	long x, y;
+	long phi;
+	long xsrc, ysrc;
+	long xmitte, ymitte;
+	long xb, yb;
+	long offset, srcoffset;
+	long bytewidth;
+	long cosval, sinval;
+	float bog;
 
-int width, height, xmax, ymax;
-long x,y, phi, xsrc, ysrc;
-long xmitte, ymitte;
-long xb, yb;
-long offset, srcoffset;
-long bytewidth;
-long cosval, sinval;
-float bog;
-/*float abstand, divi;*/
-long abstand, divi;
-SMURF_PIC *picture;
-long sliderval;
-char red, green, blue;
-long tr, tg, tb;
+	long abstand, divi;
+	SMURF_PIC *picture;
+	long sliderval;
+	uint8_t red, green, blue;
+	long tr, tg, tb;
 
-long yoffset=0;
-long ym_qu, xm_qu, dist_fak;
-int tunnel;
+	long yoffset = 0;
+	long ym_qu, xm_qu, dist_fak;
+	BOOLEAN tunnel;
 
-static long Cos[370];
-static long Sin[370];
+	static long Cos[370];
+	static long Sin[370];
 
-SmurfMessage=smurf_struct->module_mode;
-
-/* Hier werden die Funktionen aus der GARGAMEL-Struktur geholt. */
-
-
-
-/*--------------------- Wenn das Modul zum ersten Mal gestartet wurde */
-if(SmurfMessage==MSTART)
-{
-	mod_id=smurf_struct->module_number;
-
-	smurf_struct->services->reset_busybox(0, TEXT5);
-	for(t=0; t<370; t++)
+	switch (smurf_struct->module_mode)
 	{
-		/*
-		if(umgekehrt)	bog=((360-t)*M_PI)/180F;
-		else
-		*/
-		bog=(t*M_PI)/180F;
-		Sin[t]=sin(bog)*32768F;
-		Cos[t]=cos(bog)*32768F;	
-	}
-
-	smurf_struct->services->f_module_prefs(&module_info, mod_id);			/* Gib mir 'n PD! */
-
-	smurf_struct->module_mode=M_WAITING;		/* doch? Ich warte... */
-	return;
-}
-
-
-
-
-
-/*-------------------------------------	Modul soll loslegen */
-else if(SmurfMessage==MEXEC)
-{
-
-	picture=smurf_struct->smurf_pic;				/* Bild 		*/
-	picdata=picture->pic_data;
-	sliderval=smurf_struct->slide1;			/* Sliderwert auslesen */
-
-	umgekehrt=smurf_struct->check1;			/* Checkboxen auslesen */
-	tunnel=smurf_struct->check2;
-
-	width=picture->pic_width;		/* Bildabmessungen */
-	height=picture->pic_height;
-	bytewidth=(long)width*3L;
-
-	xmax=width-1;
-	ymax=height-1;
-
-
-	destpic=Malloc((long)width*(long)height*3L);
-
-	xmitte=width/2;					/* Mittelpunkt */
-	ymitte=height/2;
-
-	xm_qu=xmitte*xmitte;
-	ym_qu=ymitte*ymitte;
-	if(height<width) dist_fak = ym_qu;
-	else dist_fak = xm_qu;
-	
-	dist_fak = (1024L*1024L)/dist_fak;
-	
-	if(sliderval < 0) sliderval=360+sliderval;
-
-	smurf_struct->services->reset_busybox(0, TEXT6);
-
-
-	for(y=0; y<height; y++)
-	{
-		if(!(y&7)) smurf_struct->services->busybox( (int)(((long)y<<7L) / (long)height));
-
-		
-		for(x=0; x<width; x++)
+	/*--------------------- Wenn das Modul zum ersten Mal gestartet wurde */
+	case MSTART:
+		smurf_struct->services->reset_busybox(0, TEXT5);
+		for (t = 0; t < 370; t++)
 		{
-			xb=x-xmitte;
-			yb=y-ymitte;
-
-			abstand = yb*yb+xb*xb;						/* die sqrt wird unten durch das quadrieren von ymitte gespart */
-
-			divi = 1024-( (abstand*dist_fak)>>10 );
-			phi= (sliderval * divi)>>10;
-
-			if(phi<0)
-			{
-				if(!umgekehrt) phi=0;
-				else	phi+=(float)phi*(360F/(float)phi);
-			}
-			else if(phi>360)
-			{
-				if(!umgekehrt) phi=360;
-				else	phi-=(float)phi*(360F/(float)phi);
-			}
-
-			if(phi !=0 && phi!=360)
-			{
-
-				/* Punkt rotieren */
-				sinval = Sin[phi];
-				cosval = Cos[phi];
-				xsrc = ((long)(xb*cosval - yb*sinval)>>15L) + xmitte;
-				ysrc = ((long)(xb*sinval + yb*cosval)>>15L) + ymitte;
-
-				if(xsrc<0) xsrc=0;
-				else if(xsrc>xmax) xsrc-=width;
-				if(ysrc<0) ysrc=0;
-				else if(ysrc>ymax) ysrc-=height;
-				offset = (yoffset)+(x+x+x);
-				srcoffset = (ysrc*bytewidth)+(xsrc+xsrc+xsrc);
-			}	
+#if 0
+			if (umgekehrt)
+				bog = ((360 - t) * M_PI) / 180.0F;
 			else
-			{
-				offset = (yoffset)+(x+x+x);
-				srcoffset = (yoffset)+(x+x+x);
-			}				
-
-			dest=destpic+offset;
-			pdat=picdata+srcoffset;
-			
-			red=*(pdat++);
-			green=*(pdat++);
-			blue=*(pdat++);
-
-			
-			if(tunnel && phi && divi<=1024 && divi>=0)
-			{
-				tr = red * (1024-divi);
-				tg = green * (1024-divi);
-				tb = blue * (1024-divi);
-				red	=	tr>>10;
-				green =	tg>>10;
-				blue =	tb>>10;
-			}
-			
-			*(dest++) = red;
-			*(dest++) = green;
-			*(dest++) = blue;
-
+#endif
+			bog = (t * M_PI) / 180.0F;
+			Sin[t] = sin(bog) * 32768.0F;
+			Cos[t] = cos(bog) * 32768.0F;
 		}
-		
-		yoffset+=bytewidth;		/* Wieder ne Multiplikation weniger */
+
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);	/* Gib mir 'n PD! */
+
+		smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
+		break;
+
+
+	/*-------------------------------------	Modul soll loslegen */
+	case MEXEC:
+		picture = smurf_struct->smurf_pic;	/* Bild         */
+		picdata = picture->pic_data;
+		sliderval = smurf_struct->slide1;	/* Sliderwert auslesen */
+
+		umgekehrt = smurf_struct->check1;	/* Checkboxen auslesen */
+		tunnel = smurf_struct->check2;
+
+		width = picture->pic_width;		/* Bildabmessungen */
+		height = picture->pic_height;
+		bytewidth = (long) width *3L;
+
+		xmax = width - 1;
+		ymax = height - 1;
+
+		destpic = (uint8_t *)Malloc((long) width * (long) height * 3L);
+
+		xmitte = width / 2;				/* Mittelpunkt */
+		ymitte = height / 2;
+
+		xm_qu = xmitte * xmitte;
+		ym_qu = ymitte * ymitte;
+		if (height < width)
+			dist_fak = ym_qu;
+		else
+			dist_fak = xm_qu;
+
+		dist_fak = (1024L * 1024L) / dist_fak;
+
+		if (sliderval < 0)
+			sliderval = 360 + sliderval;
+
+		smurf_struct->services->reset_busybox(0, TEXT6);
+
+		for (y = 0; y < height; y++)
+		{
+			if (!(y & 7))
+				smurf_struct->services->busybox((int) (((long) y << 7L) / (long) height));
+
+			for (x = 0; x < width; x++)
+			{
+				xb = x - xmitte;
+				yb = y - ymitte;
+
+				abstand = yb * yb + xb * xb;	/* die sqrt wird unten durch das quadrieren von ymitte gespart */
+
+				divi = 1024 - ((abstand * dist_fak) >> 10);
+				phi = (sliderval * divi) >> 10;
+
+				if (phi < 0)
+				{
+					if (!umgekehrt)
+						phi = 0;
+					else
+						phi += (float) phi * (360.0F / (float) phi);
+				} else if (phi > 360)
+				{
+					if (!umgekehrt)
+						phi = 360;
+					else
+						phi -= (float) phi * (360.0F / (float) phi);
+				}
+
+				if (phi != 0 && phi != 360)
+				{
+
+					/* Punkt rotieren */
+					sinval = Sin[phi];
+					cosval = Cos[phi];
+					xsrc = ((long) (xb * cosval - yb * sinval) >> 15L) + xmitte;
+					ysrc = ((long) (xb * sinval + yb * cosval) >> 15L) + ymitte;
+
+					if (xsrc < 0)
+						xsrc = 0;
+					else if (xsrc > xmax)
+						xsrc -= width;
+					if (ysrc < 0)
+						ysrc = 0;
+					else if (ysrc > ymax)
+						ysrc -= height;
+					offset = (yoffset) + (x + x + x);
+					srcoffset = (ysrc * bytewidth) + (xsrc + xsrc + xsrc);
+				} else
+				{
+					offset = (yoffset) + (x + x + x);
+					srcoffset = (yoffset) + (x + x + x);
+				}
+
+				dest = destpic + offset;
+				pdat = picdata + srcoffset;
+
+				red = *(pdat++);
+				green = *(pdat++);
+				blue = *(pdat++);
+
+
+				if (tunnel && phi && divi <= 1024 && divi >= 0)
+				{
+					tr = red * (1024 - divi);
+					tg = green * (1024 - divi);
+					tb = blue * (1024 - divi);
+					red = tr >> 10;
+					green = tg >> 10;
+					blue = tb >> 10;
+				}
+
+				*(dest++) = red;
+				*(dest++) = green;
+				*(dest++) = blue;
+
+			}
+
+			yoffset += bytewidth;		/* Wieder ne Multiplikation weniger */
+		}
+
+		Mfree(picdata);
+		picture->pic_data = destpic;
+
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+	/* --------------------------------------Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
 	}
-
-
-	Mfree(picdata);
-	picture->pic_data = destpic;
-	
-	smurf_struct->module_mode=M_PICDONE;
-	return;
-}
-
-
-/* --------------------------------------Mterm empfangen - Speicher freigeben und beenden */
-else if(SmurfMessage==MTERM)
-{
-	smurf_struct->module_mode=M_EXIT;
-	return;
-}
-
-
-
-}
-
-
-BITBLK *prev(GARGAMEL *prev_struct)
-{
-	(void)prev_struct;
-	return(0);
 }

@@ -54,8 +54,6 @@
 #define TEXT5 "Accelerate..."
 #endif
 
-#define betrag(a)   ((a) < 0 ? -(a) : (a))
-
 /* Infostruktur fr Hauptmodul */
 MOD_INFO module_info = {
 	TEXT1,
