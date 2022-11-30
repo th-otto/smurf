@@ -55,7 +55,7 @@ solarize.sem   0.20    0.20     x     x
 speedom.sem    0.50    0.80     x     x
 sphere.sem     0.50    -        x
 spherfpu.sem   0.50    -        x
-spin.sem       0.20    0.20
+spin.sem       0.20    0.20     x
 strudel.sem    1.00    1.00
 sw.sem         0.50    0.50     x     x
 tachyon.sem    0.10    0.10

@@ -44,53 +44,53 @@
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
-WORD (*popup)(POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree);
+WORD(*popup) (POP_UP * popup_struct, WORD mouseflag, WORD button, OBJECT * poptree);
 
-MOD_INFO module_info = {"Drehen 90ø",
-						0x0020,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,64,
-						0,64,
-						0,64,
-						0,64,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	"Drehen 90ø",
+	0x0020,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						8, 16, 24, 0, 0,
-						0, 0, 0,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0,
-						};
+	8, 16, 24, 0, 0, 0, 0, 0,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0,
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -101,26 +101,29 @@ MOD_ABILITY module_ability = {
 /*	aufgehen wird.									*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+void edit_module_main(GARGAMEL * smurf_struct)
 {
-	char *data1, *data2, BitsPerPixel,
-		 bytes, t;
-	static char left = 0, right = 0, two = 0;
-	
+	uint8_t *data1;
+	uint8_t *data2;
+	uint8_t BitsPerPixel;
+	uint8_t bytes;
+	WORD t;
+	static uint8_t left = 0;
+	static uint8_t right = 0;
+	static uint8_t two = 0;
 	int item;
-	unsigned int width, height, x, y, x2;
-	
+	unsigned short width, height;
+	unsigned short x, y, x2;
 	unsigned long pos2, jmp, length;
-
 	OBJECT *pop_form;
-	POP_UP pop_up;	
+	POP_UP pop_up;
 
-
-/* Wenn das Modul zum ersten Mal gestartet wurde */
-	if(smurf_struct->module_mode == MSTART)
+	switch (smurf_struct->module_mode)
 	{
-		for(t = 0; t < NUM_OBS; t++)
-			rsrc_obfix(&rs_object[t], 0);
+	/* Wenn das Modul zum ersten Mal gestartet wurde */
+	case MSTART:
+		for (t = 0; t < NUM_OBS; t++)
+			rsrc_obfix(rs_object, t);
 
 		pop_form = rs_trindex[SPIN90];
 
@@ -133,127 +136,131 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		pop_up.Cyclebutton = -1;
 		item = popup(&pop_up, 1, 1, pop_form);
 
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-
-		switch(item)
+		switch (item)
 		{
-			case -1: smurf_struct->module_mode = M_EXIT; 
-					 return;
-			case LEFT: left = 1;
-						break;
-			case RIGHT: right = 1;
-						break;
-			case TWO: two = 1;
-					  break;
-			default: break;
+		case -1:
+			smurf_struct->module_mode = M_EXIT;
+			return;
+		case LEFT:
+			left = 1;
+			break;
+		case RIGHT:
+			right = 1;
+			break;
+		case TWO:
+			two = 1;
+			break;
+		default:
+			break;
 		}
 
 		smurf_struct->module_mode = M_STARTED;
-		return;
-	}
-	else
-		if(smurf_struct->module_mode == MEXEC)
+		break;
+
+	case MEXEC:
+		SMalloc = smurf_struct->services->SMalloc;
+		SMfree = smurf_struct->services->SMfree;
+
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		bytes = BitsPerPixel >> 3;
+
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+
+		data1 = smurf_struct->smurf_pic->pic_data;
+		if ((data2 = SMalloc((unsigned long) width * (unsigned long) height * (long) bytes)) == 0)
 		{
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;
-
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-	
-			bytes = BitsPerPixel >> 3;
-	
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-	
-			data1 = smurf_struct->smurf_pic->pic_data;
-			if((data2 = SMalloc((unsigned long)width * (unsigned long)height * (long)bytes)) == 0)
-			{
-				smurf_struct->module_mode = M_MEMORY;
-				return;
-			}
-		
-			if(left)                
-			{
-				jmp = (height + 1) * bytes;
-				length = ((unsigned long)width - 1) * ((unsigned long)height * bytes);
-				y = 0;
-				do
-				{
-					pos2 = length;
-					x = 0;
-					do
-					{
-						data2[pos2++] = *data1++;
-						if(bytes > 1)
-						{
-							data2[pos2++] = *data1++;
-							if(bytes > 2)
-								data2[pos2++] = *data1++;
-						}
-						pos2 -= jmp;
-					} while(++x < width);
-					length += bytes;
-				} while(++y < height);
-			}
-			else
-				if(right)
-				{
-					jmp = (height - 1) * bytes;
-					x2 = (height - 1) * bytes;
-					y = 0;
-					do
-					{
-						pos2 = x2;
-						x = 0;
-						do
-						{
-							data2[pos2++] = *data1++;
-							if(bytes > 1)
-							{
-								data2[pos2++] = *data1++;
-								if(bytes > 2)
-									data2[pos2++] = *data1++;
-							}
-							pos2 += jmp;
-						} while(++x < width);
-						x2 -= bytes;
-					} while(++y < height);
-				}
-				else
-					if(two)                
-					{
-						jmp = bytes * 2;
-						length = (unsigned long)width * (unsigned long)height;
-						pos2 = (unsigned long)width * (unsigned long)height * bytes - bytes;
-						do
-						{
-							data2[pos2++] = *data1++;
-							if(bytes > 1)
-							{
-								data2[pos2++] = *data1++;
-								if(bytes > 2)
-									data2[pos2++] = *data1++;
-							}
-							pos2 -= jmp;
-						} while(--length);
-					}
-	
-#if TIMER
-	/* wie schnell waren wir? */
-printf("\n%lu", get_timer());
-		getch();
-#endif
-
-			SMfree(smurf_struct->smurf_pic->pic_data);
-			smurf_struct->smurf_pic->pic_data = data2;
-			if(!two)
-			{
-				smurf_struct->smurf_pic->pic_width = height;
-				smurf_struct->smurf_pic->pic_height = width;
-			}
-			smurf_struct->module_mode = M_DONEEXIT;
+			smurf_struct->module_mode = M_MEMORY;
 			return;
 		}
+
+#if TIMER
+		/* wie schnell sind wir? */
+		init_timer();
+#endif
+
+		if (left)
+		{
+			jmp = (height + 1) * bytes;
+			length = ((unsigned long) width - 1) * ((unsigned long) height * bytes);
+			y = 0;
+			do
+			{
+				pos2 = length;
+				x = 0;
+				do
+				{
+					data2[pos2++] = *data1++;
+					if (bytes > 1)
+					{
+						data2[pos2++] = *data1++;
+						if (bytes > 2)
+							data2[pos2++] = *data1++;
+					}
+					pos2 -= jmp;
+				} while (++x < width);
+				length += bytes;
+			} while (++y < height);
+		} else if (right)
+		{
+			jmp = (height - 1) * bytes;
+			x2 = (height - 1) * bytes;
+			y = 0;
+			do
+			{
+				pos2 = x2;
+				x = 0;
+				do
+				{
+					data2[pos2++] = *data1++;
+					if (bytes > 1)
+					{
+						data2[pos2++] = *data1++;
+						if (bytes > 2)
+							data2[pos2++] = *data1++;
+					}
+					pos2 += jmp;
+				} while (++x < width);
+				x2 -= bytes;
+			} while (++y < height);
+		} else if (two)
+		{
+			jmp = bytes * 2;
+			length = (unsigned long) width *(unsigned long) height;
+			pos2 = (unsigned long) width *(unsigned long) height *bytes - bytes;
+
+			do
+			{
+				data2[pos2++] = *data1++;
+				if (bytes > 1)
+				{
+					data2[pos2++] = *data1++;
+					if (bytes > 2)
+						data2[pos2++] = *data1++;
+				}
+				pos2 -= jmp;
+			} while (--length);
+		}
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("\n%lu", get_timer());
+		(void)Cnecin();
+#endif
+
+		SMfree(smurf_struct->smurf_pic->pic_data);
+		smurf_struct->smurf_pic->pic_data = data2;
+		if (!two)
+		{
+			smurf_struct->smurf_pic->pic_width = height;
+			smurf_struct->smurf_pic->pic_height = width;
+		}
+		smurf_struct->module_mode = M_DONEEXIT;
+		break;
+
+		/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }
