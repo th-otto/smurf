@@ -133,7 +133,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 	/* Wenn das Modul zum ersten Mal gestartet wurde, */
 	/* ein Einstellformular anfordern....             */
 	case MSTART:
-		smurf_struct->services->f_module_prefs(&module_info, y);
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
 		smurf_struct->module_mode = M_WAITING;
 		break;
 

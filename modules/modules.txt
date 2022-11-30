@@ -38,7 +38,7 @@ minmax.sem     0.20    0.20     x
 mirror.sem     0.30    0.30     x     x
 noise.sem      0.40    0.40     x     x
 ntsc.sem       0.10    0.10     x     x
-paint.sem      0.20    0.20
+paint.sem      0.20    0.20     x     x
 paletout.sem   0.20    -
 pepsip.sem     0.10    -
 picfade.sem    0.50    -

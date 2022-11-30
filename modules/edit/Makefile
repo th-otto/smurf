@@ -26,6 +26,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/minmax.sem \
 	$(DISTDIR)/modules/edit/noise.sem \
 	$(DISTDIR)/modules/edit/ntsc.sem \
+	$(DISTDIR)/modules/edit/paint.sem \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
 	$(DISTDIR)/modules/edit/sw.sem \
@@ -97,6 +98,9 @@ $(DISTDIR)/modules/edit/noise.sem: edstart.o noise.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/ntsc.sem: edstart.o ntsc.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/paint.sem: edstart.o paint.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/quicksmt.sem: edstart.o quicksmt.o smth_mat.o
