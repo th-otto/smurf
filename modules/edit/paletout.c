@@ -49,55 +49,75 @@
 #include "import.h"
 #include "smurfine.h"
 
-char *conv(char val);
-
-MOD_INFO module_info = {TEXT1,
-						0x0020,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,64,
-						0,64,
-						0,64,
-						0,64,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	TEXT1,
+	0x0020,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						1, 2, 3, 4, 5,
-						6, 7, 8,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						0,
-						};
+	1, 2, 3, 4, 5, 6, 7, 8,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	0,
+};
 
-char wert[3], wert1[3], wert2[3], wert3[3];
+
+static void conv(uint8_t val, char *wert)
+{
+	static char const hexchars[16] = "0123456789abcdef";
+
+	wert[0] = '0';
+	wert[1] = 'x';
+	wert[2] = hexchars[val >> 4];
+	wert[3] = hexchars[val & 0x0f];
+	wert[4] = ',';
+	wert[5] = ' ';
+	wert[6] = '\0';
+}
+
+
+static void writeline(short fp, char *wert1, char *wert2, char *wert3)
+{
+	Fwrite(fp, 4, "\t\t\t ");
+	Fwrite(fp, 6, wert1);
+	Fwrite(fp, 6, wert2);
+	Fwrite(fp, 4, wert3);
+}
+
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -108,106 +128,95 @@ char wert[3], wert1[3], wert2[3], wert3[3];
 /*	(Extender .BIN) unter dem anzugebenden Namen aus*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+void edit_module_main(GARGAMEL * smurf_struct)
 {
-	char *data, buffer[25], path[257], file[65], palette[257], *part, *extender,
-		 BitsPerPixel;
+	uint8_t *data;
+	char path[257];
+	char file[65];
+	char wert1[8];
+	char wert2[8];
+	char wert3[8];
+	uint8_t palette[257];
+	char *part;
+	char *extender;
+	uint8_t BitsPerPixel;
+	WORD button;
+	short fp;
+	unsigned short i;
+	uint16_t pal[3];
 
-	int button, fp;
-	unsigned int i;
-
-
-	if(smurf_struct->module_mode == MSTART)
+	switch (smurf_struct->module_mode)
 	{
+	case MSTART:
 		smurf_struct->module_mode = M_STARTED;
-		return;
-	}
-	else
-		if(smurf_struct->module_mode == MEXEC)
+		break;
+
+	case MEXEC:
+		data = smurf_struct->smurf_pic->palette;
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+		i = (1 << BitsPerPixel);
+
+		strcpy(path, "*.bin");			/* PAL als Extender vorblenden */
+		fsel_input(path, file, &button);
+		if (button && strlen(file))
 		{
-			data = smurf_struct->smurf_pic->palette;			
-			BitsPerPixel = smurf_struct->smurf_pic->depth;			
-			i = (1 << BitsPerPixel);
-
-			strcpy(path, "*.bin");						/* PAL als Extender vorblenden */
-			fsel_input(path, file, &button);
-			if(button && strlen(file))
+			extender = strrchr(file, '.');
+			if (extender)				/* kein NULL-Zeiger, d.h. ein Punkt */
 			{
+				if (stricmp(extender, ".") == 0)	/* kein Extender nach dem Punkt */
+					strcat(file, "bin");
+			} else						/* weder Punkt noch Extender vorhanden */
+			{
+				strcat(file, ".bin");
 				extender = strrchr(file, '.');
-				if(extender)							/* kein NULL-Zeiger, d.h. ein Punkt */
-				{				
-					if(stricmp(extender, ".") == 0)		/* kein Extender nach dem Punkt */
-						strcat(file, "bin");
-				}
-				else									/* weder Punkt noch Extender vorhanden */
-				{
-					strcat(file, ".bin");
-					extender = strrchr(file, '.');
-				}
-
-				extender++;								/* den Punkt bergehen */
-
-				strcpy(palette, path);
-				part = strrchr(palette, '\\') + 1;
-				strcpy(part, file);
-				fp = (int)Fcreate(palette, 0);
-
-				if(stricmp(extender, "asc") == 0)
-				{
-					sprintf(buffer, "palette[] = {");
-					Fwrite(fp, strlen(buffer), buffer);
-
-					i--;							/* damit am Ende noch eine Farbe bleibt */
-					while(i--)
-					{
-						strcpy(wert1, conv(*data++));
-						strcpy(wert2, conv(*data++));
-						strcpy(wert3, conv(*data++));
-						sprintf(buffer, "\t\t\t 0x%s, 0x%s, 0x%s,\r\n", wert1, wert2, wert3);
-						Fwrite(fp, strlen(buffer), buffer);
-					}			
-
-					sprintf(buffer, "\t\t\t 0x%s, 0x%s, 0x%s};", conv(*data++), conv(*data++), conv(*data++));
-					Fwrite(fp, strlen(buffer), buffer);
-
-				}
-				else
-				{
-					while(i--)
-					{
-						*(unsigned int *)buffer = (unsigned int)(((unsigned long)*data++ * 1000L) / 255);
-						*(unsigned int *)(buffer + 2) = (unsigned int)(((unsigned long)*data++ * 1000L) / 255);
-						*(unsigned int *)(buffer + 4) = (unsigned int)(((unsigned long)*data++ * 1000L) / 255);
-						Fwrite(fp, 6, (void *)buffer);
-					}
-				}
-
-				Fclose(fp);
 			}
 
-			smurf_struct->module_mode = M_MODERR;
-			
-			return;
-		}
-		else 
-			if(smurf_struct->module_mode == MTERM)
+			extender++;					/* den Punkt bergehen */
+
+			strcpy(palette, path);
+			part = strrchr(palette, '\\') + 1;
+			strcpy(part, file);
+			fp = (short) Fcreate(palette, 0);
+
+			if (stricmp(extender, "asc") == 0)
 			{
-				smurf_struct->module_mode = M_EXIT;
-				return;
+				Fwrite(fp, sizeof("palette[] = {") - 1, "palette[] = {");
+
+				i--;					/* damit am Ende noch eine Farbe bleibt */
+				while (i--)
+				{
+					conv(*data++, wert1);
+					conv(*data++, wert2);
+					conv(*data++, wert3);
+					writeline(fp, wert1, wert2, wert3);
+					Fwrite(fp, 3, ",\r\n");
+				}
+
+				conv(*data++, wert1);
+				conv(*data++, wert2);
+				conv(*data++, wert3);
+				writeline(fp, wert1, wert2, wert3);
+				Fwrite(fp, 6, "\r\n};\r\n");
+			} else
+			{
+				while (i--)
+				{
+					pal[0] = (((unsigned long) *data++ * 1000L) / 255);
+					pal[1] = (((unsigned long) *data++ * 1000L) / 255);
+					pal[2] = (((unsigned long) *data++ * 1000L) / 255);
+					Fwrite(fp, 6, pal);
+				}
 			}
-}
 
+			Fclose(fp);
+		}
 
-char *conv(char val)
-{
-	sprintf(wert, "%x", (unsigned int)val);
+		/* we did not modify picture, so return error to avoid redraws */
+		smurf_struct->module_mode = M_MODERR;
+		break;
 
-	if(wert[1] == '\0')				/* wenn 1 schon Ende, dann ist nur eine Stelle vorhanden */
-	{
-		wert[2] = wert[1];
-		wert[1] = wert[0];
-		wert[0] = '0';
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
 	}
-
-	return(wert);
-} /* conv */
+}
