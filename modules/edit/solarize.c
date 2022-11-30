@@ -56,51 +56,51 @@
 
 #define TIMER 0
 
-MOD_INFO module_info = {TEXT1,
-						0x0020,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						TEXT2,
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						"",
-						0,100,
-						0,64,
-						0,64,
-						0,64,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						50, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						1
-						};
+MOD_INFO module_info = {
+	TEXT1,
+	0x0020,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	TEXT2,
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	0, 100,
+	0, 64,
+	0, 64,
+	0, 64,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	50, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	1,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						2, 4, 7, 8, 16,
-						24, 0, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						0,
-						};
+	2, 4, 7, 8, 16, 24, 0, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	0,
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -111,129 +111,119 @@ MOD_ABILITY module_ability = {
 /*		2-8, 16 und 24 Bit 							*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL *smurf_struct)
+void edit_module_main(GARGAMEL * smurf_struct)
 {
-	char *data,
-		 r, g, b, BitsPerPixel;
-	
-	int module_id;
-	unsigned int *data16,
-				 width, height, val16, schwelle;
-	
+	uint8_t *data;
+	uint8_t r, g, b;
+	uint8_t BitsPerPixel;
+	uint16_t *data16;
+	uint16_t val16;
+	unsigned short width, height;
+	unsigned short schwelle;
 	unsigned long length;
-	
 
-	module_id = smurf_struct->module_number;
-
-/* Wenn das Modul zum ersten Mal gestartet wurde, */
-/* ein Einstellformular anfordern....             */
-	if(smurf_struct->module_mode == MSTART)
+	switch (smurf_struct->module_mode)
 	{
-		smurf_struct->services->f_module_prefs(&module_info, module_id);
+	case MSTART:
+		/* Wenn das Modul zum ersten Mal gestartet wurde, */
+		/* ein Einstellformular anfordern....             */
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
 		smurf_struct->module_mode = M_WAITING;
-		return;
-	}
-/* Einstellformular wurde mit START verlassen - Funktion ausfhren */
-	else
-		if(smurf_struct->module_mode == MEXEC)
+		break;
+
+	case MEXEC:
+		/* Einstellformular wurde mit START verlassen - Funktion ausfhren */
+#if TIMER
+		/* wie schnell sind wir? */
+		init_timer();
+#endif
+		schwelle = (unsigned short) ((100 - smurf_struct->slide1) * 255 / 100);
+
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		if (BitsPerPixel != 16)
 		{
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-			schwelle = (unsigned int)((100 - smurf_struct->slide1) * 255 / 100);
-
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-
-  			if(BitsPerPixel != 16)
+			if (BitsPerPixel == 24)
 			{
-				if(BitsPerPixel == 24)
-				{
-					data = smurf_struct->smurf_pic->pic_data;
+				data = smurf_struct->smurf_pic->pic_data;
 
-					width = smurf_struct->smurf_pic->pic_width;
-					height = smurf_struct->smurf_pic->pic_height;
+				width = smurf_struct->smurf_pic->pic_width;
+				height = smurf_struct->smurf_pic->pic_height;
 
-					length = (unsigned long)width * (unsigned long)height;
-				}
+				length = (unsigned long) width *(unsigned long) height;
+			} else
+			{
+				data = smurf_struct->smurf_pic->palette;
+
+				length = 256;
+			}
+
+			while (length--)
+			{
+				r = *data;
+				if (r > schwelle)
+					*data++ = ~r;
 				else
-				{
-					data = smurf_struct->smurf_pic->palette;
+					data++;
 
-					length = 256L;
-				}
-	
-				while(length--)
-				{
-					r = *data;
-					if(r > schwelle)
-						*data++ = ~r;
-					else
-						data++;
+				g = *data;
+				if (g > schwelle)
+					*data++ = ~g;
+				else
+					data++;
 
-					g = *data;
-					if(g > schwelle)
-						*data++ = ~g;
-					else
-						data++;
-
-					b = *data;
-					if(b > schwelle)
-						*data++ = ~b;
-					else
-						data++;
-				}
+				b = *data;
+				if (b > schwelle)
+					*data++ = ~b;
+				else
+					data++;
 			}
-			else
-				if(BitsPerPixel == 16)
-				{
-					data16 = smurf_struct->smurf_pic->pic_data;
+		} else
+		{
+			data16 = smurf_struct->smurf_pic->pic_data;
 
-					width = smurf_struct->smurf_pic->pic_width;
-					height = smurf_struct->smurf_pic->pic_height;
-			
-					length = (unsigned long)width * (unsigned long)height;
-	
-					while(length--)
-					{
-						val16 = *data16;
+			width = smurf_struct->smurf_pic->pic_width;
+			height = smurf_struct->smurf_pic->pic_height;
 
-						r = (val16 & 0xf800) >> 8;
-						if(r > schwelle)
-							*data++ = ~r;
-						else
-							data++;
+			length = (unsigned long) width *(unsigned long) height;
 
-						g = (val16 & 0x7e0) >> 3;
-						if(g > schwelle)
-							*data++ = ~g;
-						else
-							data++;
+			while (length--)
+			{
+				val16 = *data16;
 
-						b = (val16 & 0x1f) << 3;
-						if(b > schwelle)
-							*data++ = ~b;
-						else
-							data++;
+				r = (val16 & 0xf800) >> 8;
+				if (r > schwelle)
+					*data++ = ~r;
+				else
+					data++;
 
-						*data16++ = ((r & 0x00f8) << 8) | ((g & 0x00fc) << 3) | (b >> 3);
-			        }
-				}
-	
+				g = (val16 & 0x7e0) >> 3;
+				if (g > schwelle)
+					*data++ = ~g;
+				else
+					data++;
+
+				b = (val16 & 0x1f) << 3;
+				if (b > schwelle)
+					*data++ = ~b;
+				else
+					data++;
+
+				*data16++ = ((r & 0x00f8) << 8) | ((g & 0x00fc) << 3) | (b >> 3);
+			}
+		}
 #if TIMER
-/* wie schnell waren wir? */
-	printf("%lu\n", get_timer());
-	getch();
+		/* wie schnell waren wir? */
+		printf("%lu\n", get_timer());
+		(void)Cnecin();
 #endif
 
-			smurf_struct->module_mode = M_PICDONE;
-			return;
-		}
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+
+	case MTERM:
 		/* Mterm empfangen - Speicher freigeben und beenden */
-		else 
-			if(smurf_struct->module_mode == MTERM)
-			{
-				smurf_struct->module_mode = M_EXIT;
-				return;
-			}
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 }

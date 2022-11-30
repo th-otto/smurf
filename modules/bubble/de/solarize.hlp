@@ -3,5 +3,5 @@
  BubbleGEM Help-File for Editmodul "Solarisation"
 
 #Dial 000 Erzeugt einen Effekt, als ob ein Foto bei der Entwicklung nachbelichtet wird.
-# 001 St„rke der Belichtung in Prozent.
-# 002 St„rke der Belichtung in Prozent.
+# 009 St„rke der Belichtung in Prozent.
+# 010 St„rke der Belichtung in Prozent.
