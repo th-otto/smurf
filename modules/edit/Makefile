@@ -31,6 +31,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/quicksmt.sem \
 	$(DISTDIR)/modules/edit/rahmen.sem \
 	$(DISTDIR)/modules/edit/scale.sem \
+	$(DISTDIR)/modules/edit/scatman.sem \
 	$(DISTDIR)/modules/edit/speedom.sem \
 	$(DISTDIR)/modules/edit/sw.sem \
 	$(empty)
@@ -125,6 +126,9 @@ $(DISTDIR)/modules/edit/quicksmt.sem: edstart.o quicksmt.o smth_mat.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/scale.sem: edstart.o scale.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/scatman.sem: edstart.o scatman.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/speedom.sem: edstart.o speedom.o
