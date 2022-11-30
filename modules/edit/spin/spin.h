@@ -1,5 +1,5 @@
 /*
- * resource set indices for spin90
+ * resource set indices for spin
  *
  * created by ORCS 2.18
  */
@@ -24,13 +24,13 @@
 #undef RSC_NAME
 #endif
 #ifndef __ALCYON__
-#define RSC_NAME "spin90"
+#define RSC_NAME "spin"
 #endif
 #ifdef RSC_ID
 #undef RSC_ID
 #endif
-#ifdef spin90
-#define RSC_ID spin90
+#ifdef spin
+#define RSC_ID spin
 #else
 #define RSC_ID 0
 #endif
@@ -70,7 +70,7 @@
 #    define _WORD short
 #  endif
 #endif
-extern _WORD spin90_rsc_load(_WORD wchar, _WORD hchar);
-extern _WORD spin90_rsc_gaddr(_WORD type, _WORD idx, void *gaddr);
-extern _WORD spin90_rsc_free(void);
+extern _WORD spin_rsc_load(_WORD wchar, _WORD hchar);
+extern _WORD spin_rsc_gaddr(_WORD type, _WORD idx, void *gaddr);
+extern _WORD spin_rsc_free(void);
 #endif

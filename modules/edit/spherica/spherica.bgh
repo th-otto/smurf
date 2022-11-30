@@ -2,3 +2,20 @@
 
  BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
+#Dial 000 Mit diesem Modul k”nnen Sie Kugeln mit vielseitig einstellbaren Oberfl„chenstrukturen ray-tracen.
+# 003 Hier k”nnen Sie die Lichtfarbe der punktf”rmigen Lichtquelle einstellen.
+# 007 Hier k”nnen Sie die Lichtfarbe der punktf”rmigen Lichtquelle einstellen.
+# 011 Hier k”nnen Sie die Lichtfarbe der punktf”rmigen Lichtquelle einstellen.
+# 043 Hier k”nnen Sie die St„rke des Bumpmappings einstellen.
+# 049 Hier k”nnen Sie die horizontale Skalierung der Bumpmap einstellen.
+# 050 Hier k”nnen Sie die vertikale Skalierung der Bumpmap einstellen.
+# 063 Dieser Button startet die Berechnung der Kugel.
+# 065 Durch Klick auf diese Box wird eine Vorschau der Kugel mit den eingestellten Parametern berechnet.
+# 077 Hier k”nnen Sie das Bumpmapping ein- und ausschalten.
+# 079 Hier k”nnen Sie die Oberfl„chenrauhheit ein- und ausschalten.
+# 084 Hier k”nnen Sie die Lichtfarbe des Umgebungslichtes einstellen.
+# 088 Hier k”nnen Sie die Lichtfarbe des Umgebungslichtes einstellen.
+# 092 Hier k”nnen Sie die Lichtfarbe des Umgebungslichtes einstellen.
+# 097 Hier k”nnen Sie die St„rke des Glanzpunktes einstellen.
+# 101 Hier k”nnen Sie die H„rte des Glanzpunktes einstellen.
+# 105 Hier k”nnen Sie einstellen, wie stark der Glanzpunkt mit der Kugelfarbe gefiltert werden soll. Je mehr, desto metallischer wirkt das Material.

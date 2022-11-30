@@ -1,5 +1,5 @@
 /*
- * GEM resource C output of spin90
+ * GEM resource C output of spin
  *
  * created by ORCS 2.18
  */
@@ -252,7 +252,7 @@
 #undef RSC_STATIC_FILE
 #define RSC_STATIC_FILE 1
 
-#include "spin90.h"
+#include "spin.h"
 
 #ifndef RSC_NAMED_FUNCTIONS
 #  define RSC_NAMED_FUNCTIONS 0
@@ -327,37 +327,37 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #endif
 
 
-static char spin90_string_0[] = "    drehen   ";
-static char spin90_string_1[] = "links 90\370";
-static char spin90_string_2[] = "";
-static char spin90_string_3[] = "";
-static char spin90_string_4[] = "rechts 90\370";
-static char spin90_string_5[] = "";
-static char spin90_string_6[] = "";
-static char spin90_string_7[] = "180\370";
-static char spin90_string_8[] = "";
-static char spin90_string_9[] = "";
+static char spin_string_0[] = "    drehen   ";
+static char spin_string_1[] = "links 90\370";
+static char spin_string_2[] = "";
+static char spin_string_3[] = "";
+static char spin_string_4[] = "rechts 90\370";
+static char spin_string_5[] = "";
+static char spin_string_6[] = "";
+static char spin_string_7[] = "180\370";
+static char spin_string_8[] = "";
+static char spin_string_9[] = "";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
-	{ spin90_string_1, spin90_string_2, spin90_string_3, IBM, 0, TE_CNTR, 0x1100, 0x0, -1, 10,1 }, /* LEFT */
-	{ spin90_string_4, spin90_string_5, spin90_string_6, IBM, 0, TE_CNTR, 0x1100, 0x0, -1, 11,1 }, /* RIGHT */
-	{ spin90_string_7, spin90_string_8, spin90_string_9, IBM, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 } /* TWO */
+static TEDINFO rs_tedinfo[NUM_TI] = {
+	{ spin_string_1, spin_string_2, spin_string_3, IBM, 0, TE_CNTR, 0x1100, 0x0, -1, 10,1 }, /* LEFT */
+	{ spin_string_4, spin_string_5, spin_string_6, IBM, 0, TE_CNTR, 0x1100, 0x0, -1, 11,1 }, /* RIGHT */
+	{ spin_string_7, spin_string_8, spin_string_9, IBM, 0, TE_CNTR, 0x1100, 0x0, -1, 5,1 } /* TWO */
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* SPIN90 */
 
 	{ -1, 1, 4, G_BOX, OF_FL3DBAK, OS_SHADOWED, C_UNION(0x11100L), 0,0, 525,261 },
-	{ 2, -1, -1, G_STRING, OF_FL3DBAK, OS_DISABLED, C_UNION(spin90_string_0), 256,512, 13,1 },
+	{ 2, -1, -1, G_STRING, OF_FL3DBAK, OS_DISABLED, C_UNION(spin_string_0), 256,512, 13,1 },
 	{ 3, -1, -1, G_BOXTEXT, OF_FL3DACT, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 768,1281, 1036,1 }, /* LEFT */
 	{ 4, -1, -1, G_BOXTEXT, 0x601, OS_DRAW3D, C_UNION(&rs_tedinfo[1]), 768,2306, 1036,1 }, /* RIGHT */
 	{ 0, -1, -1, G_BOXTEXT, 0x621, OS_DRAW3D, C_UNION(&rs_tedinfo[2]), 768,3331, 1036,257 } /* TWO */
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* SPIN90 */
 };
 
@@ -369,9 +369,9 @@ OBJECT *rs_trindex[NUM_TREE] = {
 
 #if RSC_NAMED_FUNCTIONS
 #ifdef __STDC__
-_WORD spin90_rsc_load(_WORD wchar, _WORD hchar)
+_WORD spin_rsc_load(_WORD wchar, _WORD hchar)
 #else
-_WORD spin90_rsc_load(wchar, hchar)
+_WORD spin_rsc_load(wchar, hchar)
 _WORD wchar;
 _WORD wchar;
 #endif
@@ -404,9 +404,9 @@ _WORD wchar;
 
 
 #ifdef __STDC__
-_WORD spin90_rsc_gaddr(_WORD type, _WORD idx, void *gaddr)
+_WORD spin_rsc_gaddr(_WORD type, _WORD idx, void *gaddr)
 #else
-_WORD spin90_rsc_gaddr(type, idx, gaddr)
+_WORD spin_rsc_gaddr(type, idx, gaddr)
 _WORD type;
 _WORD idx;
 void *gaddr;
@@ -541,9 +541,9 @@ void *gaddr;
 
 
 #ifdef __STDC__
-_WORD spin90_rsc_free(void)
+_WORD spin_rsc_free(void)
 #else
-_WORD spin90_rsc_free()
+_WORD spin_rsc_free()
 #endif
 {
 #if NUM_OBS != 0
@@ -569,7 +569,7 @@ _WORD rs_numti = 3;
 _WORD rs_numobs = 5;
 _WORD rs_numtree = 1;
 
-char rs_name[] = "spin90.rsc";
+char rs_name[] = "spin.rsc";
 
 _WORD _rsc_format = 2; /* RSC_FORM_SOURCE2 */
 #endif

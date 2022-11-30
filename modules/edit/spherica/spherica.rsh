@@ -413,10 +413,10 @@ static char spherica_string_82[] = "";
 static char spherica_string_83[] = "";
 static char spherica_string_84[] = "000400";
 static char spherica_string_85[] = "______";
-static char spherica_string_86[] = "999999";
+static char spherica_string_86[] = "9";
 static char spherica_string_87[] = "000400";
 static char spherica_string_88[] = "______";
-static char spherica_string_89[] = "999999";
+static char spherica_string_89[] = "9";
 static char spherica_string_90[] = "00000";
 static char spherica_string_91[] = "_____";
 static char spherica_string_92[] = "99999";
@@ -518,7 +518,7 @@ static char spherica_string_187[] = "";
 static char spherica_string_188[] = "";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ spherica_string_0, spherica_string_1, spherica_string_2, SMALL, 6, TE_CNTR, 0x1100, 0x0, -1, 2,1 }, /* _TIT */
 	{ spherica_string_3, spherica_string_4, spherica_string_5, SMALL, 6, TE_CNTR, 0x1180, 0x0, -1, 6,1 }, /* KR_A */
 	{ spherica_string_6, spherica_string_7, spherica_string_8, SMALL, 6, TE_CNTR, 0x1100, 0x0, -1, 2,1 },
@@ -584,7 +584,7 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* SPH_MAIN */
 
 	{ -1, 1, 110, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 68,2072 },
@@ -653,8 +653,8 @@ OBJECT rs_object[NUM_OBS] = {
 	{ 64, -1, -1, G_BUTTON, OF_SELECTABLE|OF_DEFAULT|OF_EXIT|OF_FL3DACT, OS_NORMAL, C_UNION(spherica_string_120), 57,2070, 7,1 }, /* LOS */
 	{ 65, -1, -1, G_BOXTEXT, OF_FL3DIND, OS_NORMAL, C_UNION(&rs_tedinfo[40]), 1042,2060, 16,2048 },
 	{ 66, -1, -1, G_BOX, OF_FL3DACT, OS_SELECTED, C_UNION(0x11101L), 36,13, 12,6 }, /* PREV_BOX */
-	{ 67, -1, -1, G_BUTTON, OF_SELECTABLE|OF_EXIT|OF_FL3DACT, OS_DISABLED, C_UNION(spherica_string_124), 1060,20, 1035,1 },
-	{ 68, -1, -1, G_BUTTON, OF_SELECTABLE|OF_EXIT|OF_FL3DACT, OS_DISABLED, C_UNION(spherica_string_125), 1060,22, 1035,1 },
+	{ 67, -1, -1, G_BUTTON, OF_SELECTABLE|OF_EXIT|OF_FL3DACT, OS_DISABLED, C_UNION(spherica_string_124), 1060,20, 1035,1 }, /* CONF_LOAD */
+	{ 68, -1, -1, G_BUTTON, OF_SELECTABLE|OF_EXIT|OF_FL3DACT, OS_DISABLED, C_UNION(spherica_string_125), 1060,22, 1035,1 }, /* CONF_SAVE */
 	{ 69, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[41]), 305,3328, 1025,2048 },
 	{ 70, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[42]), 1078,2049, 11,1 },
 	{ 71, -1, -1, (43<<8)+G_IBOX, OF_SELECTABLE|OF_RBUTTON|OF_FL3DBAK, OS_SELECTED, C_UNION(0xFF1100L), 52,2049, 14,1 }, /* BUMP_RADIO */
@@ -701,7 +701,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* SPH_MAIN */
 };
 

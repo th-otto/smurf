@@ -17,7 +17,7 @@
  * Number of Trees:          1
  * Number of Userblks:       0
  * Number of Images:         0
- * Total file size:          5144
+ * Total file size:          5134
  */
 
 #ifdef RSC_NAME
@@ -94,6 +94,8 @@
 #define XRAD              59 /* FTEXT in tree SPH_MAIN */
 #define LOS               63 /* BUTTON in tree SPH_MAIN */
 #define PREV_BOX          65 /* BOX in tree SPH_MAIN */
+#define CONF_LOAD         66 /* BUTTON in tree SPH_MAIN */
+#define CONF_SAVE         67 /* BUTTON in tree SPH_MAIN */
 #define BUMP_RADIO        70 /* IBOX in tree SPH_MAIN */
 #define TEXT_RADIO        74 /* IBOX in tree SPH_MAIN */
 #define ROUGH_RADIO       75 /* IBOX in tree SPH_MAIN */

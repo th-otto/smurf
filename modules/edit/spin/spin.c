@@ -37,14 +37,9 @@
 #include "smurfine.h"
 #include "demolib.h"
 
-#include "spin90.rsh"
+#include "spin.rsh"
 
 #define TIMER 0
-
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-WORD(*popup) (POP_UP * popup_struct, WORD mouseflag, WORD button, OBJECT * poptree);
 
 MOD_INFO module_info = {
 	"Drehen 90ø",
@@ -91,6 +86,11 @@ MOD_ABILITY module_ability = {
 	FORM_BOTH,
 	0,
 };
+
+static void *(*SMalloc)(long amount);
+static void (*SMfree)(void *ptr);
+
+static WORD (*popup) (POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT *poptree);
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/

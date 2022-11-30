@@ -2,7 +2,7 @@
 
  BubbleGEM Help-File by ORCS 2.18 for ResourceMaster/ORCS
 
-#Dial 000
+#Dial 000 Dreht ein Bild in 90ø-Schritten.
 # 002 W„hlen Sie diesen Button, wird das Bild um 90ø nach links gedreht.
 # 003 W„hlen Sie diesen Button, wird das Bild um 90ø nach rechts gedreht.
 # 004 W„hlen Sie diesen Button, wird das Bild auf den Kopf gestellt.
