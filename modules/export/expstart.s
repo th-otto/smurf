@@ -41,17 +41,22 @@
 
 	.globl exp_module_main				/* Hauptfunktion des Moduls holen */
 	bra exp_module_main					/* mainfunction anspringen */
-	.dc.l 0x53584d44						/* Magic (TEXT + 8 Bytes) */
+	.dc.l 0x53584d44					/* Magic (TEXT + 8 Bytes) */
 
 	.globl module_info					/* Modulinformationsstruktur */
 	.dc.l module_info					/* Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes) */
 
 	.globl module_ability				/* Modulf„higkeiten-Struktur */
-	.dc.l module_ability					/* Zeiger auf Modability-Struktur (TEXT + 16 Bytes) */
+	.dc.l module_ability				/* Zeiger auf Modability-Struktur (TEXT + 16 Bytes) */
 
-	.dc.l 0x0101							/* Versionsnummer */
+	.dc.l 0x0101						/* Versionsnummer */
 
 	.data
-	.globl errno
 
-errno: .ds.w	1
+	.IFEQ PURE_C
+	.globl _errno
+_errno: .dc.l 0
+	.ELSE
+	.globl errno
+errno: .dc.w 0
+	.ENDC

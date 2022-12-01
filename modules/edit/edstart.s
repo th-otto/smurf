@@ -55,8 +55,8 @@
 	
 	.IFEQ PURE_C
 	.globl _errno
-_errno: .ds.l	1
+_errno: .dc.l	0
 	.ELSE
 	.globl errno
-errno: .ds.w	1
+errno: .dc.w	0
 	.ENDC

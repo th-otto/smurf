@@ -49,6 +49,11 @@
 	dc.l 0x0101							/* Versionsnummer */
 
 	.data
-	.globl errno
 
-errno: ds.w	1
+	.IFEQ PURE_C
+	.globl _errno
+_errno: .dc.l 0
+	.ELSE
+	.globl errno
+errno: .dc.w 0
+	.ENDC
