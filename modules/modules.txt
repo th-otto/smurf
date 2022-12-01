@@ -67,7 +67,7 @@ wind.sem       0.20    0.20     x     x
 zoom.sem       0.80    0.80     x     x
 
 export:
-bmp.sxm        0.70    0.70
+bmp.sxm        0.70    0.70     x
 clipbrd.sxm    0.10    0.10
 esm.sxm        0.20    0.20     x
 cmp.sxm        0.30    0.30

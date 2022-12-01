@@ -10,7 +10,10 @@ MODULES = \
 	$(DISTDIR)/modules/export/pixar.sxm \
 	$(empty)
 
-all:: $(MODULES)
+SUBDIRS = bmp
+
+all:: expstart.o $(MODULES)
+	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
 
 $(DISTDIR)/modules/export/icn.sxm: expstart.o icn.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -23,3 +26,4 @@ $(DISTDIR)/modules/export/pixar.sxm: expstart.o pixar.o
 
 clean::
 	$(RM) *.o $(MODULES)
+	for i in $(SUBDIRS); do $(MAKE) -C $$i $@; done
