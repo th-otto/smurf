@@ -41,6 +41,7 @@ MODULES = \
 	$(DISTDIR)/modules/edit/tachyon.sem \
 	$(DISTDIR)/modules/edit/texshdow.sem \
 	$(DISTDIR)/modules/edit/weight.sem \
+	$(DISTDIR)/modules/edit/wind.sem \
 	$(empty)
 
 # MODULES += $(DISTDIR)/modules/edit/pepsip.sem # does not do anything
@@ -163,6 +164,9 @@ $(DISTDIR)/modules/edit/texshdow.sem: edstart.o texshdow.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/edit/weight.sem: edstart.o weight.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/edit/wind.sem: edstart.o wind.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 

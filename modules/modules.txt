@@ -63,7 +63,7 @@ texis.sem      0.30    -
 texshdow.sem   0.30    -        x     x
 text.sem       1.05    1.05     x     x
 weight.sem     0.40    0.40     x     x
-wind.sem       0.20    0.20
+wind.sem       0.20    0.20     x     x
 zoom.sem       0.80    0.80
 
 export:
