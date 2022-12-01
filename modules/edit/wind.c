@@ -391,7 +391,6 @@ static void storm_right(uint8_t *data, unsigned short width, unsigned short heig
 void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *data;
-	uint8_t BitsPerPixel;
 	unsigned short width, height;
 
 	switch (smurf_struct->module_mode)

@@ -59,12 +59,12 @@ spin.sem       0.20    0.20     x
 strudel.sem    1.00    1.00     x
 sw.sem         0.50    0.50     x     x
 tachyon.sem    0.10    0.10     x     x
-texis.sem      0.30    -
+texis.sem      0.30    -        x
 texshdow.sem   0.30    -        x     x
 text.sem       1.05    1.05     x     x
 weight.sem     0.40    0.40     x     x
 wind.sem       0.20    0.20     x     x
-zoom.sem       0.80    0.80
+zoom.sem       0.80    0.80     x     x
 
 export:
 bmp.sxm        0.70    0.70
