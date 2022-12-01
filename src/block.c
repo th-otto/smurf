@@ -242,13 +242,11 @@ int block2clip(SMURF_PIC *picture, int mode, const char *path)
 /* ------------------------------------------------------------	*/
 static int clear_scrap(void)
 {
-	char *filename;
+	char filename[SM_PATH_MAX + 1];
 	DTA *dta;
 
 	if (Sys_info.scrp_path == NULL)
 		return -1;
-
-	filename = malloc(257);
 
 	strcpy(filename, Sys_info.scrp_path);
 	strcat(filename, "scrap.*");
@@ -262,8 +260,6 @@ static int clear_scrap(void)
 			strcat(filename, dta->d_fname);
 			Fdelete(filename);
 		} while (Fsnext() == 0);
-
-	free(filename);
 
 	return 0;
 }
@@ -317,7 +313,7 @@ void *copyblock(SMURF_PIC *old_pic)
 		bytes_per_line = bytes_per_pixel * (long) (old_pic->pic_width);
 		bytes_blockline = bytes_per_pixel * (long) (bw);
 
-		new_mem = (long) bh *bytes_blockline;
+		new_mem = (long) bh * bytes_blockline;
 	} else
 	{
 		src_planelen = (long) ((old_pic->pic_width + 7) >> 3) * (long) old_pic->pic_height;
@@ -329,7 +325,7 @@ void *copyblock(SMURF_PIC *old_pic)
 
 		pixels = 8 - bx % 8;
 
-		new_mem = (long) bh *bytes_copy * (long) depth;
+		new_mem = (long) bh * bytes_copy * (long) depth;
 	}
 
 	dest_pic = SMalloc(new_mem + 1024);	/* wie immer 1KB mehr */
@@ -636,11 +632,11 @@ void block_dklick(WINDOW *picwindow)
 
 		picblock->pic_width = picture->blockwidth;
 		picblock->pic_height = picture->blockheight;
-		picblock->palette = malloc(1025);
-		memcpy(picblock->palette, picture->palette, 1024);
-		memcpy(picblock->red, picture->red, 256 * 2);
-		memcpy(picblock->grn, picture->grn, 256 * 2);
-		memcpy(picblock->blu, picture->blu, 256 * 2);
+		picblock->palette = malloc(SM_PALETTE_SIZE + 1);
+		memcpy(picblock->palette, picture->palette, SM_PALETTE_SIZE);
+		memcpy(picblock->red, picture->red, SM_PALETTE_MAX * sizeof(picblock->red[0]));
+		memcpy(picblock->grn, picture->grn, SM_PALETTE_MAX * sizeof(picblock->grn[0]));
+		memcpy(picblock->blu, picture->blu, SM_PALETTE_MAX * sizeof(picblock->blu[0]));
 		picblock->local_nct = picture->local_nct;
 		picblock->not_in_nct = picture->not_in_nct;
 		picblock->block = NULL;
@@ -698,13 +694,13 @@ void block_dklick(WINDOW *picwindow)
 		}
 
 		if (Sys_info.realtime_dither &&
-			(memcmp(picture->red, picture->block->red, 512) != 0 ||
-			 memcmp(picture->grn, picture->block->grn, 512) != 0 ||
-			 memcmp(picture->blu, picture->block->blu, 512) != 0))
+			(memcmp(picture->red, picture->block->red, SM_PALETTE_MAX * sizeof(picture->red[0])) != 0 ||
+			 memcmp(picture->grn, picture->block->grn, SM_PALETTE_MAX * sizeof(picture->grn[0])) != 0 ||
+			 memcmp(picture->blu, picture->block->blu, SM_PALETTE_MAX * sizeof(picture->blu[0])) != 0))
 		{
-			memcpy(picture->block->red, picture->red, 512);
-			memcpy(picture->block->grn, picture->grn, 512);
-			memcpy(picture->block->blu, picture->blu, 512);
+			memcpy(picture->block->red, picture->red, SM_PALETTE_MAX * sizeof(picture->red[0]));
+			memcpy(picture->block->grn, picture->grn, SM_PALETTE_MAX * sizeof(picture->grn[0]));
+			memcpy(picture->block->blu, picture->blu, SM_PALETTE_MAX * sizeof(picture->blu[0]));
 			picture->block->local_nct = picture->local_nct;
 			picture->block->not_in_nct = picture->not_in_nct;
 
@@ -729,7 +725,7 @@ Daten als Block genommen.
 */
 void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my)
 {
-	char clip_path[256];
+	char clip_path[SM_PATH_MAX];
 	int pic_dithermode;
 	int pic_palmode;
 	DISPLAY_MODES myDisplay;
@@ -755,9 +751,9 @@ void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my)
 	picture->block->pic_data = data;
 	picture->block->local_nct = picture->local_nct;
 	picture->block->not_in_nct = picture->not_in_nct;
-	memcpy(picture->block->red, picture->red, 256 * 2);	/* Palette aus dem Zielbild kopieren */
-	memcpy(picture->block->grn, picture->grn, 256 * 2);
-	memcpy(picture->block->blu, picture->blu, 256 * 2);
+	memcpy(picture->block->red, picture->red, SM_PALETTE_MAX * sizeof(picture->red[0]));	/* Palette aus dem Zielbild kopieren */
+	memcpy(picture->block->grn, picture->grn, SM_PALETTE_MAX * sizeof(picture->grn[0]));
+	memcpy(picture->block->blu, picture->blu, SM_PALETTE_MAX * sizeof(picture->blu[0]));
 
 	picture->block->changed = 255;		/* Kennzeichnung als Block */
 
@@ -1693,7 +1689,7 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 {
 	char *dest_pic;
 	char *textseg_begin;
-	char clipexp_path[256];
+	char clipexp_path[SM_PATH_MAX];
 
 	int back = 0;
 
@@ -1727,7 +1723,7 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 
 	/*------------------ Exporter initialisieren und Bild konvertieren --------------*/
 	strcpy(clipexp_path, Sys_info.standard_path);
-	strcat(clipexp_path, "\\modules\\clipbrd.sxm");
+	strcat(clipexp_path, "\\modules\\export\\clipbrd.sxm");
 
 	clx_bp = NULL;
 	clx_bp = (BASPAG *) start_exp_module(clipexp_path, MSTART, new_pic, clx_bp, &clx_struct, 0x0101);
@@ -1781,7 +1777,7 @@ path oder, wenn path==NULL, in den Clipboardpfad.
 int save_block(EXPORT_PIC *pic_to_save, const char *path)
 {
 	char *dest_pic;
-	char clipexp_path[256];
+	char clipexp_path[SM_PATH_MAX];
 	WORD ap_buf[8];
 	int fhandle;
 	WORD ok;

@@ -126,7 +126,7 @@ typedef struct
     long data_type;
     long data_length;
     char data_name[65];
-    char file_name[257];
+    char file_name[SM_PATH_MAX + 1];
 } DD_HEADER;
 
 
@@ -166,9 +166,9 @@ typedef struct export_config
     short export_mod_num;             /* ID des laufenden Exporters */
     short exp_depth, exp_form, exp_align, exp_colsys;
     short exp_colred, exp_dither;     /* Dither/Palettenkonfiguration fÅr den Export */
-    WORD exp_fix_red[256];           /* Palette fÅr FIXPAL-Palettenmodus */
-    WORD exp_fix_green[256];
-    WORD exp_fix_blue[256];
+    WORD exp_fix_red[SM_PALETTE_MAX];           /* Palette fÅr FIXPAL-Palettenmodus */
+    WORD exp_fix_green[SM_PALETTE_MAX];
+    WORD exp_fix_blue[SM_PALETTE_MAX];
 } EXPORT_CONFIG;
 
 

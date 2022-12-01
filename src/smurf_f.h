@@ -407,17 +407,17 @@ extern long f_len;						/* LÑnge des letzten geladenen Files */
 extern WORD *messagebuf;
 extern WORD klicks;						/* Anzahl Mausklicks beim letzten Buttonevent */
 extern char *stpath;					/* Smurf-Standardpfad */
-extern char loadpath[257];				/* voller Pfad der zuletzt geladenen Datei */
-extern char savepath[257];				/* voller Pfad der zuletzt gespeicherten Datei */
-extern char commpath[257];				/* voller Pfad der zuletzt Åber ein Protokoll empfangenen Datei */
+extern char loadpath[SM_PATH_MAX + 1];				/* voller Pfad der zuletzt geladenen Datei */
+extern char savepath[SM_PATH_MAX + 1];				/* voller Pfad der zuletzt gespeicherten Datei */
+extern char commpath[SM_PATH_MAX + 1];				/* voller Pfad der zuletzt Åber ein Protokoll empfangenen Datei */
 extern char DraufschmeissBild;
 extern SYSTEM_INFO Sys_info;			/* Systemkonfiguration */
 extern IMPORT_LIST Import_list;			/* Importmodul-Liste */
 
-extern WORD orig_red[256];
-extern WORD orig_green[256];
-extern WORD orig_blue[256];
-extern uint8_t planetable[260];
+extern WORD orig_red[SM_PALETTE_MAX];
+extern WORD orig_green[SM_PALETTE_MAX];
+extern WORD orig_blue[SM_PALETTE_MAX];
+extern uint8_t planetable[SM_PALETTE_MAX];
 
 /*--------- Exporterspezifisches ------*/
 extern char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
@@ -465,9 +465,9 @@ extern short num_of_pics;
 
 extern long timer_fx_max[10];
 
-extern WORD fix_red[256];
-extern WORD fix_blue[256];
-extern WORD fix_green[256];
+extern WORD fix_red[SM_PALETTE_MAX];
+extern WORD fix_blue[SM_PALETTE_MAX];
+extern WORD fix_green[SM_PALETTE_MAX];
 
 extern WORD sx, sy, sw, sh;
 

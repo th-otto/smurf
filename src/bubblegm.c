@@ -159,7 +159,7 @@ void bubble_exit(void)
 void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 {
 	WORD klickobj;
-	char helppath[256];
+	char helppath[SM_PATH_MAX];
 	char helpname[64];
 	char *HelpString;
 
@@ -335,9 +335,9 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 #if 0
 	/*-------- Block wenn m”glich als global anfordern? */
 	if (Ssystem(FEATURES, 0L, 0L) != EINVFN || (Sys_info.OS & MINT) || (Sys_info.OS & MATSCHIG))
-		helpstring = (char *) Mxalloc(257, 0x20);
+		helpstring = (char *) Mxalloc(SM_PATH_MAX + 1, 0x20);
 	else
-		helpstring = (char *) SMalloc(257);
+		helpstring = (char *) SMalloc(SM_PATH_MAX + 1);
 #endif
 
 #if !defined(__PUREC__) && !defined(__MSHORT__)
@@ -392,7 +392,7 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 
 			search_pos += 5 + 2;		/* #GINF und 1 CRLF weiter */
 			end_of_string = strchr(search_pos, '@');
-			memset(helpstring, 0x0, 256);
+			memset(helpstring, 0, SM_PATH_MAX);
 			strncpy(helpstring, search_pos, end_of_string - search_pos);
 		} else
 		{
@@ -449,7 +449,7 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 			search_pos += 5;			/* 3 Ziffern und 1 CRLF weiter */
 			end_of_string = strchr(search_pos, '@');
 
-			memset(helpstring, 0x0, 256);
+			memset(helpstring, 0, SM_PATH_MAX);
 			strncpy(helpstring, search_pos, end_of_string - search_pos);
 		}
 	

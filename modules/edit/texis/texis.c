@@ -67,9 +67,9 @@ static uint8_t *map;
 static uint8_t *mapdata;
 static short map_height, map_width;
 static short scaled_wid, scaled_hgt;
-static uint8_t *redtab;
-static uint8_t *greentab;
-static uint8_t *bluetab;
+static uint8_t redtab[256];
+static uint8_t greentab[256];
+static uint8_t bluetab[256];
 static float fpar1;
 
 static short inter_startup = 1;
@@ -293,9 +293,7 @@ static void do_turbulence(uint8_t *pixel, short *xp, short *yp)
 		newpixel += *(map_data + xpos + mapoff);
 		newpixel >>= 1;
 		*pixel = newpixel;
-	}
-
-	else if (texture_define.turbulence_mode == TURB_SIN)
+	} else if (texture_define.turbulence_mode == TURB_SIN)
 	{
 		xpos += sin(fpar1) * (owid * texture_define.turbulence / 100);
 		ypos += sin(fpar1) * (ohgt * texture_define.turbulence / 100);
@@ -372,7 +370,7 @@ static void start_texture(GARGAMEL *smurf_struct)
 	short cur_map_ypos = 0;
 	short x, y;
 	short width, height;
-	uint8_t mappixel = 0;
+	uint8_t mappixel;
 	uint8_t *pic_data;
 	uint8_t *mapcopy;
 	long xoffset, yoffset;
@@ -404,8 +402,6 @@ static void start_texture(GARGAMEL *smurf_struct)
 		{
 			cur_map_xpos = map_xpos;
 			cur_map_ypos = map_ypos;
-
-			mappixel = 0;
 
 			do_scaling(&cur_map_xpos, &cur_map_ypos);
 
@@ -464,11 +460,7 @@ static void fill_colourtable(void)
 {
 	short t;
 
-	redtab = (uint8_t *)Malloc(257);
-	greentab = (uint8_t *)Malloc(257);
-	bluetab = (uint8_t *)Malloc(257);
-
-	for (t = 0; t < 255; t++)
+	for (t = 0; t < 256; t++)
 	{
 		redtab[t] = t;
 		greentab[t] = t;
@@ -589,9 +581,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	/* -----------------------------------------------------------  */
 	case MTERM:
 		Mfree(map);
-		Mfree(redtab);
-		Mfree(greentab);
-		Mfree(bluetab);
 		smurf_struct->module_mode = M_EXIT;
 		break;
 	}

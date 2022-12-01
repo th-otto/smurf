@@ -417,7 +417,7 @@ void save_file(void)
 /*-----------------------------------------------------------------	*/
 int f_save_pic(MOD_ABILITY *export_mabs)
 {
-	char savepathback[257];
+	char savepathback[SM_PATH_MAX];
 	char *name;
 	char *save_ext;
 	char *expext;
@@ -501,8 +501,8 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 		/*----------- neue SMURF_PIC generieren -------------*/
 		converted_pic = SMalloc(sizeof(SMURF_PIC));
 		memcpy(converted_pic, pic_to_export, sizeof(SMURF_PIC));
-		converted_pic->palette = malloc(1025);
-		memcpy(converted_pic->palette, pic_to_export->palette, 1025);
+		converted_pic->palette = malloc(SM_PALETTE_SIZE + 1);
+		memcpy(converted_pic->palette, pic_to_export->palette, SM_PALETTE_SIZE);
 		converted_pic->screen_pic = NULL;
 
 		/* --- Maximale Farbtiefe des Xporters ausreichend? */
@@ -620,24 +620,24 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 				if (Dialog.winAlert.openAlert("Neuen Namen bernehmen?", "Nein", " Ja ", NULL, 1) == 2)
 				{
 					Comm.renameOLGA(smurf_picture[active_pic]->filename, savepath);
-					strncpy(smurf_picture[active_pic]->filename, savepath, 257);
+					strncpy(smurf_picture[active_pic]->filename, savepath, sizeof(smurf_picture[active_pic]->filename));
 
-					memset(saved_window->wtitle, 0x0, 41);
+					memset(saved_window->wtitle, 0, sizeof(saved_window->wtitle));
 					itoa(smurf_picture[active_pic]->pic_width, str, 10);
-					strncpy(saved_window->wtitle, str, 5);
-					strncat(saved_window->wtitle, "*", 1);
+					strcpy(saved_window->wtitle, str);
+					strcat(saved_window->wtitle, "*");
 					itoa(smurf_picture[active_pic]->pic_height, str, 10);
-					strncat(saved_window->wtitle, str, 5);
+					strcat(saved_window->wtitle, str);
 
 					whlen = strlen(saved_window->wtitle);
-					strncat(saved_window->wtitle, "            ", 12 - whlen);
+					if (whlen < 12)
+						strncat(saved_window->wtitle, "            ", 12 - whlen);
 
-/*					strncat(saved_window->wtitle, strrchr(savepath, '\\') + 1, 40); */
 					if ((name = strrchr(savepath, '\\')) != NULL)
 						name++;
 					else
 						name = savepath;
-					strcat(saved_window->wtitle, shorten_name(name, 41 - (char) strlen(saved_window->wtitle)));
+					strcat(saved_window->wtitle, shorten_name(name, 41 - (short)strlen(saved_window->wtitle)));
 					Window.windSet(saved_window->whandlem, WF_NAME, LONG2_2INT(saved_window->wtitle), 0, 0);
 
 					t = 0;
@@ -747,7 +747,7 @@ short dither_for_export(MOD_ABILITY *mod_abs, short max_expdepth, short dest_for
 
 	/*---------------- Palette bertragen */
 	dest_pal = (converted_pic->palette);
-	for (t = 0; t < 256; t++)
+	for (t = 0; t < SM_PALETTE_MAX; t++)
 	{
 		*dest_pal++ = (char) converted_pic->red[t];
 		*dest_pal++ = (char) converted_pic->grn[t];
@@ -902,7 +902,7 @@ void exmod_info_off(void)
 /*-----------------------------------------------------------------	*/
 short loadNCT(short loadplanes, SYSTEM_INFO *sysinfo)
 {
-	char tablename[256];
+	char tablename[SM_PATH_MAX];
 	char bpstring[4];
 	char *palbuf;
 	short attrib = 0;
@@ -930,22 +930,22 @@ short loadNCT(short loadplanes, SYSTEM_INFO *sysinfo)
 			return -1;
 
 		sysinfo->nc_table = SMalloc(32800L);
-		memcpy(sysinfo->nc_table, palbuf + maxc * 6 + 256, 32768L);
+		memcpy(sysinfo->nc_table, palbuf + maxc * 6 + SM_PALETTE_MAX, 32768L);
 
-		sysinfo->plane_table = malloc(256);
-		memcpy(sysinfo->plane_table, palbuf + maxc * 6, 256);
+		sysinfo->plane_table = malloc(SM_PALETTE_MAX);
+		memcpy(sysinfo->plane_table, palbuf + maxc * 6, SM_PALETTE_MAX);
 		palette = (WORD *)palbuf;
 
-		sysinfo->red = malloc(256 * 2);
-		sysinfo->grn = malloc(256 * 2);
-		sysinfo->blu = malloc(256 * 2);
+		sysinfo->red = malloc(SM_PALETTE_MAX * sizeof(*sysinfo->red));
+		sysinfo->grn = malloc(SM_PALETTE_MAX * sizeof(*sysinfo->grn));
+		sysinfo->blu = malloc(SM_PALETTE_MAX * sizeof(*sysinfo->blu));
 
-		for (t = 0; t < 256; t++)
+		for (t = 0; t < SM_PALETTE_MAX; t++)
 		{
-			sysinfo->pal_red[t] = palette[t * 3];
+			sysinfo->pal_red[t] = palette[t * 3 + 0];
 			sysinfo->pal_green[t] = palette[t * 3 + 1];
 			sysinfo->pal_blue[t] = palette[t * 3 + 2];
-			sysinfo->red[t] = (WORD) (palette[t * 3] * 31L / 1000L);
+			sysinfo->red[t] = (WORD) (palette[t * 3 + 0] * 31L / 1000L);
 			sysinfo->grn[t] = (WORD) (palette[t * 3 + 1] * 31L / 1000L);
 			sysinfo->blu[t] = (WORD) (palette[t * 3 + 2] * 31L / 1000L);
 		}

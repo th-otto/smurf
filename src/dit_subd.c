@@ -49,8 +49,8 @@ static DITHER_DATA ditherdata;
 void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, int mode, uint8_t *nct, GRECT *part)
 {
 	uint8_t *plantab;
-	uint8_t empty_planetable[257];
-	WORD red24[257], grn24[257], blu24[257];
+	uint8_t empty_planetable[SM_PALETTE_MAX];
+	WORD red24[SM_PALETTE_MAX], grn24[SM_PALETTE_MAX], blu24[SM_PALETTE_MAX];
 	WORD t;
 	WORD *red, *grn, *blu;
 	WORD *c_red, *c_grn, *c_blu;
@@ -61,7 +61,7 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, 
 	height = picture->pic_height;
 	bplanes = sysinfo->bitplanes;
 
-	for (t = 0; t < 256; t++)
+	for (t = 0; t < SM_PALETTE_MAX; t++)
 		empty_planetable[t] = t;
 
 	if (mode & PLANTAB)
@@ -71,7 +71,7 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, 
 
 	if (mode & LNCT)
 	{
-		for (t = 0; t < 256; t++)
+		for (t = 0; t < SM_PALETTE_MAX; t++)
 		{
 			red24[t] = picture->red[t];
 			grn24[t] = picture->grn[t];
@@ -83,7 +83,7 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, 
 		blu = picture->blu;
 	} else
 	{
-		for (t = 0; t < 256; t++)
+		for (t = 0; t < SM_PALETTE_MAX; t++)
 		{
 			red24[t] = (WORD)(sysinfo->pal_red[t] * 255L / 1000L);
 			grn24[t] = (WORD)(sysinfo->pal_green[t] * 255L / 1000L);
@@ -110,11 +110,11 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, 
 	 */
 	if (mode & SCALEPAL)
 	{
-		c_red = malloc(520);
-		c_grn = malloc(520);
-		c_blu = malloc(520);
+		c_red = malloc((SM_PALETTE_MAX + 4) * sizeof(*c_red));
+		c_grn = malloc((SM_PALETTE_MAX + 4) * sizeof(*c_grn));
+		c_blu = malloc((SM_PALETTE_MAX + 4) * sizeof(*c_blu));
 
-		for (t = 0; t < 256; t++)
+		for (t = 0; t < SM_PALETTE_MAX; t++)
 		{
 			c_red[t] = ((unsigned char)picture->red[t]) >> 3;
 			c_grn[t] = ((unsigned char)picture->grn[t]) >> 3;

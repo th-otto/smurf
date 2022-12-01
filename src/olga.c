@@ -53,7 +53,7 @@ short init_OLGA(void)
 	char *path_name;
 	char *dot;
 	char name[9] = "";
-	char old[257];
+	char old[SM_PATH_MAX];
 	WORD id;
 
 	DEBUG_MSG(("init_OLGA...\n"));

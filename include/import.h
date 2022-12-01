@@ -86,6 +86,11 @@ typedef struct _window WINDOW;
 #define FPU     16
 #define MC68060 32
 
+
+#define SM_PATH_MAX 256
+#define SM_PALETTE_MAX 256
+#define SM_PALETTE_SIZE 1024
+
 /*--------- Struktur VECTOR zur Beschreibung eines Vektorobjektes -----*/
 
 /* öber char *next_obj kann in ein Objekt eine Folge aufs nÑchste Objekt */
@@ -114,7 +119,7 @@ typedef struct
 /* Struktur SMURF_PIC - Standard-Bildinformationsstruktur von SMURF */
 typedef struct smurfpic
 {
-    /*    0 */ char filename[257];     /* Zeiger auf Dateiname incl. Pfad des Bildes - von Smurf */
+    /*    0 */ char filename[SM_PATH_MAX + 1];     /* Zeiger auf Dateiname incl. Pfad des Bildes - von Smurf */
 
     /*  258 */ short changed;          /* Bitvektor fÅr BildÑnderungen: 
                                Bit 0: neue NCT wird benîtigt,
@@ -137,9 +142,9 @@ typedef struct smurfpic
     /*  331 */ uint8_t col_format;     /* Farbsystem, in dem das Bild vom Modul zurÅckkommt */
     /*  332 */ char infotext[97];      /* Infotext fÅr weitere Bildinformationen */
 
-    /*  430 */ WORD red[256];          /* Palette, nach der die */
-    /*  942 */ WORD grn[256];          /* Bildschirmdarstellung */
-    /* 1454 */ WORD blu[256];          /* gedithert wurde. (15Bit-Format) */
+    /*  430 */ WORD red[SM_PALETTE_MAX];          /* Palette, nach der die */
+    /*  942 */ WORD grn[SM_PALETTE_MAX];          /* Bildschirmdarstellung */
+    /* 1454 */ WORD blu[SM_PALETTE_MAX];          /* gedithert wurde. (15Bit-Format) */
 
 
     /* 1966 */ WORD blockx, blocky, blockwidth, blockheight;    /* Koordinaten fÅr den Blockrahmen */
@@ -304,7 +309,6 @@ typedef struct
     /* 86 */
 } GARGAMEL;
 
-
 /* SYSTEM-Struktur fÅr Systeminformationen */
 /* Muû beim Start von Smurf gefÅllt werden (globale variable) */
 /*  1857 Bytes */
@@ -322,14 +326,14 @@ typedef struct
     WORD *red, *grn, *blu;  /* Zeiger auf Systempalette - mÅssen von Smurf anfangs gefÅllt werden! */
 
 
-    char standard_path[256];    /* Smurf-Startpfad */
-    char home_path[256];        /* Zeiger auf $HOME-Verzeichnis - kann auf Standard_path zeigen! */
+    char standard_path[SM_PATH_MAX];    /* Smurf-Startpfad */
+    char home_path[SM_PATH_MAX];        /* Zeiger auf $HOME-Verzeichnis - kann auf Standard_path zeigen! */
 
     short DSP;              /* DSP-existant-Flag */
 
-    WORD pal_red[257],      /* Systempalette (die echte im VDI-Format!)*/
-        pal_green[257], 
-        pal_blue[257];
+    WORD pal_red[SM_PALETTE_MAX + 1];      /* Systempalette (die echte im VDI-Format!)*/
+    WORD pal_green[SM_PALETTE_MAX + 1];
+    WORD pal_blue[SM_PALETTE_MAX + 1];
     
 	/* Variablen fÅr die Konfiguration */
     short center_dialog;      

@@ -94,8 +94,8 @@ void scan_plugins(void)
 	char *editpath;						/* voller Modulpfad, Original */
 	char *edit_path;					/* voller Modulpfad, editable */
 	char *swapstr;
-	char alert[256];
-	char newpath[256];
+	char alert[SM_PATH_MAX];
+	char newpath[SM_PATH_MAX];
 	char *oldpath;
 	char *dot_pos;
 	char *textseg_begin;

@@ -164,8 +164,9 @@ WORD f_handle_menuevent(WORD *message)
 		{
 			/*----- oder ein Bild? */
 			if (Dialog.topDialog != 256)
+			{
 				nexthandle = Dialog.topDialog;
-			else
+			} else
 			{
 				nexthandle = 256;
 				for (t = 0; t < MAX_PIC; t++)
@@ -197,8 +198,9 @@ WORD f_handle_menuevent(WORD *message)
 		{
 			/*--- oder ein Dialog? ---*/
 			if (imageWindow.topPicwin != 256)
+			{
 				nexthandle = imageWindow.topPicwin;
-			else
+			} else
 			{
 				nexthandle = 256;
 				for (t = 0; t < MAX_PIC; t++)

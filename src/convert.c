@@ -772,7 +772,7 @@ short tfm_bgr_to_rgb(SMURF_PIC *picture, uint8_t mode)
 		bgrtorgb(ziel, length);
 		break;
 	default:
-		bgrtorgb(palette, 256);
+		bgrtorgb(palette, SM_PALETTE_MAX);
 		break;
 	}
 
@@ -850,7 +850,7 @@ short tfm_cmy_to_rgb(SMURF_PIC *picture, uint8_t mode)
 		} while (--length);
 		break;
 	default:
-		length = 256;
+		length = SM_PALETTE_MAX;
 		do
 		{
 			*pal++ = ~*pal;
@@ -992,7 +992,7 @@ short tfm_rgb_to_grey(SMURF_PIC *picture, uint8_t mode)
 
 	pal = picture->palette;
 
-	for (i = 0; i < 256; i++)
+	for (i = 0; i < SM_PALETTE_MAX; i++)
 	{
 		*pal++ = i;
 		*pal++ = i;
@@ -1039,7 +1039,7 @@ BOOLEAN test_if_grey(SMURF_PIC *picture)
 	{
 		data = picture->palette;
 
-		length = 256;
+		length = SM_PALETTE_MAX;
 	} else
 	{
 		if (BitsPerPixel == 24)

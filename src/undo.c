@@ -40,8 +40,8 @@
  */
 void saveUndoBuffer(SMURF_PIC *picture, short picnum)
 {
-	char filePath[257];
-	char temppath[257];
+	char filePath[SM_PATH_MAX + 1];
+	char temppath[SM_PATH_MAX + 1];
 	char *bslPos;
 	int fHandle;
 	long picLen;
@@ -80,7 +80,7 @@ void saveUndoBuffer(SMURF_PIC *picture, short picnum)
 	/*
 	 * jetzt noch die Palette
 	 */
-	Fwrite(fHandle, 1024, picture->palette);
+	Fwrite(fHandle, SM_PALETTE_SIZE, picture->palette);
 
 	Fclose(fHandle);
 }
@@ -97,10 +97,10 @@ void saveUndoBuffer(SMURF_PIC *picture, short picnum)
  */
 void swapUndoBuffer(SMURF_PIC *toPicture, short picNum)
 {
-	char filePath[257];
-	char temppath[257];
+	char filePath[SM_PATH_MAX + 1];
+	char temppath[SM_PATH_MAX + 1];
 	char *bslPos;
-	char tmpName[257];
+	char tmpName[SM_PATH_MAX + 1];
 	int fHandle;
 	long picLen;
 	long undoPicLen;
@@ -147,7 +147,7 @@ void swapUndoBuffer(SMURF_PIC *toPicture, short picNum)
 	SMfree(toPicture->pic_data);
 	toPicture->pic_data = SMalloc(undoPicLen);
 	Fread(fHandle, picLen, toPicture->pic_data);
-	Fread(fHandle, 1024, toPicture->palette);
+	Fread(fHandle, SM_PALETTE_SIZE, toPicture->palette);
 	Fclose(fHandle);
 
 	/*

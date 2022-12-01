@@ -49,7 +49,7 @@ char *quote_arg(char *s)
 	char *t;
 	char *ot;
 
-	t = calloc(1, 257);
+	t = calloc(1, SM_PATH_MAX + 1);
 	ot = t;
 
 	/* eric's file -> 'eric''s file' */
@@ -436,7 +436,7 @@ char *load_palfile(char *path, WORD *red, WORD *green, WORD *blue, WORD max_cols
 	WORD *palcpy;
 	WORD max_count;
 	WORD t;
-	static char pal_loadpath[256];
+	static char pal_loadpath[SM_PATH_MAX];
 
 	strcpy(pal_loadpath, path);
 	fsback = f_fsbox(pal_loadpath, "Palette laden", 0); /* FIXME: translate */
@@ -454,7 +454,7 @@ char *load_palfile(char *path, WORD *red, WORD *green, WORD *blue, WORD max_cols
 		{
 			palcpy = palbuf;
 			/* Mit der ersten Farbe im File die Palette ausnullen */
-			for (t = 0; t < 256; t++)
+			for (t = 0; t < SM_PALETTE_MAX; t++)
 			{
 				red[t] = (WORD) (255L * (long) palcpy[0] / 1000L);
 				green[t] = (WORD) (255L * (long) palcpy[1] / 1000L);
@@ -571,7 +571,7 @@ void restore_display(DISPLAY_MODES *old)
 /* auf 27 Zeichen "Dies ist ein...Filename.img" */
 char *shorten_name(char *string, char newlen)
 {
-	static char temp[257];
+	static char temp[SM_PATH_MAX + 1];
 
 	/* nichts tun wenn String sowieso passend */
 	if (strlen(string) <= newlen)

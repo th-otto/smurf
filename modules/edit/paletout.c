@@ -131,12 +131,12 @@ static void writeline(short fp, char *wert1, char *wert2, char *wert3)
 void edit_module_main(GARGAMEL * smurf_struct)
 {
 	uint8_t *data;
-	char path[257];
+	char path[SM_PATH_MAX];
 	char file[65];
 	char wert1[8];
 	char wert2[8];
 	char wert3[8];
-	uint8_t palette[257];
+	char palette[SM_PATH_MAX];
 	char *part;
 	char *extender;
 	uint8_t BitsPerPixel;

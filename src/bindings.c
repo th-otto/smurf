@@ -30,7 +30,6 @@
 #endif
 #include <stdio.h>
 #include "portab.h"
-#include "smurf_st.h"
 #include "bindings.h"
 #include "nvdi5ras.h"
 

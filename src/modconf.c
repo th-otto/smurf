@@ -181,7 +181,7 @@ static long seekInFile(int filehandle, char *SeekString)
 	den Dateipointer auf das 'MCAB'.
 	ZurÅckgegeben wird die neue Position relativ zur alten vor dem Aufruf.
 	-------------------------------------------------------------*/
-static long seek_modconf(int filehandle, MOD_INFO * modinfo)
+static long seek_modconf(int filehandle, MOD_INFO *modinfo)
 {
 	char SeekString[128] = "MCAB";
 	long filepos;
@@ -208,7 +208,7 @@ static long seek_modconf(int filehandle, MOD_INFO * modinfo)
 	----------------------------------------------------------------------*/
 static short open_modconf_popup(MOD_INFO * modinfo)
 {
-	char cnfpath[257];
+	char cnfpath[SM_PATH_MAX + 1];
 	char *omca;
 	char *mca;
 	WORD x, y, w, h;
@@ -446,7 +446,7 @@ static void expandFile(int handle, long len)
 	-------------------------------------------------------------------------*/
 static void save_to_modconf(MOD_INFO * modinfo, void *confblock, long len, char *name, long type)
 {
-	char cnfpath[257];
+	char cnfpath[SM_PATH_MAX + 1];
 	int filehandle;
 	short num_confs;
 	long mca_len = 0;
@@ -551,7 +551,7 @@ static void save_to_modconf(MOD_INFO * modinfo, void *confblock, long len, char 
 static short overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char *name, short num, long type)
 {
 	char SeekString[37] = "MCNF";
-	char cnfpath[257];
+	char cnfpath[SM_PATH_MAX + 1];
 	char *mca;
 	int filehandle;
 	short num_confs;
@@ -636,7 +636,7 @@ static short overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, cha
 /* RÅckgabe 0: alles ist klar, 1: schon vergeben */
 static short nametest(MOD_INFO * modinfo, char *name)
 {
-	char cnfpath[257];
+	char cnfpath[SM_PATH_MAX + 1];
 	char SeekString[37] = "MCNF";
 	char *mca;
 	int filehandle;
@@ -767,7 +767,7 @@ void mconfSave(MOD_INFO * modinfo, short mod_id, void *confblock, long len, char
 void *load_from_modconf(MOD_INFO * modinfo, char *name, short *num, long type)
 {
 	char SeekString[37] = "MCNF";
-	char cnfpath[257];
+	char cnfpath[SM_PATH_MAX + 1];
 	char *mca;
 	char *block;
 	int fhandle;
@@ -848,7 +848,7 @@ void *load_from_modconf(MOD_INFO * modinfo, char *name, short *num, long type)
 	cnfblock (wird bei M_EXIT mitgeschickt) mit der LÑnge length in den
 	Feldern edit_cnfblock[] und edit_cnflen[].
 	-------------------------------------------------------------------------*/
-void memorize_emodConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
+void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 {
 	char cmp_modname[30];
 	char *textseg;

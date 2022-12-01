@@ -232,7 +232,7 @@ static void save_extensions(MOD_INFO *module_info)
 static void save_import_list(void)
 {
 	char *string;
-	char listpath[256];
+	char listpath[SM_PATH_MAX];
 	short len;
 	int filehandle;
 	short t;
@@ -471,7 +471,7 @@ void f_scan_import(void)
 int load_import_list(void)
 {
 	char *buf;
-	char listpath[256];
+	char listpath[SM_PATH_MAX];
 	int filehandle;
 	short t;
 	short extnum;
@@ -536,7 +536,7 @@ int load_import_list(void)
 /******************************************************************	*/
 int seek_module(SMURF_PIC *picture, char *extension)
 {
-	char modpath[257];
+	char modpath[SM_PATH_MAX + 1];
 	char new_ext[5];
 	short t = 0;
 	short seek;
@@ -554,7 +554,7 @@ int seek_module(SMURF_PIC *picture, char *extension)
 		do
 		{
 			Dialog.busy.reset(0, Import_list.imp_mod_list[t]);
-			strncpy(modpath, Sys_info.standard_path, 257);
+			strncpy(modpath, Sys_info.standard_path, sizeof(modpath));
 			strcat(modpath, "\\modules\\import\\");
 			strcat(modpath, Import_list.imp_mod_list[t]);
 			if ((mod_ret = module.comm.start_imp_module(modpath, picture)) == M_STARTERR)
@@ -572,7 +572,7 @@ int seek_module(SMURF_PIC *picture, char *extension)
 				if (strncmp(new_ext, Import_list.mod_exts[seek][t], 4) == 0)
 				{
 					Dialog.busy.reset(0, Import_list.imp_mod_list[t]);
-					strncpy(modpath, Sys_info.standard_path, 257);
+					strncpy(modpath, Sys_info.standard_path, sizeof(modpath));
 					strcat(modpath, "\\modules\\import\\");
 					strcat(modpath, Import_list.imp_mod_list[t]);
 

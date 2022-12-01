@@ -128,26 +128,26 @@ WORD *messagebuf;						/* Zeiger fÅr Messageevents */
 WORD klicks;							/* Anzahl Mausklicks beim letzten Buttonevent */
 
 char *stpath;							/* Smurf-Standardpfad */
-char loadpath[257];						/* voller Pfad der zuletzt geladenen Datei */
-char savepath[257];						/* voller Pfad der zuletzt gespeicherten Datei */
-char commpath[257];						/* voller Pfad der zuletzt Åber ein Protokoll empfangenen Datei */
+char loadpath[SM_PATH_MAX + 1];			/* voller Pfad der zuletzt geladenen Datei */
+char savepath[SM_PATH_MAX + 1];			/* voller Pfad der zuletzt gespeicherten Datei */
+char commpath[SM_PATH_MAX + 1];			/* voller Pfad der zuletzt Åber ein Protokoll empfangenen Datei */
 char DraufschmeissBild = 0;
 
 SYSTEM_INFO Sys_info;					/* Systemkonfiguration */
 IMPORT_LIST Import_list;				/* Importmodul-Liste */
 
 /* 15Bit-Systempalette aus NCT - werden in Sys_info eingehÑngt!*/
-static WORD red[257];
-static WORD grn[257];
-static WORD blu[257];
+static WORD red[SM_PALETTE_MAX];
+static WORD grn[SM_PALETTE_MAX];
+static WORD blu[SM_PALETTE_MAX];
 
 /* die Original-Systempalette, wird bei Systemstart ausgelesen und
    danach nie mehr verÑndert */
-WORD orig_red[256];
-WORD orig_green[256];
-WORD orig_blue[256];
+WORD orig_red[SM_PALETTE_MAX];
+WORD orig_green[SM_PALETTE_MAX];
+WORD orig_blue[SM_PALETTE_MAX];
 
-uint8_t planetable[260];
+uint8_t planetable[SM_PALETTE_MAX];
 
 char *edit_modules[100];				/* Pfade fÅr bis zu 100 Edit-Module */
 char *export_modules[100];				/* Pfade fÅr bis zu 100 Export-Module */
@@ -211,9 +211,9 @@ static long timer_fx_counter[10];
 long timer_fx_max[10];
 static void (*timer_fx_rout[10])(void);
 
-WORD fix_red[256];
-WORD fix_blue[256];
-WORD fix_green[256];
+WORD fix_red[SM_PALETTE_MAX];
+WORD fix_blue[SM_PALETTE_MAX];
+WORD fix_green[SM_PALETTE_MAX];
 
 WORD sx, sy, sw, sh;
 OBJECT *startrsc;
@@ -271,7 +271,6 @@ int main(int argc, const char *argv[])
 	short t;
 	short tt;
 	short back;
-	char *rsc_path;
 	GRECT desk;
 
 	/*
@@ -316,11 +315,9 @@ int main(int argc, const char *argv[])
 	desk.g_y = 0;
 	desk.g_w = Sys_info.screen_width;
 	desk.g_h = Sys_info.screen_height;
-	rsc_path = malloc(257);
-	strcpy(rsc_path, "startup.rsc");
 	init_xrsrc(Sys_info.vdi_handle, &desk, gl_wchar, gl_hchar);
 	xrsrc_mustexist = FALSE;
-	back = xrsrc_load(rsc_path, startuprsc_global);
+	back = xrsrc_load("startup.rsc", startuprsc_global);
 	if (back == TRUE)
 		startupdial_exist = TRUE;
 
@@ -339,11 +336,7 @@ int main(int argc, const char *argv[])
 	 */
 	/* FIXME: translate */
 	set_startupdial("Lade und initialisiere Resource...");
-	rsc_path = malloc(257);
-	strcpy(rsc_path, "smurf.rsc");
-	init_smurfrsc(rsc_path);
-
-	free(rsc_path);
+	init_smurfrsc("smurf.rsc");
 
 	/*
 	 * Busy-Window links oben hin
@@ -1052,15 +1045,15 @@ SMURF_PIC *f_generate_newpic(WORD wid, WORD hgt, WORD depth)
 		else
 			memset(smurf_picture[pic_to_make]->pic_data, 0xff, PicLen);
 
-		smurf_picture[pic_to_make]->palette = malloc(1025);	/* Paletten-Puffer */
-		memset(smurf_picture[pic_to_make]->palette, 0x0, 1025);
+		smurf_picture[pic_to_make]->palette = malloc(SM_PALETTE_SIZE + 1);	/* Paletten-Puffer */
+		memset(smurf_picture[pic_to_make]->palette, 0, SM_PALETTE_SIZE);
 
 		make_smurf_pic(pic_to_make, wid, hgt, depth, smurf_picture[pic_to_make]->pic_data);
 		make_pic_window(pic_to_make, wid, hgt, "Namenlos");
 
 		smurf_picture[pic_to_make]->col_format = RGB;
-		strncpy(smurf_picture[pic_to_make]->format_name, "-", 2);
-		memset(smurf_picture[pic_to_make]->filename, 0x0, 257);
+		strcpy(smurf_picture[pic_to_make]->format_name, "-");
+		memset(smurf_picture[pic_to_make]->filename, 0, sizeof(smurf_picture[pic_to_make]->filename));
 		strcpy(smurf_picture[pic_to_make]->filename, "C:\\Namenlos");
 
 		/*
@@ -2171,7 +2164,7 @@ void check_windclose(short windnum)
 /* ------------------------------------------------------------- */
 short f_loadpic(char *pic, char *picpath)
 {
-	char PCDmodpath[257];
+	char PCDmodpath[SM_PATH_MAX + 1];
 	char *namename;
 	char *nameext;
 	char ext[5] = "";
@@ -2223,15 +2216,18 @@ short f_loadpic(char *pic, char *picpath)
 		smurf_picture[picture_to_load]->pic_width = PCDwidth;
 		smurf_picture[picture_to_load]->pic_height = PCDheight;
 		smurf_picture[picture_to_load]->file_len = f_len;
-		smurf_picture[picture_to_load]->palette = malloc(1025);	/* Paletten-Puffer */
+		smurf_picture[picture_to_load]->palette = malloc(SM_PALETTE_SIZE + 1);	/* Paletten-Puffer */
 
 		if ((module_ret = module.comm.start_imp_module(PCDmodpath, smurf_picture[picture_to_load])) == -1)
 		{
+			/* FIXME: translate */
 			Dialog.winAlert.openAlert("PhotoCD-Modul nicht gefunden: \\SMURF\\MODULES\\PCD.SIM", NULL, NULL, NULL, 1);
 			module_ret = M_MODERR;
 			Dialog.busy.reset(128, "Error!");
 		} else
+		{
 			Dialog.busy.ok();
+		}
 	} else
 	{
 		if ((nameext = strrchr(namename, '.')) != NULL && nameext > namename)	/* Extender abtrennen */
@@ -2239,8 +2235,9 @@ short f_loadpic(char *pic, char *picpath)
 			strncpy(ext, nameext + 1, 4);
 			strupr(ext);
 		} else
+		{
 			strcpy(ext, "");
-
+		}
 		module_ret = f_import_pic(smurf_picture[picture_to_load], ext);
 	}
 
@@ -2486,7 +2483,7 @@ short f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 	}
 
 
-	smurf_picture->palette = malloc(1025);	/* Paletten-Puffer */
+	smurf_picture->palette = malloc(SM_PALETTE_SIZE + 1);	/* Paletten-Puffer */
 	smurf_picture->file_len = f_len;
 
 	/* Pic-Defaults einstellen */
@@ -2864,14 +2861,14 @@ void f_init_palette(void)
 /* ----------------------------------------------------------------	*/
 uint8_t *f_init_table(void)
 {
-	char tablename[256];
+	char tablename[SM_PATH_MAX];
 	char bpstring[8];
 	uint8_t *palbuf;
 	uint8_t *access_table;
 	uint8_t *pltab;
-	WORD redcomp[256];
-	WORD grncomp[256];
-	WORD blucomp[256];
+	WORD redcomp[SM_PALETTE_MAX];
+	WORD grncomp[SM_PALETTE_MAX];
+	WORD blucomp[SM_PALETTE_MAX];
 	WORD rgb[3];
 	WORD *palette;
 	WORD *pal_control;
@@ -2910,7 +2907,7 @@ uint8_t *f_init_table(void)
 		monopal_nct[0] = monopal_nct[1] = monopal_nct[2] = 31;
 		monopal_nct[3] = monopal_nct[4] = monopal_nct[5] = 0;
 
-		mononct = (char *) SMalloc((2 * 6) + 256 + 32768L);
+		mononct = (char *) SMalloc((2 * 6) + SM_PALETTE_MAX + 32768L);
 
 		palette = (WORD *) mononct;
 		for (t = 0; t < 6; t++)			/* Palette */
@@ -2919,14 +2916,14 @@ uint8_t *f_init_table(void)
 		*(mononct + 13) = 1;
 
 		par[0] = (long) &monopal_nct;
-		par[3] = (long) mononct + (2 * 6) + 256;
+		par[3] = (long) mononct + (2 * 6) + SM_PALETTE_MAX;
 		makeNCT(par, 2);
 
 		if ((fil = (int) Fcreate(tablename, 0)) >= 0)
 		{
-			write_len = Fwrite(fil, (2 * 6) + 256 + 32768L, mononct);	/* Tabelle schreiben */
+			write_len = Fwrite(fil, (2 * 6) + SM_PALETTE_MAX + 32768L, mononct);	/* Tabelle schreiben */
 			Fclose(fil);				/* Datei schlieûen */
-			if (write_len != (2 * 6) + 256 + 32768L)
+			if (write_len != (2 * 6) + SM_PALETTE_MAX + 32768L)
 				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NCT_SAVEERROR].TextCast, NULL, NULL, NULL, 1);
 		} else
 		{
@@ -2959,7 +2956,7 @@ uint8_t *f_init_table(void)
 		if ((palbuf = fload(tablename, 0)) == NULL)
 			return NULL;
 
-		access_table = palbuf + maxc * 6 + 256;
+		access_table = palbuf + maxc * 6 + SM_PALETTE_MAX;
 		pal_control = (WORD *) palbuf;
 
 		for (t = 0; t < maxc; t++)
@@ -2969,13 +2966,16 @@ uint8_t *f_init_table(void)
 			blucomp[t] = *pal_control++;
 
 			if (abs(Sys_info.pal_red[t] - redcomp[t]) > 2 ||
-				abs(Sys_info.pal_green[t] - grncomp[t]) > 2 || abs(Sys_info.pal_blue[t] - blucomp[t]) > 2)
+				abs(Sys_info.pal_green[t] - grncomp[t]) > 2 ||
+				abs(Sys_info.pal_blue[t] - blucomp[t]) > 2)
 				different = 1;
 		}
 
 		if (different)
-			button =
-				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[PAL_CHANGED].TextCast, "ZurÅck", "Aktuelle", NULL, 1);
+		{
+			/* FIXME: translate */
+			button = Dialog.winAlert.openAlert(Dialog.winAlert.alerts[PAL_CHANGED].TextCast, "ZurÅck", "Aktuelle", NULL, 1);
+		}
 
 		if (!different || button == 1)
 		{
@@ -3002,7 +3002,7 @@ uint8_t *f_init_table(void)
 		Window.open(&wind_s[WIND_BUSY]);
 
 		access_table = (char *) SMalloc(32768L);
-		palbuf = (char *) SMalloc(maxc * 6 + 256);
+		palbuf = (char *) SMalloc(maxc * 6 + SM_PALETTE_MAX);
 
 		Dialog.busy.reset(0, "NCT erzeugen");
 
@@ -3016,8 +3016,8 @@ uint8_t *f_init_table(void)
 		}
 
 		/* Planetable schreiben */
-		pltab = (char *) palette;
-		for (t = 0; t < 256; t++)
+		pltab = (uint8_t *) palette;
+		for (t = 0; t < SM_PALETTE_MAX; t++)
 			*pltab++ = planetable[t];
 
 		par[0] = (long) red;
@@ -3042,7 +3042,7 @@ uint8_t *f_init_table(void)
 
 		if ((fil = (int) Fcreate(tablename, 0)) >= 0)
 		{
-			Fwrite(fil, (maxc * 6) + 256, palbuf);	/* Palette und Planetable schreiben */
+			Fwrite(fil, (maxc * 6) + SM_PALETTE_MAX, palbuf);	/* Palette und Planetable schreiben */
 			write_len = Fwrite(fil, 32768L, access_table);	/* NCT schreiben */
 			Fclose(fil);				/* Datei schlieûen */
 			if (write_len != 32768L)
@@ -3070,7 +3070,7 @@ uint8_t *f_init_table(void)
 /*	ganze jetzt noch fÅr jede Palettenfarbe, einmal krÑftig um-		*/
 /*	rÅhren - voila, fertig ist die Tabelle.							*/
 /* ----------------------------------------------------------------	*/
-void f_init_bintable(OBJECT * rsc)
+void f_init_bintable(OBJECT *rsc)
 {
 	WORD col;
 	WORD maxc;
@@ -3085,10 +3085,10 @@ void f_init_bintable(OBJECT * rsc)
 	pxy[3] = pxy[1];
 
 	maxc = Sys_info.Max_col + 1;
-	if (maxc > 256)
-		maxc = 256;
+	if (maxc > SM_PALETTE_MAX)
+		maxc = SM_PALETTE_MAX;
 
-	for (col = 0; col < 256; col++)
+	for (col = 0; col < SM_PALETTE_MAX; col++)
 		planetable[col] = col;			/* planetable vorinitialisieren */
 
 	for (col = 0; col < maxc; col++)
@@ -3097,7 +3097,7 @@ void f_init_bintable(OBJECT * rsc)
 		vr_recfl(Sys_info.vdi_handle, pxy);			/* Rechteck malen */
 
 		v_get_pixel(Sys_info.vdi_handle, pxy[0], pxy[1], &pel, &index);	/* und dann Farb- und Pixelwert holen */
-		planetable[col] = (char) pel;
+		planetable[col] = pel;
 	}
 
 	graf_mouse(M_ON, NULL);
@@ -3238,7 +3238,7 @@ void shutdown_smurf(char while_startup)
 
 /* kopiert eine in picture Åbergebene SMURF_PIC-Struktur. */
 /* Achtung, ein eventuell enthaltener Block wird nicht mitkopiert! */
-static short copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic)
+static short copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic)
 {
 	uint8_t BitsPerPixel;
 	unsigned short width, height;
@@ -3255,7 +3255,7 @@ static short copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic)
 	BitsPerPixel = picture->depth;
 
 	if (picture->format_type == FORM_STANDARD)
-		data_len = (long) (width + 7) / 8 * (long) height *BitsPerPixel;
+		data_len = (long) (width + 7) / 8 * (long) height * BitsPerPixel;
 	else
 		data_len = ((long) width * (long) height * BitsPerPixel) >> 3;
 	if (((*new_pic)->pic_data = (char *) SMalloc(data_len)) == NULL)
@@ -3280,19 +3280,23 @@ static short copy_smurfpic(SMURF_PIC * picture, SMURF_PIC ** new_pic)
 
 		(*new_pic)->screen_pic = (MFDB *) malloc(sizeof(MFDB));
 		memcpy((*new_pic)->screen_pic, picture->screen_pic, sizeof(MFDB));
-		data_len = (long) width *2L * (long) height *BitsPerPixel;
+		data_len = (long) width * 2L * (long) height * BitsPerPixel;
 
 		if (((*new_pic)->screen_pic->fd_addr = (char *) SMalloc(data_len)) == NULL)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[DISPLAY_NOMEM].TextCast, NULL, NULL, NULL, 1);
 			return -1;
 		} else
+		{
 			memcpy((*new_pic)->screen_pic->fd_addr, picture->screen_pic->fd_addr, data_len);
+		}
 	} else
+	{
 		(*new_pic)->screen_pic = NULL;
+	}
 
-	(*new_pic)->palette = (char *) malloc(1025);
-	memcpy((*new_pic)->palette, picture->palette, 1025);
+	(*new_pic)->palette = (char *) malloc(SM_PALETTE_SIZE + 1);
+	memcpy((*new_pic)->palette, picture->palette, SM_PALETTE_SIZE);
 
 	/*
 	 * Block kopieren

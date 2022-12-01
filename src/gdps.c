@@ -199,15 +199,14 @@ static void save_pic(COMSTRUCT *comstruct)
 
 	if (comstruct->result == 0xffff)
 	{
-		smurf_picture[pic_to_make]->palette = malloc(1025);	/* Paletten-Puffer */
-		memset(smurf_picture[pic_to_make]->palette, 0x0, 1025);
+		smurf_picture[pic_to_make]->palette = malloc(SM_PALETTE_SIZE + 1);	/* Paletten-Puffer */
+		memset(smurf_picture[pic_to_make]->palette, 0, SM_PALETTE_SIZE);
 
 		make_smurf_pic(pic_to_make, width, height, depth, smurf_picture[pic_to_make]->pic_data);
 		make_pic_window(pic_to_make, width, height, "GDPS");
 
 		smurf_picture[pic_to_make]->col_format = RGB;
-		strncpy(smurf_picture[pic_to_make]->format_name, "-", 2);
-		memset(smurf_picture[pic_to_make]->filename, 0x0, 257);
+		strcpy(smurf_picture[pic_to_make]->format_name, "-");
 		strcpy(smurf_picture[pic_to_make]->filename, "C:\\GDPS");
 
 		/*

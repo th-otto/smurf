@@ -60,14 +60,13 @@ struct ploadinfo
 static void check_and_create(char *chpath);
 static unsigned short InqMagX(void);
 static void inquire_clipboard(void);
-static short getploadinfo(char *cmdlin, char *fname);
 
 
 short load_config(void)
 {
-	char path[128];
+	char path[SM_PATH_MAX];
 	char *buf;
-	char help[256];
+	char help[SM_PATH_MAX];
 
 	DEBUG_MSG(("Load smurf.cnf...\n"));
 
@@ -327,10 +326,10 @@ static unsigned short InqMagX(void)
 static void inquire_clipboard(void)
 {
 	char *env_path;
-	char chpath[256];
+	char chpath[SM_PATH_MAX];
 	WORD back;
 
-	Sys_info.scrp_path = calloc(1, 256);
+	Sys_info.scrp_path = calloc(1, SM_PATH_MAX);
 
 	back = scrp_read(Sys_info.scrp_path);
 #if 0
@@ -378,9 +377,12 @@ static void inquire_clipboard(void)
 		 * Clipboardexporter testen 
 		 */
 		strcpy(chpath, Sys_info.standard_path);
-		strcat(chpath, "\\modules\\clipbrd.sxm");
+		strcat(chpath, "\\modules\\export\\clipbrd.sxm");
 		if (Fattrib(chpath, 0, 0) < 0)
+		{
+			free(Sys_info.scrp_path);
 			Sys_info.scrp_path = NULL;
+		}
 	}
 #if 0
 	if (Sys_info.scrp_path != NULL)
@@ -427,6 +429,31 @@ static void check_and_create(char *chpath)
 }
 
 
+/* gibt im Fehlerfall 0 zurck um returnwertkompatibel */
+/* zu shel_read() zu sein (s.o.) */
+static short getploadinfo(char *cmdlin, char *fname)
+{
+	int handle;
+	long ret;
+	struct ploadinfo pl;
+
+	if ((handle = (int) Fopen("u:\\proc\\x.-1", FO_READ)) >= 0)
+	{
+		pl.fnamelen = SM_PATH_MAX + 1;
+		pl.cmdlin = cmdlin;
+		pl.fname = fname;
+
+		ret = Fcntl(handle, (long) &pl, PLOADINFO);
+
+		Fclose(handle);
+
+		if (ret == 0)
+			return 1;
+	}
+	return 0;
+}
+
+
 /* Holt sich das Smurflaufwerk */
 /* noch einzubauen ist der Test mit Fcntl(... PLOADINFO) */
 /* auf die eigene Prozeždatei */
@@ -438,9 +465,9 @@ void GetSMPath(void)
 	short drivenum;
 	short back;
 
-	stpath = calloc(1, 257L);
-	sh_rpcmd = calloc(1, 257L);
-	sh_rptail = calloc(1, 257L);
+	stpath = calloc(1, SM_PATH_MAX + 1);
+	sh_rpcmd = calloc(1, SM_PATH_MAX + 1);
+	sh_rptail = calloc(1, SM_PATH_MAX + 1);
 
 	if ((back = getploadinfo(sh_rptail, sh_rpcmd)) == 0)
 		back = shel_read(sh_rpcmd, sh_rptail);
@@ -458,7 +485,7 @@ void GetSMPath(void)
 		}
 	} else								/* oder nicht (z.B. TOS 1.0) */
 	{
-		memset(stpath, 0x0, 257);
+		memset(stpath, 0, SM_PATH_MAX + 1);
 		if ((drivenum = Dgetdrv()) <= 25)	/* drivenum hier: A=0, B=1 ... */
 			stpath[0] = drivenum + 'A';	/* alte Laufwerke A - Z, Laufwerksbuchstabe ermitteln */
 		else
@@ -520,29 +547,4 @@ void GetSMPath(void)
 
 	free(sh_rpcmd);
 	free(sh_rptail);
-}
-
-
-/* gibt im Fehlerfall 0 zurck um returnwertkompatibel */
-/* zu shel_read() zu sein (s.o.) */
-static short getploadinfo(char *cmdlin, char *fname)
-{
-	int handle;
-	long ret;
-	struct ploadinfo pl;
-
-	if ((handle = (int) Fopen("u:\\proc\\x.-1", FO_READ)) >= 0)
-	{
-		pl.fnamelen = 257;
-		pl.cmdlin = cmdlin;
-		pl.fname = fname;
-
-		ret = Fcntl(handle, (long) &pl, PLOADINFO);
-
-		Fclose(handle);
-
-		if (ret == 0)
-			return 1;
-	}
-	return 0;
 }

@@ -495,20 +495,20 @@ static void d8pp_to_16(uint8_t *buffer, uint16_t *ziel, uint16_t width, uint16_t
 	gs = service->gs;
 	gm = service->gm;
 
-	convtab = (uint16_t *)calloc(1, 256 * 2);
+	convtab = (uint16_t *)calloc(1, SM_PALETTE_MAX * sizeof(*convtab));
 	oconvtab = convtab;
 
 	/* Vorberechnung */
 	x = 0;
 	do
 	{
-		pal = palette + x + x + x;
+		pal = palette + 3 * x;
 
 		if (Intel)
 			*convtab++ = swap_word(((*pal++ & 0xf8) << rs) | ((*pal++ & gm) << gs) | (*pal++ >> 3));
 		else
 			*convtab++ = ((*pal++ & 0xf8) << rs) | ((*pal++ & gm) << gs) | (*pal++ >> 3);
-	} while (++x < 256);
+	} while (++x < SM_PALETTE_MAX);
 
 	convtab = oconvtab;
 

@@ -62,7 +62,7 @@ static void f_build_filelist(char **param, int mode)
 		i = 0;
 		while (i < 256 && (arg_name = (param[i + 1])) != NULL)
 		{
-			if ((namelist[i] = (char *) calloc(1, strlen(arg_name) + 1)) != NULL)
+			if ((namelist[i] = (char *) malloc(strlen(arg_name) + 1)) != NULL)
 				strcpy(namelist[i++], arg_name);
 			else
 				break;
@@ -75,7 +75,7 @@ static void f_build_filelist(char **param, int mode)
 		i = 0;
 		while (i < 256 && (arg_name = strargvtok(*param)) != NULL)
 		{
-			if ((namelist[i] = (char *) calloc(1, strlen(arg_name) + 1)) != NULL)
+			if ((namelist[i] = (char *) malloc(strlen(arg_name) + 1)) != NULL)
 				strcpy(namelist[i++], arg_name);
 			else
 				break;
@@ -84,8 +84,8 @@ static void f_build_filelist(char **param, int mode)
 		break;
 
 	case FSBOX2:
-		namelist[0] = (char *) calloc(1, strlen(*param) + 1);
-		strcpy(namelist[0], *param);
+		if ((namelist[0] = (char *) malloc(strlen(*param) + 1)) != NULL)
+			strcpy(namelist[0], *param);
 		namelist[1] = NULL;				/* terminieren */
 		break;
 	}
@@ -348,7 +348,7 @@ static void get_multfiles(SLCT_STR *slct_str, char *pathname, char **sellist)
 /* Datei mittels Fileselector ”ffnen. */
 BOOLEAN f_fsbox(char *Path, const char *fbtext, uint8_t selectart)
 {
-	char pathname[257];
+	char pathname[SM_PATH_MAX + 1];
 	char filename[65];
 	char *part;
 	char *sellist[30];

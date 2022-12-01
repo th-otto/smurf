@@ -1018,7 +1018,7 @@ SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short
 /* ------------------------------------------------------------------------	*/
 short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 {
-	char alertstr[257];
+	char alertstr[SM_PATH_MAX + 1];
 	short t;
 	short back;
 	WORD piccol;
@@ -1060,7 +1060,7 @@ short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
 				return -1;
 			} else
 			{
-				memset(&new_mod, 0x0, sizeof(MOD_ABILITY));
+				memset(&new_mod, 0, sizeof(MOD_ABILITY));
 				new_mod.depth1 = module.smStruct[module_number]->event_par[0];
 				new_mod.form1 = module.smStruct[module_number]->event_par[1];
 				piccol = module.smStruct[module_number]->event_par[2];
@@ -1290,8 +1290,8 @@ void make_modpreview(WINDOW *wind)
 	 */
 	wind->picture = SMalloc(sizeof(SMURF_PIC));
 	memcpy(wind->picture, source_pic, sizeof(SMURF_PIC));
-	wind->picture->palette = malloc(1025);
-	memcpy(wind->picture->palette, source_pic->palette, 1025);
+	wind->picture->palette = malloc(SM_PALETTE_SIZE + 1);
+	memcpy(wind->picture->palette, source_pic->palette, SM_PALETTE_SIZE);
 	wind->picture->pic_width = wind->clipwid;
 	wind->picture->pic_height = wind->cliphgt;
 	Awidth = ((((long) wind->picture->pic_width + 7) / 8) << 3);
@@ -1325,8 +1325,8 @@ void make_modpreview(WINDOW *wind)
 				source_pic = picture_windows[picnum].picture;
 				add_pix[t] = SMalloc(sizeof(SMURF_PIC));
 				memcpy(add_pix[t], source_pic, sizeof(SMURF_PIC));
-				add_pix[t]->palette = malloc(1025);
-				memcpy(add_pix[t]->palette, source_pic->palette, 1025);
+				add_pix[t]->palette = malloc(SM_PALETTE_SIZE + 1);
+				memcpy(add_pix[t]->palette, source_pic->palette, SM_PALETTE_SIZE);
 				add_pix[t]->pic_width = wind->clipwid;
 				add_pix[t]->pic_height = wind->cliphgt;
 				Awidth = ((((long) add_pix[t]->pic_width + 7) / 8) << 3);
@@ -1377,7 +1377,7 @@ void make_modpreview(WINDOW *wind)
 		wind->picture->depth = add_pix[picnum]->depth;
 		wind->picture->format_type = add_pix[picnum]->format_type;
 		wind->picture->col_format = add_pix[picnum]->col_format;
-		memcpy(wind->picture->palette, add_pix[picnum]->palette, 1025);
+		memcpy(wind->picture->palette, add_pix[picnum]->palette, SM_PALETTE_SIZE);
 	}
 
 	wind->picture->zoom = 0;

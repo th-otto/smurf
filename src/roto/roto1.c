@@ -84,7 +84,7 @@ void init_roto(void)
 	/*---- FÅllen der Sin/Cos-Tabelle ----*/
 	for (t = 0; t < 365; t++)
 	{
-		bog = (float) t *M_PI / 180.F;
+		bog = (float) t * M_PI / 180.F;
 
 		Sin[t] = sin(bog) * 256.F;
 		Cos[t] = cos(bog) * 256.F;

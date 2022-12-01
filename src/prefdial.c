@@ -620,8 +620,8 @@ static void f_make_preview(short redraw_flag)
 
 	module_preview = SMalloc(sizeof(SMURF_PIC));
 	memcpy(module_preview, source_pic, sizeof(SMURF_PIC));
-	module_preview->palette = malloc(1025);
-	memcpy(module_preview->palette, source_pic->palette, 1025);
+	module_preview->palette = malloc(SM_PALETTE_SIZE + 1);
+	memcpy(module_preview->palette, source_pic->palette, SM_PALETTE_SIZE);
 	module_preview->pic_width = wind_s[WIND_MODFORM].clipwid;
 	module_preview->pic_height = wind_s[WIND_MODFORM].cliphgt;
 	Awidth = ((((long) module_preview->pic_width + 7) / 8) << 3);
@@ -658,8 +658,8 @@ static void f_make_preview(short redraw_flag)
 				source_pic = picture_windows[picnum].picture;
 				add_pix[t] = SMalloc(sizeof(SMURF_PIC));
 				memcpy(add_pix[t], source_pic, sizeof(SMURF_PIC));
-				add_pix[t]->palette = malloc(1025);
-				memcpy(add_pix[t]->palette, source_pic->palette, 1025);
+				add_pix[t]->palette = malloc(SM_PALETTE_SIZE + 1);
+				memcpy(add_pix[t]->palette, source_pic->palette, SM_PALETTE_SIZE);
 				add_pix[t]->pic_width = wind_s[WIND_MODFORM].clipwid;
 				add_pix[t]->pic_height = wind_s[WIND_MODFORM].cliphgt;
 				Awidth = ((((long) module_preview->pic_width + 7) / 8) << 3);
@@ -668,7 +668,7 @@ static void f_make_preview(short redraw_flag)
 
 				copy_preview(source_pic, add_pix[t], &wind_s[WIND_MODFORM]);
 
-				memset(&new_mod, 0x0, sizeof(MOD_ABILITY));
+				memset(&new_mod, 0, sizeof(MOD_ABILITY));
 				new_mod.depth1 = module.smStruct[edit_mod_num]->event_par[0];
 				new_mod.form1 = module.smStruct[edit_mod_num]->event_par[1];
 				piccol = module.smStruct[edit_mod_num]->event_par[2];
@@ -708,7 +708,7 @@ static void f_make_preview(short redraw_flag)
 		module_preview->depth = add_pix[picnum]->depth;
 		module_preview->format_type = add_pix[picnum]->format_type;
 		module_preview->col_format = add_pix[picnum]->col_format;
-		memcpy(module_preview->palette, add_pix[picnum]->palette, 1025);
+		memcpy(module_preview->palette, add_pix[picnum]->palette, SM_PALETTE_SIZE);
 	}
 
 	module_preview->zoom = 0;

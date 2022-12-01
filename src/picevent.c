@@ -326,9 +326,9 @@ static void pic_popup(WINDOW *picwindow)
 
 			if (picture->block != NULL)
 			{
-				memcpy(picture->block->red, picture->red, 256 * 2);
-				memcpy(picture->block->grn, picture->grn, 256 * 2);
-				memcpy(picture->block->blu, picture->blu, 256 * 2);
+				memcpy(picture->block->red, picture->red, SM_PALETTE_MAX * sizeof(picture->red[0]));
+				memcpy(picture->block->grn, picture->grn, SM_PALETTE_MAX * sizeof(picture->grn[0]));
+				memcpy(picture->block->blu, picture->blu, SM_PALETTE_MAX * sizeof(picture->blu[0]));
 				picture->block->local_nct = picture->local_nct;
 				picture->block->not_in_nct = picture->not_in_nct;
 				f_dither(picture->block, &Sys_info, 1, NULL, &Display_Opt);
@@ -394,7 +394,7 @@ static void pic_popup(WINDOW *picwindow)
 	-----------------------------------------------------------------------------------	*/
 static void drop_block(WINDOW *picwindow, WORD mx, WORD my)
 {
-	char newPicName[256];
+	char newPicName[SM_PATH_MAX];
 	WORD dest_whandle;
 	WORD my_wnum;
 	WORD key;
@@ -447,9 +447,9 @@ static void drop_block(WINDOW *picwindow, WORD mx, WORD my)
 #endif
 		dest_picture->block->local_nct = dest_picture->local_nct;
 
-		memcpy(dest_picture->block->red, dest_picture->red, 256 * 2);
-		memcpy(dest_picture->block->grn, dest_picture->grn, 256 * 2);
-		memcpy(dest_picture->block->blu, dest_picture->blu, 256 * 2);
+		memcpy(dest_picture->block->red, dest_picture->red, SM_PALETTE_MAX * sizeof(dest_picture->red[0]));
+		memcpy(dest_picture->block->grn, dest_picture->grn, SM_PALETTE_MAX * sizeof(dest_picture->grn[0]));
+		memcpy(dest_picture->block->blu, dest_picture->blu, SM_PALETTE_MAX * sizeof(dest_picture->blu[0]));
 
 		dest_picture->blockx = (mx - dest_picwindow->wx) - (srcpic->blockwidth / 2);
 		dest_picture->blocky = (my - dest_picwindow->wy - TOOLBAR_HEIGHT) - (srcpic->blockheight / 2);
@@ -502,8 +502,7 @@ static void drop_block(WINDOW *picwindow, WORD mx, WORD my)
 
 		smurf_picture[newPic]->changed = 0;
 
-		memset(newPicName, 0x0, 256);
-		strcpy(newPicName, "Block aus ");
+		strcpy(newPicName, "Block aus "); /* FIXME: translate */
 		strcat(newPicName, (picwindow->wtitle) + 12);
 		make_pic_window(newPic, picwindow->picture->block->pic_width, picwindow->picture->block->pic_height, newPicName);
 

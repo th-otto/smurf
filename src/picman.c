@@ -49,7 +49,7 @@ void f_picman(void)
 	char *ptr;
 	char *swapstr;
 	char *namestr;
-	char pathstr[256];
+	char pathstr[SM_PATH_MAX];
 	char avname[66];
 	WORD button = 0;
 	WORD popbutton = 0;

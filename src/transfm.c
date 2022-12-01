@@ -52,9 +52,9 @@ static short conv_depth = 24;
 static short conv_dither = DIT1;
 static short conv_pal = CR_SYSPAL;
 
-static WORD tfm_fix_red[256];
-static WORD tfm_fix_blue[256];
-static WORD tfm_fix_green[256];
+static WORD tfm_fix_red[SM_PALETTE_MAX];
+static WORD tfm_fix_blue[SM_PALETTE_MAX];
+static WORD tfm_fix_green[SM_PALETTE_MAX];
 
 
 
@@ -186,8 +186,8 @@ static short dither_destruktiv(short dest_depth, short dest_dither, short dest_p
 
 	/*---------------- Palette bertragen */
 	dest_palette = convpic->palette;
-	memset(dest_palette, 0x0, 1024);
-	for (t = 0; t < 256; t++)
+	memset(dest_palette, 0, SM_PALETTE_SIZE);
+	for (t = 0; t < SM_PALETTE_MAX; t++)
 	{
 		*dest_palette++ = convpic->red[t];
 		*dest_palette++ = convpic->grn[t];
@@ -261,8 +261,8 @@ static short autoreduce_image(void)
 	uint8_t *rt, *gt, *bt;
 	uint8_t *data;
 	uint8_t R, G, B;
-	short idx;
-	short *intdata;
+	uint16_t idx;
+	uint16_t *intdata;
 	short depth;
 	BOOLEAN found = TRUE;
 	short ddepth;
@@ -273,24 +273,11 @@ static short autoreduce_image(void)
 	SMURF_PIC *convpic;
 
 	/* zu aller erst mal die Farben im Bild z„hlen */
-	rt = SMalloc(32769L);
+	rt = SMalloc(32769L * 3 * sizeof(*rt));
 	if (rt == NULL)
 		return M_MEMORY;
-
-	gt = SMalloc(32769L);
-	if (gt == NULL)
-	{
-		SMfree(rt);
-		return M_MEMORY;
-	}
-
-	bt = SMalloc(32769L);
-	if (bt == NULL)
-	{
-		SMfree(rt);
-		SMfree(gt);
-		return M_MEMORY;
-	}
+	gt = rt + 32769L;
+	bt = gt + 32769L;
 
 	Dialog.busy.reset(0, "z„hle Farben...");
 
@@ -298,7 +285,7 @@ static short autoreduce_image(void)
 	pixlen = (long) convpic->pic_width * (long) convpic->pic_height;
 	depth = convpic->depth;
 	data = convpic->pic_data;
-	intdata = (short *) data;
+	intdata = (uint16_t *) data;
 
 	for (t = 0; t < pixlen; t++)
 	{
@@ -317,16 +304,16 @@ static short autoreduce_image(void)
 
 			case 16:
 				idx = *intdata++;
-				R = idx >> 11;
+				R = (idx >> 11) & 31;
 				G = (idx >> 6) & 31;
 				B = idx & 31;
 				break;
 
 			case 8:
 				idx = *data++;
-				R = *(convpic->palette + idx + idx + idx);
-				G = *(convpic->palette + idx + idx + idx + 1);
-				B = *(convpic->palette + idx + idx + idx + 2);
+				R = *(convpic->palette + idx * 3 + 0);
+				G = *(convpic->palette + idx * 3 + 1);
+				B = *(convpic->palette + idx * 3 + 2);
 				break;
 			}
 
@@ -357,8 +344,6 @@ static short autoreduce_image(void)
 
 	/* Such-Tabellen freigeben */
 	SMfree(rt);
-	SMfree(gt);
-	SMfree(bt);
 
 	/* Bild reduzieren */
 	if (colcount > 32768L)

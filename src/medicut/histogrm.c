@@ -68,7 +68,7 @@ typedef struct
 } MC_BOX;
 
 
-static MC_BOX *boxes[256];
+static MC_BOX *boxes[SM_PALETTE_MAX];
 
 unsigned long sumplane_xy(long *hist, MC_BOX *box, int16_t zposition) ASM_NAME("_sumplane_xy");
 unsigned long sumplane_xz(long *hist, MC_BOX *box, int16_t yposition) ASM_NAME("_sumplane_xz");
@@ -622,10 +622,10 @@ void median_cut(long *histogram, SMURF_PIC * picture, SYSTEM_INFO * sysinfo)
 	int16_t w, h, d;
 	int16_t cx, cy, cz;
 	unsigned long index3d;
-	unsigned long rcol[256];
-	unsigned long gcol[256];
-	unsigned long bcol[256];
-	unsigned long divide[256];
+	unsigned long rcol[SM_PALETTE_MAX];
+	unsigned long gcol[SM_PALETTE_MAX];
+	unsigned long bcol[SM_PALETTE_MAX];
+	unsigned long divide[SM_PALETTE_MAX];
 	long frequency;
 	uint8_t red, green, blue;
 	WORD *pr;
@@ -748,14 +748,14 @@ void make_tmp_nct(long *histogram, SMURF_PIC * pic, unsigned short maxc)
 	long tt;
 	long par[10];
 	uint8_t *nct;
-	WORD rpal[256], gpal[256], bpal[256];
+	WORD rpal[SM_PALETTE_MAX], gpal[SM_PALETTE_MAX], bpal[SM_PALETTE_MAX];
 	long curr_freq, lowest_freq;
 	unsigned short lowfreq_idx;
 	short not_in_nct;
 	short idx;
 
 	/*--------------- Palette auf 15 Bit skalieren ------------*/
-	for (tt = 0; tt < 256; tt++)
+	for (tt = 0; tt < SM_PALETTE_MAX; tt++)
 	{
 		rpal[tt] = pic->red[tt] >> 3;
 		gpal[tt] = pic->grn[tt] >> 3;
@@ -819,7 +819,7 @@ void make_tmp_nct(long *histogram, SMURF_PIC * pic, unsigned short maxc)
 
 
 #if 0
-	for (tt = 0; tt < 256; tt++)
+	for (tt = 0; tt < SM_PALETTE_MAX; tt++)
 	{
 		cred[cnt] = pic->red[tt] >> 3;
 		cred[cnt + 1] = pic->grn[tt] >> 3;
