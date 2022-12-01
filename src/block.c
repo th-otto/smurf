@@ -1532,7 +1532,7 @@ int insert_block(WINDOW *picwindow)
 			 */
 			if (block->format_type == FORM_STANDARD)
 			{
-				memset(buf, 0x0, block->pic_width);
+				memset(buf, 0, block->pic_width);
 				getpix_std_line(currblock, buf, blockdepth, plen_block, block->pic_width);
 				buf_copy = buf + begx;
 				blockdepth = 8;
@@ -1548,7 +1548,7 @@ int insert_block(WINDOW *picwindow)
 			 */
 			if (blockdepth < picdepth)
 			{
-				memcpy(&blockLinePic, block, sizeof(SMURF_PIC));
+				memcpy(&blockLinePic, block, sizeof(*block));
 				blockLinePic.pic_data = buf_copy;
 				blockLinePic.depth = blockdepth;
 				blockLinePic.format_type = FORM_PIXELPAK;	/* ist garantiert von vorherigem if */
@@ -1693,7 +1693,7 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 
 	int back = 0;
 
-	BASPAG *clx_bp = NULL;
+	BASPAG *clx_bp;
 	GARGAMEL clx_struct;
 	MOD_ABILITY *clipexp_mabs;
 	SMURF_PIC *new_pic;
@@ -1704,7 +1704,7 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 	if (picture->block == NULL)
 	{
 		new_pic = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
-		memcpy(new_pic, picture, sizeof(SMURF_PIC));
+		memcpy(new_pic, picture, sizeof(*new_pic));
 		dest_pic = copyblock(picture);
 
 		if (dest_pic == NULL)
@@ -1717,7 +1717,9 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 		new_pic->pic_width = block.g_w;
 		new_pic->pic_height = block.g_h;
 	} else
+	{
 		new_pic = picture->block;
+	}
 
 	Dialog.busy.disable();
 
@@ -1725,38 +1727,43 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 	strcpy(clipexp_path, Sys_info.standard_path);
 	strcat(clipexp_path, "\\modules\\export\\clipbrd.sxm");
 
-	clx_bp = NULL;
-	clx_bp = (BASPAG *) start_exp_module(clipexp_path, MSTART, new_pic, clx_bp, &clx_struct, 0x0101);
-	textseg_begin = (char *) (clx_bp->p_tbase);
-	clipexp_mabs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));
-	f_convert(new_pic, clipexp_mabs, RGB, SAME, 0);
-
-	/*------------------- Bild speichern --------------------------------------------*/
-	*pic_to_save = start_exp_module(clipexp_path, MEXEC, new_pic, clx_bp, &clx_struct, 0x0101);
-
-	/* Fehler aufgetreten? ---------------------------------------------------------- */
-	if (clx_struct.module_mode == M_MEMORY)
+	clx_bp = (BASPAG *) start_exp_module(clipexp_path, MSTART, new_pic, NULL, &clx_struct, 0x0101);
+	if (clx_bp == NULL)
 	{
-		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOMEM_EXPORT].TextCast, NULL, NULL, NULL, 1);
 		back = -1;
-	} else if (clx_struct.module_mode == M_PICERR)
+	} else
 	{
-		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOMEM_PICERR].TextCast, NULL, NULL, NULL, 1);
-		back = -1;
-	}
-	/* 
-	 * Bild codiert?
-	 */
-	else if (clx_struct.module_mode == M_DONEEXIT)
-		back = 0;
-
-
-	/*----------- Modul terminieren ------------------------------*/
+		textseg_begin = (char *) (clx_bp->p_tbase);
+		clipexp_mabs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));
+		f_convert(new_pic, clipexp_mabs, RGB, SAME, 0);
+	
+		/*------------------- Bild speichern --------------------------------------------*/
+		*pic_to_save = start_exp_module(clipexp_path, MEXEC, new_pic, clx_bp, &clx_struct, 0x0101);
+	
+		/* Fehler aufgetreten? ---------------------------------------------------------- */
+		if (clx_struct.module_mode == M_MEMORY)
+		{
+			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOMEM_EXPORT].TextCast, NULL, NULL, NULL, 1);
+			back = -1;
+		} else if (clx_struct.module_mode == M_PICERR)
+		{
+			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOMEM_PICERR].TextCast, NULL, NULL, NULL, 1);
+			back = -1;
+		}
+		/* 
+		 * Bild codiert?
+		 */
+		else if (clx_struct.module_mode == M_DONEEXIT)
+			back = 0;
+	
+	
+		/*----------- Modul terminieren ------------------------------*/
 #if 0
-	Pexec(102, NULL, clx_bp, NULL);
+		Pexec(102, NULL, clx_bp, NULL);
 #endif
-	SMfree(clx_bp->p_env);
-	SMfree(clx_bp);
+		SMfree(clx_bp->p_env);
+		SMfree(clx_bp);
+	}
 
 	if (picture->block == NULL)
 	{

@@ -1099,7 +1099,7 @@ void make_smurf_pic(short pic_to_make, WORD wid, WORD hgt, WORD depth, char *pic
 {
 	long PicLen;
 
-	PicLen = (long) ((long) wid * (long) hgt * (long) depth) / 8L;
+	PicLen = ((long) wid * (long) hgt * (long) depth) / 8L;
 
 	smurf_picture[pic_to_make]->pic_width = wid;
 	smurf_picture[pic_to_make]->pic_height = hgt;
@@ -1112,7 +1112,7 @@ void make_smurf_pic(short pic_to_make, WORD wid, WORD hgt, WORD depth, char *pic
 	smurf_picture[pic_to_make]->next_picture = NULL;
 	smurf_picture[pic_to_make]->local_nct = NULL;
 
-	memset(smurf_picture[pic_to_make]->infotext, 0x0, 129);
+	memset(smurf_picture[pic_to_make]->infotext, 0, sizeof(smurf_picture[pic_to_make]->infotext));
 
 	if (depth < 8)
 		smurf_picture[pic_to_make]->format_type = FORM_STANDARD;
@@ -2325,14 +2325,15 @@ short f_formhandle(short picture_to_load, short module_ret, char *namename)
 
 	if (picerror || module_ret == M_INVALID)
 	{
-		if (smurf_picture[picture_to_load]->pic_data != NULL)
-			SMfree(smurf_picture[picture_to_load]->pic_data);
-		free(smurf_picture[picture_to_load]->palette);
-		smurf_picture[picture_to_load]->pic_data = NULL;
 		if (smurf_picture[picture_to_load] != NULL)
-			SMfree(smurf_picture[picture_to_load]);
-		smurf_picture[picture_to_load] = NULL;
-
+		{
+			if (smurf_picture[picture_to_load]->pic_data != NULL)
+				SMfree(smurf_picture[picture_to_load]->pic_data);
+			free(smurf_picture[picture_to_load]->palette);
+			smurf_picture[picture_to_load]->pic_data = NULL;
+				SMfree(smurf_picture[picture_to_load]);
+			smurf_picture[picture_to_load] = NULL;
+		}
 		back = -1;
 	}
 

@@ -179,8 +179,9 @@ static void save_pic(COMSTRUCT *comstruct)
 		smurf_picture[pic_to_make] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
 
 		if (depth >= 8)
+		{
 			PicLen = (long) ((long) width * (long) height) * (long) depth / 8L;
-		else
+		} else
 		{
 			aligned_width = (width + 7) >> 3;
 			PicLen = (long) ((long) aligned_width * (long) height * (long) depth);
