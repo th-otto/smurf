@@ -124,7 +124,7 @@ OBJECT *u_tree;							/* Zeiger auf Radiobutton/Checkbox-Formular */
 
 MFORM *lr_arrow, *ud_arrow, *lrud_arrow;
 long f_len = 0x4b444100L;				/* L„nge des letzten geladenen Files 'KDA\0' */
-WORD *messagebuf;						/* Zeiger fr Messageevents */
+WORD messagebuf[10];					/* Zeiger fr Messageevents */
 WORD klicks;							/* Anzahl Mausklicks beim letzten Buttonevent */
 
 char *stpath;							/* Smurf-Standardpfad */
@@ -300,8 +300,6 @@ int main(int argc, const char *argv[])
 	/*
 	 * evtl. bergebenen Dateinamen kopieren und Parameter auswerten
 	 */
-	messagebuf = malloc(20);
-
 	if (argc > 1)						/* mindestens ein Argument? */
 		send_AESMessage(appl_id, AP_ARGSTART, argc, LONG2_2INT(argv), -1);	/* Message an sich selbst */
 
@@ -1023,11 +1021,13 @@ SMURF_PIC *f_generate_newpic(WORD wid, WORD hgt, WORD depth)
 		return 0;
 	}
 
-	smurf_picture[pic_to_make] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
+	if ((smurf_picture[pic_to_make] = alloc_smurfpic(NULL, FALSE)) == NULL)
+		return NULL;
 
 	if (depth >= 8)
+	{
 		PicLen = (long) ((long) wid * (long) hgt) * (long) depth / 8L;
-	else
+	} else
 	{
 		aligned_width = (wid + 7) >> 3;
 		PicLen = (long) ((long) aligned_width * (long) hgt * (long) depth);
@@ -1045,15 +1045,11 @@ SMURF_PIC *f_generate_newpic(WORD wid, WORD hgt, WORD depth)
 		else
 			memset(smurf_picture[pic_to_make]->pic_data, 0xff, PicLen);
 
-		smurf_picture[pic_to_make]->palette = malloc(SM_PALETTE_SIZE + 1);	/* Paletten-Puffer */
-		memset(smurf_picture[pic_to_make]->palette, 0, SM_PALETTE_SIZE);
-
 		make_smurf_pic(pic_to_make, wid, hgt, depth, smurf_picture[pic_to_make]->pic_data);
-		make_pic_window(pic_to_make, wid, hgt, "Namenlos");
+		make_pic_window(pic_to_make, wid, hgt, "Namenlos"); /* FIXME: translate */
 
 		smurf_picture[pic_to_make]->col_format = RGB;
 		strcpy(smurf_picture[pic_to_make]->format_name, "-");
-		memset(smurf_picture[pic_to_make]->filename, 0, sizeof(smurf_picture[pic_to_make]->filename));
 		strcpy(smurf_picture[pic_to_make]->filename, "C:\\Namenlos");
 
 		/*
@@ -2194,7 +2190,8 @@ short f_loadpic(char *pic, char *picpath)
 	while (picture_to_load < MAX_PIC && smurf_picture[picture_to_load] != NULL)
 		picture_to_load++;
 
-	smurf_picture[picture_to_load] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
+	if ((smurf_picture[picture_to_load] = alloc_smurfpic(NULL, FALSE)) == NULL)
+		return -1;
 	smurf_picture[picture_to_load]->pic_data = pic;
 
 	graf_mouse(BUSYBEE, NULL);
@@ -2216,7 +2213,6 @@ short f_loadpic(char *pic, char *picpath)
 		smurf_picture[picture_to_load]->pic_width = PCDwidth;
 		smurf_picture[picture_to_load]->pic_height = PCDheight;
 		smurf_picture[picture_to_load]->file_len = f_len;
-		smurf_picture[picture_to_load]->palette = malloc(SM_PALETTE_SIZE + 1);	/* Paletten-Puffer */
 
 		if ((module_ret = module.comm.start_imp_module(PCDmodpath, smurf_picture[picture_to_load])) == -1)
 		{
@@ -2329,7 +2325,6 @@ short f_formhandle(short picture_to_load, short module_ret, char *namename)
 		{
 			if (smurf_picture[picture_to_load]->pic_data != NULL)
 				SMfree(smurf_picture[picture_to_load]->pic_data);
-			free(smurf_picture[picture_to_load]->palette);
 			smurf_picture[picture_to_load]->pic_data = NULL;
 				SMfree(smurf_picture[picture_to_load]);
 			smurf_picture[picture_to_load] = NULL;
@@ -2416,7 +2411,6 @@ short f_formhandle(short picture_to_load, short module_ret, char *namename)
 			back = -1;					/* wahrscheinlich Speicherfehler */
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[DIT_ERROR].TextCast, NULL, NULL, NULL, 1);
 			SMfree(smurf_picture[picture_to_load]->pic_data);
-			free(smurf_picture[picture_to_load]->palette);
 			free(smurf_picture[picture_to_load]->screen_pic);
 			SMfree(smurf_picture[picture_to_load]->local_nct);
 			SMfree(smurf_picture[picture_to_load]);
@@ -2430,7 +2424,7 @@ short f_formhandle(short picture_to_load, short module_ret, char *namename)
 
 /* ************************************************************** */
 /* ************************************************************** */
-short f_import_pic(SMURF_PIC * smurf_picture, char *extension)
+short f_import_pic(SMURF_PIC *smurf_picture, char *extension)
 {
 	char *ice_depack_buf;
 	char no_ext = 0;
@@ -2484,7 +2478,6 @@ short f_import_pic(SMURF_PIC * smurf_picture, char *extension)
 	}
 
 
-	smurf_picture->palette = malloc(SM_PALETTE_SIZE + 1);	/* Paletten-Puffer */
 	smurf_picture->file_len = f_len;
 
 	/* Pic-Defaults einstellen */
@@ -3218,7 +3211,6 @@ void shutdown_smurf(char while_startup)
 			}
 
 			SMfree(smurf_picture[t]->pic_data);
-			free(smurf_picture[t]->palette);
 			SMfree(smurf_picture[t]);
 		}
 
@@ -3226,8 +3218,6 @@ void shutdown_smurf(char while_startup)
 
 
   End_Only:
-
-	free(messagebuf);
 
 	/* -----  Resource schliežen, AES freigeben, virWS schliežen  -- */
 	f_exit_menu();						/* Men deinstallieren */
@@ -3245,8 +3235,8 @@ static short copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic)
 	unsigned short width, height;
 	long data_len;
 
-	*new_pic = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
-	memcpy(*new_pic, picture, sizeof(SMURF_PIC));
+	if ((*new_pic = alloc_smurfpic(picture, TRUE)) == NULL)
+		return -1;
 
 	strcpy((*new_pic)->filename, "C:\\Namenlos");
 
@@ -3295,9 +3285,6 @@ static short copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic)
 	{
 		(*new_pic)->screen_pic = NULL;
 	}
-
-	(*new_pic)->palette = (char *) malloc(SM_PALETTE_SIZE + 1);
-	memcpy((*new_pic)->palette, picture->palette, SM_PALETTE_SIZE);
 
 	/*
 	 * Block kopieren

@@ -156,7 +156,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 				data = smurf_struct->smurf_pic->palette;
 				odata = data;
 
-				length = 256;
+				length = SM_PALETTE_MAX;
 			}
 
 			memset(histogram, 0, 256 * sizeof(*histogram));

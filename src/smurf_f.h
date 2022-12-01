@@ -197,11 +197,16 @@ void unlock_Smurf(void);
 
 
 
+/*
+ * destruct.c
+ */
+SMURF_PIC *alloc_smurfpic(SMURF_PIC *template, BOOLEAN copy);
 
-int blend_demopic(SMURF_PIC *picture);
 
 
-
+/*
+ * keyboard.c
+ */
 void cursor_off(WINDOW *window);
 void cursor_on(WINDOW *window);
 
@@ -404,7 +409,7 @@ extern WORD mouse_button, key_at_event;
 
 extern MFORM *lr_arrow, *ud_arrow, *lrud_arrow;
 extern long f_len;						/* L„nge des letzten geladenen Files */
-extern WORD *messagebuf;
+extern WORD messagebuf[10];
 extern WORD klicks;						/* Anzahl Mausklicks beim letzten Buttonevent */
 extern char *stpath;					/* Smurf-Standardpfad */
 extern char loadpath[SM_PATH_MAX + 1];				/* voller Pfad der zuletzt geladenen Datei */

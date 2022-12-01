@@ -57,8 +57,8 @@ SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart)
 	SMURF_PIC picCopy;
 	WINDOW dummyPicwindow;
 
-	picArea = SMalloc(sizeof(SMURF_PIC));
-	blockArea = SMalloc(sizeof(SMURF_PIC));
+	picArea = alloc_smurfpic(picture, TRUE);
+	blockArea = alloc_smurfpic(picture->block, TRUE);
 
 	/*
 	 * den Blockbereich aus dem darunterliegenden Bild rauskopieren
@@ -66,7 +66,6 @@ SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart)
 	 * und Koordinaten aus picture.
 	 */
 	memcpy(&picCopy, picture, sizeof(SMURF_PIC));
-	memcpy(picArea, picture, sizeof(SMURF_PIC));
 	picCopy.blockx = picture->blockx + blockpart->g_x;
 	picCopy.blocky = picture->blocky + blockpart->g_y;
 	picArea->pic_width = picCopy.blockwidth = blockpart->g_w;
@@ -77,7 +76,6 @@ SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart)
 	 * jetzt den Blockbereich aus dem Block genauso rauskopieren
 	 */
 	memcpy(&picCopy, picture->block, sizeof(SMURF_PIC));
-	memcpy(blockArea, picture->block, sizeof(SMURF_PIC));
 	picCopy.blockx = blockpart->g_x;
 	picCopy.blocky = blockpart->g_y;
 	blockArea->pic_width = picCopy.blockwidth = blockpart->g_w;

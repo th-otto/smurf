@@ -1280,7 +1280,6 @@ void make_modpreview(WINDOW *wind)
 	{
 		SMfree(wind->picture->screen_pic->fd_addr);
 		free(wind->picture->screen_pic);
-		free(wind->picture->palette);
 		SMfree(wind->picture);
 	}
 #endif
@@ -1288,10 +1287,9 @@ void make_modpreview(WINDOW *wind)
 	/*
 	 * Speicher fr berechnetes Preview anfordern
 	 */
-	wind->picture = SMalloc(sizeof(SMURF_PIC));
-	memcpy(wind->picture, source_pic, sizeof(SMURF_PIC));
-	wind->picture->palette = malloc(SM_PALETTE_SIZE + 1);
-	memcpy(wind->picture->palette, source_pic->palette, SM_PALETTE_SIZE);
+	wind->picture = alloc_smurfpic(source_pic, TRUE);
+	if (wind->picture == NULL)
+		return;
 	wind->picture->pic_width = wind->clipwid;
 	wind->picture->pic_height = wind->cliphgt;
 	Awidth = ((((long) wind->picture->pic_width + 7) / 8) << 3);
@@ -1323,10 +1321,8 @@ void make_modpreview(WINDOW *wind)
 				}
 
 				source_pic = picture_windows[picnum].picture;
-				add_pix[t] = SMalloc(sizeof(SMURF_PIC));
-				memcpy(add_pix[t], source_pic, sizeof(SMURF_PIC));
-				add_pix[t]->palette = malloc(SM_PALETTE_SIZE + 1);
-				memcpy(add_pix[t]->palette, source_pic->palette, SM_PALETTE_SIZE);
+				if ((add_pix[t] = alloc_smurfpic(source_pic, TRUE)) == NULL)
+					break;
 				add_pix[t]->pic_width = wind->clipwid;
 				add_pix[t]->pic_height = wind->cliphgt;
 				Awidth = ((((long) add_pix[t]->pic_width + 7) / 8) << 3);
@@ -1402,7 +1398,6 @@ void make_modpreview(WINDOW *wind)
 	if (mod_inf->how_many_pix == 1)
 	{
 		SMfree(wind->picture->pic_data);
-		free(wind->picture->palette);
 	} else
 	{
 		for (t = 0; t < mod_inf->how_many_pix; t++)
@@ -1410,7 +1405,6 @@ void make_modpreview(WINDOW *wind)
 			if (add_pix[t])
 			{
 				SMfree(add_pix[t]->pic_data);
-				free(add_pix[t]->palette);
 				SMfree(add_pix[t]);
 			}
 		}

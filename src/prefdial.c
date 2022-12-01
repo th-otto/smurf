@@ -614,14 +614,11 @@ static void f_make_preview(short redraw_flag)
 	{
 		SMfree(module_preview->screen_pic->fd_addr);
 		free(module_preview->screen_pic);
-		free(module_preview->palette);
 		SMfree(module_preview);
 	}
 
-	module_preview = SMalloc(sizeof(SMURF_PIC));
-	memcpy(module_preview, source_pic, sizeof(SMURF_PIC));
-	module_preview->palette = malloc(SM_PALETTE_SIZE + 1);
-	memcpy(module_preview->palette, source_pic->palette, SM_PALETTE_SIZE);
+	if ((module_preview = alloc_smurfpic(source_pic, TRUE)) == NULL)
+		return;
 	module_preview->pic_width = wind_s[WIND_MODFORM].clipwid;
 	module_preview->pic_height = wind_s[WIND_MODFORM].cliphgt;
 	Awidth = ((((long) module_preview->pic_width + 7) / 8) << 3);
@@ -656,10 +653,7 @@ static void f_make_preview(short redraw_flag)
 				}
 
 				source_pic = picture_windows[picnum].picture;
-				add_pix[t] = SMalloc(sizeof(SMURF_PIC));
-				memcpy(add_pix[t], source_pic, sizeof(SMURF_PIC));
-				add_pix[t]->palette = malloc(SM_PALETTE_SIZE + 1);
-				memcpy(add_pix[t]->palette, source_pic->palette, SM_PALETTE_SIZE);
+				add_pix[t] = alloc_smurfpic(source_pic, TRUE);
 				add_pix[t]->pic_width = wind_s[WIND_MODFORM].clipwid;
 				add_pix[t]->pic_height = wind_s[WIND_MODFORM].cliphgt;
 				Awidth = ((((long) module_preview->pic_width + 7) / 8) << 3);
@@ -741,14 +735,12 @@ static void f_make_preview(short redraw_flag)
 	if (mod_inf->how_many_pix == 1)
 	{
 		SMfree(module_preview->pic_data);
-		free(module_preview->palette);
 	} else
 		for (t = 0; t < mod_inf->how_many_pix; t++)
 		{
 			if (add_pix[t])
 			{
 				SMfree(add_pix[t]->pic_data);
-				free(add_pix[t]->palette);
 				SMfree(add_pix[t]);
 			}
 		}

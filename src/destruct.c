@@ -45,6 +45,32 @@
 #include "destruct.h"
 
 
+SMURF_PIC *alloc_smurfpic(SMURF_PIC *template, BOOLEAN copy)
+{
+	SMURF_PIC *pic;
+	
+	pic = SMalloc(sizeof(*pic) + SM_PALETTE_SIZE + 1);
+	if (pic != NULL)
+	{
+		pic->palette = (uint8_t *)pic + sizeof(*pic);
+		if (template != NULL)
+		{
+			/* Palette aus dem Zielbild kopieren */
+			memcpy(pic->palette, template->palette, SM_PALETTE_SIZE);
+			memcpy(pic->red, template->red, SM_PALETTE_MAX * sizeof(pic->red[0]));
+			memcpy(pic->grn, template->grn, SM_PALETTE_MAX * sizeof(pic->grn[0]));
+			memcpy(pic->blu, template->blu, SM_PALETTE_MAX * sizeof(pic->blu[0]));
+			if (copy)
+			{
+				memcpy(pic, template, sizeof(*pic));
+				pic->palette = (uint8_t *)pic + sizeof(*pic);
+			}
+		}
+	}
+	return pic;
+}
+
+
 /* destroy_smurfpic ----------------------------------------
 	Destruktor fr SMURF_PIC-Struktur. Gibt allen von einer
 	SMURF_PIC-Struktur belegten Speicher wieder frei, incl.
@@ -77,7 +103,6 @@ void destroy_smurfpic(SMURF_PIC *pic)
 		pic->block = NULL;
 	}
 
-	free(pic->palette);
 	SMfree(pic);
 
 	if (back != 0)

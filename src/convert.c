@@ -125,7 +125,7 @@ short f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, uint8_t modcolform, ui
 		/* Sofern m”glich, wird eine Wandlung nach 16 Bit generell umgangen. */
 		/* Weiterhin wird auch das Zielformat 8 Bit Graustufen umgangen wenn */
 		/* das Quellbild kein Graustufenbild ist. */
-		dummy_pic = SMalloc(sizeof(SMURF_PIC));
+		dummy_pic = alloc_smurfpic(NULL, FALSE);
 
 		for (t = 0; t < 8 && moddepth[t] != 0; t++)
 		{

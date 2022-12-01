@@ -958,7 +958,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		{
 			data = smurf_struct->smurf_pic->palette;
 
-			width = 256;
+			width = SM_PALETTE_MAX;
 			height = 1;
 		}
 

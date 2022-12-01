@@ -497,8 +497,8 @@ static void drop_block(WINDOW *picwindow, WORD mx, WORD my)
 		/*
 		 * neues Bild + Fenster anlegen
 		 */
-		smurf_picture[newPic] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
-		memcpy(smurf_picture[newPic], picwindow->picture->block, sizeof(SMURF_PIC));
+		if ((smurf_picture[newPic] = alloc_smurfpic(picwindow->picture->block, TRUE)) == NULL)
+			return;
 
 		smurf_picture[newPic]->changed = 0;
 

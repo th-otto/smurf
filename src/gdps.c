@@ -176,7 +176,7 @@ static void save_pic(COMSTRUCT *comstruct)
 			return;
 		}
 
-		smurf_picture[pic_to_make] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
+		smurf_picture[pic_to_make] = alloc_smurfpic(NULL, FALSE);
 
 		if (depth >= 8)
 		{
@@ -200,7 +200,6 @@ static void save_pic(COMSTRUCT *comstruct)
 
 	if (comstruct->result == 0xffff)
 	{
-		smurf_picture[pic_to_make]->palette = malloc(SM_PALETTE_SIZE + 1);	/* Paletten-Puffer */
 		memset(smurf_picture[pic_to_make]->palette, 0, SM_PALETTE_SIZE);
 
 		make_smurf_pic(pic_to_make, width, height, depth, smurf_picture[pic_to_make]->pic_data);

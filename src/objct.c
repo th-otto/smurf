@@ -183,7 +183,6 @@ WORD UDO_or_not(WINDOW *wind, WORD klickobj)
 		{
 			SMfree(wind->picture->screen_pic->fd_addr);
 			free(wind->picture->screen_pic);
-			free(wind->picture->palette);
 			SMfree(wind->picture);
 		}
 

@@ -256,7 +256,7 @@ static short do_mode2(SMURF_PIC *smurf_pic, unsigned long grenze)
 		} else
 		{
 			data = smurf_pic->palette;
-			length = 256;
+			length = SM_PALETTE_MAX;
 		}
 		do
 		{

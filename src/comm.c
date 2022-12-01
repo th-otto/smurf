@@ -136,7 +136,7 @@ short get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf)
 			Fclose(pipe_handle);		/* Rohr zumachen */
 			return M_MEMORY;			/* und tschss */
 		}
-		memset(data, 0x0, dd_header.data_length + 1);
+		memset(data, 0, dd_header.data_length + 1);
 
 		Fwrite(pipe_handle, 1, &dd_ok);	/* OK senden */
 
@@ -184,7 +184,11 @@ short get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf)
 					return -1;
 				}
 
-				smurf_picture[new_pic] = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
+				if ((smurf_picture[new_pic] = alloc_smurfpic(NULL, FALSE)) == NULL)
+				{
+					SMfree(data);
+					return -1;
+				}
 				smurf_picture[new_pic]->pic_data = data;
 
 				/* Originalloadpath wegsichern, damit er zurckgesetzt */

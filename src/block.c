@@ -627,16 +627,10 @@ void block_dklick(WINDOW *picwindow)
 		picture->blockwidth = block.g_w;
 		picture->blockheight = block.g_h;
 
-		picblock = SMalloc(sizeof(SMURF_PIC));
-		memcpy(picblock, picture, sizeof(SMURF_PIC));
+		picblock = alloc_smurfpic(picture, TRUE);
 
 		picblock->pic_width = picture->blockwidth;
 		picblock->pic_height = picture->blockheight;
-		picblock->palette = malloc(SM_PALETTE_SIZE + 1);
-		memcpy(picblock->palette, picture->palette, SM_PALETTE_SIZE);
-		memcpy(picblock->red, picture->red, SM_PALETTE_MAX * sizeof(picblock->red[0]));
-		memcpy(picblock->grn, picture->grn, SM_PALETTE_MAX * sizeof(picblock->grn[0]));
-		memcpy(picblock->blu, picture->blu, SM_PALETTE_MAX * sizeof(picblock->blu[0]));
 		picblock->local_nct = picture->local_nct;
 		picblock->not_in_nct = picture->not_in_nct;
 		picblock->block = NULL;
@@ -746,14 +740,11 @@ void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my)
 	if (picture->block != NULL)			/* evtl. vorhandenen Block verwerfen */
 		destroy_smurfpic(picture->block);
 
-	picture->block = SMalloc(sizeof(SMURF_PIC));	/* Speicher fr neuen Block anfordern */
+	picture->block = alloc_smurfpic(picture, FALSE);	/* Speicher fr neuen Block anfordern */
 
 	picture->block->pic_data = data;
 	picture->block->local_nct = picture->local_nct;
 	picture->block->not_in_nct = picture->not_in_nct;
-	memcpy(picture->block->red, picture->red, SM_PALETTE_MAX * sizeof(picture->red[0]));	/* Palette aus dem Zielbild kopieren */
-	memcpy(picture->block->grn, picture->grn, SM_PALETTE_MAX * sizeof(picture->grn[0]));
-	memcpy(picture->block->blu, picture->blu, SM_PALETTE_MAX * sizeof(picture->blu[0]));
 
 	picture->block->changed = 255;		/* Kennzeichnung als Block */
 
@@ -1703,8 +1694,8 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 	 */
 	if (picture->block == NULL)
 	{
-		new_pic = (SMURF_PIC *) SMalloc(sizeof(SMURF_PIC));
-		memcpy(new_pic, picture, sizeof(*new_pic));
+		if ((new_pic = alloc_smurfpic(picture, TRUE)) == NULL)
+			return -1;
 		dest_pic = copyblock(picture);
 
 		if (dest_pic == NULL)

@@ -421,15 +421,12 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 				return(exp_pic);
 			}
 
-/*			printf("est headlen: %u, Malloc: %lu\n", headlen, headlen + length/* + (length / 250) * 2*/); */
-
 			current_file = write_header(file, config.typ);
 			current_file = write_lscrdes(current_file, smurf_struct->smurf_pic->palette, width, height, BitsPerPixel);
 			current_file = write_graphctrl_ext(current_file, &config, 0);
 			/* Bildblock */
 			current_file = write_comment_ext(current_file, &config, comment);
 			current_file = write_image_descriptor(current_file, smurf_struct->smurf_pic->palette, width, height, BitsPerPixel, config.interlace);
-/*			printf("real header: %lu\n", current_file - file); */
 
 
 			lacetab = (int *)malloc(height * sizeof(int));

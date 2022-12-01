@@ -217,7 +217,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 				ppal = smurf_struct->smurf_pic->palette;
 				pal = buffer;
-				for (i = 0; i < 256; i++)
+				for (i = 0; i < SM_PALETTE_MAX; i++)
 				{
 					pal[0] = *ppal++;
 					pal[256] = *ppal++;

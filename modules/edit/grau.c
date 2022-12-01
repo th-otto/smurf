@@ -250,7 +250,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 			{
 				data = smurf_struct->smurf_pic->palette;
 
-				length = 256L;
+				length = SM_PALETTE_MAX;
 			}
 
 			if (intens == 64)
@@ -298,7 +298,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 					/* lineare Palette erzeugen */
 					pal = smurf_struct->smurf_pic->palette;
-					for (k = 0; k < 256; k++)
+					for (k = 0; k < SM_PALETTE_MAX; k++)
 					{
 						*pal++ = k;
 						*pal++ = k;

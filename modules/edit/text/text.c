@@ -247,14 +247,6 @@ static void f_doit(GARGAMEL *smurfstruct, SMURF_PIC *picture, FONT_INFO *font)
 	destination->prev_picture = NULL;
 	destination->next_picture = NULL;
 	destination->screen_pic = NULL;
-	/*
-	 * BUG: cannot do malloc() here,
-	 * because it uses *our* static variables in the library,
-	 * not the ones from smurf.
-	 */
-#ifndef __GNUC__
-	destination->palette = malloc(1025);
-#endif
 	destination->format_type = FORM_STANDARD;
 	destination->col_format = RGB;
 	destination->zoom = 0;

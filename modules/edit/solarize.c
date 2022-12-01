@@ -155,7 +155,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 			{
 				data = smurf_struct->smurf_pic->palette;
 
-				length = 256;
+				length = SM_PALETTE_MAX;
 			}
 
 			while (length--)

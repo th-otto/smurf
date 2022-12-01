@@ -159,7 +159,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 				{
 					pal = smurf_struct->smurf_pic->palette;
 
-					for(i = 0; i < 256; i++)
+					for(i = 0; i < SM_PALETTE_MAX; i++)
 					{
 						*ziel++ = *pal++;
 						*ziel++ = *pal++;

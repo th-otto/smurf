@@ -499,10 +499,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	if (export_mabs != NULL)
 	{
 		/*----------- neue SMURF_PIC generieren -------------*/
-		converted_pic = SMalloc(sizeof(SMURF_PIC));
-		memcpy(converted_pic, pic_to_export, sizeof(SMURF_PIC));
-		converted_pic->palette = malloc(SM_PALETTE_SIZE + 1);
-		memcpy(converted_pic->palette, pic_to_export->palette, SM_PALETTE_SIZE);
+		converted_pic = alloc_smurfpic(pic_to_export, TRUE);
 		converted_pic->screen_pic = NULL;
 
 		/* --- Maximale Farbtiefe des Xporters ausreichend? */
@@ -673,7 +670,6 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	if (converted_pic->pic_data != pic_to_export->pic_data)
 		SMfree(converted_pic->pic_data);
 
-	free(converted_pic->palette);
 	SMfree(converted_pic);
 
 	/*
@@ -746,7 +742,7 @@ short dither_for_export(MOD_ABILITY *mod_abs, short max_expdepth, short dest_for
 	free(converted_pic->screen_pic);
 
 	/*---------------- Palette bertragen */
-	dest_pal = (converted_pic->palette);
+	dest_pal = converted_pic->palette;
 	for (t = 0; t < SM_PALETTE_MAX; t++)
 	{
 		*dest_pal++ = (char) converted_pic->red[t];

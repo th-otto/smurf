@@ -238,7 +238,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 			} else
 			{
 				data = smurf_struct->smurf_pic->palette;
-				length = 256L;
+				length = SM_PALETTE_MAX;
 			}
 
 			if (rc == 1 && gc == 1 && bc == 1)
