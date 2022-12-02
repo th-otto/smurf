@@ -23,6 +23,7 @@
 ..\..\..\dist\modules\export\pix.sxm
 .C [-C -K -M -P-]
 .C [-I..\..\..\include]
+.C[-Ien]
 .S[-DPURE_C=1]
 .L [-S=1024]
 =                  ; list of modules follows...

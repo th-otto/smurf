@@ -451,7 +451,7 @@ static long encode_8and24Bit(uint8_t *ziel, uint8_t *buffer, unsigned short w, u
 /*		1-8, 24 Bit, unkomprimiert, RLE				*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
+EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
 	uint8_t *buffer;

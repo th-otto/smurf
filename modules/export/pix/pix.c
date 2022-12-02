@@ -46,64 +46,62 @@
 #define TIMER 0
 
 #if COUNTRY==1
-	#include "pix/de/pix.rsh"
-	#include "pix/de/pix.rh"
+#include "de/pix.rsh"
 #elif COUNTRY==0
-	#include "pix/en/pix.rsh"
-	#include "pix/en/pix.rh"
+#include "en/pix.rsh"
 #elif COUNTRY==2
-	#include "pix/en/pix.rsh" /* missing french resource */
-	#include "pix/en/pix.rh"
+#include "en/pix.rsh"					/* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif
 
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Degas Elite",
-						0x0030,
-						"Christian Eyrich",
-						"PI1","PI2","PI3","PC1","PC2",
-						"PC3","","","","",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10
-						};
+MOD_INFO module_info = {
+	"Degas Elite",
+	0x0030,
+	"Christian Eyrich",
+	{ "PI1", "PI2", "PI3", "PC1", "PC2", "PC3", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-						1, 2, 4, 0, 0,
-						0, 0, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						2					/* More */
-						};
+MOD_ABILITY module_ability = {
+	1, 2, 4, 0, 0, 0, 0, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	M_MORE									/* More */
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -121,358 +119,375 @@ MOD_ABILITY  module_ability = {
 EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
-
-	char *buffer, *obuffer, *ziel, *oziel, *ppal,
-		 Planes, BitsPerPixel, res, p, t;
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *ppal;
+	uint8_t Planes;
+	uint8_t BitsPerPixel;
+	uint8_t res;
+	uint8_t p;
+	WORD t;
 	char expmessag[21];
-	char wt[] = "Degas Exporter";
-	static char comp;
 
-	static int module_id;
-	unsigned int *pal, i, n, x, y, bv, zv, w, v1, v2,
-				 width, height, runheight, Button;
+	uint16_t *pal;
+	unsigned short i;
+	unsigned short n;
+	unsigned short x;
+	unsigned short y;
+	unsigned short bv;
+	unsigned short zv;
+	unsigned short w;
+	unsigned short v1;
+	unsigned short v2;
+	unsigned short width, height;
+	unsigned short runheight;
 
-	unsigned long src_pos = 0, dst_pos = 0, plh, plo, f_len;
+	unsigned long src_pos = 0;
+	unsigned long dst_pos = 0;
+	unsigned long plh;
+	unsigned long plo;
+	unsigned long f_len;
 
 	typedef struct
 	{
-		char comp;
-		char res;
-		unsigned int pal[16];
+		uint8_t comp;
+		uint8_t res;
+		uint16_t pal[16];
 	} head;
+
+	typedef struct {
+		uint8_t comp;
+	} CONFIG;
 
 	head *pix_header;
 
 	static WINDOW window;
 	static OBJECT *win_form;
+	static CONFIG config;
 
 
-	switch(smurf_struct->module_mode)
+	switch (smurf_struct->module_mode)
 	{
-		case MSTART:
-			/* falls bergeben, Konfig bernehmen */
-			if(*(long *)&smurf_struct->event_par[0] != 0)
-				memcpy(&comp, (char *)*(long *)&smurf_struct->event_par[0], 1);
-			else
-				comp = KEINE;
+	case MSTART:
+		/* falls bergeben, Konfig bernehmen */
+		if (*((void **) &smurf_struct->event_par[0]) != 0)
+			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+		else
+			config.comp = FALSE;
 
-			module_id = smurf_struct->module_number;
+		win_form = rs_trindex[PIX_EXPORT];	/* Resourcebaum holen */
 
-			win_form = rs_trindex[PIX_EXPORT];							/* Resourcebaum holen */
+		/* Resource umbauen */
+		for (t = 0; t < NUM_OBS; t++)
+			rsrc_obfix(rs_object, t);
 
-			/* Resource umbauen */
-			for(t = 0; t < NUM_OBS; t++)
-				rsrc_obfix(&rs_object[t], 0);
+		smurf_struct->module_mode = M_WAITING;
+		break;
 
-			smurf_struct->module_mode = M_WAITING;
+	case MMORE:
+		/* Ressource aktualisieren */
+		if (config.comp == FALSE)
+		{
+			win_form[KEINE].ob_state |= OS_SELECTED;
+			win_form[RLE].ob_state &= ~OS_SELECTED;
+		} else
+		{
+			win_form[KEINE].ob_state &= ~OS_SELECTED;
+			win_form[RLE].ob_state |= OS_SELECTED;
+		}
 
-			break;
+		window.whandlem = 0;			/* evtl. Handle l”schen */
+		window.module = smurf_struct->module_number;		/* ID in die Fensterstruktur eintragen  */
+		window.wnum = 1;				/* Fenster nummer 1...  */
+		window.wx = -1;					/* Fenster X-...        */
+		window.wy = -1;					/* ...und Y-Pos         */
+		window.ww = win_form->ob_width;	/* Fensterbreite        */
+		window.wh = win_form->ob_height;	/* Fensterh”he          */
+		strcpy(window.wtitle, rs_frstr[WINDOW_TITLE]);		/* Titel reinkopieren   */
+		window.resource_form = win_form;	/* Resource             */
+		window.picture = NULL;			/* kein Bild.           */
+		window.editob = 0;				/* erstes Editobjekt    */
+		window.nextedit = 0;			/* n„chstes Editobjekt  */
+		window.editx = 0;
 
-		case MMORE:
-			/* Ressource aktualisieren */
-			if(comp == KEINE)
-			{
-				win_form[KEINE].ob_state |= OS_SELECTED;
-				win_form[RLE].ob_state &= ~OS_SELECTED;
-			}
-			else
-			{
-				win_form[KEINE].ob_state &= ~OS_SELECTED;
-				win_form[RLE].ob_state |= OS_SELECTED;
-			}
+		smurf_struct->wind_struct = &window;	/* und die Fensterstruktur in die Gargamel */
 
-			window.whandlem = 0;				/* evtl. Handle l”schen */
-			window.module = module_id;			/* ID in die Fensterstruktur eintragen  */
-			window.wnum = 1;					/* Fenster nummer 1...  */
-			window.wx = -1;						/* Fenster X-...    	*/
-			window.wy = -1;						/* ...und Y-Pos     	*/
-			window.ww = win_form->ob_width;		/* Fensterbreite    	*/
-			window.wh = win_form->ob_height;	/* Fensterh”he      	*/
-			strcpy(window.wtitle, wt);			/* Titel reinkopieren   */
-			window.resource_form = win_form;	/* Resource         	*/
-			window.picture = NULL;				/* kein Bild.       	*/ 
-			window.editob = 0;					/* erstes Editobjekt	*/
-			window.nextedit = 0;				/* n„chstes Editobjekt	*/
-			window.editx = 0;
-
-			smurf_struct->wind_struct = &window;  /* und die Fensterstruktur in die Gargamel */
-
-			if(smurf_struct->services->f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
-				smurf_struct->module_mode = M_EXIT;		/* keins mehr da? */
-			else 
-				smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
-
-			break;
+		if (smurf_struct->services->f_module_window(&window) == -1)	/* Gib mir 'n Fenster! */
+			smurf_struct->module_mode = M_EXIT;	/* keins mehr da? */
+		else
+			smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
+		break;
 
 /* Closer geklickt, Default wieder her */
-		case MMORECANC:
-			/* falls bergeben, Konfig bernehmen */
-			if(*(long *)&smurf_struct->event_par[0] != 0)
-				memcpy(&comp, (char *)*(long *)&smurf_struct->event_par[0], 1);
-			else
-				comp = RLE;
+	case MMORECANC:
+		/* falls bergeben, Konfig bernehmen */
+		if (*((void **) &smurf_struct->event_par[0]) != 0)
+			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(config));
+		else
+			config.comp = TRUE;
 
-			smurf_struct->module_mode = M_WAITING;
-
-			break;
+		smurf_struct->module_mode = M_WAITING;
+		break;
 
 /* Buttonevent */
-		case MBEVT:
-			Button = smurf_struct->event_par[0];
-
-			if(Button == OK)
-			{
-				/* Konfig bergeben */
-				*(long *)&smurf_struct->event_par[0] = (long)&comp;
-				smurf_struct->event_par[2] = 1;
-
-				smurf_struct->module_mode = M_MOREOK;
-			}
-			else
-			if(Button == SAVE)
-			{
-				/* Konfig bergeben */
-				*(long *)&smurf_struct->event_par[0] = (long)&comp;
-				smurf_struct->event_par[2] = 1;
-
-				smurf_struct->module_mode = M_CONFSAVE;
-			}
-			else
-			{
-				if(Button == KEINE || Button == RLE)
-					comp = (char)Button;
-
-				smurf_struct->module_mode = M_WAITING;
-			}
-
+	case MBEVT:
+		switch (smurf_struct->event_par[0])
+		{
+		case OK:
+			/* Konfig bergeben */
+			*((void **) &smurf_struct->event_par[0]) = &config;
+			smurf_struct->event_par[2] = (short)sizeof(config);
+			smurf_struct->module_mode = M_MOREOK;
 			break;
-
-	/* Keyboardevent */
-		case MKEVT:
-			Button = smurf_struct->event_par[0];
-
-			if(Button == OK)
-			{
-				/* Konfig bergeben */
-				*(long *)&smurf_struct->event_par[0] = (long)&comp;
-				smurf_struct->event_par[2] = 1;
-
-				smurf_struct->module_mode = M_MOREOK;
-			}
-			else
-				smurf_struct->module_mode = M_WAITING;
-
+		case SAVE:
+			/* Konfig bergeben */
+			*((void **) &smurf_struct->event_par[0]) = &config;
+			smurf_struct->event_par[2] = (short)sizeof(config);
+			smurf_struct->module_mode = M_CONFSAVE;
 			break;
-
-	/* Extender wird vom Smurf erfragt */
-		case MEXTEND:
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-
-			switch((int)BitsPerPixel)
-			{
-				case 1:	smurf_struct->event_par[0] = 3;
-						break;
-				case 2:	smurf_struct->event_par[0] = 2;
-						break;
-				case 4:	smurf_struct->event_par[0] = 1;
-						break;
-			}
-
-			if(comp == RLE)
-				smurf_struct->event_par[0] += 3;
-
-			smurf_struct->module_mode = M_EXTEND;
-			
+		case KEINE:
+			config.comp = FALSE;
+			smurf_struct->module_mode = M_WAITING;
 			break;
-
-	/* Farbsystem wird vom Smurf erfragt */
-		case MCOLSYS:
-			smurf_struct->event_par[0] = RGB;
-
-			smurf_struct->module_mode = M_COLSYS;
-			
+		case RLE:
+			config.comp = TRUE;
+			smurf_struct->module_mode = M_WAITING;
 			break;
+		default:
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		}
+		break;
+
+		/* Keyboardevent */
+	case MKEVT:
+		switch (smurf_struct->event_par[0])
+		{
+		case OK:
+			/* Konfig bergeben */
+			*((void **) &smurf_struct->event_par[0]) = &config;
+			smurf_struct->event_par[2] = (short)sizeof(config);
+			smurf_struct->module_mode = M_MOREOK;
+			break;
+		default:
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		}
+		break;
+
+		/* Extender wird vom Smurf erfragt */
+	case MEXTEND:
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		switch (BitsPerPixel)
+		{
+		case 1:
+			smurf_struct->event_par[0] = 3;
+			break;
+		case 2:
+			smurf_struct->event_par[0] = 2;
+			break;
+		case 4:
+			smurf_struct->event_par[0] = 1;
+			break;
+		}
+
+		if (config.comp)
+			smurf_struct->event_par[0] += 3;
+
+		smurf_struct->module_mode = M_EXTEND;
+		break;
+
+		/* Farbsystem wird vom Smurf erfragt */
+	case MCOLSYS:
+		smurf_struct->event_par[0] = RGB;
+		smurf_struct->module_mode = M_COLSYS;
+		break;
 
 
-	/* Und losexportieren */
-		case MEXEC:
+		/* Und losexportieren */
+	case MEXEC:
 #if TIMER
 		/* wie schnell sind wir? */
-	init_timer();
+		init_timer();
 #endif
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;
+		buffer = smurf_struct->smurf_pic->pic_data;
+		obuffer = buffer;
 
-			buffer = smurf_struct->smurf_pic->pic_data;
-			obuffer = buffer;
+		exp_pic = (EXPORT_PIC *) smurf_struct->services->SMalloc(sizeof(*exp_pic));
+		if (exp_pic == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		}
 
-			exp_pic = (EXPORT_PIC *)SMalloc(sizeof(EXPORT_PIC));
+		switch (smurf_struct->smurf_pic->depth)
+		{
+		case 1:
+			width = 640;
+			height = 400;
+			Planes = 1;
+			res = 2;
+			break;
+		case 2:
+			width = 640;
+			height = 200;
+			Planes = 2;
+			res = 1;
+			break;
+		case 4:
+			width = 320;
+			height = 200;
+			Planes = 4;
+			res = 0;
+			break;
+		default:
+			return NULL;
+		}
 
-			switch(smurf_struct->smurf_pic->depth)
-			{
-				case 1:	width = 640;
-						height = 400;
-						Planes = 1;
-						res = 2;
-						break;
-				case 2:	width = 640;
-						height = 200;
-						Planes = 2;
-						res = 1;
-						break;
-				case 4:	width = 320;
-						height = 200;
-						Planes = 4;
-						res = 0;
-						break;
-				default:break;
-			}
+		f_len = width / 8 * height * Planes;
 
-			f_len = width / 8 * height * Planes;
+		if ((ziel = smurf_struct->services->SMalloc(sizeof(head) + f_len)) == 0)
+		{
+			smurf_struct->services->SMfree(exp_pic);
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		} else
+		{
+			oziel = ziel;
 
-			if((ziel = SMalloc(sizeof(head) + f_len)) == 0)
-			{
-				smurf_struct->module_mode = M_MEMORY;
-				return(exp_pic);
-			}
+			pix_header = (head *) ziel;
+
+			if (config.comp == FALSE)
+				pix_header->comp = 0x0;
 			else
+				pix_header->comp = 0x80;
+
+			pix_header->res = res;
+
+			strcpy(expmessag, "Degas ");
+			if (config.comp == FALSE)
+				strcat(expmessag, "PI?");
+			else
+				strcat(expmessag, "PC?");
+			strcpy(smurf_struct->smurf_pic->format_name, expmessag);
+
+			ziel += sizeof(head);
+
+			if (config.comp == FALSE)			/* unkomprimiert */
 			{
-				oziel = ziel;
-				memset(ziel, 0x0, sizeof(head) + f_len);
-
-				pix_header = (head *)ziel;
-
-				if(comp == KEINE)
-					pix_header->comp = 0x0;
+				w = (smurf_struct->smurf_pic->pic_width + 7) / 8;
+				if (w > width / 8)
+					w = width / 8;
+				/* wieviel Bildrest berspringen? */
+				if (smurf_struct->smurf_pic->pic_width > width)
+					bv = (smurf_struct->smurf_pic->pic_width + 7) / 8 - width / 8;
 				else
-					pix_header->comp = 0x80;
-
-				pix_header->res = res;
-
-				strcpy(expmessag, "Degas ");
-				if(comp == KEINE)
-					strcat(expmessag, "PI?");
+					bv = 0;
+				/* wieviel Zielrest berspringen? */
+				if (width > smurf_struct->smurf_pic->pic_width)
+					zv = width / 8 - (smurf_struct->smurf_pic->pic_width + 7) / 8;
 				else
-					strcat(expmessag, "PC?");
-				strcpy(smurf_struct->smurf_pic->format_name, expmessag);
+					zv = 0;
 
-				ziel += sizeof(head);
+				runheight = smurf_struct->smurf_pic->pic_height;
+				if (runheight > height)
+					runheight = height;
 
-				if(comp == KEINE)						/* unkomprimiert */
+				p = 0;
+				do						/* Planes */
 				{
-					w = (smurf_struct->smurf_pic->pic_width + 7) / 8;
-					if(w > width / 8)
-						w = width / 8;
-					/* wieviel Bildrest berspringen? */
-					if(smurf_struct->smurf_pic->pic_width > width)
-						bv = (smurf_struct->smurf_pic->pic_width + 7) / 8 - width / 8;
-					else
-						bv = 0;
-					/* wieviel Zielrest berspringen? */
-					if(width > smurf_struct->smurf_pic->pic_width)
-						zv = width / 8 - (smurf_struct->smurf_pic->pic_width + 7) / 8;
-					else
-						zv = 0;
+					ziel = oziel + sizeof(head) + (p << 1);	/* Zieladresse der kodierten Scanline */
 
-					runheight = smurf_struct->smurf_pic->pic_height;
-					if(runheight > height)
-						runheight = height;
-
-					p = 0;
-					do /* Planes */
+					y = 0;
+					do					/* height */
 					{
-						ziel = oziel + sizeof(head) + (p << 1);	/* Zieladresse der kodierten Scanline */
-
-						y = 0;
-						do /* height */
+						x = 0;
+						do				/* width */
 						{
-							x = 0;
-							do /* width */
+							*ziel++ = *buffer++;
+							x++;
+							if (x < w)
 							{
 								*ziel++ = *buffer++;
 								x++;
-								if(x < w)
-								{
-									*ziel++ = *buffer++;
-									x++;
-								}
-								ziel += (Planes - 1) << 1;	/* Zieladresse der kodierten Scanline */
-							} while(x < w); /* x */
-							buffer += bv;				/* Bild berspringen */
-							ziel += zv * Planes;		/* Ziel berspringen */
-						} while(++y < runheight); /* y */
-					} while(++p < Planes); /* p */
-				}
-				else									/* komprimiert */
-				{
-					plh = w * height; /* H”he einer Plane */
-					dst_pos = p;						/* Zieladresse der dekodierten Scanline */
+							}
+							ziel += (Planes - 1) << 1;	/* Zieladresse der kodierten Scanline */
+						} while (x < w);	/* x */
+						buffer += bv;	/* Bild berspringen */
+						ziel += zv * Planes;	/* Ziel berspringen */
+					} while (++y < runheight);	/* y */
+				} while (++p < Planes);	/* p */
+			} else						/* komprimiert */
+			{
+				plh = w * height;		/* H”he einer Plane */
+				dst_pos = p;			/* Zieladresse der dekodierten Scanline */
 
-					y = 0;
-					do /* height */
+				y = 0;
+				do						/* height */
+				{
+					plo = y * w;		/* Offset vom Planeanfang in Bytes */
+
+					p = 0;
+					do					/* Plane */
 					{
-						plo = y * w; /* Offset vom Planeanfang in Bytes */
-
-						p = 0;
-						do /* Plane */
+						src_pos = p * plh + plo;
+						x = 0;
+						do				/* width */
 						{
-							src_pos = p * plh + plo;
-							x = 0;
-							do /* width */
+							v1 = buffer[src_pos++];
+							if ((v1 & 0x80) == 0x80)
 							{
-								v1 = buffer[src_pos++];
-								if((v1 & 0x80) == 0x80)
-								{
-									n = (0x101 - v1);
-									v2 = buffer[src_pos++];
-									for(i = 0; i < n; i++)
-										ziel[dst_pos++] = v2;
-									x += n;
-								}
-								else
-								{
-									for (i = 0; i < v1 + 1; i++)
-										ziel[dst_pos++] = buffer[src_pos++];
-									x += (v1 + 1);
-								}
-							} while(x < w); /* x */
-						} while(++p < Planes); /* p */
-					} while(++y < height); /* y */
-				} /* comp? */
+								n = (0x101 - v1);
+								v2 = buffer[src_pos++];
+								for (i = 0; i < n; i++)
+									ziel[dst_pos++] = v2;
+								x += n;
+							} else
+							{
+								for (i = 0; i < v1 + 1; i++)
+									ziel[dst_pos++] = buffer[src_pos++];
+								x += (v1 + 1);
+							}
+						} while (x < w);	/* x */
+					} while (++p < Planes);	/* p */
+				} while (++y < height);	/* y */
+			}							/* comp? */
 
-				buffer = obuffer;
-				ziel = oziel;
+			buffer = obuffer;
+			ziel = oziel;
 
-				exp_pic->pic_data = ziel;
-				exp_pic->f_len = sizeof(head) + f_len;
+			exp_pic->pic_data = ziel;
+			exp_pic->f_len = sizeof(head) + f_len;
 
-				pal = pix_header->pal;
-				ppal = smurf_struct->smurf_pic->palette;
+			pal = pix_header->pal;
+			ppal = smurf_struct->smurf_pic->palette;
 
-				for(i = 16; i > 0; i--)
-				{
-					*pal = ((unsigned int)*ppal++ >> 5) << 8;
-					*pal |= ((unsigned int)*ppal++ >> 5) << 4;
-					*pal++ |= (unsigned int)*ppal++ >> 5;
-				}
+			for (i = 16; i > 0; i--)
+			{
+				*pal = (*ppal++ >> 5) << 8;
+				*pal |= (*ppal++ >> 5) << 4;
+				*pal++ |= *ppal++ >> 5;
 			}
+		}
 
 #if TIMER
-/* wie schnell waren wir? */
-  printf("%lu", get_timer());
-	getch();
+		/* wie schnell waren wir? */
+		printf("%lu", get_timer());
+		(void)Cnecin();
 #endif
 
-			smurf_struct->module_mode = M_DONEEXIT;
-			return(exp_pic);
+		smurf_struct->module_mode = M_DONEEXIT;
+		return exp_pic;
 
 		/* Mterm empfangen - Speicher freigeben und beenden */
-		case MTERM:
-			SMfree(exp_pic->pic_data);
-			SMfree((char *)exp_pic);
-			smurf_struct->module_mode = M_EXIT;
-			break;
-	} /* switch */
+	case MTERM:
+		/* exp_pic wird von smurf freigegeben */
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 
-	return(NULL);
+	return NULL;
 }

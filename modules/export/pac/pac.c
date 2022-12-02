@@ -433,7 +433,7 @@ static unsigned long encode_pM86(uint8_t *buffer, uint8_t *ziel, unsigned short 
 /*		1 Bit, RLE in zwei Richtungen				*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
+EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
 	uint8_t *buffer;

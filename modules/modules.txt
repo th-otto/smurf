@@ -80,7 +80,7 @@ icn.sxm        0.20    0.20     x
 iim.sxm        0.30    0.30     x
 pac.sxm        0.30    0.30     x
 pcx.sxm        0.20    0.20     x
-pix.sxm        0.30    0.30
+pix.sxm        0.30    0.30     x
 pixar.sxm      0.10    0.10     x
 ppm.sxm        0.60    0.60
 raw.sxm        0.10    0.10
