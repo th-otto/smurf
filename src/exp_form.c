@@ -227,7 +227,7 @@ void f_export_formular(void)
 		smurf_picture[active_pic]->depth = old_picdepth;
 
 		/*
-		 * und die Ditherpoups ein/abschalten
+		 * und die Ditherpopups ein/abschalten
 		 */
 		get_picform(&export_mod_ability, bdepth);
 		act_exdither_popups();

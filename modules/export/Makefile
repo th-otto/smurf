@@ -15,7 +15,7 @@ MODULES = \
 	$(DISTDIR)/modules/export/pixar.sxm \
 	$(empty)
 
-SUBDIRS = bmp falc_raw gem_img gif
+SUBDIRS = bmp falc_raw gem_img gif pac
 
 all:: expstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done

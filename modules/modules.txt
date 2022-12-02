@@ -78,7 +78,7 @@ gif.sxm        0.70    0.70     x
 godpaint.sxm   0.10    0.10     x
 icn.sxm        0.20    0.20     x
 iim.sxm        0.30    0.30     x
-pac.sxm        0.30    0.30
+pac.sxm        0.30    0.30     x
 pcx.sxm        0.20    0.20
 pix.sxm        0.30    0.30
 pixar.sxm      0.10    0.10     x

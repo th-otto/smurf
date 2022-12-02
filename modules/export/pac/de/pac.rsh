@@ -1,5 +1,5 @@
 /*
- * GEM resource C output of gif
+ * GEM resource C output of pac
  *
  * created by ORCS 2.18
  */
@@ -252,7 +252,7 @@
 #undef RSC_STATIC_FILE
 #define RSC_STATIC_FILE 1
 
-#include "gif.h"
+#include "pac.h"
 
 #ifndef RSC_NAMED_FUNCTIONS
 #  define RSC_NAMED_FUNCTIONS 0
@@ -313,77 +313,58 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #undef NUM_OBS
 #undef NUM_TREE
 #undef NUM_UD
-#define NUM_STRINGS 18
+#define NUM_STRINGS 11
 #define NUM_BB		0
 #define NUM_IB		0
 #define NUM_CIB     0
 #define NUM_CIC     0
-#define NUM_TI		5
-#define NUM_FRSTR	1
+#define NUM_TI		3
+#define NUM_FRSTR	0
 #define NUM_FRIMG	0
-#define NUM_OBS     15
+#define NUM_OBS     10
 #define NUM_TREE	1
 #define NUM_UD		0
 #endif
 
 
-static char gif_string_0[] = "OK";
-static char gif_string_1[] = "GIF 89a";
-static char gif_string_2[] = "";
-static char gif_string_3[] = "";
-static char gif_string_4[] = "GIF 87a";
-static char gif_string_5[] = "";
-static char gif_string_6[] = "";
-static char gif_string_7[] = " Filetype ";
-static char gif_string_8[] = "";
-static char gif_string_9[] = "";
-static char gif_string_10[] = "interlaced";
-static char gif_string_11[] = "";
-static char gif_string_12[] = "";
-static char gif_string_13[] = "save";
-static char gif_string_14[] = "___";
-static char gif_string_15[] = "transparent Index: ___";
-static char gif_string_16[] = "999";
-static char gif_string_17[] = "[3][Wrong transparent index][OK]";
+static char pac_string_0[] = "OK";
+static char pac_string_1[] = "horizontal (pM85)";
+static char pac_string_2[] = "";
+static char pac_string_3[] = "";
+static char pac_string_4[] = "vertikal (pM86)";
+static char pac_string_5[] = "";
+static char pac_string_6[] = "";
+static char pac_string_7[] = " Kompression ";
+static char pac_string_8[] = "";
+static char pac_string_9[] = "";
+static char pac_string_10[] = "sichern";
 
 
-static char *rs_frstr[NUM_FRSTR] = {
-	gif_string_17
+TEDINFO rs_tedinfo[NUM_TI] = {
+	{ pac_string_1, pac_string_2, pac_string_3, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 18,1 },
+	{ pac_string_4, pac_string_5, pac_string_6, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 16,1 },
+	{ pac_string_7, pac_string_8, pac_string_9, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 14,1 }
 };
 
 
-static TEDINFO rs_tedinfo[NUM_TI] = {
-	{ gif_string_1, gif_string_2, gif_string_3, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 8,1 },
-	{ gif_string_4, gif_string_5, gif_string_6, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 8,1 },
-	{ gif_string_7, gif_string_8, gif_string_9, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 11,1 },
-	{ gif_string_10, gif_string_11, gif_string_12, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 11,1 },
-	{ gif_string_14, gif_string_15, gif_string_16, IBM, 6, TE_CNTR, 0x1180, 0x0, -1, 4,23 } /* TINDEX */
-};
+OBJECT rs_object[NUM_OBS] = {
+/* PAC_EXPORT */
 
-
-static OBJECT rs_object[NUM_OBS] = {
-/* GIF_EXPORT */
-
-	{ -1, 1, 12, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 31,14 },
-	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(gif_string_0), 1044,12, 8,1 }, /* OK */
+	{ -1, 1, 9, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 31,10 },
+	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(pac_string_0), 1044,8, 8,1 }, /* OK */
 	{ 3, -1, -1, G_IBOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x10100L), 258,258, 27,2052 },
 	{ 8, 4, 7, G_IBOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x11100L), 2,2, 27,2052 },
-	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 1028,2050, 7,1 },
-	{ 6, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 1028,1, 7,1 },
-	{ 7, -1, -1, (43<<8)+G_IBOX, 0x411, OS_SELECTED, C_UNION(0xFF1100L), 2,1, 10,1 }, /* GIF87A */
-	{ 3, -1, -1, (43<<8)+G_IBOX, 0x411, OS_NORMAL, C_UNION(0xFF1100L), 2,2050, 10,1 }, /* GIF89A */
-	{ 9, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[2]), 3,2049, 10,1 },
-	{ 10, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[3]), 1028,2055, 10,1 },
-	{ 11, -1, -1, (44<<8)+G_IBOX, 0x401, OS_NORMAL, C_UNION(0xFF1100L), 2,2055, 13,1 }, /* LINE_ARRANGE */
-	{ 12, -1, -1, G_BUTTON, 0x605, OS_NORMAL, C_UNION(gif_string_13), 1034,12, 8,1 }, /* SAVE */
-	{ 0, 13, 14, G_IBOX, OF_NONE, OS_NORMAL, C_UNION(0x1100L), 1,9, 1052,2 }, /* TINDEX_BOX */
-	{ 14, -1, -1, G_FTEXT, 0x408, OS_NORMAL, C_UNION(&rs_tedinfo[4]), 1027,2048, 22,1 }, /* TINDEX */
-	{ 12, -1, -1, (44<<8)+G_IBOX, 0x421, OS_NORMAL, C_UNION(0xFF1100L), 1,2048, 27,1 } /* TINDEXOK */
+	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 4,1, 17,1 },
+	{ 6, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 4,2050, 15,1 },
+	{ 7, -1, -1, (43<<8)+G_IBOX, 0x411, OS_SELECTED, C_UNION(0xFF1100L), 2,2050, 1041,1 }, /* VERT */
+	{ 3, -1, -1, (43<<8)+G_IBOX, 0x411, OS_NORMAL, C_UNION(0xFF1100L), 2,1, 1043,1 }, /* HOR */
+	{ 9, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[2]), 3,2049, 13,1 },
+	{ 0, -1, -1, G_BUTTON, 0x625, OS_NORMAL, C_UNION(pac_string_10), 1034,8, 8,1 } /* SAVE */
 };
 
 
-static OBJECT *rs_trindex[NUM_TREE] = {
-	&rs_object[0] /* GIF_EXPORT */
+OBJECT *rs_trindex[NUM_TREE] = {
+	&rs_object[0] /* PAC_EXPORT */
 };
 
 
@@ -394,9 +375,9 @@ static OBJECT *rs_trindex[NUM_TREE] = {
 
 #if RSC_NAMED_FUNCTIONS
 #ifdef __STDC__
-_WORD gif_rsc_load(_WORD wchar, _WORD hchar)
+_WORD pac_rsc_load(_WORD wchar, _WORD hchar)
 #else
-_WORD gif_rsc_load(wchar, hchar)
+_WORD pac_rsc_load(wchar, hchar)
 _WORD wchar;
 _WORD wchar;
 #endif
@@ -429,9 +410,9 @@ _WORD wchar;
 
 
 #ifdef __STDC__
-_WORD gif_rsc_gaddr(_WORD type, _WORD idx, void *gaddr)
+_WORD pac_rsc_gaddr(_WORD type, _WORD idx, void *gaddr)
 #else
-_WORD gif_rsc_gaddr(type, idx, gaddr)
+_WORD pac_rsc_gaddr(type, idx, gaddr)
 _WORD type;
 _WORD idx;
 void *gaddr;
@@ -566,9 +547,9 @@ void *gaddr;
 
 
 #ifdef __STDC__
-_WORD gif_rsc_free(void)
+_WORD pac_rsc_free(void)
 #else
-_WORD gif_rsc_free()
+_WORD pac_rsc_free()
 #endif
 {
 #if NUM_OBS != 0
@@ -581,8 +562,8 @@ _WORD gif_rsc_free()
 
 #else /* !RSC_STATIC_FILE */
 #if 0
-_WORD rs_numstrings = 18;
-_WORD rs_numfrstr = 1;
+_WORD rs_numstrings = 11;
+_WORD rs_numfrstr = 0;
 
 _WORD rs_nuser = 0;
 _WORD rs_numimages = 0;
@@ -590,11 +571,11 @@ _WORD rs_numbb = 0;
 _WORD rs_numfrimg = 0;
 _WORD rs_numib = 0;
 _WORD rs_numcib = 0;
-_WORD rs_numti = 5;
-_WORD rs_numobs = 15;
+_WORD rs_numti = 3;
+_WORD rs_numobs = 10;
 _WORD rs_numtree = 1;
 
-char rs_name[] = "gif.rsc";
+char rs_name[] = "pac.rsc";
 
 _WORD _rsc_format = 2; /* RSC_FORM_SOURCE2 */
 #endif
