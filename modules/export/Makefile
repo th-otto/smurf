@@ -5,6 +5,7 @@ LIBS += -lm
 LDFLAGS += -nostartfiles
 
 MODULES = \
+	$(DISTDIR)/modules/export/clipbrd.sxm \
 	$(DISTDIR)/modules/export/esm.sxm \
 	$(DISTDIR)/modules/export/icn.sxm \
 	$(DISTDIR)/modules/export/pixar.sxm \
@@ -15,10 +16,13 @@ SUBDIRS = bmp
 all:: expstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
 
-$(DISTDIR)/modules/export/icn.sxm: expstart.o icn.o
+$(DISTDIR)/modules/export/clipbrd.sxm: expstart.o clipbrd.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/export/esm.sxm: expstart.o esm.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/export/icn.sxm: expstart.o icn.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/export/pixar.sxm: expstart.o pixar.o

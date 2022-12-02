@@ -68,7 +68,7 @@ zoom.sem       0.80    0.80     x     x
 
 export:
 bmp.sxm        0.70    0.70     x
-clipbrd.sxm    0.10    0.10
+clipbrd.sxm    0.10    0.10     x
 esm.sxm        0.20    0.20     x
 cmp.sxm        0.30    0.30
 falc16.sxm     0.10    -
