@@ -658,12 +658,10 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 		/* if, damit bei raw-Export nicht das Original fl”ten geht ... */
 		if (pic_to_save->pic_data != pic_to_export->pic_data)
 		{
-			if (SMfree(pic_to_save->pic_data) != 0)
-				Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EXP_MFREE_ERR].TextCast, NULL, NULL, NULL, 1);
+			SMfree(pic_to_save->pic_data);
 		}
 
-		if (SMfree(pic_to_save) != 0)
-			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EXP_MFREE_ERR].TextCast, NULL, NULL, NULL, 1);
+		SMfree(pic_to_save);
 	}
 
 	/* Muž sein, da bei Export ohne Konvertierung converted_pic noch aufs Original zeigt! */

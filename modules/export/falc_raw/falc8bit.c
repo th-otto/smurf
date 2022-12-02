@@ -34,50 +34,50 @@
 #include "smurfine.h"
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO    module_info = {"8Bit PP Raw",
-                        0x0010,
-                        "Olaf Piesche",
-                        "RA8", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0
-                        };
+MOD_INFO module_info = { "8Bit PP Raw",
+	0x0010,
+	"Olaf Piesche",
+	{ "RA8", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-                        8, 0, 0, 0, 0,
-                        0, 0, 0,
-                        FORM_BOTH,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        FORM_BOTH,
-                        0
-                        };
+MOD_ABILITY module_ability = {
+	8, 0, 0, 0, 0, 0, 0, 0,
+	FORM_BOTH,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0
+};
 
 
 /* -------------------------------------------------*/
@@ -85,36 +85,36 @@ MOD_ABILITY  module_ability = {
 /*              8 Bit, unkomprimiert                */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
+EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 {
-    EXPORT_PIC *exp_pic;
-    char *palette;
-    char *buffer, *ziel;
-    int width, height;
-    
-    buffer  =   smurf_struct->smurf_pic->pic_data;
-    width   =   smurf_struct->smurf_pic->pic_width;
-    height  =   smurf_struct->smurf_pic->pic_height;
-    palette =   smurf_struct->smurf_pic->palette;
-    
-    exp_pic=Malloc(sizeof(EXPORT_PIC));
+	EXPORT_PIC *exp_pic;
+	uint8_t *palette;
+	uint8_t *buffer;
+	uint8_t *ziel;
+	short width, height;
 
-    ziel=Malloc((long)width*(long)height + 256L*3L);
-    if( ! ziel)
-    {
-        smurf_struct->module_mode=M_MEMORY; 
-        return(exp_pic);
-    }
+	buffer = smurf_struct->smurf_pic->pic_data;
+	width = smurf_struct->smurf_pic->pic_width;
+	height = smurf_struct->smurf_pic->pic_height;
+	palette = smurf_struct->smurf_pic->palette;
+
+	exp_pic = (EXPORT_PIC *)Malloc(sizeof(EXPORT_PIC));
+
+	ziel = (uint8_t *)Malloc((long) width * (long) height + 256L * 3L);
+	if (!ziel)
+	{
+		smurf_struct->module_mode = M_MEMORY;
+		return exp_pic;
+	}
 
 /*-------------------------- Encoding -----------------------*/
 
-        memcpy(ziel, palette, 256L*3L);
-        memcpy(ziel+256L*3L, buffer, (long)width*(long)height);
+	memcpy(ziel, palette, 256L * 3L);
+	memcpy(ziel + 256L * 3L, buffer, (long) width * (long) height);
 
-        exp_pic->pic_data=ziel;
-        exp_pic->f_len=(long)width*(long)height+256L*3L;
+	exp_pic->pic_data = ziel;
+	exp_pic->f_len = (long) width * (long) height + 256L * 3L;
 
-        smurf_struct->module_mode=M_DONEEXIT;
-        return(exp_pic);
-
+	smurf_struct->module_mode = M_DONEEXIT;
+	return exp_pic;
 }
