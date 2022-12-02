@@ -272,9 +272,9 @@ uint8_t *encode_lzw_17bit(uint8_t *obuffer, uint8_t *ziel, unsigned short width,
 	*pData++ = 0;						/* n„chste Blockl„nge == 0 */
 
 #if TIMER
-/* wie schnell waren wir? */
+	/* wie schnell waren wir? */
 	printf("%lu\n", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
 	pixbuf = opixbuf;
@@ -504,9 +504,9 @@ uint8_t *encode_lzw_8bit(uint8_t *obuffer, uint8_t *ziel, unsigned short width, 
 	*pData++ = 0;						/* n„chste Blockl„nge == 0 */
 
 #if TIMER
-/* wie schnell waren wir? */
+	/* wie schnell waren wir? */
 	printf("%lu\n", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
 	return pData;

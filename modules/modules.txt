@@ -83,7 +83,7 @@ pcx.sxm        0.20    0.20     x
 pix.sxm        0.30    0.30     x
 pixar.sxm      0.10    0.10     x
 ppm.sxm        0.60    0.60     x
-raw.sxm        0.10    0.10
+raw.sxm        0.10    0.10     x
 sgi.sxm        0.30    0.30
 tga.sxm        0.70    0.70
 tiff.sxm       0.70    0.70

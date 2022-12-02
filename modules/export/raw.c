@@ -35,51 +35,52 @@
 
 #define TIMER 0
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"RAW",
-						0x0010,
-						"Christian Eyrich",
-						"RAW","","","","",
-						"","","","","",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10
-						};
+MOD_INFO module_info = {
+	"RAW",
+	0x0010,
+	"Christian Eyrich",
+	{ "RAW", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-						1, 8, 24, 0, 0,
-						0, 0, 0,
-						FORM_STANDARD,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0
-						};
+MOD_ABILITY module_ability = {
+	1, 8, 24, 0, 0, 0, 0, 0,
+	FORM_STANDARD,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0
+};
 
 
 /* -------------------------------------------------*/
@@ -91,119 +92,118 @@ MOD_ABILITY  module_ability = {
 EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
-
-	char *buffer, *obuffer, *ziel, *oziel, *pal,
-		 BitsPerPixel;
-
-	unsigned int x, y, width, height, i, pallen;
-
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	uint8_t BitsPerPixel;
+	unsigned short x, y;
+	unsigned short width, height;
+	unsigned short i;
+	unsigned short pallen;
 	unsigned long w, f_len;
 
-
-	switch(smurf_struct->module_mode)
+	switch (smurf_struct->module_mode)
 	{
-		case MSTART:
-			smurf_struct->module_mode = M_WAITING;	/* Ich warte... */
-			break;
+	case MSTART:
+		smurf_struct->module_mode = M_WAITING;	/* Ich warte... */
+		break;
 
-	/* Farbsystem wird vom Smurf erfragt */
-		case MCOLSYS:
-			smurf_struct->event_par[0] = RGB;
+		/* Farbsystem wird vom Smurf erfragt */
+	case MCOLSYS:
+		smurf_struct->event_par[0] = RGB;
+		smurf_struct->module_mode = M_COLSYS;
+		break;
 
-			smurf_struct->module_mode = M_COLSYS;
-			
-			break;
-
-		case MEXEC:
+	case MEXEC:
 #if TIMER
-/* wie schnell sind wir? */
-	init_timer();
+		/* wie schnell sind wir? */
+		init_timer();
 #endif
+		buffer = smurf_struct->smurf_pic->pic_data;
+		obuffer = buffer;
 
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;
+		exp_pic = (EXPORT_PIC *) smurf_struct->services->SMalloc(sizeof(EXPORT_PIC));
+		if (exp_pic == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		}
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
 
-			buffer = smurf_struct->smurf_pic->pic_data;
-			obuffer = buffer;
+		if (BitsPerPixel == 1)
+			w = (unsigned long) (width + 7) / 8;
+		else if (BitsPerPixel == 8)
+			w = (unsigned long) width;
+		else
+			w = (unsigned long) width * 3;
 
-			exp_pic = (EXPORT_PIC *)SMalloc(sizeof(EXPORT_PIC));
+		f_len = w * (unsigned long) height;
+		if (BitsPerPixel == 8)
+			pallen = 768;
+		else
+			pallen = 0;
 
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
+		if ((ziel = (char *) smurf_struct->services->SMalloc(pallen + f_len)) == 0)
+		{
+			smurf_struct->services->SMfree(exp_pic);
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		} else
+		{
+			oziel = ziel;
 
-			if(BitsPerPixel == 1)
-				w = (unsigned long)(width + 7) / 8;
-			else
-				if(BitsPerPixel == 8)
-					w = (unsigned long)width;
-				else
-					w = (unsigned long)width * 3L;
-
-			f_len = w * (unsigned long)height;
-			if(BitsPerPixel == 8)
-				pallen = 768;
-			else
-				pallen = 0;
-
-			if((ziel = (char *)SMalloc(pallen + f_len)) == 0)
+			if (pallen)
 			{
-				smurf_struct->module_mode = M_MEMORY;
-				return(exp_pic);
-			}
-			else
-			{
-				oziel = ziel;
+				pal = smurf_struct->smurf_pic->palette;
 
-				if(pallen)
+				for (i = 0; i < SM_PALETTE_MAX; i++)
 				{
-					pal = smurf_struct->smurf_pic->palette;
-
-					for(i = 0; i < SM_PALETTE_MAX; i++)
-					{
-						*ziel++ = *pal++;
-						*ziel++ = *pal++;
-						*ziel++ = *pal++;
-					}
+					*ziel++ = *pal++;
+					*ziel++ = *pal++;
+					*ziel++ = *pal++;
 				}
+			}
 
-				y = 0;
+			y = 0;
+			do
+			{
+				x = 0;
 				do
 				{
-					x = 0;
-					do
-					{
-						*ziel++ = *buffer++;
-					} while(++x < width);					
-				} while(++y < height);
+					*ziel++ = *buffer++;
+				} while (++x < width);
+			} while (++y < height);
 
-				buffer = obuffer;
-				ziel = oziel;
+			buffer = obuffer;
+			ziel = oziel;
 
-				exp_pic->pic_data = ziel;
-				exp_pic->f_len = pallen + f_len;
-			} /* Malloc */
+			exp_pic->pic_data = ziel;
+			exp_pic->f_len = pallen + f_len;
+		}
 
 #if TIMER
-/* wie schnell waren wir? */
-	printf("%lu\n", get_timer());
-	getch();
+		/* wie schnell waren wir? */
+		printf("%lu\n", get_timer());
+		(void)Cnecin();
 #endif
 
-			smurf_struct->module_mode = M_DONEEXIT;
-			return(exp_pic);
+		smurf_struct->module_mode = M_DONEEXIT;
+		return exp_pic;
 
 /* Mterm empfangen - Speicher freigeben und beenden */
-		case MTERM:
-			SMfree(exp_pic->pic_data);
-			SMfree((char *)exp_pic);
-			smurf_struct->module_mode = M_EXIT;
-			break;
+	case MTERM:
+		/* exp_pic wird von smurf freigegeben */
+		smurf_struct->module_mode = M_EXIT;
+		break;
 
-		default:
-			smurf_struct->module_mode = M_WAITING;
-			break;
-	} /* switch */
+	default:
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	}
 
-	return(NULL);
+	return NULL;
 }
