@@ -39,7 +39,6 @@
 #define TIMER 0
 
 static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
 
 /* Infostruktur fr Hauptmodul */
 MOD_INFO module_info = {
@@ -93,35 +92,18 @@ MOD_ABILITY module_ability = {
 EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
-	char *buffer;
-	char *obuffer;
+	uint8_t *buffer;
+	uint8_t *obuffer;
 	char *ziel;
 	char *oziel;
 	char *fname;
-	char hexTable[16];
+	static char const hexTable[16] = "0123456789ABCDEF";
 	uint8_t BitsPerPixel;
 	uint8_t two;
 	uint8_t p;
 	uint8_t Planes;
 	uint16_t x, y, width, height;
 	unsigned long w, headlen, f_len;
-
-	hexTable[0] = '0';
-	hexTable[1] = '1';
-	hexTable[2] = '2';
-	hexTable[3] = '3';
-	hexTable[4] = '4';
-	hexTable[5] = '5';
-	hexTable[6] = '6';
-	hexTable[7] = '7';
-	hexTable[8] = '8';
-	hexTable[9] = '9';
-	hexTable[10] = 'A';
-	hexTable[11] = 'B';
-	hexTable[12] = 'C';
-	hexTable[13] = 'D';
-	hexTable[14] = 'E';
-	hexTable[15] = 'F';
 
 	switch (smurf_struct->module_mode)
 	{
@@ -142,7 +124,6 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 #endif
 
 		SMalloc = smurf_struct->services->SMalloc;
-		SMfree = smurf_struct->services->SMfree;
 
 		buffer = smurf_struct->smurf_pic->pic_data;
 		obuffer = buffer;
@@ -167,15 +148,15 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 		w = (unsigned long) (width + 15) / 16;
 
 		/* Breite (in 16tel Pixel) * H”he * Stringl„nge pro 16 Pixel * Planes + Planes mal CRLF */
-		f_len = w * (unsigned long) height * strlen(" 0x0000,") * Planes + Planes * 2;
+		f_len = w * (unsigned long) height * sizeof(" 0x0000,") * Planes + Planes * 2;
 
 		if ((ziel = (char *) SMalloc(headlen + f_len)) == 0)
 		{
+			smurf_struct->services->SMfree(exp_pic);
 			smurf_struct->module_mode = M_MEMORY;
-			return exp_pic;
+			return NULL;
 		} else
 		{
-			memset(ziel, 0, headlen + f_len);
 			oziel = ziel;
 
 			fname = strrchr(smurf_struct->smurf_pic->filename, '\\');
@@ -258,16 +239,15 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 #if TIMER
 		/* wie schnell waren wir? */
 		printf("%lu\n", get_timer());
-		getch();
+		(void)Cnecin();
 #endif
 
 		smurf_struct->module_mode = M_DONEEXIT;
 		return exp_pic;
 
-/* Mterm empfangen - Speicher freigeben und beenden */
+	/* Mterm empfangen - Speicher freigeben und beenden */
 	case MTERM:
-		SMfree(exp_pic->pic_data);
-		SMfree(exp_pic);
+		/* exp_pic wird von smurf freigegeben */
 		smurf_struct->module_mode = M_EXIT;
 		break;
 

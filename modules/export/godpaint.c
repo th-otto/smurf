@@ -47,49 +47,52 @@
 
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO    module_info = {"Reservoir Gods GodPaint",
-                        0x0010,
-                        "Dodger",
-                        "GOD", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0
-                        };
+MOD_INFO module_info = {
+	"Reservoir Gods GodPaint",
+	0x0010,
+	"Dodger",
+	"GOD", "", "", "", "",
+	"", "", "", "", "",
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-                        16, 0, 0, 0, 0, 0, 0, 0,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        0,
-                        };
+MOD_ABILITY module_ability = {
+	16, 0, 0, 0, 0, 0, 0, 0,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	0,
+};
 
 
 
@@ -102,59 +105,68 @@ MOD_ABILITY  module_ability = {
 /* -------------------------------------------------*/
 EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
-    EXPORT_PIC *exp_pic;
-    char *buffer;
-    int message;
-    int width, height;
-    int *dest;
+	EXPORT_PIC *exp_pic;
+	uint8_t *buffer;
+	short width, height;
+	uint16_t *dest;
 
-    message =   smurf_struct->module_mode;  
+	switch (smurf_struct->module_mode)
+	{
+			/*---------------- Export-Start ----------------*/
+	case MEXTEND:
+		smurf_struct->event_par[0] = 1;
+		smurf_struct->module_mode = M_EXTEND;
+		return NULL;
 
+	case MCOLSYS:
+		smurf_struct->event_par[0] = RGB;
+		smurf_struct->module_mode = M_COLSYS;
+		return NULL;
 
-    switch(message)
-    {
-            /*---------------- Export-Start ----------------*/  
-        case MEXTEND:   smurf_struct->event_par[0]=1;
-                        smurf_struct->module_mode=M_EXTEND;
-                        return(NULL);
+	case MSTART:
+		smurf_struct->module_mode = M_WAITING;
+		return NULL;
 
-        case MCOLSYS:   smurf_struct->event_par[0]=RGB;
-                        smurf_struct->module_mode=M_COLSYS;     
-                        return(NULL);
+	case MEXEC:
+		buffer = smurf_struct->smurf_pic->pic_data;
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
 
-        case MSTART:    smurf_struct->module_mode=M_WAITING;
-                        return(NULL);
+		exp_pic = (EXPORT_PIC *)Malloc(sizeof(EXPORT_PIC));
+		if (exp_pic == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return exp_pic;
+		}
+		exp_pic->f_len = (unsigned long) width * (unsigned long) height * 2 + 6;
 
+		dest = (uint16_t *)Malloc(exp_pic->f_len);
+		if (dest == NULL)
+		{
+			Mfree(exp_pic);
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		}
+		*(dest) = 0x4734; /* 'G4' */
+		*(dest + 1) = width;
+		*(dest + 2) = height;
+		memcpy(dest + 3, buffer, (unsigned long) width * (unsigned long) height * 2);
+		exp_pic->pic_data = dest;
 
-        case MEXEC:
-                        buffer  =   smurf_struct->smurf_pic->pic_data;
-                        width = smurf_struct->smurf_pic->pic_width;
-                        height = smurf_struct->smurf_pic->pic_height;
+		Mfree(buffer);
 
-                        exp_pic=Malloc(sizeof(EXPORT_PIC));
-                    
-                        exp_pic->f_len=(long)width*(long)height*2L + 6;
+		smurf_struct->module_mode = M_DONEEXIT;
+		return exp_pic;
 
-                        dest=Malloc(exp_pic->f_len);
-                        *(dest)='G4';
-                        *(dest+1)=width;
-                        *(dest+2)=height;
-                        memcpy(dest+3, buffer, (long)width*(long)height*2L);
-                        exp_pic->pic_data=dest;
+	case MTERM:
+		/* exp_pic wird von smurf freigegeben */
+		smurf_struct->module_mode = M_EXIT;
+		break;
 
-                        Mfree(buffer);
-                
-                        smurf_struct->module_mode=M_DONEEXIT;
-                        return(exp_pic);
-                    
-        case MTERM:     smurf_struct->module_mode=M_EXIT;
-                        break;
-    
-        default:        smurf_struct->module_mode=M_WAITING;
-                        break;
-    }
+	default:
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	}
 
-    return(NULL);
+	return NULL;
 }
-
-

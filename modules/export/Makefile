@@ -9,7 +9,9 @@ MODULES = \
 	$(DISTDIR)/modules/export/cmp.sxm \
 	dummy.sxm \
 	$(DISTDIR)/modules/export/esm.sxm \
+	$(DISTDIR)/modules/export/godpaint.sxm \
 	$(DISTDIR)/modules/export/icn.sxm \
+	$(DISTDIR)/modules/export/iim.sxm \
 	$(DISTDIR)/modules/export/pixar.sxm \
 	$(empty)
 
@@ -30,7 +32,13 @@ dummy.sxm: expstart.o dummy.o
 $(DISTDIR)/modules/export/esm.sxm: expstart.o esm.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+$(DISTDIR)/modules/export/godpaint.sxm: expstart.o godpaint.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 $(DISTDIR)/modules/export/icn.sxm: expstart.o icn.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/export/iim.sxm: expstart.o iim.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/export/pixar.sxm: expstart.o pixar.o

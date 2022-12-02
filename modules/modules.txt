@@ -75,9 +75,9 @@ falc16.sxm     0.10    -        x
 falc8bit.sxm   0.10    -        x
 gem_img.sxm    0.70    0.50     x
 gif.sxm        0.70    0.70     x
-godpaint.sxm   0.10    0.10
+godpaint.sxm   0.10    0.10     x
 icn.sxm        0.20    0.20     x
-iim.sxm        0.30    0.30
+iim.sxm        0.30    0.30     x
 pac.sxm        0.30    0.30
 pcx.sxm        0.20    0.20
 pix.sxm        0.30    0.30
