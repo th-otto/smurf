@@ -50,104 +50,260 @@
 #include <string.h>
 #include "import.h"
 #include "smurfine.h"
+#include "gif_lzw.h"
 
 #include "country.h"
 
 #if COUNTRY==1
-	#include "gif/de/gif.rsh"
-	#include "gif/de/gif.rh"
+#include "de/gif.rsh"
 #elif COUNTRY==0
-	#include "gif/en/gif.rsh"
-	#include "gif/en/gif.rh"
+#include "en/gif.rsh"
 #elif COUNTRY==2
-	#include "gif/en/gif.rsh" /* missing french resource */
-	#include "gif/en/gif.rh"
+#include "en/gif.rsh"					/* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif
 
 #define TIMER 0
 
-#define _LSCRDES	 7			/* ist wegen des Auffllens der Strukturen */
-#define _IMAGE_DES	10			/* von Compilerseite her leider n”tig */
+#define _LSCRDES	 7					/* ist wegen des Auffllens der Strukturen */
+#define _IMAGE_DES	10					/* von Compilerseite her leider n”tig */
 
 typedef struct
 {
-	char typ;			/* 87a oder 89a */
-	char interlace;		/* interlaced oder nicht */
-	int transparent;	/* transparenter Index */
-	char tindexok;		/* transparenter Index gltig */
+	uint8_t typ;						/* 87a oder 89a */
+	uint8_t interlace;					/* interlaced oder nicht */
+	short transparent;					/* transparenter Index */
+	uint8_t tindexok;					/* transparenter Index gltig */
 } CONFIG;
 
 void *(*SMalloc)(long amount);
-void (*SMfree)(void *ptr);
 
-static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
-static void (*reset_busybox)(short lft, const char *string);
+static SERVICE_FUNCTIONS *services;
 
-char *write_header(char *file, char typ);
-char *write_lscrdes(char *file, char *pal, unsigned int width, unsigned int height, char BitsPerPixel);
-char *write_graphctrl_ext(char *file, CONFIG *config, int delay);
-char *write_comment_ext(char *file, CONFIG *config, char *comment);
-char *write_image_descriptor(char *file, char *pal, unsigned int width, unsigned int height, char BitsPerPixel, char interlace);
-void interlace(unsigned int height, CONFIG *config);
-char *encode_lzw_17bit(char *buffer, char *ziel, unsigned int width, unsigned int height, char BitsPerPixel);
-char *encode_lzw_8bit(char *buffer, char *ziel, unsigned int width, unsigned int height);
-
-
-/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w)
-	0xE058;
 
 /*	Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"GIF",
-						0x0070,
-						"Christian Eyrich",
-						"GIF","","","","",
-						"","","","","",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						0
-						};
+MOD_INFO module_info = {
+	"GIF",
+	0x0070,
+	"Christian Eyrich",
+	{ "GIF", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 MOD_ABILITY module_ability = {
-						1, 2, 3, 4, 5,
-						6, 7, 8,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_PIXELPAK,
-						6					/* More + Infotext */
-						};
+	1, 2, 3, 4, 5, 6, 7, 8,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_PIXELPAK,
+	M_MORE | M_INFO						/* More + Infotext */
+};
 
 
-int *lacetab;
+short *lacetab;
+
+
+/*-------------------------------------------------------------	*/
+/*							Header schreiben					*/
+/*-------------------------------------------------------------	*/
+static uint8_t *write_header(uint8_t *file, uint8_t typ)
+{
+	if (typ == GIF87A)
+		strncpy(file, "GIF87a", 6);
+	else
+		strncpy(file, "GIF89a", 6);
+
+	return file + 6;
+}
+
+
+/*-------------------------------------------------------------	*/
+/*				Logical Screen Descriptor schreiben				*/
+/*-------------------------------------------------------------	*/
+static uint8_t *write_lscrdes(uint8_t *file, uint8_t *pal, unsigned short width, unsigned short height, uint8_t BitsPerPixel)
+{
+	unsigned short coltab_size = 0;
+
+	file[0] = width;	/* Breite */
+	file[1] = width >> 8;
+	file[2] = height;	/* H”he */
+	file[3] = height >> 8;
+	/* Packed Fields: 0-2 = Bits pro Pixel - 1 */
+	/*                3 = 0 Sortierung nach Farbe */
+	/*                4-6 = Bits pro Farbe - 1 (immer 7) */
+	/*                7 = 1 globale Farbtabelle vorhanden */
+	file[4] = (1 << 7) | (7 << 4) | (0 << 3) | (BitsPerPixel - 1);
+	file[5] = 0;					/* Hintergrundfarbe */
+	file[6] = 0;					/* Pixelseitenverh„ltnis */
+
+	/* Global Color Table? */
+	if (file[4] & 0x80)
+	{
+		coltab_size = 1 << BitsPerPixel;
+
+		memcpy(file + _LSCRDES, pal, 3 * coltab_size);
+
+#if DEBUG
+		printf("\n  Size: %d", coltab_size);
+#endif
+	}
+
+	return file + _LSCRDES + 3 * coltab_size;
+}
+
+
+/*-------------------------------------------------------------	*/
+/*		Graphics Control Extension Block schreiben  [optional]	*/
+/*-------------------------------------------------------------	*/
+static uint8_t *write_graphctrl_ext(uint8_t *file, CONFIG *config, short delay)
+{
+	/* Wird momentan nur geschrieben wenn Transparent ben”tigt wird */
+	/* und auch verfgbar ist (nur GIF89a) */
+	/* Sp„ter auch bei Animationen */
+	if (config->tindexok && config->typ == GIF89A)	/* Graphics Control Extension */
+	{
+		file[0] = 0x21;				/* Extension Introducer */
+		file[1] = 0xf9;				/* Comment Label */
+		file[2] = 4;				/* remain fields size */
+		/* Packed Fields: 0 = Transparente Farbe? */
+		/*                1 = User Input Flag */
+		/*                2-4 = Disposal Method */
+		/*                5-7 = reserviert */
+		file[3] = (0 << 4) | (0 << 1) | (config->tindexok & 0x01);
+		file[4] = delay;	/* Delay Time */
+		file[5] = delay >> 8;
+		file[6] = config->transparent;	/* Transparent Index */
+		file[7] = 0;				/* Block Terminator */
+
+		return file + 3 + file[2] + 1;
+	}
+	return file;
+}
+
+
+/*-------------------------------------------------------------	*/
+/*			Comment Extension Block schreiben  [optional]		*/
+/*-------------------------------------------------------------	*/
+static uint8_t *write_comment_ext(uint8_t *file, CONFIG *config, uint8_t *comment)
+{
+	if (strlen(comment) && config->typ == GIF89A)	/* Comment Extension */
+	{
+		file[0] = 0x21;					/* Extension Introducer */
+		file[1] = 0xfe;				/* Comment Label */
+		file[2] = strlen(comment) + 1;	/* Kommentarl„nge */
+		strcpy(file + 3, comment);		/* Kommentar (nullterminiert) */
+		file[3 + file[2]] = 0;	/* Block Terminator */
+
+		return file + 3 + file[2] + 1;
+	}
+	return file;
+}
+
+
+/*-------------------------------------------------------------	*/
+/*			Local Image Descriptor schreiben   [min. 1]			*/
+/*-------------------------------------------------------------	*/
+static uint8_t *write_image_descriptor(uint8_t *file, uint8_t *pal, unsigned short width, unsigned short height, uint8_t BitsPerPixel, uint8_t interlace)
+{
+	unsigned short coltab_size = 0;
+
+	file[0] = 0x2c;
+	file[1] = 0;	/* X-Pos */
+	file[2] = 0;
+	file[3] = 0;	/* Y-Pos */
+	file[4] = 0;
+	file[5] = width;	/* Breite */
+	file[6] = width >> 8;
+	file[7] = height;	/* H”he */
+	file[8] = height >> 8;
+	/* Packed Fields: 0-2 = Bits pro Pixel - 1 */
+	/*                3-4 reserviert */
+	/*                5 = 0 Sortierung nach Farbe */
+	/*                6 = interlace */
+	/*                7 = 0 lokale Farbtabelle nicht vorhanden */
+	file[9] = (0 << 7) | (interlace << 6) | (0 << 5) | (BitsPerPixel - 1);
+
+	/* local color table */
+	if (file[9] & 0x80)
+	{
+		coltab_size = 1 << BitsPerPixel;
+
+		memcpy(file + _LSCRDES, pal, 3 * coltab_size);
+#if DEBUG
+		printf("\n  Size: %d", coltab_size);
+#endif
+	}
+
+	return file + _IMAGE_DES + 3 * coltab_size;
+}
+
+
+/* Sortiert ein Bild von normaler Zeilenreihenfolge */
+/* in place in interlaced Zeilenreihenfolge um */
+static void interlace(unsigned short height, CONFIG *config)
+{
+	unsigned short k, l;
+
+#if TIMER
+	/* wie schnell sind wir? */
+	init_timer();
+#endif
+
+	if (config->interlace)
+	{
+		services->reset_busybox(128, "interlace GIF");
+
+		for (l = 0, k = 0; l < height; l += 8, k++)
+			lacetab[k] = l;
+		for (l = 4; l < height; l += 8, k++)
+			lacetab[k] = l;
+		for (l = 2; l < height; l += 4, k++)
+			lacetab[k] = l;
+		for (l = 1; l < height; l += 2, k++)
+			lacetab[k] = l;
+	} else
+	{
+		for (k = 0; k < height; k++)
+			lacetab[k] = k;
+	}
+
+#if TIMER
+	/* wie schnell waren wir? */
+	printf("\nZeit: %lu", get_timer());
+	(void)Cnecin();
+#endif
+}
+
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -158,14 +314,16 @@ int *lacetab;
 EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *comment;
+	uint8_t *file;
+	uint8_t *current_file;
+	uint8_t BitsPerPixel;
+	WORD t;
 
-	char *buffer, *ziel, *comment,
-		 *file, *current_file,
-		 BitsPerPixel, t;
-	char wt[] = "GIF Exporter";
-
-	static int module_id;
-	unsigned int width, height, headlen, Button;
+	unsigned short width, height;
+	unsigned short headlen;
 
 	unsigned long f_len, length;
 
@@ -173,498 +331,311 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	static OBJECT *win_form;
 	static CONFIG config;
 
+	services = smurf_struct->services;
 
-	switch(smurf_struct->module_mode)
+	switch (smurf_struct->module_mode)
 	{
-		case MSTART:
-			reset_busybox = smurf_struct->services->reset_busybox;
+	case MSTART:
+		/* falls bergeben, Konfig bernehmen */
+		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		{
+			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+		} else
+		{
+			config.typ = GIF87A;
+			config.interlace = 0;
+			config.transparent = 0;
+			config.tindexok = 0;
+		}
 
-			/* falls bergeben, Konfig bernehmen */
-			if(*(long *)&smurf_struct->event_par[0] != 0)
-				memcpy((char *)&config, (char *)*(long *)&smurf_struct->event_par[0], sizeof(CONFIG));
-			else
+		win_form = rs_trindex[GIF_EXPORT];	/* Resourcebaum holen */
+
+		/* Resource umbauen */
+		for (t = 0; t < NUM_OBS; t++)
+			rsrc_obfix(rs_object, t);
+
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MMORE:
+		/* Ressource aktualisieren */
+		if (config.interlace)
+			win_form[LINE_ARRANGE].ob_state |= OS_SELECTED;
+		else
+			win_form[LINE_ARRANGE].ob_state &= ~OS_SELECTED;
+
+		if (config.tindexok)
+		{
+			win_form[TINDEX].ob_state &= ~OS_DISABLED;
+			win_form[TINDEXOK].ob_state |= OS_SELECTED;
+		} else
+		{
+			win_form[TINDEX].ob_state |= OS_DISABLED;
+			win_form[TINDEXOK].ob_state &= ~OS_SELECTED;
+		}
+
+		if (config.typ == GIF87A)
+		{
+			win_form[GIF87A].ob_state |= OS_SELECTED;
+			win_form[GIF89A].ob_state &= ~OS_SELECTED;
+			win_form[TINDEX].ob_state |= OS_DISABLED;
+			win_form[TINDEXOK].ob_state |= OS_DISABLED;
+		} else
+		{
+			win_form[GIF87A].ob_state &= ~OS_SELECTED;
+			win_form[GIF89A].ob_state |= OS_SELECTED;
+			if (config.tindexok)
+				win_form[TINDEX].ob_state &= ~OS_DISABLED;
+			win_form[TINDEXOK].ob_state &= ~OS_DISABLED;
+		}
+
+		itoa(config.transparent, win_form[TINDEX].ob_spec.tedinfo->te_ptext, 10);
+
+		window.whandlem = 0;			/* evtl. Handle l”schen */
+		window.module = smurf_struct->module_number;		/* ID in die Fensterstruktur eintragen  */
+		window.wnum = 1;				/* Fenster nummer 1...  */
+		window.wx = -1;					/* Fenster X-...        */
+		window.wy = -1;					/* ...und Y-Pos         */
+		window.ww = win_form->ob_width;	/* Fensterbreite        */
+		window.wh = win_form->ob_height;	/* Fensterh”he          */
+		strcpy(window.wtitle, "GIF Exporter");		/* Titel reinkopieren   */
+		window.resource_form = win_form;	/* Resource             */
+		window.picture = NULL;			/* kein Bild.           */
+		window.editob = TINDEX;			/* erstes Editobjekt    */
+		window.nextedit = TINDEX;		/* n„chstes Editobjekt  */
+		window.editx = 0;
+
+		smurf_struct->wind_struct = &window;	/* und die Fensterstruktur in die Gargamel */
+
+		if (smurf_struct->services->f_module_window(&window) == -1)	/* Gib mir 'n Fenster! */
+			smurf_struct->module_mode = M_EXIT;	/* keins mehr da? */
+		else
+			smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
+		break;
+
+/* Closer geklickt, Default wieder her */
+	case MMORECANC:
+		/* falls bergeben, Konfig bernehmen */
+		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		{
+			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+		} else
+		{
+			config.typ = GIF87A;
+			config.interlace = 0;
+			config.transparent = 0;
+			config.tindexok = 0;
+		}
+
+		smurf_struct->module_mode = M_WAITING;
+
+		break;
+
+		/* Buttonevent */
+	case MBEVT:
+		switch (smurf_struct->event_par[0])
+		{
+		case OK:
+			config.transparent = atoi(win_form[TINDEX].ob_spec.tedinfo->te_ptext);
+			if (config.transparent < 0 || config.transparent > 255)
 			{
-				config.typ = GIF87A;
-				config.interlace = 0;
-				config.transparent = 0;
-				config.tindexok = 0;
+				form_alert(1, rs_frstr[WRONG_IDX]);
+				smurf_struct->module_mode = M_WAITING;
+			} else
+			{
+				/* Konfig bergeben */
+				*((void **) &smurf_struct->event_par[0]) = &config;
+				smurf_struct->event_par[2] = (short) sizeof(CONFIG);
+	
+				smurf_struct->module_mode = M_MOREOK;
 			}
-
-			module_id = smurf_struct->module_number;
-
-			win_form = rs_trindex[GIF_EXPORT];			/* Resourcebaum holen */
-
-			/* Resource umbauen */
-			for(t = 0; t < NUM_OBS; t++)
-				rsrc_obfix(&rs_object[t], 0);
-
-			smurf_struct->module_mode = M_WAITING;
-
 			break;
 
-		case MMORE:
-			/* Ressource aktualisieren */
-			if(config.interlace)
-				win_form[LINE_ARRANGE].ob_state |= OS_SELECTED;
-			else
-				win_form[LINE_ARRANGE].ob_state &= ~OS_SELECTED;
+		case SAVE:
+			config.transparent = atoi(win_form[TINDEX].ob_spec.tedinfo->te_ptext);
 
-			if(config.tindexok)
-			{
-				win_form[TINDEX].ob_state &= ~OS_DISABLED;
-				win_form[TINDEXOK].ob_state |= OS_SELECTED;
-			}
-			else
-			{
-				win_form[TINDEX].ob_state |= OS_DISABLED;
-				win_form[TINDEXOK].ob_state &= ~OS_SELECTED;
-			}
+			/* Konfig bergeben */
+			*((void **) &smurf_struct->event_par[0]) = &config;
+			smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 
-			if(config.typ == GIF87A)
+			smurf_struct->module_mode = M_CONFSAVE;
+			break;
+		
+		case LINE_ARRANGE:
+			config.interlace ^= 1;
+			smurf_struct->module_mode = M_WAITING;
+			break;
+
+		case GIF87A:
+		case GIF89A:
+			config.typ = smurf_struct->event_par[0];
+
+			if (config.typ == GIF87A)
 			{
-				win_form[GIF87A].ob_state |= OS_SELECTED;
-				win_form[GIF89A].ob_state &= ~OS_SELECTED;
 				win_form[TINDEX].ob_state |= OS_DISABLED;
 				win_form[TINDEXOK].ob_state |= OS_DISABLED;
-			}
-			else
+			} else
 			{
-				win_form[GIF87A].ob_state &= ~OS_SELECTED;
-				win_form[GIF89A].ob_state |= OS_SELECTED;
-				if(config.tindexok)
+				if (config.tindexok)
 					win_form[TINDEX].ob_state &= ~OS_DISABLED;
 				win_form[TINDEXOK].ob_state &= ~OS_DISABLED;
 			}
-
-			itoa(config.transparent, win_form[TINDEX].ob_spec.tedinfo->te_ptext, 10);
-
-			redraw_window = smurf_struct->services->redraw_window;		/* Redrawfunktion */
-	
-			window.whandlem = 0;				/* evtl. Handle l”schen */
-			window.module = module_id;			/* ID in die Fensterstruktur eintragen  */
-			window.wnum = 1;					/* Fenster nummer 1...  */
-			window.wx = -1;						/* Fenster X-...    	*/
-			window.wy = -1;						/* ...und Y-Pos     	*/
-			window.ww = win_form->ob_width;		/* Fensterbreite    	*/
-			window.wh = win_form->ob_height;	/* Fensterh”he      	*/
-			strcpy(window.wtitle, wt);			/* Titel reinkopieren   */
-			window.resource_form = win_form;	/* Resource         	*/
-			window.picture = NULL;				/* kein Bild.       	*/ 
-			window.editob = TINDEX;				/* erstes Editobjekt	*/
-			window.nextedit = TINDEX;			/* n„chstes Editobjekt	*/
-			window.editx = 0;
-
-			smurf_struct->wind_struct = &window;  /* und die Fensterstruktur in die Gargamel */
-
-			if(smurf_struct->services->f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
-				smurf_struct->module_mode = M_EXIT;		/* keins mehr da? */
-			else 
-				smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
-
-			break;
-
-/* Closer geklickt, Default wieder her */
-		case MMORECANC:
-			/* falls bergeben, Konfig bernehmen */
-			if(*(long *)&smurf_struct->event_par[0] != 0)
-				memcpy((char *)&config, (char *)*(long *)&smurf_struct->event_par[0], sizeof(CONFIG));
-			else
-			{
-				config.typ = GIF87A;
-				config.interlace = 0;
-				config.transparent = 0;
-				config.tindexok = 0;
-			}
-
+			smurf_struct->services->redraw_window(&window, NULL, TINDEX_BOX, 0);
 			smurf_struct->module_mode = M_WAITING;
-
 			break;
 
-	/* Buttonevent */
-		case MBEVT:
-			Button = smurf_struct->event_par[0];
+		case TINDEXOK:
+			config.tindexok ^= 1;
 
-			if(Button == OK)
+			if (config.tindexok)
+				win_form[TINDEX].ob_state &= ~OS_DISABLED;
+			else
+				win_form[TINDEX].ob_state |= OS_DISABLED;
+
+			smurf_struct->services->redraw_window(&window, NULL, TINDEX, 0);
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		
+		default:
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		}
+		break;
+
+		/* Keyboardevent */
+	case MKEVT:
+		switch (smurf_struct->event_par[0])
+		{
+		case OK:
+			config.transparent = atoi(win_form[TINDEX].ob_spec.tedinfo->te_ptext);
+			if (config.transparent < 0 || config.transparent > 255)
 			{
-				config.transparent = atoi(win_form[TINDEX].ob_spec.tedinfo->te_ptext);
-				if(config.transparent < 0 || config.transparent > 255)
-				{
-					form_alert(1, "[3][Wrong transparent index][OK]");
-					smurf_struct->module_mode = M_WAITING;
-					break;
-				}
-
+				form_alert(1, rs_frstr[WRONG_IDX]);
+				smurf_struct->module_mode = M_WAITING;
+			} else
+			{
 				/* Konfig bergeben */
-				*(long *)&smurf_struct->event_par[0] = (long)&config;
-				smurf_struct->event_par[2] = (int)sizeof(CONFIG);
-
+				*((void **) &smurf_struct->event_par[0]) = &config;
+				smurf_struct->event_par[2] = (short) sizeof(CONFIG);
+	
 				smurf_struct->module_mode = M_MOREOK;
 			}
-			else
-			if(Button == SAVE)
-			{
-				config.transparent = atoi(win_form[TINDEX].ob_spec.tedinfo->te_ptext);
-
-				/* Konfig bergeben */
-				*(long *)&smurf_struct->event_par[0] = (long)&config;
-				smurf_struct->event_par[2] = (unsigned int)sizeof(CONFIG);
-
-				smurf_struct->module_mode = M_CONFSAVE;
-			}
-			else
-			{
-				if(Button == LINE_ARRANGE)
-						config.interlace ^= 1;
-					else				
-						if(Button == GIF87A || Button == GIF89A)
-						{
-							config.typ = (char)Button;
-
-							if(config.typ == GIF87A)
-							{
-								win_form[TINDEX].ob_state |= OS_DISABLED;
-								win_form[TINDEXOK].ob_state |= OS_DISABLED;
-							}
-							else
-							{
-								if(config.tindexok)
-									win_form[TINDEX].ob_state &= ~OS_DISABLED;
-								win_form[TINDEXOK].ob_state &= ~OS_DISABLED;
-							}
-
-							redraw_window(&window, NULL, TINDEX_BOX, 0);
-						}
-						else
-							if(Button == TINDEXOK)
-							{
-								config.tindexok ^= 1;
-
-								if(config.tindexok)
-									win_form[TINDEX].ob_state &= ~OS_DISABLED;
-								else
-									win_form[TINDEX].ob_state |= OS_DISABLED;
-
-								redraw_window(&window, NULL, TINDEX, 0);
-							}
-
-				smurf_struct->module_mode = M_WAITING;
-			}
-
 			break;
-
-	/* Keyboardevent */
-		case MKEVT:
-			Button = smurf_struct->event_par[0];
-
-			if(Button == OK)
-			{
-				config.transparent = atoi(win_form[TINDEX].ob_spec.tedinfo->te_ptext);
-				if(config.transparent < 0 || config.transparent > 255)
-				{
-					form_alert(1, "[3][Wrong transparent index][OK]");
-					smurf_struct->module_mode = M_WAITING;
-					break;
-				}
-
-				/* Konfig bergeben */
-				*(long *)&smurf_struct->event_par[0] = (long)&config;
-				smurf_struct->event_par[2] = (int)sizeof(CONFIG);
-
-				smurf_struct->module_mode = M_MOREOK;
-			}
-			else
-				smurf_struct->module_mode = M_WAITING;
-
+		default:
+			smurf_struct->module_mode = M_WAITING;
 			break;
+		}
+		break;
 
-	/* Extender wird vom Smurf erfragt */
-		case MEXTEND:
-			smurf_struct->event_par[0] = 1;
+		/* Extender wird vom Smurf erfragt */
+	case MEXTEND:
+		smurf_struct->event_par[0] = 1;
+		smurf_struct->module_mode = M_EXTEND;
+		break;
 
-			smurf_struct->module_mode = M_EXTEND;
-			
-			break;
+		/* Farbsystem wird vom Smurf erfragt */
+	case MCOLSYS:
+		smurf_struct->event_par[0] = RGB;
+		smurf_struct->module_mode = M_COLSYS;
+		break;
 
-	/* Farbsystem wird vom Smurf erfragt */
-		case MCOLSYS:
-			smurf_struct->event_par[0] = RGB;
+	case MEXEC:
+		SMalloc = smurf_struct->services->SMalloc;
 
-			smurf_struct->module_mode = M_COLSYS;
-			
-			break;
+		/* Zeiger initialisieren */
+		exp_pic = (EXPORT_PIC *) SMalloc(sizeof(EXPORT_PIC));
+		buffer = smurf_struct->smurf_pic->pic_data;
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+		comment = smurf_struct->smurf_pic->infotext;
 
-		case MEXEC:
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;
+		/* Header + Screen Descriptor + globale Farbtabelle + Graphic Control Extension + */
+		/* Comment Extension + Image Descriptor + Trailer */
+		headlen = 6 + _LSCRDES + (1 << BitsPerPixel) * 3 + 8 + (4 + (short) strlen(comment) + 1) + _IMAGE_DES + 1;
 
-			/* Zeiger initialisieren */
-			exp_pic = (EXPORT_PIC *)SMalloc(sizeof(EXPORT_PIC));
-			buffer = smurf_struct->smurf_pic->pic_data;
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-			comment = smurf_struct->smurf_pic->infotext;
+		if (BitsPerPixel == 8)
+			length = (long) width * (long) height * 2 / 3;	/* sollte an sich ausreichen */
+		else
+			length = (long) ((width + 7) / 8 * BitsPerPixel) * (long) height;
 
-			/* Header + Screen Descriptor + globale Farbtabelle + Graphic Control Extension + */
-			/* Comment Extension + Image Descriptor + Trailer */
-			headlen = 6 + _LSCRDES + (int)(1 << BitsPerPixel) * 3 + 8 + (4 + (int)strlen(comment) + 1) + _IMAGE_DES + 1;
+		file = ziel = (uint8_t *) SMalloc(headlen + length /* + (length / 250) * 2 */ );
+		if (ziel == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return exp_pic;
+		}
 
-			if(BitsPerPixel == 8)
-				length = (long)width * (long)height * 2 / 3;		/* sollte an sich ausreichen */
-			else
-				length = (long)((width + 7) / 8 * BitsPerPixel) * (long)height;
+		current_file = write_header(file, config.typ);
+		current_file = write_lscrdes(current_file, smurf_struct->smurf_pic->palette, width, height, BitsPerPixel);
+		current_file = write_graphctrl_ext(current_file, &config, 0);
+		/* Bildblock */
+		current_file = write_comment_ext(current_file, &config, comment);
+		current_file = write_image_descriptor(current_file, smurf_struct->smurf_pic->palette, width, height, BitsPerPixel, config.interlace);
 
-			file = ziel = (char *)SMalloc(headlen + length/* + (length / 250) * 2*/);
-			if(ziel == NULL)
-			{
-				smurf_struct->module_mode = M_MEMORY;
-				return(exp_pic);
-			}
+		lacetab = (short *) SMalloc(height * sizeof(*lacetab));
+		if (lacetab == NULL)
+		{
+			smurf_struct->services->SMfree(ziel);
+			smurf_struct->module_mode = M_MEMORY;
+			return exp_pic;
+		}
+		interlace(height, &config);
 
-			current_file = write_header(file, config.typ);
-			current_file = write_lscrdes(current_file, smurf_struct->smurf_pic->palette, width, height, BitsPerPixel);
-			current_file = write_graphctrl_ext(current_file, &config, 0);
-			/* Bildblock */
-			current_file = write_comment_ext(current_file, &config, comment);
-			current_file = write_image_descriptor(current_file, smurf_struct->smurf_pic->palette, width, height, BitsPerPixel, config.interlace);
+		if (BitsPerPixel == 8)
+			current_file = encode_lzw_8bit(buffer, current_file, width, height);
+		else
+			current_file = encode_lzw_17bit(buffer, current_file, width, height, BitsPerPixel);
 
+		if (current_file == NULL)
+		{
+			smurf_struct->services->SMfree(file);
+			smurf_struct->module_mode = M_MEMORY;
+			return exp_pic;
+		}
+		/* Trailer */
+		*current_file++ = 0x3b;
 
-			lacetab = (int *)malloc(height * sizeof(int));
-			interlace(height, &config);
+		smurf_struct->services->SMfree(lacetab);
 
-			if(BitsPerPixel == 8)
-				current_file = encode_lzw_8bit(buffer, current_file, width, height);
-			else
-				current_file = encode_lzw_17bit(buffer, current_file, width, height, BitsPerPixel);
+		f_len = current_file - file;
 
-			if(current_file == NULL)
-			{
-				SMfree(file);
-				smurf_struct->module_mode = M_MEMORY;
-				return(exp_pic);
-			}
-			/* Trailer */
-			*current_file++ = 0x3b;
-
-			free(lacetab);
-
-			f_len = current_file - file;
-
-/*			printf("f_len: %lu\n", f_len); */
-
-			_Mshrink(ziel, f_len);
-			exp_pic->pic_data = ziel;
-			exp_pic->f_len = f_len;
-			smurf_struct->module_mode = M_DONEEXIT;
-			return(exp_pic);
+		_Mshrink(ziel, f_len);
+		exp_pic->pic_data = ziel;
+		exp_pic->f_len = f_len;
+		smurf_struct->module_mode = M_DONEEXIT;
+		return exp_pic;
 
 
-/* Mterm empfangen - Speicher freigeben und beenden */
-		case MTERM:
-			SMfree(exp_pic->pic_data);
-			SMfree((char *)exp_pic);
-			smurf_struct->module_mode = M_EXIT;
-			break;
-	} /* switch */
+	/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		/* exp_pic wird von smurf freigegeben */
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
 
-	return(NULL);
+	return NULL;
 }
 
 
-/*-------------------------------------------------------------	*/
-/*							Header schreiben					*/
-/*-------------------------------------------------------------	*/
-char *write_header(char *file, char typ)
-{
-	if(typ == GIF87A)
-		strncpy(file, "GIF87a", 6);
-	else
-		strncpy(file, "GIF89a", 6);
-
-	return(file + 6);
-} /* write_header */
-
-
-/*-------------------------------------------------------------	*/
-/*		Graphics Control Extension Block schreiben  [optional]	*/
-/*-------------------------------------------------------------	*/
-char *write_graphctrl_ext(char *file, CONFIG *config, int delay)
-{
-	/* Wird momentan nur geschrieben wenn Transparent ben”tigt wird */
-	/* und auch verfgbar ist (nur GIF89a) */
-	/* Sp„ter auch bei Animationen */
-	if(config->tindexok && config->typ == GIF89A)	/* Graphics Control Extension */	
-	{
-		*file = 0x21;					/* Extension Introducer */
-		*(file + 1) = 0xf9;				/* Comment Label */
-		*(file + 2) = 4;				/* remain fields size */
-		/* Packed Fields: 0 = Transparente Farbe? */
-		/*				  1 = User Input Flag */
-		/*				  2-4 = Disposal Method */
-		/*				  5-7 = reserviert */
-		*(file + 3) = (0 << 4)|(0 << 1)|(config->tindexok&0x01);
-		*(unsigned int *)(file + 4) = swap_word(delay);	/* Delay Time */
-		*(file + 6) = (char)config->transparent;		/* Transparent Index */
-		*(file + 7) = 0;								/* Block Terminator */
-
-		return(file + 3 + *(file + 2) + 1);
-	}
-	else
-		return(file);
-} /* write_graphctrl_ext */
-
-
-/*-------------------------------------------------------------	*/
-/*			Comment Extension Block schreiben  [optional]		*/
-/*-------------------------------------------------------------	*/
-char *write_comment_ext(char *file, CONFIG *config, char *comment)
-{
-	if(strlen(comment) && config->typ == GIF89A)		/* Comment Extension */
-	{
-		*file = 0x21;					/* Extension Introducer */
-		*(file + 1) = 0xfe;				/* Comment Label */
-		*(file + 2) = strlen(comment) + 1; /* Kommentarl„nge */
-		strcpy(file + 3, comment); 		/* Kommentar (nullterminiert) */
-		*(file + 3 + *(file + 2)) = 0;	/* Block Terminator */
-
-		return(file + 3 + *(file + 2) + 1);
-	}
-	else
-		return(file);
-
-} /* write_comment_ext */
-
-
-/*-------------------------------------------------------------	*/
-/*				Logical Screen Descriptor schreiben				*/
-/*-------------------------------------------------------------	*/
-char *write_lscrdes(char *file, char *pal, unsigned int width, unsigned int height, char BitsPerPixel)
-{
-	unsigned int coltab_size = 0;
-
-	*(unsigned int *)file = swap_word(width);			/* Breite */
-	*(unsigned int *)(file + 2) = swap_word(height);	/* H”he */
-	/* Packed Fields: 0-2 = Bits pro Pixel - 1 */
-	/*				  3 = 0 Sortierung nach Farbe */
-	/*				  4-6 = Bits pro Farbe - 1 (immer 7) */
-	/*				  7 = 1 globale Farbtabelle vorhanden */
-	*(file + 4) = (1 << 7)|(7 << 4)|(0 << 3)|(BitsPerPixel - 1);
-	*(file + 5) = 0;									/* Hintergrundfarbe */
-	*(file + 6) = 0;									/* Pixelseitenverh„ltnis */
-	
-	/* Global Color Table? */
-	if(*(file + 4) & 0x80)
-	{
-		coltab_size = 1 << BitsPerPixel;
-
-		memcpy(file + _LSCRDES, pal, 3 * coltab_size);
-
-#if DEBUG
-		printf("\n  Size: %d", coltab_size);
-#endif
-	}
-
-	return(file + _LSCRDES + 3 * coltab_size);
-} /* write_lscrdes */
-
-
-/*-------------------------------------------------------------	*/
-/*			Local Image Descriptor schreiben   [min. 1]			*/
-/*-------------------------------------------------------------	*/
-char *write_image_descriptor(char *file, char *pal, unsigned int width, unsigned int height, char BitsPerPixel, char interlace)
-{
-	unsigned int coltab_size = 0;
-
-
-	*file = 0x2c;
-	*(unsigned int *)(file + 1) = 0;					/* X-Pos */
-	*(unsigned int *)(file + 3) = 0;					/* Y-Pos */
-	*(unsigned int *)(file + 5) = swap_word(width);		/* Breite */
-	*(unsigned int *)(file + 7) = swap_word(height);	/* H”he */
-	/* Packed Fields: 0-2 = Bits pro Pixel - 1 */
-	/*				  3-4 reserviert */
-	/*				  5 = 0 Sortierung nach Farbe */
-	/*				  6 = interlace */
-	/*				  7 = 0 lokale Farbtabelle nicht vorhanden */
-	*(file + 9) = (0 << 7)|(interlace << 6)|(0 << 5)|(BitsPerPixel - 1);
-
-	/* local color table */
-	if(*(file + 9) & 0x80)
-	{
-		coltab_size = 1 << BitsPerPixel;
-
-		memcpy(file + _LSCRDES, pal, 3 * coltab_size);
-#if DEBUG
-		printf("\n  Size: %d", coltab_size);
-#endif
-	}
-
-	return(file + _IMAGE_DES + 3 * coltab_size);
-} /* write_image_descriptor */
-
-
-/* Sortiert ein Bild von normaler Zeilenreihenfolge */
-/* in place in interlaced Zeilenreihenfolge um */
-void interlace(unsigned int height, CONFIG *config)
-{
-	int k, l;
-
-
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-
-	if(config->interlace)
-	{
-		reset_busybox(128, "interlace GIF");
-
-		for(l = 0, k = 0; l < height; l += 8, k++)
-			lacetab[k] = l;
-		for(l = 4; l < height; l += 8, k++)
-			lacetab[k] = l;
-		for(l = 2; l < height; l += 4, k++)
-			lacetab[k] = l;
-		for(l = 1; l < height; l += 2, k++)
-			lacetab[k] = l;
-	}
-	else
-		for(k = 0; k < height; k++)
-			lacetab[k] = k;
-
-
-
-#if TIMER
-/* wie schnell waren wir? */
-	printf("\nZeit: %lu", get_timer());
-	getch();
-#endif
-
-
-	return;
-} /* interlace */
-
-
-/*
+#if 0
 /*-------------- Main-Function fr GIF-Programm zum Debuggen */
-void main(void)
+int main(void)
 {
 	int filehandle;
 	GARGAMEL sm_struct;
 	SMURF_PIC pic;
-	char *file;
+	uint8_t *file;
 	long dummy, len;
 	EXPORT_PIC *exp_pic;
 
-	dummy = Fopen("K:\\AMBER.RAW", FO_READ);
-	if(dummy >= 0)
-		filehandle = (int)dummy;
-	else
-		return;
+	filehandle = (int)Fopen("K:\\AMBER.RAW", FO_READ);
+	if (filehandle < 0)
+		return 1;
 
 	len = Fseek(0L, filehandle, 2);
 	Fseek(0L, filehandle, 0L);
-	
+
 	file = Malloc(len);
 
 	Fread(filehandle, len, file);
@@ -678,17 +649,17 @@ void main(void)
 	sm_struct.module_mode = MSTART;
 	exp_pic = exp_module_main(&sm_struct);
 	pic.pic_data = file + 768;
-	pic.palette = (char *)malloc(1024);
+	pic.palette = (uint8_t *) malloc(1024);
 	memcpy(pic.palette, file, 768);
 	sm_struct.module_mode = MEXEC;
 	exp_pic = exp_module_main(&sm_struct);
 
 	Mfree(file);
 
-	filehandle = (int)Fcreate("K:\\AMBER_.GIF", 0);
+	filehandle = (int) Fcreate("K:\\AMBER_.GIF", 0);
 	Fwrite(filehandle, exp_pic->f_len, exp_pic->pic_data);
 	Fclose(filehandle);
 
-	return;	
+	return 0;
 }
-*/
+#endif
