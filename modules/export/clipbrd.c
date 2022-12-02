@@ -74,7 +74,7 @@ MOD_INFO module_info = {
 
 
 MOD_ABILITY module_ability = {
-	1, 2, 3, 4, 5, 7, 8, 24,
+	1, 2, 3, 4, 6, 7, 8, 24,
 	FORM_STANDARD,
 	FORM_STANDARD,
 	FORM_STANDARD,
@@ -85,7 +85,6 @@ MOD_ABILITY module_ability = {
 	FORM_PIXELPAK,
 	0
 };
-
 
 static void *(*SMalloc)(long amount);
 
@@ -206,6 +205,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	uint8_t pad;
 	uint8_t BitsPerPixel;
 	uint8_t Planes;
+	uint8_t PattLength;
 
 	uint16_t *ppal;
 	unsigned short k;
@@ -265,7 +265,6 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		SMalloc = smurf_struct->services->SMalloc;
 
 		img_headsize = (unsigned short) sizeof(IMG_HEAD);
-		ximg_headsize = (unsigned short) sizeof(XIMG_HEAD);
 
 		buffer = smurf_struct->smurf_pic->pic_data;
 
@@ -277,9 +276,14 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 		BitsPerPixel = smurf_struct->smurf_pic->depth;
 		if (BitsPerPixel == 24)
+		{
 			Planes = 1;
-		else
+			PattLength = 3;
+		} else
+		{
 			Planes = BitsPerPixel;
+			PattLength = 1;
+		}
 
 		Header = img_headsize;
 		if (BitsPerPixel != 1)
@@ -288,15 +292,17 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 				Palette = 0;
 			else
 				Palette = (1 << BitsPerPixel) * 6;
+			ximg_headsize = (unsigned short) sizeof(XIMG_HEAD);
 			Header += (unsigned short) (ximg_headsize + Palette);
 		} else
 		{
+			ximg_headsize = 0;
 			Palette = 0;
 		}
 
 		if (BitsPerPixel == 24)
 		{
-			w = (unsigned long) width *3L;
+			w = (unsigned long) width * 3;
 
 			memwidth = (unsigned long) width;
 			pad = (((width + 15) / 16) * 16 - width) * 3;
@@ -324,13 +330,14 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			img_header->version = 1;
 			img_header->headsize = Header >> 1;
 			img_header->BitsPerPixel = BitsPerPixel;
-			img_header->patlen = 3;
+			img_header->patlen = PattLength;
 			img_header->pixwidth = 0x174;
 			img_header->pixheight = 0x174;
 			img_header->width = width;
 			img_header->height = height;
 
-			if (BitsPerPixel != 1)
+			/* erweiterten Header fllen */
+			if (ximg_headsize != 0)
 			{
 				ximg_header = (XIMG_HEAD *) (ziel + img_headsize);
 				ximg_header->imgtype = 0x58494d47L; /* 'XIMG' */
@@ -340,7 +347,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			strcpy(smurf_struct->smurf_pic->format_name, "GEM-(X)IMG .IMG");
 
 			/* Farbpalette fllen */
-			if (BitsPerPixel != 1 && BitsPerPixel != 24)
+			if (Palette != 0)
 			{
 				ppal = (uint16_t *) (ziel + img_headsize + ximg_headsize);
 
@@ -371,7 +378,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 	/* Mterm empfangen - Speicher freigeben und beenden */
 	case MTERM:
-		/* exp_pic wird hier mit Absicht nicht freigegeben */
+		/* exp_pic wird von smurf freigegeben */
 		smurf_struct->module_mode = M_EXIT;
 		break;
 
