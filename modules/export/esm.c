@@ -248,6 +248,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		break;
 
 	default:
+		/* exp_pic wird hier mit Absicht nicht freigegeben */
 		smurf_struct->module_mode = M_WAITING;	/* Ich warte... */
 		break;
 	}

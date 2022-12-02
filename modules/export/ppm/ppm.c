@@ -51,383 +51,104 @@
 #define TIMER 0
 
 #if COUNTRY==1
-	#include "ppm/de/ppm.rsh"
-	#include "ppm/de/ppm.rh"
+#include "de/ppm.rsh"
 #elif COUNTRY==0
-	#include "ppm/en/ppm.rsh"
-	#include "ppm/en/ppm.rh"
+#include "en/ppm.rsh"
 #elif COUNTRY==2
-	#include "ppm/en/ppm.rsh" /* missing french resource */
-	#include "ppm/en/ppm.rh"
+#include "en/ppm.rsh"				/* missing french resource */
 #else
 #error "Keine Sprache!"
 #endif
 
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-void write_header(char mode, unsigned int width, unsigned int height, unsigned long *f_len, char BitsPerPixel);
-void write_ASCIIPic(char *buffer, unsigned int width, unsigned int height, unsigned long w, char BitsPerPixel);
-void write_BINPic(char *buffer, unsigned int height, unsigned long w);
-void putval(char val);
-void putval_1Bit(char val);
-
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"PBM Format",
-						0x0060,
-						"Christian Eyrich",
-						"PPM", "PGM", "PBM", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						0
-						};
+MOD_INFO module_info = {
+	"PBM Format",
+	0x0060,
+	"Christian Eyrich",
+	{ "PPM", "PGM", "PBM", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-						1, 8, 24, 0, 0,
-						0, 0, 0,
-						FORM_STANDARD,
-						FORM_PIXELPAK,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						2				/* More */
-						};
+MOD_ABILITY module_ability = {
+	1, 8, 24, 0, 0, 0, 0, 0,
+	FORM_STANDARD,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	M_MORE									/* More */
+};
 
 
-char *ziel, *oziel;
+static uint8_t *ziel;
+static uint8_t *oziel;
 
-unsigned int x, width;
+static unsigned short x, width;
 
-unsigned long in;
-
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-/*			PBMPlus Picture Format (PPM)			*/
-/*		1, 8, 24 Bit, unkomprimiert,				*/
-/*		Speicherform bin„r und ASCII				*/
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
-{
-	EXPORT_PIC *exp_pic;
-
-	char *buffer,
-		 BitsPerPixel, zeichen, t;
-	char wt[] = "PBMPlus Exporter";
-	static char mode;
-
-	static int module_id;
-	unsigned int height, headsize, ret, Button;
-
-	unsigned long w, memwidth, f_len;
-
-	static WINDOW window;
-	static OBJECT *win_form;
-
-
-	switch(smurf_struct->module_mode)
-	{
-		case MSTART:
-			/* falls bergeben, Konfig bernehmen */
-			if(*(long *)&smurf_struct->event_par[0] != 0)
-				memcpy(&mode, (char *)*(long *)&smurf_struct->event_par[0], 1);
-			else
-				mode = BIN;
-
-			module_id = smurf_struct->module_number;
-
-			win_form = rs_trindex[PPM_EXPORT];							/* Resourcebaum holen */
-
-			/* Resource umbauen */
-			for(t = 0; t < NUM_OBS; t++)
-				rsrc_obfix(&rs_object[t], 0);
-
-			smurf_struct->module_mode = M_WAITING;
-
-			break;
-
-		case MMORE:
-			/* Ressource aktualisieren */
-			if(mode == BIN)
-			{
-				win_form[BIN].ob_state |= OS_SELECTED;
-				win_form[ASCII].ob_state &= ~OS_SELECTED;
-			}
-			else
-			{
-				win_form[BIN].ob_state &= ~OS_SELECTED;
-				win_form[ASCII].ob_state |= OS_SELECTED;
-			}
-
-			window.whandlem = 0;				/* evtl. Handle l”schen */
-			window.module = module_id;			/* ID in die Fensterstruktur eintragen  */
-			window.wnum = 1;					/* Fenster nummer 1...  */
-			window.wx = -1;						/* Fenster X-...    	*/
-			window.wy = -1;						/* ...und Y-Pos     	*/
-			window.ww = win_form->ob_width;		/* Fensterbreite    	*/
-			window.wh = win_form->ob_height;	/* Fensterh”he      	*/
-			strcpy(window.wtitle, wt);			/* Titel reinkopieren   */
-			window.resource_form = win_form;	/* Resource         	*/
-			window.picture = NULL;				/* kein Bild.       	*/ 
-			window.editob = 0;					/* erstes Editobjekt	*/
-			window.nextedit = 0;				/* n„chstes Editobjekt	*/
-			window.editx = 0;
-
-			smurf_struct->wind_struct = &window;  /* und die Fensterstruktur in die Gargamel */
-
-			if(smurf_struct->services->f_module_window(&window) == -1)			/* Gib mir 'n Fenster! */
-				smurf_struct->module_mode = M_EXIT;		/* keins mehr da? */
-			else 
-				smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
-
-			break;
-
-	/* Closer geklickt, Default wieder her */
-		case MMORECANC:
-			/* falls bergeben, Konfig bernehmen */
-			if(*(long *)&smurf_struct->event_par[0] != 0)
-				memcpy(&mode, (char *)*(long *)&smurf_struct->event_par[0], 1);
-			else
-				mode = BIN;
-
-			smurf_struct->module_mode = M_WAITING;
-
-			break;
-
-	/* Buttonevent */
-		case MBEVT:
-			Button = smurf_struct->event_par[0];
-
-			if(Button == OK)
-			{
-				/* Konfig bergeben */
-				*(long *)&smurf_struct->event_par[0] = (long)&mode;
-				smurf_struct->event_par[2] = 1;
-
-				smurf_struct->module_mode = M_MOREOK;
-			}
-			else
-			if(Button == SAVE)
-			{
-				/* Konfig bergeben */
-				*(long *)&smurf_struct->event_par[0] = (long)&mode;
-				smurf_struct->event_par[2] = 1;
-
-				smurf_struct->module_mode = M_CONFSAVE;
-			}
-			else
-			{
-				if(Button == BIN || Button == ASCII)
-					mode = (char)Button;
-
-				smurf_struct->module_mode = M_WAITING;
-			}
-
-			break;
-
-	/* Keyboardevent */
-		case MKEVT:
-			Button = smurf_struct->event_par[0];
-
-			if(Button == OK)
-			{
-				/* Konfig bergeben */
-				*(long *)&smurf_struct->event_par[0] = (long)&mode;
-				smurf_struct->event_par[2] = 1;
-
-				smurf_struct->module_mode = M_MOREOK;
-			}
-			else
-				smurf_struct->module_mode = M_WAITING;
-
-			break;
-
-	/* Extender wird vom Smurf erfragt */
-		case MEXTEND:
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-
-			switch((int)BitsPerPixel)
-			{
-				case 1:	smurf_struct->event_par[0] = 3;
-						break;
-				case 8:	smurf_struct->event_par[0] = 2;
-						break;
-				case 24:smurf_struct->event_par[0] = 1;
-						break;
-			}
-			smurf_struct->module_mode = M_EXTEND;
-			
-			break;
-
-	/* Farbsystem wird vom Smurf erfragt */
-		case MCOLSYS:
-			if(smurf_struct->smurf_pic->depth == 8)
-				smurf_struct->event_par[0] = GREY;
-			else
-				smurf_struct->event_par[0] = RGB;
-
-			smurf_struct->module_mode = M_COLSYS;
-			
-			break;
-
-	/* Und losexportieren */
-		case MEXEC:
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;
-
-			buffer = smurf_struct->smurf_pic->pic_data;
-
-			exp_pic = (EXPORT_PIC *)SMalloc(sizeof(EXPORT_PIC));
-
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
-
-			if(BitsPerPixel == 1)
-			{
-				w = (unsigned long)(width + 7) / 8;
-				memwidth = w * 8;
-			}
-			else
-			{
-				if(BitsPerPixel == 24)
-					w = (unsigned long)width * 3;
-				else
-					w = (unsigned long)width;
-				memwidth = (unsigned long)width;
-			}
-
-			headsize = 3 + 6 + 6 + 4;
-
-			if(mode == ASCII)			/* ASCII */
-			{
-				if(BitsPerPixel == 1)
-				{
-					/* 4 Werte passen in eine Zeile zu 70 Stellen */
-					/* ret Returnzeichen zus„tzlich werden ben”tigt */
-					ret = (int)(((w + 3) / 4) * 2);
-					zeichen = 2;
-	
-					f_len = ((long)zeichen * width + ret) * (long)height;
-				}
-				else
-				{
-					/* 17 Werte passen in eine Zeile zu 70 Stellen */
-					/* ret Returnzeichen zus„tzlich werden ben”tigt */
-					ret = (int)(((w + 16) / 17) * 2);
-					zeichen = 4;
-	
-					f_len = ((long)zeichen * w + ret) * (long)height;
-				}
-			}
-			else		/* bin„r */
-				f_len = (memwidth * (long)height * (long)BitsPerPixel) >> 3;
-
-			if((ziel = (char *)SMalloc(headsize + f_len)) == 0)
-			{
-				smurf_struct->module_mode = M_MEMORY;
-				return(exp_pic);
-			}
-			else
-			{
-				oziel = ziel;
-
-				write_header(mode, width, height, &f_len, BitsPerPixel);			/* Header schreiben */
-
-				if(mode == ASCII)
-					write_ASCIIPic(buffer, width, height, w, BitsPerPixel);
-				else
-					write_BINPic(buffer, height, w);
-
-				ziel = oziel;
-
-				exp_pic->pic_data = ziel;
-				exp_pic->f_len = f_len;
-			} /* Malloc */
-
-#if TIMER
-/* wie schnell waren wir? */
-	printf("%lu\n", get_timer());
-	getch();
-#endif
-
-			smurf_struct->module_mode = M_DONEEXIT;
-			return(exp_pic);
-
-/* Mterm empfangen - Speicher freigeben und beenden */
-		case MTERM:
-			SMfree(exp_pic->pic_data);
-			SMfree((char *)exp_pic);
-			smurf_struct->module_mode = M_EXIT;
-			break;
-	} /* switch */
-
-	return(NULL);
-}
+static unsigned long in;
 
 
 /* Schreibt den PPM-Header */
-void write_header(char mode, unsigned int width, unsigned int height, unsigned long *f_len, char BitsPerPixel)
+static void write_header(uint8_t mode, unsigned short width, unsigned short height, unsigned long *f_len, uint8_t BitsPerPixel)
 {
-	char dummy[6],
-		 slen;
-
+	char dummy[6];
+	size_t slen;
 
 	/* Header schreiben */
 	*ziel++ = 'P';
-	if(BitsPerPixel == 1)
-		if(mode == ASCII)
+	if (BitsPerPixel == 1)
+	{
+		if (mode == FALSE)
 			*ziel++ = '1';
 		else
 			*ziel++ = '4';
-	else
-		if(BitsPerPixel == 8)
-			if(mode == ASCII)
-				*ziel++ = '2';
-			else
-				*ziel++ = '5';
+	} else if (BitsPerPixel == 8)
+	{
+		if (mode == FALSE)
+			*ziel++ = '2';
 		else
-			if(mode == ASCII)
-				*ziel++ = '3';
-			else
-				*ziel++ = '6';
+			*ziel++ = '5';
+	} else if (mode == FALSE)
+	{
+		*ziel++ = '3';
+	} else
+	{
+		*ziel++ = '6';
+	}
 	*ziel++ = 0x0a;
 	*f_len += 3;
 
 	itoa(width, dummy, 10);
-	slen = (char)strlen(dummy);
+	slen = strlen(dummy);
 	strncpy(ziel, dummy, slen);
 	ziel += slen;
 	*f_len += slen;
@@ -437,11 +158,11 @@ void write_header(char mode, unsigned int width, unsigned int height, unsigned l
 	(*f_len)++;
 	itoa(height, dummy, 10);
 	strncpy(ziel, dummy, slen);
-	slen = (char)strlen(dummy);
+	slen = strlen(dummy);
 	ziel += slen;
 	*f_len += slen;
 
-	if(BitsPerPixel != 1)
+	if (BitsPerPixel != 1)
 	{
 		*ziel++ = 0x0a;
 		(*f_len)++;
@@ -451,92 +172,47 @@ void write_header(char mode, unsigned int width, unsigned int height, unsigned l
 	}
 	*ziel++ = 0x0a;
 	(*f_len)++;
-
-	return;
-} /* write_header */
+}
 
 
-/* Schreibt ein ASCII-Bild */
-void write_ASCIIPic(char *buffer, unsigned int width, unsigned int height, unsigned long w, char BitsPerPixel)
+static void putval_1Bit(uint8_t val)
 {
-	unsigned int y;
+	uint8_t pixval;
+	uint8_t bits;
 
-
-	if(BitsPerPixel == 1)
-	{
-		y = 0;
-		do
-		{
-			x = 0;
-			do
-			{
-				in = 0;			/* maximale Zeilenl„nge 4 Pixel */
-				do
-				{
-					putval_1Bit(*buffer++);
-				} while(x < width && in < 64);
-				*ziel++ = '\r';
-				*ziel++ = '\n';
-			} while(x < width);
-		} while(++y < height);
-	}
-	else
-	{
-		y = 0;
-		do
-		{
-			x = 0;
-			do
-			{
-				in = 0;			/* maximale Zeilenl„nge 17 Pixel */
-				do
-				{
-					putval(*buffer++);
-				} while(++x < w && in < 68);
-				*ziel++ = '\r';
-				*ziel++ = '\n';
-			} while(x < w);
-		} while(++y < height);
-	}
-
-	return;
-} /* write_ASCIIPic */
-
-
-/* Schreibt ein bin„res Bild */
-void write_BINPic(char *buffer, unsigned int height, unsigned long w)
-{
-	unsigned int y;
-
-
-	y = 0;
+	bits = 7;
 	do
 	{
-		memcpy(ziel, buffer, w);
-		buffer += w;
-		ziel += w;
-	} while(++y < height);
+		pixval = (val >> bits) & 0x01;
 
-	return;
-} /* write_BINPic */
+		*ziel++ = pixval + '0';
+		*ziel++ = ' ';
+
+		x++;
+	} while (bits-- && x < width);
+
+	in += 16;
+}
 
 
-void putval(char val)
+static void putval(uint8_t val)
 {
-	char pixval, addval, prevnotspace = 0;
+	uint8_t pixval;
+	uint8_t addval;
+	uint8_t prevnotspace = 0;
 
-
-	if((pixval = (val / 100)) != 0)
+	if ((pixval = (val / 100)) != 0)
 	{
 		*ziel++ = pixval + '0';
 		prevnotspace = 1;
-	}
-	else
+	} else
+	{
 		*ziel++ = ' ';
+	}
 
 	addval = pixval * 100;
 
-	if((pixval = (val / 10 - pixval * 10)) != 0 || prevnotspace)
+	if ((pixval = (val / 10 - pixval * 10)) != 0 || prevnotspace)
 		*ziel++ = pixval + '0';
 	else
 		*ziel++ = ' ';
@@ -548,29 +224,333 @@ void putval(char val)
 	*ziel++ = ' ';
 
 	in += 4;
-
-	return;
-} /* putval */
+}
 
 
-
-void putval_1Bit(char val)
+/* Schreibt ein ASCII-Bild */
+static void write_ASCIIPic(uint8_t *buffer, unsigned short width, unsigned short height, unsigned long w, uint8_t BitsPerPixel)
 {
-	char pixval, bits;
+	unsigned short y;
+
+	if (BitsPerPixel == 1)
+	{
+		y = 0;
+		do
+		{
+			x = 0;
+			do
+			{
+				in = 0;					/* maximale Zeilenl„nge 4 Pixel */
+				do
+				{
+					putval_1Bit(*buffer++);
+				} while (x < width && in < 64);
+				*ziel++ = '\r';
+				*ziel++ = '\n';
+			} while (x < width);
+		} while (++y < height);
+	} else
+	{
+		y = 0;
+		do
+		{
+			x = 0;
+			do
+			{
+				in = 0;					/* maximale Zeilenl„nge 17 Pixel */
+				do
+				{
+					putval(*buffer++);
+				} while (++x < w && in < 68);
+				*ziel++ = '\r';
+				*ziel++ = '\n';
+			} while (x < w);
+		} while (++y < height);
+	}
+}
 
 
-	bits = 7;
+/* Schreibt ein bin„res Bild */
+static void write_BINPic(uint8_t *buffer, unsigned short height, unsigned long w)
+{
+	unsigned short y;
+
+	y = 0;
 	do
 	{
-		pixval = (val >> bits) & 0x01;
+		memcpy(ziel, buffer, w);
+		buffer += w;
+		ziel += w;
+	} while (++y < height);
+}
 
-		*ziel++ = pixval + '0';
-		*ziel++ = ' ';
 
-		x++;
-	} while(bits-- && x < width);
 
-	in += 16;
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+/*			PBMPlus Picture Format (PPM)			*/
+/*		1, 8, 24 Bit, unkomprimiert,				*/
+/*		Speicherform bin„r und ASCII				*/
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
+{
+	EXPORT_PIC *exp_pic;
+	uint8_t *buffer;
+	uint8_t BitsPerPixel;
+	uint8_t zeichen;
+	WORD t;
+	unsigned short height;
+	unsigned short headsize;
+	unsigned short ret;
+	unsigned long w, memwidth, f_len;
 
-	return;
-} /* putval1 */
+	typedef struct {
+		uint8_t mode;
+	} CONFIG;
+
+	static WINDOW window;
+	static OBJECT *win_form;
+	static CONFIG config;
+
+
+	switch (smurf_struct->module_mode)
+	{
+	case MSTART:
+		/* falls bergeben, Konfig bernehmen */
+		if (*((void **) &smurf_struct->event_par[0]) != 0)
+			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+		else
+			config.mode = TRUE;
+
+		win_form = rs_trindex[PPM_EXPORT];	/* Resourcebaum holen */
+
+		/* Resource umbauen */
+		for (t = 0; t < NUM_OBS; t++)
+			rsrc_obfix(rs_object, t);
+
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+	case MMORE:
+		/* Ressource aktualisieren */
+		if (config.mode)
+		{
+			win_form[BIN].ob_state |= OS_SELECTED;
+			win_form[ASCII].ob_state &= ~OS_SELECTED;
+		} else
+		{
+			win_form[BIN].ob_state &= ~OS_SELECTED;
+			win_form[ASCII].ob_state |= OS_SELECTED;
+		}
+
+		window.whandlem = 0;			/* evtl. Handle l”schen */
+		window.module = smurf_struct->module_number;		/* ID in die Fensterstruktur eintragen  */
+		window.wnum = 1;				/* Fenster nummer 1...  */
+		window.wx = -1;					/* Fenster X-...        */
+		window.wy = -1;					/* ...und Y-Pos         */
+		window.ww = win_form->ob_width;	/* Fensterbreite        */
+		window.wh = win_form->ob_height;	/* Fensterh”he          */
+		strcpy(window.wtitle, rs_frstr[WINDOW_TITLE]);		/* Titel reinkopieren   */
+		window.resource_form = win_form;	/* Resource             */
+		window.picture = NULL;			/* kein Bild.           */
+		window.editob = 0;				/* erstes Editobjekt    */
+		window.nextedit = 0;			/* n„chstes Editobjekt  */
+		window.editx = 0;
+
+		smurf_struct->wind_struct = &window;	/* und die Fensterstruktur in die Gargamel */
+
+		if (smurf_struct->services->f_module_window(&window) == -1)	/* Gib mir 'n Fenster! */
+			smurf_struct->module_mode = M_EXIT;	/* keins mehr da? */
+		else
+			smurf_struct->module_mode = M_WAITING;	/* doch? Ich warte... */
+
+		break;
+
+		/* Closer geklickt, Default wieder her */
+	case MMORECANC:
+		/* falls bergeben, Konfig bernehmen */
+		if (*((void **) &smurf_struct->event_par[0]) != 0)
+			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(config));
+		else
+			config.mode = TRUE;
+
+		smurf_struct->module_mode = M_WAITING;
+		break;
+
+		/* Buttonevent */
+	case MBEVT:
+		switch (smurf_struct->event_par[0])
+		{
+		case OK:
+			/* Konfig bergeben */
+			*((void **) &smurf_struct->event_par[0]) = &config;
+			smurf_struct->event_par[2] = (short)sizeof(config);
+			smurf_struct->module_mode = M_MOREOK;
+			break;
+		case SAVE:
+			/* Konfig bergeben */
+			*((void **) &smurf_struct->event_par[0]) = &config;
+			smurf_struct->event_par[2] = (short)sizeof(config);
+			smurf_struct->module_mode = M_CONFSAVE;
+			break;
+		case BIN:
+			config.mode = TRUE;
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		case ASCII:
+			config.mode = FALSE;
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		default:
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		}
+		break;
+
+		/* Keyboardevent */
+	case MKEVT:
+		switch (smurf_struct->event_par[0])
+		{
+		case OK:
+			/* Konfig bergeben */
+			*((void **) &smurf_struct->event_par[0]) = &config;
+			smurf_struct->event_par[2] = (short)sizeof(config);
+			smurf_struct->module_mode = M_MOREOK;
+			break;
+		default:
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		}
+		break;
+
+		/* Extender wird vom Smurf erfragt */
+	case MEXTEND:
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		switch (BitsPerPixel)
+		{
+		case 1:
+			smurf_struct->event_par[0] = 3;
+			break;
+		case 8:
+			smurf_struct->event_par[0] = 2;
+			break;
+		case 24:
+			smurf_struct->event_par[0] = 1;
+			break;
+		}
+		smurf_struct->module_mode = M_EXTEND;
+		break;
+
+		/* Farbsystem wird vom Smurf erfragt */
+	case MCOLSYS:
+		if (smurf_struct->smurf_pic->depth == 8)
+			smurf_struct->event_par[0] = GREY;
+		else
+			smurf_struct->event_par[0] = RGB;
+
+		smurf_struct->module_mode = M_COLSYS;
+
+		break;
+
+		/* Und losexportieren */
+	case MEXEC:
+#if TIMER
+		/* wie schnell sind wir? */
+		init_timer();
+#endif
+		buffer = smurf_struct->smurf_pic->pic_data;
+
+		exp_pic = (EXPORT_PIC *) smurf_struct->services->SMalloc(sizeof(*exp_pic));
+		if (exp_pic == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		}
+
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
+
+		if (BitsPerPixel == 1)
+		{
+			w = (unsigned long) (width + 7) / 8;
+			memwidth = w * 8;
+		} else
+		{
+			if (BitsPerPixel == 24)
+				w = (unsigned long) width * 3;
+			else
+				w = (unsigned long) width;
+			memwidth = (unsigned long) width;
+		}
+
+		headsize = 3 + 6 + 6 + 4;
+
+		if (config.mode == FALSE)				/* ASCII */
+		{
+			if (BitsPerPixel == 1)
+			{
+				/* 4 Werte passen in eine Zeile zu 70 Stellen */
+				/* ret Returnzeichen zus„tzlich werden ben”tigt */
+				ret = (((w + 3) / 4) * 2);
+				zeichen = 2;
+
+				f_len = ((unsigned long) zeichen * width + ret) * height;
+			} else
+			{
+				/* 17 Werte passen in eine Zeile zu 70 Stellen */
+				/* ret Returnzeichen zus„tzlich werden ben”tigt */
+				ret = (((w + 16) / 17) * 2);
+				zeichen = 4;
+
+				f_len = ((unsigned long) zeichen * w + ret) * height;
+			}
+		} else							/* bin„r */
+		{
+			f_len = (memwidth * height * BitsPerPixel) >> 3;
+		}
+
+		if ((ziel = (uint8_t *) smurf_struct->services->SMalloc(headsize + f_len)) == 0)
+		{
+			smurf_struct->services->SMfree(exp_pic);
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		} else
+		{
+			oziel = ziel;
+
+			write_header(config.mode, width, height, &f_len, BitsPerPixel);	/* Header schreiben */
+
+			if (config.mode == FALSE)
+				write_ASCIIPic(buffer, width, height, w, BitsPerPixel);
+			else
+				write_BINPic(buffer, height, w);
+
+			ziel = oziel;
+
+			exp_pic->pic_data = ziel;
+			exp_pic->f_len = f_len;
+		}								/* Malloc */
+
+#if TIMER
+		/* wie schnell waren wir? */
+		printf("%lu\n", get_timer());
+		(void)Cnecin();
+#endif
+
+		smurf_struct->module_mode = M_DONEEXIT;
+		return exp_pic;
+
+/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		/* exp_pic wird von smurf freigegeben */
+		smurf_struct->module_mode = M_EXIT;
+		break;
+	}
+
+	return NULL;
+}
+
+

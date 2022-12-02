@@ -98,11 +98,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	short BPP;
 	uint8_t Byte1, Byte2;
 
-	message = smurf_struct->module_mode;
-
 	BPP = smurf_struct->smurf_pic->depth;
 
-	switch (message)
+	switch (smurf_struct->module_mode)
 	{
 			/*---------------- Export-Start ----------------*/
 	case MEXTEND:
@@ -178,12 +176,11 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		memcpy(dest + 1024, buffer, piclen);
 		exp_pic->pic_data = dest;
 
-		/* Mfree(buffer); */
-
 		smurf_struct->module_mode = M_DONEEXIT;
 		return exp_pic;
 
 	case MTERM:
+		/* exp_pic wird von smurf freigegeben */
 		smurf_struct->module_mode = M_EXIT;
 		break;
 

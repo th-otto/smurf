@@ -85,7 +85,7 @@ MOD_ABILITY module_ability = {
 /*              8 Bit, unkomprimiert                */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
+EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
 	uint8_t *palette;
@@ -93,28 +93,51 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 	uint8_t *ziel;
 	short width, height;
 
-	buffer = smurf_struct->smurf_pic->pic_data;
-	width = smurf_struct->smurf_pic->pic_width;
-	height = smurf_struct->smurf_pic->pic_height;
-	palette = smurf_struct->smurf_pic->palette;
-
-	exp_pic = (EXPORT_PIC *)Malloc(sizeof(EXPORT_PIC));
-
-	ziel = (uint8_t *)Malloc((long) width * (long) height + 256L * 3L);
-	if (!ziel)
+	switch (smurf_struct->module_mode)
 	{
-		smurf_struct->module_mode = M_MEMORY;
+	case MSTART:
+		smurf_struct->module_mode = M_WAITING;
+		return NULL;
+
+	case MEXEC:
+		buffer = smurf_struct->smurf_pic->pic_data;
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+		palette = smurf_struct->smurf_pic->palette;
+	
+		exp_pic = (EXPORT_PIC *)Malloc(sizeof(EXPORT_PIC));
+		if (exp_pic == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		}	
+		ziel = (uint8_t *)Malloc((long) width * (long) height + 256L * 3L);
+		if (!ziel)
+		{
+			smurf_struct->services->SMfree(exp_pic);
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		}
+
+	/*-------------------------- Encoding -----------------------*/
+	
+		memcpy(ziel, palette, 256L * 3L);
+		memcpy(ziel + 256L * 3L, buffer, (long) width * (long) height);
+	
+		exp_pic->pic_data = ziel;
+		exp_pic->f_len = (long) width * (long) height + 256L * 3L;
+	
+		smurf_struct->module_mode = M_DONEEXIT;
 		return exp_pic;
+
+	/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		/* exp_pic wird von smurf freigegeben */
+		smurf_struct->module_mode = M_EXIT;
+		break;
+
+	default:
+		smurf_struct->module_mode = M_WAITING;
+		break;
 	}
-
-/*-------------------------- Encoding -----------------------*/
-
-	memcpy(ziel, palette, 256L * 3L);
-	memcpy(ziel + 256L * 3L, buffer, (long) width * (long) height);
-
-	exp_pic->pic_data = ziel;
-	exp_pic->f_len = (long) width * (long) height + 256L * 3L;
-
-	smurf_struct->module_mode = M_DONEEXIT;
-	return exp_pic;
 }

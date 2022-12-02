@@ -1214,8 +1214,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 	/* Mterm empfangen - Speicher freigeben und beenden */
 	case MTERM:
-		SMfree(exp_pic->pic_data);
-		SMfree(exp_pic);
+		/* exp_pic wird von smurf freigegeben */
 		smurf_struct->module_mode = M_EXIT;
 		break;
 
