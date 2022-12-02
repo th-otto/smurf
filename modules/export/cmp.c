@@ -43,55 +43,56 @@
 
 #define TIMER 0
 
+/* Infostruktur fÅr Hauptmodul */
+MOD_INFO module_info = {
+	"Atari Public Painter",
+	0x0030,
+	"Christian Eyrich",
+	{ "CMP", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
+MOD_ABILITY module_ability = {
+	1, 0, 0, 0, 0, 0, 0, 0,
+	FORM_STANDARD,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0
+};
+
+
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
-
-/* Infostruktur fÅr Hauptmodul */
-MOD_INFO module_info = {"Atari Public Painter",
-						0x0030,
-						"Christian Eyrich",
-						"CMP", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						0
-						};
-
-
-MOD_ABILITY  module_ability = {
-						1, 0, 0, 0, 0,
-						0, 0, 0,
-						FORM_STANDARD,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0
-						};
 
 
 /* -------------------------------------------------*/
@@ -103,176 +104,184 @@ MOD_ABILITY  module_ability = {
 EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t SByte;
+	uint8_t counter;
+	uint8_t pixel;
 
-	char *buffer, *ziel, *oziel,
-		 SByte, counter, pixel;
+	unsigned short x;
+	unsigned short xx;
+	unsigned short y;
+	unsigned short dw;
+	unsigned short dheight;
+	unsigned short sw;
+	unsigned short sheight;
+	unsigned short minwidth;
+	unsigned short minheight;
 
-	unsigned int x, xx, y, dw, dheight, sw, sheight,
-				 minwidth, minheight;
+	unsigned long headsize;
+	unsigned long f_len;
 
-	unsigned long headsize, f_len;
-
-
-	switch(smurf_struct->module_mode)
+	switch (smurf_struct->module_mode)
 	{
-		case MSTART:
-			smurf_struct->module_mode = M_WAITING;
+	case MSTART:
+		smurf_struct->module_mode = M_WAITING;
+		break;
 
-			break;
+		/* Farbsystem wird vom Smurf erfragt */
+	case MCOLSYS:
+		smurf_struct->event_par[0] = RGB;
 
-	/* Farbsystem wird vom Smurf erfragt */
-		case MCOLSYS:
-			smurf_struct->event_par[0] = RGB;
+		smurf_struct->module_mode = M_COLSYS;
 
-			smurf_struct->module_mode = M_COLSYS;
-			
-			break;
+		break;
 
-		case MEXEC:
+	case MEXEC:
 #if TIMER
-/* wie schnell sind wir? */
-	init_timer();
+		/* wie schnell sind wir? */
+		init_timer();
 #endif
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;	
+		SMalloc = smurf_struct->services->SMalloc;
+		SMfree = smurf_struct->services->SMfree;
 
-			buffer = smurf_struct->smurf_pic->pic_data;
+		buffer = smurf_struct->smurf_pic->pic_data;
 
-			dw = 80;
-			dheight = 400;
-			sw = (smurf_struct->smurf_pic->pic_width + 7) / 8;
-			sheight = smurf_struct->smurf_pic->pic_height;
-	
-			exp_pic = (EXPORT_PIC *)SMalloc(sizeof(EXPORT_PIC));
+		dw = 80;
+		dheight = 400;
+		sw = (smurf_struct->smurf_pic->pic_width + 7) / 8;
+		sheight = smurf_struct->smurf_pic->pic_height;
 
-			headsize = 2;
+		exp_pic = (EXPORT_PIC *) SMalloc(sizeof(EXPORT_PIC));
 
-			if((ziel = (char *)SMalloc(headsize + 32000L)) == 0)
-			{
-				smurf_struct->module_mode = M_MEMORY;
-				return(exp_pic);
-			}
+		headsize = 2;
+
+		if ((ziel = (uint8_t *) SMalloc(headsize + 32000L)) == 0)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return (exp_pic);
+		} else
+		{
+			oziel = ziel;
+
+			memset(ziel, 0x0, headsize + 32000L);
+
+			f_len = 0;
+
+			SByte = 0x81;
+			*ziel++ = SByte;			/* Steuerbyte */
+			*ziel++ = 0x00;				/* reserviert */
+
+			strncpy(smurf_struct->smurf_pic->format_name, "Public Painter .CMP", 21);
+
+			if (sw < dw)
+				minwidth = sw;
 			else
+				minwidth = dw;
+
+			if (sheight < dheight)
+				minheight = sheight;
+			else
+				minheight = dheight;
+
+			y = 0;
+			do
 			{
-				oziel = ziel;
-
-				memset(ziel, 0x0, headsize + 32000L);
-
-				f_len = 0;
-
-				SByte = 0x81;
-				*ziel++ = SByte;					/* Steuerbyte */
-				*ziel++ = 0x00;						/* reserviert */
-
-				strncpy(smurf_struct->smurf_pic->format_name, "Public Painter .CMP", 21);
-
-				if(sw < dw)
-					minwidth = sw;
-				else
-					minwidth = dw;
-
-				if(sheight < dheight)
-					minheight = sheight;
-				else
-					minheight = dheight;
-	
-				y = 0;
+				x = 0;
 				do
 				{
-					x = 0;
-					do
+					counter = 0;
+					pixel = *buffer++;
+					x++;
+
+					xx = x;
+					while (*buffer == pixel && counter < 0xff && xx < minwidth)
 					{
-						counter = 0;
-						pixel = *buffer++;
-						x++;
-
-						xx = x;
-						while(*buffer == pixel && counter < 0xff && xx < minwidth)
-						{
-							buffer++;
-							xx++;
-							counter++;
-						}
-
-						if(counter > 1 || pixel == SByte)			/* es lohnt sich, oder das */
-						{											/* Steuerbyte muû einmal */
-							*ziel++ = SByte;						/* abgespeichert werden */
-							*ziel++ = counter;
-							*ziel++ = pixel;
-							f_len += 3;
-							x = xx;
-						}       
-						else										/* lohnt sich leider nicht! */
-						{
-							do
-							{
-								*ziel++ = pixel;
-								f_len++;
-							} while(counter--);
-
-							while((*buffer != *(buffer + 1) || *buffer != *(buffer + 2)) && *buffer != SByte && xx < minwidth)
-							{
-								*ziel++ = *buffer++;
-								xx++;
-								f_len++;
-							}
-
-							x = xx;
-						}
-					} while(x < minwidth);
-
-					if(sw < dw)								/* Quellbreite < Zielbreite -> Ziel mit Weiû auffÅllen */
-					{
-						*ziel++ = SByte;
-						*ziel++ = dw - sw - 1;
-						*ziel++ = 0x0;
-						f_len += 3;
+						buffer++;
+						xx++;
+						counter++;
 					}
-					else									/* Quellbreite >= Zielbreite -> ÅberzÑhlige Quellpixel Åbergehen */
-						buffer += sw - dw;
-				} while(++y < minheight);
 
-				if(sheight < dheight)					/* Quellhîhe < Zielhîhe -> Ziel mit Weiû auffÅllen */
-				{
-					do
-					{
-						*ziel++ = SByte;
-						*ziel++ = 79;
-						*ziel++ = 0x0;
+					if (counter > 1 || pixel == SByte)	/* es lohnt sich, oder das */
+					{					/* Steuerbyte muû einmal */
+						*ziel++ = SByte;	/* abgespeichert werden */
+						*ziel++ = counter;
+						*ziel++ = pixel;
 						f_len += 3;
-					} while(++y < dheight);
+						x = xx;
+					} else				/* lohnt sich leider nicht! */
+					{
+						do
+						{
+							*ziel++ = pixel;
+							f_len++;
+						} while (counter--);
+
+						while ((*buffer != *(buffer + 1) || *buffer != *(buffer + 2)) && *buffer != SByte
+							   && xx < minwidth)
+						{
+							*ziel++ = *buffer++;
+							xx++;
+							f_len++;
+						}
+
+						x = xx;
+					}
+				} while (x < minwidth);
+
+				if (sw < dw)			/* Quellbreite < Zielbreite -> Ziel mit Weiû auffÅllen */
+				{
+					*ziel++ = SByte;
+					*ziel++ = dw - sw - 1;
+					*ziel++ = 0x0;
+					f_len += 3;
+				} else					/* Quellbreite >= Zielbreite -> ÅberzÑhlige Quellpixel Åbergehen */
+				{
+					buffer += sw - dw;
 				}
+			} while (++y < minheight);
 
-				ziel = oziel;
+			if (sheight < dheight)		/* Quellhîhe < Zielhîhe -> Ziel mit Weiû auffÅllen */
+			{
+				do
+				{
+					*ziel++ = SByte;
+					*ziel++ = 79;
+					*ziel++ = 0x0;
+					f_len += 3;
+				} while (++y < dheight);
+			}
 
-				smurf_struct->smurf_pic->pic_width = 640;
-				smurf_struct->smurf_pic->pic_height = 400;
+			ziel = oziel;
 
-				f_len += headsize;
-				exp_pic->pic_data = ziel;
-				exp_pic->f_len = f_len;
-			} /* Malloc */
+			smurf_struct->smurf_pic->pic_width = 640;
+			smurf_struct->smurf_pic->pic_height = 400;
+
+			f_len += headsize;
+			exp_pic->pic_data = ziel;
+			exp_pic->f_len = f_len;
+		}								/* Malloc */
 
 #if TIMER
-/* wie schnell waren wir? */
-	printf("%lu\n", get_timer());
-	getch();
+		/* wie schnell waren wir? */
+		printf("%lu\n", get_timer());
+		(void)Cnecin();
 #endif
 
-			smurf_struct->module_mode = M_DONEEXIT;
-			return(exp_pic);
+		smurf_struct->module_mode = M_DONEEXIT;
+		return exp_pic;
 
-/* Mterm empfangen - Speicher freigeben und beenden */
-		case MTERM:
-			SMfree(exp_pic->pic_data);
-			SMfree((char *)exp_pic);
-			smurf_struct->module_mode = M_EXIT;
-			break;
+	/* Mterm empfangen - Speicher freigeben und beenden */
+	case MTERM:
+		/* exp_pic wird hier mit Absicht nicht freigegeben */
+		smurf_struct->module_mode = M_EXIT;
+		break;
 
-		default:
-			smurf_struct->module_mode = M_WAITING;
-			break;
-	} /* switch */
+	default:
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	}
 
-	return(NULL);
+	return NULL;
 }

@@ -97,7 +97,7 @@ typedef struct
 	/*
 	 *	Funktionen zum Starten der Module 
 	 */
-	short			(*start_imp_module)(char *modpath, SMURF_PIC *imp_pic);
+	short		(*start_imp_module)(char *modpath, SMURF_PIC *imp_pic);
 	EXPORT_PIC* (*start_exp_module)(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *exbase, GARGAMEL *sm_struct, short mod_id);
 	BASPAG*		(*start_edit_module)(char *modpath, BASPAG *edit_basepage, short mode, short mod_anz, GARGAMEL *smurf_struct);
 	BASPAG*		(*start_dither_module)(short mode, short mod_id, DITHER_DATA *ditherdata);

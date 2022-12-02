@@ -31,64 +31,60 @@
 #include "import.h"
 #include "smurfine.h"
 
-char comp1[12]="Dies ist ein";
-char comp2[12]="Dummy-Export";
-char comp3[12]=" Zum Testen ";
-char comp4[12]="des Export- ";
-char comp5[12]=" Parts von  ";
-char comp6[12]="SCHLUMPFINE ";
+char comp1[] = "Dies ist ein";
+char comp2[] = "Dummy-Export";
+char comp3[] = " Zum Testen ";
+char comp4[] = "des Export- ";
+char comp5[] = " Parts von  ";
+char comp6[] = "SCHLUMPFINE ";
 
 
 /* Infostruktur fÅr Hauptmodul */
-MOD_INFO    module_info = {"Dummy-Exporter",
-                        0x0010,
-                        "Olaf",
-                        "XXX", "YYY", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0
-                        };
+MOD_INFO module_info = {
+	"Dummy-Exporter",
+	0x0010,
+	"Olaf",
+	{ "XXX", "YYY", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-                        24, 0, 0, 0, 0, 0, 0, 0,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        FORM_PIXELPAK,
-                        0,
-                        comp1,
-                        comp2,
-                        comp3,
-                        comp4,
-                        comp5,
-                        comp6,
-                        };
+MOD_ABILITY module_ability = {
+	24, 0, 0, 0, 0, 0, 0, 0,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	FORM_PIXELPAK,
+	0
+};
 
 
 /* -------------------------------------------------*/
@@ -98,7 +94,7 @@ MOD_ABILITY  module_ability = {
 /* -------------------------------------------------*/
 EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
-    EXPORT_PIC *exp_pic;
+	EXPORT_PIC *exp_pic = NULL;
 
-    return(M_INVALID);      /* Hier macht Smurf nix. */
+	return exp_pic;					/* Hier macht Smurf nix. */
 }

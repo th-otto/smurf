@@ -70,7 +70,7 @@ export:
 bmp.sxm        0.70    0.70     x
 clipbrd.sxm    0.10    0.10     x
 esm.sxm        0.20    0.20     x
-cmp.sxm        0.30    0.30
+cmp.sxm        0.30    0.30     x
 falc16.sxm     0.10    -
 falc8bit.sxm   0.10    -
 gem_img.sxm    0.50    0.50

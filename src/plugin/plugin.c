@@ -659,7 +659,6 @@ static void init_structs(void)
 	global_functions.file_save = file_save;
 	global_functions.file_load = file_load;
 	global_functions.f_fsbox = f_fsbox;
-
 	global_functions.fload = fload;
 
 	global_functions.f_import_pic = f_import_pic;

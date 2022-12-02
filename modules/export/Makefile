@@ -6,6 +6,8 @@ LDFLAGS += -nostartfiles
 
 MODULES = \
 	$(DISTDIR)/modules/export/clipbrd.sxm \
+	$(DISTDIR)/modules/export/cmp.sxm \
+	dummy.sxm \
 	$(DISTDIR)/modules/export/esm.sxm \
 	$(DISTDIR)/modules/export/icn.sxm \
 	$(DISTDIR)/modules/export/pixar.sxm \
@@ -17,6 +19,12 @@ all:: expstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
 
 $(DISTDIR)/modules/export/clipbrd.sxm: expstart.o clipbrd.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/export/cmp.sxm: expstart.o cmp.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+dummy.sxm: expstart.o dummy.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/export/esm.sxm: expstart.o esm.o
