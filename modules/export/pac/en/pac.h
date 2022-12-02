@@ -5,26 +5,30 @@
  */
 
 /*
- * Number of Strings:        11
+ * Number of Strings:        12
  * Number of Bitblks:        0
  * Number of Iconblks:       0
  * Number of Color Iconblks: 0
  * Number of Color Icons:    0
  * Number of Tedinfos:       3
- * Number of Free Strings:   0
+ * Number of Free Strings:   1
  * Number of Free Images:    0
  * Number of Objects:        10
  * Number of Trees:          1
  * Number of Userblks:       0
  * Number of Images:         0
- * Total file size:          426
+ * Total file size:          444
  */
 
+#ifdef RSC_NAME
 #undef RSC_NAME
+#endif
 #ifndef __ALCYON__
 #define RSC_NAME "pac"
 #endif
+#ifdef RSC_ID
 #undef RSC_ID
+#endif
 #ifdef pac
 #define RSC_ID pac
 #else
@@ -35,8 +39,8 @@
 # define RSC_STATIC_FILE 0
 #endif
 #if !RSC_STATIC_FILE
-#define NUM_STRINGS 11
-#define NUM_FRSTR 0
+#define NUM_STRINGS 12
+#define NUM_FRSTR 1
 #define NUM_UD 0
 #define NUM_IMAGES 0
 #define NUM_BB 0
@@ -55,6 +59,8 @@
 #define VERT               6 /* IBOX in tree PAC_EXPORT */
 #define HOR                7 /* IBOX in tree PAC_EXPORT */
 #define SAVE               9 /* BUTTON in tree PAC_EXPORT */
+
+#define WINDOW_TITLE       0 /* Free string */
 
 
 

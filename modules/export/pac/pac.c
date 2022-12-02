@@ -111,9 +111,9 @@ static uint8_t Special_Byte;
 
 
 
-static void write_header(uint8_t *ziel, uint8_t comp)
+static void write_header(uint8_t *ziel, uint8_t comp_vert)
 {
-	if (comp == HOR)
+	if (comp_vert == FALSE)
 		*(uint32_t *) ziel = 0x704d3835L; /* 'pM85' */
 	else
 		*(uint32_t *) ziel = 0x704d3836L; /* 'pM86' */
@@ -453,7 +453,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 	unsigned long x;
 
 	typedef struct {
-		uint8_t comp;
+		uint8_t comp_vert;
 	} CONFIG;
 	static WINDOW window;
 	static OBJECT *win_form;
@@ -466,7 +466,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 		if (*((void **) &smurf_struct->event_par[0]) != 0)
 			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
 		else
-			config.comp = VERT;
+			config.comp_vert = TRUE;
 
 		win_form = rs_trindex[PAC_EXPORT];	/* Resourcebaum holen */
 
@@ -480,7 +480,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 
 	case MMORE:
 		/* Ressource aktualisieren */
-		if (config.comp == VERT)
+		if (config.comp_vert)
 		{
 			win_form[VERT].ob_state |= OS_SELECTED;
 			win_form[HOR].ob_state &= ~OS_SELECTED;
@@ -497,7 +497,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 		window.wy = -1;					/* ...und Y-Pos         */
 		window.ww = win_form->ob_width;	/* Fensterbreite        */
 		window.wh = win_form->ob_height;	/* Fensterh”he          */
-		strcpy(window.wtitle, "STAD Exporter");		/* Titel reinkopieren   */
+		strcpy(window.wtitle, rs_frstr[WINDOW_TITLE]);		/* Titel reinkopieren   */
 		window.resource_form = win_form;	/* Resource             */
 		window.picture = NULL;			/* kein Bild.           */
 		window.editob = 0;				/* erstes Editobjekt    */
@@ -519,7 +519,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 		if (*((void **) &smurf_struct->event_par[0]) != 0)
 			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(config));
 		else
-			config.comp = VERT;
+			config.comp_vert = TRUE;
 		smurf_struct->module_mode = M_WAITING;
 		break;
 
@@ -531,19 +531,20 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 			/* Konfig bergeben */
 			*((void **) &smurf_struct->event_par[0]) = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
-
 			smurf_struct->module_mode = M_MOREOK;
 			break;
 		case SAVE:
 			/* Konfig bergeben */
 			*((void **) &smurf_struct->event_par[0]) = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
-
 			smurf_struct->module_mode = M_CONFSAVE;
 			break;
-		case VERT:
 		case HOR:
-			config.comp = smurf_struct->event_par[0];
+			config.comp_vert = FALSE;
+			smurf_struct->module_mode = M_WAITING;
+			break;
+		case VERT:
+			config.comp_vert = TRUE;
 			smurf_struct->module_mode = M_WAITING;
 			break;
 		default:
@@ -560,7 +561,6 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 			/* Konfig bergeben */
 			*((void **) &smurf_struct->event_par[0]) = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
-
 			smurf_struct->module_mode = M_MOREOK;
 			break;
 		default:
@@ -651,10 +651,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 
 			Special_Byte = lowest;
 
-			write_header(ziel, config.comp);
+			write_header(ziel, config.comp_vert);
 			ziel += headsize;
 
-			if (config.comp == HOR)
+			if (config.comp_vert == FALSE)
 				f_len = encode_pM85(buffer, ziel, sheight, sw);
 			else
 				f_len = encode_pM86(buffer, ziel, sheight, sw);

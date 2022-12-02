@@ -1,5 +1,5 @@
 /*
- * GEM resource C output of pac
+ * GEM resource C output of pcx
  *
  * created by ORCS 2.18
  */
@@ -252,7 +252,7 @@
 #undef RSC_STATIC_FILE
 #define RSC_STATIC_FILE 1
 
-#include "pac.h"
+#include "pcx.h"
 
 #ifndef RSC_NAMED_FUNCTIONS
 #  define RSC_NAMED_FUNCTIONS 0
@@ -327,50 +327,50 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #endif
 
 
-static char pac_string_0[] = "OK";
-static char pac_string_1[] = "horizontal (pM85)";
-static char pac_string_2[] = "";
-static char pac_string_3[] = "";
-static char pac_string_4[] = "vertical (pM86)";
-static char pac_string_5[] = "";
-static char pac_string_6[] = "";
-static char pac_string_7[] = " Compression ";
-static char pac_string_8[] = "";
-static char pac_string_9[] = "";
-static char pac_string_10[] = "save";
-static char pac_string_11[] = "STAD Exporter";
+static char pcx_string_0[] = "OK";
+static char pcx_string_1[] = "RLE";
+static char pcx_string_2[] = "";
+static char pcx_string_3[] = "";
+static char pcx_string_4[] = "keine";
+static char pcx_string_5[] = "";
+static char pcx_string_6[] = "";
+static char pcx_string_7[] = " Kompression ";
+static char pcx_string_8[] = "";
+static char pcx_string_9[] = "";
+static char pcx_string_10[] = "sichern";
+static char pcx_string_11[] = "PCX Exporter";
 
 
 static char *rs_frstr[NUM_FRSTR] = {
-	pac_string_11
+	pcx_string_11
 };
 
 
 static TEDINFO rs_tedinfo[NUM_TI] = {
-	{ pac_string_1, pac_string_2, pac_string_3, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 18,1 },
-	{ pac_string_4, pac_string_5, pac_string_6, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 16,1 },
-	{ pac_string_7, pac_string_8, pac_string_9, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 14,1 }
+	{ pcx_string_1, pcx_string_2, pcx_string_3, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 4,1 },
+	{ pcx_string_4, pcx_string_5, pcx_string_6, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 6,1 },
+	{ pcx_string_7, pcx_string_8, pcx_string_9, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 14,1 }
 };
 
 
 static OBJECT rs_object[NUM_OBS] = {
-/* PAC_EXPORT */
+/* PCX_EXPORT */
 
 	{ -1, 1, 9, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 31,10 },
-	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(pac_string_0), 1044,8, 8,1 }, /* OK */
+	{ 2, -1, -1, G_BUTTON, 0x607, OS_NORMAL, C_UNION(pcx_string_0), 1044,8, 8,1 }, /* OK */
 	{ 3, -1, -1, G_IBOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x10100L), 258,258, 27,2052 },
 	{ 8, 4, 7, G_IBOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x11100L), 2,2, 27,2052 },
-	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 4,1, 17,1 },
-	{ 6, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 4,2050, 15,1 },
-	{ 7, -1, -1, (43<<8)+G_IBOX, 0x411, OS_SELECTED, C_UNION(0xFF1100L), 2,2050, 1041,1 }, /* VERT */
-	{ 3, -1, -1, (43<<8)+G_IBOX, 0x411, OS_NORMAL, C_UNION(0xFF1100L), 2,1, 1043,1 }, /* HOR */
+	{ 5, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[0]), 4,2050, 3,1 },
+	{ 6, -1, -1, G_TEXT, OF_NONE, OS_NORMAL, C_UNION(&rs_tedinfo[1]), 4,1, 5,1 },
+	{ 7, -1, -1, (43<<8)+G_IBOX, 0x411, OS_SELECTED, C_UNION(0xFF1100L), 2,1, 1031,1 }, /* KEINE */
+	{ 3, -1, -1, (43<<8)+G_IBOX, 0x411, OS_NORMAL, C_UNION(0xFF1100L), 2,2050, 1031,1 }, /* RLE */
 	{ 9, -1, -1, G_TEXT, OF_FL3DBAK, OS_NORMAL, C_UNION(&rs_tedinfo[2]), 3,2049, 13,1 },
-	{ 0, -1, -1, G_BUTTON, 0x625, OS_NORMAL, C_UNION(pac_string_10), 1034,8, 8,1 } /* SAVE */
+	{ 0, -1, -1, G_BUTTON, 0x625, OS_NORMAL, C_UNION(pcx_string_10), 1034,8, 8,1 } /* SAVE */
 };
 
 
 static OBJECT *rs_trindex[NUM_TREE] = {
-	&rs_object[0] /* PAC_EXPORT */
+	&rs_object[0] /* PCX_EXPORT */
 };
 
 
@@ -381,9 +381,9 @@ static OBJECT *rs_trindex[NUM_TREE] = {
 
 #if RSC_NAMED_FUNCTIONS
 #ifdef __STDC__
-_WORD pac_rsc_load(_WORD wchar, _WORD hchar)
+_WORD pcx_rsc_load(_WORD wchar, _WORD hchar)
 #else
-_WORD pac_rsc_load(wchar, hchar)
+_WORD pcx_rsc_load(wchar, hchar)
 _WORD wchar;
 _WORD wchar;
 #endif
@@ -416,9 +416,9 @@ _WORD wchar;
 
 
 #ifdef __STDC__
-_WORD pac_rsc_gaddr(_WORD type, _WORD idx, void *gaddr)
+_WORD pcx_rsc_gaddr(_WORD type, _WORD idx, void *gaddr)
 #else
-_WORD pac_rsc_gaddr(type, idx, gaddr)
+_WORD pcx_rsc_gaddr(type, idx, gaddr)
 _WORD type;
 _WORD idx;
 void *gaddr;
@@ -553,9 +553,9 @@ void *gaddr;
 
 
 #ifdef __STDC__
-_WORD pac_rsc_free(void)
+_WORD pcx_rsc_free(void)
 #else
-_WORD pac_rsc_free()
+_WORD pcx_rsc_free()
 #endif
 {
 #if NUM_OBS != 0
@@ -581,7 +581,7 @@ _WORD rs_numti = 3;
 _WORD rs_numobs = 10;
 _WORD rs_numtree = 1;
 
-char rs_name[] = "pac.rsc";
+char rs_name[] = "pcx.rsc";
 
 _WORD _rsc_format = 2; /* RSC_FORM_SOURCE2 */
 #endif

@@ -313,13 +313,13 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #undef NUM_OBS
 #undef NUM_TREE
 #undef NUM_UD
-#define NUM_STRINGS 11
+#define NUM_STRINGS 12
 #define NUM_BB		0
 #define NUM_IB		0
 #define NUM_CIB     0
 #define NUM_CIC     0
 #define NUM_TI		3
-#define NUM_FRSTR	0
+#define NUM_FRSTR	1
 #define NUM_FRIMG	0
 #define NUM_OBS     10
 #define NUM_TREE	1
@@ -338,16 +338,22 @@ static char pac_string_7[] = " Kompression ";
 static char pac_string_8[] = "";
 static char pac_string_9[] = "";
 static char pac_string_10[] = "sichern";
+static char pac_string_11[] = "STAD Exporter";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static char *rs_frstr[NUM_FRSTR] = {
+	pac_string_11
+};
+
+
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ pac_string_1, pac_string_2, pac_string_3, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 18,1 },
 	{ pac_string_4, pac_string_5, pac_string_6, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 16,1 },
 	{ pac_string_7, pac_string_8, pac_string_9, IBM, 6, TE_LEFT, 0x1180, 0x0, -1, 14,1 }
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* PAC_EXPORT */
 
 	{ -1, 1, 9, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x1100L), 0,0, 31,10 },
@@ -363,7 +369,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* PAC_EXPORT */
 };
 
@@ -473,7 +479,7 @@ void *gaddr;
 	case R_OBSPEC:
 		if (idx < 0 || idx >= NUM_OBS)
 			return 0;
-		*((_LONG **)gaddr) = &rs_object[idx].ob_spec.index;
+		*((_LONG_PTR **)gaddr) = &rs_object[idx].ob_spec.index;
 		break;
 #endif
 #if NUM_TI != 0
@@ -562,8 +568,8 @@ _WORD pac_rsc_free()
 
 #else /* !RSC_STATIC_FILE */
 #if 0
-_WORD rs_numstrings = 11;
-_WORD rs_numfrstr = 0;
+_WORD rs_numstrings = 12;
+_WORD rs_numfrstr = 1;
 
 _WORD rs_nuser = 0;
 _WORD rs_numimages = 0;

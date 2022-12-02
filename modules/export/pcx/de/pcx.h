@@ -1,5 +1,5 @@
 /*
- * resource set indices for pac
+ * resource set indices for pcx
  *
  * created by ORCS 2.18
  */
@@ -17,20 +17,20 @@
  * Number of Trees:          1
  * Number of Userblks:       0
  * Number of Images:         0
- * Total file size:          448
+ * Total file size:          422
  */
 
 #ifdef RSC_NAME
 #undef RSC_NAME
 #endif
 #ifndef __ALCYON__
-#define RSC_NAME "pac"
+#define RSC_NAME "pcx"
 #endif
 #ifdef RSC_ID
 #undef RSC_ID
 #endif
-#ifdef pac
-#define RSC_ID pac
+#ifdef pcx
+#define RSC_ID pcx
 #else
 #define RSC_ID 0
 #endif
@@ -54,11 +54,11 @@
 
 
 
-#define PAC_EXPORT         0 /* form/dialog */
-#define OK                 1 /* BUTTON in tree PAC_EXPORT */
-#define VERT               6 /* IBOX in tree PAC_EXPORT */
-#define HOR                7 /* IBOX in tree PAC_EXPORT */
-#define SAVE               9 /* BUTTON in tree PAC_EXPORT */
+#define PCX_EXPORT         0 /* form/dialog */
+#define OK                 1 /* BUTTON in tree PCX_EXPORT */
+#define KEINE              6 /* IBOX in tree PCX_EXPORT */
+#define RLE                7 /* IBOX in tree PCX_EXPORT */
+#define SAVE               9 /* BUTTON in tree PCX_EXPORT */
 
 #define WINDOW_TITLE       0 /* Free string */
 
@@ -73,7 +73,7 @@
 #    define _WORD short
 #  endif
 #endif
-extern _WORD pac_rsc_load(_WORD wchar, _WORD hchar);
-extern _WORD pac_rsc_gaddr(_WORD type, _WORD idx, void *gaddr);
-extern _WORD pac_rsc_free(void);
+extern _WORD pcx_rsc_load(_WORD wchar, _WORD hchar);
+extern _WORD pcx_rsc_gaddr(_WORD type, _WORD idx, void *gaddr);
+extern _WORD pcx_rsc_free(void);
 #endif
