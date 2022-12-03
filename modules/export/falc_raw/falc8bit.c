@@ -140,4 +140,5 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		smurf_struct->module_mode = M_WAITING;
 		break;
 	}
+	return NULL;
 }

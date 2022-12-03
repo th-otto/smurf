@@ -629,12 +629,12 @@ int main(void)
 	long dummy, len;
 	EXPORT_PIC *exp_pic;
 
-	filehandle = (int)Fopen("K:\\AMBER.RAW", FO_READ);
+	filehandle = (int)Fopen("AMBER.RAW", FO_READ);
 	if (filehandle < 0)
 		return 1;
 
 	len = Fseek(0L, filehandle, 2);
-	Fseek(0L, filehandle, 0L);
+	Fseek(0L, filehandle, 0);
 
 	file = Malloc(len);
 
@@ -656,7 +656,7 @@ int main(void)
 
 	Mfree(file);
 
-	filehandle = (int) Fcreate("K:\\AMBER_.GIF", 0);
+	filehandle = (int) Fcreate("AMBER_.GIF", 0);
 	Fwrite(filehandle, exp_pic->f_len, exp_pic->pic_data);
 	Fclose(filehandle);
 

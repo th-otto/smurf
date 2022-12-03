@@ -92,7 +92,6 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	EXPORT_PIC *exp_pic;
 	uint8_t *buffer;
 	uint8_t *dest;
-	short message;
 	unsigned short width, height;
 	long piclen;
 	short BPP;

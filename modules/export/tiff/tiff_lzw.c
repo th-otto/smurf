@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "import.h"
+#include "tiff_lzw.h"
 
 #define MAXBITS	12
 #define HSIZE	5003
@@ -33,45 +34,44 @@
 
 #define TIMER	0
 
-long encode_LZW(char *buffer, char *ziel, unsigned long w, unsigned int height, GARGAMEL *smurf_struct);
-
-
 /* momentan nur 8, 16 und 24 Bit pixelpacked */
-long encode_LZW(char *ziel, char *buffer, unsigned long w, unsigned int height, GARGAMEL *smurf_struct)
+long encode_LZW(uint8_t *ziel, uint8_t *buffer, unsigned long w, unsigned short height, GARGAMEL *smurf_struct)
 {
-	char data_size;
-
-	int clear, end_of_information, entries, available;
-	int i, clearcodebytes;
-	int *ctab,
-		c, disp, ent;
-	unsigned int x, y;
-
-	long *vtab,
-		 fcode;
-
-	char *pData;
-	int pBitsLeft, pCodeSize;
+	uint8_t data_size;
+	short clear;
+	short end_of_information;
+	short entries;
+	short available;
+	short i;
+	short clearcodebytes;
+	short *ctab;
+	short c;
+	short disp;
+	short ent;
+	unsigned short x, y;
+	long *vtab, fcode;
+	uint8_t *pData;
+	short pBitsLeft, pCodeSize;
 	unsigned long pDatum;
 
 
 #if TIMER
-/* wie schnell sind wir? */
+	/* wie schnell sind wir? */
 	init_timer();
 #endif
 
 	smurf_struct->services->reset_busybox(0, "encode LZW");
 
-	ctab = (int *)Malloc(HSIZE * 2L);
-	vtab = (long *)Malloc(HSIZE * 4L);
+	ctab = (short *) Malloc(HSIZE * sizeof(*ctab));
+	vtab = (long *) Malloc(HSIZE * sizeof(*vtab));
 
 	/* Initalisieren der LZW-Variablen */
 	data_size = 8;
-	clear = 1 << data_size;					/* Clearcode bestimmen */
-	end_of_information = clear + 1;			/* end-of-information Code */
-	available = clear + 2;					/* erster freier Tabelleneintrag */
-	pCodeSize = data_size + 1;				/* Bitanzahl der n„chsten Codegr”že */
-	entries = 1 << pCodeSize;				/* erster Code der n„chsten Codegr”že */
+	clear = 1 << data_size;				/* Clearcode bestimmen */
+	end_of_information = clear + 1;		/* end-of-information Code */
+	available = clear + 2;				/* erster freier Tabelleneintrag */
+	pCodeSize = data_size + 1;			/* Bitanzahl der n„chsten Codegr”že */
+	entries = 1 << pCodeSize;			/* erster Code der n„chsten Codegr”že */
 
 	pBitsLeft = 0;
 	pDatum = 0;
@@ -81,135 +81,135 @@ long encode_LZW(char *ziel, char *buffer, unsigned long w, unsigned int height, 
 	/* ersten Clearcode schreiben */
 	clearcodebytes++;
 
-	pDatum |= (unsigned long)clear;			/* garantiert erster Wert, deshalb kein Shifting notwendig */
+	pDatum |= (unsigned long) clear;	/* garantiert erster Wert, deshalb kein Shifting notwendig */
 	pBitsLeft += pCodeSize;
 
-	for(i = 0; i < HSIZE; i++)
+	for (i = 0; i < HSIZE; i++)
 		vtab[i] = -1;
 
 	ent = *buffer++;
 
-	y = 0; 
+	y = 0;
 	do
 	{
-	x = (unsigned int)w;
-	if(y == 0)
-		x--;		/* die erste Zeile hat ein Byte weniger weil oben schon weggenommen */
-	while(x)
-	{
-		c = *buffer++;
-		x--;
-
-		fcode = (long)(((long)c << MAXBITS)|ent);
-		i = (((int)c << HSHIFT)^ent);
-
-		if(vtab[i] != -1)					/* empty slot */
+		x = (unsigned short) w;
+		if (y == 0)
+			x--;						/* die erste Zeile hat ein Byte weniger weil oben schon weggenommen */
+		while (x)
 		{
-			if(vtab[i] == fcode)			/* right code found */
+			c = *buffer++;
+			x--;
+
+			fcode = (long) (((long) c << MAXBITS) | ent);
+			i = (((short) c << HSHIFT) ^ ent);
+
+			if (vtab[i] != -1)			/* empty slot */
 			{
-				ent = ctab[i];
-				continue;
-			}
-
-			/* secondary hash (after G. Knott) */
-			if(i == 0)
-				disp = 1;
-			else
-				disp = HSIZE - i;
-
-			/* probe */
-			for(;;)
-			{
-				if((i -= disp) < 0)
-					i += HSIZE;
-
-				if(vtab[i] == fcode)		/* right code found */
+				if (vtab[i] == fcode)	/* right code found */
 				{
 					ent = ctab[i];
-					goto next;
+					continue;
 				}
+
+				/* secondary hash (after G. Knott) */
+				if (i == 0)
+					disp = 1;
 				else
-					if(vtab[i] == -1)		/* empty slot */
+					disp = HSIZE - i;
+
+				/* probe */
+				for (;;)
+				{
+					if ((i -= disp) < 0)
+						i += HSIZE;
+
+					if (vtab[i] == fcode)	/* right code found */
+					{
+						ent = ctab[i];
+						goto next;
+					} else if (vtab[i] == -1)	/* empty slot */
 						break;
-			}
-		}
-
-		/* nomatch */
-		pDatum = (pDatum << pCodeSize) | (unsigned long)ent;
-		pBitsLeft += pCodeSize;
-
-		while(pBitsLeft >= 8)
-		{
-			*pData++ = (char)(pDatum >> (pBitsLeft - 8));
-			pBitsLeft -= 8;
-		}
-
- 		if(available < 4094)
-		{
-			if(available >= entries - 1)
-			{
-				pCodeSize++;
-				entries <<= 1;
+				}
 			}
 
-			ctab[i] = available++;		/* code -> hashtable */
-			vtab[i] = fcode;
-		}
-		else
-		{
-			/* Clearcode ausstožen */
-			clearcodebytes++;
-
-			pDatum = (pDatum << pCodeSize) | (unsigned long)clear;
+			/* nomatch */
+			pDatum = (pDatum << pCodeSize) | (unsigned long) ent;
 			pBitsLeft += pCodeSize;
 
-			while(pBitsLeft >= 8)
+			while (pBitsLeft >= 8)
 			{
-				*pData++ = (char)(pDatum >> (pBitsLeft - 8));
+				*pData++ = (pDatum >> (pBitsLeft - 8));
 				pBitsLeft -= 8;
 			}
 
-			/* Reset Encoder */
-			available = clear + 2;
-			pCodeSize = data_size + 1;
-			entries = 1 << pCodeSize;
+			if (available < 4094)
+			{
+				if (available >= entries - 1)
+				{
+					pCodeSize++;
+					entries <<= 1;
+				}
 
-			for(i = 0; i < HSIZE; i++)
-				vtab[i] = -1;
+				ctab[i] = available++;	/* code -> hashtable */
+				vtab[i] = fcode;
+			} else
+			{
+				/* Clearcode ausstožen */
+				clearcodebytes++;
+
+				pDatum = (pDatum << pCodeSize) | (unsigned long) clear;
+				pBitsLeft += pCodeSize;
+
+				while (pBitsLeft >= 8)
+				{
+					*pData++ = (pDatum >> (pBitsLeft - 8));
+					pBitsLeft -= 8;
+				}
+
+				/* Reset Encoder */
+				available = clear + 2;
+				pCodeSize = data_size + 1;
+				entries = 1 << pCodeSize;
+
+				for (i = 0; i < HSIZE; i++)
+					vtab[i] = -1;
+			}
+
+			ent = c;
+
+		  next:
+			continue;
 		}
-
-		ent = c;
-
-next:
-		continue;
-	} /* while x */
-	} while(++y < height);
+	} while (++y < height);
 
 	/* letztes Byte ausgeben */
-	pDatum = (pDatum << pCodeSize) | (unsigned long)ent;
+	pDatum = (pDatum << pCodeSize) | (unsigned long) ent;
 	pBitsLeft += pCodeSize;
 
 	/* EOI ausgeben */
-	pDatum = (pDatum << pCodeSize) | (unsigned long)end_of_information;
+	pDatum = (pDatum << pCodeSize) | (unsigned long) end_of_information;
 	pBitsLeft += pCodeSize;
 
-	while(pBitsLeft > 8)
+	while (pBitsLeft > 8)
 	{
-		*pData++ = (char)(pDatum >> (pBitsLeft - 8));
+		*pData++ = (pDatum >> (pBitsLeft - 8));
 		pBitsLeft -= 8;
 	}
 
-	if(pBitsLeft > 0)								/* bis wirklich alles geschrieben ist */
+	if (pBitsLeft > 0)					/* bis wirklich alles geschrieben ist */
 	{
-		*pData++ = (char)(pDatum << (8 - pBitsLeft));
+		*pData++ = (pDatum << (8 - pBitsLeft));
 		pBitsLeft -= 8;
 	}
+	
+	Mfree(vtab);
+	Mfree(ctab);
 
 #if TIMER
-/* wie schnell waren wir? */
+	/* wie schnell waren wir? */
 	printf("%lu\n", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
-	return(pData - ziel);
-} /* encode_LZW */
+	return pData - ziel;
+}

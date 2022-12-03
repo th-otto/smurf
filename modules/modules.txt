@@ -86,7 +86,7 @@ ppm.sxm        0.60    0.60     x
 raw.sxm        0.10    0.10     x
 sgi.sxm        0.30    0.30     x
 tga.sxm        0.70    0.70     x
-tiff.sxm       0.70    0.70
+tiff.sxm       0.70    0.70     x
 tpi_true.sxm   0.40    0.40
 trp.sxm        0.20    -
 

@@ -574,7 +574,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	case MSTART:
 		/* falls bergeben, Konfig bernehmen */
 		if (*((void **) &smurf_struct->event_par[0]) != 0)
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(config));
 		else
 			config.comp = TRUE;
 
