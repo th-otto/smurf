@@ -17,7 +17,7 @@ MODULES = \
 	$(DISTDIR)/modules/export/tpi_true.sxm \
 	$(empty)
 
-SUBDIRS = bmp falc_raw gem_img gif pac pcx pix ppm sgi tga tiff
+SUBDIRS = bmp falc_raw gem_img gif pac pcx pix ppm sgi tga tiff trp
 
 all:: expstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done

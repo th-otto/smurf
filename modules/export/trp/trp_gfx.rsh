@@ -313,13 +313,13 @@ extern void *hfix_objs(RSHDR *_hdr, OBJECT *_ob, _WORD _num_objs);
 #undef NUM_OBS
 #undef NUM_TREE
 #undef NUM_UD
-#define NUM_STRINGS 19
+#define NUM_STRINGS 20
 #define NUM_BB		0
 #define NUM_IB		0
 #define NUM_CIB     0
 #define NUM_CIC     0
 #define NUM_TI		6
-#define NUM_FRSTR	0
+#define NUM_FRSTR	1
 #define NUM_FRIMG	0
 #define NUM_OBS     14
 #define NUM_TREE	1
@@ -346,9 +346,15 @@ static char trp_gfx_string_15[] = "Huffman";
 static char trp_gfx_string_16[] = "";
 static char trp_gfx_string_17[] = "";
 static char trp_gfx_string_18[] = "Start";
+static char trp_gfx_string_19[] = "Therapy Export";
 
 
-TEDINFO rs_tedinfo[NUM_TI] = {
+static char *rs_frstr[NUM_FRSTR] = {
+	trp_gfx_string_19
+};
+
+
+static TEDINFO rs_tedinfo[NUM_TI] = {
 	{ trp_gfx_string_0, trp_gfx_string_1, trp_gfx_string_2, SMALL, 6, TE_CNTR, 0x1180, 0x0, -1, 4,1 }, /* QUAL_TXT */
 	{ trp_gfx_string_3, trp_gfx_string_4, trp_gfx_string_5, SMALL, 6, TE_LEFT, 0x1100, 0x0, -1, 14,1 },
 	{ trp_gfx_string_6, trp_gfx_string_7, trp_gfx_string_8, IBM, 6, TE_LEFT, 0x1100, 0x0, -1, 4,1 },
@@ -358,7 +364,7 @@ TEDINFO rs_tedinfo[NUM_TI] = {
 };
 
 
-OBJECT rs_object[NUM_OBS] = {
+static OBJECT rs_object[NUM_OBS] = {
 /* THERAPY_GFX */
 
 	{ -1, 1, 13, G_BOX, OF_FL3DBAK, OS_NORMAL, C_UNION(0x11180L), 0,0, 26,2060 },
@@ -378,7 +384,7 @@ OBJECT rs_object[NUM_OBS] = {
 };
 
 
-OBJECT *rs_trindex[NUM_TREE] = {
+static OBJECT *rs_trindex[NUM_TREE] = {
 	&rs_object[0] /* THERAPY_GFX */
 };
 
@@ -577,8 +583,8 @@ _WORD trp_gfx_rsc_free()
 
 #else /* !RSC_STATIC_FILE */
 #if 0
-_WORD rs_numstrings = 19;
-_WORD rs_numfrstr = 0;
+_WORD rs_numstrings = 20;
+_WORD rs_numfrstr = 1;
 
 _WORD rs_nuser = 0;
 _WORD rs_numimages = 0;

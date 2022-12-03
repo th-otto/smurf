@@ -5,26 +5,30 @@
  */
 
 /*
- * Number of Strings:        19
+ * Number of Strings:        20
  * Number of Bitblks:        0
  * Number of Iconblks:       0
  * Number of Color Iconblks: 0
  * Number of Color Icons:    0
  * Number of Tedinfos:       6
- * Number of Free Strings:   0
+ * Number of Free Strings:   1
  * Number of Free Images:    0
  * Number of Objects:        14
  * Number of Trees:          1
  * Number of Userblks:       0
  * Number of Images:         0
- * Total file size:          602
+ * Total file size:          622
  */
 
+#ifdef RSC_NAME
 #undef RSC_NAME
+#endif
 #ifndef __ALCYON__
 #define RSC_NAME "trp_gfx"
 #endif
+#ifdef RSC_ID
 #undef RSC_ID
+#endif
 #ifdef trp_gfx
 #define RSC_ID trp_gfx
 #else
@@ -35,8 +39,8 @@
 # define RSC_STATIC_FILE 0
 #endif
 #if !RSC_STATIC_FILE
-#define NUM_STRINGS 19
-#define NUM_FRSTR 0
+#define NUM_STRINGS 20
+#define NUM_FRSTR 1
 #define NUM_UD 0
 #define NUM_IMAGES 0
 #define NUM_BB 0
@@ -59,6 +63,8 @@
 #define BLAU_CB           10 /* IBOX in tree THERAPY_GFX */
 #define HUFF_CB           12 /* IBOX in tree THERAPY_GFX */
 #define STARTIT           13 /* BUTTON in tree THERAPY_GFX */
+
+#define WINDOW_TITLE       0 /* Free string */
 
 
 
