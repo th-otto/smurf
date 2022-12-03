@@ -14,6 +14,7 @@ MODULES = \
 	$(DISTDIR)/modules/export/iim.sxm \
 	$(DISTDIR)/modules/export/pixar.sxm \
 	$(DISTDIR)/modules/export/raw.sxm \
+	$(DISTDIR)/modules/export/tpi_true.sxm \
 	$(empty)
 
 SUBDIRS = bmp falc_raw gem_img gif pac pcx pix ppm sgi tga tiff
@@ -46,6 +47,9 @@ $(DISTDIR)/modules/export/pixar.sxm: expstart.o pixar.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/export/raw.sxm: expstart.o raw.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/export/tpi_true.sxm: expstart.o tpi_true.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean::

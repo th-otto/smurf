@@ -41,56 +41,55 @@
 #include "import.h"
 #include "smurfine.h"
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Truepaint Image",
-						0x0040,
-						"Christian Eyrich",
-						"TPI", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						0
-						};
+MOD_INFO module_info = {
+	"Truepaint Image",
+	0x0040,
+	"Christian Eyrich",
+	{ "TPI", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-MOD_ABILITY  module_ability = {
-						1, 2, 4, 8, 16,
-						0, 0, 0,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_STANDARD,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0
-						};
+MOD_ABILITY module_ability = {
+	1, 2, 4, 8, 16, 0, 0, 0,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_STANDARD,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0
+};
 
+static uint8_t const table2bit[] = { 0, 2, 3, 1 };
+static uint8_t const table4bit[] = { 0, 15, 1, 2, 4, 6, 3, 5, 7, 8, 9, 10, 12, 14, 11, 13 };
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -101,209 +100,215 @@ MOD_ABILITY  module_ability = {
 EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	const uint8_t *plane_table;
+	uint8_t p;
+	uint8_t v;
+	uint8_t Planes;
+	uint8_t BitsPerPixel;
 
-	char *buffer, *ziel, *oziel, *pal, *plane_table,
-		 p, v, Planes, BitsPerPixel;
-	char table2bit[] = {0, 2, 3, 1};
-	char table4bit[] = {0, 15, 1, 2, 4, 6, 3, 5, 7, 8, 9, 10, 12, 14, 11, 13};
-
-	unsigned int *buffer16, *ziel16, *ppal, ppal2[48],
-				 DatenOffset, cols, width, height, memwidth, i, j, w, x, y;
-
+	uint16_t *buffer16;
+	uint16_t *ziel16;
+	uint16_t *ppal;
+	uint16_t ppal2[48];
+	unsigned short DatenOffset;
+	unsigned short cols;
+	unsigned short width, height;
+	unsigned short memwidth;
+	unsigned short i, j, w, x, y;
 	unsigned long f_len;
 
 	typedef struct
 	{
 		char magic[4];
-		unsigned int unknown;
-		unsigned int cols;
-		unsigned int width;
-		unsigned int height;
-		unsigned int BitsPerPixel;
-		unsigned int reserved;
-		unsigned long len;
+		uint16_t unknown;
+		uint16_t cols;
+		uint16_t width;
+		uint16_t height;
+		uint16_t BitsPerPixel;
+		uint16_t reserved;
+		uint32_t len;
 	} HEAD;
 
 	HEAD *tpi_header;
 
 
-	switch(smurf_struct->module_mode)
+	switch (smurf_struct->module_mode)
 	{
-		case MSTART:	
-			smurf_struct->module_mode = M_WAITING;
+	case MSTART:
+		smurf_struct->module_mode = M_WAITING;
+		break;
 
-			break;
+		/* Farbsystem wird vom Smurf erfragt */
+	case MCOLSYS:
+		smurf_struct->event_par[0] = RGB;
+		smurf_struct->module_mode = M_COLSYS;
+		break;
 
-	/* Farbsystem wird vom Smurf erfragt */
-		case MCOLSYS:
-			smurf_struct->event_par[0] = RGB;
+	case MEXEC:
+		buffer = smurf_struct->smurf_pic->pic_data;
 
-			smurf_struct->module_mode = M_COLSYS;
-			
-			break;
+		exp_pic = (EXPORT_PIC *) smurf_struct->services->SMalloc(sizeof(EXPORT_PIC));
+		if (exp_pic == NULL)
+		{
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		}
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
 
-		case MEXEC:	
-			SMalloc = smurf_struct->services->SMalloc;
-			SMfree = smurf_struct->services->SMfree;
+		BitsPerPixel = smurf_struct->smurf_pic->depth;
 
-			buffer = smurf_struct->smurf_pic->pic_data;
+		if (BitsPerPixel != 16)
+		{
+			w = (width + 7) / 8;
+			memwidth = ((width + 15) / 16) * 16;
+			v = (memwidth >> 3) - w;
+		} else
+		{
+			w = (width + 15) / 16;
+			w = w * 16;
+			memwidth = w;
+			v = memwidth - width;
+		}
 
-			exp_pic = (EXPORT_PIC *)SMalloc(sizeof(EXPORT_PIC));
+		if (BitsPerPixel <= 8)
+			cols = 1 << BitsPerPixel;
+		else
+			cols = 0;
 
-			width = smurf_struct->smurf_pic->pic_width;
-			height = smurf_struct->smurf_pic->pic_height;
+		f_len = (memwidth * (unsigned long) smurf_struct->smurf_pic->pic_height * (unsigned long) BitsPerPixel) >> 3;
+		f_len += 0x80 + cols * 6;
 
-			BitsPerPixel = smurf_struct->smurf_pic->depth;
+		if ((ziel = (uint8_t *) smurf_struct->services->SMalloc(f_len)) == 0)
+		{
+			smurf_struct->services->SMfree(exp_pic);
+			smurf_struct->module_mode = M_MEMORY;
+			return NULL;
+		} else
+		{
+			memset(ziel, 0x0, f_len);
+			oziel = ziel;
 
-			if(BitsPerPixel != 16)
+			tpi_header = (HEAD *) ziel;
+			strncpy(tpi_header->magic, "PNT", 4);
+			tpi_header->unknown = 0x0100;
+
+			tpi_header->cols = cols;
+
+			tpi_header->width = width;
+			tpi_header->height = height;
+
+			tpi_header->BitsPerPixel = BitsPerPixel;
+
+			tpi_header->reserved = 0x0;
+
+			tpi_header->len = f_len - 0x80 - cols * 6;
+
+			strncpy(smurf_struct->smurf_pic->format_name, "Truepaint Image .TPI", 21);
+
+			DatenOffset = 0x80;
+
+			if (BitsPerPixel != 16)
+				DatenOffset += cols * 6;
+
+			if (BitsPerPixel != 16)
 			{
-				w = (width + 7) / 8;
-				memwidth = ((width + 15) / 16) * 16;
-				v = (memwidth >> 3) - w;
-			}
-			else
-			{
-				w = (width + 15) / 16;
-				w = w * 16;
-				memwidth = w;
-				v = memwidth - width;
-			}
+				ziel += DatenOffset;
+				buffer16 = (uint16_t *) buffer;
 
-			if(BitsPerPixel <= 8)
-				cols = 1 << BitsPerPixel;
-			else
-				cols = 0;
+				Planes = BitsPerPixel;
 
-			f_len = (memwidth * (unsigned long)smurf_struct->smurf_pic->pic_height * (unsigned long)BitsPerPixel) >> 3;
-			f_len += 0x80 + cols * 6;
-
-			if((ziel = (char *)SMalloc(f_len)) == 0)
-			{
-				smurf_struct->module_mode = M_MEMORY;
-				return(exp_pic);
-			}
-			else
-			{
-				memset(ziel, 0x0, f_len);
-				oziel = ziel;
-
-				tpi_header = (HEAD *)ziel;
-			 	strncpy(tpi_header->magic, "PNT", 4);
-				tpi_header->unknown = 0x0100;
-
-				tpi_header->cols = cols;
-
-				tpi_header->width = width;
-				tpi_header->height = height;
-
-				tpi_header->BitsPerPixel = BitsPerPixel;
-
-				tpi_header->reserved = 0x0;
-
-				tpi_header->len = f_len - 0x80 - cols * 6;
-
-				strncpy(smurf_struct->smurf_pic->format_name, "Truepaint Image .TPI", 21);
-
-				DatenOffset = 0x80;
-
-				if(BitsPerPixel != 16)
-					DatenOffset += cols * 6;
-
-				if(BitsPerPixel != 16)
+				p = 0;
+				do						/* Planes */
 				{
-					ziel += DatenOffset;
-					buffer16 = (unsigned int *)buffer;
-
-					Planes = BitsPerPixel;
-
-					p = 0;
-					do /* Planes */
-					{
-						ziel16 = (unsigned int *)ziel + p;
-						y = 0;
-						do /* height */
-						{
-							x = 0;
-							do /* width */
-							{
-								*ziel16 = *buffer16++;
-								ziel16 += Planes;
-								x += 2;
-							} while(x < w); /* x */
-							((char *)buffer16) -= v;
-						} while(++y < height); /* y */
-					} while(++p < Planes); /* p */
-				} /* Palette oder TC? */
-				else
-				{			
-					ziel += DatenOffset;
-
-					ziel16 = (unsigned int *)ziel;
-					buffer16 = (unsigned int *)buffer;
-
+					ziel16 = (uint16_t *) ziel + p;
 					y = 0;
-					do /* height */
+					do					/* height */
 					{
 						x = 0;
-						do /* width */
+						do				/* width */
 						{
-							*ziel16++ = *buffer16++;
-						} while(++x < width); /* x */
-						ziel16 += v;
-						y++;
-					} while(y < height); /* y */
-				} /* Palette oder TC? */
+							*ziel16 = *buffer16++;
+							ziel16 += Planes;
+							x += 2;
+						} while (x < w);
+						buffer16 = (uint16_t *)((uint8_t *)buffer16 - v);
+					} while (++y < height);
+				} while (++p < Planes);	/* p */
+			}							/* Palette oder TC? */
+			else
+			{
+				ziel += DatenOffset;
 
-				ziel = oziel;
+				ziel16 = (uint16_t *) ziel;
+				buffer16 = (uint16_t *) buffer;
 
-				if(cols > 0)
+				y = 0;
+				do						/* height */
 				{
-					ppal = (unsigned int *)(ziel + 0x80);
+					x = 0;
+					do					/* width */
+					{
+						*ziel16++ = *buffer16++;
+					} while (++x < width);	/* x */
+					ziel16 += v;
+					y++;
+				} while (y < height);	/* y */
+			}							/* Palette oder TC? */
 
-					pal = smurf_struct->smurf_pic->palette;
-					for(i = 0; i < cols; i++)
+			ziel = oziel;
+
+			if (cols > 0)
+			{
+				ppal = (uint16_t *) (ziel + 0x80);
+
+				pal = smurf_struct->smurf_pic->palette;
+				for (i = 0; i < cols; i++)
+				{
+					*ppal++ = (((unsigned long) *pal++ * 1000L) / 255);
+					*ppal++ = (((unsigned long) *pal++ * 1000L) / 255);
+					*ppal++ = (((unsigned long) *pal++ * 1000L) / 255);
+				}
+				/* umbiegen weil VDI-Indizes im Bild stehen */
+				if (cols == 4 || cols == 16)
+				{
+					if (cols == 4)
+						plane_table = table2bit;
+					else
+						plane_table = table4bit;
+					ppal = (uint16_t *) (ziel + 0x80);
+					memcpy(ppal2, ppal, cols * 6);
+					for (i = 0; i < cols; i++)
 					{
-						*ppal++ = (unsigned int)(((unsigned long)*pal++ * 1000L) / 255);
-						*ppal++ = (unsigned int)(((unsigned long)*pal++ * 1000L) / 255);
-						*ppal++ = (unsigned int)(((unsigned long)*pal++ * 1000L) / 255);
-					}
-					/* umbiegen weil VDI-Indizes im Bild stehen */
-					if(cols == 4 || cols == 16)
-					{
-						if(cols == 4)
-							plane_table = table2bit;
-						else
-							plane_table = table4bit;
-						ppal = (unsigned int *)(ziel + 0x80);
-						memcpy(ppal2, ppal, cols * 6);
-						for(i = 0; i < cols; i++)
-						{
-							j = plane_table[i];
-							ppal[i + i + i] = ppal2[j + j + j];
-							ppal[i + i + i + 1] = ppal2[j + j + j + 1];
-							ppal[i + i + i + 2] = ppal2[j + j + j + 2];
-						}
+						j = plane_table[i];
+						ppal[i + i + i] = ppal2[j + j + j];
+						ppal[i + i + i + 1] = ppal2[j + j + j + 1];
+						ppal[i + i + i + 2] = ppal2[j + j + j + 2];
 					}
 				}
+			}
 
-				exp_pic->pic_data = ziel;
-				exp_pic->f_len = f_len;
-			} /* Malloc */
+			exp_pic->pic_data = ziel;
+			exp_pic->f_len = f_len;
+		}
 
-			smurf_struct->module_mode = M_DONEEXIT;
-			return(exp_pic);
+		smurf_struct->module_mode = M_DONEEXIT;
+		return exp_pic;
 
 /* Mterm empfangen - Speicher freigeben und beenden */
-		case MTERM:
-			SMfree(exp_pic->pic_data);
-			SMfree((char *)exp_pic);
-			smurf_struct->module_mode = M_EXIT;
-			break;
+	case MTERM:
+		/* exp_pic wird von smurf freigegeben */
+		smurf_struct->module_mode = M_EXIT;
+		break;
 
-		default:
-			smurf_struct->module_mode = M_WAITING;
-			break;
-	} /* switch */
+	default:
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	}
 
-	return(NULL);
+	return NULL;
 }
