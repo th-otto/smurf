@@ -32,76 +32,82 @@
 #define DEBUG           0
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"BSG-Importer",
-						0x0010,
-                        "Dale Russell",
-                        "BSG", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"BSG-Importer",
+	0x0010,
+	"Dale Russell",
+	{ "BSG", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 /*      BSG Fontasy Monochrom Format                */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL * smurf_struct)
 {
-char    *buffer, *retbuf;
-int width=0, height=0, bperz=0;
-long check,len;
+	uint8_t *buffer;
+	uint8_t *retbuf;
+	short width, height;
+	short bperz;
+	long check, len;
 
-/***************************************************************/
-/*      Kopfdaten analysieren                                  */
-/***************************************************************/
-buffer=smurf_struct->smurf_pic->pic_data;
-check=smurf_struct->smurf_pic->file_len;
-check-=4;
-width=*(buffer)+(*(buffer+1)<<8);
-height=*(buffer+2)+(*(buffer+3)<<8);
-bperz=(width+7)/8;
-if ( (long)bperz*(long)height != check ) return(M_INVALID);
+	/***************************************************************/
+	/*      Kopfdaten analysieren                                  */
+	/***************************************************************/
+	buffer = smurf_struct->smurf_pic->pic_data;
+	check = smurf_struct->smurf_pic->file_len;
+	check -= 4;
+	width = *(buffer) + (*(buffer + 1) << 8);
+	height = *(buffer + 2) + (*(buffer + 3) << 8);
+	bperz = (width + 7) / 8;
+	if ((long) bperz * (long) height != check)
+		return M_INVALID;
 
-smurf_struct->services->reset_busybox(128, "BSG Fontasy 1 Bit");
+	smurf_struct->services->reset_busybox(128, "BSG Fontasy 1 Bit");
 
-len=(long)((width+7)/8)*(long)height;
-strncpy(smurf_struct->smurf_pic->format_name, "Fontasy Bitmap (BSG) ", 21);
-/***************************************************************/
-/*      Strukturen fllen                                      */
-/***************************************************************/
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-smurf_struct->smurf_pic->depth=1;
-smurf_struct->smurf_pic->bp_pal=0;
-retbuf=Malloc(len);
-memcpy(retbuf, buffer+4, len);
-Mfree(buffer);
-smurf_struct->smurf_pic->pic_data=retbuf;
-smurf_struct->smurf_pic->format_type=FORM_STANDARD;
-smurf_struct->smurf_pic->col_format=WURSCHT;
-return(M_PICDONE);      /* Alles Klar. */
+	len = (long) ((width + 7) / 8) * (long) height;
+	strcpy(smurf_struct->smurf_pic->format_name, "Fontasy Bitmap (BSG) ");
+
+	/***************************************************************/
+	/*      Strukturen fllen                                      */
+	/***************************************************************/
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 1;
+	smurf_struct->smurf_pic->bp_pal = 0;
+	retbuf = (uint8_t *)Malloc(len);
+	if (retbuf == NULL)
+		return M_MEMORY;
+	memcpy(retbuf, buffer + 4, len);
+	Mfree(buffer);
+	smurf_struct->smurf_pic->pic_data = retbuf;
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	smurf_struct->smurf_pic->col_format = WURSCHT;
+	return M_PICDONE;					/* Alles Klar. */
 }
-

@@ -9,6 +9,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/adexv1.sim \
 	$(DISTDIR)/modules/import/alphabmp.sim \
 	$(DISTDIR)/modules/import/bmp.sim \
+	$(DISTDIR)/modules/import/bsgv1.sim \
 	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
@@ -23,16 +24,19 @@ SUBDIRS = jpeg
 all:: impstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
 
+$(DISTDIR)/modules/import/1stpb.sim: impstart.o 1stpb.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/adexv1.sim: impstart.o adexv1.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 $(DISTDIR)/modules/import/alphabmp.sim: impstart.o alphabmp.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/bmp.sim: impstart.o bmp.o setlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(DISTDIR)/modules/import/1stpb.sim: impstart.o 1stpb.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
-
-$(DISTDIR)/modules/import/adexv1.sim: impstart.o adexv1.o
+$(DISTDIR)/modules/import/bsgv1.sim: impstart.o bsgv1.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/esm.sim: impstart.o esm.o
