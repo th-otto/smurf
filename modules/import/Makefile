@@ -7,6 +7,7 @@ LDFLAGS += -nostartfiles
 MODULES = \
 	$(DISTDIR)/modules/import/1stpb.sim \
 	$(DISTDIR)/modules/import/adexv1.sim \
+	$(DISTDIR)/modules/import/alphabmp.sim \
 	$(DISTDIR)/modules/import/bmp.sim \
 	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
@@ -21,6 +22,9 @@ SUBDIRS = jpeg
 
 all:: impstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done
+
+$(DISTDIR)/modules/import/alphabmp.sim: impstart.o alphabmp.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/bmp.sim: impstart.o bmp.o setlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)

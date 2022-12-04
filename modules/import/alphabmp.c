@@ -37,43 +37,64 @@
 #include "import.h"
 #include "smurfine.h"
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-char *fileext(char *filename);
-void nulltospace(char *string, char length);
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Alpha BMP-Format",
-						0x0020,
-						"Christian Eyrich",
-						"BMP", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"Alpha BMP-Format",
+	0x0020,
+	"Christian Eyrich",
+	{ "BMP", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
+
+static void nulltospace(uint8_t *string, uint8_t length)
+{
+	while (--length)
+	{
+		if (*string == '\0')
+			*string = ' ';
+		string++;
+	}
+}
+
+
+static const char *fileext(const char *filename)
+{
+	const char *extstart;
+
+	if ((extstart = strrchr(filename, '.')) != NULL)
+		extstart++;
+	else
+		extstart = strrchr(filename, '\0');
+
+	return extstart;
+}
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -81,157 +102,129 @@ MOD_INFO module_info = {"Alpha BMP-Format",
 /*		1, 4, 8 und 24 Bit, wahlweise RLE			*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL * smurf_struct)
 {
-	char *buffer, *ziel, *pal, *ppal, *fname,
-		 n, v1, v2, comp, ifpal, BitsPerPixel,
-		 DatenOffset;
-	char dummy[3], impmessag[21];
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *pal;
+	uint8_t *ppal;
+	char *fname;
+	uint8_t n;
+	uint8_t v1;
+	uint8_t v2;
+	uint8_t comp;
+	uint8_t ifpal;
+	uint8_t BitsPerPixel;
+	uint8_t DatenOffset;
+	char dummy[3];
+	char impmessag[21];
 
-	unsigned int x, y, i, j, cols, width, height;
+	unsigned short x, y;
+	unsigned short i, j;
+	unsigned short cols;
+	unsigned short width, height;
 
-	unsigned long w, src_pos = 0, dst_pos = 0;
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
+	unsigned long w;
+	unsigned long src_pos = 0;
+	unsigned long dst_pos = 0;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 
 	fname = smurf_struct->smurf_pic->filename;
-	if(*(unsigned int *)buffer != 0xffff ||
-	    stricmp(fileext(fname), "BMP") != 0)
-		return(M_INVALID);
+	if (*(unsigned short *) buffer != 0xffff || stricmp(fileext(fname), "BMP") != 0)
+		return M_INVALID;
+	BitsPerPixel = *(buffer + 0x0e);
+
+	width = *(buffer + 0x0a) + (*(buffer + 0x0b) << 8);
+	height = *(buffer + 0x0c) + (*(buffer + 0x0d) << 8);
+
+	ifpal = *(uint16_t *) (buffer + 0x10);
+	comp = *(uint16_t *) (buffer + 0x12);
+
+	cols = *(buffer + 0x50) + (*(buffer + 0x51) << 8);
+	DatenOffset = 0x50 + cols * 3;
+
+	nulltospace(buffer + 0x14, 112);
+	strncpy(smurf_struct->smurf_pic->infotext, buffer + 0x14, 60);
+
+	strcpy(smurf_struct->smurf_pic->format_name, "Alpha BMP-File .BMP");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	strcpy(impmessag, "Alpha-BMP ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	if ((ziel = smurf_struct->services->SMalloc(((long) width * (long) height * BitsPerPixel) >> 3)) == 0)
+		return M_MEMORY;
+	if (BitsPerPixel == 1)
+		w = (width + 7) / 8;
+	else if (BitsPerPixel == 24)
+		w = width * 3;
 	else
+		w = width;
+
+	src_pos += DatenOffset;
+	y = 0;
+	do							/* height */
 	{
-		BitsPerPixel = *(buffer + 0x0e);
-		
-		width = *(buffer + 0x0a) + (*(buffer + 0x0b) << 8); 
-		height = *(buffer + 0x0c) + (*(buffer + 0x0d) << 8);
-
-		ifpal = (char)*(unsigned int *)(buffer + 0x10);
-		comp = (char)*(unsigned int *)(buffer + 0x12);
-
-		cols = *(buffer + 0x50) + (*(buffer + 0x51) << 8);
-		DatenOffset = 0x50 + cols * 3;
-
-		nulltospace(buffer + 0x14, 112);
-		strncpy(smurf_struct->smurf_pic->infotext, buffer + 0x14, 60);
-
-		strncpy(smurf_struct->smurf_pic->format_name, "Alpha BMP-File .BMP", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
-
-		strcpy(impmessag, "Alpha-BMP ");
-		strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-		strcat(impmessag, " Bit");
-		smurf_struct->services->reset_busybox(128, impmessag);
-
-		if((ziel = SMalloc(((long)width * (long)height * BitsPerPixel) >> 3)) == 0)
-			return(M_MEMORY);
-		else
+		x = 0;
+		do						/* width */
 		{
-			if(BitsPerPixel == 1)
-				w = (width + 7) / 8;
-			else
-				if(BitsPerPixel == 24)
-					w = width * 3;
-				else
-					w = width;
-
-			src_pos += DatenOffset;	
-			y = 0;
-			do /* height */
+			if (comp == 0)
 			{
-				x = 0;
-				do /* width */
+				ziel[dst_pos++] = buffer[src_pos++];
+				x++;
+			} else
+			{
+				v1 = buffer[src_pos++];
+				if (v1 > 0x80)
 				{
-					if(comp == 0)
-					{
+					n = (0x101 - v1);
+					v2 = buffer[src_pos++];
+					for (i = 0; i < n; i++)
+						ziel[dst_pos++] = v2;
+					x += n;
+				} else
+				{
+					for (i = 0; i < v1; i++)
 						ziel[dst_pos++] = buffer[src_pos++];
-						x++;
-					}
-					else
-					{
-						v1 = buffer[src_pos++];
-						if(v1 > 0x80)
-						{
-							n = (0x101 - v1);
-							v2 = buffer[src_pos++];
-							for(i = 0; i < n; i++)
-								ziel[dst_pos++] = v2;
-							x += n;
-						}
-						else
-						{
-							for (i = 0; i < v1; i++)
-							ziel[dst_pos++] = buffer[src_pos++];
-							x += v1;             
-						}
-					}
-				} while(x < w); /* x */
-				y++;
-			} while(y < height); /* y */
-
-			smurf_struct->smurf_pic->pic_data = ziel;
-
-			if(BitsPerPixel == 1)
-				smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-			else
-				smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-
-			if(ifpal)
-			{
-				pal = smurf_struct->smurf_pic->palette;
-				ppal = buffer + 0x52;
-				j = *(unsigned int *)(buffer + 0x50) * 3;
-				while(j--)
-					*pal++ = *ppal++;
-			} /* Palette */
-			else
-				if(BitsPerPixel == 1)
-				{
-					pal[0] = 255;
-					pal[1] = 255;
-					pal[2] = 255;
-					pal[3] = 0;
-					pal[4] = 0;
-					pal[5] = 0;
+					x += v1;
 				}
+			}
+		} while (x < w);		/* x */
+		y++;
+	} while (y < height);		/* y */
 
-			smurf_struct->smurf_pic->col_format = RGB;
-		
-		} /* Malloc */
-	} /* Erkennung */
+	smurf_struct->smurf_pic->pic_data = ziel;
 
-	SMfree(buffer);
+	if (BitsPerPixel == 1)
+		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	else
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
 
-	return(M_PICDONE);
-}
-
-
-void nulltospace(char *string, char length)
-{
-	while(--length)
+	if (ifpal)
 	{
-		if(*string == '\0')
-			*string = ' ';
-		string++;
+		pal = smurf_struct->smurf_pic->palette;
+		ppal = buffer + 0x52;
+		j = *(uint16_t *) (buffer + 0x50) * 3;
+		while (j--)
+			*pal++ = *ppal++;
+	} else if (BitsPerPixel == 1)
+	{
+		pal[0] = 255;
+		pal[1] = 255;
+		pal[2] = 255;
+		pal[3] = 0;
+		pal[4] = 0;
+		pal[5] = 0;
 	}
 
-	return;
-} /* nulltospace */
+	smurf_struct->smurf_pic->col_format = RGB;
 
+	smurf_struct->services->SMfree(buffer);
 
-char *fileext(char *filename)
-{
-	char *extstart;
-
-
-	if((extstart = strrchr(filename, '.')) != NULL)
-		extstart++;
-	else
-		extstart = strrchr(filename, '\0');
-	
-	return(extstart);
-} /* fileext */
+	return M_PICDONE;
+}
