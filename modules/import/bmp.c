@@ -713,7 +713,7 @@ static uint8_t *getBMPdata4(uint8_t *buffer, uint16_t width, uint16_t height, un
 /****************************************************/
 /****** Bitmap-Datenbereich aus CLP auslesen ********/
 /****************************************************/
-static uint8_t *getCLP(GARGAMEL * picture, unsigned long BMPOffset, unsigned long *UsedColors)
+static uint8_t *getCLP(GARGAMEL *picture, unsigned long BMPOffset, unsigned long *UsedColors)
 {
 	uint8_t *buffer;
 	uint8_t *ziel;
@@ -923,7 +923,7 @@ static void invert_1Bit(uint8_t *data, uint16_t width, uint16_t height)
 /*		unkomprimiert, RLE4 und RLE8				*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *ziel;
 	uint8_t *buffer;

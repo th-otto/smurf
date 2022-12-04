@@ -34,36 +34,37 @@
 #define B_PIX       0
 
 /* Infostruktur fÅr Hauptmodul */
-MOD_INFO module_info = {"First Publisher",
-						0x0050,
-                        "Dale Russell",
-                        "ART", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"First Publisher",
+	0x0050,
+	"Dale Russell",
+	{ "ART", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -72,29 +73,31 @@ MOD_INFO module_info = {"First Publisher",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-char *buffer=smurf_struct->smurf_pic->pic_data;
-char *retbuf;
-int width, height;
-long len;
-/*****************************************************/
-/*          MAGIC Code ÅberprÅfen                    */
-/*****************************************************/
-width=*(buffer+2)+(*(buffer+3)<<8);
-height=*(buffer+6)+(*(buffer+7)<<8);
-len=(long)((width+7)/8) * (long)height;
-if ( (len+8) !=smurf_struct->smurf_pic->file_len ) return (M_INVALID);
+	uint8_t *buffer = smurf_struct->smurf_pic->pic_data;
+	uint8_t *retbuf;
+	short width, height;
+	long len;
 
-strncpy(smurf_struct->smurf_pic->format_name, "First Publisher .ART", 21);
-smurf_struct->smurf_pic->format_type=1;
-smurf_struct->smurf_pic->depth=1;
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
+	/*****************************************************/
+	/*          MAGIC Code ÅberprÅfen                    */
+	/*****************************************************/
+	width = *(buffer + 2) + (*(buffer + 3) << 8);
+	height = *(buffer + 6) + (*(buffer + 7) << 8);
+	len = (long) ((width + 7) / 8) * (long) height;
+	if ((len + 8) != smurf_struct->smurf_pic->file_len)
+		return M_INVALID;
 
-smurf_struct->services->reset_busybox(128, "First Publisher 1Bit");
+	strcpy(smurf_struct->smurf_pic->format_name, "First Publisher .ART");
+	smurf_struct->smurf_pic->format_type = 1;
+	smurf_struct->smurf_pic->depth = 1;
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
 
-retbuf=Malloc(len);
-memcpy(retbuf, buffer+8, len); 
-Mfree(buffer);
-smurf_struct->smurf_pic->pic_data=retbuf;
-return(M_PICDONE);
+	smurf_struct->services->reset_busybox(128, "First Publisher 1Bit");
+
+	retbuf = (uint8_t *)Malloc(len);
+	memcpy(retbuf, buffer + 8, len);
+	Mfree(buffer);
+	smurf_struct->smurf_pic->pic_data = retbuf;
+	return M_PICDONE;
 }
