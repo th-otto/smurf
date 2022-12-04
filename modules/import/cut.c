@@ -64,47 +64,91 @@
 #include "import.h"
 #include "smurfine.h"
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-char *fileext(char *filename);
-void *fload(char *Path, short header);
-
-/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w)
-	0xE058;
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Dr. Halo Import-Modul",
-						0x0040,
-						"Christian Eyrich",
-						"CUT", "PAL", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"Dr. Halo Import-Modul",
+	0x0040,
+	"Christian Eyrich",
+	"CUT", "PAL", "", "", "",
+	"", "", "", "", "",
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0
+};
+
+#ifdef __PUREC__
+/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
+static unsigned short swap_word(unsigned short w) 0xE058;
+#else
+static unsigned short swap_word(unsigned short w)
+{
+	return (w >> 8) | (w << 8);
+}
+#endif
+
+/* --- FLOAD --- */
+
+static void *fload(const char *Path, short header)
+{
+	uint8_t *fil;
+	int file;
+	long back, f_len;
+
+	if ((file = (int)Fopen(Path, FO_READ)) >= 0)	/* Datei ”ffnen */
+	{
+		f_len = Fseek(0, file, 2);		/* L„nge ermitteln */
+
+		if ((fil = (uint8_t *)Malloc((long) f_len - header)) == 0)
+		{
+			form_alert(1, ERROR2);
+			fil = 0;
+		} else
+		{
+			Fseek(header, file, 0);		/* Anfang suchen */
+			Fread(file, (long) f_len - header, fil);	/* Palette lesen */
+		}
+		Fclose(file);					/* Kanal schliežen */
+	} else
+	{
+		fil = NULL;
+	}
+
+	return fil;
+}
+
+
+static char *fileext(const char *filename)
+{
+	char *extstart;
+
+	if ((extstart = strrchr(filename, '.')) != NULL)
+		extstart++;
+	else
+		extstart = strrchr(filename, '\0');
+
+	return extstart;
+}
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -114,177 +158,131 @@ MOD_INFO module_info = {"Dr. Halo Import-Modul",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *pal, *ppal, *fname,
-		 n, name[257];
-	
-	unsigned int x, y, i, v1, v2,
-				 width, height, maxr, maxg, maxb, cols;
-	
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	uint8_t *ppal;
+	char *fname;
+	uint8_t n;
+	char name[257];
+
+	unsigned short x, y;
+	unsigned short i, v1, v2;
+	unsigned short width, height;
+	unsigned short maxr, maxg, maxb;
+	unsigned short cols;
+
 	unsigned long pal_pos = 0;
 
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;	
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 
 	/* Header Check */
 	fname = smurf_struct->smurf_pic->filename;
-	if(stricmp(fileext(fname), "CUT") != 0 ||
-	   *(unsigned int *)(buffer + 0x04) != 0)
-		return(M_INVALID);
-	else
-	{
-		width = swap_word(*(unsigned int *)buffer);
-		height = swap_word(*(unsigned int *)(buffer + 0x02));
-		
-		strncpy(smurf_struct->smurf_pic->format_name, "Dr. Halo Import .CUT", 21);
-		smurf_struct->smurf_pic->pic_width = width; 
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = 8;
+	if (stricmp(fileext(fname), "CUT") != 0 || *(uint16_t *) (buffer + 0x04) != 0)
+		return M_INVALID;
+	width = swap_word(*(uint16_t *) buffer);
+	height = swap_word(*(uint16_t *) (buffer + 0x02));
 
-		smurf_struct->services->reset_busybox(128, "Dr. Halo 8 Bit");
-	
+	strcpy(smurf_struct->smurf_pic->format_name, "Dr. Halo Import .CUT");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 8;
+
+	smurf_struct->services->reset_busybox(128, "Dr. Halo 8 Bit");
+
 	/* Dr.Halo entpacken */
-		if((ziel = SMalloc((long)width * (long)height)) == 0)
-			return(M_MEMORY);
-		else 
+	if ((ziel = smurf_struct->services->SMalloc((long) width * (long) height)) == 0)
+		return M_MEMORY;
+
+	oziel = ziel;
+
+	obuffer = buffer;
+	buffer += 6;
+
+	y = 0;
+	do
+	{
+		x = *buffer++;
+		x |= *buffer++ << 8;
+
+		do
 		{
-			oziel = ziel;
+			v1 = *buffer++;
+			x--;
 
-			obuffer = buffer;
-			buffer += 6;
-
-			y = 0;
-			do
+			if ((n = (v1 & 0x7f)) != 0)
 			{
-				x = swap_word(*((unsigned int *)buffer)++);
-
-				do
+				if (v1 & 0x80)
 				{
-					v1 = *buffer++;
+					v2 = *buffer++;
 					x--;
 
-					if((n = (v1 & 0x7f)) != 0)
+					for (i = 0; i < n; i++)
+						*ziel++ = v2;
+				} else
+				{
+					for (i = 0; i < n; i++)
 					{
-						if(v1 & 0x80)
-						{
-							v2 = *buffer++;
-							x--;
-	
-							for(i = 0; i < n; i++)
-								*ziel++ = v2;
-						}
-						else
-						{
-							for(i = 0; i < n; i++)
-							{
-								*ziel++ = *buffer++;
-								x--;
-							}
-						}
+						*ziel++ = *buffer++;
+						x--;
 					}
-				} while(x > 0);
-			} while(++y < height);
-
-			ziel = oziel;
-			buffer = obuffer;
-		
-			smurf_struct->smurf_pic->pic_data = ziel;
-			smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-
-		/* Palettenname zusammenstckeln */
-			strcpy(name, fname);
-			strcpy(fileext(name), "PAL");
-
-		/* Palette laden */
-		/* Vorsicht, Palette liegt in Bl”cken vor */
-			pal = smurf_struct->smurf_pic->palette;
-
-			if((ppal = fload(name, 0)) == 0)
-			{
-				form_alert(0, "[1][Die Farbpalette konnte nicht|gefunden werden!][ OK ]");
-
-				for(i = 0; i < 256; i++)
-				{
-					pal[pal_pos++] = (char)i;
-					pal[pal_pos++] = (char)i;
-					pal[pal_pos++] = (char)i;
 				}
 			}
-			else
-			{
-				cols = swap_word(*(unsigned int *)(ppal + 0x0c));
-				maxr = swap_word(*(unsigned int *)(ppal + 0x0e));
-				maxg = swap_word(*(unsigned int *)(ppal + 0x10));
-				maxb = swap_word(*(unsigned int *)(ppal + 0x12));
+		} while (x > 0);
+	} while (++y < height);
 
-				ppal += 40;
-				for(i = 0; i < cols; i++)
-				{
-/*					if(512 - i * 6 < 6)
-						ppal += 512 - i * 6; */
-					*pal++ = ((*ppal++ + (*ppal++ << 8)) * 255) / maxr;
-					*pal++ = ((*ppal++ + (*ppal++ << 8)) * 255) / maxg;
-					*pal++ = ((*ppal++ + (*ppal++ << 8)) * 255) / maxb;
-				}
-			}
+	ziel = oziel;
+	buffer = obuffer;
 
-			smurf_struct->smurf_pic->col_format = RGB;
-					
-		} /* Malloc */
-	} /* Erkennung */
+	smurf_struct->smurf_pic->pic_data = ziel;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
 
-	SMfree(buffer);
+	/* Palettenname zusammenstckeln */
+	strcpy(name, fname);
+	strcpy(fileext(name), "pal");
 
-	return(M_PICDONE);
-}
+	/* Palette laden */
+	/* Vorsicht, Palette liegt in Bl”cken vor */
+	pal = smurf_struct->smurf_pic->palette;
 
-
-/* --- FLOAD --- */
-
-void *fload(char *Path, short header)
-{
-	char *fil;
-
-	int file;
-
-	long back, f_len;
-
-	if((back = Fopen(Path, FO_READ)) >= 0)	/* Datei ”ffnen */
+	if ((ppal = fload(name, 0)) == 0)
 	{
-		file = (int)back;
+		form_alert(1, ERROR1);
 
-		f_len = Fseek(0, file, 2);      /* L„nge ermitteln */
-		
-		if((fil = Malloc((long)f_len - header)) == 0)
+		for (i = 0; i < 256; i++)
 		{
-			form_alert(0, ERROR2 );
-			fil = 0;
+			pal[pal_pos++] = i;
+			pal[pal_pos++] = i;
+			pal[pal_pos++] = i;
 		}
-		else
+	} else
+	{
+		cols = swap_word(*(uint16_t *) (ppal + 0x0c));
+		maxr = swap_word(*(uint16_t *) (ppal + 0x0e));
+		maxg = swap_word(*(uint16_t *) (ppal + 0x10));
+		maxb = swap_word(*(uint16_t *) (ppal + 0x12));
+
+		ppal += 40;
+		for (i = 0; i < cols; i++)
 		{
-			Fseek(header, file, 0);         /* Anfang suchen */
-			Fread(file, (long)f_len - header, fil);   /* Palette lesen */
+#if 0
+			if (512 - i * 6 < 6)
+				ppal += 512 - i * 6;
+#endif
+			*pal++ = ((*ppal++ + (*ppal++ << 8)) * 255) / maxr;
+			*pal++ = ((*ppal++ + (*ppal++ << 8)) * 255) / maxg;
+			*pal++ = ((*ppal++ + (*ppal++ << 8)) * 255) / maxb;
 		}
-		Fclose(file);               /* Kanal schliežen */
 	}
-	else
-		fil = 0;
 
-	return(fil);
+	smurf_struct->smurf_pic->col_format = RGB;
+
+	smurf_struct->services->SMfree(buffer);
+
+	return M_PICDONE;
 }
 
 
-char *fileext(char *filename)
-{
-	char *extstart;
-
-
-	if((extstart = strrchr(filename, '.')) != NULL)
-		extstart++;
-	else
-		extstart = strrchr(filename, '\0');
-	
-	return(extstart);
-} /* fileext */

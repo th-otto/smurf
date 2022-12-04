@@ -14,6 +14,8 @@ MODULES = \
 	$(DISTDIR)/modules/import/cas.sim \
 	$(DISTDIR)/modules/import/ceg.sim \
 	$(DISTDIR)/modules/import/clipboar.sim \
+	$(DISTDIR)/modules/import/cmp.sim \
+	$(DISTDIR)/modules/import/cut.sim \
 	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
@@ -53,6 +55,12 @@ $(DISTDIR)/modules/import/ceg.sim: impstart.o ceg.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/clipboar.sim: impstart.o clipboar.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/cmp.sim: impstart.o cmp.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/cut.sim: impstart.o cut.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/esm.sim: impstart.o esm.o

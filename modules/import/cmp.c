@@ -37,42 +37,53 @@
 #include "import.h"
 #include "smurfine.h"
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-char *fileext(char *filename);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Atari Public Painter",
-						0x0020,
-						"Christian Eyrich, Dale Russell",
-						"CMP", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						0
-						};
+MOD_INFO module_info = {
+	"Atari Public Painter",
+	0x0020,
+	"Christian Eyrich, Dale Russell",
+	{ "CMP", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
+
+static const char *fileext(const char *filename)
+{
+	const char *extstart;
+
+	if ((extstart = strrchr(filename, '.')) != NULL)
+		extstart++;
+	else
+		extstart = strrchr(filename, '\0');
+
+	return extstart;
+}
+
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -82,113 +93,90 @@ MOD_INFO module_info = {"Atari Public Painter",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *pal, *fname,
-		 S_Byte, v1, v2;
-
-	unsigned int width, height, w, x, y, n;
-
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	uint8_t S_Byte;
+	uint8_t v1, v2;
+	unsigned short width, height;
+	unsigned short w, x, y, n;
 	unsigned long maxlen;
 
-	
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
-	
 	buffer = smurf_struct->smurf_pic->pic_data;
 	obuffer = buffer;
 
-	fname = smurf_struct->smurf_pic->filename;
-	if(stricmp(fileext(fname), "CMP") != 0)
-		return(M_INVALID);
-	else
+	if (stricmp(fileext(smurf_struct->smurf_pic->filename), "CMP") != 0)
+		return M_INVALID;
+	S_Byte = *buffer;
+	buffer += 2;
+
+	width = 640;
+	w = 80;
+	height = 400;
+
+	strcpy(smurf_struct->smurf_pic->format_name, "Atari Public Painter");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 1;
+
+	smurf_struct->services->reset_busybox(128, "Public Painter 1 Bit");
+
+	if ((ziel = smurf_struct->services->SMalloc(32000L)) == 0)
+		return M_MEMORY;
+	oziel = ziel;
+
+	maxlen = 32000L;
+
+	y = 0;
+	do
 	{
-		S_Byte = *buffer;
-		buffer += 2;
-
-		width = 640;
-		w = 80;
-		height = 400;
-
-		strncpy(smurf_struct->smurf_pic->format_name, "Atari Public Painter", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = 1;
-
-		smurf_struct->services->reset_busybox(128, "Public Painter 1 Bit");
-
-		if((ziel = SMalloc(32000L)) == 0)
-			return(M_MEMORY);
-		else
+		x = 0;
+		do
 		{
-			oziel = ziel;
-			memset(ziel, 0x0, 32000L);
-
-			maxlen = 32000L;
-
-			y = 0;
-			do
+			v1 = *buffer++;
+			if (v1 == S_Byte)
 			{
-				x = 0;
-				do
+				n = *buffer++ + 1;
+				v2 = *buffer++;
+
+				x += n;
+
+				while (n--)
 				{
-					v1 = *buffer++;
-					if(v1 == S_Byte)
-					{
-						n = *buffer++ + 1;
-						v2 = *buffer++;
+					*ziel++ = v2;
+					if (!--maxlen)
+						goto end;
+				}
+			} else
+			{
+				*ziel++ = v1;
+				x++;
+				if (!--maxlen)
+					goto end;
+			}
+		} while (x < w);
+	} while (++y < width);
 
-						x += n;
+  end:
 
-						while(n--)
-						{
-							*ziel++ = v2;
-							if(!--maxlen)
-								goto end;
-						}
-					}
-					else
-					{
-						*ziel++ = v1;
-						x++;
-						if(!--maxlen)
-							goto end;
-					}	
-				} while(x < w);
-			} while(++y < width);
+	buffer = obuffer;
+	ziel = oziel;
 
-end:
+	smurf_struct->smurf_pic->pic_data = ziel;
 
-			buffer = obuffer;
-			ziel = oziel;
+	smurf_struct->services->SMfree(buffer);
 
-			smurf_struct->smurf_pic->pic_data = ziel;
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 
-			SMfree(buffer);
+	pal = smurf_struct->smurf_pic->palette;
+	pal[0] = 255;
+	pal[1] = 255;
+	pal[2] = 255;
+	pal[3] = 0;
+	pal[4] = 0;
+	pal[5] = 0;
 
-			smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-
-			pal = smurf_struct->smurf_pic->palette;
-			pal[0] = 255;
-			pal[1] = 255;
-			pal[2] = 255;
-			pal[3] = 0;
-			pal[4] = 0;
-			pal[5] = 0;
-		} /* Malloc */
-	} /* Erkennung */
-	
-	return(M_PICDONE);
+	return M_PICDONE;
 }
-
-
-char *fileext(char *filename)
-{
-	char *extstart;
-
-
-	if((extstart = strrchr(filename, '.')) != NULL)
-		extstart++;
-	else
-		extstart = strrchr(filename, '\0');
-	
-	return(extstart);
-} /* fileext */
