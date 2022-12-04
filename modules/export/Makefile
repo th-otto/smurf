@@ -37,7 +37,7 @@ $(DISTDIR)/modules/export/esm.sxm: expstart.o esm.o
 $(DISTDIR)/modules/export/godpaint.sxm: expstart.o godpaint.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(DISTDIR)/modules/export/icn.sxm: expstart.o icn.o
+$(DISTDIR)/modules/export/icn.sxm: expstart.o icn.o sprintf.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/export/iim.sxm: expstart.o iim.o
@@ -51,6 +51,9 @@ $(DISTDIR)/modules/export/raw.sxm: expstart.o raw.o
 
 $(DISTDIR)/modules/export/tpi_true.sxm: expstart.o tpi_true.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+sprintf.o: $(top_srcdir)/src/lib/sprintf.c
+	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean::
 	$(RM) *.o $(MODULES)
