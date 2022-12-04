@@ -47,78 +47,95 @@
 
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO	module_info={
-"BW Format",0x0130,"Bj”rn Spruck",
-"B_W","","","","","","","","","",
-"","","","","","","","","","","","",
-0,128,0,128,0,128,0,128,
-0,10,0,10,0,10,0,10,
-0,0,0,0,0,0,0,0,0,0,0,0,
+MOD_INFO module_info = {
+	"BW Format",
+	0x0130,
+	"Bj”rn Spruck",
+	{ "B_W", "", "", "", "", "", "", "", "", "" },
+	"", "", "", "",
+	"", "", "", "",
+	"", "", "", "",
+	0, 128, 0, 128, 0, 128, 0, 128,
+	0, 10, 0, 10, 0, 10, 0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
-
-typedef unsigned char uchar;
-typedef unsigned int uint;
-typedef unsigned long ulong;
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 /*		BW Format (by Sage) 				.B_W	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL * smurf_struct)
 {
-	char *smbuffer;
-	unsigned int x, y, defekt=0;
+	uint8_t *smbuffer;
+	unsigned short x, y;
+	unsigned short defekt = 0;
 
-	if( smurf_struct->smurf_pic->file_len<=10) return(M_INVALID);
-	smbuffer=smurf_struct->smurf_pic->pic_data;
-	if( strncmp( smbuffer, "B&W256", 6)) return(M_INVALID);
-	
-	x=*((unsigned int *)&smbuffer[6]);
-	y=*((unsigned int *)&smbuffer[8]);
-	if( x==0 || y==0) return(M_INVALID);
-	if( (long)x*y+10!=smurf_struct->smurf_pic->file_len){
-		if(form_alert(1,fehler)==2) return(M_INVALID);
-		defekt=1;
+	if (smurf_struct->smurf_pic->file_len <= 10)
+		return M_INVALID;
+	smbuffer = smurf_struct->smurf_pic->pic_data;
+	if (strncmp(smbuffer, "B&W256", 6))
+		return M_INVALID;
+
+	x = *((uint16_t *) &smbuffer[6]);
+	y = *((uint16_t *) &smbuffer[8]);
+	if (x == 0 || y == 0)
+		return M_INVALID;
+	if ((long) x * y + 10 != smurf_struct->smurf_pic->file_len)
+	{
+		if (form_alert(1, fehler) == 2)
+			return M_INVALID;
+		defekt = 1;
 	}
-	
+
 	strcpy(smurf_struct->smurf_pic->format_name, "B&W256 Format");
 
 	{
-		unsigned char *f=(unsigned char *)smurf_struct->smurf_pic->palette;
+		uint8_t *f = (uint8_t *) smurf_struct->smurf_pic->palette;
 		int i;
-		for( i=0; i<256; i++){
-			*f++=i;
-			*f++=i;
-			*f++=i;
+
+		for (i = 0; i < 256; i++)
+		{
+			*f++ = i;
+			*f++ = i;
+			*f++ = i;
 		}
 	}
 
-	if( defekt==0){
-		memcpy(smbuffer,smbuffer+10,(long)x*y);
-		_Mshrink(smbuffer,(long)x*y);
-	}else{
-		if( (long)x*y+10<smurf_struct->smurf_pic->file_len){
-			memcpy(smbuffer,smbuffer+10,(long)x*y);
-			_Mshrink(smbuffer,(long)x*y);
-		}else{
+	if (defekt == 0)
+	{
+		memcpy(smbuffer, smbuffer + 10, (long) x * y);
+		_Mshrink(smbuffer, (long) x * y);
+	} else
+	{
+		if ((long) x * y + 10 < smurf_struct->smurf_pic->file_len)
+		{
+			memmove(smbuffer, smbuffer + 10, (long) x * y);
+			_Mshrink(smbuffer, (long) x * y);
+		} else
+		{
 			void *z;
-			z=Malloc((long)x*y);
-			if(z==0) return(M_MEMORY);
-			memset(z,0,(long)x*y);
-			memcpy(z,smbuffer+10,smurf_struct->smurf_pic->file_len-10);
+
+			z = (void *)Malloc((long) x * y);
+			if (z == 0)
+				return M_MEMORY;
+			memset(z, 0, (long) x * y);
+			memcpy(z, smbuffer + 10, smurf_struct->smurf_pic->file_len - 10);
 			Mfree(smbuffer);
-			smbuffer=z;
+			smbuffer = z;
 		}
 	}
-	
-	smurf_struct->smurf_pic->pic_width=x;
-	smurf_struct->smurf_pic->pic_height=y;
-	smurf_struct->smurf_pic->depth=8;
-	smurf_struct->smurf_pic->col_format=GREY;
-	smurf_struct->smurf_pic->format_type=FORM_PIXELPAK;
-	smurf_struct->smurf_pic->pic_data=smbuffer;
 
-	return(M_PICDONE);
+	smurf_struct->smurf_pic->pic_width = x;
+	smurf_struct->smurf_pic->pic_height = y;
+	smurf_struct->smurf_pic->depth = 8;
+	smurf_struct->smurf_pic->col_format = GREY;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	smurf_struct->smurf_pic->pic_data = smbuffer;
+
+	return M_PICDONE;
 }
-

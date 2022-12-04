@@ -10,6 +10,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/alphabmp.sim \
 	$(DISTDIR)/modules/import/bmp.sim \
 	$(DISTDIR)/modules/import/bsgv1.sim \
+	$(DISTDIR)/modules/import/bw.sim \
 	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
@@ -37,6 +38,9 @@ $(DISTDIR)/modules/import/bmp.sim: impstart.o bmp.o setlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/bsgv1.sim: impstart.o bsgv1.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/bw.sim: impstart.o bw.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/esm.sim: impstart.o esm.o
