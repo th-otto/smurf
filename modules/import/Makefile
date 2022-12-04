@@ -6,6 +6,7 @@ LDFLAGS += -nostartfiles
 
 MODULES = \
 	$(DISTDIR)/modules/import/1stpb.sim \
+	$(DISTDIR)/modules/import/adexv1.sim \
 	$(DISTDIR)/modules/import/bmp.sim \
 	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
@@ -25,6 +26,9 @@ $(DISTDIR)/modules/import/bmp.sim: impstart.o bmp.o setlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/1stpb.sim: impstart.o 1stpb.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/adexv1.sim: impstart.o adexv1.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/esm.sim: impstart.o esm.o

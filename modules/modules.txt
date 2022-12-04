@@ -92,7 +92,7 @@ trp.sxm        0.30    -        x
 
 import:
 1stbp.sim      0.50    0.50     x
-adexv.sim      0.10    0.10
+adexv.sim      0.10    0.10     x
 alphabmp.sim   0.20    0.20
 bmp.sim        1.11    1.10     x
 bsvg1.sim      0.10    0.10
