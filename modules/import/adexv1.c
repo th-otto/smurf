@@ -123,7 +123,7 @@ short imp_module_main(GARGAMEL * smurf_struct)
 	printf("\n  Depth: %i", BitsPerPixel);
 	printf("\n  Planes: %i", Planes);
 	printf("\n  Colors: %i", Colors);
-	getch();
+	(void)Cnecin();
 #endif
 /*****************************************************/
 /*      Palette auslesen                             */
