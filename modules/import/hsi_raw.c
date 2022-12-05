@@ -35,36 +35,37 @@
 #include "smurfine.h"
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"HSI File-Format",
-						0x0010,
-						"Christian Eyrich",
-						"RAW", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"HSI File-Format",
+	0x0010,
+	"Christian Eyrich",
+	{ "RAW", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -74,68 +75,70 @@ MOD_INFO module_info = {"HSI File-Format",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *ziel, *pal, *ppal,
-		 BitsPerPixel, DatenOffset, cols;
-	char dummy[3], impmessag[21];
-
-	unsigned int i, width, height;
-
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *pal;
+	uint8_t *ppal;
+	uint8_t BitsPerPixel;
+	unsigned short DatenOffset;
+	uint8_t cols;
+	char dummy[3];
+	char impmessag[21];
+	unsigned short i, width, height;
 	long len;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 
-	if(strncmp(buffer, "mhwanh", 6) != 0)
-		return(M_INVALID);
+	if (strncmp(buffer, "mhwanh", 6) != 0)
+		return M_INVALID;
+
+	if (*(uint16_t *) (buffer + 0x0c) > 256 || *(uint16_t *) (buffer + 0x0c) == 0)
+		BitsPerPixel = 24;
 	else
+		BitsPerPixel = 8;
+
+	width = *(uint16_t *) (buffer + 0x08);
+	height = *(uint16_t *) (buffer + 0x0a);
+
+	if (BitsPerPixel == 8)
+		cols = 255;
+	else
+		cols = 0;
+
+	DatenOffset = 0x20 + cols * 3;
+
+	strcpy(smurf_struct->smurf_pic->format_name, "HSI File-Format .RAW");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+
+	strcpy(impmessag, "HSI Raw ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	if (BitsPerPixel != 24)
 	{
-		if(*(unsigned int *)(buffer + 0x0c) > 256 ||
-		   *(unsigned int *)(buffer + 0x0c) == 0)
-			BitsPerPixel = 24;
-		else
-			BitsPerPixel = 8;
-
-		width = *(unsigned int *)(buffer + 0x08); 
-		height = *(unsigned int *)(buffer + 0x0a);
-
-		if(BitsPerPixel == 8)
-			cols = 255;
-		else
-			cols = 0;
-
-		DatenOffset = 0x20 + cols * 3;
-
-		strncpy(smurf_struct->smurf_pic->format_name, "HSI File-Format .RAW", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
-
-		strcpy(impmessag, "HSI Raw ");
-		strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-		strcat(impmessag, " Bit");
-		smurf_struct->services->reset_busybox(128, impmessag);
-
-		if(BitsPerPixel != 24)
+		pal = smurf_struct->smurf_pic->palette;
+		ppal = buffer + 0x20;
+		for (i = 0; i < cols; i++)
 		{
-			pal = smurf_struct->smurf_pic->palette;
-			ppal = buffer + 0x20;               
-			for(i = 0; i < cols; i++)
-			{
-				*pal++ = *ppal++;
-				*pal++ = *ppal++;
-				*pal++ = *ppal++;
-			}
-		} /* Palette */
+			*pal++ = *ppal++;
+			*pal++ = *ppal++;
+			*pal++ = *ppal++;
+		}
+	}								/* Palette */
 
-		ziel = buffer;
+	ziel = buffer;
 
-		len = (((long)width * (long)height) * BitsPerPixel) >> 3;
+	len = ((unsigned long) width * (unsigned long) height * BitsPerPixel) >> 3;
 
-		memcpy(ziel, buffer + DatenOffset, len);
+	memmove(ziel, buffer + DatenOffset, len);
 
-		_Mshrink(ziel, len);
+	_Mshrink(ziel, len);
 
-		smurf_struct->smurf_pic->pic_data = ziel;
-	} /* Erkennung */
+	smurf_struct->smurf_pic->pic_data = ziel;
 
-	return(M_PICDONE);
+	return M_PICDONE;
 }
