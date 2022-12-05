@@ -51,34 +51,35 @@
 
 
 
-MOD_INFO module_info=
-{
-    "GOES-Importer",
-    0x0010,
-    "Olaf Piesche",
+MOD_INFO module_info = {
+	"GOES-Importer",
+	0x0010,
+	"Olaf Piesche",
 /* Extensionen */
-    "GOE","","","","","","","","","",
+	{ "GOE", "", "", "", "", "", "", "", "", "" },
 /* Slider */
-    "","","","",
+	"", "", "", "",
 /* Editfelder */
-    "","","","",
+	"", "", "", "",
 /* Checkboxen */
-    "","","","",
+	"", "", "", "",
 /* Minima + Maxima */
 /* Slider */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Edits */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Defaults */
-    0,0,0,0,
-    0,0,0,0,
-    0,0,0,0
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -86,85 +87,84 @@ MOD_INFO module_info=
 
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-SMURF_PIC *picture;
-char *cpic;
-short *pic_data;
-long width, height;
-int depth;
-int pictype;
-long *lpic;
-char *smurf_palette;
-long dcount=0, PicLen, t;
+	SMURF_PIC *picture;
+	uint8_t *cpic;
+	short *pic_data;
+	long width, height;
+	short depth;
+	short pictype;
+	long *lpic;
+	uint8_t *smurf_palette;
+	long dcount = 0;
+	long PicLen;
+	long t;
 
-picture=smurf_struct->smurf_pic;
-pic_data=picture->pic_data;
-lpic=(long *)pic_data;
-cpic=(char *)pic_data;
+	picture = smurf_struct->smurf_pic;
+	pic_data = picture->pic_data;
+	lpic = (long *) pic_data;
+	cpic = (uint8_t *) pic_data;
 
-smurf_palette=picture->palette;
+	smurf_palette = picture->palette;
 
 /* Dateikennung prÅfen */
-if( *(lpic) == 0xc8c4d940L ) pictype=GARS;
-else if( *(lpic+0xd0) == 0xf5415720L ) pictype=MCIDAS;
-else return(M_INVALID);
+	if (*(lpic) == 0xc8c4d940L)
+		pictype = GARS;
+	else if (*(lpic + 0xd0) == 0xf5415720L)
+		pictype = MCIDAS;
+	else
+		return M_INVALID;
+
+
+	if (pictype == GARS)
+	{
+		width = *(pic_data + 0x1e50);	/* GARS-Image, Motorola-Format.  */
+		height = *(pic_data + 0x1e54);
+	} else if (pictype == MCIDAS)
+	{
+		width = *(pic_data + 0x20);		/* MCIDAS-Image, Intel-ASCII-Format.  */
+		height = *(pic_data + 0x24);
+	} else
+		return M_UNKNOWN_TYPE;			/* oder unbekanntes Bild. */
 
 
 
-if(pictype==GARS) 
-    {
-    width=*(pic_data+0x1e50);       /* GARS-Image, Motorola-Format.  */
-    height=*(pic_data+0x1e54);
-    }
-else if(pictype==MCIDAS) 
-    {
-    width=*(pic_data+0x20);     /* MCIDAS-Image, Intel-ASCII-Format.  */
-    height=*(pic_data+0x24);
-    }
-else return(M_UNKNOWN_TYPE);        /* oder unbekanntes Bild. */
+	depth = 8;							/* GrundsÑtzlich 8 Bit, 256 Graustufen. */
+
+	PicLen = (long) width *(long) height;
 
 
+	if (pictype == MCIDAS)
+	{
+		memmove(pic_data, pic_data + 0x300, PicLen);
+	} else if (pictype == GARS)
+	{
+		cpic = (uint8_t *)(pic_data + 0x3c48);
 
-depth=8;    /* GrundsÑtzlich 8 Bit, 256 Graustufen. */
+		do
+		{
+			memcpy(pic_data + dcount, cpic + dcount, 0xe100);
+			dcount += 0xe100;
+			cpic += 0x18;
+		} while (dcount < PicLen);
 
-PicLen=(long)width*(long)height;
+	}
 
+	/* lineare Palette erzeugen */
+	for (t = 0; t < 256; t++)
+	{
+		*(smurf_palette++) = t;
+		*(smurf_palette++) = t;
+		*(smurf_palette++) = t;
+	}
 
-if(pictype==MCIDAS)
-{
-    memcpy(pic_data, pic_data+0x300, PicLen);
-}
-else if(pictype==GARS)
-{
-    cpic=(char *)(pic_data+0x3c48);
+	_Mshrink(pic_data, PicLen);
 
-    do
-    {
-        memcpy(pic_data+dcount, cpic+dcount, 0xe100);   
-        dcount+=0xe100;
-        cpic+=0x18; 
-    } while(dcount<PicLen);
+	strcpy(picture->format_name, "GOES Satellite Image");
+	picture->pic_data = pic_data;
+	picture->depth = depth;
+	picture->pic_width = width;
+	picture->pic_height = height;
+	picture->col_format = RGB;
 
-
-}
-
-
-/* lineare Palette erzeugen */
-for(t=0; t<256; t++)
-{
-    *(smurf_palette++)=t;
-    *(smurf_palette++)=t;
-    *(smurf_palette++)=t;
-}
-
-
-_Mshrink(pic_data, PicLen);
-
-strncpy(picture->format_name, "GOES Satellite Image", 21);
-picture->pic_data=pic_data;
-picture->depth=depth;
-picture->pic_width=(int)width;
-picture->pic_height=(int)height;
-picture->col_format=RGB;
-
-return(M_PICDONE);
+	return M_PICDONE;
 }

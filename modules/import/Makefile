@@ -27,6 +27,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/gem_img.sim \
 	$(DISTDIR)/modules/import/gfx.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
+	$(DISTDIR)/modules/import/goes.sim \
 	$(DISTDIR)/modules/import/lan.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -104,6 +105,9 @@ $(DISTDIR)/modules/import/gfx.sim: impstart.o gfx.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/godpaint.sim: impstart.o godpaint.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/goes.sim: impstart.o goes.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/lan.sim: impstart.o lan.o
