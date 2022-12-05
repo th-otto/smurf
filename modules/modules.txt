@@ -111,7 +111,7 @@ esm.sim        0.50    0.50     x
 fal.sim        0.10    0.10     x
 fckpaint.sim   1.10    1.10     x
 gem_img.sim    1.60    1.40     x
-gfx.sim        1.10    1.10
+gfx.sim        1.10    1.10     x
 gif_2.sim      0.37    0.37
 godpaint.sim   1.00    1.00     x
 goes.sim       0.10    0.10

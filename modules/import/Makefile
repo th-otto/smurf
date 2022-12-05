@@ -25,6 +25,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/fal.sim \
 	$(DISTDIR)/modules/import/fckpaint.sim \
 	$(DISTDIR)/modules/import/gem_img.sim \
+	$(DISTDIR)/modules/import/gfx.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -96,6 +97,9 @@ $(DISTDIR)/modules/import/fckpaint.sim: impstart.o fckpaint.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/gem_img.sim: impstart.o gem_img.o getinter.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/gfx.sim: impstart.o gfx.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/godpaint.sim: impstart.o godpaint.o
