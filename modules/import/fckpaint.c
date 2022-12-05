@@ -33,37 +33,46 @@
 #include "smurfine.h"
 
 /* Infostruktur fÅr Hauptmodul */
-MOD_INFO	module_info={
-"F*ckpaint",0x0110,"Bjîrn Spruck",
-"PI9","","","","","","","","","",
-"","","","","","","","","","","","",
-0,128,0,128,0,128,0,128,
-0,10,0,10,0,10,0,10,
-0,0,0,0,0,0,0,0,0,0,0,0,
+MOD_INFO module_info = {
+	"F*ckpaint",
+	0x0110,
+	"Bjîrn Spruck",
+	{ "PI9", "", "", "", "", "", "", "", "", "" },
+	"", "", "", "",
+	"", "", "", "",
+	"", "", "", "",
+	0, 128, 0, 128, 0, 128, 0, 128,
+	0, 10, 0, 10, 0, 10, 0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-static void convertiere_bild(unsigned short *sc1,unsigned short *sc2)
+static void convertiere_bild(unsigned short *sc1, unsigned short *sc2)
 {
 	int i;
 	unsigned short *s1, *s2, *s3, *s4, *s5, *s6, *s7, *s8;
 
-	s1=sc2;
-	s2=s1+4800;
-	s3=s2+4800;
-	s4=s3+4800;
-	s5=s4+4800;
-	s6=s5+4800;
-	s7=s6+4800;
-	s8=s7+4800;
-	for( i=0; i<4800; i++ ){
-		*s1++=*sc1++;
-		*s2++=*sc1++;
-		*s3++=*sc1++;
-		*s4++=*sc1++;
-		*s5++=*sc1++;
-		*s6++=*sc1++;
-		*s7++=*sc1++;
-		*s8++=*sc1++;
+	s1 = sc2;
+	s2 = s1 + 4800;
+	s3 = s2 + 4800;
+	s4 = s3 + 4800;
+	s5 = s4 + 4800;
+	s6 = s5 + 4800;
+	s7 = s6 + 4800;
+	s8 = s7 + 4800;
+	for (i = 0; i < 4800; i++)
+	{
+		*s1++ = *sc1++;
+		*s2++ = *sc1++;
+		*s3++ = *sc1++;
+		*s4++ = *sc1++;
+		*s5++ = *sc1++;
+		*s6++ = *sc1++;
+		*s7++ = *sc1++;
+		*s8++ = *sc1++;
 	}
 }
 
@@ -74,37 +83,41 @@ static void convertiere_bild(unsigned short *sc1,unsigned short *sc2)
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *smbuffer, *buf;
+	uint8_t *smbuffer;
+	uint8_t *buf;
 
-	smbuffer=smurf_struct->smurf_pic->pic_data;
+	smbuffer = smurf_struct->smurf_pic->pic_data;
 
-	if( smurf_struct->smurf_pic->file_len!=77824L) return(M_INVALID);
-	
+	if (smurf_struct->smurf_pic->file_len != 77824L)
+		return M_INVALID;
+
 	strcpy(smurf_struct->smurf_pic->format_name, "F*ckpaint Format");
-	
+
 	{
-		unsigned char *f=(unsigned char *)smurf_struct->smurf_pic->palette;
+		uint8_t *f = (uint8_t *) smurf_struct->smurf_pic->palette;
 		int i;
-		for( i=0; i<256; i++){
-			*f++=*smbuffer++;
-			*f++=*smbuffer++;
+
+		for (i = 0; i < 256; i++)
+		{
+			*f++ = *smbuffer++;
+			*f++ = *smbuffer++;
 			smbuffer++;
-			*f++=*smbuffer++;
+			*f++ = *smbuffer++;
 		}
 	}
 
-	buf=Malloc(76800L);
-	if(buf==0) return(M_MEMORY);
-	convertiere_bild((unsigned short *)smbuffer,(unsigned short *)buf);
+	buf = (uint8_t *)Malloc(76800L);
+	if (buf == 0)
+		return M_MEMORY;
+	convertiere_bild((unsigned short *) smbuffer, (unsigned short *) buf);
 	Mfree(smurf_struct->smurf_pic->pic_data);
 
-	smurf_struct->smurf_pic->pic_width=320;
-	smurf_struct->smurf_pic->pic_height=240;
-	smurf_struct->smurf_pic->depth=8;
-	smurf_struct->smurf_pic->col_format=RGB;
-	smurf_struct->smurf_pic->format_type=FORM_STANDARD;
-	smurf_struct->smurf_pic->pic_data=buf;
+	smurf_struct->smurf_pic->pic_width = 320;
+	smurf_struct->smurf_pic->pic_height = 240;
+	smurf_struct->smurf_pic->depth = 8;
+	smurf_struct->smurf_pic->col_format = RGB;
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	smurf_struct->smurf_pic->pic_data = buf;
 
-	return(M_PICDONE);
+	return M_PICDONE;
 }
-
