@@ -67,7 +67,7 @@ MOD_INFO module_info = {
 /*      Zeiss BIVAS Dekomprimierer (DTA)            */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *buffer;
 	uint8_t *pal;

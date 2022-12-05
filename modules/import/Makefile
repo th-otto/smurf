@@ -20,6 +20,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/doodle.sim \
 	$(DISTDIR)/modules/import/dta.sim \
 	$(DISTDIR)/modules/import/egarx.sim \
+	$(DISTDIR)/modules/import/eps.sim \
 	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
@@ -77,6 +78,9 @@ $(DISTDIR)/modules/import/dta.sim: impstart.o dta.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/egarx.sim: impstart.o egarx.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/eps.sim: impstart.o eps.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/esm.sim: impstart.o esm.o

@@ -30,11 +30,11 @@
 #include "smurfine.h"
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = { "EPS-Importer",
+MOD_INFO module_info = {
+	"EPS-Importer",
 	0x0050,
 	"Dale Russell",
-	"EPS", "", "", "", "",
-	"", "", "", "", "",
+	{ "EPS", "", "", "", "", "", "", "", "", "" },
 	"Slider 1",
 	"Slider 2",
 	"Slider 3",
@@ -58,7 +58,8 @@ MOD_INFO module_info = { "EPS-Importer",
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	0, 0, 0, 0,
-	0
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 /* -------------------------------------------------*/
@@ -66,32 +67,28 @@ MOD_INFO module_info = { "EPS-Importer",
 /*      Encapsulated Post Script .EPS               */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer,
-	*obuf,
-	*ziel,
-	*oziel,
-	*pal;
-	int width,
-	 height,
-	 test;
-	unsigned long c,
-	 filelen,
-	 offset;
-	unsigned int x,
-	 y,
-	 wert,
-	 h1,
-	 h2;
+	uint8_t *buffer;
+	uint8_t *obuf;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	short width, height;
+	short test;
+	unsigned long c;
+	unsigned long filelen;
+	unsigned long offset;
+	unsigned short x, y;
+	unsigned short wert;
+	unsigned short h1, h2;
 	char bf[5];
-
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 	filelen = smurf_struct->smurf_pic->file_len;
 	if (*(buffer) != 0xc5 || *(buffer + 1) != 0xd0 || *(buffer + 2) != 0xd3 || *(buffer + 3) != 0xc6)
 	{
-		return (M_INVALID);
+		return M_INVALID;
 	}
 
 	test = FALSE;
@@ -113,13 +110,13 @@ short imp_module_main(GARGAMEL * smurf_struct)
 			test = TRUE;
 		c++;
 	}
-	strncpy(bf, buffer + c + 10L, 4);
+	strncpy(bf, (char *)buffer + c + 10, 4);
 	width = atoi(bf);
-	strncpy(bf, buffer + c + 14L, 4);
+	strncpy(bf, (char *)buffer + c + 14, 4);
 	height = atoi(bf);
-	oziel = ziel = Malloc((long) width * (long) height);
+	oziel = ziel = (uint8_t *)Malloc((long) width * (long) height);
 	if (!ziel)
-		return (M_MEMORY);
+		return M_MEMORY;
 
 	for (y = 0; y < height; y++)
 	{
@@ -179,6 +176,6 @@ short imp_module_main(GARGAMEL * smurf_struct)
 	smurf_struct->smurf_pic->pic_data = oziel;
 	smurf_struct->smurf_pic->pic_width = width;
 	smurf_struct->smurf_pic->pic_height = height;
-	strncpy(smurf_struct->smurf_pic->format_name, "Encapsul. Postscript ", 21);
-	return (M_PICDONE);
+	strcpy(smurf_struct->smurf_pic->format_name, "Encapsul. Postscript ");
+	return M_PICDONE;
 }
