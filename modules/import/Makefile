@@ -6,7 +6,7 @@ LDFLAGS += -nostartfiles
 
 MODULES = \
 	$(DISTDIR)/modules/import/1stpb.sim \
-	$(DISTDIR)/modules/import/adexv1.sim \
+	$(DISTDIR)/modules/import/adexv.sim \
 	$(DISTDIR)/modules/import/alphabmp.sim \
 	$(DISTDIR)/modules/import/bmp.sim \
 	$(DISTDIR)/modules/import/bsgv1.sim \
@@ -18,6 +18,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/cut.sim \
 	$(DISTDIR)/modules/import/dip.sim \
 	$(DISTDIR)/modules/import/doodle.sim \
+	$(DISTDIR)/modules/import/dta.sim \
 	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
@@ -35,7 +36,7 @@ all:: impstart.o $(MODULES)
 $(DISTDIR)/modules/import/1stpb.sim: impstart.o 1stpb.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(DISTDIR)/modules/import/adexv1.sim: impstart.o adexv1.o
+$(DISTDIR)/modules/import/adexv.sim: impstart.o adexv1.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/alphabmp.sim: impstart.o alphabmp.o
@@ -69,6 +70,9 @@ $(DISTDIR)/modules/import/dip.sim: impstart.o dip.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/doodle.sim: impstart.o doodle.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/dta.sim: impstart.o dta.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/esm.sim: impstart.o esm.o

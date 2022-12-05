@@ -20,7 +20,7 @@
 ;
 ; ***** END LICENSE BLOCK *****
 
-..\..\dist\modules\import\bsvg1.sim
+..\..\dist\modules\import\bsgv1.sim
 .C [-C -K -M -P-]
 .C [-I..\..\include]
 .S[-DPURE_C=1]

@@ -104,7 +104,7 @@ cmp.sim        0.20    0.50     x
 cut.sim        0.40    0.40     x
 dip.sim        0.10    0.10     x
 doodle.sim     0.50    0.50     x
-dta.sim        0.50    0.50
+dta.sim        0.50    0.50     x
 egarx.sim      0.50    0.50
 eps.sim        0.50    0.50
 esm.sim        0.50    0.50     x

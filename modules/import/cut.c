@@ -113,7 +113,7 @@ static void *fload(const char *Path, short header)
 {
 	uint8_t *fil;
 	int file;
-	long back, f_len;
+	long f_len;
 
 	if ((file = (int)Fopen(Path, FO_READ)) >= 0)	/* Datei ”ffnen */
 	{
@@ -126,7 +126,7 @@ static void *fload(const char *Path, short header)
 		} else
 		{
 			Fseek(header, file, 0);		/* Anfang suchen */
-			Fread(file, (long) f_len - header, fil);	/* Palette lesen */
+			Fread(file, f_len - header, fil);	/* Palette lesen */
 		}
 		Fclose(file);					/* Kanal schliežen */
 	} else
