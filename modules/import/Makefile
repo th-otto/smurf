@@ -29,6 +29,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/goes.sim \
 	$(DISTDIR)/modules/import/gra.sim \
+	$(DISTDIR)/modules/import/hilight.sim \
 	$(DISTDIR)/modules/import/lan.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -112,6 +113,9 @@ $(DISTDIR)/modules/import/goes.sim: impstart.o goes.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/gra.sim: impstart.o gra.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/hilight.sim: impstart.o hilight.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/lan.sim: impstart.o lan.o

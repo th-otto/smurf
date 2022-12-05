@@ -24,7 +24,7 @@
 
 /* **************************************************** */
 /*                                                      */
-/* Highlight PC-Format - Importer                       */     
+/* Highlight PC-Format - Importer                       */
 /*      Format von: weižichnich                         */
 /*      Importer von Olaf.                              */
 /*                                                      */
@@ -37,7 +37,7 @@
 /*   Mit Dale die ganze verdammte Nacht gecoded, dann   */
 /*   frh um 8... naja, halb neun in die Schule und     */
 /*   unwahrscheinlich tot gewesen. Fhl mich wie ne     */
-/*   Leiche auf Urlaub, nur daž die wahrscheinlich      */   
+/*   Leiche auf Urlaub, nur daž die wahrscheinlich      */
 /*   nicht so mde w„re.                                */
 /*   Lt. Holtorf mžte der Import funktionieren - aber  */
 /*   wer weiž das bei dem und seinem Buch schon...      */
@@ -53,99 +53,102 @@
 #include "smurfine.h"
 
 
-MOD_INFO module_info=
-{
-    "Highlight - Importer",
-    0x0010,
-    "Olaf Piesche",
+MOD_INFO module_info = {
+	"Highlight - Importer",
+	0x0010,
+	"Olaf Piesche",
 /* Extensionen */
-    "PIC","","","","","","","","","",
+	{ "PIC", "", "", "", "", "", "", "", "", "" },
 /* Slider */
-    "","","","",
+	"", "", "", "",
 /* Editfelder */
-    "","","","",
+	"", "", "", "",
 /* Checkboxen */
-    "","","","",
+	"", "", "", "",
 /* Minima + Maxima */
 /* Slider */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Edits */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Defaults */
-    0,0,0,0,
-    0,0,0,0,
-    0,0,0,0
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
 
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-int width=0, height=0, depth=0;
-char *picdata;
-int *pd, *picd;
-long Len24, Len16, filelen;
-int p15;
-int x,y, red, green, blue;
+	short width;
+	short height;
+	short depth;
+	uint8_t *picdata;
+	uint16_t *pd;
+	uint16_t *picd;
+	long Len24, Len16, filelen;
+	uint16_t p15;
+	short x, y;
+	short red, green, blue;
 
+	picdata = smurf_struct->smurf_pic->pic_data;
+	pd = (uint16_t *) picdata;
+	filelen = smurf_struct->smurf_pic->file_len;
 
-if(smurf_struct->module_mode==MTERM) return(M_EXIT);
-
-
-picdata=smurf_struct->smurf_pic->pic_data;
-pd = (int *)picdata;
-filelen=smurf_struct->smurf_pic->file_len;
-
-width=*(pd);
-height=*(pd+1);
+	width = *(pd);
+	height = *(pd + 1);
 
 /* Die spitzenm„ige Kennung ermitteln... */
-Len24=(long)width*(long)height*3L;
-Len16=(long)width*(long)height*2L;
+	Len24 = (long) width * (long) height * 3;
+	Len16 = (long) width * (long) height * 2;
 
-if(filelen-4 == Len16) depth=16;
-else if(filelen-4 == Len24) depth=24;
+	if (filelen - 4 == Len16)
+		depth = 16;
+	else if (filelen - 4 == Len24)
+		depth = 24;
+	else
+		return M_INVALID;
 
-picd=pd;
-pd+=2;
+	picd = pd;
+	pd += 2;
 
-if(depth==16)
-{
+	if (depth == 16)
+	{
+		for (y = 0; y < height; y++)
+		{
+			for (x = 0; x < width; x++)
+			{
+				p15 = *(pd++);
+				red = p15 & 0xf800;		/* RGB ausmaskieren */
+				green = p15 & 0x07e0;
+				blue = p15 & 0x003f;
+				green >>= 1;			/* und R und B vertauschen. Ich weiž noch nicht, */
+				red <<= 10;				/* ob das notwendig ist, da Klaus etwas mižver- */
+				blue >>= 11;			/* st„ndliche Angaben macht (RGB oder BGR?) */
+				*(picd++) = red | green | blue;
+			}
+		}
 
- for(y=0; y<height; y++)  
-   {
-      for(x=0; x<width; x++)     
-      {
-     p15=*(pd++);
-     red = p15 & 0xf800;   /* RGB ausmaskieren */
-     green=p15 & 0x07e0;
-     blue =p15 & 0x003f;
-     green>>=1; /* und R und B vertauschen. Ich weiž noch nicht, */
-     red<<=10;  /* ob das notwendig ist, da Klaus etwas mižver- */
-     blue>>=11; /* st„ndliche Angaben macht (RGB oder BGR?) */
-     *(picd++)=red|green|blue;
-      }
-   }
+		_Mshrink(picdata, Len16);
+	} else
+	{
+		memmove(picd, pd, Len24);
+		_Mshrink(picd, Len24);
+	}
 
-   _Mshrink(picdata, Len16);
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = depth;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	strcpy(smurf_struct->smurf_pic->format_name, "Highlight PC-Format");
 
-}
-else if(depth==24)
-{
-   memcpy(picd, picdata, Len24);
-   _Mshrink(picd, Len24);
-}
-
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-smurf_struct->smurf_pic->depth=depth;
-strncpy(smurf_struct->smurf_pic->format_name, "Highlight PC-Format   ", 21);
-
-return(M_DONEEXIT);
+	return M_DONEEXIT;
 }

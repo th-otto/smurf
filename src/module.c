@@ -122,6 +122,11 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 
 		sm_struct.smurf_pic = imp_pic;
 		sm_struct.services = &global_services;
+		/*
+		 * only valid mode for import modules,
+		 * but set it nevertheless in case some module queries it.
+		 */
+		sm_struct.module_mode = MEXEC;
 
 		module_main = (short (*)(GARGAMEL *)) (textseg_begin + MAIN_FUNCTION_OFFSET);
 		module_return = module_main(&sm_struct);
