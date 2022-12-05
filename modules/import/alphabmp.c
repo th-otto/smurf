@@ -115,7 +115,7 @@ short imp_module_main(GARGAMEL * smurf_struct)
 	uint8_t comp;
 	uint8_t ifpal;
 	uint8_t BitsPerPixel;
-	uint8_t DatenOffset;
+	unsigned short DatenOffset;
 	char dummy[3];
 	char impmessag[21];
 

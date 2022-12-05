@@ -36,40 +36,38 @@
 #include "import.h"
 #include "smurfine.h"
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"IBM Picture Maker-Format",
-						0x0020,
-						"Christian Eyrich",
-						"PIC", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"IBM Picture Maker-Format",
+	0x0020,
+	"Christian Eyrich",
+	{ "PIC", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -79,112 +77,115 @@ MOD_INFO module_info = {"IBM Picture Maker-Format",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *pal, *ppal,
-		 v1, v2, comp, BitsPerPixel, DatenOffset;
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	uint8_t *ppal;
+	uint8_t v1, v2;
+	uint8_t comp;
+	uint8_t BitsPerPixel;
+	unsigned short DatenOffset;
 
-	unsigned int x, y, j = 0, n, cols, width, height;
-
+	unsigned short x, y;
+	unsigned short j;
+	unsigned short n;
+	unsigned short cols;
+	unsigned short width, height;
 	unsigned long i;
 
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 	obuffer = buffer;
 
-	if(*buffer != 0x00 || (*(buffer + 1) != 0x85 && *(buffer + 1) != 0x86) || *(buffer + 2) != 0xc1)
-		return(M_INVALID);
-	else
+	if (*buffer != 0x00 || (*(buffer + 1) != 0x85 && *(buffer + 1) != 0x86) || *(buffer + 2) != 0xc1)
+		return M_INVALID;
+
+	comp = *(buffer + 0x09);
+	BitsPerPixel = 8;
+
+	width = *(buffer + 0x05) + (*(buffer + 0x06) << 8);
+	height = *(buffer + 0x07) + (*(buffer + 0x08) << 8);
+
+	cols = *(buffer + 0xa) + (*(buffer + 0xb) << 8);
+
+	DatenOffset = 0x80 + cols * 3;
+
+	strncpy(smurf_struct->smurf_pic->format_name, "IBM Picture Maker-File .PIC", 21);
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	smurf_struct->services->reset_busybox(128, "IBM Picturemaker 8 Bit");
+
+	if ((ziel = smurf_struct->services->SMalloc(((unsigned long) width * height * BitsPerPixel) >> 3)) == 0)
+		return M_MEMORY;
+
+	oziel = ziel;
+
+	buffer += DatenOffset;
+
+	y = 0;
+	do
 	{
-		comp = *(buffer + 0x09);
-		BitsPerPixel = 8;
-		
-		width = *(buffer + 0x05) + (*(buffer + 0x06) << 8); 
-		height = *(buffer + 0x07) + (*(buffer + 0x08) << 8);
-
-		cols = *(buffer + 0xa) + (*(buffer + 0xb) << 8);
-
-		DatenOffset = 0x80 + cols * 3;
-
-		strncpy(smurf_struct->smurf_pic->format_name, "IBM Picture Maker-File .PIC", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
-
-		smurf_struct->services->reset_busybox(128, "IBM Picturemaker 8 Bit");
-
-		if((ziel = SMalloc(((long)width * (long)height * BitsPerPixel) >> 3)) == 0)
-			return(M_MEMORY);
-		else
+		x = 0;
+		do
 		{
-			oziel = ziel;
-
-			buffer += DatenOffset;	
-
-			y = 0;
-			do
+			if (!comp)
 			{
-				x = 0;
-				do
+				*ziel++ = *buffer++;
+				x++;
+			} else
+			{
+				v1 = *buffer++;
+
+				if (v1 > 0x7f)
 				{
-					if(!comp)
-					{
-						*ziel++ = *buffer++;
-						x++;
-					}
+					if (v1 == 0xff)
+						n = *buffer++ + (*buffer++ << 8);
 					else
-					{
-						v1 = *buffer++;
+						n = v1 - 0x80;
 
-						if(v1 > 0x7f)
-						{
-							if(v1 == 0xff)
-								n = *buffer++ + (*buffer++ << 8);
-							else
-								n = v1 - 0x80;
+					v2 = *buffer++;
 
-							v2 = *buffer++;
+					x += n;
 
-							x += n;
-
-							while(n--)
-								*ziel++ = v2;
-						}
-						else
-						{
-							x += v1;             
-
-							while(v1--)
-								*ziel++ = *buffer++;
-						}
-					}
-				} while(x < width);
-			} while(++y < height);
-
-			buffer = obuffer;
-			ziel = oziel;
-
-			smurf_struct->smurf_pic->pic_data = ziel;
-
-			smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-
-			ppal = buffer + 0x80;
-			while(j++ < 3)
-			{
-				pal = smurf_struct->smurf_pic->palette + j;
-				for(i = 0; i < cols; i++)
+					while (n--)
+						*ziel++ = v2;
+				} else
 				{
-					*pal = *ppal++;
-					pal += 3;
+					x += v1;
+
+					while (v1--)
+						*ziel++ = *buffer++;
 				}
 			}
+		} while (x < width);
+	} while (++y < height);
 
-			smurf_struct->smurf_pic->col_format = RGB;
-		} /* Malloc */
-	} /* Erkennung */
+	buffer = obuffer;
+	ziel = oziel;
 
-	SMfree(buffer);
+	smurf_struct->smurf_pic->pic_data = ziel;
 
-	return(M_PICDONE);
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+
+	ppal = buffer + 0x80;
+	j = 0;
+	while (j++ < 3)
+	{
+		pal = smurf_struct->smurf_pic->palette + j;
+		for (i = 0; i < cols; i++)
+		{
+			*pal = *ppal++;
+			pal += 3;
+		}
+	}
+
+	smurf_struct->smurf_pic->col_format = RGB;
+
+	smurf_struct->services->SMfree(buffer);
+
+	return M_PICDONE;
 }
