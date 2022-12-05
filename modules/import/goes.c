@@ -162,8 +162,8 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	strcpy(picture->format_name, "GOES Satellite Image");
 	picture->pic_data = pic_data;
 	picture->depth = depth;
-	picture->pic_width = width;
-	picture->pic_height = height;
+	picture->pic_width = (short)width;
+	picture->pic_height = (short)height;
 	picture->col_format = RGB;
 
 	return M_PICDONE;

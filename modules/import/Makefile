@@ -33,6 +33,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/hsi_raw.sim \
 	$(DISTDIR)/modules/import/ibas_img.sim \
 	$(DISTDIR)/modules/import/ibm_pic.sim \
+	$(DISTDIR)/modules/import/icn.sim \
 	$(DISTDIR)/modules/import/lan.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -128,6 +129,9 @@ $(DISTDIR)/modules/import/ibas_img.sim: impstart.o ibas_img.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/ibm_pic.sim: impstart.o ibm_pic.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/icn.sim: impstart.o icn.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/lan.sim: impstart.o lan.o

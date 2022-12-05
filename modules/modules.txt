@@ -120,7 +120,7 @@ hilight.sim    0.10    0.10     x
 hsi_raw.sim    0.10    0.10     x
 ibas_img.sim   0.10    0.10     x
 ibm_pic.sim    0.20    0.20     x
-icn.sim        0.30    0.30
+icn.sim        0.30    0.30     x
 iff.sim        0.70    0.70
 iim.sim        0.10    0.10
 indy.sim       0.50    0.50
