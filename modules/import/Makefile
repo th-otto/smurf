@@ -31,6 +31,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/gra.sim \
 	$(DISTDIR)/modules/import/hilight.sim \
 	$(DISTDIR)/modules/import/hsi_raw.sim \
+	$(DISTDIR)/modules/import/ibas_img.sim \
 	$(DISTDIR)/modules/import/lan.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -120,6 +121,9 @@ $(DISTDIR)/modules/import/hilight.sim: impstart.o hilight.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/hsi_raw.sim: impstart.o hsi_raw.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/ibas_img.sim: impstart.o ibas_img.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/lan.sim: impstart.o lan.o

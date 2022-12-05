@@ -118,7 +118,7 @@ goes.sim       0.10    0.10     x
 gra.sim        1.30    1.30     x
 hilight.sim    0.10    0.10     x
 hsi_raw.sim    0.10    0.10     x
-ibas_img.sim   0.10    0.10
+ibas_img.sim   0.10    0.10     x
 ibm_pic.sim    0.20    0.20
 icn.sim        0.30    0.30
 iff.sim        0.70    0.70

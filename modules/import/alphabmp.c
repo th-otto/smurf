@@ -73,7 +73,7 @@ MOD_INFO module_info = {
 
 
 
-static void nulltospace(uint8_t *string, uint8_t length)
+static void nulltospace(uint8_t *string, unsigned short length)
 {
 	while (--length)
 	{
@@ -145,7 +145,7 @@ short imp_module_main(GARGAMEL * smurf_struct)
 	DatenOffset = 0x50 + cols * 3;
 
 	nulltospace(buffer + 0x14, 112);
-	strncpy(smurf_struct->smurf_pic->infotext, buffer + 0x14, 60);
+	strncpy(smurf_struct->smurf_pic->infotext, (char *)buffer + 0x14, sizeof(smurf_struct->smurf_pic->infotext) - 1);
 
 	strcpy(smurf_struct->smurf_pic->format_name, "Alpha BMP-File .BMP");
 	smurf_struct->smurf_pic->pic_width = width;
