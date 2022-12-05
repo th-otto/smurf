@@ -20,7 +20,7 @@
 ;
 ; ***** END LICENSE BLOCK *****
 
-..\..\dist\modules\import\1stbp.sim
+..\..\dist\modules\import\1stpb.sim
 .C [-C -K -M -P-]
 .C [-I..\..\include]
 .S[-DPURE_C=1]

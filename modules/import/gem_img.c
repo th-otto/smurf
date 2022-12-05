@@ -108,310 +108,81 @@
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
-char *fileext(char *filename);
-
 /* Get 16 Pixel (Interleaved Standard Format) Assembler-Rout */
-void get_IBPLine(char *dest, char *src, long lineplanelen);
-
-int decode_GVW_TC(char *ziel, char *buffer, unsigned int height, char PattLength, char Planes, long w, long srcw);
-int decode_PA_TC(char *ziel, char *buffer, unsigned int height, char PattLength, long w, long srcw);
-int decode_GC_TC(char *ziel, char *buffer, unsigned int width, unsigned int height, char PattLength, char BitsPerPixel);
-int convert_palette(char *pal, char *buffer, char BitsPerPixel, char imgtype);
+void get_IBPLine(uint8_t *dest, uint8_t *src, long lineplanelen) ASM_NAME("_get_IBPLine");
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"GEM-(X)IMG Importer",
-						0x0160,
-						"Christian Eyrich",
-						"IMG", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						0
-						};
+MOD_INFO module_info = {
+	"GEM-(X)IMG Importer",
+	0x0160,
+	"Christian Eyrich",
+	{ "IMG", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-/*			GEM (X)IMG Dekomprimierer (IMG)			*/
-/*		1, 2, 4, 7, 8, 24 Bit,						*/
-/*		eigene Komprimierungen						*/
-/* -------------------------------------------------*/
-/* -------------------------------------------------*/
-short imp_module_main(GARGAMEL *smurf_struct)
+static const char *fileext(const char *filename)
 {
-	char *buffer, *ziel, *fname,
-		 BitsPerPixel, Planes, PattLength, imgtype, tcmode, colmodel;
-	char dummy[3], impmessag[17];
+	const char *extstart;
 
-	unsigned int width, height, DatenOffset;
-
-	unsigned long w, memwidth, srcw;
-
-	enum
-	{
-		_RGB,
-		_CMY,
-		_HLS
-	};
-
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
-
-	buffer = smurf_struct->smurf_pic->pic_data;
-
-	/* falls XIMG, steht in Byte 0x10 - 0x13  XIMG */
-	if(*(unsigned long *)(buffer + 0x10) == 'XIMG')
-		imgtype = 'X';
+	if ((extstart = strrchr(filename, '.')) != NULL)
+		extstart++;
 	else
-	{
-		if(*(unsigned long *)(buffer + 0x10) == 'TIMG')
-			imgtype = 'T';
-		else
-			imgtype = 'I';
-	}
+		extstart = strrchr(filename, '\0');
 
-	/* erstes Word ist leider nicht immer 1, da gibt es */
-	/* zumindest ein Proramm, das 2 reinschreibt (s. DONNA.IMG) */
-	fname = smurf_struct->smurf_pic->filename;
-	if(*(unsigned int *)buffer > 0x02 ||
-	   (*(unsigned int *)(buffer + 0x02) != 8 && imgtype != 'X' && imgtype != 'T') ||
-	   stricmp(fileext(fname), "IMG") != 0)
-		return(M_INVALID);
-	else
-	{
-		if(imgtype == 'T')
-		{
-			form_alert(0, ERROR1 );
-			return(M_PICERR);
-		}
-		
-		if(*((unsigned int *)(buffer + 0x02)) == 9)
-		{
-			form_alert(0, ERROR2 );
-			return(M_PICERR);
-		}
-
-		DatenOffset = *((unsigned int *)(buffer + 0x02)) << 1;
-
-		BitsPerPixel = *(unsigned int *)(buffer + 0x04);
-
-		PattLength = *(unsigned int *)(buffer + 0x06);
-		if(BitsPerPixel == 24)
-			if(PattLength == 3)
-				tcmode = GVW;
-			else
-				tcmode = PA;
-
-		width = *((unsigned int *)(buffer + 0x0c)); 
-		height = *((unsigned int *)(buffer + 0x0e));
-
-		if(imgtype == 'X')
-			colmodel = *(buffer + 0x14);
-		else
-			colmodel = _RGB;
-
-		strncpy(smurf_struct->smurf_pic->format_name, "GEM-Image .IMG", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
-
-		strcpy(impmessag, "GEM-Image ");
-		strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-		strcat(impmessag, " Bit");
-		smurf_struct->services->reset_busybox(128, impmessag);
-
-		if(BitsPerPixel == 24 && tcmode == GVW)
-		{
-			w = (width + 15) / 16; /* Auf volle Byte gerundete Zeilenl„nge in Byte */
-			memwidth = w * 16;
-			w = (w * 16 * 3);
-			srcw = (unsigned long)width * 3L;
-			Planes = 1;
-		}
-		else
-		{
-			w = (width + 7) / 8; /* Auf volle Byte gerundete Zeilenl„nge in Byte */
-			memwidth = w * 8;
-			srcw = w;
-			Planes = BitsPerPixel;
-		}
-
-		if((ziel = SMalloc(((long)memwidth * (long)height * BitsPerPixel) >> 3)) == 0)
-			return(M_MEMORY);
-		else
-		{
-			if(BitsPerPixel == 24 && tcmode == PA)
-				decode_PA_TC(ziel, buffer + DatenOffset, height, PattLength, w, srcw);
-			else
-/*
-				if(BitsPerPixel == 24 && tcmode == GC)
-					decode_GC_TC(ziel, buffer + DatenOffset, height, PattLength, w, srcw);
-				else
-*/
-					decode_GVW_TC(ziel, buffer + DatenOffset, height, PattLength, Planes, w, srcw);
-
-			smurf_struct->smurf_pic->pic_data = ziel;
-
-			if(BitsPerPixel == 24)
-				smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-			else
-			{
-				convert_palette(smurf_struct->smurf_pic->palette, buffer, BitsPerPixel, imgtype);
-				smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-			}
-
-			if(colmodel == _RGB)
-				smurf_struct->smurf_pic->col_format = RGB;
-			else
-				smurf_struct->smurf_pic->col_format = CMY;
-		} /* Malloc */
-	} /* Erkennung */
-
-	SMfree(buffer);
-
-	return(M_PICDONE);
+	return extstart;
 }
 
 
-/* decodiert alle 1-8 Bit IMGs und 24 Bit IMGs im GEM-View-Format */
-int decode_GVW_TC(char *ziel, char *buffer, unsigned int height, char PattLength, char Planes, long w, long srcw)
-{
-	char *oziel,
-		 j, p, vrc, v1, v2, v3;
-
-	unsigned int i, x, y, y2;
-
-	unsigned long pla, plh, plo;
-
-
-	plh = (unsigned long)height * srcw;		/* H”he einer Plane in Byte */
-
-	oziel = ziel;
-/*
-	printf("Planes: %d, PattLength: %d, srcw: %ld\n", (int)Planes, (int)PattLength, srcw);
-	getch();
-*/
-	y = 0;
-	do
-	{
-		vrc = 1;
-		plo = y * srcw; 				/* Offset vom Planeanfang in Bytes */
-		for(p = 0; p < Planes; p++)
-		{
-			pla = plh * p;				/* Abstand dieser Plane vom Bildanfang */
-			ziel = oziel + pla + plo;	/* Zieladresse der dekodierten Scanline */
-
-			v1 = *buffer++;
-			v2 = *buffer++;
-			v3 = *buffer++;
-			if(v1 == 0x0 && v2 == 0x0 && v3 == 0xff)	/* Vertical Replication */
-				vrc = *buffer++;
-			else
-				buffer -= 3;
-
-			x = 0;
-			do
-			{
-				v1 = *buffer++;
-
-				switch(v1)
-				{
-					case 0x0:							/* Pattern Run */
-						v2 = *buffer++;
-						x += (v2 * PattLength);
-						for(i = 0; i < v2; i++)
-							for(j = 0; j < PattLength; j++)
-								*ziel++ = *(buffer + j);
-						buffer += PattLength;
-						break;
-					case 0x80:                              /* Bit String */
-						v2 = *buffer++;
-						x += v2;
-						for (i = 0; i < v2; i++) 
-							*ziel++ = *buffer++;
-						break;
-					default:                                /* Solid Run */
-						v2 = v1 & 0x7f;
-						x += v2;
-						if(v1 > 0x80)
-							while(v2--)
-								*ziel++ = 0xff;
-						else
-							while(v2--)
-								*ziel++ = 0x00;
-						break;
-				} /* case */
-			} while(x < w);
-/*
-			if(x > w)
-			{
-				printf("y: %u, p: %u\n", y, (unsigned int)p);
-				printf("x: %u, w: %lu\n", x, w);
-				getch();
-			}
-*/
-			y2 = y;
-			/* vrc, aber nicht auf sich selbst */
-			for(i = 1; i < vrc && ++y2 < height; i++)
-				memcpy(oziel + pla + (y2 * srcw), oziel + pla + plo, srcw);
-		}
-		y += vrc;
-	} while(y < height);
-
-	return(0);
-} /* decode_GVW_TC */
-
-
 /* decodiert 24 Bit IMGs im Pixart-Format (Standardformat mit 24 Planes) */
-int decode_PA_TC(char *ziel, char *buffer, unsigned int height, char PattLength, long w, long srcw)
+static void decode_PA_TC(uint8_t *ziel, uint8_t *buffer, unsigned short height, unsigned short PattLength, long w, long srcw)
 {
-	char *ooziel, *pixbuf,
-		 j, p, vrc, v1, v2, v3;
-
-	unsigned int i, x, y;
-
+	uint8_t *ooziel;
+	uint8_t *pixbuf;
+	unsigned short j;
+	uint8_t p;
+	uint8_t vrc;
+	uint8_t v1, v2, v3;
+	unsigned short i, x, y;
 	unsigned long pla;
 
-
-	pixbuf = (char *)SMalloc(w * 24L + 32);	/* Puffer fr Standarddaten */
+	pixbuf = (uint8_t *) SMalloc(w * 24L + 32);	/* Puffer fr Standarddaten */
 
 	ooziel = ziel;
-/*
-	printf("PattLength: %d, srcw: %ld\n", (int)PattLength, srcw);
-	getch();
-*/
 	y = 0;
 	do
 	{
 		vrc = 1;
-		pla = y * 24L * srcw;		/* Abstand dieser Plane vom Bildanfang */
-		for(p = 0; p < 24; p++) 	/* Planes */
+		pla = y * 24L * srcw;			/* Abstand dieser Plane vom Bildanfang */
+		for (p = 0; p < 24; p++)		/* Planes */
 		{
 			v1 = *buffer++;
 			v2 = *buffer++;
 			v3 = *buffer++;
-			if(v1 == 0x0 && v2 == 0x0 && v3 == 0xff)	/* Vertical Replication */
+			if (v1 == 0x0 && v2 == 0x0 && v3 == 0xff)	/* Vertical Replication */
 				vrc = *buffer++;
 			else
 				buffer -= 3;
@@ -421,49 +192,49 @@ int decode_PA_TC(char *ziel, char *buffer, unsigned int height, char PattLength,
 			{
 				v1 = *buffer++;
 
-				switch(v1)
+				switch (v1)
 				{
-					case 0x0:							/* Pattern Run */
-						v2 = *buffer++;
-						x += (v2 * PattLength);
-						for(i = 0; i < v2; i++)
-							for(j = 0; j < PattLength; j++)
-								*ziel++ = *(buffer + j);
-						buffer += PattLength;
-						break;
-					case 0x80:                              /* Bit String */
-						v2 = *buffer++;
-						x += v2;
-						for (i = 0; i < v2; i++) 
-							*ziel++ = *buffer++;
-						break;
-					default:                                /* Solid Run */
-						v2 = v1 & 0x7f;
-						x += v2;
-						if(v1 > 0x80)
-							while(v2--)
-								*ziel++ = 0xff;
-						else
-							while(v2--)
-								*ziel++ = 0x00;
-						break;
-				} /* case */
-			} while(x < w);
+				case 0x0:				/* Pattern Run */
+					v2 = *buffer++;
+					x += (v2 * PattLength);
+					for (i = 0; i < v2; i++)
+						for (j = 0; j < PattLength; j++)
+							*ziel++ = *(buffer + j);
+					buffer += PattLength;
+					break;
+				case 0x80:				/* Bit String */
+					v2 = *buffer++;
+					x += v2;
+					for (i = 0; i < v2; i++)
+						*ziel++ = *buffer++;
+					break;
+				default:				/* Solid Run */
+					v2 = v1 & 0x7f;
+					x += v2;
+					if (v1 > 0x80)
+						while (v2--)
+							*ziel++ = 0xff;
+					else
+						while (v2--)
+							*ziel++ = 0x00;
+					break;
+				}						/* case */
+			} while (x < w);
 #if 0
-			if(x != w)
+			if (x != w)
 			{
-				printf("y: %u, p: %u\n", y, (unsigned int)p);
+				printf("y: %u, p: %u\n", y, p);
 				printf("x: %u, w: %lu\n", x, w);
 				getch();
 			}
 #endif
 #if 0
-			for(i = 1; i < vrc; i++) /* vrc, aber nicht auf sich selbst */
+			for (i = 1; i < vrc; i++)	/* vrc, aber nicht auf sich selbst */
 				memcpy(oziel + i * srcw, oziel, srcw);
 #endif
 		}
 		y += vrc;
-	} while(y < height);
+	} while (y < height);
 
 	ziel = ooziel;
 
@@ -474,247 +245,97 @@ int decode_PA_TC(char *ziel, char *buffer, unsigned int height, char PattLength,
 		memcpy(pixbuf, ziel, pla);
 		get_IBPLine(ziel, pixbuf, w);
 		ziel += pla;
-	} while(++y < height);
+	} while (++y < height);
 
 	SMfree(pixbuf);
+}
 
-	return(0);
-} /* decode_PA_TC */
 
-/*
-/* decodiert 24 Bit IMGs im Grafikkonverter-Format (3 Planes) */
-int decode_GC_TC(char *ziel, char *buffer, unsigned int width, unsigned int height, char PattLength, char Planes)
+/* decodiert alle 1-8 Bit IMGs und 24 Bit IMGs im GEM-View-Format */
+static void decode_GVW_TC(uint8_t *ziel, uint8_t *buffer, unsigned short height, unsigned short PattLength, uint8_t Planes, long w, long srcw)
 {
-	signed char shiftval;
-	char *oziel, *ziel2,
-		 j, p, vrc, v1, v2, v3, val;
+	uint8_t *oziel;
+	unsigned short j;
+	uint8_t p;
+	uint8_t vrc;
+	uint8_t v1, v2, v3;
+	unsigned short i, x, y, y2;
+	unsigned long pla, plh, plo;
 
-	unsigned int i, k, x, y, x2, linelen;
-
-	unsigned long w, memwidth, srcw, pla, plh, plo;
-
-
-	plh = (unsigned long)height * srcw;		/* H”he einer Plane in Byte */
-
-	linelen = (unsigned long)width * 3L;
+	plh = (unsigned long) height * srcw;	/* H”he einer Plane in Byte */
 
 	oziel = ziel;
-
-	for(p = 0; p < Planes; p++) /* Planes */
+	y = 0;
+	do
 	{
-		ziel = oziel + p; /* Zieladresse der dekodierten Scanline */
-		ziel2 = ziel;
-
-		y = 0;
-		do /* height */
+		vrc = 1;
+		plo = y * srcw;					/* Offset vom Planeanfang in Bytes */
+		for (p = 0; p < Planes; p++)
 		{
-			vrc = 1;
-			plo = y * w; /* Offset vom Planeanfang in Bytes */
+			pla = plh * p;				/* Abstand dieser Plane vom Bildanfang */
+			ziel = oziel + pla + plo;	/* Zieladresse der dekodierten Scanline */
+
+			v1 = *buffer++;
+			v2 = *buffer++;
+			v3 = *buffer++;
+			if (v1 == 0x0 && v2 == 0x0 && v3 == 0xff)	/* Vertical Replication */
+				vrc = *buffer++;
+			else
+				buffer -= 3;
 
 			x = 0;
-			x2 = 0;
-			do /* width */
+			do
 			{
 				v1 = *buffer++;
-				v2 = *buffer++;
-				v3 = *buffer++;
-				if(v1 == 0x0 && v2 == 0x0 && v3 == 0xff)    /* Vertical Replication */
-					vrc = *buffer++;
-				else
-					buffer -= 3;
 
-				v1 = *buffer++;
-
-				switch(v1)
+				switch (v1)
 				{
-					case 0x0:                               /* Pattern Run */
-						v2 = *buffer++;
-						x += (v2 * PattLength);
-						for(i = 0; i < v2; i++)
-							for (j = 0; j < PattLength; j++)
-							{
-								val = *(buffer + j);
-								shiftval = 7;
-								do
-								{
-									*ziel2 |= ((val >> shiftval) & 1) << p;
-									ziel2 += 3;
-									x2++;
-								} while(--shiftval > -1 && x2 < width); /* shiftval */
-							}
-						buffer += PattLength;
-						break;
-					case 0x80:                              /* Bit String */
-						v2 = *buffer++;
-						x += v2;
-						for (i = 0; i < v2; i++)
-						{
-							val = *buffer++;
-							shiftval = 7;
-							do
-							{
-								*ziel2 |= ((val >> shiftval) & 1) << p;
-								ziel2 += 3;
-								x2++;
-							} while(--shiftval > -1 && x2 < width);
-						}
-						break;
-					default:                                /* Solid Run */
-						v2 = v1 & 0x7f;
-						x += v2;
-						if(v1 > 0x80)
-							while(v2--)
-							{
-								val = 0xff;
-								shiftval = 7;
-								do
-								{
-									*ziel2 |= ((val >> shiftval) & 1) << p;
-									ziel2 += 3;
-									x2++;
-								} while(--shiftval > -1 && x2 < width);
-							}
-						else
-							while(v2--)
-							{
-								val = 0x0;
-								shiftval = 7;
-								do
-								{
-									*ziel2 |= ((val >> shiftval) & 1) << p;
-									ziel2 += 3;
-									x2++;
-								} while(--shiftval > -1 && x2 < width);
-							}
-						break;
-				} /* case */
-			} while(x < width); /* x */
-/*			if(x != width)
+				case 0x0:				/* Pattern Run */
+					v2 = *buffer++;
+					x += (v2 * PattLength);
+					for (i = 0; i < v2; i++)
+						for (j = 0; j < PattLength; j++)
+							*ziel++ = *(buffer + j);
+					buffer += PattLength;
+					break;
+				case 0x80:				/* Bit String */
+					v2 = *buffer++;
+					x += v2;
+					for (i = 0; i < v2; i++)
+						*ziel++ = *buffer++;
+					break;
+				default:				/* Solid Run */
+					v2 = v1 & 0x7f;
+					x += v2;
+					if (v1 > 0x80)
+						while (v2--)
+							*ziel++ = 0xff;
+					else
+						while (v2--)
+							*ziel++ = 0x00;
+					break;
+				}						/* case */
+			} while (x < w);
+#if 0
+			if (x > w)
 			{
-				printf("x: %u, width: %u\n", x, w);
-				getch();
-			} */
-			ziel += linelen;
-
-			for(i = 1; i < vrc; i++) /* vrc, aber nicht auf sich selbst */
-				memcpy(oziel + ((y + i) * w), oziel + plo, w);
-			y += vrc;
-		} while(y < height); /* y */
-	} /* p */
-
-	return(0);
-} /* decode_GC_TC */
-*/
-
-int convert_palette(char *pal, char *buffer, char BitsPerPixel, char imgtype)
-{
-	char *plane_table;
-
-	char table2bit[] = {0, 2, 3, 1};
-	char table4bit[] = {0, 2, 3, 6, 4, 7, 5, 8, 9, 10, 11, 14, 12, 15, 13, 1};
-
-	unsigned int i, k, cols;
-
-	struct pal
-	{
-		unsigned int r;
-		unsigned int g;
-		unsigned int b;
-	} *ppal;
-
-	struct pal *stdpal;
-	struct pal stdpal2bit[] = {0xff, 0xff, 0xff,
-							   0x00, 0x00, 0x00,
-							   0xff, 0x00, 0x00,
-							   0xd3, 0xd3, 0xd3};
-	struct pal stdpal4bit[] = {0xff, 0xff, 0xff,
-							   0x00, 0x00, 0x00,
-							   0xff, 0x00, 0x00,
-							   0x00, 0xff, 0x00,
-							   0x00, 0x00, 0xff,
-							   0x00, 0xff, 0xff,
-							   0xff, 0xff, 0x00,
-							   0xff, 0x00, 0xff,
-							   0xc0, 0xc0, 0xc0,
-							   0x80, 0x80, 0x80,
-							   0xb6, 0x00, 0x00,
-							   0x00, 0xb6, 0x00,
-							   0x00, 0x00, 0xb6,
-							   0x00, 0xb6, 0xb6,
-							   0xb6, 0xb6, 0x00,
-							   0xb6, 0x00, 0xb6};
-
-
-	if(BitsPerPixel > 1)
-	{
-		cols = 1 << BitsPerPixel;
-
-		if(imgtype == 'X')
-		{
-			ppal = (struct pal *)(buffer + 0x16);
-			for(k = 0; k < cols; k++)
-			{
-				*pal++ = (char)((((unsigned long)ppal->r - ((ppal->r == 0x3e8) ? 1 : 0)) << 8) / 1000L);
-				*pal++ = (char)((((unsigned long)ppal->g - ((ppal->g == 0x3e8) ? 1 : 0)) << 8) / 1000L);
-				*pal++ = (char)((((unsigned long)ppal->b - ((ppal->b == 0x3e8) ? 1 : 0)) << 8) / 1000L);
-				ppal++;
+				printf("y: %u, p: %u\n", y, p);
+				printf("x: %u, w: %lu\n", x, w);
+				(void)Cnecin();
 			}
+#endif
+			y2 = y;
+			/* vrc, aber nicht auf sich selbst */
+			for (i = 1; i < vrc && ++y2 < height; i++)
+				memcpy(oziel + pla + (y2 * srcw), oziel + pla + plo, srcw);
 		}
-		else
-		{
-			/* umbiegen weil VDI-Indizes im Bild stehen */
-			if(cols == 4 || cols == 16)
-			{
-				if(cols == 4)
-				{
-					stdpal = stdpal2bit;
-					plane_table = table2bit;
-				}
-				else
-				{
-					stdpal = stdpal4bit;
-					plane_table = table4bit;
-				}
-
-				for(i = 0; i < cols; i++)
-				{
-					k = plane_table[i];
-					*pal++ = stdpal[k].r;
-					*pal++ = stdpal[k].g;
-					*pal++ = stdpal[k].b;
-				}
-			}
-		}
-	}
-	else
-	{
-		pal[0] = 255;
-		pal[1] = 255;
-		pal[2] = 255;
-		pal[3] = 0;
-		pal[4] = 0;
-		pal[5] = 0;
-	}
-
-	return(0);
-} /* convert_palette */
+		y += vrc;
+	} while (y < height);
+}
 
 
-char *fileext(char *filename)
-{
-	char *extstart;
+#if 0
 
-
-	if((extstart = strrchr(filename, '.')) != NULL)
-		extstart++;
-	else
-		extstart = strrchr(filename, '\0');
-	
-	return(extstart);
-} /* fileext */
-
-
-/*
 /* From the imgtool from Guido Vollbeding */
 
 /* Here is the one and only Level-3 decoder...
@@ -771,50 +392,423 @@ char *fileext(char *filename)
  * But, again, the actual approach is more compact and efficient.
  */
 
-void level_3_decode(FBUFPUB *input, IBUFPUB *image)
+static void level_3_decode(FBUFPUB * input, IBUFPUB * image)
 {
-	char cdata, c_val, *pat_ptr;
-	int i;
+	uint8_t cdata;
+	uint8_t c_val;
+	uint8_t pat_ptr;
+	short i;
 
 	for (;;)
 	{
-    	FGETC(input, cdata);
-    	if ((c_val = cdata) != 0)
-    	{
-      		if (cdata <<= 1)				  /* solid run */
-      		{
-	     		c_val >>= 7;
-	     		do IPUTC(image, c_val); while (cdata -= 2);
-      		}
-      		else					/* byte string */
-      		{
-	     		FGETC(input, cdata);
-	     		do FICOPYC(input, image); while (--cdata);
-      		}
-    	}
-    	else
-    	{
-      		FGETC(input, cdata);
-      		if (cdata)				/* pattern run */
-      		{
-	     		pat_ptr = image->pat_buf;
-	     		for (i = image->pat_run; --i >= 0;)
-	       		FGETC(input, *pat_ptr++);
-	     		do
-	     		{
-	        		pat_ptr = image->pat_buf;
-	        		for (i = image->pat_run; --i >= 0;)
-	        			IPUTC(image, *pat_ptr++);
-	      		} while (--cdata);
-      		}
-      		else			       /* vertical replication */
-      		{
-	     		FGETC(input, cdata);
-	     		if (++cdata) do ISKIPC(image); while (--cdata);
-	     		else
-	       			FGETC(input, image->vrc);
-	  		}
+		FGETC(input, cdata);
+		if ((c_val = cdata) != 0)
+		{
+			if (cdata <<= 1)			/* solid run */
+			{
+				c_val >>= 7;
+				do
+					IPUTC(image, c_val);
+				while (cdata -= 2);
+			} else						/* byte string */
+			{
+				FGETC(input, cdata);
+				do
+					FICOPYC(input, image);
+				while (--cdata);
+			}
+		} else
+		{
+			FGETC(input, cdata);
+			if (cdata)					/* pattern run */
+			{
+				pat_ptr = image->pat_buf;
+				for (i = image->pat_run; --i >= 0;)
+					FGETC(input, *pat_ptr++);
+				do
+				{
+					pat_ptr = image->pat_buf;
+					for (i = image->pat_run; --i >= 0;)
+						IPUTC(image, *pat_ptr++);
+				} while (--cdata);
+			} else						/* vertical replication */
+			{
+				FGETC(input, cdata);
+				if (++cdata)
+					do
+						ISKIPC(image);
+					while (--cdata);
+				else
+					FGETC(input, image->vrc);
+			}
 		}
 	}
 }
-*/
+
+
+/* decodiert 24 Bit IMGs im Grafikkonverter-Format (3 Planes) */
+static void decode_GC_TC(uint8_t *ziel, uint8_t *buffer, unsigned short width, unsigned short height, unsigned short PattLength, uint8_t Planes)
+{
+	int8_t shiftval;
+	uint8_t *oziel;
+	uint8_t *ziel2;
+	unsigned short j;
+	uint8_t p;
+	uint8_t vrc;
+	uint8_t v1, v2, v3;
+	uint8_t val;
+	unsigned short i, k, x, y, x2;
+	unsigned short linelen;
+	unsigned long w, memwidth, srcw, pla, plh, plo;
+
+
+	plh = (unsigned long) height * srcw;	/* H”he einer Plane in Byte */
+
+	linelen = (unsigned long) width * 3L;
+
+	oziel = ziel;
+
+	for (p = 0; p < Planes; p++)		/* Planes */
+	{
+		ziel = oziel + p;				/* Zieladresse der dekodierten Scanline */
+		ziel2 = ziel;
+
+		y = 0;
+		do								/* height */
+		{
+			vrc = 1;
+			plo = y * w;				/* Offset vom Planeanfang in Bytes */
+
+			x = 0;
+			x2 = 0;
+			do							/* width */
+			{
+				v1 = *buffer++;
+				v2 = *buffer++;
+				v3 = *buffer++;
+				if (v1 == 0x0 && v2 == 0x0 && v3 == 0xff)	/* Vertical Replication */
+					vrc = *buffer++;
+				else
+					buffer -= 3;
+
+				v1 = *buffer++;
+
+				switch (v1)
+				{
+				case 0x0:				/* Pattern Run */
+					v2 = *buffer++;
+					x += (v2 * PattLength);
+					for (i = 0; i < v2; i++)
+						for (j = 0; j < PattLength; j++)
+						{
+							val = *(buffer + j);
+							shiftval = 7;
+							do
+							{
+								*ziel2 |= ((val >> shiftval) & 1) << p;
+								ziel2 += 3;
+								x2++;
+							} while (--shiftval > -1 && x2 < width);	/* shiftval */
+						}
+					buffer += PattLength;
+					break;
+				case 0x80:				/* Bit String */
+					v2 = *buffer++;
+					x += v2;
+					for (i = 0; i < v2; i++)
+					{
+						val = *buffer++;
+						shiftval = 7;
+						do
+						{
+							*ziel2 |= ((val >> shiftval) & 1) << p;
+							ziel2 += 3;
+							x2++;
+						} while (--shiftval > -1 && x2 < width);
+					}
+					break;
+				default:				/* Solid Run */
+					v2 = v1 & 0x7f;
+					x += v2;
+					if (v1 > 0x80)
+						while (v2--)
+						{
+							val = 0xff;
+							shiftval = 7;
+							do
+							{
+								*ziel2 |= ((val >> shiftval) & 1) << p;
+								ziel2 += 3;
+								x2++;
+							} while (--shiftval > -1 && x2 < width);
+					} else
+						while (v2--)
+						{
+							val = 0x0;
+							shiftval = 7;
+							do
+							{
+								*ziel2 |= ((val >> shiftval) & 1) << p;
+								ziel2 += 3;
+								x2++;
+							} while (--shiftval > -1 && x2 < width);
+						}
+					break;
+				}						/* case */
+			} while (x < width);		/* x */
+#if 0
+			if (x != width)
+			{
+				printf("x: %u, width: %u\n", x, w);
+				(void)Cnecin();
+			}
+#endif
+			ziel += linelen;
+
+			for (i = 1; i < vrc; i++)	/* vrc, aber nicht auf sich selbst */
+				memcpy(oziel + ((y + i) * w), oziel + plo, w);
+			y += vrc;
+		} while (y < height);			/* y */
+	}									/* p */
+}
+#endif
+
+
+static void convert_palette(uint8_t *pal, uint8_t *buffer, uint8_t BitsPerPixel, char imgtype)
+{
+	const uint8_t *plane_table;
+
+	static uint8_t const table2bit[] = { 0, 2, 3, 1 };
+	static uint8_t const table4bit[] = { 0, 2, 3, 6, 4, 7, 5, 8, 9, 10, 11, 14, 12, 15, 13, 1 };
+
+	unsigned short i, k, cols;
+
+	struct pal
+	{
+		uint16_t r;
+		uint16_t g;
+		uint16_t b;
+	} *ppal;
+
+	const struct pal *stdpal;
+
+	static struct pal const stdpal2bit[] = {
+		0xff, 0xff, 0xff,
+		0x00, 0x00, 0x00,
+		0xff, 0x00, 0x00,
+		0xd3, 0xd3, 0xd3
+	};
+	static struct pal const stdpal4bit[] = {
+		0xff, 0xff, 0xff,
+		0x00, 0x00, 0x00,
+		0xff, 0x00, 0x00,
+		0x00, 0xff, 0x00,
+		0x00, 0x00, 0xff,
+		0x00, 0xff, 0xff,
+		0xff, 0xff, 0x00,
+		0xff, 0x00, 0xff,
+		0xc0, 0xc0, 0xc0,
+		0x80, 0x80, 0x80,
+		0xb6, 0x00, 0x00,
+		0x00, 0xb6, 0x00,
+		0x00, 0x00, 0xb6,
+		0x00, 0xb6, 0xb6,
+		0xb6, 0xb6, 0x00,
+		0xb6, 0x00, 0xb6
+	};
+
+
+	if (BitsPerPixel > 1)
+	{
+		cols = 1 << BitsPerPixel;
+
+		if (imgtype == 'X')
+		{
+			ppal = (struct pal *) (buffer + 0x16);
+			for (k = 0; k < cols; k++)
+			{
+				*pal++ = ((((unsigned long) ppal->r - ((ppal->r == 0x3e8) ? 1 : 0)) << 8) / 1000L);
+				*pal++ = ((((unsigned long) ppal->g - ((ppal->g == 0x3e8) ? 1 : 0)) << 8) / 1000L);
+				*pal++ = ((((unsigned long) ppal->b - ((ppal->b == 0x3e8) ? 1 : 0)) << 8) / 1000L);
+				ppal++;
+			}
+		} else
+		{
+			/* umbiegen weil VDI-Indizes im Bild stehen */
+			if (cols == 4 || cols == 16)
+			{
+				if (cols == 4)
+				{
+					stdpal = stdpal2bit;
+					plane_table = table2bit;
+				} else
+				{
+					stdpal = stdpal4bit;
+					plane_table = table4bit;
+				}
+
+				for (i = 0; i < cols; i++)
+				{
+					k = plane_table[i];
+					*pal++ = stdpal[k].r;
+					*pal++ = stdpal[k].g;
+					*pal++ = stdpal[k].b;
+				}
+			}
+		}
+	} else
+	{
+		pal[0] = 255;
+		pal[1] = 255;
+		pal[2] = 255;
+		pal[3] = 0;
+		pal[4] = 0;
+		pal[5] = 0;
+	}
+}
+
+
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+/*			GEM (X)IMG Dekomprimierer (IMG)			*/
+/*		1, 2, 4, 7, 8, 24 Bit,						*/
+/*		eigene Komprimierungen						*/
+/* -------------------------------------------------*/
+/* -------------------------------------------------*/
+short imp_module_main(GARGAMEL *smurf_struct)
+{
+	uint8_t *buffer;
+	uint8_t *ziel;
+	char *fname;
+	uint8_t BitsPerPixel;
+	uint8_t Planes;
+	unsigned short PattLength;
+	char imgtype;
+	uint8_t tcmode;
+	uint8_t colmodel;
+	char dummy[3];
+	char impmessag[17];
+
+	unsigned short width, height;
+	unsigned short DatenOffset;
+
+	unsigned long w, memwidth, srcw;
+
+	enum
+	{
+		_RGB,
+		_CMY,
+		_HLS
+	};
+
+
+	SMalloc = smurf_struct->services->SMalloc;
+	SMfree = smurf_struct->services->SMfree;
+
+	buffer = smurf_struct->smurf_pic->pic_data;
+
+	/* falls XIMG, steht in Byte 0x10 - 0x13  XIMG */
+	if (*(uint32_t *) (buffer + 0x10) == 0x58494d47L) /* 'XIMG' */
+		imgtype = 'X';
+	else if (*(uint32_t *) (buffer + 0x10) == 0x54494d47L) /* 'TIMG' */
+		imgtype = 'T';
+	else
+		imgtype = 'I';
+
+	/* erstes Word ist leider nicht immer 1, da gibt es */
+	/* zumindest ein Proramm, das 2 reinschreibt (s. DONNA.IMG) */
+	fname = smurf_struct->smurf_pic->filename;
+	if (*(unsigned int *) buffer > 0x02 ||
+		(*(unsigned int *) (buffer + 0x02) != 8 && imgtype != 'X' && imgtype != 'T') ||
+		stricmp(fileext(fname), "IMG") != 0)
+		return M_INVALID;
+
+	if (imgtype == 'T')
+	{
+		form_alert(1, ERROR1);
+		return M_PICERR;
+	}
+
+	if (*((unsigned int *) (buffer + 0x02)) == 9)
+	{
+		form_alert(0, ERROR2);
+		return (M_PICERR);
+	}
+
+	DatenOffset = *((unsigned int *) (buffer + 0x02)) << 1;
+
+	BitsPerPixel = *(unsigned int *) (buffer + 0x04);
+
+	PattLength = *(unsigned int *) (buffer + 0x06);
+	if (BitsPerPixel == 24)
+		if (PattLength == 3)
+			tcmode = GVW;
+		else
+			tcmode = PA;
+
+	width = *((unsigned int *) (buffer + 0x0c));
+	height = *((unsigned int *) (buffer + 0x0e));
+
+	if (imgtype == 'X')
+		colmodel = *(buffer + 0x14);
+	else
+		colmodel = _RGB;
+
+	strcpy(smurf_struct->smurf_pic->format_name, "GEM-Image .IMG");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	strcpy(impmessag, "GEM-Image ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	if (BitsPerPixel == 24 && tcmode == GVW)
+	{
+		w = (width + 15) / 16;		/* Auf volle Byte gerundete Zeilenl„nge in Byte */
+		memwidth = w * 16;
+		w = (w * 16 * 3);
+		srcw = (unsigned long) width *3L;
+
+		Planes = 1;
+	} else
+	{
+		w = (width + 7) / 8;		/* Auf volle Byte gerundete Zeilenl„nge in Byte */
+		memwidth = w * 8;
+		srcw = w;
+		Planes = BitsPerPixel;
+	}
+
+	if ((ziel = SMalloc(((long) memwidth * (long) height * BitsPerPixel) >> 3)) == 0)
+		return M_MEMORY;
+
+	if (BitsPerPixel == 24 && tcmode == PA)
+		decode_PA_TC(ziel, buffer + DatenOffset, height, PattLength, w, srcw);
+#if 0
+	else if (BitsPerPixel == 24 && tcmode == GC)
+		decode_GC_TC(ziel, buffer + DatenOffset, height, PattLength, w, srcw);
+#endif
+	else
+		decode_GVW_TC(ziel, buffer + DatenOffset, height, PattLength, Planes, w, srcw);
+
+	smurf_struct->smurf_pic->pic_data = ziel;
+
+	if (BitsPerPixel == 24)
+	{
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	} else
+	{
+		convert_palette(smurf_struct->smurf_pic->palette, buffer, BitsPerPixel, imgtype);
+		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	}
+
+	if (colmodel == _RGB)
+		smurf_struct->smurf_pic->col_format = RGB;
+	else
+		smurf_struct->smurf_pic->col_format = CMY;
+
+	SMfree(buffer);
+
+	return M_PICDONE;
+}

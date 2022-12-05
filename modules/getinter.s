@@ -33,12 +33,21 @@
 *																*
 *	Die oberste Plane ist das niederwertigste Bit				*
 ***************************************************************	*
-GLOBL get_IBPLine
-get_IBPLine:
-movem.l d3-d7/a2,-(sp)
 
-move.l d0,d5
-subq.l #1,d0
+	.IFEQ PURE_C
+	.globl _get_IBPLine
+_get_IBPLine:
+	move.l 4(a7),a0
+	move.l 8(a7),a1
+	move.l 12(a7),d0
+	.ENDC
+	
+	.globl get_IBPLine
+get_IBPLine:
+	movem.l d2-d7/a2,-(sp)
+	
+	move.l d0,d5
+	subq.l #1,d0
 
 loopline:
 	moveq	#7,d6
@@ -56,8 +65,9 @@ loopline:
 			move.b	(a2),d2		/* Byte holen */
 	
 			btst	d6,d2
-			beq *+4
+			beq.s loopplane1
 			or.l	d4,d3
+		loopplane1:
 	
 			adda.l	d5,a2			/* eine plane weiter */
 			lsl.l	#1,d4
@@ -75,9 +85,9 @@ loopline:
 		addq.l	#1,d7
 	dbra d6,loop8
 
-addq.l	#1,a1
-dbra d0,loopline
+	addq.l	#1,a1
+	dbra d0,loopline
 
-
-movem.l (sp)+,d3-d7/a2
-rts
+	
+	movem.l (sp)+,d2-d7/a2
+	rts

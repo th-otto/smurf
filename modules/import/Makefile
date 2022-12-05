@@ -24,6 +24,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/fal.sim \
 	$(DISTDIR)/modules/import/fckpaint.sim \
+	$(DISTDIR)/modules/import/gem_img.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -94,6 +95,9 @@ $(DISTDIR)/modules/import/fal.sim: impstart.o fal.o
 $(DISTDIR)/modules/import/fckpaint.sim: impstart.o fckpaint.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+$(DISTDIR)/modules/import/gem_img.sim: impstart.o gem_img.o getinter.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 $(DISTDIR)/modules/import/godpaint.sim: impstart.o godpaint.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
@@ -130,6 +134,9 @@ getpix.o: $(top_srcdir)/src/getpix.s
 
 timer.o: $(top_srcdir)/src/lib/timer.c
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+getinter.o: ../getinter.s
+	$(CC) $(CFLAGS) $(ASFLAGS) -c -o $@ $<
 
 clean::
 	$(RM) *.o $(MODULES)
