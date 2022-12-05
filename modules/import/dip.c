@@ -34,7 +34,7 @@
 #include "import.h"
 #include "smurfine.h"
 
-#undef WHITE				/* is used in AES.H	*/
+#undef WHITE							/* is used in AES.H */
 #define WHITE	1
 #define NWHITE	2
 #define BANFANG	1
@@ -42,40 +42,38 @@
 #define ZANFANG	1
 #define ZMITTE	2
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
 /* Infostruktur fÅr Hauptmodul */
-MOD_INFO module_info = {"DA's Layout Preview",
-						0x0010,
-						"Christian Eyrich",
-						"DIP", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"DA's Layout Preview",
+	0x0010,
+	"Christian Eyrich",
+	{ "DIP", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -85,131 +83,129 @@ MOD_INFO module_info = {"DA's Layout Preview",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel,
-		 BitsPerPixel, DatenOffset, align, status, pos, pix, run, pixel;
-	char dummy[3], impmessag[21];
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t BitsPerPixel;
+	unsigned short DatenOffset;
+	uint8_t align;
+	uint8_t status;
+	uint8_t pos;
+	uint8_t pix;
+	uint8_t run;
+	uint8_t pixel;
+	char dummy[3];
+	char impmessag[21];
 
-	unsigned int x, y, width, height, realwidth;
+	unsigned short x, y;
+	unsigned short width, height;
+	unsigned short realwidth;
 
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 	obuffer = buffer;
 
 	/* kein DIP oder kein Preview enthalten */
-	if(strncmp(buffer, "DALAYOUT", 8) != 0 ||
-	   *(unsigned int *)(buffer + 0x0a) == 0x001e)
-		return(M_INVALID);
-	else
+	if (strncmp(buffer, "DALAYOUT", 8) != 0 || *(uint16_t *) (buffer + 0x0a) == 0x001e)
+		return M_INVALID;
+	BitsPerPixel = 24;
+
+	width = *(uint16_t *) (buffer + 0x1c);
+	realwidth = width * 3;
+	height = *(uint16_t *) (buffer + 0x1e);
+
+	DatenOffset = 0x24;
+
+	strcpy(smurf_struct->smurf_pic->format_name, "DA's DIP-Preview");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	strcpy(impmessag, "DIP-Preview ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	if ((ziel = smurf_struct->services->SMalloc((long) width * (long) height * 3L)) == 0)
+		return M_MEMORY;
+	oziel = ziel;
+
+	buffer += DatenOffset;
+
+	y = 0;
+	do
 	{
-		BitsPerPixel = 24;
-		
-		width = *(unsigned int *)(buffer + 0x1c); 
-		realwidth = width * 3;
-		height = *(unsigned int *)(buffer + 0x1e);
+		align = BANFANG;
+		status = WHITE;
+		pos = ZANFANG;
 
-		DatenOffset = 0x24;
-	
-		strncpy(smurf_struct->smurf_pic->format_name, "DA's DIP-Preview", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
-
-		strcpy(impmessag, "DIP-Preview ");
-		strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-		strcat(impmessag, " Bit");
-		smurf_struct->services->reset_busybox(128, impmessag);
-
-		if((ziel = SMalloc((long)width * (long)height * 3L)) == 0)
-			return(M_MEMORY);
-		else 
+		x = 0;
+		do
 		{
-			memset(ziel, 0x0, (long)width * (long)height * 3L);
-			oziel = ziel;
+			pix = *buffer++;
 
-			buffer += DatenOffset;
-
-			y = 0;
-			do
+			/* restliche Pixel der Zeile weiû machen, also Åberspringen */
+			if (pos == ZMITTE)
 			{
-				align = BANFANG;
-				status = WHITE;
-				pos = ZANFANG;
+				ziel += (width - x) * 3;
+				buffer--;		/* nÑchstes Statement nochmal */
+				break;
+			}
 
-				x = 0;
-				do
+			/* ganze Zeile weiû, also Åberspringen */
+			if (pix == width)
+			{
+				ziel += realwidth;
+
+				x = width;
+			} else
+			{
+				/* pix Pixel weiû, also Åberspringen */
+				if (status == WHITE)
 				{
-					pix = *buffer++;
+					ziel += pix * 3;
 
-					/* restliche Pixel der Zeile weiû machen, also Åberspringen */
-					if(pos == ZMITTE)
+					status = NWHITE;
+				} else
+				{
+					run = pix;
+					while (run--)
 					{
-						ziel += (width -x ) * 3;
-						buffer--;						/* nÑchstes Statement nochmal */
-						break;
-					}
-
-					/* ganze Zeile weiû, also Åberspringen */
-					if(pix == width)
-					{
-						ziel += realwidth;
-
-						x = width;
-					}
-					else
-					{
-						/* pix Pixel weiû, also Åberspringen */
-						if(status == WHITE)
+						if (align == BANFANG)
 						{
-							ziel += pix * 3;
-
-							status = NWHITE;
-						}
-						else
+							pixel = *buffer++;
+							*ziel++ = pixel & 0xf0;
+							*ziel++ = pixel << 4;
+							pixel = *buffer++;
+							*ziel++ = pixel & 0xf0;
+							align = BMITTE;
+						} else
 						{
-							run = pix;
-							while(run--)
-							{
-								if(align == BANFANG)
-								{
-									pixel = *buffer++;
-									*ziel++ = pixel&0xf0;
-									*ziel++ = pixel << 4;
-									pixel = *buffer++;
-									*ziel++ = pixel&0xf0;
-									align = BMITTE;
-								}
-								else
-								{
-									*ziel++ = pixel << 4;
-									pixel = *buffer++;
-									*ziel++ = pixel&0xf0;
-									*ziel++ = pixel << 4;
-									align = BANFANG;
-								}
-							}
-
-							pos = ZMITTE;
+							*ziel++ = pixel << 4;
+							pixel = *buffer++;
+							*ziel++ = pixel & 0xf0;
+							*ziel++ = pixel << 4;
+							align = BANFANG;
 						}
-
-						x += pix;
 					}
-				} while(x < width);
-			} while(++y < height);
 
-			buffer = obuffer;
-			ziel = oziel;
-	
-			smurf_struct->smurf_pic->pic_data = ziel;
-			smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+					pos = ZMITTE;
+				}
 
-			smurf_struct->smurf_pic->col_format = CMY;
+				x += pix;
+			}
+		} while (x < width);
+	} while (++y < height);
 
-		} /* Malloc */
-	} /* Erkennung */
+	buffer = obuffer;
+	ziel = oziel;
 
-	SMfree(buffer);
-	return(M_PICDONE);
+	smurf_struct->smurf_pic->pic_data = ziel;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+
+	smurf_struct->smurf_pic->col_format = CMY;
+
+	smurf_struct->services->SMfree(buffer);
+	return M_PICDONE;
 }

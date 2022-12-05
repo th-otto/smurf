@@ -102,7 +102,7 @@ ceg.sim        0.10    0.10     x
 clipboar.sim   0.50    0.50     x
 cmp.sim        0.20    0.50     x
 cut.sim        0.40    0.40     x
-dip.sim        0.10    0.10
+dip.sim        0.10    0.10     x
 doodle.sim     0.50    0.50
 dta.sim        0.50    0.50
 egarx.sim      0.50    0.50
