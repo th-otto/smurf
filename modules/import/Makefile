@@ -34,6 +34,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/ibas_img.sim \
 	$(DISTDIR)/modules/import/ibm_pic.sim \
 	$(DISTDIR)/modules/import/icn.sim \
+	$(DISTDIR)/modules/import/iff.sim \
 	$(DISTDIR)/modules/import/lan.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -134,6 +135,9 @@ $(DISTDIR)/modules/import/ibm_pic.sim: impstart.o ibm_pic.o
 $(DISTDIR)/modules/import/icn.sim: impstart.o icn.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+$(DISTDIR)/modules/import/iff.sim: impstart.o iff.o getinter.o getint08.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 $(DISTDIR)/modules/import/lan.sim: impstart.o lan.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
@@ -172,6 +176,9 @@ timer.o: $(top_srcdir)/src/lib/timer.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 getinter.o: ../getinter.s
+	$(CC) $(CFLAGS) $(ASFLAGS) -c -o $@ $<
+
+getint08.o: ../getint08.s
 	$(CC) $(CFLAGS) $(ASFLAGS) -c -o $@ $<
 
 clean::

@@ -69,56 +69,586 @@
 #define HAM			0x800
 #define HALFBRITE	0x80
 
+/* Infostruktur fr Hauptmodul */
+MOD_INFO module_info = {
+	"Amiga-IFF Importer",
+	0x0070,
+	"Christian Eyrich",
+	{ "IFF", "LBM", "HAM", "ILM", "ILBM", "PBM", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+static uint8_t *FileEnd;
+static uint8_t *obuf;
+
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
+static short (*busybox)(short pos);
 
 /* Get 16 Pixel (Interleaved Standard Format) Assembler-Rout */
-void get_IBPLine(char *dest, char *src, long lineplanelen);
-void get_IBPLine8(char *dest, char *src, long lineplanelen);
+void get_IBPLine(uint8_t *dest, uint8_t *src, long lineplanelen) ASM_NAME("_get_IBPLine");;
+void get_IBPLine8(uint8_t *dest, uint8_t *src, long lineplanelen) ASM_NAME("_get_IBPLine8");;
 
-char *srchchunk(char *buffer, unsigned long var);
-char *decodeIFF1(char *buffer, unsigned int width, unsigned int height, char comp);
-char *decodeIFF(char *buffer, unsigned int width, unsigned int height, char BitsPerPixel, char comp, char mask);
-char *decodePBM(char *buffer, unsigned int w, unsigned int height, char BitsPerPixel,char comp);
-char *decodeTCIFF(char *buffer, unsigned int width, unsigned int height, char comp);
-char *decodeHAM(char *buffer, unsigned int width, unsigned int height, char *palette, char Planes, char comp);
 
-short (*busybox)(short pos);
 
-/* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Amiga-IFF Importer",
-						0x0070,
-						"Christian Eyrich",
-						"IFF", "LBM", "HAM", "ILM", "ILBM",
-						"PBM", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
 
-char *FileEnd;
-char *obuf;
+/* Dekodiert ganz normale IFF mit 1 Plane aus dem Interleaved- */
+/* Bitplane ins Standardformat, gepackt und ungepackt */
+/* Muž wegen der Invertierung leider in eigene Funktion */
+static uint8_t *decodeIFF1(uint8_t *buffer, unsigned short width, unsigned short height, uint8_t comp)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t v, v1, v2, n;
+	unsigned short x, y, bh, bl;
+	unsigned long w, w16, memwidth;
+
+	w = (unsigned long) ((width + 7) / 8);	/* Auf volle Byte gerundete Zeilenl„nge in Byte */
+	memwidth = w * 8L;
+	w16 = (unsigned long) ((width + 15) / 16) * 2;	/* Auf volle Byte gerundete Zeilenl„nge in Byte */
+	v = w16 - w;						/* da manche Encoder auf 16 Pixel runden ... */
+
+	if ((ziel = SMalloc(((memwidth * (unsigned long) height) >> 3) + 1)) == 0)
+		return NULL;
+
+	oziel = ziel;
+
+	if ((bh = height / 10) == 0)	/* busy-height */
+		bh = height;
+	bl = 0;							/* busy-length */
+
+	y = 0;
+	do
+	{
+		if (!(y % bh))
+		{
+			busybox(bl);
+			bl += 12;
+		}
+
+		if (!comp)
+		{
+			x = 0;
+			do
+			{
+				*ziel++ = ~*buffer++;
+			} while (++x < w16);
+			ziel -= v;
+		} else
+		{
+			x = 0;
+			do
+			{
+				v1 = *buffer++;
+				if (v1 > 0x7f)
+				{
+					n = 0x101 - v1;
+
+					v2 = ~*buffer++;
+
+					x += n;
+
+					while (n--)
+						*ziel++ = v2;
+				} else
+				{
+					n = v1 + 1;
+
+					x += n;
+
+					while (n--)
+						*ziel++ = ~*buffer++;
+				}
+			} while (x < w16);
+			ziel -= v;
+		}							/* comp? */
+	} while (++y < height);
+
+	ziel = oziel;
+
+	return ziel;
+}
+
+
+/* Dekodiert ganz normale IFF mit 2-8 Planes aus dem Interleaved- */
+/* Bitplane ins Standardformat, gepackt und ungepackt */
+static uint8_t *decodeIFF(uint8_t *buffer, unsigned short width, unsigned short height, uint8_t BitsPerPixel, uint8_t comp, uint8_t mask)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t v1, v2, n, p, Planes;
+	unsigned short x, y, bh, bl;
+	unsigned long w;
+	unsigned long w16;
+	unsigned long memwidth;
+	unsigned long pla, plh, plo;
+
+
+	w = (unsigned long) ((width + 7) / 8);	/* Auf volle Byte gerundete Zeilenl„nge in Byte */
+	memwidth = w * 8L;
+	w16 = (unsigned long) ((width + 15) / 16) * 2;	/* Auf volle Byte gerundete Zeilenl„nge in Byte */
+
+	Planes = BitsPerPixel;
+
+	if ((ziel = SMalloc(((memwidth * (unsigned long) height * BitsPerPixel) >> 3) + 1)) == 0)
+		return NULL;
+
+	oziel = ziel;
+
+	plh = (unsigned long) height * w;	/* H”he einer Plane in Byte */
+
+	if ((bh = height / 10) == 0)	/* busy-height */
+		bh = height;
+	bl = 0;							/* busy-length */
+
+	y = 0;
+	do
+	{
+		if (!(y % bh))
+		{
+			busybox(bl);
+			bl += 12;
+		}
+
+		plo = (unsigned long) y * w;	/* Offset vom Planeanfang in Bytes */
+
+		pla = 0;
+
+		p = 0;
+		do
+		{
+			ziel = oziel + pla + plo;	/* Zieladresse der dekodierten Scanline */
+
+			if (!comp)
+			{
+				x = 0;
+				do
+				{
+					*ziel++ = *buffer++;
+				} while (++x < w16);
+			} else
+			{
+				x = 0;
+				do
+				{
+					v1 = *buffer++;
+					if (v1 > 0x7f)
+					{
+						n = 0x101 - v1;
+
+						v2 = *buffer++;
+
+						x += n;
+
+						while (n--)
+							*ziel++ = v2;
+					} else
+					{
+						n = v1 + 1;
+
+						x += n;
+
+						while (n--)
+							*ziel++ = *buffer++;
+					}
+				} while (x < w16);
+			}						/* comp? */
+			pla += plh;				/* Abstand dieser Plane vom Bildanfang */
+		} while (++p < Planes);
+
+		if (mask)
+		{
+			if (!comp)
+				buffer += w16;
+			else
+			{
+				x = 0;
+				do
+				{
+					v1 = *buffer++;
+					if (v1 > 0x7f)
+					{
+						n = 0x101 - v1;
+
+						buffer++;
+
+						x += n;
+					} else
+					{
+						n = v1 + 1;
+
+						x += n;
+
+						buffer += n;
+					}
+				} while (x < w16);
+			}						/* comp? */
+		}
+	} while (++y < height);
+
+	ziel = oziel;
+
+	return ziel;
+}
+
+
+/* Dekodiert TC-IFF (24 Planes), aus dem Interleaved */
+/* Bitplaneformat nach pixelpacked, gepackt und ungepackt */
+static uint8_t *decodeTCIFF(uint8_t *buffer, unsigned short width, unsigned short height, uint8_t comp)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pixbuf;
+	uint8_t *opixbuf;
+	uint8_t v1, v2, n, p;
+	unsigned short x, y, bh, bl;
+	unsigned long w, linelen;
+
+	w = (width + 15) / 16;				/* Auf 16 Pixel gerundete Zeilenl„nge in Byte */
+	w = w * 2;
+
+	linelen = (unsigned long) width * 3L;
+
+	pixbuf = (uint8_t *) SMalloc(w * 24L);	/* Puffer fr Standarddaten */
+	opixbuf = pixbuf;
+
+	/* So viel Speicher mehr weil die Assemblerroutine zuviel schreibt */
+	if ((ziel = SMalloc(((unsigned long) w * 8) * (unsigned long) height * 3 + 1)) == 0)
+		return NULL;
+
+	oziel = ziel;
+
+	memset(ziel, 0x0, (unsigned long) width * height * 3);
+
+	if ((bh = height / 10) == 0)	/* busy-height */
+		bh = height;
+	bl = 0;							/* busy-length */
+
+	y = 0;
+	do
+	{
+		if (!(y % bh))
+		{
+			busybox(bl);
+			bl += 12;
+		}
+
+		if (!comp)
+		{
+			get_IBPLine(ziel, buffer, w);
+			buffer += 24L * w;
+			ziel += linelen;
+		} else
+		{
+			p = 0;
+			do
+			{
+				x = 0;
+				do
+				{
+					v1 = *buffer++;
+
+					if (v1 > 0x7f)
+					{
+						n = 0x101 - v1;
+
+						v2 = *buffer++;
+
+						x += n;
+
+						while (n--)
+							*pixbuf++ = v2;
+					} else
+					{
+						n = v1 + 1;
+
+						x += n;
+
+						while (n--)
+							*pixbuf++ = *buffer++;
+					}
+				} while (x < w);
+			} while (++p < 24);
+
+			pixbuf = opixbuf;
+			get_IBPLine(ziel, pixbuf, w);
+			ziel += linelen;
+		}							/* comp? */
+	} while (++y < height);
+
+	ziel = oziel;
+
+	SMfree(pixbuf);
+
+	return ziel;
+}
+
+
+
+/* Dekodiert HAM-IFF mit 6-8 Planes aus dem Interleaved */
+/* Bitplaneformat nach pixelpacked, gepackt und ungepackt */
+/* Danach wird dieses pixelpacked-Bild verHAMt. */
+static uint8_t *decodeHAM(uint8_t *buffer, unsigned short width, unsigned short height, uint8_t *palette, uint8_t Planes, uint8_t comp)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pixbuf;
+	uint8_t *opixbuf;
+	uint8_t *pal;
+	uint8_t v1, v2, n, p, val, hamval;
+	uint8_t pix;
+	uint8_t lastvalr, lastvalg, lastvalb;
+	uint8_t hambits;
+	uint8_t colbits;
+	uint8_t colbits_complement;
+	uint8_t colmask;
+	uint8_t pixmask;
+	unsigned short x, y, bh, bl;
+	unsigned long w;
+
+
+	hambits = 2;
+	pixmask = (1 << Planes) - 1;
+	colbits = Planes - hambits;
+	colbits_complement = 8 - colbits;
+	colmask = (1 << colbits) - 1;
+
+	w = (width + 15) / 16;				/* Auf volle Byte gerundete Zeilenl„nge in Byte */
+	w = w * 2;
+
+	pixbuf = (uint8_t *) SMalloc(w * 24L);	/* Puffer fr Standarddaten */
+	opixbuf = pixbuf;
+
+	/* Gleich ein TC-Bild */
+	/* So viel Speicher mehr weil die Assemblerroutine zuviel schreibt */
+	if ((ziel = SMalloc(((unsigned long) w * 8) * height * 3 + 1)) == 0)
+		return NULL;
+
+	oziel = ziel;
+
+	memset(ziel, 0, (unsigned long) width * height * 3);
+
+	if ((bh = height / 10) == 0)	/* busy-height */
+		bh = height;
+	bl = 0;							/* busy-length */
+
+	y = 0;
+	do
+	{
+		if (!(y % bh))
+		{
+			busybox(bl);
+			bl += 12;
+		}
+
+		memset(pixbuf, 0x0, w * 24L);
+
+		if (!comp)
+		{
+			memcpy(pixbuf, buffer, w * Planes);
+			get_IBPLine8(ziel, buffer, w);
+			buffer += Planes * w;
+		} else
+		{
+			p = 0;
+			do
+			{
+				x = 0;
+				do
+				{
+					v1 = *buffer++;
+
+					if (v1 > 0x7f)
+					{
+						n = 0x101 - v1;
+
+						v2 = *buffer++;
+
+						x += n;
+
+						while (n--)
+							*pixbuf++ = v2;
+					} else
+					{
+						n = v1 + 1;
+
+						x += n;
+
+						while (n--)
+							*pixbuf++ = *buffer++;
+					}
+				} while (x < w);
+			} while (++p < Planes);
+
+			pixbuf = opixbuf;
+			get_IBPLine8(ziel, pixbuf, w);
+		}							/* comp? */
+
+		/* VerHAMung */
+		lastvalr = lastvalg = lastvalb = 0;
+
+		x = 0;
+		do
+		{
+			pix = *ziel & pixmask;
+			val = pix & colmask;
+			hamval = pix >> colbits;
+
+			if (hamval == 0x0)
+			{
+				pal = palette + val + val + val;
+
+				lastvalr = *ziel++ = *pal;
+				lastvalg = *ziel++ = *(pal + 1);
+				lastvalb = *ziel++ = *(pal + 2);
+			} else if (hamval == 0x1)
+			{
+				*ziel++ = lastvalr;
+				*ziel++ = lastvalg;
+				lastvalb = *ziel++ = val << colbits_complement;
+			} else if (hamval == 0x2)
+			{
+				lastvalr = *ziel++ = val << colbits_complement;
+				*ziel++ = lastvalg;
+				*ziel++ = lastvalb;
+			} else if (hamval == 0x3)
+			{
+				*ziel++ = lastvalr;
+				lastvalg = *ziel++ = val << colbits_complement;
+				*ziel++ = lastvalb;
+			}
+		} while (++x < width);
+	} while (++y < height);
+
+	ziel = oziel;
+
+	return ziel;
+}
+
+
+/* Dekodiert pixelpacked PBM, gepackt und ungepackt */
+static uint8_t *decodePBM(uint8_t *buffer, unsigned short w, unsigned short height, uint8_t BitsPerPixel, uint8_t comp)
+{
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *ooziel;
+	uint8_t v1, v2, n, p, Planes;
+	unsigned short x, y, bh, bl;
+	unsigned long offset;
+
+	Planes = BitsPerPixel >> 3;
+
+	offset = w * Planes;
+
+	if ((ziel = SMalloc((w * (unsigned long) height * BitsPerPixel) >> 3)) == 0)
+		return NULL;
+
+	ooziel = oziel = ziel;
+
+	if ((bh = height / 10) == 0)	/* busy-height */
+		bh = height;
+	bl = 0;							/* busy-length */
+
+	y = 0;
+	do
+	{
+		if (!(y % bh))
+		{
+			busybox(bl);
+			bl += 12;
+		}
+
+		p = 0;
+		do
+		{
+			ziel = oziel + p;		/* Zieladresse der dekodierten Scanline */
+
+			if (!comp)
+			{
+				x = 0;
+				do
+				{
+					*ziel = *buffer++;
+					ziel += Planes;
+				} while (++x < w);
+			} else
+			{
+				x = 0;
+				do
+				{
+					v1 = *buffer++;
+					if (v1 > 0x7f)
+					{
+						n = 0x101 - v1;
+
+						v2 = *buffer++;
+
+						x += n;
+
+						while (n--)
+						{
+							*ziel = v2;
+							ziel += Planes;
+						}
+					} else
+					{
+						n = v1 + 1;
+
+						x += n;
+
+						while (n--)
+						{
+							*ziel = *buffer++;
+							ziel += Planes;
+						}
+					}
+				} while (x < w);
+			}						/* comp? */
+		} while (++p < Planes);
+		oziel += offset;
+	} while (++y < height);
+
+	ziel = ooziel;
+
+	return ziel;
+}
+
+
+/* sucht den n„chsten Junk mit der angegebenen Kennung */
+static uint8_t *srchchunk(uint8_t *buffer, unsigned long var)
+{
+	while (buffer != FileEnd)
+	{
+		if (*(uint32_t *) buffer == var)
+			return buffer;
+		buffer++;
+	}
+}
+
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -128,12 +658,23 @@ char *obuf;
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *pal, *ppal,
-		 BitsPerPixel, comp, imgtype, HAMmode = FALSE, Planes, mask;
-	char dummy[3], impmessag[21];
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *pal;
+	uint8_t *ppal;
+	uint8_t BitsPerPixel;
+	uint8_t comp;
+	char imgtype;
+	BOOLEAN HAMmode = FALSE;
+	uint8_t Planes;
+	uint8_t mask;
+	char dummy[3];
+	char impmessag[21];
 
-	unsigned int cols, k, width, height, DatenOffset;
-
+	unsigned short cols, k;
+	unsigned short width, height;
+	unsigned long DatenOffset;
 	unsigned long FileLen;
 
 
@@ -145,694 +686,148 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	buffer = smurf_struct->smurf_pic->pic_data;
 	obuf = obuffer = buffer;
 
-	if(*(unsigned long *)buffer != 'FORM')				/* FORM */
-		return(M_INVALID);
-	else
-	{
+	if (*(uint32_t *) buffer != 0x464f524dL)	/* FORM */
+		return M_INVALID;
+
 	/* Bereichskennung */
-		if(*(unsigned long *)(buffer + 0x08) == 'ILBM')
-			imgtype = 'I';
-		else
-			if(*(unsigned long *)(buffer + 0x08) == 'PBM ')
-				imgtype = 'P';
-			else
-			{
-				form_alert(0, ERROR1 );
-				return(M_UNKNOWN_TYPE);
-			}
+	if (*(uint32_t *) (buffer + 0x08) == 0x494c42dL) /* 'ILBM' */
+	{
+		imgtype = 'I';
+	} else if (*(uint32_t *) (buffer + 0x08) == 0x50424d20L) /* 'PBM ' */
+	{
+		imgtype = 'P';
+	} else
+	{
+		form_alert(1, ERROR1);
+		return M_UNKNOWN_TYPE;
+	}
 
-		/* L„nge des Files - manchmal inklusive der ersten 8 Bytes, manchmal ohne */
-		FileLen = *(unsigned long *)(buffer + 0x04);
-		FileEnd = buffer + FileLen;
-		
-		/* search for BMHD-Chunk */
-		if((buffer = srchchunk(obuffer, 'BMHD')) == NULL)
-			return(M_PICERR);
+	/* L„nge des Files - manchmal inklusive der ersten 8 Bytes, manchmal ohne */
+	FileLen = *(uint32_t *) (buffer + 0x04);
+	FileEnd = buffer + FileLen;
 
-		width = *(unsigned int *)(buffer + 0x08); 
-		height = *(unsigned int *)(buffer + 0x0a);
+	/* search for BMHD-Chunk */
+	if ((buffer = srchchunk(obuffer, 0x424d4844L)) == NULL) /* 'BMHD' */
+		return M_PICERR;
 
-		Planes = BitsPerPixel = *(buffer + 0x10);
+	width = *(uint16_t *) (buffer + 0x08);
+	height = *(uint16_t *) (buffer + 0x0a);
 
-		mask = *(buffer + 0x11);
+	Planes = BitsPerPixel = *(buffer + 0x10);
 
-		comp = *(buffer + 0x12);
+	mask = *(buffer + 0x11);
 
-		/* search for CAMG-Chunk */
-		/* muž aber nicht vorhanden sein! */
-		if((buffer = srchchunk(obuffer, 'CAMG')) != NULL)
-		{		
-			if(*(unsigned long *)(buffer + 0x08) & HAM)
-				HAMmode = TRUE;
-		}
+	comp = *(buffer + 0x12);
 
-/*		if(BitsPerPixel == 6)
-			HAMmode = TRUE; */
+	/* search for CAMG-Chunk */
+	/* muž aber nicht vorhanden sein! */
+	if ((buffer = srchchunk(obuffer, 0x43414d47L)) != NULL) /* 'CAMG' */
+	{
+		if (*(uint32_t *) (buffer + 0x08) & HAM)
+			HAMmode = TRUE;
+	}
 
-		/* search for CMAP-Chunk */
-		if(BitsPerPixel < 24)
+#if 0
+	if (BitsPerPixel == 6)
+		HAMmode = TRUE;
+#endif
+
+	/* search for CMAP-Chunk */
+	if (BitsPerPixel < 24)
+	{
+		pal = smurf_struct->smurf_pic->palette;
+
+		if (BitsPerPixel == 1)
 		{
-			pal = smurf_struct->smurf_pic->palette;
+			pal[0] = 255;
+			pal[1] = 255;
+			pal[2] = 255;
+			pal[3] = 0;
+			pal[4] = 0;
+			pal[5] = 0;
+		} else
+		{
+			if ((buffer = srchchunk(obuffer, 0x424d4150L)) == NULL) /* 'CMAP' */
+				return M_PICERR;
 
-			if(BitsPerPixel == 1)
+			cols = (unsigned short) *(uint32_t *) (buffer + 0x04) / 3;
+
+			ppal = buffer + 0x08;
+
+			for (k = 0; k < cols; k++)
 			{
-				pal[0] = 255;
-				pal[1] = 255;
-				pal[2] = 255;
-				pal[3] = 0;
-				pal[4] = 0;
-				pal[5] = 0;
-			}
-			else
-			{
-				if((buffer = srchchunk(obuffer, 'CMAP')) == NULL)
-					return(M_PICERR);
-
-				cols = (unsigned int)*(unsigned long *)(buffer + 0x04) / 3;
-	
-				ppal = buffer + 0x08;
-
-				for(k = 0; k < cols; k++)
-				{
-					*pal++ = *ppal++;
-					*pal++ = *ppal++;
-					*pal++ = *ppal++;
-				}
+				*pal++ = *ppal++;
+				*pal++ = *ppal++;
+				*pal++ = *ppal++;
 			}
 		}
+	}
 
-		/* search for BODY-Chunk */
-		if((buffer = srchchunk(obuffer, 'BODY')) == NULL)
-			return(M_PICERR);
+	/* search for BODY-Chunk */
+	if ((buffer = srchchunk(obuffer, 0x424f4459L)) == NULL) /* 'BODY' */
+		return M_PICERR;
 
-		DatenOffset = 0x08;
+	DatenOffset = 0x08;
 
-		if(HAMmode == TRUE)
-			BitsPerPixel = 24;
+	if (HAMmode)
+		BitsPerPixel = 24;
 
-		if(imgtype == 'I')
-			strncpy(smurf_struct->smurf_pic->format_name, "IFF-ILBM-Image .LBM", 21);
+	if (imgtype == 'I')
+		strcpy(smurf_struct->smurf_pic->format_name, "IFF-ILBM-Image .LBM");
+	else
+		strcpy(smurf_struct->smurf_pic->format_name, "IFF-PBM-Image .LBM");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	if (imgtype == 'I')
+	{
+		if (HAMmode)
+			strcpy(impmessag, "HAM-ILBM ");
 		else
-			strncpy(smurf_struct->smurf_pic->format_name, "IFF-PBM-Image .LBM", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
+			strcpy(impmessag, "IFF-ILBM ");
+	} else
+	{
+		strcpy(impmessag, "IFF-PBM ");
+	}
+	strcat(impmessag, itoa(Planes, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(0, impmessag);
 
-		if(imgtype == 'I')
-			if(HAMmode == TRUE)
-				strcpy(impmessag, "HAM-ILBM ");
+	if (imgtype == 'I')
+	{
+		if (BitsPerPixel < 24)
+		{
+			if (BitsPerPixel == 1)
+				ziel = decodeIFF1(buffer + DatenOffset, width, height, comp);
 			else
-				strcpy(impmessag, "IFF-ILBM ");
-		else
-			strcpy(impmessag, "IFF-PBM ");
-		strcat(impmessag, itoa(Planes, dummy, 10));
-		strcat(impmessag, " Bit");
-		smurf_struct->services->reset_busybox(0, impmessag);
+				ziel = decodeIFF(buffer + DatenOffset, width, height, BitsPerPixel, comp, mask & 0x01);
+		} else if (HAMmode)
+		{
+			ziel = decodeHAM(buffer + DatenOffset, width, height, smurf_struct->smurf_pic->palette, Planes, comp);
+		} else
+		{
+			ziel = decodeTCIFF(buffer + DatenOffset, width, height, comp);
+		}
+	} else
+	{
+		ziel = decodePBM(buffer + DatenOffset, width, height, BitsPerPixel, comp);
+	}
+	
+	if (ziel == NULL)
+		return M_MEMORY;
+	smurf_struct->smurf_pic->pic_data = ziel;
 
-		if(imgtype == 'I')
-			if(BitsPerPixel < 24)
-				if(BitsPerPixel == 1)
-					ziel = decodeIFF1(buffer + DatenOffset, width, height, comp);
-				else
-					ziel = decodeIFF(buffer + DatenOffset, width, height, BitsPerPixel, comp, mask & 0x01);
-			else
-				if(HAMmode == TRUE)
-					ziel = decodeHAM(buffer + DatenOffset, width, height, smurf_struct->smurf_pic->palette, Planes, comp);
-				else
-					ziel = decodeTCIFF(buffer + DatenOffset, width, height, comp);
-		else
-			ziel = decodePBM(buffer + DatenOffset, width, height, BitsPerPixel, comp);
+	buffer = obuffer;
 
-		if(ziel == NULL)
-			return(M_MEMORY);
-		else
-			smurf_struct->smurf_pic->pic_data = ziel;
+	if (BitsPerPixel == 24 || imgtype == 'P')
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	else
+		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 
-		buffer = obuffer;
-
-		if(BitsPerPixel == 24 || imgtype == 'P')
-			smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-		else
-			smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-
-		smurf_struct->smurf_pic->col_format = RGB;
-	} /* Erkennung */
+	smurf_struct->smurf_pic->col_format = RGB;
 
 	SMfree(buffer);
 
-	return(M_PICDONE);
-}
-
-
-/* Dekodiert ganz normale IFF mit 1 Plane aus dem Interleaved- */
-/* Bitplane ins Standardformat, gepackt und ungepackt */
-/* Muž wegen der Invertierung leider in eigene Funktion */
-char *decodeIFF1(char *buffer, unsigned int width, unsigned int height, char comp)
-{		
-	char *ziel, *oziel,
-		v, v1, v2, n;
-
-	unsigned int x, y, bh, bl;
-
-	unsigned long w, w16, memwidth;
-
-
-	w = (unsigned long)((width + 7) / 8);			/* Auf volle Byte gerundete Zeilenl„nge in Byte */
-	memwidth = w * 8L;
-	w16 = (unsigned long)((width + 15) / 16) * 2;	/* Auf volle Byte gerundete Zeilenl„nge in Byte */
-	v = w16 - w;									/* da manche Encoder auf 16 Pixel runden ... */
-
-	if((ziel = SMalloc(((memwidth * (unsigned long)height) >> 3) + 1)) == 0)
-		return(NULL);
-	else
-	{
-		oziel = ziel;
-
-		if((bh = height / 10) == 0) 	/* busy-height */
-			bh = height;
-		bl = 0;							/* busy-length */
-
-		y = 0;
-		do
-		{
-			if(!(y%bh))
-			{
-				busybox(bl);
-				bl += 12;
-			}
-
-			if(!comp)
-			{
-				x = 0;
-				do
-				{
-					*ziel++ = ~*buffer++;
-				} while(++x < w16);
-				ziel -= v;
-			}
-			else
-			{
-				x = 0;
-				do
-				{
-					v1 = *buffer++;
-					if(v1 > 0x7f)
-					{
-						n = 0x101 - v1;
-
-						v2 = ~*buffer++;
-
-						x += n;
-
-						while(n--)
-							*ziel++ = v2;
-					}
-					else
-					{
-						n = v1 + 1;
-
-						x += n;
-
-						while(n--)
-							*ziel++ = ~*buffer++;
-					}
-				} while(x < w16);
-				ziel -= v;
-			} /* comp? */
-		} while(++y < height);
-	} /* Malloc */
-
-	ziel = oziel;
-
-	return(ziel);
-} /* decodeIFF1 */
-
-
-/* Dekodiert ganz normale IFF mit 2-8 Planes aus dem Interleaved- */
-/* Bitplane ins Standardformat, gepackt und ungepackt */
-char *decodeIFF(char *buffer, unsigned int width, unsigned int height, char BitsPerPixel, char comp, char mask)
-{		
-	char *ziel, *oziel,
-		 v1, v2, n, p, Planes;
-
-	unsigned int x, y, bh, bl;
-
-	unsigned long w, w16, memwidth, pla, plh, plo;
-
-
-	w = (unsigned long)((width + 7) / 8);			/* Auf volle Byte gerundete Zeilenl„nge in Byte */
-	memwidth = w * 8L;
-	w16 = (unsigned long)((width + 15) / 16) * 2;	/* Auf volle Byte gerundete Zeilenl„nge in Byte */
-
-	Planes = BitsPerPixel;
-
-	if((ziel = SMalloc(((memwidth * (unsigned long)height * BitsPerPixel) >> 3) + 1)) == 0)
-		return(NULL);
-	else
-	{
-		oziel = ziel;
-
-		plh = (unsigned long)height * w;	/* H”he einer Plane in Byte */
-
-		if((bh = height / 10) == 0) 		/* busy-height */
-			bh = height;
-		bl = 0;								/* busy-length */
-
-		y = 0;
-		do
-		{
-			if(!(y%bh))
-			{
-				busybox(bl);
-				bl += 12;
-			}
-
-			plo = (unsigned long)y * w;			/* Offset vom Planeanfang in Bytes */
-			pla = 0;
-
-			p = 0;
-			do
-			{
-				ziel = oziel + pla + plo;		/* Zieladresse der dekodierten Scanline */
-
-				if(!comp)
-				{
-					x = 0;
-					do
-					{
-						*ziel++ = *buffer++;
-					} while(++x < w16);
-				}
-				else
-				{
-					x = 0;
-					do
-					{
-						v1 = *buffer++;
-						if(v1 > 0x7f)
-						{
-							n = 0x101 - v1;
-
-							v2 = *buffer++;
-
-							x += n;
-
-							while(n--)
-								*ziel++ = v2;
-						}
-						else
-						{
-							n = v1 + 1;
-
-							x += n;
-
-							while(n--)
-								*ziel++ = *buffer++;
-						}
-					} while(x < w16);
-				} /* comp? */
-				pla += plh;						/* Abstand dieser Plane vom Bildanfang */
-			} while(++p < Planes);
-
-			if(mask)
-			{
-				if(!comp)
-					buffer += w16;
-				else
-				{
-					x = 0;
-					do
-					{
-						v1 = *buffer++;
-						if(v1 > 0x7f)
-						{
-							n = 0x101 - v1;
-
-							buffer++;
-
-							x += n;
-						}
-						else
-						{
-							n = v1 + 1;
-
-							x += n;
-
-							buffer += n;
-						}
-					} while(x < w16);
-				} /* comp? */
-			}
-		} while(++y < height);
-	} /* Malloc */
-
-	ziel = oziel;
-
-	return(ziel);
-} /* decodeIFF */
-
-
-/* Dekodiert TC-IFF (24 Planes), aus dem Interleaved */
-/* Bitplaneformat nach pixelpacked, gepackt und ungepackt */
-char *decodeTCIFF(char *buffer, unsigned int width, unsigned int height, char comp)
-{
-	char *ziel, *oziel, *pixbuf, *opixbuf,
-		 v1, v2, n, p;
-
-	unsigned int x, y, bh, bl;
-
-	unsigned long w, linelen;
-
-
-	w = (width + 15) / 16; /* Auf 16 Pixel gerundete Zeilenl„nge in Byte */
-	w = w * 2;
-
-	linelen = (unsigned long)width * 3L;
-
-	pixbuf = (char *)SMalloc(w * 24L);	/* Puffer fr Standarddaten */
-	opixbuf = pixbuf;
-
-	/* So viel Speicher mehr weil die Assemblerroutine zuviel schreibt */
-	if((ziel = SMalloc(((unsigned long)w * 8L) * (unsigned long)height * 3L + 1L)) == 0)
-		return(NULL);
-	else
-	{
-		oziel = ziel;
-
-		memset(ziel, 0x0, (unsigned long)width * (unsigned long)height * 3L);
-
-		if((bh = height / 10) == 0) 		/* busy-height */
-			bh = height;
-		bl = 0;								/* busy-length */
-
-		y = 0;
-		do
-		{
-			if(!(y%bh))
-			{
-				busybox(bl);
-				bl += 12;
-			}
-
-			if(!comp)
-			{
-				get_IBPLine(ziel, buffer, w);
-				buffer += 24L * w;
-				ziel += linelen;
-			}
-			else
-			{
-				p = 0;
-				do
-				{
-					x = 0;
-					do
-					{
-						v1 = *buffer++;
-
-						if(v1 > 0x7f)
-						{
-							n = 0x101 - v1;
-
-							v2 = *buffer++;
-
-							x += n;
-
-							while(n--)
-								*pixbuf++ = v2;
-						}
-						else
-						{
-							n = v1 + 1;
-
-							x += n;
-
-							while(n--)
-								*pixbuf++ = *buffer++;
-						}
-					} while(x < w);
-				} while(++p < 24);
-
-				pixbuf = opixbuf;
-				get_IBPLine(ziel, pixbuf, w);
-				ziel += linelen;
-			} /* comp? */
-		} while(++y < height);
-	} /* Malloc */
-
-	ziel = oziel;
-
-	SMfree(pixbuf);
-
-	return(ziel);
-} /* decodeTCIFF */
-
-
-
-/* Dekodiert HAM-IFF mit 6-8 Planes aus dem Interleaved */
-/* Bitplaneformat nach pixelpacked, gepackt und ungepackt */
-/* Danach wird dieses pixelpacked-Bild verHAMt. */
-char *decodeHAM(char *buffer, unsigned int width, unsigned int height, char *palette, char Planes, char comp)
-{
-	char *ziel, *oziel, *pixbuf, *opixbuf, *pal,
-		 v1, v2, n, p, val, hamval,
-		 pix, lastvalr, lastvalg, lastvalb, hambits, colbits, colbits_complement, colmask, pixmask;
-
-	unsigned int x, y, bh, bl;
-
-	unsigned long w;
-
-
-	hambits = 2;
-	pixmask = (1 << Planes) - 1;
-	colbits = Planes - hambits;
-	colbits_complement = 8 - colbits;
-	colmask = (1 << colbits) - 1;
-
-	w = (width + 15) / 16; /* Auf volle Byte gerundete Zeilenl„nge in Byte */
-	w = w * 2;
-
-	pixbuf = (char *)SMalloc(w * 24L);		/* Puffer fr Standarddaten */
-	opixbuf = pixbuf;
-
-	/* Gleich ein TC-Bild */
-	/* So viel Speicher mehr weil die Assemblerroutine zuviel schreibt */
-	if((ziel = SMalloc(((unsigned long)w * 8) * (unsigned long)height * 3L + 1L)) == 0)
-		return(NULL); 
-	else
-	{
-		oziel = ziel;
-
-		memset(ziel, 0x0, (unsigned long)width * (unsigned long)height * 3L);
-
-		if((bh = height / 10) == 0) 		/* busy-height */
-			bh = height;
-		bl = 0;								/* busy-length */
-
-		y = 0;
-		do
-		{
-			if(!(y%bh))
-			{
-				busybox(bl);
-				bl += 12;
-			}
-
-			memset(pixbuf, 0x0, w * 24L);
-
-			if(!comp)
-			{
-				memcpy(pixbuf, buffer, w * Planes);
-				get_IBPLine8(ziel, buffer, w);
-				buffer += Planes * w;
-			}
-			else
-			{
-				p = 0;
-				do
-				{
-					x = 0;
-					do
-					{
-						v1 = *buffer++;
-
-						if(v1 > 0x7f)
-						{
-							n = 0x101 - v1;
-
-							v2 = *buffer++;
-
-							x += n;
-
-							while(n--)
-								*pixbuf++ = v2;
-						}
-						else
-						{
-							n = v1 + 1;
-
-							x += n;
-
-							while(n--)
-								*pixbuf++ = *buffer++;
-						}
-					} while(x < w);
-				} while(++p < Planes);
-
-				pixbuf = opixbuf;
-				get_IBPLine8(ziel, pixbuf, w);
-			} /* comp? */
-
-			/* VerHAMung */
-			lastvalr = lastvalg = lastvalb = 0;
-
-			x = 0;
-			do
-			{
-				pix = *ziel & pixmask;
-				val = pix & colmask;
-				hamval = pix >> colbits;
-
-				if(hamval == 0x0)
-				{
-					pal = palette + val + val + val;
-
-					lastvalr = *ziel++ = *pal;
-					lastvalg = *ziel++ = *(pal + 1);
-					lastvalb = *ziel++ = *(pal + 2);
-				}
-				else
-					if(hamval == 0x1)
-					{
-						*ziel++ = lastvalr;
-						*ziel++ = lastvalg;
-						lastvalb = *ziel++ = val << colbits_complement;
-					}
-					else
-						if(hamval == 0x2)
-						{
-							lastvalr = *ziel++ = val << colbits_complement;
-							*ziel++ = lastvalg;
-							*ziel++ = lastvalb;
-						}
-						else
-							if(hamval == 0x3)
-							{
-								*ziel++ = lastvalr;
-								lastvalg = *ziel++ = val << colbits_complement;
-								*ziel++ = lastvalb;
-							}
-			} while(++x < width);
-		} while(++y < height);
-
-		ziel = oziel;
-	}
-
-	return(ziel);
-} /* decodeHAM */
-
-
-/* Dekodiert pixelpacked PBM, gepackt und ungepackt */
-char *decodePBM(char *buffer, unsigned int w, unsigned int height, char BitsPerPixel, char comp)
-{		
-	char *ziel, *oziel, *ooziel,
-		 v1, v2, n, p, Planes;
-
-	unsigned int x, y, bh, bl;
-
-	unsigned long offset;
-
-
-	Planes = BitsPerPixel >> 3;
-
-	offset = w * Planes;	
-
-	if((ziel = SMalloc((w * (unsigned long)height * BitsPerPixel) >> 3)) == 0)
-		return(NULL);
-	else
-	{
-		ooziel = oziel = ziel;
-
-		if((bh = height / 10) == 0) 		/* busy-height */
-			bh = height;
-		bl = 0;								/* busy-length */
-
-		y = 0;
-		do
-		{
-			if(!(y%bh))
-			{
-				busybox(bl);
-				bl += 12;
-			}
-
-			p = 0;
-			do
-			{
-				ziel = oziel + p;				/* Zieladresse der dekodierten Scanline */
-
-				if(!comp)
-				{
-					x = 0;
-					do
-					{
-						*ziel = *buffer++;
-						ziel += Planes;
-					} while(++x < w);
-				}
-				else
-				{
-					x = 0;
-					do
-					{
-						v1 = *buffer++;
-						if(v1 > 0x7f)
-						{
-							n = 0x101 - v1;
-
-							v2 = *buffer++;
-
-							x += n;
-
-							while(n--)
-							{
-								*ziel = v2;
-								ziel += Planes;
-							}
-						}
-						else
-						{
-							n = v1 + 1;
-
-							x += n;
-
-							while(n--)
-							{
-								*ziel = *buffer++;
-								ziel += Planes;
-							}
-						}
-					} while(x < w);
-				} /* comp? */
-			} while(++p < Planes);
-			oziel += offset;
-		} while(++y < height);
-	} /* Malloc */
-
-	ziel = ooziel;
-
-	return(ziel);
-} /* decodePBM */
-
-
-/* sucht den n„chsten Junk mit der angegebenen Kennung */
-char *srchchunk(char *buffer, unsigned long var)
-{
-	while(*(unsigned long *)buffer != var && buffer != FileEnd)
-		buffer++;
-
-	if(*(unsigned long *)buffer == var)
-		return(buffer);
-	else
-		return(NULL);
+	return M_PICDONE;
 }
