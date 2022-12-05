@@ -17,6 +17,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/cmp.sim \
 	$(DISTDIR)/modules/import/cut.sim \
 	$(DISTDIR)/modules/import/dip.sim \
+	$(DISTDIR)/modules/import/doodle.sim \
 	$(DISTDIR)/modules/import/esm.sim \
 	$(DISTDIR)/modules/import/godpaint.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
@@ -65,6 +66,9 @@ $(DISTDIR)/modules/import/cut.sim: impstart.o cut.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/dip.sim: impstart.o dip.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/doodle.sim: impstart.o doodle.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/esm.sim: impstart.o esm.o

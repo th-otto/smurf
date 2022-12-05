@@ -31,36 +31,37 @@
 #define DEBUG           0
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Doodle-Importer",
-						0x0050,
-                        "Dale Russell",
-                        "DOO", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"Doodle-Importer",
+	0x0050,
+	"Dale Russell",
+	{ "DOO", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -69,36 +70,36 @@ MOD_INFO module_info = {"Doodle-Importer",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-char    *buffer;
-int width=0, height=0;
-char ext[4]="";
-char *extend;
+	uint8_t *buffer;
+	short width, height;
+	char ext[4];
+	char *extend;
 
 /***************************************************************/
 /*      Kopfdaten analysieren                                  */
 /***************************************************************/
-buffer=smurf_struct->smurf_pic->pic_data;
+	buffer = smurf_struct->smurf_pic->pic_data;
 
 /*********** ERKENNUNG .DOO *****************/
-extend=smurf_struct->smurf_pic->filename;
-strncpy(ext, extend+(strlen(extend)-3), 3);
-if(strncmp(ext, "DOO", 3)!=0)   return(M_INVALID);
+	extend = smurf_struct->smurf_pic->filename;
+	strncpy(ext, extend + strlen(extend) - 3, 3);
+	if (strnicmp(ext, "DOO", 3) != 0)
+		return M_INVALID;
 
-smurf_struct->services->reset_busybox(128, "Doodle 1 Bit");
+	smurf_struct->services->reset_busybox(128, "Doodle 1 Bit");
 
-strncpy(smurf_struct->smurf_pic->format_name, "Atari Doodle Format  ", 21);
-width=640;
-height=400;
+	strcpy(smurf_struct->smurf_pic->format_name, "Atari Doodle Format");
+	width = 640;
+	height = 400;
 
 /***************************************************************/
 /*      Strukturen fllen                                      */
 /***************************************************************/
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-smurf_struct->smurf_pic->depth=1;
-smurf_struct->smurf_pic->bp_pal=0;
-smurf_struct->smurf_pic->pic_data=buffer;
-smurf_struct->smurf_pic->format_type=1;
-return(M_PICDONE);
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 1;
+	smurf_struct->smurf_pic->bp_pal = 0;
+	smurf_struct->smurf_pic->pic_data = buffer;
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	return M_PICDONE;
 }
-

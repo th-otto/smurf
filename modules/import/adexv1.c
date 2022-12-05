@@ -193,7 +193,7 @@ short imp_module_main(GARGAMEL * smurf_struct)
 	{
 		buffer = retbuf;
 	}
-	strcpy(smurf_struct->smurf_pic->format_name, "Adex ChromaGraph    ");
+	strcpy(smurf_struct->smurf_pic->format_name, "Adex ChromaGraph");
 	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
 	smurf_struct->smurf_pic->pic_data = buffer;
 	smurf_struct->smurf_pic->depth = BitsPerPixel;

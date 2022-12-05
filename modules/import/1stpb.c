@@ -88,7 +88,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		return M_INVALID;
 
 	strcpy(smurf_struct->smurf_pic->format_name, "First Publisher .ART");
-	smurf_struct->smurf_pic->format_type = 1;
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 	smurf_struct->smurf_pic->depth = 1;
 	smurf_struct->smurf_pic->pic_width = width;
 	smurf_struct->smurf_pic->pic_height = height;
