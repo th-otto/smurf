@@ -34,111 +34,129 @@
 #define B_PIX       0
 
 /* Infostruktur fÅr Hauptmodul */
-MOD_INFO module_info = {"EGA Paint/ColorRIX Bitmap",
-						0x0050,
-                        "Dale Russell",
-                        "RIX", "SCI", "SCR", "SCP", "SCG",
-                        "SCU", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"EGA Paint/ColorRIX Bitmap",
+	0x0050,
+	"Dale Russell",
+	{ "RIX", "SCI", "SCR", "SCP", "SCG", "SCU", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 /*      EGA Paint COLORRIX Bitmap                   */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL * smurf_struct)
 {
-char dummy[3], impmessag[17];
-char *buffer=smurf_struct->smurf_pic->pic_data;
-char *retbuf, *getbuf;
-long len;
-int BitsPerPixel=0, width=0, height=0, Mode=0;
-int xc,ColCount=0;
-char *output, *palbuf;
-/*****************************************************/
-/*          MAGIC Code ÅberprÅfen                    */
-/*****************************************************/
-if ( strncmp(buffer, "RIX3", 4)!=0 )
-            return(M_INVALID);
-/*****************************************************/         
-/*      Kopfdaten auslesen                           */
-/*****************************************************/         
-width=*(buffer+4)+(*(buffer+5)<<8);
-height=*(buffer+6)+(*(buffer+7)<<8);
-Mode=*(buffer+8);
-BitsPerPixel=*(buffer+9);
+	char dummy[3];
+	char impmessag[17];
+	uint8_t *buffer = smurf_struct->smurf_pic->pic_data;
+	uint8_t *retbuf;
+	uint8_t *getbuf;
+	long len;
+	short BitsPerPixel;
+	short width, height;
+	short Mode;
+	short xc;
+	short ColCount;
+	uint8_t *output;
+	uint8_t *palbuf;
 
-strcpy(impmessag, "EGA Paint ");
-strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-strcat(impmessag, " Bit");
-smurf_struct->services->reset_busybox(128, impmessag);
+	/*****************************************************/
+	/*          MAGIC Code ÅberprÅfen                    */
+	/*****************************************************/
+	if (strncmp(buffer, "RIX3", 4) != 0)
+		return M_INVALID;
 
-if (Mode==0xaf) { BitsPerPixel=8; Mode=0; }
-else Mode=1;
+	/*****************************************************/
+	/*      Kopfdaten auslesen                           */
+	/*****************************************************/
+	width = *(buffer + 4) + (*(buffer + 5) << 8);
+	height = *(buffer + 6) + (*(buffer + 7) << 8);
+	Mode = *(buffer + 8);
+	BitsPerPixel = *(buffer + 9);
+
+	strcpy(impmessag, "EGA Paint ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	if (Mode == 0xaf)
+	{
+		BitsPerPixel = 8;
+		Mode = 0;
+	} else
+		Mode = 1;
 
 #if DEBUG>0
-    printf("\n  Width: %i",width);          
-    printf("\n  Height: %i",height);            
-    printf("\n  Depth: %i",BitsPerPixel);           
-    getch();
+	printf("\n  Width: %i", width);
+	printf("\n  Height: %i", height);
+	printf("\n  Depth: %i", BitsPerPixel);
+	getch();
 #endif
-/*****************************************************/                     
-/*      Palette auslesen                             */
-/*****************************************************/                     
-output=smurf_struct->smurf_pic->palette;    
-palbuf=buffer+10;
-if (BitsPerPixel==8) ColCount=256;
-else if (BitsPerPixel==4) ColCount=16;
-else if (BitsPerPixel==1) ColCount=2;
+	/*****************************************************/
+	/*      Palette auslesen                             */
+	/*****************************************************/
+	output = smurf_struct->smurf_pic->palette;
+	palbuf = buffer + 10;
+	if (BitsPerPixel == 8)
+		ColCount = 256;
+	else if (BitsPerPixel == 4)
+		ColCount = 16;
+	else if (BitsPerPixel == 1)
+		ColCount = 2;
+	else
+		ColCount = 0;
 
-for (xc=0; xc<ColCount; xc++)
-{
-    *(output++)=(*(palbuf++)<<2);       /* r */
-    *(output++)=(*(palbuf++)<<2);       /* g */
-    *(output++)=(*(palbuf++)<<2);       /* b */
-}           
-if (BitsPerPixel==8)
-    len=((long)width)*((long)height);
-else if (BitsPerPixel==4)
-    len=(long)((width+3)/4)*((long)height);
-else if (BitsPerPixel==1)
-    len=(long)((width+7)/8)*((long)height);
-    
-strncpy(smurf_struct->smurf_pic->format_name, "EGA Paint / ColorRIX", 21);
-smurf_struct->smurf_pic->format_type=Mode;
-smurf_struct->smurf_pic->col_format=RGB;
-retbuf=Malloc(len);
-getbuf=(smurf_struct->smurf_pic->pic_data);
-getbuf+=10+ColCount*3;
-memcpy(retbuf, getbuf, len);
-Mfree(smurf_struct->smurf_pic->pic_data);
-smurf_struct->smurf_pic->pic_data=retbuf;
-smurf_struct->smurf_pic->depth=(int)BitsPerPixel;
-smurf_struct->smurf_pic->pic_width=(int)width;
-smurf_struct->smurf_pic->pic_height=(int)height;
-return(M_PICDONE);
+	for (xc = 0; xc < ColCount; xc++)
+	{
+		*(output++) = (*(palbuf++) << 2);	/* r */
+		*(output++) = (*(palbuf++) << 2);	/* g */
+		*(output++) = (*(palbuf++) << 2);	/* b */
+	}
+	if (BitsPerPixel == 8)
+		len = ((long) width) * ((long) height);
+	else if (BitsPerPixel == 4)
+		len = (long) ((width + 3) / 4) * ((long) height);
+	else if (BitsPerPixel == 1)
+		len = (long) ((width + 7) / 8) * ((long) height);
+
+	strcpy(smurf_struct->smurf_pic->format_name, "EGA Paint / ColorRIX");
+	smurf_struct->smurf_pic->format_type = Mode;
+	smurf_struct->smurf_pic->col_format = RGB;
+	retbuf = (uint8_t *)Malloc(len);
+	getbuf = (smurf_struct->smurf_pic->pic_data);
+	getbuf += 10 + ColCount * 3;
+	memcpy(retbuf, getbuf, len);
+	Mfree(smurf_struct->smurf_pic->pic_data);
+	smurf_struct->smurf_pic->pic_data = retbuf;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	return M_PICDONE;
 }
