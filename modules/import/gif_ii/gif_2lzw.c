@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "import.h"
+#include "gif_2lzw.h"
 #include "demolib.h"
 
 #define MaxStackSize	4096
@@ -34,33 +35,41 @@
 #define TIMER	0
 
 #define ASSEMBLER	1
-#define	MC68020	2
-#define	MC68030	4
-#define	MC68040	8
+
+struct gif_par {
+	short data_size;
+	short clear;
+	short end_of_information;
+	short available;
+	short pCodeSize;
+	short entries;
+	short pCodeMask;
+	uint8_t *ziel;
+	uint8_t *pData;
+	short *srclen;
+	uint8_t **src;
+};
 
 
 /* Set 16 Pixel (Standard Format) Assembler-Rout */
-int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char BitsPerPixel);
-int decode_lzw_fast(char *buffer, char *ziel);
-
-void decode_fast(int *par1, long *par2) ASM_NAME("_decode_fast");
-void decode_fast020(int *par1, long *par2) ASM_NAME("_decode_fast020");
-
-extern int PROCESSOR;
-extern long filelen;
+void decode_fast(struct gif_par *par) ASM_NAME("_decode_fast");
+void decode_fast020(struct gif_par *par) ASM_NAME("_decode_fast020");
 
 /* decodiert alle GIF mit 1-7 Bit */
-int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char BitsPerPixel)
+short decode_lzw_normal(uint8_t *buffer, uint8_t *ziel, short width, short height, uint8_t BitsPerPixel)
 {
-	int *prefix;
-	char *suffix, *out, *opos, *pixbuf;
-	char data_size;
+	short *prefix;
+	uint8_t *suffix;
+	uint8_t *out;
+	uint8_t *opos;
+	uint8_t *pixbuf;
+	uint8_t data_size;
 
-	int code, oldcode, clear, end_of_information, entries, available;
-	int x, l, c, k, finished, out_count, width2, v, d;
+	short code, oldcode, clear, end_of_information, entries, available;
+	short x, l, c, k, finished, out_count, width2, v, d;
 
-	char *pData;
-	unsigned int pBitsLeft, pCodeMask, pCodeSize, pCount;
+	uint8_t *pData;
+	unsigned short pBitsLeft, pCodeMask, pCodeSize, pCount;
 	unsigned long pDatum;
 
 	long planelength, len_to_go;
@@ -70,46 +79,43 @@ int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char Bits
 	init_timer();
 #endif
 
-	planelength = (((long)width + 7) / 8) * height; /* Auf volle Byte gerundete ZeilenlÑnge in Byte */
+	planelength = (((long) width + 7) / 8) * height;	/* Auf volle Byte gerundete ZeilenlÑnge in Byte */
 	width2 = width / 16 * 16;
-	v = width%16;
+	v = width % 16;
 
-	if(v == 0)
+	if (v == 0)
 	{
 		width2 -= 16;
 		v = 16;
 	}
 
 	/* Speicher fÅr LZW-Arrays anfordern */
-	prefix = (int *)malloc(MaxStackSize * sizeof(int));
-	suffix = (char *)malloc(MaxStackSize);
-	out = (char *)malloc(MaxStackSize);
-	pixbuf = (char *)malloc((width + 15) / 16 * 16);
-	if((prefix == (int *)NULL) ||
-	   (suffix == (char *)NULL) ||
-	   (out == (char *)NULL) ||
-	   (pixbuf == (char *)NULL))
-		return(-1);
+	prefix = (short *) Malloc(MaxStackSize * sizeof(*prefix) + MaxStackSize * sizeof(*suffix) * 2 + ((width + 15) / 16) * 16 * sizeof(*pixbuf));
+	if (prefix == NULL)
+		return -1;
+	suffix = (uint8_t *) (prefix + MaxStackSize);
+	out = suffix + MaxStackSize;
+	pixbuf = out + ((width + 15) / 16) * 16;
 
 	/* Initalisieren der LZW-Variablen */
-	data_size = *buffer++;					/* aktuelle Codegrîûe auslesen */
-	clear = 1 << data_size;					/* Clearcode bestimmen */
-	end_of_information = clear + 1;			/* end-of-information Code */
-	available = clear + 2;					/* erster freier Tabelleneintrag */
-	pCodeSize = data_size + 1;				/* Bitanzahl der nÑchsten Codegrîûe */
-	entries = 1 << pCodeSize;					/* erster Code der nÑchsten Codegrîûe */
-	pCodeMask = (1 << pCodeSize) - 1;		/* Codemaske setzen */
+	data_size = *buffer++;				/* aktuelle Codegrîûe auslesen */
+	clear = 1 << data_size;				/* Clearcode bestimmen */
+	end_of_information = clear + 1;		/* end-of-information Code */
+	available = clear + 2;				/* erster freier Tabelleneintrag */
+	pCodeSize = data_size + 1;			/* Bitanzahl der nÑchsten Codegrîûe */
+	entries = 1 << pCodeSize;			/* erster Code der nÑchsten Codegrîûe */
+	pCodeMask = (1 << pCodeSize) - 1;	/* Codemaske setzen */
 
 	/* initialisieren der ersten 1 << Codegrîûe EintrÑge */
-	for(code = 0; code < clear; code++)
+	for (code = 0; code < clear; code++)
 	{
 		prefix[code] = -1;
 		suffix[code] = code;
 	}
 
 #if DEBUG
-	printf("\ndata_size: %d, Position: %p", (int)data_size, buffer);
-	getch();
+	printf("\ndata_size: %d, Position: %p", data_size, buffer);
+	(void)Cnecin();
 #endif
 
 	pBitsLeft = 0;
@@ -121,30 +127,30 @@ int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char Bits
 	out_count = 0;
 	x = 0;
 	finished = FALSE;
-	while(!finished)
+	while (!finished)
 	{
 		/* Code holen */
-		if(pBitsLeft < pCodeSize)
+		if (pBitsLeft < pCodeSize)
 		{
-			if(pCount == 0)					/* neuen Block beginnen */
+			if (pCount == 0)			/* neuen Block beginnen */
 			{
-				pCount = *pData++;			/* BlocklÑnge auslesen */
-				if(pCount == 0 || (len_to_go -= pCount) < 0)
+				pCount = *pData++;		/* BlocklÑnge auslesen */
+				if (pCount == 0 || (len_to_go -= pCount) < 0)
 					break;
 			}
-	
-	    	pDatum |= (unsigned long)*pData++ << pBitsLeft;
+
+			pDatum |= (unsigned long) *pData++ << pBitsLeft;
 			pCount--;
 			pBitsLeft += 8;
 
-			if(pCount == 0)					/* neuen Block beginnen */
+			if (pCount == 0)			/* neuen Block beginnen */
 			{
-				pCount = *pData++;			/* BlocklÑnge auslesen */
-				if(pCount == 0 || (len_to_go -= pCount) < 0)
+				pCount = *pData++;		/* BlocklÑnge auslesen */
+				if (pCount == 0 || (len_to_go -= pCount) < 0)
 					break;
 			}
-	
-	    	pDatum |= (unsigned long)*pData++ << pBitsLeft;
+
+			pDatum |= (unsigned long) *pData++ << pBitsLeft;
 			pCount--;
 			pBitsLeft += 8;
 		}
@@ -152,11 +158,11 @@ int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char Bits
 		/* long muû auf int und gebracht und dann verundet werden, */
 		/* oder die Maske muû auf long gebracht werden - aber die long- */
 		/* VerknÅpfung wÑre wahrscheinlich langsamer. */
-		code = (int)pDatum&pCodeMask;
+		code = (short) pDatum & pCodeMask;
 		pDatum >>= pCodeSize;
 		pBitsLeft -= pCodeSize;
 
-		if(code == clear)						/* Clearcode? */
+		if (code == clear)				/* Clearcode? */
 		{
 			/* Reset Decoder */
 			available = clear + 2;
@@ -165,19 +171,19 @@ int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char Bits
 			pCodeMask = (1 << pCodeSize) - 1;
 
 			/* Code holen */
-			if(pBitsLeft < pCodeSize)
+			if (pBitsLeft < pCodeSize)
 			{
-				if(pCount == 0)					/* neuen Block beginnen */
-					pCount = *pData++;			/* BlocklÑnge auslesen */
-	
-	    		pDatum |= (unsigned long)*pData++ << pBitsLeft;
+				if (pCount == 0)		/* neuen Block beginnen */
+					pCount = *pData++;	/* BlocklÑnge auslesen */
+
+				pDatum |= (unsigned long) *pData++ << pBitsLeft;
 				pCount--;
 				pBitsLeft += 8;
 
-				if(pCount == 0)					/* neuen Block beginnen */
-					pCount = *pData++;			/* BlocklÑnge auslesen */
-	
-	    		pDatum |= (unsigned long)*pData++ << pBitsLeft;
+				if (pCount == 0)		/* neuen Block beginnen */
+					pCount = *pData++;	/* BlocklÑnge auslesen */
+
+				pDatum |= (unsigned long) *pData++ << pBitsLeft;
 				pCount--;
 				pBitsLeft += 8;
 			}
@@ -185,16 +191,16 @@ int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char Bits
 			/* long muû auf int und gebracht und dann verundet werden, */
 			/* oder die Maske muû auf long gebracht werden - aber die long- */
 			/* VerknÅpfung wÑre wahrscheinlich langsamer. */
-			code = (int)pDatum&pCodeMask;
+			code = (short) pDatum & pCodeMask;
 			pDatum >>= pCodeSize;
 			pBitsLeft -= pCodeSize;
 
-			pixbuf[x++] = code;					/* Ist garantiert ein bekannter Code */
+			pixbuf[x++] = code;			/* Ist garantiert ein bekannter Code */
 
-			if(x == width)
+			if (x == width)
 			{
 				out_count = 0;
-				while(out_count < width2)
+				while (out_count < width2)
 				{
 					setpix_standard(pixbuf + out_count, ziel, BitsPerPixel, planelength, 16);
 					ziel += 2;
@@ -208,15 +214,14 @@ int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char Bits
 			}
 
 			oldcode = code;
-		}
-		else
+		} else
 		{
-			if(code == end_of_information)
+			if (code == end_of_information)
 				finished = TRUE;
 			else
 			{
 				/* Dekodierbarer Code */
-				if(code < available)			/* Code schon bekannt? */
+				if (code < available)	/* Code schon bekannt? */
 				{
 					/* Schreibe Muster in Ausgabe */
 					opos = out;
@@ -226,34 +231,33 @@ int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char Bits
 					{
 						*opos++ = suffix[c];
 						l++;
-					} while((c = prefix[c]) != -1);	/* von hinten her aufrollen */
+					} while ((c = prefix[c]) != -1);	/* von hinten her aufrollen */
 
-					k = *(opos - 1);			/* 1. Zeichen output stream merken */
-				}
-				else
+					k = *(opos - 1);	/* 1. Zeichen output stream merken */
+				} else
 				{
-					opos = out + 1;				/* vorne Platz lassen */
+					opos = out + 1;		/* vorne Platz lassen */
 					l = 1;
 					c = oldcode;
 					do
 					{
 						*opos++ = suffix[c];
 						l++;
-					} while((c = prefix[c]) != -1);	/* von hinten her aufrollen */
+					} while ((c = prefix[c]) != -1);	/* von hinten her aufrollen */
 
-					k = *(opos - 1);			/* 1. Zeichen output stream merken */
-					*out = k;					/* und vorne anhÑngen */
-				} /* else */
-        
+					k = *(opos - 1);	/* 1. Zeichen output stream merken */
+					*out = k;			/* und vorne anhÑngen */
+				}						/* else */
+
 				/* Ausgabe der Zeichenkette richtig herum */
 				do
 				{
 					pixbuf[x++] = *(--opos);
 
-					if(x == width)
+					if (x == width)
 					{
 						out_count = 0;
-						while(out_count < width2)
+						while (out_count < width2)
 						{
 							setpix_standard(pixbuf + out_count, ziel, BitsPerPixel, planelength, 16);
 							ziel += 2;
@@ -265,7 +269,7 @@ int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char Bits
 
 						x = 0;
 					}
-				} while(--l);
+				} while (--l);
 
 				/* pflegen der Tabelle */
 				prefix[available] = oldcode;
@@ -275,56 +279,57 @@ int decode_lzw_normal(char *buffer, char *ziel, int width, int height, char Bits
 			}
 
 			/* Codegrîûe erhîhen wenn nîtig und mîglich */
-			if(available >= entries && pCodeSize < 12)
+			if (available >= entries && pCodeSize < 12)
 			{
 				pCodeSize++;
 				pCodeMask += available;
 				entries <<= 1;
 			}
 		}
-	} /* while */
+	}									/* while */
 
 #if TIMER
-/* wie schnell waren wir? */
+	/* wie schnell waren wir? */
 	printf("\nZeit: %lu", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
-	free(pixbuf);
-	free(out);
-	free(suffix);
-	free(prefix);
+	Mfree(prefix);
 
-	return(0);
-} /* decode_lzw_normal */
+	return 0;
+}
 
 
 /*
  * decodiert alle GIF mit 8 Bit 
  */
-int decode_lzw_fast(char *buffer, char *ziel)
+short decode_lzw_fast(uint8_t *buffer, uint8_t *ziel)
 {
-	char *firstcodes, *ofirstcodes;
-	int *srclen;
-	char data_size;
+	uint8_t *firstcodes;
+	short *srclen;
+	uint8_t data_size;
 
-	int code, clear, end_of_information, entries, available;
-/*	int i finished, codelen, oldcodelen; */
+	short code, clear, end_of_information, entries, available;
 
-	long *src;
+	uint8_t **src;
 
-	char *pData;
-	unsigned int pCodeMask, pCodeSize;
-#if !ASSEMBLER
-	char *out, *dst;
-	int oldcode;
-	unsigned int pCount;
-	unsigned int pBitsLeft;
+	uint8_t *pData;
+	unsigned short pCodeMask, pCodeSize;
+
+#if ASSEMBLER
+	struct gif_par par;
+#else
+	short i;
+	short finished;
+	short codelen;
+	short oldcodelen;
+	uint8_t *out;
+	uint8_t *dst;
+	short oldcode;
+	unsigned short pCount;
+	unsigned short pBitsLeft;
 	unsigned long pDatum;
 #endif
-
-	int par1[20];
-	long par2[20];
 
 #if TIMER
 	init_timer();
@@ -333,63 +338,61 @@ int decode_lzw_fast(char *buffer, char *ziel)
 	/*
 	 * Speicher fÅr LZW-Arrays anfordern
 	 */
-	srclen = (int *)malloc(MaxStackSize * sizeof(int));
-	src = (long *)malloc(MaxStackSize * sizeof(long));
-	ofirstcodes = firstcodes = (char *)malloc(256);			/* maximum needed */
-	if((srclen == (int *)NULL) ||
-	   (firstcodes == (char *)NULL) ||
-	   (src == (long *)NULL))
-		return(-1);
+	srclen = (short *) Malloc(MaxStackSize * sizeof(*srclen) + MaxStackSize * sizeof(*src) + 256 * sizeof(*firstcodes));
+	if (srclen == NULL)
+		return -1;
+	src = (uint8_t **) (srclen + MaxStackSize);
+	firstcodes = (uint8_t *) (src + MaxStackSize);	/* maximum needed */
 
 	/*
 	 * initalisieren der LZW-Variablen
 	 */
-	data_size = *buffer++;					/* aktuelle Codegrîûe auslesen */
-	clear = 1 << data_size;					/* Clearcode bestimmen */
-	end_of_information = clear + 1;			/* end-of-information Code */
-	available = clear + 2;					/* erster freier Tabelleneintrag */
-	pCodeSize = data_size + 1;				/* Bitanzahl der nÑchsten Codegrîûe */
-	entries = 1 << pCodeSize;				/* erster Code der nÑchsten Codegrîûe */
-	pCodeMask = (1 << pCodeSize) - 1;		/* Codemaske setzen */
+	data_size = *buffer++;				/* aktuelle Codegrîûe auslesen */
+	clear = 1 << data_size;				/* Clearcode bestimmen */
+	end_of_information = clear + 1;		/* end-of-information Code */
+	available = clear + 2;				/* erster freier Tabelleneintrag */
+	pCodeSize = data_size + 1;			/* Bitanzahl der nÑchsten Codegrîûe */
+	entries = 1 << pCodeSize;			/* erster Code der nÑchsten Codegrîûe */
+	pCodeMask = (1 << pCodeSize) - 1;	/* Codemaske setzen */
 
 	/*
 	 * initialisieren der ersten 1 << Codegrîûe EintrÑge
 	 */
-	for(code = 0; code < clear; code++)
+	for (code = 0; code < clear; code++)
 	{
-	#ifdef ASSEMBLER
-		srclen[code] = 0;		/* mÅûte eigentlich 1 sein, aber in der ASS-Rout wird dbra verwendet, um das Muster zu schreiben */
-	#else
+#if ASSEMBLER
+		srclen[code] = 0;				/* mÅûte eigentlich 1 sein, aber in der ASS-Rout wird dbra verwendet, um das Muster zu schreiben */
+#else
 		srclen[code] = 1;
-	#endif
+#endif
 
 		*firstcodes = code;
-		src[code] = (long)&(*firstcodes);
+		src[code] = firstcodes;
 		firstcodes++;
 	}
 
 	pData = buffer;
 
 #if ASSEMBLER
-	par1[0]=data_size;
-	par1[1]=clear;
-	par1[2]=end_of_information;
-	par1[3]=available;
-	par1[4]=pCodeSize;
-	par1[5]=entries;
-	par1[6]=pCodeMask;
-	par2[0]=(long)src;
-	par2[1]=(long)srclen;
-	par2[2]=(long)ziel;
-	par2[3]=(long)pData;
-	if(PROCESSOR&MC68020 || PROCESSOR&MC68030 || PROCESSOR&MC68040)
-		decode_fast020(par1, par2);
+	par.data_size = data_size;
+	par.clear = clear;
+	par.end_of_information = end_of_information;
+	par.available = available;
+	par.pCodeSize = pCodeSize;
+	par.entries = entries;
+	par.pCodeMask = pCodeMask;
+	par.src = src;
+	par.srclen = srclen;
+	par.ziel = ziel;
+	par.pData = pData;
+	if (PROCESSOR & (MC68020 | MC68030 | MC68040))
+		decode_fast020(&par);
 	else
-		decode_fast(par1, par2);
+		decode_fast(&par);
 
 #if DEBUG
 	printf("Decoded!");
-	getch();
+	(void)Cnecin();
 #endif
 
 #else
@@ -399,39 +402,39 @@ int decode_lzw_fast(char *buffer, char *ziel)
 	pCount = 0;
 
 	finished = FALSE;
-	while(!finished)
+	while (!finished)
 	{
 		/* Code holen */
-		if(pBitsLeft < pCodeSize)
+		if (pBitsLeft < pCodeSize)
 		{
-			if(pCount == 0)					/* neuen Block beginnen */
+			if (pCount == 0)			/* neuen Block beginnen */
 			{
-				pCount = *pData++;			/* BlocklÑnge auslesen */
-				if(pCount == 0)
+				pCount = *pData++;		/* BlocklÑnge auslesen */
+				if (pCount == 0)
 					break;
 			}
-	
-	    	pDatum |= (unsigned long)*pData++ << pBitsLeft;
+
+			pDatum |= (unsigned long) *pData++ << pBitsLeft;
 			pCount--;
 			pBitsLeft += 8;
 
-			if(pCount == 0)					/* neuen Block beginnen */
+			if (pCount == 0)			/* neuen Block beginnen */
 			{
-				pCount = *pData++;			/* BlocklÑnge auslesen */
-				if(pCount == 0)
+				pCount = *pData++;		/* BlocklÑnge auslesen */
+				if (pCount == 0)
 					break;
 			}
-	
-	    	pDatum |= (unsigned long)*pData++ << pBitsLeft;
+
+			pDatum |= (unsigned long) *pData++ << pBitsLeft;
 			pCount--;
 			pBitsLeft += 8;
 		}
 
-		code = (int)pDatum&pCodeMask;
+		code = (short) pDatum & pCodeMask;
 		pDatum >>= pCodeSize;
 		pBitsLeft -= pCodeSize;
 
-		if(code == clear)						/* Clearcode? */
+		if (code == clear)				/* Clearcode? */
 		{
 			/* Reset Decoder */
 			available = clear + 2;
@@ -440,92 +443,90 @@ int decode_lzw_fast(char *buffer, char *ziel)
 			pCodeMask = (1 << pCodeSize) - 1;
 
 			/* Code holen */
-			if(pBitsLeft < pCodeSize)
+			if (pBitsLeft < pCodeSize)
 			{
-				if(pCount == 0)					/* neuen Block beginnen */
-					pCount = *pData++;			/* BlocklÑnge auslesen */
-	
-		    	pDatum |= (unsigned long)*pData++ << pBitsLeft;
+				if (pCount == 0)		/* neuen Block beginnen */
+					pCount = *pData++;	/* BlocklÑnge auslesen */
+
+				pDatum |= (unsigned long) *pData++ << pBitsLeft;
 				pCount--;
 				pBitsLeft += 8;
 
-				if(pCount == 0)					/* neuen Block beginnen */
-					pCount = *pData++;			/* BlocklÑnge auslesen */
-	
-		    	pDatum |= (unsigned long)*pData++ << pBitsLeft;
+				if (pCount == 0)		/* neuen Block beginnen */
+					pCount = *pData++;	/* BlocklÑnge auslesen */
+
+				pDatum |= (unsigned long) *pData++ << pBitsLeft;
 				pCount--;
 				pBitsLeft += 8;
 			}
 
-			code = (int)pDatum&pCodeMask;
+			code = (short) pDatum & pCodeMask;
 			pDatum >>= pCodeSize;
 			pBitsLeft -= pCodeSize;
 
-			*ziel++ = code;						/* Ist garantiert ein bekannter Code */
+			*ziel++ = code;				/* Ist garantiert ein bekannter Code */
 
 			oldcode = code;
 			oldcodelen = 1;
-		}
-		else
+		} else
 		{
-			if(code == end_of_information)
+			if (code == end_of_information)
+			{
 				finished = TRUE;
-			else
+			} else
 			{
 				/* Dekodierbarer Code */
-				if(code < available)			/* Code schon bekannt? */
+				if (code < available)	/* Code schon bekannt? */
 				{
 					dst = ziel - oldcodelen;
 
 					/* Schreibe Muster in Ausgabe */
 					i = codelen = srclen[code];
-					out = (char *)src[code];
+					out = src[code];
 					do
 					{
 						*ziel++ = *out++;
-					} while(--i);
-				}
-				else							/* neuer Code */
+					} while (--i);
+				} else					/* neuer Code */
 				{
 					dst = ziel;
 
 					/* Schreibe Muster in Ausgabe */
 					i = codelen = srclen[oldcode];
-					out = (char *)src[oldcode];
+					out = src[oldcode];
 					do
 					{
 						*ziel++ = *out++;
-					} while(--i);
-					*ziel++ = *(char *)src[oldcode];
+					} while (--i);
+					*ziel++ = *(src[oldcode]);
 					codelen++;
-				} /* else */
+				}
 
 				/* pflegen der Tabelle */
 				srclen[available] = oldcodelen + 1;
-				src[available] = (long)&(*dst);
+				src[available] = dst;
 				available++;
 				oldcode = code;
 				oldcodelen = codelen;
 			}
 
 			/* Codegrîûe erhîhen wenn nîtig und mîglich */
-			if(available >= entries && pCodeSize < 12)
+			if (available >= entries && pCodeSize < 12)
 			{
 				pCodeSize++;
 				pCodeMask += available;
 				entries <<= 1;
 			}
 		}
-	} /* while */
+	}
 #endif
 
 #if TIMER
 	printf("\nZeit: %lu", get_timer());
+	(void)Cnecin();
 #endif
 
-	free(ofirstcodes);
-	free(src);
-	free(srclen);
+	Mfree(srclen);
 
-	return(0);
+	return 0;
 }

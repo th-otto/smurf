@@ -88,9 +88,8 @@ static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
 
-/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
 #ifdef __PUREC__
-/* Dies bastelt direkt ein rol.w #8,d0 inline ein. */
+/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
 static unsigned short swap_word(unsigned short w) 0xE058;
 static unsigned long swap_word2(unsigned long w) 0xE058;
 static uint32_t swap_d0(uint32_t w) 0x4840;

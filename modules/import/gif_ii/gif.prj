@@ -1,7 +1,7 @@
 ;>>>>>>> GIF_II.PRJ for the Smurf GIF-Importer <<<<<<<<
 
 
-..\..\..\dist\modules\import\gif_2.sim
+..\..\..\dist\modules\import\gif.sim
 .C [-C -K -M -P-]
 .C [-I..\..\..\include]
 .S[-DPURE_C=1]

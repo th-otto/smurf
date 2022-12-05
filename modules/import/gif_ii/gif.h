@@ -25,45 +25,44 @@
 /*--------- Logical Screen Descriptor -------*/
 typedef struct 
 {
-	unsigned int width,
-				 height;
-	char packed_fields;
-	char background_color;
-	char aspect_ratio;
-
+	unsigned short width;
+	unsigned short height;
+	unsigned char packed_fields;
+	unsigned char background_color;
+	unsigned char aspect_ratio;
 } LSCRDES;
 
 /*--------- Graphic Control Extension -------*/
 typedef struct 
 {
-	char packed_fields;
-	unsigned int delay_time;
-	char transparent_color;
+	unsigned char packed_fields;
+	unsigned short delay_time;
+	unsigned char transparent_color;
 } GC_EXTENSION;
 
 /*--------- Comment Extension -------*/
 typedef struct 
 {
-	int commentlength;
+	short commentlength;
 	char *comment;
 } COM_EXTENSION;
 
 /*---------- Image Descriptor -------*/
 typedef struct 
 {
-	char separator;
-	unsigned int left_pos, 
-				 top_pos;
-	unsigned int image_width, 
-				 image_height;
-	char packed_fields;
+	unsigned char separator;
+	unsigned short left_pos;
+	unsigned short top_pos;
+	unsigned short image_width;
+	unsigned short image_height;
+	unsigned char packed_fields;
 } IMAGE_DES;
 
 
 /*------------ Color Table ----------*/
 typedef struct
 {
-	int depth;
-	int size;
-	char rgb_values[256L * 3L];
+	short depth;
+	short size;
+	unsigned char rgb_values[256 * 3];
 } COLTAB;

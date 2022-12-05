@@ -34,7 +34,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/spectrum.sim \
 	$(empty)
 
-SUBDIRS = jpeg
+SUBDIRS = jpeg gif_ii
 
 all:: impstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done

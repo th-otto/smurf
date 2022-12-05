@@ -18,4 +18,4 @@ $(DISTDIR)/modules/import/jpegdsp.sim: ../impstart.o jpegdsp.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean::
-	$(RM) *.o $(MODULES)
+	$(RM) *.o ../impstart.o $(MODULES)
