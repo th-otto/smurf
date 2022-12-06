@@ -30,38 +30,40 @@
 
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO    module_info={"Indypaint-Importer",
-                        0x0050,
-                        "Dale Russell",
-                        "TRU","","","","",
-                        "","","","","",
-                    /* Objekttitel */
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                    /* Objektgrenzwerte */
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                    /* Slider-Defaultwerte */
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        };
+MOD_INFO module_info = {
+	"Indypaint-Importer",
+	0x0050,
+	"Dale Russell",
+	{ "TRU", "", "", "", "", "", "", "", "", "" },
+	/* Objekttitel */
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	/* Objektgrenzwerte */
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	/* Slider-Defaultwerte */
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -70,32 +72,50 @@ MOD_INFO    module_info={"Indypaint-Importer",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-int *buffer;
-unsigned int width, height;
-long    len, piclen;
+	uint16_t *buffer;
+	unsigned short width, height;
+	long len, piclen;
 
-buffer=smurf_struct->smurf_pic->pic_data;
-len=smurf_struct->smurf_pic->file_len;
+	buffer = smurf_struct->smurf_pic->pic_data;
+	len = smurf_struct->smurf_pic->file_len;
 
-if(strncmp((char *)buffer, "Indy", 4)!=0) return(M_INVALID);
+	if (strncmp((char *) buffer, "Indy", 4) != 0)
+		return M_INVALID;
 
-strncpy(smurf_struct->smurf_pic->format_name, "Indypaint I - .TRU   ", 21);
-if (len<130000L)      { width=320; height=200; }
-else if (len<160000L) { width=320; height=240; }
-else if (len<190000L) { width=384; height=240; }
-else if (len<260000L) { width=640; height=200; }
-else { width=640; height=400; }
+	strcpy(smurf_struct->smurf_pic->format_name, "Indypaint I - .TRU");
+	if (len < 130000L)
+	{
+		width = 320;
+		height = 200;
+	} else if (len < 160000L)
+	{
+		width = 320;
+		height = 240;
+	} else if (len < 190000L)
+	{
+		width = 384;
+		height = 240;
+	} else if (len < 260000L)
+	{
+		width = 640;
+		height = 200;
+	} else
+	{
+		width = 640;
+		height = 400;
+	}
 
-piclen=(long)width*(long)height*2L;
+	piclen = (unsigned long) width * (unsigned long) height * 2;
 
-/* Bild dekodieren (Ha, Ha, Ha!) */
-    memcpy(buffer, buffer+128, piclen);
+	/* Bild dekodieren (Ha, Ha, Ha!) */
+	memmove(buffer, buffer + 128, piclen);
 
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-smurf_struct->smurf_pic->bp_pal=0;
-smurf_struct->smurf_pic->depth=16;
-smurf_struct->smurf_pic->col_format=RGB;
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->bp_pal = 0;
+	smurf_struct->smurf_pic->depth = 16;
+	smurf_struct->smurf_pic->col_format = RGB;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
 
-return(M_PICDONE);
+	return M_PICDONE;
 }

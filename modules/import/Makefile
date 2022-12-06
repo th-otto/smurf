@@ -37,6 +37,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/iff.sim \
 	$(DISTDIR)/modules/import/iim.sim \
 	$(DISTDIR)/modules/import/indy.sim \
+	$(DISTDIR)/modules/import/indy16.sim \
 	$(DISTDIR)/modules/import/lan.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -144,6 +145,9 @@ $(DISTDIR)/modules/import/iim.sim: impstart.o iim.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/indy.sim: impstart.o indy.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/indy16.sim: impstart.o indy16.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/lan.sim: impstart.o lan.o
