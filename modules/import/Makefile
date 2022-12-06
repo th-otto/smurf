@@ -40,6 +40,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/indy16.sim \
 	$(DISTDIR)/modules/import/lan.sim \
 	$(DISTDIR)/modules/import/mac.sim \
+	$(DISTDIR)/modules/import/msp.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
 	$(DISTDIR)/modules/import/qfax.sim \
@@ -157,10 +158,7 @@ $(DISTDIR)/modules/import/lan.sim: impstart.o lan.o
 $(DISTDIR)/modules/import/mac.sim: impstart.o mac.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(DISTDIR)/modules/import/jpeg.sim: impstart.o jpeg/jpegimp2.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ -ljpeg $(LIBS)
-
-$(DISTDIR)/modules/import/jpegdsp.sim: impstart.o jpeg/jpegdsp.o jpeg/jpegdsps.o
+$(DISTDIR)/modules/import/msp.sim: impstart.o msp.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o

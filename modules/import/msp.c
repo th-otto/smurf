@@ -37,44 +37,48 @@
 #include "import.h"
 #include "smurfine.h"
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
+#ifdef __PUREC__
 /* Dies bastelt direct ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w)
-	0xE058;
+static unsigned short swap_word(unsigned short w) 0xE058;
+#else
+static unsigned short swap_word(unsigned short w)
+{
+	return (w >> 8) | (w << 8);
+}
+#endif
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Microsoft Paint",
-						0x0020,
-						"Dale Russell, Christian Eyrich",
-						"MSP", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0,0,0,0,
-						0,0,0,0,
-						0,0,0,0,
-						0
-						};
+MOD_INFO module_info = {
+	"Microsoft Paint",
+	0x0020,
+	"Dale Russell, Christian Eyrich",
+	{ "MSP", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -84,137 +88,135 @@ MOD_INFO module_info = {"Microsoft Paint",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *pal,
-		 version, i, vpos = 0, v1, v2, n;
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	uint8_t version;
+	int i;
+	int vpos;
+	uint8_t v1, v2;
+	uint8_t n;
 
-	unsigned int *Scanmap, *Scanpoint,
-				 width, height, x, y, valid = 0;
-
+	uint16_t *Scanmap;
+	uint16_t *Scanpoint;
+	unsigned short width, height, x, y;
+	uint16_t valid;
 	unsigned long w;
 
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 	obuffer = buffer;
 
-	if(strncmp(buffer, "DanM", 4) == 0)
-			version = 1;
+	if (strncmp(buffer, "DanM", 4) == 0)
+		version = 1;
+	else if (strncmp(buffer, "LinS", 4) == 0)
+		version = 2;
 	else
-		if(strncmp(buffer, "LinS", 4) == 0)
-			version = 2;
-		else
-			return(M_INVALID);
+		return M_INVALID;
 
-	for(i = 0; i < 13; i++)
+	for (vpos = 0, valid = 0, i = 0; i < 13; i++)
 	{
-		valid = valid ^ *(unsigned int *)(buffer + vpos);
+		valid = valid ^ *(uint16_t *) (buffer + vpos);
 		vpos += 2;
-	}	
+	}
 
-	if(valid != 0)
-		return(M_PICERR);
+	if (valid != 0)
+		return M_PICERR;
 
-	width = swap_word(*(unsigned int *)(buffer + 0x04));
-	height = swap_word(*(unsigned int *)(buffer + 0x06));
+	width = swap_word(*(uint16_t *) (buffer + 0x04));
+	height = swap_word(*(uint16_t *) (buffer + 0x06));
 
-	strncpy(smurf_struct->smurf_pic->format_name, "Microsoft Paint", 21);
+	strcpy(smurf_struct->smurf_pic->format_name, "Microsoft Paint");
 	smurf_struct->smurf_pic->pic_width = width;
 	smurf_struct->smurf_pic->pic_height = height;
 	smurf_struct->smurf_pic->depth = 1;
 
 	smurf_struct->services->reset_busybox(128, "Microsoft Paint 1 Bit");
 
-	w = (unsigned long)(width + 7) / 8;
-	if((ziel = SMalloc(w * (long)height)) == 0)
-		return(M_MEMORY);
-	else
+	w = (unsigned long) (width + 7) / 8;
+	if ((ziel = smurf_struct->services->SMalloc(w * height)) == 0)
+		return M_MEMORY;
+
+	if ((Scanmap = (uint16_t *) smurf_struct->services->SMalloc((unsigned long) height * 2)) == NULL)
 	{
-		memset(ziel, 0, w * (long)height);
+		smurf_struct->services->SMfree(ziel);
+		return M_MEMORY;
+	}
 
-		if((Scanmap = (unsigned int *)Malloc((long)height * 2L)) == 0)
+	Scanpoint = (uint16_t *) (buffer + 0x20);
+	for (x = 0; x < height; x++)
+		Scanmap[x] = swap_word(*Scanpoint++);	/* L„ngewerte bertragen */
+
+	buffer += 0x20;
+	if (version == 2)
+		buffer += (unsigned long) height * 2L;
+
+	oziel = ziel;
+
+	y = 0;
+	do
+	{
+		if (version == 1)
 		{
-			SMfree(ziel);
-			return(M_MEMORY);
-		}
-		memset(Scanmap, 0, (long)height * 2L);
-
-		Scanpoint = (unsigned int *)(buffer + 0x20);
-		for(x = 0; x < height; x++)
-			Scanmap[x] = swap_word(*Scanpoint++);		/* L„ngewerte bertragen */
-
-		buffer += 0x20;
-		if(version == 2)
-			buffer += (long)height * 2L;
-		oziel = ziel;
-
-		y = 0;
-		do
+			memcpy(ziel, buffer, w);
+			ziel += w;
+			buffer += w;
+		} else
 		{
-			if(version == 1)
+			if (Scanmap[y])
 			{
-				memcpy(ziel, buffer, w);
-				ziel += w;
-				buffer += w;
-			}
-			else
-			{
-				if(Scanmap[y])
+				x = 0;
+				do
 				{
-					x = 0;
-					do
+					v1 = *buffer++;
+					if (v1)
 					{
-						v1 = *buffer++;
-						if(v1)
-						{
-							n = v1;
+						n = v1;
 
-							x += n;
-							while(n--)
-								*ziel++ = *buffer++;
-						}
-						else
-						{
-							n = *buffer++;
-							v2 = *buffer++;
+						x += n;
+						while (n--)
+							*ziel++ = *buffer++;
+					} else
+					{
+						n = *buffer++;
+						v2 = *buffer++;
 
-							x += n;
-							while(n--)
-								*ziel++ = v2;
-						}		
-					} while(x < Scanmap[y]);
-				}
-				else 
-				{
-					memset(ziel, 0xff, w);	
-					ziel += w;
-				}
-			} /* version */
-		} while(++y < height); /* y */
+						x += n;
+						while (n--)
+							*ziel++ = v2;
+					}
+				} while (x < Scanmap[y]);
+			} else
+			{
+				memset(ziel, 0xff, w);
+				ziel += w;
+			}
+		}							/* version */
+	} while (++y < height);			/* y */
 
-		buffer = obuffer;
-		ziel = oziel;
+	buffer = obuffer;
+	ziel = oziel;
 
-		smurf_struct->smurf_pic->pic_data = ziel;
+	smurf_struct->smurf_pic->pic_data = ziel;
 
-		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 
-		pal = smurf_struct->smurf_pic->palette;
+	pal = smurf_struct->smurf_pic->palette;
 
-		pal[0] = 255;
-		pal[1] = 255;
-		pal[2] = 255;
-		pal[3] = 0;
-		pal[4] = 0;
-		pal[5] = 0;
+	pal[0] = 255;
+	pal[1] = 255;
+	pal[2] = 255;
+	pal[3] = 0;
+	pal[4] = 0;
+	pal[5] = 0;
 
-		smurf_struct->smurf_pic->col_format = RGB;
+	smurf_struct->smurf_pic->col_format = RGB;
 
-		Mfree(Scanmap);
+	smurf_struct->services->SMfree(Scanmap);
 
-		SMfree(buffer);
-	} /* Malloc */
+	smurf_struct->services->SMfree(buffer);
 
-	return(M_PICDONE);
+	return M_PICDONE;
 }
