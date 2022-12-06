@@ -148,7 +148,7 @@ qdv.sim        0.30    0.30     x
 qfax.sim       0.20    0.10     x
 qrt.sim        0.10    0.10     x
 r8.sim         0.10    0.10     x
-ras.sim        0.60    0.60
+ras.sim        0.60    0.60     x
 raw.sim        0.10    0.10
 rawmod.sim     0.10    0.10
 scodl.sim      0.10    0.10

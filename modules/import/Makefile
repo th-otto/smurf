@@ -58,6 +58,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/qfax.sim \
 	$(DISTDIR)/modules/import/qrt.sim \
 	$(DISTDIR)/modules/import/r8.sim \
+	$(DISTDIR)/modules/import/ras.sim \
 	$(DISTDIR)/modules/import/softimag.sim \
 	$(DISTDIR)/modules/import/spectrum.sim \
 	$(empty)
@@ -229,6 +230,9 @@ $(DISTDIR)/modules/import/qrt.sim: impstart.o qrt.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/r8.sim: impstart.o r8.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/ras.sim: impstart.o ras.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/softimag.sim: impstart.o softimag.o
