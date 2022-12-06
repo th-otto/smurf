@@ -30,87 +30,109 @@
 
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO    module_info={"Indypaint-Importer",
-                        0x0050,
-                        "Dale Russell",
-                        "TRU","","","","",
-                        "","","","","",
-                    /* Objekttitel */
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                    /* Objektgrenzwerte */
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                    /* Slider-Defaultwerte */
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        };
+MOD_INFO module_info = {
+	"Indypaint-Importer",
+	0x0050,
+	"Dale Russell",
+	{ "TRU", "", "", "", "", "", "", "", "", "" },
+	/* Objekttitel */
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	/* Objektgrenzwerte */
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	/* Slider-Defaultwerte */
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 /*      IndyPaint (by Lazer)            .tru        */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL * smurf_struct)
 {
-int *buffer;
-char *ziel;
-int     *obuf;
-unsigned int width, height;
-long    len;
-unsigned int x,y, r,g,b, h1;
+	uint16_t *buffer;
+	uint8_t *ziel;
+	uint16_t *obuf;
+	unsigned short width, height;
+	long len;
+	unsigned short x, y, r, g, b;
+	uint16_t h1;
 
-buffer=smurf_struct->smurf_pic->pic_data;
-len=smurf_struct->smurf_pic->file_len;
+	buffer = smurf_struct->smurf_pic->pic_data;
+	len = smurf_struct->smurf_pic->file_len;
 
-if(strncmp((char *)buffer, "Indy", 4)!=0) return(M_INVALID);
+	if (strncmp((char *) buffer, "Indy", 4) != 0)
+		return M_INVALID;
 
-strncpy(smurf_struct->smurf_pic->format_name, "Indypaint I - .TRU   ", 21);
-if (len<130000L) { width=320; height=200; }
-else if (len<160000L) { width=320; height=240; }
-else if (len<190000L) { width=384; height=240; }
-else if (len<260000L) { width=640; height=200; }
-else { width=640; height=400; }
+	strcpy(smurf_struct->smurf_pic->format_name, "Indypaint I - .TRU");
+	if (len < 130000L)
+	{
+		width = 320;
+		height = 200;
+	} else if (len < 160000L)
+	{
+		width = 320;
+		height = 240;
+	} else if (len < 190000L)
+	{
+		width = 384;
+		height = 240;
+	} else if (len < 260000L)
+	{
+		width = 640;
+		height = 200;
+	} else
+	{
+		width = 640;
+		height = 400;
+	}
 
-obuf=buffer;
-buffer+=128;
-ziel=Mxalloc((long)width*(long)height*3L,3);
-if (!ziel) return(M_MEMORY);
-else {
-smurf_struct->smurf_pic->pic_data=ziel;
-for (y=0; y<height; y++) {
-    for (x=0; x<width; x++) {
-            h1=*(buffer++);
-            r=(h1 & 0xf800)>>8;
-            g=(h1 & 0x07e0)>>3;
-            b=(h1 & 0x001f)<<3;
-            *(ziel++)=b;
-            *(ziel++)=g;
-            *(ziel++)=r;
-        }
-}
-}
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-smurf_struct->smurf_pic->bp_pal=0;
-smurf_struct->smurf_pic->depth=24;
-Mfree(obuf);
-return(M_PICDONE);
+	obuf = buffer;
+	buffer += 128;
+	ziel = (uint8_t *)Malloc((unsigned long) width * (unsigned long) height * 3);
+	if (!ziel)
+		return M_MEMORY;
+	smurf_struct->smurf_pic->pic_data = ziel;
+	for (y = 0; y < height; y++)
+	{
+		for (x = 0; x < width; x++)
+		{
+			h1 = *(buffer++);
+			r = (h1 & 0xf800) >> 8;
+			g = (h1 & 0x07e0) >> 3;
+			b = (h1 & 0x001f) << 3;
+			*(ziel++) = b;
+			*(ziel++) = g;
+			*(ziel++) = r;
+		}
+	}
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->bp_pal = 0;
+	smurf_struct->smurf_pic->depth = 24;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	Mfree(obuf);
+	return M_PICDONE;
 }
