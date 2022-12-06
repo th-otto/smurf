@@ -142,7 +142,7 @@ pict.sim       0.80    0.80     x
 pix.sim        0.40    0.40     x
 pixar.sim      1.00    1.00     x
 pofo.sim       0.30    0.30     x
-ppm.sim        0.30    0.30
+ppm.sim        0.30    0.30     x
 psd.sim        0.30    0.30
 qdv.sim        0.30    0.30     x
 qfax.sim       0.20    0.10     x

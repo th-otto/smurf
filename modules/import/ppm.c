@@ -50,45 +50,71 @@
 
 #define TIMER 0
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-unsigned int getval(void);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"PPM-Importer",
-                        0x0030,
-                        "Dale Russell, Christian Eyrich",
-                        "PPM", "PBM", "PGM", "PNM", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"PPM-Importer",
+	0x0030,
+	"Dale Russell, Christian Eyrich",
+	{ "PPM", "PBM", "PGM", "PNM", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
-char *buffer;
+static uint8_t *buffer;
+
+
+static unsigned short getval(void)
+{
+	uint8_t ch;
+	unsigned short i;
+
+	do
+	{
+		ch = *buffer++;
+	} while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
+
+	if (ch == '#')
+	{
+		do
+		{
+			ch = *buffer++;
+		} while (ch != '\n' && ch != '\r');
+		ch = *buffer++;
+	}
+
+	i = 0;
+	do
+	{
+		i = i * 10 + ch - '0';
+		ch = *buffer++;
+	} while (ch >= '0' && ch <= '9');
+
+	return i;
+}
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -99,222 +125,190 @@ char *buffer;
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-    char *obuffer, *pal, *ziel, *oziel,
-         type, typeASC[4], BitsPerPixel, scaletab[256], j;
-    char dummy[3], impmessag[17];
+	uint8_t *obuffer;
+	uint8_t *pal;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t type;
+	char typeASC[4];
+	uint8_t BitsPerPixel;
+	uint8_t scaletab[256];
+	unsigned short j;
+	char dummy[3];
+	char impmessag[17];
 
-    unsigned int i, x, y, width, height, maxval;
-
-    unsigned long w, memwidth;
-
+	unsigned short i, x, y, width, height, maxval;
+	unsigned long w, memwidth;
 
 #if TIMER
 	/* wie schnell sind wir? */
 	init_timer();
 #endif
-    SMalloc = smurf_struct->services->SMalloc;
-    SMfree = smurf_struct->services->SMfree;
 
-    buffer = smurf_struct->smurf_pic->pic_data;
-    obuffer = buffer;
+	buffer = smurf_struct->smurf_pic->pic_data;
+	obuffer = buffer;
 
-    if(*buffer != 0x50 || *(buffer + 1) < 0x31 || *(buffer + 1) > 0x36) 
-        return(M_INVALID);
-    else
-    {
-        type = *(buffer + 1) - '0';
+	if (*buffer != 0x50 || *(buffer + 1) < 0x31 || *(buffer + 1) > 0x36)
+		return M_INVALID;
 
-        switch((int)type)
-        {
-            case 1:
-            case 4: BitsPerPixel = 1;
-                    strcpy(typeASC, "PBM");
-                    break;
-            case 2:
-            case 5: BitsPerPixel = 8;
-                    strcpy(typeASC, "PGM");
-                    break;
-            case 3:
-            case 6: BitsPerPixel = 24;
-                    strcpy(typeASC, "PPM");
-                    break;
-        }
+	type = *(buffer + 1) - '0';
 
-        buffer += 2;
+	switch (type)
+	{
+	case 1:
+	case 4:
+		BitsPerPixel = 1;
+		strcpy(typeASC, "PBM");
+		break;
+	case 2:
+	case 5:
+		BitsPerPixel = 8;
+		strcpy(typeASC, "PGM");
+		break;
+	case 3:
+	case 6:
+		BitsPerPixel = 24;
+		strcpy(typeASC, "PPM");
+		break;
+	default:
+		return M_INVALID;
+	}
 
-        width = getval();
-        height = getval();
+	buffer += 2;
 
-        if(type != 1 && type != 4)
-            maxval = getval();
-        else
-            maxval = 255;
+	width = getval();
+	height = getval();
 
-        i = 0;
-        do
-        {
-            scaletab[i] = i * 255 / maxval;
-        } while(++i < 256); 
+	if (type != 1 && type != 4)
+		maxval = getval();
+	else
+		maxval = 255;
 
-        strncpy(smurf_struct->smurf_pic->format_name, "PBMPlus' ", 21);
-        strcat(smurf_struct->smurf_pic->format_name, typeASC);
-        smurf_struct->smurf_pic->pic_width = width;
-        smurf_struct->smurf_pic->pic_height = height;
-        smurf_struct->smurf_pic->depth = BitsPerPixel;
+	i = 0;
+	do
+	{
+		scaletab[i] = i * 255 / maxval;
+	} while (++i < 256);
 
-        strcpy(impmessag, "PPM-Image ");
-        strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-        strcat(impmessag, " Bit");
-        smurf_struct->services->reset_busybox(128, impmessag);  
+	strcpy(smurf_struct->smurf_pic->format_name, "PBMPlus' ");
+	strcat(smurf_struct->smurf_pic->format_name, typeASC);
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
 
-        if(BitsPerPixel == 1)
-        {
-            w = (unsigned long)(width + 7) / 8;
-            memwidth = (unsigned long)(width + 7) / 8 * 8;
-        }
-        else
-        {
-            if(BitsPerPixel == 24)
-                w = (unsigned long)width * 3;
-            else
-                w = (unsigned long)width;
-            memwidth = (unsigned long)width;
-        }
+	strcpy(impmessag, "PPM-Image ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
 
-        if((ziel = SMalloc((memwidth * (long)height * BitsPerPixel) >> 3)) == 0)
-            return(M_MEMORY);
-        else
-        {
-            oziel = ziel;
-            memset(ziel, 0x0, (memwidth * (long)height * BitsPerPixel) >> 3);
+	if (BitsPerPixel == 1)
+	{
+		w = (unsigned long) (width + 7) / 8;
+		memwidth = (unsigned long) (width + 7) / 8 * 8;
+	} else
+	{
+		if (BitsPerPixel == 24)
+			w = (unsigned long) width * 3;
+		else
+			w = width;
+		memwidth = width;
+	}
 
-            if(type <= 3)
-            /* ASCII */
-            {
-                if(BitsPerPixel == 1)
-                {
-                    y = 0;
-                    do
-                    {
-                        x = 0;
-                        do
-                        {
-                            j = 0;
-                            do
-                            {
-                                *ziel |= (scaletab[getval()] << (7 - j));
-                                x++;
-                            } while(++j < 8 && x < width);
-                            ziel++;
-                        } while(x < width);
-                    } while(++y < height);
-                }
-                else
-                {
-                    y = 0;
-                    do
-                    {
-                        x = 0;
-                        do
-                        {
-                                *ziel++ = scaletab[getval()];
-                        } while(++x < w);
-                    } while(++y < height);
-                }
-            }
-            else
-            /* bin„r */
-            {
-                y = 0;
-                do
-                {
-                    x = 0;
-                    do
-                    {
-                        *ziel++ = scaletab[*buffer++];
-                    } while(++x < w);
-                } while(++y < height);
-                
-            }           
+	if ((ziel = smurf_struct->services->SMalloc((memwidth * height * BitsPerPixel) >> 3)) == 0)
+		return M_MEMORY;
 
-            buffer = obuffer;
-            ziel = oziel;
+	oziel = ziel;
 
-            smurf_struct->smurf_pic->pic_data = ziel;
+	if (type <= 3)
+	{
+		/* ASCII */
+		if (BitsPerPixel == 1)
+		{
+			y = 0;
+			do
+			{
+				x = 0;
+				do
+				{
+					j = 0;
+					do
+					{
+						*ziel |= (scaletab[getval()] << (7 - j));
+						x++;
+					} while (++j < 8 && x < width);
+					ziel++;
+				} while (x < width);
+			} while (++y < height);
+		} else
+		{
+			y = 0;
+			do
+			{
+				x = 0;
+				do
+				{
+					*ziel++ = scaletab[getval()];
+				} while (++x < w);
+			} while (++y < height);
+		}
+	} else
+	{
+		/* bin„r */
+		y = 0;
+		do
+		{
+			x = 0;
+			do
+			{
+				*ziel++ = scaletab[*buffer++];
+			} while (++x < w);
+		} while (++y < height);
 
-            SMfree(buffer);
+	}
 
-            pal = smurf_struct->smurf_pic->palette;
-            if(BitsPerPixel == 1)
-            {
-                pal[0] = 255;
-                pal[1] = 255;
-                pal[2] = 255;
-                pal[3] = 0;
-                pal[4] = 0;
-                pal[5] = 0;
+	buffer = obuffer;
+	ziel = oziel;
 
-                smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-            }
-            else
-            {
-                if(BitsPerPixel == 8)
-                {
-                    for(i = 0; i < 256; i++)
-                    {
-                        *pal++ = i;
-                        *pal++ = i;
-                        *pal++ = i;
-                    }   
-                }
+	smurf_struct->smurf_pic->pic_data = ziel;
 
-                smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-            }
+	smurf_struct->services->SMfree(buffer);
 
-            if(BitsPerPixel == 8)
-                smurf_struct->smurf_pic->col_format = GREY;
-            else
-                smurf_struct->smurf_pic->col_format = RGB;
-        } /* Malloc */
-    } /* Erkennung */
+	pal = smurf_struct->smurf_pic->palette;
+	if (BitsPerPixel == 1)
+	{
+		pal[0] = 255;
+		pal[1] = 255;
+		pal[2] = 255;
+		pal[3] = 0;
+		pal[4] = 0;
+		pal[5] = 0;
+
+		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	} else
+	{
+		if (BitsPerPixel == 8)
+		{
+			for (i = 0; i < 256; i++)
+			{
+				*pal++ = i;
+				*pal++ = i;
+				*pal++ = i;
+			}
+		}
+
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	}
+
+	if (BitsPerPixel == 8)
+		smurf_struct->smurf_pic->col_format = GREY;
+	else
+		smurf_struct->smurf_pic->col_format = RGB;
 
 #if TIMER
 	/* wie schnell waren wir? */
 	printf("%lu", get_timer());
-	getch();
+	(void)Cnecin();
 #endif
 
-    return(M_PICDONE);
-}
-
-
-unsigned int getval(void)
-{
-    char ch;
-
-    unsigned int i;
-
-
-    do
-    {
-        ch = *buffer++;
-    } while(ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
-
-    if(ch == '#')
-    {
-        do
-        {
-            ch = *buffer++;
-        } while(ch != '\n' && ch != '\r');
-        ch = *buffer++;
-    }
-
-    i = 0;
-    do
-    {
-        i = i * 10 + ch - '0';
-        ch = *buffer++;
-    } while(ch >= '0' && ch <= '9');
-
-    return i;
+	return M_PICDONE;
 }
