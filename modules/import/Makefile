@@ -45,6 +45,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/neoch.sim \
 	$(DISTDIR)/modules/import/neonmap.sim \
 	$(DISTDIR)/modules/import/pcd.sim \
+	$(DISTDIR)/modules/import/pcp.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
 	$(DISTDIR)/modules/import/qfax.sim \
@@ -180,6 +181,9 @@ $(DISTDIR)/modules/import/neonshp.sim: impstart.o neonshp.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/pcd.sim: impstart.o pcd.o pcddec00.o pcddec20.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/pcp.sim: impstart.o pcp.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o

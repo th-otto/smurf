@@ -135,7 +135,7 @@ mtv_mod.sim    0.10    0.10     x
 neoch.sim      0.90    0.90     x
 neonmap.sim    0.10    0.10     x
 pcd.sim        0.80    0.80     x
-pcp.sim        0.10    0.10
+pcp.sim        0.10    0.10     x
 pcx.sim        0.10    0.10
 pic_pcpa.sim   0.20    0.20
 pict.sim       0.80    0.80
