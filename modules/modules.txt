@@ -133,7 +133,7 @@ mim.sim        1.20    1.20     x
 msp.sim        0.20    0.20     x
 mtv_mod.sim    0.10    0.10     x
 neoch.sim      0.90    0.90     x
-neonmap.sim    0.10    0.10
+neonmap.sim    0.10    0.10     x
 pcd.sim        0.80    0.80
 pcp.sim        0.10    0.10
 pcx.sim        0.10    0.10

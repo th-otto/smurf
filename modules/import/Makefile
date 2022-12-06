@@ -43,6 +43,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/msp.sim \
 	$(DISTDIR)/modules/import/mtv_mod.sim \
 	$(DISTDIR)/modules/import/neoch.sim \
+	$(DISTDIR)/modules/import/neonmap.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
 	$(DISTDIR)/modules/import/qfax.sim \
@@ -167,6 +168,9 @@ $(DISTDIR)/modules/import/mtv_mod.sim: impstart.o mtv_mod.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/neoch.sim: impstart.o neoch.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/neonmap.sim: impstart.o neonmap.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o

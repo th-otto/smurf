@@ -35,39 +35,38 @@
 #include "smurfine.h"
 
 
-MOD_INFO module_info=
-{
-    "NeoN-Mapfile Import",
-    0x0010,
-    "Olaf Piesche",
+MOD_INFO module_info = {
+	"NeoN-Mapfile Import",
+	0x0010,
+	"Olaf Piesche",
 /* Extensionen */
-    "MAP","","","","","","","","","",
+	{ "MAP", "", "", "", "", "", "", "", "", "" },
 
 /* Slider */
-    "","","","",
+	"", "", "", "",
 /* Editfelder */
-    "","","","",
+	"", "", "", "",
 /* Checkboxen */
-    "","","","",
+	"", "", "", "",
 
 /* Minima + Maxima */
 /* Slider */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Edits */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Defaults */
-    0,0,0,0,
-    0,0,0,0,
-    0,0,0,0,
-    
-    0,
-    "","","","","",""
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -77,44 +76,40 @@ MOD_INFO module_info=
 
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-int *picdata, *dest;
-char *pd, *pal;
-int width, height, t;
+	uint8_t *dest;
+	uint8_t *pd;
+	uint8_t *pal;
+	unsigned short width, height, t;
 
-if(smurf_struct->module_mode==MSTART)       /* geht's los, geht's los? */
-{
-    pd=smurf_struct->smurf_pic->pic_data;
-    picdata = (int *)pd;
-    pal=smurf_struct->smurf_pic->palette;
+	pd = smurf_struct->smurf_pic->pic_data;
+	pal = smurf_struct->smurf_pic->palette;
 
-     /* Kennung prÅfen */
-    if(strncmp(pd, "Rip-Mapfile:", 12)!=0) return(M_INVALID);
-        
-    width=*(pd+18);
-    height=*(pd+20);
-    
-    dest=Malloc((long)width*(long)height);
-    memcpy(dest, pd+24, (long)width*(long)height);
+	/* Kennung prÅfen */
+	if (strncmp((char *)pd, "Rip-Mapfile:", 12) != 0)
+		return M_INVALID;
 
-    Mfree(picdata);
-    
-    for(t=0; t<256; t++)
-    {
-        *( pal + (t*3)) = (char)t;
-        *( pal + (t*3)+1) = (char)t;
-        *( pal + (t*3)+2) = (char)t;
-    }
+	width = *(pd + 18);
+	height = *(pd + 20);
 
+	dest = (uint8_t *)Malloc((unsigned long) width * height);
+	memcpy(dest, pd + 24, (unsigned long) width * height);
 
+	Mfree(pd);
 
-    smurf_struct->smurf_pic->pic_data=dest;
-    smurf_struct->smurf_pic->depth=8;
+	for (t = 0; t < 256; t++)
+	{
+		*(pal + (t * 3) + 0) = t;
+		*(pal + (t * 3) + 1) = t;
+		*(pal + (t * 3) + 2) = t;
+	}
 
-    strncpy(smurf_struct->smurf_pic->format_name, "NeoN-Mapfile        ", 21);
-    smurf_struct->smurf_pic->pic_width=width;
-    smurf_struct->smurf_pic->pic_height=height;
+	smurf_struct->smurf_pic->pic_data = dest;
+	smurf_struct->smurf_pic->depth = 8;
 
-}
-    return(M_PICDONE);  /* das wars. */
+	strcpy(smurf_struct->smurf_pic->format_name, "NeoN-Mapfile");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
 
+	return M_PICDONE;					/* das wars. */
 }
