@@ -48,42 +48,53 @@
 #include "import.h"
 #include "smurfine.h"
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-char *fileext(char *filename);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Degas-Importer",
-						0x0040,
-						"Christian Eyrich, Dale Russell",
-						"PI1","PI2","PI3","PC1","PC2",
-						"PC3","","","","",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"Degas-Importer",
+	0x0040,
+	"Christian Eyrich, Dale Russell",
+	{ "PI1", "PI2", "PI3", "PC1", "PC2", "PC3", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
+
+static char *fileext(const char *filename)
+{
+	char *extstart;
+
+	if ((extstart = strrchr(filename, '.')) != NULL)
+		extstart++;
+	else
+		extstart = strrchr(filename, '\0');
+
+	return extstart;
+}
+
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -93,188 +104,186 @@ MOD_INFO module_info = {"Degas-Importer",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *pal, *extender,
-		 p, comp, Planes, BitsPerPixel;
-	char dummy[3], impmessag[21];
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	char *extender;
+	uint8_t p;
+	uint8_t comp;
+	uint8_t Planes;
+	uint8_t BitsPerPixel;
+	char dummy[3];
+	char impmessag[21];
 
-	unsigned int *ppal, i, n, x, y, w, v1, v2,
-				 width, height, DatenOffset;
+	unsigned short *ppal;
+	unsigned short i, n, x, y, w, v1, v2;
+	unsigned short width, height;
+	unsigned short DatenOffset;
 
 	unsigned long pla, plh, plo;
 
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 	obuffer = buffer;
 
 	extender = fileext(smurf_struct->smurf_pic->filename);
 
-	if(((*buffer != 0x00 && *buffer != 0x80) || *(buffer + 1) > 2) ||
+	if (((*buffer != 0x00 && *buffer != 0x80) || *(buffer + 1) > 2) ||
 		(strnicmp(extender, "PI", 2) != 0 && strnicmp(extender, "PC", 2) != 0) ||
 		!(*(extender + 2) >= '1' && *(extender + 2) <= '3'))
-		return(M_INVALID);
-	else	
+		return M_INVALID;
+
+	comp = *buffer;
+
+	switch (*(buffer + 1))
 	{
-		comp = *buffer;
+	case 0:
+		width = 320;
+		height = 200;
+		Planes = 4;
+		break;
+	case 1:
+		width = 640;
+		height = 200;
+		Planes = 2;
+		break;
+	case 2:
+		width = 640;
+		height = 400;
+		Planes = 1;
+		break;
+#if 0
+	case 3:
+		width = 320;
+		height = 480;
+		Planes = 8;
+		break;
+	case 4:
+		width = 640;
+		height = 480;
+		Planes = 4;
+		break;
+	case 5:
+		width = 1280;
+		height = 960;
+		Planes = 1;
+		break;
+#endif
+	default:
+		return M_INVALID;
+	}
+	BitsPerPixel = Planes;
 
-		switch(*(buffer + 1))
+	DatenOffset = 34;
+
+	strcpy(smurf_struct->smurf_pic->format_name, "Degas .PIx, PCx");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	strcpy(impmessag, "Degas ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	w = width / 8;
+
+	if ((ziel = smurf_struct->services->SMalloc(((unsigned long) width * height * BitsPerPixel) >> 3)) == 0)
+		return M_MEMORY;
+
+	oziel = ziel;
+
+	buffer += DatenOffset;
+
+	plh = (height * w);			/* H”he einer Plane in Byte */
+
+	if (!comp)					/* unkomprimiert */
+	{
+		y = 0;
+		do						/* height */
 		{
-			case 0:	width = 320;
-					height = 200;
-					Planes = 4;
-					break;
-			case 1:	width = 640;
-					height = 200;
-					Planes = 2;
-					break;
-			case 2:	width = 640;
-					height = 400;
-					Planes = 1;
-					break;
-/*			case 3:	width = 320;
-					height = 480;
-					Planes = 8;
-					break;
-			case 4:	width = 640;
-					height = 480;
-					Planes = 4;
-					break;
-			case 5:	width = 1280;
-					height = 960;
-					Planes = 1;
-					break; */
-			default:break;
-		}
-		BitsPerPixel = Planes;
-
-		DatenOffset = 34;
-		
-		strncpy(smurf_struct->smurf_pic->format_name, "Degas .PIx, PCx", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
-
-		strcpy(impmessag, "Degas ");
-		strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-		strcat(impmessag, " Bit");
-		smurf_struct->services->reset_busybox(128, impmessag);
-
-		w = width / 8;
-
-		if((ziel = SMalloc(((long)width * (long)height * BitsPerPixel) >> 3)) == 0)
-			return(M_MEMORY);
-		else
-		{
-			oziel = ziel;
-
-			buffer += DatenOffset;
-
-			plh = (height * w);		/* H”he einer Plane in Byte */
-
-			if(!comp)				/* unkomprimiert */
+			plo = (y * w);		/* Offset vom Planeanfang in Bytes */
+			x = 0;
+			do					/* width */
 			{
-				y = 0;
-				do /* height */
+				p = 0;
+				do				/* Planes */
 				{
-					plo = (y * w);	/* Offset vom Planeanfang in Bytes */
-					x = 0;
-					do /* width */
+					pla = (plh * p);	/* Abstand dieser Plane vom Bildanfang */
+					ziel = oziel + pla + plo + x;	/* Zieladresse der dekodierten Scanline */
+					*ziel++ = *buffer++;
+					*ziel = *buffer++;
+				} while (++p < Planes);
+				x += 2;
+			} while (x < w);
+		} while (++y < height);
+	}							/* comp? */
+	else						/* komprimiert */
+	{
+		y = 0;
+		do						/* height */
+		{
+			plo = (y * w);		/* Offset vom Planeanfang in Bytes */
+			p = 0;
+			do					/* Planes */
+			{
+				pla = (plh * p);	/* Abstand dieser Plane vom Bildanfang */
+				ziel = oziel + pla + plo;	/* Zieladresse der dekodierten Scanline */
+				x = 0;
+				do				/* width */
+				{
+					v1 = *buffer++;
+					if ((v1 & 0x80) == 0x80)
 					{
-						p = 0;
-						do /* Planes */
-						{
-							pla = (plh * p);	/* Abstand dieser Plane vom Bildanfang */
-							ziel = oziel + pla + plo + x; /* Zieladresse der dekodierten Scanline */
+						n = (0x101 - v1);
+						v2 = *buffer++;
+						for (i = 0; i < n; i++)
+							*ziel++ = v2;
+						x += n;
+					} else
+					{
+						for (i = 0; i < v1 + 1; i++)
 							*ziel++ = *buffer++;
-							*ziel = *buffer++;
-						} while(++p < Planes);
-						x += 2;
-					} while(x < w);
-				} while(++y < height);
-			} /* comp? */
-			else					/* komprimiert */
-			{
-				y = 0;
-				do /* height */
-				{
-					plo = (y * w);	/* Offset vom Planeanfang in Bytes */
-					p = 0;
-					do /* Planes */
-					{
-						pla = (plh * p);	/* Abstand dieser Plane vom Bildanfang */
-						ziel = oziel + pla + plo; /* Zieladresse der dekodierten Scanline */
-						x = 0;
-						do /* width */
-						{
-							v1 = *buffer++;
-							if((v1 & 0x80) == 0x80)
-							{
-								n = (0x101 - v1);
-								v2 = *buffer++;
-								for(i = 0; i < n; i++)
-									*ziel++ = v2;
-								x += n;
-							}
-							else
-							{
-								for (i = 0; i < v1 + 1; i++)
-									*ziel++ = *buffer++;
-								x += (v1 + 1);
-							}
-						} while(x < w);
-					} while(++p < Planes);
-				} while(++y < height);
-			} /* comp? */
+						x += (v1 + 1);
+					}
+				} while (x < w);
+			} while (++p < Planes);
+		} while (++y < height);
+	}							/* comp? */
 
-			buffer = obuffer;
-			ziel = oziel;
+	buffer = obuffer;
+	ziel = oziel;
 
-			smurf_struct->smurf_pic->pic_data = ziel;
+	smurf_struct->smurf_pic->pic_data = ziel;
 
-			smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-			
-			pal = smurf_struct->smurf_pic->palette;
-			ppal = (unsigned int *)(buffer + 2);
-		
-			if(BitsPerPixel == 1)
-			{
-				pal[0] = 255;
-				pal[1] = 255;
-				pal[2] = 255;
-				pal[3] = 0;
-				pal[4] = 0;
-				pal[5] = 0;
-			}
-			else
-				for(i = 16; i > 0; i--)
-				{
-					v1 = *ppal++;
-					*pal++ = (char)((v1 & 0x700) >> 3);
-					*pal++ = (char)((v1 & 0x070) << 1);
-					*pal++ = (char)((v1 & 0x007) << 5);
-				}
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 
+	pal = smurf_struct->smurf_pic->palette;
+	ppal = (unsigned short *) (buffer + 2);
 
-			smurf_struct->smurf_pic->col_format = RGB;
-		} /* Malloc */
-	} /* Erkennung */
+	if (BitsPerPixel == 1)
+	{
+		pal[0] = 255;
+		pal[1] = 255;
+		pal[2] = 255;
+		pal[3] = 0;
+		pal[4] = 0;
+		pal[5] = 0;
+	} else
+	{
+		for (i = 16; i > 0; i--)
+		{
+			v1 = *ppal++;
+			*pal++ = ((v1 & 0x700) >> 3);
+			*pal++ = ((v1 & 0x070) << 1);
+			*pal++ = ((v1 & 0x007) << 5);
+		}
+	}
 
-	SMfree(buffer);
-	return(M_PICDONE);
+	smurf_struct->smurf_pic->col_format = RGB;
+
+	smurf_struct->services->SMfree(buffer);
+	return M_PICDONE;
 }
-
-
-char *fileext(char *filename)
-{
-	char *extstart;
-
-
-	if((extstart = strrchr(filename, '.')) != NULL)
-		extstart++;
-	else
-		extstart = strrchr(filename, '\0');
-	
-	return(extstart);
-} /* fileext */

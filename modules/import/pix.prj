@@ -30,15 +30,6 @@ impstart.s         	; startup code
 
 pix.c
 
-;..\getint08.s   	; get_IBPLine8
-;..\getinter.s		; get_IBPLine
-
-
-;..\..\src\setp16.s          ; setpix and getpix for standard format
-
-;..\..\src\setlines.s    ; setpix_std_line
-
-
 pcfltlib.lib       ; floating point library
 pcstdlib.lib       ; standard library
 pcextlib.lib       ; extended library
