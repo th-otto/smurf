@@ -28,36 +28,37 @@
 #include "smurfine.h"
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"SEF-Importer",
-                        0x0050,
-                        "Dale Russell",
-                        "SEF", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"SEF-Importer",
+	0x0050,
+	"Dale Russell",
+	{ "SEF", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -66,53 +67,60 @@ MOD_INFO module_info = {"SEF-Importer",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-char    *buffer, *Out, *Merk, *buf, *m1, *m2;
-int     x,y, width, height;
-long    off;
-char *filenam;
-char extend[4];
+	uint8_t *buffer;
+	uint8_t *Out;
+	uint8_t *Merk;
+	uint8_t *buf;
+	uint8_t *m1;
+	uint8_t *m2;
+	unsigned short x, y, width, height;
+	long off;
+	char *filenam;
+	char extend[4];
 
-buffer=smurf_struct->smurf_pic->pic_data;
+	buffer = smurf_struct->smurf_pic->pic_data;
 
-/*****************************************************/
-/*          MAGIC Code berprfen                    */
-/*****************************************************/
-filenam=smurf_struct->smurf_pic->filename;
-strncpy(extend, filenam+(strlen(filenam)-3), 3);
-if(strncmp(extend, "SEF", 3)!=0) 
-    return M_INVALID;
+	/*****************************************************/
+	/*          MAGIC Code berprfen                    */
+	/*****************************************************/
+	filenam = smurf_struct->smurf_pic->filename;
+	strcpy(extend, filenam + (strlen(filenam) - 3));
+	if (stricmp(extend, "SEF") != 0)
+		return M_INVALID;
 
-smurf_struct->services->reset_busybox(128, "SEF 24 Bit");
+	smurf_struct->services->reset_busybox(128, "SEF 24 Bit");
 
-width=(*(buffer+286)<<8)+(*(buffer+287));
-height=(*(buffer+290)<<8)+(*(buffer+291));
+	width = (*(buffer + 286) << 8) + (*(buffer + 287));
+	height = (*(buffer + 290) << 8) + (*(buffer + 291));
 
-Out=Mxalloc((long)width*(long)height*3L,2);
-if(!Out) return(M_MEMORY);
-Merk=Out;
-buf=buffer+2258;
-off=(long)width*(long)height;
-m1=buf+off;
-m2=m1+off;
+	Out = (uint8_t *)Malloc((unsigned long) width * height * 3);
+	if (!Out)
+		return M_MEMORY;
+	Merk = Out;
+	buf = buffer + 2258;
+	off = (unsigned long) width * height;
 
-/********* Make Interleaved Bitplanes for 24Bit mode ********/
-for (y=0; y<height; y++)
-{
-    for (x=0; x<width; x++)
-    {
-        *(Out++)=*(m2++);
-        *(Out++)=*(m1++);       
-        *(Out++)=*(buf++);
-    }   
-}
-Mfree(buffer);
-strncpy(smurf_struct->smurf_pic->format_name, ".SEF (?)              ", 21);
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-smurf_struct->smurf_pic->depth=24;
-smurf_struct->smurf_pic->bp_pal=0;
-smurf_struct->smurf_pic->pic_data=Merk;
-smurf_struct->smurf_pic->format_type=0;
-smurf_struct->smurf_pic->col_format=BGR;
-return(M_PICDONE);
+	m1 = buf + off;
+	m2 = m1 + off;
+
+	/********* Make Interleaved Bitplanes for 24Bit mode ********/
+	for (y = 0; y < height; y++)
+	{
+		for (x = 0; x < width; x++)
+		{
+			*(Out++) = *(m2++);
+			*(Out++) = *(m1++);
+			*(Out++) = *(buf++);
+		}
+	}
+	Mfree(buffer);
+	strcpy(smurf_struct->smurf_pic->format_name, ".SEF (?)");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 24;
+	smurf_struct->smurf_pic->bp_pal = 0;
+	smurf_struct->smurf_pic->pic_data = Merk;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	smurf_struct->smurf_pic->col_format = BGR;
+	return M_PICDONE;
 }
