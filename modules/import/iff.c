@@ -647,6 +647,7 @@ static uint8_t *srchchunk(uint8_t *buffer, unsigned long var)
 			return buffer;
 		buffer++;
 	}
+	return NULL;
 }
 
 

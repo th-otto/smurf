@@ -48,6 +48,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/pcp.sim \
 	$(DISTDIR)/modules/import/pcx.sim \
 	$(DISTDIR)/modules/import/pic_pcpa.sim \
+	$(DISTDIR)/modules/import/pict.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
 	$(DISTDIR)/modules/import/qfax.sim \
@@ -192,6 +193,9 @@ $(DISTDIR)/modules/import/pcx.sim: impstart.o pcx.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/pic_pcpa.sim: impstart.o pic_pcpa.o setlines.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/pict.sim: impstart.o pict.o setlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o

@@ -138,7 +138,7 @@ pcd.sim        0.80    0.80     x
 pcp.sim        0.10    0.10     x
 pcx.sim        0.10    0.10     x
 pic_pcpa.sim   0.20    0.20     x
-pict.sim       0.80    0.80
+pict.sim       0.80    0.80     x
 pix.sim        0.40    0.40
 pixar.sim      1.00    1.00     x
 pofo.sim       0.30    0.30

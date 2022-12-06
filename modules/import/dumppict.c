@@ -60,63 +60,17 @@
 /*	  Regions werden verstanden und ausgewertet.			*/
 /* =========================================================*/
 
-#include "country.h"
-
-#if COUNTRY==1
-#define ERROR1 "[2][Unbekannter Opcode! Soll versucht werden, | ihn einfach zu Åberlesen?][ Ja ][ Nein ]"
-#elif COUNTRY==0
-#define ERROR1 "[2][Unknown Opcode! Should one try|to simply ignore it altogether?][ Yes ][ No ]"
-#elif COUNTRY==2
-#define ERROR1 "[2][Unknown Opcode! Should one try|to simply ignore it altogether?][ Yes ][ No ]"
-#else
-#error "Keine Sprache!"
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "import.h"
-#include "smurfine.h"
+#include <stdint.h>
+
+#define FALSE 0
+#define TRUE 1
 
 #define WORD_LEN	(-1)
 #define RGB_LEN		(6)
 #define NA			(0)
-
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-/* Infostruktur fÅr Hauptmodul */
-MOD_INFO module_info = {
-	"Mac PICT Importer",
-	0x0080,
-	"Christian Eyrich",
-	{ "PIC", "PCT", "PICT", "", "", "", "", "", "", "" },
-	"Slider 1",
-	"Slider 2",
-	"Slider 3",
-	"Slider 4",
-	"Checkbox 1",
-	"Checkbox 2",
-	"Checkbox 3",
-	"Checkbox 4",
-	"Edit 1",
-	"Edit 2",
-	"Edit 3",
-	"Edit 4",
-	0, 128,
-	0, 128,
-	0, 128,
-	0, 128,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0,
-	NULL, NULL, NULL, NULL, NULL, NULL
-};
 
 static uint8_t *buffer;
 static uint8_t *obuffer;
@@ -149,7 +103,7 @@ struct pixMap
 	unsigned long planeBytes;
 	unsigned long pmTable;
 	unsigned long pmReserved;
-	unsigned short ctrlByte;
+	uint8_t ctrlByte;
 };
 
 struct ct_entry
@@ -166,7 +120,6 @@ struct opdef
 };
 
 static struct Rect picFrame;
-static GARGAMEL *giveitme;
 static struct pixMap p;
 
 
@@ -201,7 +154,7 @@ static uint8_t *readunpacked(unsigned short width, unsigned short height, uint8_
 	else
 		direkt = 1;
 
-	if ((ziel = SMalloc((memwidth * (unsigned long) height * BitsPerPixel) >> 3)) == 0)
+	if ((ziel = malloc((memwidth * (unsigned long) height * BitsPerPixel) >> 3)) == 0)
 		return NULL;
 
 	oziel = ziel;
@@ -261,7 +214,7 @@ static uint8_t *decode(unsigned short width, unsigned short height, uint8_t Bits
 	else
 		v = 0;
 
-	if ((ziel = SMalloc((memwidth * (unsigned long) height * BitsPerPixel) >> 3)) == 0)
+	if ((ziel = malloc((memwidth * (unsigned long) height * BitsPerPixel) >> 3)) == 0)
 		return NULL;
 
 	oziel = ziel;
@@ -339,12 +292,12 @@ static uint8_t *decode4(unsigned short width, unsigned short height, uint8_t Ctr
 
 	planelength = (unsigned long) ((width + 7) / 8) * (unsigned long) height;
 
-	if ((ziel = SMalloc(memwidth * (unsigned long) height + 7)) == 0)
+	if ((ziel = malloc(memwidth * (unsigned long) height + 7)) == 0)
 		return NULL;
 
 	oziel = ziel;
 
-	opixbuf = pixbuf = (uint8_t *) Malloc(width);
+	opixbuf = pixbuf = (uint8_t *) malloc(width);
 
 	y = 0;
 	do
@@ -405,10 +358,11 @@ static uint8_t *decode4(unsigned short width, unsigned short height, uint8_t Ctr
 		}
 
 		pixbuf = opixbuf;
-		ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
+		/* ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width); */
+		(void)planelength;
 	} while (++y < height);
 
-	Mfree(pixbuf);
+	free(pixbuf);
 
 	ziel = oziel;
 
@@ -434,7 +388,7 @@ static uint8_t *decode16(unsigned short width, unsigned short height, uint8_t Ct
 
 	more = align;
 
-	if ((ziel16 = (uint16_t *) SMalloc((unsigned long) width * height * 2)) == NULL)
+	if ((ziel16 = (uint16_t *) malloc((unsigned long) width * height * 2)) == NULL)
 		return NULL;
 
 	oziel16 = ziel16;
@@ -507,12 +461,12 @@ static uint8_t *decode24(unsigned short width, unsigned short height, uint8_t cm
 
 	w = (unsigned long) width *cmpCount;
 
-	if ((ziel = SMalloc((unsigned long) width * height * 3)) == 0)
+	if ((ziel = malloc((unsigned long) width * height * 3)) == 0)
 		return NULL;
 
-	if ((ziel2 = (uint8_t *)Malloc((unsigned long) width * cmpCount)) == 0)	/* Zeilenbuffer */
+	if ((ziel2 = (uint8_t *)malloc((unsigned long) width * cmpCount)) == 0)	/* Zeilenbuffer */
 	{
-		SMfree(ziel);
+		free(ziel);
 		ziel = NULL;
 		return NULL;
 	}
@@ -573,7 +527,7 @@ static uint8_t *decode24(unsigned short width, unsigned short height, uint8_t cm
 
 	ziel = oziel;
 
-	Mfree(ziel2);
+	free(ziel2);
 
 	got_pic = TRUE;
 
@@ -703,12 +657,13 @@ static void read_pixmap(struct pixMap *p, unsigned short *rowBytes)
 static void read_color_table(void)
 {
 	unsigned short i, ctSize;
+	uint8_t palette[256 * 3];
 
 	/* ctSeed = */ read_long();
 	/* ctFlags = */ read_word();
 	ctSize = read_word();
 
-	pal = giveitme->smurf_pic->palette;
+	pal = palette;
 
 	for (i = 0; i <= ctSize; i++)
 	{
@@ -826,10 +781,9 @@ static void skip_poly_or_region(void)
 static void Dispatch(struct pixMap *p)
 {
 	uint8_t BitsPerPixel;
-	char dummy[3];
-	char impmessag[21];
-	unsigned short width, height, cmpCount, packType, ctrlByteLen;
+	unsigned short width, height, cmpCount, packType, ctrlByte, ctrlByteLen;
 
+	ctrlByte = p->ctrlByte;				/* 0x80 = Byte, andere = Word */
 	/*
 	   packType:
 	   0 - default packing (pixelSize 16 defaults to packType 3 and
@@ -846,23 +800,13 @@ static void Dispatch(struct pixMap *p)
 	if (BitsPerPixel == 15)
 		BitsPerPixel = 16;
 
-	if (p->ctrlByte & 0x8000)
+	if (ctrlByte == 0x80)
 		ctrlByteLen = 1;
 	else
 		ctrlByteLen = 2;
 
 	width = picFrame.right - picFrame.left;
 	height = picFrame.bottom - picFrame.top;
-
-	strcpy(giveitme->smurf_pic->format_name, "Macintosh PICT .PICT");
-	giveitme->smurf_pic->pic_width = width;
-	giveitme->smurf_pic->pic_height = height;
-	giveitme->smurf_pic->depth = BitsPerPixel;
-
-	strcpy(impmessag, "Macintosh PICT ");
-	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-	strcat(impmessag, " Bit");
-	giveitme->services->reset_busybox(128, impmessag);
 
 	if (BitsPerPixel == 16 && (packType == 0 || packType == 3))
 		ziel = decode16(width, height, ctrlByteLen);
@@ -874,13 +818,6 @@ static void Dispatch(struct pixMap *p)
 		ziel = readunpacked(width, height, BitsPerPixel, packType);
 	else
 		ziel = decode(width, height, BitsPerPixel, ctrlByteLen);
-
-	if (BitsPerPixel == 1 || BitsPerPixel == 4)
-		giveitme->smurf_pic->format_type = FORM_STANDARD;
-	else
-		giveitme->smurf_pic->format_type = FORM_PIXELPAK;
-
-	giveitme->smurf_pic->col_format = RGB;
 }
 
 
@@ -908,7 +845,9 @@ static void do_pixmap(int is_region)
 	struct Rect dstRect;
 
 	read_pixmap(&p, NULL);
+
 	read_color_table();
+
 	read_rect(&srcRect);
 	read_rect(&dstRect);
 
@@ -927,7 +866,7 @@ static void BitsRect(void)
 
 	rowBytes = read_word();
 
-	p.ctrlByte = rowBytes;
+	p.ctrlByte = rowBytes >> 8;
 
 	if (rowBytes & 0x8000)
 		do_pixmap(FALSE);
@@ -941,7 +880,7 @@ static void BitsRegion(void)
 
 	rowBytes = read_word();
 
-	p.ctrlByte = rowBytes;
+	p.ctrlByte = rowBytes >> 8;
 
 	if (rowBytes & 0x8000)
 		do_pixmap(TRUE);
@@ -952,43 +891,51 @@ static void BitsRegion(void)
 
 static void DirectBitsRect(void)
 {
+	struct Rect srcRect;
+	struct Rect dstRect;
+	unsigned long l;
 	unsigned short rowBytes;
-
-	/*
-	 * The DirectBitsRect and DirectBitsRgn opcodes store the baseAddr field
-	 * of the PixMap record in a version 2 picture.
-	 * For compatibility with existing systems, the baseAddr field is set to $000000FF.
-	 */
-	skip(4);							/* baseAddr */
+	unsigned short mode;
+	
+	l = read_long();
+	fprintf(stderr, "l1: %04lx\n", l);
 	rowBytes = read_word();
+	fprintf(stderr, "rowBytes: %04x\n", rowBytes);
+	read_rect(&p.Bounds);
+	fprintf(stderr, "bounds: %u %u %u %u\n", p.Bounds.top, p.Bounds.left, p.Bounds.bottom, p.Bounds.right);
+	p.version = read_word();						/* overread unknown field */
+	fprintf(stderr, "version: %u\n", p.version);
+	p.packType = read_word();
+	fprintf(stderr, "packType: %04x\n", p.packType);
+	p.packSize = read_long();
+	fprintf(stderr, "packSize: %04lx\n", p.packSize);
+	p.hRes = read_long();
+	p.vRes = read_long();
+	fprintf(stderr, "res: %08lx %08lx\n", p.hRes, p.vRes);
+	p.pixelType = read_word();
+	fprintf(stderr, "pixelType: %u\n", p.pixelType);
+	p.pixelSize = read_word();
+	fprintf(stderr, "pixelSize: %u\n", p.pixelSize);
+	p.cmpCount = read_word();
+	fprintf(stderr, "cmpCount: %u\n", p.cmpCount);
+	p.cmpSize = read_word();
+	fprintf(stderr, "cmpSize: %u\n", p.cmpSize);
+	p.planeBytes = read_long();
+	fprintf(stderr, "planeBytes: %lu\n", p.planeBytes);
+	p.pmTable = read_long();
+	fprintf(stderr, "pmTable: %lu\n", p.pmTable);
+	p.pmReserved = read_long();
+	fprintf(stderr, "pmReserved: %lu\n", p.pmReserved);
 
-	p.ctrlByte = rowBytes;
+	read_rect(&srcRect);
+	fprintf(stderr, "srcRect: %u %u %u %u\n", srcRect.top, srcRect.left, srcRect.bottom, srcRect.right);
+	read_rect(&dstRect);
+	fprintf(stderr, "dstRect: %u %u %u %u\n", dstRect.top, dstRect.left, dstRect.bottom, dstRect.right);
 
-	if (rowBytes & 0x8000)
-		do_pixmap(FALSE);
-	else
-		do_bitmap(FALSE);
-}
+	mode = read_word();						/* mode */
+	fprintf(stderr, "mode: %u\n", mode);
 
-
-static void DirectBitsRegion(void)
-{
-	unsigned short rowBytes;
-
-	/*
-	 * The DirectBitsRect and DirectBitsRgn opcodes store the baseAddr field
-	 * of the PixMap record in a version 2 picture.
-	 * For compatibility with existing systems, the baseAddr field is set to $000000FF.
-	 */
-	skip(4);							/* baseAddr */
-	rowBytes = read_word();
-
-	p.ctrlByte = rowBytes;
-
-	if (rowBytes & 0x8000)
-		do_pixmap(TRUE);
-	else
-		do_bitmap(TRUE);
+	Dispatch(&p);
 }
 
 
@@ -1159,7 +1106,7 @@ struct opdef optable[] = {
 	/* 0x98 */ { NA, BitsRect },			/* PackBitsRect */
 	/* 0x99 */ { NA, BitsRegion },			/* PackBitsRgn */
 	/* 0x9a */ { NA, DirectBitsRect },		/* DirectBitsRect */
-	/* 0x9b */ { NA, DirectBitsRegion },	/* DirectBitsRgn */
+	/* 0x9b */ { NA, DirectBitsRect },		/* DirectBitsRgn */
 	/* 0x9c */ res(WORD_LEN),
 	/* 0x9d */ res(WORD_LEN),
 	/* 0x9e */ res(WORD_LEN),
@@ -1175,17 +1122,29 @@ struct opdef optable[] = {
 /*		1, 4, 8, 16, 24 Bit, RLE					*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL *smurf_struct)
+int main(int argc, char **argv)
 {
-	short plus, res;
+	short plus;
 	unsigned short opcode, version, len, PictSize;
-
-	giveitme = smurf_struct;
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
-
-	buffer = smurf_struct->smurf_pic->pic_data;
+	FILE *fp;
+	const char *filename;
+	long file_len;
+	
+	if (argc != 2)
+		return 1;
+	filename = argv[1];;
+	fp = fopen(filename, "rb");
+	if (fp == NULL)
+		return 1;
+	fseek(fp, 0L, 2);
+	file_len = ftell(fp);
+	fseek(fp, 0L, 0);
+	buffer = malloc(file_len);
+	if (buffer == NULL)
+		return 1;
+	fread(buffer, 1, file_len, fp);
+	fclose(fp);
+	
 	obuffer = buffer;
 
 	/* nichtsnutzigen Header Åberspringen */
@@ -1201,13 +1160,13 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	PictSize = read_word();
 
-	if (smurf_struct->smurf_pic->file_len < 520 ||
+	if (file_len < 520 ||
 /*	   Diese PrÅfung ist leider nicht hundertprozentig zuverlÑssig, da es Apple geschafft hat,
 	   fÅr die Filegrîûe nur ein int zu reservieren, die gespeicherte Grîûe nach 2 Byte
 	   abgeschnitten wird und somit halt Åberhaupt nicht stimmt. Bravo :-( */
-		(PictSize + plus != (unsigned short ) smurf_struct->smurf_pic->file_len &&
-		 PictSize != (unsigned short ) smurf_struct->smurf_pic->file_len))
-		return M_INVALID;
+		(PictSize + plus != (unsigned short ) file_len &&
+		 PictSize != (unsigned short ) file_len))
+		return 1;
 
 	read_rect(&picFrame);
 
@@ -1215,20 +1174,22 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	{
 		version = 1;
 		buffer += 0x02;
-	} else if (*(uint16_t *) buffer == 0x0011 && *(buffer + 0x02) == 0x02)
+	} else if (buffer[0] == 0x00 && buffer[1] == 0x11 && *(buffer + 0x02) == 0x02)
 	{
 		version = 2;
 		if (*(buffer + 0x03) != 0xff)	/* Nur Unterversion 0xff ist bekannt */
-			return M_UNKNOWN_TYPE;
+			return 1;
 
 		buffer += 0x04;
 	} else
 	{
-		return M_INVALID;
+		return 1;
 	}
 
+	fprintf(stderr, "file version: %u\n", version);
 	while ((opcode = get_op(version)) != 0xff)
 	{
+		fprintf(stderr, "%08lx: %04x\n", align, opcode);
 		if (opcode < 0xa2)
 		{
 			if (optable[opcode].impl != NULL)
@@ -1276,22 +1237,8 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		} else
 		{
 			/* not reached */
-			res = form_alert(2, ERROR1);
-			if (res == 2)
-				return M_PICERR;
 		}
 	}
 
-	if (opcode == 0x00ff && got_pic)
-	{
-		if (ziel == NULL)
-			return M_MEMORY;
-		smurf_struct->smurf_pic->pic_data = ziel;
-		SMfree(obuffer);
-	} else
-	{
-		return M_UNKNOWN_TYPE;
-	}
-
-	return M_PICDONE;
+	return 0;
 }
