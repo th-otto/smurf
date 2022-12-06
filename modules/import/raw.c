@@ -36,36 +36,37 @@
 #include "smurfine.h"
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"RAW",
-						0x0010,
-						"Christian Eyrich",
-						{ "RAW", "", "", "", "",
-						  "", "", "", "", "" },
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"RAW",
+	0x0010,
+	"Christian Eyrich",
+	{ "RAW", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 
 /* -------------------------------------------------*/
@@ -76,11 +77,13 @@ MOD_INFO module_info = {"RAW",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *pal,
-		 BitsPerPixel;
-
-	unsigned int x, y, width, height, i;
-
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	uint8_t BitsPerPixel;
+	unsigned short x, y, width, height, i;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 	obuffer = buffer;
@@ -90,17 +93,17 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	BitsPerPixel = 8;
 
-	if(smurf_struct->smurf_pic->file_len < 64000L)
-		return(M_INVALID);
+	if (smurf_struct->smurf_pic->file_len < 64000L)
+		return M_INVALID;
 
-	strncpy(smurf_struct->smurf_pic->format_name, "RAW Binary Files",21);
+	strcpy(smurf_struct->smurf_pic->format_name, "RAW Binary Files");
 	smurf_struct->smurf_pic->pic_width = width;
 	smurf_struct->smurf_pic->pic_height = height;
 	smurf_struct->smurf_pic->depth = BitsPerPixel;
 
 	pal = smurf_struct->smurf_pic->palette;
 
-	if(BitsPerPixel == 1)
+	if (BitsPerPixel == 1)
 	{
 		pal[0] = 255;
 		pal[1] = 255;
@@ -108,20 +111,18 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		pal[3] = 0;
 		pal[4] = 0;
 		pal[5] = 0;
-	}
-	else
-		if(BitsPerPixel == 8)
+	} else if (BitsPerPixel == 8)
+	{
+		for (i = 0; i < 256; i++)
 		{
-			for(i = 0; i < 256; i++)
-			{
-				*pal++ = *buffer++;
-				*pal++ = *buffer++;
-				*pal++ = *buffer++;
-			}
+			*pal++ = *buffer++;
+			*pal++ = *buffer++;
+			*pal++ = *buffer++;
+		}
 
-
-		ziel = (char *)Malloc((long)width * (long)height);
-		memset(ziel, 0x0, (long)width * (long)height);
+		ziel = (uint8_t *) Malloc((unsigned long) width * height);
+		if (ziel == NULL)
+			return M_MEMORY;
 
 		oziel = ziel;
 
@@ -132,8 +133,8 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			do
 			{
 				*ziel++ = *buffer++;
-			} while(++x < width);					
-		} while(++y < height);
+			} while (++x < width);
+		} while (++y < height);
 
 		ziel = oziel;
 		buffer = obuffer;
@@ -142,13 +143,13 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 		smurf_struct->smurf_pic->pic_data = ziel;
 
-		if(BitsPerPixel == 1)
+		if (BitsPerPixel == 1)
 			smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 		else
 			smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
 
 		smurf_struct->smurf_pic->col_format = RGB;
-	} /* Erkennung */
+	}
 
-	return(M_PICDONE);
+	return M_PICDONE;
 }
