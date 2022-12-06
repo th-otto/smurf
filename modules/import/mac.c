@@ -31,36 +31,37 @@
 #define DEBUG           0
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"MacPaint-Importer",
-                        0x0050,
-                        "Dale Russell",
-                        "MAC", "PNT", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"MacPaint-Importer",
+	0x0050,
+	"Dale Russell",
+	{ "MAC", "PNT", "", "", "",	"", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -69,62 +70,70 @@ MOD_INFO module_info = {"MacPaint-Importer",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-char *extend, ext[4];
-char    *buffer;
-int width=0, height=0;
-int xc,yc, x,c,DatenOffset=0;
-char *buf, *out, *oout;
-buffer=smurf_struct->smurf_pic->pic_data;
+	char *extend;
+	char ext[4];
+	uint8_t *buffer;
+	short width, height;
+	short xc, yc, x, c;
+	unsigned short DatenOffset = 0;
+	uint8_t *buf;
+	uint8_t *out;
+	uint8_t *oout;
 
-extend=smurf_struct->smurf_pic->filename;
-strncpy(ext, extend+(strlen(extend)-3), 3);
-if(strncmp(ext, "MAC", 3)!=0 && strncmp(ext, "PNT", 3)!=0)
-    return(M_INVALID);
-strncpy(smurf_struct->smurf_pic->format_name, "Mac-Paint Bitmap   ", 21);
-width=576;
-height=720;
-for (x=0x80; x<0x86; x++)
-    if ( *(buffer+x)!=0 ) DatenOffset=0x280;
-else DatenOffset=0x200;
+	buffer = smurf_struct->smurf_pic->pic_data;
 
-smurf_struct->services->reset_busybox(128, "Mac Paint 1 Bit");
+	extend = smurf_struct->smurf_pic->filename;
+	strncpy(ext, extend + (strlen(extend) - 3), 3);
+	if (strnicmp(ext, "MAC", 3) != 0 && strnicmp(ext, "PNT", 3) != 0)
+		return M_INVALID;
+	strcpy(smurf_struct->smurf_pic->format_name, "Mac-Paint Bitmap");
+	width = 576;
+	height = 720;
+	for (x = 0x80; x < 0x86; x++)
+	{
+		if (*(buffer + x) != 0)
+			DatenOffset = 0x280;
+		else
+			DatenOffset = 0x200;
+	}
 
-/* RLE dekodieren */
-buf=buffer+DatenOffset;
-out=Mxalloc( 51840L, 3);        /* Maximal 576*720 Pixel (8 Pixel pro Byte) */
-if(!out) return(M_MEMORY);
-oout=out;
-yc=0;
-while(yc++<height)
-{
-xc=0;
-    while (xc++<72)             /* Maximal 576/8 Spalten */
-    {
-        x=*(buf++);
-        if (x & 0x80)
-        {
-            x=0x101-x;
-            c=*(buf++);
-            while(x--)
-                *(out++)=c;
-        }
-        else 
-        {
-            x++; 
-            while (x--)
-                *(out++)=*(buf++);
-        }
-    }   /* x-loop */
-}   /* y- loop */
-Mfree(smurf_struct->smurf_pic->pic_data);
-smurf_struct->smurf_pic->pic_data=oout;
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-smurf_struct->smurf_pic->depth=1;
-smurf_struct->smurf_pic->bp_pal=0;
-smurf_struct->smurf_pic->format_type=FORM_STANDARD;
-smurf_struct->smurf_pic->col_format=WURSCHT;
+	smurf_struct->services->reset_busybox(128, "Mac Paint 1 Bit");
 
-return(M_PICDONE);
+	/* RLE dekodieren */
+	buf = buffer + DatenOffset;
+	out = (uint8_t *)Malloc(51840L);			/* Maximal 576*720 Pixel (8 Pixel pro Byte) */
+	if (out == NULL)
+		return M_MEMORY;
+	oout = out;
+	yc = 0;
+	while (yc++ < height)
+	{
+		xc = 0;
+		while (xc++ < 72)				/* Maximal 576/8 Spalten */
+		{
+			x = *(buf++);
+			if (x & 0x80)
+			{
+				x = 0x101 - x;
+				c = *(buf++);
+				while (x--)
+					*(out++) = c;
+			} else
+			{
+				x++;
+				while (x--)
+					*(out++) = *(buf++);
+			}
+		}
+	}
+	Mfree(smurf_struct->smurf_pic->pic_data);
+	smurf_struct->smurf_pic->pic_data = oout;
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 1;
+	smurf_struct->smurf_pic->bp_pal = 0;
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	smurf_struct->smurf_pic->col_format = WURSCHT;
+
+	return M_PICDONE;
 }
-
