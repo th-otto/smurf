@@ -38,17 +38,12 @@
 
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
-char *find_numpoints(char *data_pos, int *points);
-
-char *get_poly_points(char *data_pos, int points, long *pointx, long *pointy, long *poly_point_number, long *poly_defs);
-
-
 MOD_INFO module_info = {
 	"NeoN-Shapefile-Importer",
 	0x0010,
 	"Olaf Piesche",
 /* Extensionen */
-	"SHP", "", "", "", "", "", "", "", "", "",
+	{ "SHP", "", "", "", "", "", "", "", "", "" },
 
 /* Slider */
 	"", "", "", "",
@@ -71,92 +66,16 @@ MOD_INFO module_info = {
 /* Defaults */
 	0, 0, 0, 0,
 	0, 0, 0, 0,
-	0, 0, 0, 0
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
 
 
-long number_of_points;					/* Punkte im ganzen File? */
-long number_of_polys;					/* Wieviele Polygone? */
-
-
-short imp_module_main(GARGAMEL * smurf_struct)
-{
-	long *pointx;						/* X-Positionen */
-	long *pointy;						/* Y-Positionen */
-
-	long *poly_point_number;			/* Wieviele Punkte im Polygon n? */
-	long *poly_defs;					/* Polygondefinition */
-
-	char *file_data;
-	char *data_pos,
-	*dp2;
-
-	int points;
-	int t;
-
-	pointx = Malloc(40000l);
-	pointy = Malloc(40000l);
-	poly_point_number = Malloc(20000);
-
-
-	file_data = smurf_struct->smurf_pic->pic_data;
-
-	if (smurf_struct->module_mode == MSTART)	/* geht's los, geht's los? */
-	{
-		/* Kennung(en) prfen */
-		if (strncmp(file_data, "RIP-2D-Shape(ascii)", 19) != 0)
-			return (M_INVALID);
-		/*
-		   if(strncmp(file_data+22, "Splineversion", 13) !=0 ) return(M_INVALID);
-		   if(strncmp(file_data+37, "Params: ", 8) !=0 ) return(M_INVALID);
-		 */
-
-/*Goto_pos(1,1);*/
-
-		/* Und los. */
-		while (data_pos != NULL)
-		{
-/*      printf("\nSuche nach numpoints...");    */
-			dp2 = data_pos;				/* Das ist n”tig, sonst funktionierts in der Schleife nicht */
-			data_pos = find_numpoints(dp2, &points);	/* Poly-Punktzahl suchen */
-/*      printf("\nPoly mit %i points gefunden, datapos=%li", points, data_pos); */
-
-			if (data_pos == NULL)
-				break;
-
-			dp2 = data_pos;				/* Das ist n”tig, sonst funktionierts in der Schleife nicht */
-			data_pos = get_poly_points(dp2, points, pointx, pointy, poly_point_number, poly_defs);
-		}
-
-		_Mshrink(poly_point_number, number_of_polys * 4L);
-		_Mshrink(pointx, number_of_points * 4L);
-		_Mshrink(pointy, number_of_points * 4L);
-
-		/*
-		   printf("\n\n Polygone gesamt: %li", number_of_polys);
-		   printf("\n Punkte gesamt: %li", number_of_points);
-		   getch();
-		 */
-	}
-
-
-
-	smurf_struct->smurf_pic->pic_data = NULL;
-	smurf_struct->smurf_pic->depth = 16;
-
-	strncpy(smurf_struct->smurf_pic->format_name, "NeoN Shape", 21);
-	smurf_struct->smurf_pic->pic_width = 0;
-	smurf_struct->smurf_pic->pic_height = 0;
-	smurf_struct->smurf_pic->x_coord = pointx;
-	smurf_struct->smurf_pic->y_coord = pointy;
-	smurf_struct->smurf_pic->number_of_polys = number_of_polys;
-	smurf_struct->smurf_pic->poly_point_number = poly_point_number;
-	smurf_struct->smurf_pic->this_is_a_vector = 1;
-
-	return (M_PICDONE);					/* das wars. */
-}
+static long number_of_points;					/* Punkte im ganzen File? */
+static long number_of_polys;					/* Wieviele Polygone? */
 
 
 
@@ -166,13 +85,12 @@ short imp_module_main(GARGAMEL * smurf_struct)
 /*  Zurckgeliefert wird ein Zeiger auf das Ende des Polygons,  */
 /*  poly_point_number und poly_defs werden gefllt.             */
 /*------------------------------------------------------------- */
-char *get_poly_points(char *data_pos, int points, long *pointx, long *pointy, long *poly_point_number, long *poly_defs)
+static char *get_poly_points(char *data_pos, int points, long *pointx, long *pointy, long *poly_point_number, long *poly_defs)
 {
 	char string[32];
 	int points_read;
 	char *endpos;
-	long xposition,
-	 yposition;
+	long xposition, yposition;
 
 	long len_of_number;
 	double orig_number;
@@ -209,7 +127,7 @@ char *get_poly_points(char *data_pos, int points, long *pointx, long *pointy, lo
 		number_of_points++;
 	}
 
-	return (data_pos);
+	return data_pos;
 }
 
 
@@ -221,7 +139,7 @@ char *get_poly_points(char *data_pos, int points, long *pointx, long *pointy, lo
 /*  *points und liefert einen Zeiger auf die X-Koordinate des   */
 /*  ersten Punktes zurck.                                      */
 /*------------------------------------------------------------- */
-char *find_numpoints(char *data_pos, int *points)
+static char *find_numpoints(char *data_pos, int *points)
 {
 	char pts[6];
 	char *endpos;
@@ -230,7 +148,7 @@ char *find_numpoints(char *data_pos, int *points)
 	data_pos = strstr(data_pos, "numpoints");
 
 	if (data_pos == NULL)
-		return (NULL);
+		return NULL;
 
 	endpos = strstr(data_pos, "\n");	/* Ende der Zahl suchen */
 	data_pos += 10;						/* data_pos auf die Zahl ausrichten */
@@ -243,5 +161,81 @@ char *find_numpoints(char *data_pos, int *points)
 	data_pos += len_of_number;			/* ans Ende der Zahl */
 	data_pos += 4;						/* 3 Returns+1 Tab berspringen. */
 
-	return (data_pos);
+	return data_pos;
+}
+
+
+short imp_module_main(GARGAMEL *smurf_struct)
+{
+	long *pointx;						/* X-Positionen */
+	long *pointy;						/* Y-Positionen */
+
+	long *poly_point_number;			/* Wieviele Punkte im Polygon n? */
+	long *poly_defs;					/* Polygondefinition */
+
+	char *file_data;
+	char *data_pos;
+	char *dp2;
+
+	int points;
+
+	pointx = (long *)Malloc(10000l * sizeof(*pointx));
+	pointy = (long *)Malloc(10000l * sizeof(*pointy));
+	poly_point_number = (long *)Malloc(5000 * sizeof(*poly_point_number));
+
+
+	file_data = smurf_struct->smurf_pic->pic_data;
+
+	/* Kennung(en) prfen */
+	if (strncmp((char *)file_data, "RIP-2D-Shape(ascii)", 19) != 0)
+		return M_INVALID;
+#if 0
+	if (strncmp((char *)file_data + 22, "Splineversion", 13) != 0)
+		return M_INVALID;
+	if (strncmp((char *)file_data + 37, "Params: ", 8) != 0)
+		return M_INVALID;
+#endif
+
+
+/*Goto_pos(1,1);*/
+
+	/* Und los. */
+	while (data_pos != NULL)
+	{
+/*      printf("\nSuche nach numpoints...");    */
+		dp2 = data_pos;				/* Das ist n”tig, sonst funktionierts in der Schleife nicht */
+		data_pos = find_numpoints(dp2, &points);	/* Poly-Punktzahl suchen */
+/*      printf("\nPoly mit %i points gefunden, datapos=%li", points, data_pos); */
+
+		if (data_pos == NULL)
+			break;
+
+		dp2 = data_pos;				/* Das ist n”tig, sonst funktionierts in der Schleife nicht */
+		data_pos = get_poly_points(dp2, points, pointx, pointy, poly_point_number, poly_defs);
+	}
+
+	_Mshrink(poly_point_number, number_of_polys * sizeof(*poly_point_number));
+	_Mshrink(pointx, number_of_points * sizeof(*pointx));
+	_Mshrink(pointy, number_of_points * sizeof(*pointy));
+
+#if 0
+	printf("\n\n Polygone gesamt: %li", number_of_polys);
+	printf("\n Punkte gesamt: %li", number_of_points);
+	(void)Cnecin();
+#endif
+
+
+	smurf_struct->smurf_pic->pic_data = NULL;
+	smurf_struct->smurf_pic->depth = 16;
+
+	strcpy(smurf_struct->smurf_pic->format_name, "NeoN Shape");
+	smurf_struct->smurf_pic->pic_width = 0;
+	smurf_struct->smurf_pic->pic_height = 0;
+	smurf_struct->smurf_pic->x_coord = pointx;
+	smurf_struct->smurf_pic->y_coord = pointy;
+	smurf_struct->smurf_pic->number_of_polys = number_of_polys;
+	smurf_struct->smurf_pic->poly_point_number = poly_point_number;
+	smurf_struct->smurf_pic->this_is_a_vector = 1;
+
+	return M_PICDONE;					/* das wars. */
 }

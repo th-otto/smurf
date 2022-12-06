@@ -51,6 +51,8 @@ MODULES = \
 	$(DISTDIR)/modules/import/spectrum.sim \
 	$(empty)
 
+#MODULES +=	$(DISTDIR)/modules/import/neonshp.sim
+
 SUBDIRS = jpeg gif_ii mim
 
 all:: impstart.o $(MODULES)
@@ -171,6 +173,9 @@ $(DISTDIR)/modules/import/neoch.sim: impstart.o neoch.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/neonmap.sim: impstart.o neonmap.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/neonshp.sim: impstart.o neonshp.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o
