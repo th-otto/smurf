@@ -53,6 +53,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/pofo.sim \
 	$(DISTDIR)/modules/import/ppm.sim \
+	$(DISTDIR)/modules/import/psd.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
 	$(DISTDIR)/modules/import/qfax.sim \
 	$(DISTDIR)/modules/import/softimag.sim \
@@ -211,6 +212,9 @@ $(DISTDIR)/modules/import/pofo.sim: impstart.o pofo.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/ppm.sim: impstart.o ppm.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/psd.sim: impstart.o psd.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/qdv.sim: impstart.o qdv.o setlintc.o
