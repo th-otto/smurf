@@ -107,7 +107,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	obuffer = buffer;
 
 	/* kein DIP oder kein Preview enthalten */
-	if (strncmp(buffer, "DALAYOUT", 8) != 0 || *(uint16_t *) (buffer + 0x0a) == 0x001e)
+	if (strncmp((char *)buffer, "DALAYOUT", 8) != 0 || *(uint16_t *) (buffer + 0x0a) == 0x001e)
 		return M_INVALID;
 	BitsPerPixel = 24;
 

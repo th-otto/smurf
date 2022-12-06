@@ -122,7 +122,7 @@ ibas_img.sim   0.10    0.10     x
 ibm_pic.sim    0.20    0.20     x
 icn.sim        0.30    0.30     x
 iff.sim        0.70    0.70     x
-iim.sim        0.10    0.10
+iim.sim        0.10    0.10     x
 indy.sim       0.50    0.50
 indy16.sim     0.50    0.50
 jpeg.sim       0.10    0.10     x

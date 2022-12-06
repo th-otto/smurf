@@ -71,7 +71,7 @@ MOD_INFO module_info = {
 /*  ADEX ChromaGraph Bitmap                         */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *buffer = smurf_struct->smurf_pic->pic_data;
 	short BitsPerPixel = 0;
@@ -98,7 +98,7 @@ short imp_module_main(GARGAMEL * smurf_struct)
 	/*****************************************************/
 	/*          MAGIC Code ÅberprÅfen                    */
 	/*****************************************************/
-	if (strncmp(buffer, "PICT", 4) != 0)
+	if (strncmp((char *)buffer, "PICT", 4) != 0)
 		return M_INVALID;
 
 	/*****************************************************/

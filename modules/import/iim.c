@@ -36,36 +36,37 @@
 #include "smurfine.h"
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Inshape-Format",
-						0x0010,
-						"Christian Eyrich",
-						"IIM", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"Inshape-Format",
+	0x0010,
+	"Christian Eyrich",
+	{ "IIM", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -75,78 +76,77 @@ MOD_INFO module_info = {"Inshape-Format",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *ziel, *pal,
-		 BitsPerPixel, DatenOffset;
-	char dummy[3], impmessag[21];
-
-	unsigned int i, width, height;
-
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *pal;
+	uint8_t BitsPerPixel;
+	unsigned short DatenOffset;
+	char dummy[3];
+	char impmessag[21];
+	unsigned short i, width, height;
 	unsigned long len;
-
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 
-	if(strncmp(buffer, "IS_IMAGE", 8) != 0)
-		return(M_INVALID);
+	if (strncmp((char *)buffer, "IS_IMAGE", 8) != 0)
+		return M_INVALID;
+
+	BitsPerPixel = *(uint16_t *) (buffer + 0x0a);
+
+	width = *(uint16_t *) (buffer + 0x0c);
+	height = *(uint16_t *) (buffer + 0x0e);
+
+	DatenOffset = 0x10;
+
+	strcpy(smurf_struct->smurf_pic->format_name, "Inshape Image-Format .IIM");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	strcpy(impmessag, "Inshape Image ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	ziel = buffer;
+
+	len = (((unsigned long) width * (unsigned long) height) * BitsPerPixel) >> 3;
+
+	memmove(ziel, buffer + DatenOffset, len);
+
+	_Mshrink(ziel, len);
+
+	smurf_struct->smurf_pic->pic_data = ziel;
+
+	if (BitsPerPixel == 1)
+		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 	else
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+
+	pal = smurf_struct->smurf_pic->palette;
+
+	if (BitsPerPixel == 1)
 	{
-		BitsPerPixel = *(unsigned int *)(buffer + 0x0a);
-		
-		width = *(unsigned int *)(buffer + 0x0c); 
-		height = *(unsigned int *)(buffer + 0x0e);
-
-		DatenOffset = 0x10;
-	
-		strncpy(smurf_struct->smurf_pic->format_name, "Inshape Image-Format .IIM", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
-
-		strcpy(impmessag, "Inshape Image ");
-		strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-		strcat(impmessag, " Bit");
-		smurf_struct->services->reset_busybox(128, impmessag);
-
-		ziel = buffer;
-
-		len = (((long)width * (long)height) * BitsPerPixel) >> 3;
-
-		memcpy(ziel, buffer + DatenOffset, len);
-
-		_Mshrink(ziel, len);
-
-		smurf_struct->smurf_pic->pic_data = ziel;
-	
-		if(BitsPerPixel == 1)
-			smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-		else
-			smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-
-		pal = smurf_struct->smurf_pic->palette;
-
-		if(BitsPerPixel == 1)
+		pal[0] = 255;
+		pal[1] = 255;
+		pal[2] = 255;
+		pal[3] = 0;
+		pal[4] = 0;
+		pal[5] = 0;
+	} else if (BitsPerPixel == 8)
+	{
+		for (i = 0; i < 256; i++)
 		{
-			pal[0] = 255;
-			pal[1] = 255;
-			pal[2] = 255;
-			pal[3] = 0;
-			pal[4] = 0;
-			pal[5] = 0;
+			*pal++ = i;
+			*pal++ = i;
+			*pal++ = i;
 		}
-		else
-			if(BitsPerPixel == 8)
-				for(i = 0; i < 256; i++)
-				{
-					*pal++ = (char)i;
-					*pal++ = (char)i;
-					*pal++ = (char)i;
-				}
+	}
 
-		if(BitsPerPixel == 8)
-			smurf_struct->smurf_pic->col_format = GREY;
-		else
-			smurf_struct->smurf_pic->col_format = RGB;
-	} /* Erkennung */
+	if (BitsPerPixel == 8)
+		smurf_struct->smurf_pic->col_format = GREY;
+	else
+		smurf_struct->smurf_pic->col_format = RGB;
 
-	return(M_PICDONE);
+	return M_PICDONE;
 }

@@ -35,6 +35,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/ibm_pic.sim \
 	$(DISTDIR)/modules/import/icn.sim \
 	$(DISTDIR)/modules/import/iff.sim \
+	$(DISTDIR)/modules/import/iim.sim \
 	$(DISTDIR)/modules/import/lan.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
@@ -136,6 +137,9 @@ $(DISTDIR)/modules/import/icn.sim: impstart.o icn.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/iff.sim: impstart.o iff.o getinter.o getint08.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/iim.sim: impstart.o iim.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/lan.sim: impstart.o lan.o

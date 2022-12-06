@@ -90,7 +90,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	/*****************************************************/
 	/*          MAGIC Code ÅberprÅfen                    */
 	/*****************************************************/
-	if (strncmp(buffer, "RIX3", 4) != 0)
+	if (strncmp((char *)buffer, "RIX3", 4) != 0)
 		return M_INVALID;
 
 	/*****************************************************/
