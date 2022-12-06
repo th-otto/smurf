@@ -29,36 +29,37 @@
 #include "smurfine.h"
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"QRT .RAW Modul",
-                        0x0010,
-                        "Dale Russell",
-                        "RAW", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"QRT .RAW Modul",
+	0x0010,
+	"Dale Russell",
+	{ "RAW", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -67,38 +68,38 @@ MOD_INFO module_info = {"QRT .RAW Modul",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-char *extend, ext[4], *retbuf;
-char    *buffer;
-int width=0, height=0;
-long filelen=smurf_struct->smurf_pic->file_len;
-long len;
+	char *extend;
+	char ext[4];
+	uint8_t *retbuf;
+	uint8_t *buffer;
+	short width, height;
+	long filelen = smurf_struct->smurf_pic->file_len;
+	long len;
 
-extend=smurf_struct->smurf_pic->filename;
-strncpy(ext, extend+(strlen(extend)-3), 3);
+	extend = smurf_struct->smurf_pic->filename;
+	strcpy(ext, extend + (strlen(extend) - 3));
 
-buffer=smurf_struct->smurf_pic->pic_data;
-width=*(buffer)+(*(buffer+1)<<8);
-height=*(buffer+2)+(*(buffer+3)<<8);
-len= (long)width *(long)height *3l;
+	buffer = smurf_struct->smurf_pic->pic_data;
+	width = *(buffer) + (*(buffer + 1) << 8);
+	height = *(buffer + 2) + (*(buffer + 3) << 8);
+	len = (long) width *(long) height *3l;
 
-smurf_struct->services->reset_busybox(128, "QRT Raw 24 Bit");
+	smurf_struct->services->reset_busybox(128, "QRT Raw 24 Bit");
 
-if(strncmp(ext, "RAW", 3)==0)
-{
-    if ( len != (filelen-4) )
-        return(M_INVALID);
-}
-else        return(M_INVALID);
+	if (strnicmp(ext, "RAW", 3) != 0)
+		return M_INVALID;
+	if (len != (filelen - 4))
+		return M_INVALID;
 
-retbuf=Malloc( len );
-memcpy(retbuf, buffer+4, len);
-Mfree(buffer);
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-smurf_struct->smurf_pic->pic_data=retbuf;
-smurf_struct->smurf_pic->depth=24;
-smurf_struct->smurf_pic->format_type=FORM_PIXELPAK;
-smurf_struct->smurf_pic->col_format=RGB;
-strncpy(smurf_struct->smurf_pic->format_name, "QRT Ray Tracer    ", 21);
-return(M_PICDONE);
+	retbuf = (uint8_t *)Malloc(len);
+	memcpy(retbuf, buffer + 4, len);
+	Mfree(buffer);
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->pic_data = retbuf;
+	smurf_struct->smurf_pic->depth = 24;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	smurf_struct->smurf_pic->col_format = RGB;
+	strcpy(smurf_struct->smurf_pic->format_name, "QRT Ray Tracer");
+	return M_PICDONE;
 }

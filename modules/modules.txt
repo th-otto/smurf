@@ -146,7 +146,7 @@ ppm.sim        0.30    0.30     x
 psd.sim        0.30    0.30     x
 qdv.sim        0.30    0.30     x
 qfax.sim       0.20    0.10     x
-qrt.sim        0.10    0.10
+qrt.sim        0.10    0.10     x
 r8.sim         0.10    0.10
 ras.sim        0.60    0.60
 raw.sim        0.10    0.10
