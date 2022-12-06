@@ -31,7 +31,7 @@ impstart.s          ; startup code
 pcd.c
 
 pcddec00.s
-pcddec20.s
+pcddec20.s [-2]
 
 ;h:\src\smurf\smurf\setp16.S          ; setpix and getpix for standard format
 

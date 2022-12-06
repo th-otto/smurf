@@ -385,7 +385,7 @@ short decode_lzw_fast(uint8_t *buffer, uint8_t *ziel)
 	par.srclen = srclen;
 	par.ziel = ziel;
 	par.pData = pData;
-	if (PROCESSOR & (MC68020 | MC68030 | MC68040))
+	if (PROCESSOR & (MC68020 | MC68030 | MC68040 | MC68060))
 		decode_fast020(&par);
 	else
 		decode_fast(&par);

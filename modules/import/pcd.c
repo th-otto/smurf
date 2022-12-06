@@ -37,7 +37,7 @@
 /*	  Klaus verwirrte mich sehr, nun endlich ist es voll-	*/
 /*	  bracht und die Farbkonvertierung aus hpcdtoppm ge-	*/
 /*	  klaut - nur sind 429 ticks fÅr ein Base4-Bild noch	*/
-/*	  zuviel												*/ 
+/*	  zuviel												*/
 /* Version 0.4  --  27.03.96								*/
 /*	  Quellspeicher wurde nicht freigegeben					*/
 /* Version 0.5  --  01.06.96								*/
@@ -54,7 +54,7 @@
 /* Version 0.9  --  xx.xx.xx								*/
 /*	  Bilder werden zurechtgedreht: Byte 0x0E02				*/
 /* =========================================================*/
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,47 +63,54 @@
 
 #define TIMER 0
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
+MOD_INFO module_info = {
+	"PCD Image-Modul",
+	0x0080,
+	"Christian Eyrich",
+	{ "PCD", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
-short (*busybox)(short pos);
-SERVICE_FUNCTIONS *Services;
+static SERVICE_FUNCTIONS *Services;
 
-static void initctable(void);
-static void ycctorgb(char *ziel, unsigned int width, unsigned int height);
-extern void PCD_decode00(long *par);	/* 68000er Assembler Routine */
-extern void PCD_decode20(long *par);	/* 68020er Assembler Routine */
+struct pcd_decode {
+	uint8_t *dst;
+	long *T_B1;
+	long *T_G1;
+	long *T_R2;
+	long *T_G2;
+	long *T_L;
+	unsigned long width;
+	unsigned long height;
+	const unsigned char *PCDMap;
+};
 
-MOD_INFO module_info = {"PCD Image-Modul",
-						0x0080,
-						"Christian Eyrich",
-						"PCD", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+void PCD_decode00(struct pcd_decode *par) ASM_NAME("_PCD_decode00");	/* 68000er Assembler Routine */
+void PCD_decode20(struct pcd_decode *par) ASM_NAME("_PCD_decode20");	/* 68020er Assembler Routine */
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -112,240 +119,57 @@ MOD_INFO module_info = {"PCD Image-Modul",
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 
-const char PCDMap[512] =
-	{
+static unsigned char const PCDMap[512] = {
 /* 128 mal 0 gegen Unterlauf */
-		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0,
 /* 256 Kernzahlen */
-        0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,
-       14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,
-       28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,
-       42,  43,  44,  45,  46,  47,  48,  49,  50,  51,  52,  53,  54,  55,
-       56,  57,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,  68,  69,
-       70,  71,  72,  73,  74,  75,  76,  77,  78,  79,  80,  81,  82,  83,
-       84,  85,  86,  87,  88,  89,  90,  91,  92,  93,  94,  95,  96,  97,
-       98,  99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
-      112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125,
-      126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139,
-      140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153,
-      154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167,
-      168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
-      182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195,
-      196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209,
-      210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223,
-      224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237,
-      238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251,
-      252, 253, 254, 255,
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+	14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+	28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41,
+	42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55,
+	56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+	70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
+	84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97,
+	98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+	112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125,
+	126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139,
+	140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153,
+	154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167,
+	168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
+	182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195,
+	196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209,
+	210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223,
+	224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237,
+	238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251,
+	252, 253, 254, 255,
 /* 128 mal 255 gegen öberlauf */
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-	  255, 255
-	};
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255
+};
 
-static long T_L[256],T_R2[256],T_G1[256],T_G2[256],T_B1[256]; 
+static long T_L[256];
+static long T_R2[256];
+static long T_G1[256];
+static long T_G2[256];
+static long T_B1[256];
 
-short imp_module_main(GARGAMEL *smurf_struct)
-{
-	char *ziel, *ziely, *zielcb, *zielcb1, *zielcb2,
-		 *zielcr, *zielcr1, *zielcr2, *buffer, *obuffer;
-
-    unsigned int bh, bl, y, width, realwidth, height, i;
- 
-    unsigned long help;
- 
-
-#if TIMER
-/* wie schnell sind wir? */
-	init_timer();
-#endif
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
-
-	busybox = smurf_struct->services->busybox;
-	Services = smurf_struct->services;
-
-	buffer = smurf_struct->smurf_pic->pic_data;
- 
-/* Das Bild liegt im YCbCr-Farbsystem vor. Durch Datenreduktion */
-/* sind fÅr jeden Pixel nur die Helligkeitswerte (Y) enthalten. */
-/* Die Farbwerte sind nur in einem von vier Pixel gespeichert und */
-/* werden fÅr die Darstellung interpoliert. */
-
-/* Hier wird wegen der Grîûe von PCD-Files die Ermittlung der */
-/* wichtigen Daten vom Smurf erledigt und nur Rohdaten ab dem */
-/* passenden Offset Åbergeben. */
-
-	width = smurf_struct->smurf_pic->pic_width;
-	height = smurf_struct->smurf_pic->pic_height;
-
-	strncpy(smurf_struct->smurf_pic->format_name, "Photo CD .PCD", 21);
-	smurf_struct->smurf_pic->depth = 24;
-
-	smurf_struct->services->reset_busybox(0, "Photo CD 24 Bit");
-
-	if((ziel = SMalloc((long)width * (long)height * 3)) == 0)
-		return(M_MEMORY);
-	else
-	{
-		obuffer = buffer;
-		ziely = ziel;
-		zielcb = ziel + 1;
-		zielcr = ziel + 2;
-
-		realwidth = width * 3;
-
-/* *** */
-		help = width;
-		while(help--) /* Hole BPERZ Byte aus dem Datenstrom ;-)) */
-		{
-			*ziely = *buffer++;
-			ziely += 3;
-
-			*ziely = *buffer++;
-			ziely += 3;
-		}
-		*(ziely - realwidth - 3) = *(ziely - realwidth - 6);
-		*(ziely - 3) = *(ziely - 6);
-
-		help = width >> 1;
-		while(help--)
-		{
-			*zielcb = *buffer++;
-			zielcb += 3;
-
-			*zielcb = (*(zielcb - 3) + *buffer) >> 1;
-			zielcb += 3;
-		}
-		*(zielcb - 3) = *(zielcb - 6);
-		zielcb += realwidth;
-
-		help = width >> 1;
-		while(help--)
-		{
-			*zielcr = *buffer++;
-			zielcr+= 3;
-
-			*zielcr = (*(zielcr - 3) + *buffer) >> 1;
-			zielcr+= 3;
-		}
-		*(zielcr - 3) = *(zielcr - 6);
-		zielcr += realwidth;
-
-/* *** */
-
-		bh = height / 20; 				/* busy-height */
-		bl = 0;							/* busy-length */
-
-		y = 0;
-		do
-		{
-			if(!(y%bh))
-			{
-				busybox(bl);
-				bl += 12;
-			}
-
-			help = width;
-			while(help--) /* Hole BPERZ Byte aus dem Datenstrom ;-)) */
-			{
-				*ziely = *buffer++;
-				ziely += 3;
-
-				*ziely = *buffer++;
-				ziely += 3;
-			}
-			*(ziely - realwidth - 3) = *(ziely - realwidth - 6);
-			*(ziely - 3) = *(ziely - 6);
-
-			help = width >> 1;
-			while(help--)
-			{
-				*zielcb = *buffer++;
-				zielcb += 3;
-
-				*zielcb = (*(zielcb - 3) + *buffer) >> 1;
-				zielcb += 3;
-			}
-			*(zielcb - 3) = *(zielcb - 6);
-
-			help = width >> 1;
-			while(help--)
-			{
-				*zielcr = *buffer++;
-				zielcr+= 3;
-
-				*zielcr = (*(zielcr - 3) + *buffer) >> 1;
-				zielcr+= 3;
-			}
-			*(zielcr - 3) = *(zielcr - 6);
-
-	/* Versuch' doch mal, mit nur einem Zeiger auszukommen */
-	/* und adressiere alles relativ */
-			zielcb -= realwidth;
-			zielcb2 = zielcb - realwidth;
-			zielcb1 = zielcb2 - realwidth;
-			zielcr -= realwidth;
-			zielcr2 = zielcr - realwidth;
-			zielcr1 = zielcr2 - realwidth;
-			i = width;
-			do
-			{
-				*zielcb2 = (*zielcb1 + *zielcb) >> 1;
-				zielcb += 3; 
-				zielcb1 += 3;
-				zielcb2 += 3;
-
-				*zielcr2 = (*zielcr1 + *zielcr) >> 1;
-				zielcr += 3;
-				zielcr1 += 3;
-				zielcr2 += 3;
-			} while(--i); /* Interpolation Zeilen Y, Y-1 und Y-2 */
-
-			zielcb += realwidth;
-			zielcr += realwidth;
-
-			y += 2;
-		} while(y < height - 2); /* y */
-		memcpy(ziel + (long)realwidth * (height - 1), ziel + (long)realwidth * (height - 2), realwidth);
-
-		smurf_struct->services->reset_busybox(128, "YCbCr -> RGB");
-
-		ycctorgb(ziel, width, height);
-
-		smurf_struct->smurf_pic->pic_data = ziel;
-		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-		smurf_struct->smurf_pic->col_format = RGB;
-
-		buffer = obuffer;
-
-	} /* Malloc */
-
-#if TIMER
-/* wie schnell waren wir? */
-	printf("%lu\n", get_timer());
-	getch();
-#endif
-
-	SMfree(buffer);
-	return(M_PICDONE);
-}
 
 
 /* --- INITCTABLE --- */
@@ -353,9 +177,8 @@ static void initctable(void)
 {
 	int i;
 
-
-	for(i = 0; i < 256; i++)
-	{  	
+	for (i = 0; i < 256; i++)
+	{
 		/* i * 1.3584 * 1024 + Rundung + 128 * 1024 gegen Unterlauf */
 		T_L[i] = i * 1391L + 512L + 131072L;
 		/* (i - 137) * 1.340762 * 1.3584 * 1024 */
@@ -367,37 +190,30 @@ static void initctable(void)
 		/* (i - 156) * 1.632639 * 1.3584 * 1024 */
 		T_B1[i] = (i - 156) * 2271L;
 	}
-
-	return;
 }
 
 
 /* --- YCCTORGB --- */
-static void ycctorgb(char *ziel, unsigned int width, unsigned int height)
+static void ycctorgb(uint8_t *ziel, unsigned short width, unsigned short height)
 {
-	long *par;
+	struct pcd_decode par;
 
-	
 	initctable();
-	par = Malloc(100L);
-	memset(par, 0, 100L);	
 
-	*(par) = (long)ziel;
-	*(par + 1) = (long)T_B1;
-	*(par + 2) = (long)T_G1;
-	*(par + 3) = (long)T_R2;
-	*(par + 4) = (long)T_G2;
-	*(par + 5) = (long)T_L;
-	*(par + 6) = (long)width;
-	*(par + 7) = (long)height;
-	*(par + 8) = (long)PCDMap;
+	par.dst = ziel;
+	par.T_B1 = T_B1;
+	par.T_G1 = T_G1;
+	par.T_R2 = T_R2;
+	par.T_G2 = T_G2;
+	par.T_L = T_L;
+	par.width = width;
+	par.height = height;
+	par.PCDMap = PCDMap;
 
-	if(!(Services->CPU_type&MC68000))
-		PCD_decode20(par);
+	if (Services->CPU_type & (MC68020 | MC68030 | MC68040 | MC68060))
+		PCD_decode20(&par);
 	else
-		PCD_decode00(par);
-
-	Mfree(par);
+		PCD_decode00(&par);
 }
 
 
@@ -462,3 +278,193 @@ b) if the display phosphors differ from CCIR 709 primaries then further
 conversion will be necessary, possibly through anintermediate device
 independent colour space such as CIE XYZ.
 */
+
+
+short imp_module_main(GARGAMEL *smurf_struct)
+{
+	uint8_t *ziel;
+	uint8_t *ziely;
+	uint8_t *zielcb;
+	uint8_t *zielcb1;
+	uint8_t *zielcb2;
+	uint8_t *zielcr;
+	uint8_t *zielcr1;
+	uint8_t *zielcr2;
+	uint8_t *buffer;
+	uint8_t *obuffer;
+
+	unsigned short bh, bl, y, width, realwidth, height, i;
+	unsigned long help;
+
+
+#if TIMER
+	/* wie schnell sind wir? */
+	init_timer();
+#endif
+
+	Services = smurf_struct->services;
+
+	buffer = smurf_struct->smurf_pic->pic_data;
+
+/* Das Bild liegt im YCbCr-Farbsystem vor. Durch Datenreduktion */
+/* sind fÅr jeden Pixel nur die Helligkeitswerte (Y) enthalten. */
+/* Die Farbwerte sind nur in einem von vier Pixel gespeichert und */
+/* werden fÅr die Darstellung interpoliert. */
+
+/* Hier wird wegen der Grîûe von PCD-Files die Ermittlung der */
+/* wichtigen Daten vom Smurf erledigt und nur Rohdaten ab dem */
+/* passenden Offset Åbergeben. */
+
+	width = smurf_struct->smurf_pic->pic_width;
+	height = smurf_struct->smurf_pic->pic_height;
+
+	strncpy(smurf_struct->smurf_pic->format_name, "Photo CD .PCD", 21);
+	smurf_struct->smurf_pic->depth = 24;
+
+	smurf_struct->services->reset_busybox(0, "Photo CD 24 Bit");
+
+	if ((ziel = smurf_struct->services->SMalloc((long) width * (long) height * 3)) == 0)
+		return M_MEMORY;
+
+	obuffer = buffer;
+	ziely = ziel;
+	zielcb = ziel + 1;
+	zielcr = ziel + 2;
+
+	realwidth = width * 3;
+
+/* *** */
+	help = width;
+	while (help--)					/* Hole BPERZ Byte aus dem Datenstrom ;-)) */
+	{
+		*ziely = *buffer++;
+		ziely += 3;
+
+		*ziely = *buffer++;
+		ziely += 3;
+	}
+	*(ziely - realwidth - 3) = *(ziely - realwidth - 6);
+	*(ziely - 3) = *(ziely - 6);
+
+	help = width >> 1;
+	while (help--)
+	{
+		*zielcb = *buffer++;
+		zielcb += 3;
+
+		*zielcb = (*(zielcb - 3) + *buffer) >> 1;
+		zielcb += 3;
+	}
+	*(zielcb - 3) = *(zielcb - 6);
+	zielcb += realwidth;
+
+	help = width >> 1;
+	while (help--)
+	{
+		*zielcr = *buffer++;
+		zielcr += 3;
+
+		*zielcr = (*(zielcr - 3) + *buffer) >> 1;
+		zielcr += 3;
+	}
+	*(zielcr - 3) = *(zielcr - 6);
+	zielcr += realwidth;
+
+/* *** */
+
+	bh = height / 20;				/* busy-height */
+	bl = 0;							/* busy-length */
+
+	y = 0;
+	do
+	{
+		if (!(y % bh))
+		{
+			smurf_struct->services->busybox(bl);
+			bl += 12;
+		}
+
+		help = width;
+		while (help--)				/* Hole BPERZ Byte aus dem Datenstrom ;-)) */
+		{
+			*ziely = *buffer++;
+			ziely += 3;
+
+			*ziely = *buffer++;
+			ziely += 3;
+		}
+		*(ziely - realwidth - 3) = *(ziely - realwidth - 6);
+		*(ziely - 3) = *(ziely - 6);
+
+		help = width >> 1;
+		while (help--)
+		{
+			*zielcb = *buffer++;
+			zielcb += 3;
+
+			*zielcb = (*(zielcb - 3) + *buffer) >> 1;
+			zielcb += 3;
+		}
+		*(zielcb - 3) = *(zielcb - 6);
+
+		help = width >> 1;
+		while (help--)
+		{
+			*zielcr = *buffer++;
+			zielcr += 3;
+
+			*zielcr = (*(zielcr - 3) + *buffer) >> 1;
+			zielcr += 3;
+		}
+		*(zielcr - 3) = *(zielcr - 6);
+
+		/* Versuch' doch mal, mit nur einem Zeiger auszukommen */
+		/* und adressiere alles relativ */
+		zielcb -= realwidth;
+		zielcb2 = zielcb - realwidth;
+		zielcb1 = zielcb2 - realwidth;
+		zielcr -= realwidth;
+		zielcr2 = zielcr - realwidth;
+		zielcr1 = zielcr2 - realwidth;
+		i = width;
+		do
+		{
+			*zielcb2 = (*zielcb1 + *zielcb) >> 1;
+			zielcb += 3;
+			zielcb1 += 3;
+			zielcb2 += 3;
+
+			*zielcr2 = (*zielcr1 + *zielcr) >> 1;
+			zielcr += 3;
+			zielcr1 += 3;
+			zielcr2 += 3;
+		} while (--i);				/* Interpolation Zeilen Y, Y-1 und Y-2 */
+
+		zielcb += realwidth;
+		zielcr += realwidth;
+
+		y += 2;
+	} while (y < height - 2);		/* y */
+	memcpy(ziel + (long) realwidth * (height - 1), ziel + (long) realwidth * (height - 2), realwidth);
+
+	smurf_struct->services->reset_busybox(128, "YCbCr -> RGB");
+
+	ycctorgb(ziel, width, height);
+
+	smurf_struct->smurf_pic->pic_data = ziel;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	smurf_struct->smurf_pic->col_format = RGB;
+
+	buffer = obuffer;
+
+#if TIMER
+	/* wie schnell waren wir? */
+	printf("%lu\n", get_timer());
+	(void)Cnecin();
+#endif
+
+	smurf_struct->services->SMfree(buffer);
+	return M_PICDONE;
+}
+
+

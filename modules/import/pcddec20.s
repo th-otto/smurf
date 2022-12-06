@@ -22,33 +22,36 @@
  * ***** END LICENSE BLOCK *****
  */
 
-GLOBL PCD_decode20
+	.IFEQ PURE_C
+	.globl _PCD_decode20
+_PCD_decode20:
+	move.l 4(a7),a0
+	.ENDC
 
-.MC68020
-
+	.globl PCD_decode20
 PCD_decode20:
-movem.l d3-d7/a2-a6,-(sp)
-move.l	(a0)+,a1				/* ziel1 */
-move.l	(a0)+,a2				/* T_B */
-move.l	(a0)+,a3				/* T_G */
-move.l	(a0)+,a4				/* T_R */
-move.l	(a0)+,a5				/* T_g */
-move.l	(a0)+,a6				/* T_L */
-move.l	(a0)+,d0				/* width */
-move.l	(a0)+,d1				/* height */
-move.l	(a0)+,a0				/* RGB_corr */
+	movem.l d2-d7/a2-a6,-(sp)
+	move.l	(a0)+,a1				/* ziel1 */
+	move.l	(a0)+,a2				/* T_B */
+	move.l	(a0)+,a3				/* T_G */
+	move.l	(a0)+,a4				/* T_R */
+	move.l	(a0)+,a5				/* T_g */
+	move.l	(a0)+,a6				/* T_L */
+	move.l	(a0)+,d0				/* width */
+	move.l	(a0)+,d1				/* height */
+	move.l	(a0)+,a0				/* RGB_corr */
 
-move.l	#$03ff,d7				/* compare value */
-subq.w	#1,d0					/* width - 1 : dbra */
-subq.w	#1,d1					/* height - 1 : dbra */
-moveq	#0,d5					/* zeroing */
-moveq	#0,d6					/* zeroing */
+	move.l	#0x03ff,d7				/* compare value */
+	subq.w	#1,d0					/* width - 1 : dbra */
+	subq.w	#1,d1					/* height - 1 : dbra */
+	moveq	#0,d5					/* zeroing */
+	moveq	#0,d6					/* zeroing */
 
-move.w d1,ycount
-moveq.l #10,d1
+	move.w d1,ycount
+	moveq.l #10,d1
 
 _loopy:
-move.w	d0,d2					/* width - counter */
+	move.w	d0,d2					/* width - counter */
 _loopx:
 *---------------------------
 * Luminanz holen
@@ -83,12 +86,12 @@ _loopx:
 	lsr.l	d1,d4				/*>>= 10 */
 	move.b	(a0,d4.w),d4		/*PCDMap[b] */
 	move.b	d4,(a1)+			/*speichern */
-dbra d2,_loopx
+	dbra d2,_loopx
 
-subq.w #1,ycount
-bge	_loopy
+	subq.w #1,ycount
+	bge	_loopy
 
-movem.l (sp)+,d3-d7/a2-a6
-rts
+	movem.l (sp)+,d2-d7/a2-a6
+	rts
 
 ycount:	ds.w 1

@@ -44,6 +44,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/mtv_mod.sim \
 	$(DISTDIR)/modules/import/neoch.sim \
 	$(DISTDIR)/modules/import/neonmap.sim \
+	$(DISTDIR)/modules/import/pcd.sim \
 	$(DISTDIR)/modules/import/pixar.sim \
 	$(DISTDIR)/modules/import/qdv.sim \
 	$(DISTDIR)/modules/import/qfax.sim \
@@ -178,6 +179,9 @@ $(DISTDIR)/modules/import/neonmap.sim: impstart.o neonmap.o
 $(DISTDIR)/modules/import/neonshp.sim: impstart.o neonshp.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+$(DISTDIR)/modules/import/pcd.sim: impstart.o pcd.o pcddec00.o pcddec20.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 $(DISTDIR)/modules/import/pixar.sim: impstart.o pixar.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
@@ -211,6 +215,12 @@ getinter.o: ../getinter.s
 
 getint08.o: ../getint08.s
 	$(CC) $(CFLAGS) $(ASFLAGS) -c -o $@ $<
+
+pcddec00.o: pcddec00.s
+	$(CC) $(CFLAGS) $(ASFLAGS) -c -o $@ $<
+
+pcddec20.o: pcddec20.s
+	$(CC) $(CFLAGS) $(ASFLAGS) -m68020 -c -o $@ $<
 
 clean::
 	$(RM) *.o $(MODULES)
