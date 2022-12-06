@@ -151,7 +151,7 @@ r8.sim         0.10    0.10     x
 ras.sim        0.60    0.60     x
 raw.sim        0.10    0.10     x
 rawmod.sim     0.10    0.10     x
-scodl.sim      0.10    0.10
+scodl.sim      0.10    0.10     x
 sef.sim        0.50    0.50
 sgi.sim        0.40    0.40
 smurf_mt.sim   0.10    0.10

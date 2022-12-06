@@ -83,8 +83,8 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	buffer = smurf_struct->smurf_pic->pic_data;
 
 	extend = smurf_struct->smurf_pic->filename;
-	strncpy(ext, extend + (strlen(extend) - 3), 3);
-	if (strnicmp(ext, "MAC", 3) != 0 && strnicmp(ext, "PNT", 3) != 0)
+	strcpy(ext, extend + (strlen(extend) - 3));
+	if (stricmp(ext, "MAC") != 0 && stricmp(ext, "PNT") != 0)
 		return M_INVALID;
 	strcpy(smurf_struct->smurf_pic->format_name, "Mac-Paint Bitmap");
 	width = 576;

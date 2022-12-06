@@ -153,7 +153,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		planes = 1;
 	}
 	dataoffset = colors * 3;
-	strncpy(smurf_struct->smurf_pic->format_name, "Macintosh Giffer .QDV", 21);
+	strcpy(smurf_struct->smurf_pic->format_name, "Macintosh Giffer .QDV");
 	smurf_struct->smurf_pic->pic_width = width;
 	smurf_struct->smurf_pic->pic_height = height;
 	smurf_struct->smurf_pic->depth = depth;

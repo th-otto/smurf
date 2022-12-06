@@ -290,11 +290,11 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		type = SPU;
 	else if (memcmp(picdata, "SP\0\0", 4) == 0)
 		type = SPC;
-	else if (strncmp(picdata, "SPX", 3) == 0)
+	else if (strnicmp(picdata, "SPX", 3) == 0)
 		type = SPX;
 	if (type != SPU && type != SPC && type != SPX)
 		return M_INVALID;				/* Kenn ich nicht */
-	strncpy(smurf_struct->smurf_pic->format_name, "Spectrum 512 .SP", 21);
+	strcpy(smurf_struct->smurf_pic->format_name, "Spectrum 512 .SP");
 	if (type == SPU)
 		smurf_struct->smurf_pic->format_name[16] = 'U';
 	else if (type == SPC)

@@ -46,34 +46,35 @@
 #include "smurfine.h"
 
 
-MOD_INFO module_info=
-{
-    "SCODL-Importer",
-    0x0010,
-    "Olaf Piesche",
+MOD_INFO module_info = {
+	"SCODL-Importer",
+	0x0010,
+	"Olaf Piesche",
 /* Extensionen */
-    "SCD","","","","","","","","","",
+	{ "SCD", "", "", "", "", "", "", "", "", "" },
 /* Slider */
-    "","","","",
+	"", "", "", "",
 /* Editfelder */
-    "","","","",
+	"", "", "", "",
 /* Checkboxen */
-    "","","","",
+	"", "", "", "",
 /* Minima + Maxima */
 /* Slider */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Edits */
-    0,0,
-    0,0,
-    0,0,
-    0,0,
+	0, 0,
+	0, 0,
+	0, 0,
+	0, 0,
 /* Defaults */
-    0,0,0,0,
-    0,0,0,0,
-    0,0,0,0
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -83,141 +84,163 @@ MOD_INFO module_info=
 
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-SMURF_PIC *picture;
-char *cpic, *bitmap_data, *decoded_pic, *decpic_copy, PicByte;
-unsigned short *pic_data;
-char *redpal, *greenpal, *bluepal;
-int width, height, depth;
-unsigned short pictype;
-int pal_offs;
-long decode, PicLen, DecodeLen=0, t, dect, PlaneLen;
-char red, green, blue;
-char *smurf_palette, *smurf_palcopy;
+	SMURF_PIC *picture;
+	uint8_t *cpic;
+	uint8_t *bitmap_data;
+	uint8_t *decoded_pic;
+	uint8_t *decpic_copy;
+	uint8_t PicByte;
+	unsigned short *pic_data;
+	uint8_t *redpal;
+	uint8_t *greenpal;
+	uint8_t *bluepal;
+	short width, height, depth;
+	unsigned short pictype;
+	short pal_offs;
+	long decode;
+	long PicLen;
+	long DecodeLen = 0;
+	long t;
+	long dect;
+	long PlaneLen;
+	uint8_t red, green, blue;
+	uint8_t *smurf_palette;
+	uint8_t *smurf_palcopy;
 
 
-picture=smurf_struct->smurf_pic;
-pic_data=picture->pic_data;
-cpic = (char *)pic_data;
-smurf_palette=picture->palette;
-smurf_palcopy=smurf_palette;
+	picture = smurf_struct->smurf_pic;
+	pic_data = picture->pic_data;
+	cpic = (uint8_t *) pic_data;
+	smurf_palette = picture->palette;
+	smurf_palcopy = smurf_palette;
 
 
-/* Dateikennung prÅfen */
-if( *(pic_data) != 0xe001U ) return(M_INVALID);
-
-
-
-pictype= *(pic_data+1);     /* Bildtype */
-
-if(pictype==0xf800U) 
-    {
-    depth=8;        /* 8Bit Palettenbild,     */
-    pal_offs=3*256;
-    }
-else if(pictype==0xdc00U) 
-    {
-    depth=24;   /* 24Bit TC-Bild,         */
-    pal_offs=0;
-    }
-else return(M_UNKNOWN_TYPE);        /* oder unbekanntes Bild. */
+	/* Dateikennung prÅfen */
+	if (*(pic_data) != 0xe001U)
+		return M_INVALID;
 
 
 
+	pictype = *(pic_data + 1);			/* Bildtype */
 
-redpal=cpic+0x04;       /* Palettenwerte ROT ab Byte 4 */
-greenpal=cpic+0x104;        /* Palettenwerte GRöN */
-bluepal=cpic+0x204;     /* Palettenwerte BLAU */
+	if (pictype == 0xf800U)
+	{
+		depth = 8;						/* 8Bit Palettenbild,     */
+		pal_offs = 3 * 256;
+	} else if (pictype == 0xdc00U)
+	{
+		depth = 24;						/* 24Bit TC-Bild,         */
+		pal_offs = 0;
+	} else
+		return M_UNKNOWN_TYPE;		/* oder unbekanntes Bild. */
+
+
+
+
+	redpal = cpic + 0x04;				/* Palettenwerte ROT ab Byte 4 */
+	greenpal = cpic + 0x104;			/* Palettenwerte GRöN */
+	bluepal = cpic + 0x204;				/* Palettenwerte BLAU */
 
 #if 0
-memtype=*(cpic+pal_offs);   /* Scaleable - Non Scaleable (???) */
+	memtype = *(cpic + pal_offs);		/* Scaleable - Non Scaleable (???) */
 #endif
 
-width= (int) *(cpic+pal_offs+1);
-height= (int) *(cpic+pal_offs+3);
+	width = *(cpic + pal_offs + 1);
+	height = *(cpic + pal_offs + 3);
 
 
 
 
 
-PicLen=(long)width*(long)height*3L;
-decoded_pic=Malloc(PicLen);
-decpic_copy=decoded_pic;
+	PicLen = (long) width * (long) height * 3L;
 
-bitmap_data = cpic+0x0d+pal_offs;
+	decoded_pic = (uint8_t *)Malloc(PicLen);
+	if (decoded_pic == NULL)
+		return M_MEMORY;
+	decpic_copy = decoded_pic;
 
-
-
-
-/* Expansions-Decode (RLE=RunLengthEncoding oder: Reine LÑngen-Expansion...) */
-    do{
-        decode=*(bitmap_data++);        /* RLE-Length */    
-        PicByte=*(bitmap_data++);   /* RLE-Value  */
-
-        for(dect=0; dect<decode; dect++)
-        {
-            *(decpic_copy++)=PicByte;
-            DecodeLen++;
-        }
-
-    } while(DecodeLen<PicLen);
+	bitmap_data = cpic + 0x0d + pal_offs;
 
 
 
 
+	/* Expansions-Decode (RLE=RunLengthEncoding oder: Reine LÑngen-Expansion...) */
+	do
+	{
+		decode = *(bitmap_data++);		/* RLE-Length */
+		PicByte = *(bitmap_data++);		/* RLE-Value  */
 
-/******* 24BIT-IMAGE *********/
-if(depth==24)
-{
-    bitmap_data=decoded_pic;
-    PlaneLen=width*height;
+		for (dect = 0; dect < decode; dect++)
+		{
+			*(decpic_copy++) = PicByte;
+			DecodeLen++;
+		}
 
-    Mfree(pic_data);
-    pic_data=Malloc(PicLen);
-    cpic = (char *)pic_data;
-
-    /* Format-Decode */
-    for(t=0; t<PlaneLen; t++)
-    {
-        red=*(bitmap_data+t);
-        green=*(bitmap_data+t+PlaneLen);
-        blue=*(bitmap_data+t+PlaneLen+PlaneLen);
-        *(cpic++)=red;
-        *(cpic++)=green;
-        *(cpic++)=blue;
-    }
-
-    Mfree(decoded_pic);
-}
+	} while (DecodeLen < PicLen);
 
 
-/******* 8BIT-IMAGE *********/
-else if(depth==8)
-{
-    /* den Speicherblock verkÅrzen... */
-    PlaneLen=(long)width*(long)height;
-    _Mshrink(decoded_pic, PlaneLen);
-
-    Mfree(pic_data);
-    pic_data = (unsigned short *)decoded_pic;
 
 
-    /* Palette eintragen */
-    for(t=0; t<256; t++)
-    {
-        *(smurf_palcopy++)=*(redpal)++;
-        *(smurf_palcopy++)=*(greenpal)++;
-        *(smurf_palcopy++)=*(bluepal)++;
-    }
 
-}
+	/******* 24BIT-IMAGE *********/
+	if (depth == 24)
+	{
+		bitmap_data = decoded_pic;
+		PlaneLen = width * height;
+
+		Mfree(pic_data);
+		pic_data = (unsigned short *)Malloc(PicLen);
+		if (pic_data == NULL)
+		{
+			Mfree(decoded_pic);
+			return M_MEMORY;
+		}
+		cpic = (uint8_t *) pic_data;
+
+		/* Format-Decode */
+		for (t = 0; t < PlaneLen; t++)
+		{
+			red = *(bitmap_data + t);
+			green = *(bitmap_data + t + PlaneLen);
+			blue = *(bitmap_data + t + PlaneLen + PlaneLen);
+			*(cpic++) = red;
+			*(cpic++) = green;
+			*(cpic++) = blue;
+		}
+
+		Mfree(decoded_pic);
+	}
 
 
-strncpy(picture->format_name, "Agfa SCODL-File (.SCD)", 21);
-picture->pic_data = pic_data;
-picture->depth=depth;
-picture->pic_width=width;
-picture->pic_height=height;
-picture->col_format=RGB;
+	/******* 8BIT-IMAGE *********/
+	else if (depth == 8)
+	{
+		/* den Speicherblock verkÅrzen... */
+		PlaneLen = (long) width *(long) height;
 
-return(M_PICDONE);
+		_Mshrink(decoded_pic, PlaneLen);
+
+		Mfree(pic_data);
+		pic_data = (unsigned short *) decoded_pic;
+
+
+		/* Palette eintragen */
+		for (t = 0; t < 256; t++)
+		{
+			*(smurf_palcopy++) = *(redpal)++;
+			*(smurf_palcopy++) = *(greenpal)++;
+			*(smurf_palcopy++) = *(bluepal)++;
+		}
+
+	}
+
+
+	strcpy(picture->format_name, "Agfa SCODL-File (.SCD)");
+	picture->pic_data = pic_data;
+	picture->depth = depth;
+	picture->pic_width = width;
+	picture->pic_height = height;
+	picture->col_format = RGB;
+
+	return M_PICDONE;
 }

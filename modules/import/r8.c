@@ -146,7 +146,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		char b;
 		char g;
 		char r;
-	} *ziel;
+	} *ziel, *oziel;
 
 
 	buffer = smurf_struct->smurf_pic->pic_data;
@@ -167,6 +167,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	if ((ziel = (struct rgb *)Malloc((unsigned long) width * height * 3)) == NULL)
 		return M_MEMORY;
+	oziel = ziel;
 
 	/* Extender holen */
 	help = strsrcr(smurf_struct->smurf_pic->filename, '.');
@@ -180,15 +181,15 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		buffer += 0x80;
 	} else
 	{
-		name[help + 1] = '\0';
-		strcat(name, "R8");
+		strcpy(name + help + 1, "R8");
 		buffer = fload(name, 0x80);
 	}
 
+	ziel = oziel;
 	for (i = 0; i < (width * height); i++)
 		ziel++->r = *buffer++;
 
-	if (stricmp(smurf_struct->smurf_pic->filename + help + 1, "R8") != 0)
+	if (buffer != smurf_struct->smurf_pic->pic_data)
 		Mfree(buffer);
 
 	/* GrÅnanteil folgt */
@@ -199,15 +200,15 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		buffer += 0x80;
 	} else
 	{
-		name[help + 1] = '\0';
-		strcat(name, "G8");
+		strcpy(name + help + 1, "G8");
 		buffer = fload(name, 0x80);
 	}
 
+	ziel = oziel;
 	for (i = 0; i < (width * height); i++)
 		ziel++->g = *buffer++;
 
-	if (stricmp(smurf_struct->smurf_pic->filename + help + 1, "G8") != 0)
+	if (buffer != smurf_struct->smurf_pic->pic_data)
 		Mfree(buffer);
 
 	/* Blauanteil folgt */
@@ -218,15 +219,15 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		buffer += 0x80;
 	} else
 	{
-		name[help + 1] = '\0';
-		strcat(name, "B8");
+		strcpy(name + help + 1, "B8");
 		buffer = fload(name, 0x80);
 	}
 
+	ziel = oziel;
 	for (i = 0; i < (width * height); i++)
 		ziel++->b = *buffer++;
 
-	if (stricmp(smurf_struct->smurf_pic->filename + help + 1, "B8") != 0)
+	if (buffer != smurf_struct->smurf_pic->pic_data)
 		Mfree(buffer);
 
 	Mfree(smurf_struct->smurf_pic->pic_data);
