@@ -45,40 +45,83 @@
 #include "import.h"
 #include "smurfine.h"
 
-void *fload(char *Path, short header);
-int strsrcr(char *s, char c);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Cubicomb Import-Modul",
-						0x0010,
-						"Christian Eyrich",
-						"R8", "G8", "B8", "A8", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"Cubicomb Import-Modul",
+	0x0010,
+	"Christian Eyrich",
+	{ "R8", "G8", "B8", "A8", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
+
+/* --- STRSRCR --- */
+
+static int strsrcr(char *s, char c)
+{
+	int i;
+
+	for (i = (int) strlen(s) - 1; i >= 0 && s[i] != c; i--)
+		;
+
+	return i;
+}
+
+
+/* --- FLOAD --- */
+static void *fload(char *Path, short header)
+{
+	uint8_t *fil;
+	long f_len;
+	int file;
+
+	file = (int) Fopen(Path, FO_READ);	/* Datei ”ffnen */
+	if (file >= 0)
+	{
+		f_len = Fseek(0, file, 2);		/* L„nge ermitteln */
+
+		if ((fil = (uint8_t *)Malloc((long) f_len - header)) != NULL)
+		{
+			Fseek(header, file, 0);		/* Anfang suchen */
+
+			if (fil != 0)
+				Fread(file, f_len - header, fil);	/* Bild lesen */
+		}
+		Fclose(file);					/* Kanal schliežen */
+	} else
+	{
+		form_alert(1, ERROR);
+		fil = NULL;
+	}
+
+	return fil;
+}
+
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -91,158 +134,104 @@ MOD_INFO module_info = {"Cubicomb Import-Modul",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, name[128];
-
-	unsigned int help, width, height;
+	uint8_t *buffer;
+	char name[SM_PATH_MAX];
+	int help;
+	unsigned short width, height;
 
 	unsigned long i;
 
 	struct rgb
-			{
-				char b;
-				char g;
-				char r;
-			} *ziel;
+	{
+		char b;
+		char g;
+		char r;
+	} *ziel;
 
 
 	buffer = smurf_struct->smurf_pic->pic_data;
-	
+
 	/* Header Check */
-	if(!(*(buffer + 1) == 0x0c && *(buffer + 2) == 0xff && *(buffer + 3) == 0x02))
-		return(M_INVALID);
-	else
-	{
-		width = *(buffer + 0x0a) + (*(buffer + 0x0b) << 8);
-		height = *(buffer + 0x0c) + (*(buffer + 0x0d) << 8);
+	if (!(*(buffer + 1) == 0x0c && *(buffer + 2) == 0xff && *(buffer + 3) == 0x02))
+		return M_INVALID;
 
-		strncpy(smurf_struct->smurf_pic->format_name, "Cubicomb Picturemaker", 21);
-		smurf_struct->smurf_pic->pic_width = width; 
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = 24;
+	width = *(buffer + 0x0a) + (*(buffer + 0x0b) << 8);
+	height = *(buffer + 0x0c) + (*(buffer + 0x0d) << 8);
 
-		smurf_struct->services->reset_busybox(128, "Cubicomb 24 Bit");
+	strcpy(smurf_struct->smurf_pic->format_name, "Cubicomb Picturemaker");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 24;
 
-		if((ziel = Malloc((long)width * (long)height * 3)) == 0)
-			return(M_MEMORY);
-		else
-		{
+	smurf_struct->services->reset_busybox(128, "Cubicomb 24 Bit");
+
+	if ((ziel = (struct rgb *)Malloc((unsigned long) width * height * 3)) == NULL)
+		return M_MEMORY;
+
 	/* Extender holen */
-			help = strsrcr(smurf_struct->smurf_pic->filename, '.');
-			strncpy(name, smurf_struct->smurf_pic->filename, help + 1);
+	help = strsrcr(smurf_struct->smurf_pic->filename, '.');
+	strncpy(name, smurf_struct->smurf_pic->filename, help + 1);
 
 	/* Rotanteil folgt */
-		
-			if(strcmp(smurf_struct->smurf_pic->filename + help + 1, "R8") == 0)
-			{
-				buffer = smurf_struct->smurf_pic->pic_data;
-				buffer += 0x80;
-			}
-			else
-			{
-				name[help + 1] = '\0';
-				strcat(name, "R8");
-				buffer = fload(name, 0x80);
-			}
 
-			for(i = 0; i < (width * height); i++)
-				ziel++->r = *buffer++;
-		
-			if(strcmp(smurf_struct->smurf_pic->filename + help + 1, "R8") != 0)
-				Mfree(buffer);
+	if (stricmp(smurf_struct->smurf_pic->filename + help + 1, "R8") == 0)
+	{
+		buffer = smurf_struct->smurf_pic->pic_data;
+		buffer += 0x80;
+	} else
+	{
+		name[help + 1] = '\0';
+		strcat(name, "R8");
+		buffer = fload(name, 0x80);
+	}
+
+	for (i = 0; i < (width * height); i++)
+		ziel++->r = *buffer++;
+
+	if (stricmp(smurf_struct->smurf_pic->filename + help + 1, "R8") != 0)
+		Mfree(buffer);
 
 	/* Grnanteil folgt */
 
-			if(strcmp(smurf_struct->smurf_pic->filename + help + 1, "G8") != 0)
-			{
-				buffer = smurf_struct->smurf_pic->pic_data;
-				buffer += 0x80;
-			}
-			else
-			{
-				name[help + 1] = '\0';
-				strcat(name, "G8");
-				buffer = fload(name, 0x80);
-			}
+	if (stricmp(smurf_struct->smurf_pic->filename + help + 1, "G8") != 0)
+	{
+		buffer = smurf_struct->smurf_pic->pic_data;
+		buffer += 0x80;
+	} else
+	{
+		name[help + 1] = '\0';
+		strcat(name, "G8");
+		buffer = fload(name, 0x80);
+	}
 
-			for(i = 0; i < (width * height); i++)
-				ziel++->g = *buffer++;
-	
-			if(strcmp(smurf_struct->smurf_pic->filename + help + 1, "G8") != 0)
-				Mfree(buffer);
-	
+	for (i = 0; i < (width * height); i++)
+		ziel++->g = *buffer++;
+
+	if (stricmp(smurf_struct->smurf_pic->filename + help + 1, "G8") != 0)
+		Mfree(buffer);
+
 	/* Blauanteil folgt */
 
-			if(strcmp(smurf_struct->smurf_pic->filename + help + 1, "B8") != 0)
-			{
-				buffer = smurf_struct->smurf_pic->pic_data;
-				buffer += 0x80;
-			}
-			else
-			{
-				name[help + 1] = '\0';
-				strcat(name, "B8");
-				buffer = fload(name, 0x80);
-			}
-
-			for(i = 0; i < (width * height); i++)
-				ziel++->b = *buffer++;
-
-			if(strcmp(smurf_struct->smurf_pic->filename + help + 1, "B8") != 0)
-				Mfree(buffer);
-		
-			Mfree(smurf_struct->smurf_pic->pic_data);
-			smurf_struct->smurf_pic->pic_data = ziel;
-			smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-
-		} /* Malloc */
-
-	} /* Erkennung */
-
-	return(M_PICDONE);
-}
-
-
-/* --- FLOAD --- */
-void *fload(char *Path, short header)
-{
-	char *fil;
-	long f_len;
-	int file;
-	
-	file = (int) Fopen(Path, FO_READ);        /* Datei ”ffnen */
-	if(file >= 0)
+	if (stricmp(smurf_struct->smurf_pic->filename + help + 1, "B8") != 0)
 	{
-		f_len = Fseek(0, file, 2);      /* L„nge ermitteln */
-		
-		if((fil = Malloc((long)f_len - header)) == 0)
-			fil = 0;
-		else
-		{
-			Fseek(header, file, 0);         /* Anfang suchen */
-		
-			if(fil != 0) 
-				Fread(file, (long)f_len - header, fil);   /* Bild lesen */
-		}
-		Fclose(file);               /* Kanal schliežen */
+		buffer = smurf_struct->smurf_pic->pic_data;
+		buffer += 0x80;
+	} else
+	{
+		name[help + 1] = '\0';
+		strcat(name, "B8");
+		buffer = fload(name, 0x80);
 	}
-	else 
-	{
-		form_alert(0, ERROR );
-		fil = 0;
-	}                   
 
-	return (fil);
+	for (i = 0; i < (width * height); i++)
+		ziel++->b = *buffer++;
+
+	if (stricmp(smurf_struct->smurf_pic->filename + help + 1, "B8") != 0)
+		Mfree(buffer);
+
+	Mfree(smurf_struct->smurf_pic->pic_data);
+	smurf_struct->smurf_pic->pic_data = ziel;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+
+	return M_PICDONE;
 }
-
-
-/* --- STRSRCR --- */
-
-int strsrcr(char *s, char c)
-{
-    int i;
-
-    for(i = (int) strlen(s) - 1; i >= 0 && s[i] != c; i--)
-        ;
-
-    return i;
-} /* strsrcr */
