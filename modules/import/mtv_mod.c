@@ -32,36 +32,37 @@
 #define DEBUGMODE   0
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"MTV Raytracer",
-                        0x0010,
-                        "Dale Russell",
-                        "MTV", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"MTV Raytracer",
+	0x0010,
+	"Dale Russell",
+	{ "MTV", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -70,57 +71,58 @@ MOD_INFO module_info = {"MTV Raytracer",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-char *buffer, *retbuf;
-unsigned int width, height;
-char extend[4], wid[10],hei[10];
-char *filenam;
-int i;
+	uint8_t *buffer;
+	uint8_t *retbuf;
+	unsigned short width, height;
+	char extend[4];
+	char wid[10];
+	char hei[10];
+	char *filenam;
+	int i;
 
-filenam=smurf_struct->smurf_pic->filename;
-strncpy(extend, filenam+(strlen(filenam)-3), 3);
-buffer=smurf_struct->smurf_pic->pic_data;
-if ( strncmp(extend, "MTV", 3) )
-{           Mfree(&wid[0]); Mfree(&hei[0]);
-            return(M_INVALID);      }
+	filenam = smurf_struct->smurf_pic->filename;
+	strncpy(extend, filenam + (strlen(filenam) - 3), 3);
+	buffer = smurf_struct->smurf_pic->pic_data;
+	if (strncmp(extend, "MTV", 3))
+		return M_INVALID;
 
-smurf_struct->services->reset_busybox(128, "MTV Raytracer 24 Bit");
+	smurf_struct->services->reset_busybox(128, "MTV Raytracer 24 Bit");
 
-memset( &wid[0], 0, 10);
-memset( &hei[0], 0, 10);
+	memset(&wid[0], 0, sizeof(wid));
+	memset(&hei[0], 0, sizeof(hei));
 
-buffer=smurf_struct->smurf_pic->pic_data;
+	buffer = smurf_struct->smurf_pic->pic_data;
 
 /* Width ASCII */
 
-retbuf=buffer;
-for (i=0; i<8; i++)
-    if ( *(retbuf)!=' ' )
-        wid[i]=*(retbuf++);
+	retbuf = buffer;
+	for (i = 0; i < 8; i++)
+		if (*(retbuf) != ' ')
+			wid[i] = *(retbuf++);
 
-retbuf++;
+	retbuf++;
 
 /* Height ASCII */
 
-for (i=0; i<8; i++)
-    if ( *(retbuf)!=0x0a)
-        hei[i]=*(retbuf++);
-        
-width=atoi(wid);
-height=atoi(hei);
-Mfree(&wid[0]);
-Mfree(&hei[0]);
+	for (i = 0; i < 8; i++)
+		if (*(retbuf) != 0x0a)
+			hei[i] = *(retbuf++);
 
-retbuf=Malloc ( (long)width * (long)height * 3l);
-if (!retbuf) return(M_MEMORY);
-memcpy( retbuf, buffer+8, (long)width * (long)height * 3l);
-Mfree(buffer);
+	width = atoi(wid);
+	height = atoi(hei);
 
-smurf_struct->smurf_pic->depth=24;
-smurf_struct->smurf_pic->pic_data=retbuf;
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-smurf_struct->smurf_pic->col_format=RGB;
-smurf_struct->smurf_pic->format_type=0;
-strncpy(smurf_struct->smurf_pic->format_name, "MTV Raytracer (MTV) ",21);
-return(M_PICDONE);
+	retbuf = (uint8_t *)Malloc((unsigned long) width * height * 3);
+	if (retbuf == NULL)
+		return M_MEMORY;
+	memcpy(retbuf, buffer + 8, (unsigned long) width * height * 3);
+	Mfree(buffer);
+
+	smurf_struct->smurf_pic->depth = 24;
+	smurf_struct->smurf_pic->pic_data = retbuf;
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->col_format = RGB;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	strcpy(smurf_struct->smurf_pic->format_name, "MTV Raytracer (MTV)");
+	return M_PICDONE;
 }
