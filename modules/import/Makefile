@@ -75,6 +75,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/trp_all.sim \
 	$(DISTDIR)/modules/import/truepnt.sim \
 	$(DISTDIR)/modules/import/vidtex.sim \
+	$(DISTDIR)/modules/import/vivi_img.sim \
 	$(empty)
 
 #MODULES +=	$(DISTDIR)/modules/import/neonshp.sim
@@ -295,6 +296,9 @@ $(DISTDIR)/modules/import/truepnt.sim: impstart.o truepnt.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/vidtex.sim: impstart.o vidtex.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/vivi_img.sim: impstart.o vivi_img.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 
