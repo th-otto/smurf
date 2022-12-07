@@ -37,6 +37,9 @@
 #include "import.h"
 #include "smurfine.h"
 
+#undef min
+#define min(a,b)             ((a) < (b) ? (a) : (b))
+
 
 /* Infostruktur fr Hauptmodul */
 MOD_INFO module_info = {
@@ -102,7 +105,7 @@ static const char *fileext(const char *filename)
 /*		1, 4, 8 und 24 Bit, wahlweise RLE			*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *buffer;
 	uint8_t *ziel;
@@ -145,7 +148,7 @@ short imp_module_main(GARGAMEL * smurf_struct)
 	DatenOffset = 0x50 + cols * 3;
 
 	nulltospace(buffer + 0x14, 112);
-	strncpy(smurf_struct->smurf_pic->infotext, (char *)buffer + 0x14, sizeof(smurf_struct->smurf_pic->infotext) - 1);
+	strncpy(smurf_struct->smurf_pic->infotext, (char *)buffer + 0x14, min(112, sizeof(smurf_struct->smurf_pic->infotext)) - 1);
 
 	strcpy(smurf_struct->smurf_pic->format_name, "Alpha BMP-File .BMP");
 	smurf_struct->smurf_pic->pic_width = width;

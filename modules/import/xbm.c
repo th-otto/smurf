@@ -96,7 +96,7 @@ static char *fileext(const char *filename)
 /*		Bilder 1 Bit unkomprimiert					*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char *buffer;
 	char *obuffer;

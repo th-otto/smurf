@@ -69,7 +69,7 @@ MOD_INFO module_info = {
 /*      BSG Fontasy Monochrom Format                */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *buffer;
 	uint8_t *retbuf;

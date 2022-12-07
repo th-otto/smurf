@@ -66,7 +66,7 @@ MOD_INFO module_info = {
 /*      Windows Clipboard Dekomprimierer (CLP)      */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *buffer;
 	unsigned long DatenOffset;

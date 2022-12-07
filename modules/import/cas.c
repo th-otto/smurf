@@ -126,7 +126,7 @@ static uint8_t *decodePCX(uint8_t *buffer, short BytePerLine, short height)
 /*      CAS FAX Standard                            */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *buffer;
 	uint8_t *GetBuf;

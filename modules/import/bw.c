@@ -69,7 +69,7 @@ MOD_INFO module_info = {
 /*		BW Format (by Sage) 				.B_W	*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *smbuffer;
 	unsigned short x, y;

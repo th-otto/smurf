@@ -60,6 +60,9 @@
 #include "import.h"
 #include "smurfine.h"
 
+#undef min
+#define min(a,b)             ((a) < (b) ? (a) : (b))
+
 /* Infostruktur fr Hauptmodul */
 MOD_INFO module_info = {
 	"SGI-Format",
@@ -388,7 +391,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 
 	nulltospace(buffer + 0x18, 80);
-	strncpy(smurf_struct->smurf_pic->infotext, buffer + 0x18, sizeof(smurf_struct->smurf_pic->infotext) - 1);
+	strncpy(smurf_struct->smurf_pic->infotext, buffer + 0x18, min(80, sizeof(smurf_struct->smurf_pic->infotext)) - 1);
 	strcpy(smurf_struct->smurf_pic->format_name, "SGI-Format .SGI, .RLE");
 	smurf_struct->smurf_pic->pic_width = width;
 	smurf_struct->smurf_pic->pic_height = height;

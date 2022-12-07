@@ -89,6 +89,9 @@
 #include "demolib.h"
 #include "smurfine.h"
 
+#undef min
+#define min(a,b)             ((a) < (b) ? (a) : (b))
+
 #define TIMER 0
 
 /* Infostruktur fr Hauptmodul */
@@ -526,7 +529,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	IDLength = *buffer;
 	if (IDLength > 0)
-		strcpy(smurf_struct->smurf_pic->infotext, buffer + 0x12);
+		strncpy(smurf_struct->smurf_pic->infotext, buffer + 0x12, min(IDLength, sizeof(smurf_struct->smurf_pic->infotext)) - 1);
 
 	/* 0 = keine Bilddaten im File */
 	/* 1 = Palettenbild, unkomprimiert */

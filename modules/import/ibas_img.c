@@ -33,6 +33,8 @@
 #include "import.h"
 #include "smurfine.h"
 
+#undef min
+#define min(a,b)             ((a) < (b) ? (a) : (b))
 
 /* Infostruktur fr Hauptmodul */
 MOD_INFO module_info = {
@@ -110,7 +112,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	BitsPerPixel = 8;
 
 	nulltospace(buffer + 0x10, 112);
-	strncpy(smurf_struct->smurf_pic->infotext, (char *)buffer + 0x10, sizeof(smurf_struct->smurf_pic->infotext) - 1);
+	strncpy(smurf_struct->smurf_pic->infotext, (char *)buffer + 0x10, min(112, sizeof(smurf_struct->smurf_pic->infotext)) - 1);
 	strcpy(smurf_struct->smurf_pic->format_name, "Kontron IBAS-Image .IMG");
 	smurf_struct->smurf_pic->pic_width = width;
 	smurf_struct->smurf_pic->pic_height = height;

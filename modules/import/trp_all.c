@@ -108,7 +108,7 @@ typedef struct
 } bitmap_struct;
 
 
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *input;
 	uint8_t *output;

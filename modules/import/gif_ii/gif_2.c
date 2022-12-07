@@ -59,6 +59,9 @@
 #include "gif_2lzw.h"
 #include "demolib.h"
 
+#undef min
+#define min(a,b)             ((a) < (b) ? (a) : (b))
+
 #define _LSCRDES	7					/* ist wegen des auffllens der Strukturen */
 #define _IMAGE_DES	10					/* von Compilerseite her leider n”tig */
 
@@ -571,7 +574,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	/* Achtung bei sehr langen Kommentaren! */
 	if (com_ext.commentlength != 0)
-		strncpy(smurf_struct->smurf_pic->infotext, com_ext.comment, com_ext.commentlength);
+		strncpy(smurf_struct->smurf_pic->infotext, com_ext.comment, min(com_ext.commentlength, sizeof(smurf_struct->smurf_pic->infotext)) - 1);
 
 	if (coltab.depth == 1 && coltab.rgb_values[0] == 0x0 && coltab.rgb_values[3] == 0xff)
 		invert_gif(dest, image_descriptor.image_width, image_descriptor.image_height, coltab.rgb_values);

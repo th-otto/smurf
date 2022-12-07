@@ -70,7 +70,7 @@ MOD_INFO module_info = {
 /*      IndyPaint (by Lazer)            .tru        */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL * smurf_struct)
+short imp_module_main(GARGAMEL *smurf_struct)
 {
 	uint16_t *buffer;
 	uint8_t *ziel;
