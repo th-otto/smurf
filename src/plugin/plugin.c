@@ -58,6 +58,7 @@
 
 #include "../smurfobs.h"
 #include "../ext_obs.h"
+#include "../smplugin.h"
 
 /*
  * lokale Funktionen
@@ -73,11 +74,11 @@ static PLUGIN_FUNCTIONS global_functions;
 static SMURF_VARIABLES global_vars;
 
 
-BASPAG *plugin_bp[11];
-PLUGIN_DATA *plg_data[11];
-PLUGIN_INFO *plg_info[11];
+BASPAG *plugin_bp[MAX_PLUGINS + 1];
+PLUGIN_DATA *plg_data[MAX_PLUGINS + 1];
+PLUGIN_INFO *plg_info[MAX_PLUGINS + 1];
 short anzahl_plugins;
-char *plugin_paths[11];
+char *plugin_paths[MAX_PLUGINS + 1];
 signed char menu2plugin[128];			/* feste MenÅeintrÑge, in die Plugins eingehÑngt sind */
 
 EXT_MODCONF *modconfs[20];				/* Strukturen fÅr Modul-Notifying */
@@ -106,13 +107,13 @@ void scan_plugins(void)
 	short curr_plugin_entry;
 	PLUGIN_INFO *curr_info;
 	PLUGIN_INFO *info;
-	PLUGIN_INFO installed_infos[20];
+	PLUGIN_INFO installed_infos[MAX_PLUGINS];
 	long mod_magic;
 	long temp;
 	struct DIRENTRY *actual;
 	struct DIRENTRY *filelist;
 
-	for (t = 0; t < 11; t++)
+	for (t = 0; t < MAX_PLUGINS + 1; t++)
 		plg_data[t] = NULL;
 
 	memset(menu2plugin, -1, sizeof(menu2plugin));
@@ -137,6 +138,8 @@ void scan_plugins(void)
 
 	while (actual != NULL)
 	{
+		if (anzahl_plugins >= MAX_PLUGINS)
+			break;
 		/*
 		 * Plugin laden und Basepage ermitteln 
 		 */

@@ -38,6 +38,7 @@
 #include "globdefs.h"
 #include "destruct.h"
 #include "plugin.h"
+#include "smplugin.h"
 #include "olga.h"
 #include "olgagems.h"
 

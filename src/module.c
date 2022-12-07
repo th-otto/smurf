@@ -40,6 +40,7 @@
 #include "smurf.h"
 #include "globdefs.h"
 #include "plugin.h"
+#include "smplugin.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"
@@ -1209,7 +1210,7 @@ void AESmsg_to_modules(WORD *msgbuf)
 	/*
 	 * und jetzt die laufenden Plugins - nichtresidente nichtlaufende werden nicht benachrichtigt!
 	 */
-	for (t = 0; t < 11; t++)
+	for (t = 0; t < MAX_PLUGINS; t++)
 	{
 		curr_bp = plugin_bp[t];
 

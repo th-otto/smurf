@@ -52,6 +52,7 @@
 #include "smurf_f.h"
 #include "popdefin.h"
 #include "plugin.h"
+#include "smplugin.h"
 #include "olgagems.h"
 #include "smurfobs.h"
 #include "ext_obs.h"

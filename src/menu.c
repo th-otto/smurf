@@ -33,6 +33,7 @@
 #include "globdefs.h"
 #include "destruct.h"
 #include "plugin.h"
+#include "smplugin.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"

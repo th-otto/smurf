@@ -33,6 +33,7 @@
 #include "smurf_st.h"
 #include "smurf_f.h"
 #include "plugin.h"
+#include "smplugin.h"
 
 #include "xrsrc.h"
 #include "globdefs.h"
