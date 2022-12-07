@@ -139,7 +139,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	uint8_t BitsPerPixel;
 	uint8_t Planes;
 	uint8_t hexTable[256];
-	char end = '}';
+#define end '}'
 	char *strvalue;
 	char dummy[3];
 	char impmessag[21];
@@ -155,6 +155,11 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	unsigned long Datasize = 0;
 	unsigned long length;
 
+	i = 0;
+	do
+	{
+		hexTable[i] = 0;
+	} while (++i < 256);
 	hexTable['0'] = 0;
 	hexTable['1'] = 1;
 	hexTable['2'] = 2;
@@ -195,7 +200,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			return M_PICERR;
 			
 		name_and_type = helpstr + 8;		/* "#define" bergehen */
-		if ((strvalue = strchr(buffer, ' ')) == NULL)
+		if ((strvalue = strchr(name_and_type, ' ')) == NULL)
 			return M_PICERR;
 		*strvalue++ = '\0';
 
@@ -219,11 +224,12 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		{
 			Datasize = (unsigned short)strtol(strvalue, NULL, 0);
 		}
+		buffer = strvalue;
 	} while (++i < 3 && (width == 0 || height == 0 || Datasize == 0));
 
 	if (i == 3 && (width == 0 || height == 0 || Datasize == 0))
 		return M_PICERR;
-	helpstr = strchr(helpstr, '{');
+	helpstr = strchr(buffer, '{');
 	if (helpstr ==  NULL)
 		return M_PICERR;
 

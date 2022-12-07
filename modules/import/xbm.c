@@ -33,8 +33,9 @@
 /*	  (war nicht auf 8 Bit aligned -> Åberschriebener		*/
 /*	  Speicher).											*/
 /* =========================================================*/
- 
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "import.h"
 #include "smurfine.h"
@@ -42,186 +43,204 @@
 #define START	'{'
 #define END		'}'
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-char *fileext(char *filename);
-
 /* Infostruktur fÅr Hauptmodul */
-MOD_INFO module_info = {"X BitMap-Format",
-						0x0030,
-						"Christian Eyrich",
-						"XBM", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
- 
+MOD_INFO module_info = {
+	"X BitMap-Format",
+	0x0030,
+	"Christian Eyrich",
+	{ "XBM", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
+
+static char *fileext(const char *filename)
+{
+	char *extstart;
+
+	if ((extstart = strrchr(filename, '.')) != NULL)
+		extstart++;
+	else
+		extstart = strrchr(filename, '\0');
+
+	return extstart;
+}
+
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 /*				X BitMap-Format (XBM)				*/
 /*		Bilder 1 Bit unkomprimiert					*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-short imp_module_main(GARGAMEL *smurf_struct)
+short imp_module_main(GARGAMEL * smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *pal, *helpstr, *fname, name_and_type[256],
-		 BitsPerPixel, version, hexTable[256],
-		 translate[256];
+	char *buffer;
+	char *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	char *helpstr;
+	char *fname;
+	char *name_and_type;
+	char *strvalue;
+	uint8_t BitsPerPixel;
+	uint8_t version;
+	uint8_t hexTable[256];
+	uint8_t translate[256];
 
-	unsigned int i, width = 0, height = 0, value, w;
-
+	unsigned short i;
+	unsigned short width = 0;
+	unsigned short height = 0;
+	unsigned short value;
+	unsigned short w;
 	unsigned long length;
 
 
-    hexTable['0'] = 0;	hexTable['1'] = 1;
-    hexTable['2'] = 2;	hexTable['3'] = 3;
-    hexTable['4'] = 4;	hexTable['5'] = 5;
-    hexTable['6'] = 6;	hexTable['7'] = 7;
-    hexTable['8'] = 8;	hexTable['9'] = 9;
-    hexTable['A'] = 10;	hexTable['B'] = 11;
-    hexTable['C'] = 12;	hexTable['D'] = 13;
-    hexTable['E'] = 14;	hexTable['F'] = 15;
-    hexTable['a'] = 10;	hexTable['b'] = 11;
-    hexTable['c'] = 12;	hexTable['d'] = 13;
-    hexTable['e'] = 14;	hexTable['f'] = 15;
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
+	i = 0;
+	do
+	{
+		hexTable[i] = 0;
+	} while (++i < 256);
+	hexTable['0'] = 0;
+	hexTable['1'] = 1;
+	hexTable['2'] = 2;
+	hexTable['3'] = 3;
+	hexTable['4'] = 4;
+	hexTable['5'] = 5;
+	hexTable['6'] = 6;
+	hexTable['7'] = 7;
+	hexTable['8'] = 8;
+	hexTable['9'] = 9;
+	hexTable['A'] = 10;
+	hexTable['B'] = 11;
+	hexTable['C'] = 12;
+	hexTable['D'] = 13;
+	hexTable['E'] = 14;
+	hexTable['F'] = 15;
+	hexTable['a'] = 10;
+	hexTable['b'] = 11;
+	hexTable['c'] = 12;
+	hexTable['d'] = 13;
+	hexTable['e'] = 14;
+	hexTable['f'] = 15;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 	obuffer = buffer;
- 
+
 	/* Header Check */
 	fname = smurf_struct->smurf_pic->filename;
-	if(stricmp(fileext(fname), "XBM") != 0)
-		return(M_INVALID);
+	if (stricmp(fileext(fname), "XBM") != 0)
+		return M_INVALID;
+
+	smurf_struct->services->reset_busybox(128, "X BitMap 1 Bit");
+
+	BitsPerPixel = 1;
+
+	if (strstr(buffer, "char") == NULL && strstr(buffer, "CHAR") == NULL)
+		version = 6;
 	else
+		version = 7;
+
+	i = 0;
+	do
 	{
-		smurf_struct->services->reset_busybox(128, "X BitMap 1 Bit");
+		translate[i] = (i & 0x01) << 7;
+		translate[i] += (i & 0x02) << 5;
+		translate[i] += (i & 0x04) << 3;
+		translate[i] += (i & 0x08) << 1;
+		translate[i] += (i & 0x10) >> 1;
+		translate[i] += (i & 0x20) >> 3;
+		translate[i] += (i & 0x40) >> 5;
+		translate[i] += (i & 0x80) >> 7;
+	} while (++i < 256);
 
-		BitsPerPixel = 1;
+	i = 0;
+	do
+	{
+		if ((helpstr = strstr(buffer, "#define")) == NULL)
+			return M_PICERR;
+		name_and_type = helpstr + 8;		/* hinter "#define " stellen */
+		if ((strvalue = strchr(name_and_type, ' ')) == NULL)
+			return M_PICERR;
+		*strvalue++ = '\0';
+		value = (unsigned short)strtol(strvalue, NULL, 0);
 
-		if(strstr(buffer, "char") == NULL && strstr(buffer, "CHAR") == NULL)
-			version = 6;
-		else
-			version = 7;
+		if (strstr(name_and_type, "width") != NULL || strstr(name_and_type, "WIDTH") != NULL)
+			width = value;
+		else if (strstr(name_and_type, "height") != NULL || strstr(name_and_type, "HEIGHT") != NULL)
+			height = value;
+		buffer = strvalue;
+	} while (++i < 4 && (width == 0 || height == 0));
 
-		i = 0;
-		do
-		{
-			translate[i] = (i & 0x01) << 7;
-			translate[i] += (i & 0x02) << 5;
-			translate[i] += (i & 0x04) << 3;
-			translate[i] += (i & 0x08) << 1;
-			translate[i] += (i & 0x10) >> 1;
-			translate[i] += (i & 0x20) >> 3;
-			translate[i] += (i & 0x40) >> 5;
-			translate[i] += (i & 0x80) >> 7;
-		} while(++i < 256);
+	if (i == 4 && (width == 0 || height == 0))
+		return M_PICERR;
 
-		i = 0;
-		do
-		{
-			if((helpstr = strstr(buffer, "#define")) == NULL)
-				return(M_PICERR);
-			if(sscanf(helpstr, "#define %s %d", name_and_type, &value) != 2)
-				return(M_PICERR);
+	strcpy(smurf_struct->smurf_pic->format_name, "X BitMap .XBM");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
 
-			buffer = helpstr + 8;		/* hinter "#define " stellen */
-	
-			if(strstr(name_and_type, "width") != NULL ||
-			   strstr(name_and_type, "WIDTH") != NULL)
-				width = value;
-			else
-				if(strstr(name_and_type, "height") != NULL ||
-				   strstr(name_and_type, "HEIGHT") != NULL)
-					height = value;
-		} while(++i < 4 && (width == 0 || height == 0));
+	if ((helpstr = strchr(buffer, START)) == NULL)
+		return M_PICERR;
 
-		if(i == 4 && (width == 0 || height == 0))
-			return(M_PICERR);
+	w = (width + 7) / 8;
 
-		strncpy(smurf_struct->smurf_pic->format_name, "X BitMap .XBM", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
+	if ((ziel = smurf_struct->services->SMalloc((unsigned long) w * height)) == 0)
+		return M_MEMORY;
 
-		if((helpstr = strchr(helpstr, START)) == NULL)
-			return(M_PICERR);
+	oziel = ziel;
 
-		w = (width + 7) / 8;
+	length = (unsigned long) w * height;
 
-		if((ziel = SMalloc((long)w * (long)height)) == 0)
-			return(M_MEMORY);
-		else
-		{
-			oziel = ziel;
+	while (length--)
+	{
+		while (*helpstr != END && *helpstr != 'x' && *helpstr != 'X')
+			helpstr++;
+		if (*helpstr++ == END)
+			break;
+		if (version == 6)
+			helpstr += 2;
+		*ziel++ = translate[(hexTable[(unsigned char)*helpstr++] << 4) + hexTable[(unsigned char)*helpstr++]];
+	}
 
-			length = (unsigned long)w * (unsigned long)height;
-			while(length--)
-			{
-				while(*helpstr != END && *helpstr != 'x' && *helpstr != 'X')
-					helpstr++;
-				if(*helpstr++ == END)
-					break;
-				if(version == 6)
-					helpstr += 2;
-				*ziel++ = translate[(hexTable[*helpstr++] << 4) + hexTable[*helpstr++]];
-			}
+	buffer = obuffer;
+	ziel = oziel;
 
-			buffer = obuffer;
-			ziel = oziel;
+	pal = smurf_struct->smurf_pic->palette;
+	pal[0] = 255;
+	pal[1] = 255;
+	pal[2] = 255;
+	pal[3] = 0;
+	pal[4] = 0;
+	pal[5] = 0;
 
-			pal = smurf_struct->smurf_pic->palette;
-			pal[0] = 255;
-			pal[1] = 255;
-			pal[2] = 255;
-			pal[3] = 0;
-			pal[4] = 0;
-			pal[5] = 0;
+	smurf_struct->smurf_pic->pic_data = ziel;
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 
-			smurf_struct->smurf_pic->pic_data = ziel;
-			smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-		} /* Malloc */
-	} /* Erkennung */
-
-	SMfree(buffer);
-	return(M_PICDONE);
+	smurf_struct->services->SMfree(buffer);
+	return M_PICDONE;
 }
-
-
-char *fileext(char *filename)
-{
-	char *extstart;
-
-
-	if((extstart = strrchr(filename, '.')) != NULL)
-		extstart++;
-	else
-		extstart = strrchr(filename, '\0');
-	
-	return(extstart);
-} /* fileext */
