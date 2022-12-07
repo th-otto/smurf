@@ -35,21 +35,26 @@
 
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO	module_info={
-"Truepaint Format",0x0110,	"Bj”rn Spruck",
-"TPI","","","","","","","","","",
+MOD_INFO module_info = {
+	"Truepaint Format",
+	0x0110,
+	"Bj”rn Spruck",
+	{ "TPI", "", "", "", "", "", "", "", "", "" },
 /* Objekttitel */
-"","","","","","","","","","","","",
+	"", "", "", "",
+	"", "", "", "",
+	"", "", "", "",
 /* Objektgrenzwerte */
-0,128,0,128,0,128,0,128,
-0,10,0,10,0,10,0,10,
+	0, 128, 0, 128, 0, 128, 0, 128,
+	0, 10, 0, 10, 0, 10, 0, 10,
 /* Slider-Defaultwerte */
-0,0,0,0,0,0,0,0,0,0,0,0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-typedef unsigned char uchar;
-typedef unsigned int uint;
-typedef unsigned long ulong;
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -59,30 +64,31 @@ typedef unsigned long ulong;
 short imp_module_main(GARGAMEL *smurf_struct)
 {
 	char head[8];
-	char *smbuffer;
-	int x, y;
+	uint8_t *smbuffer;
+	short x, y;
 
-	smbuffer=smurf_struct->smurf_pic->pic_data;
-	memcpy( head, smbuffer, 8);
+	smbuffer = smurf_struct->smurf_pic->pic_data;
+	memcpy(head, smbuffer, 8);
 
-	if( strncmp( head, "TRUP", 4)) return(M_INVALID);
-	
-	x=*((int *)&head[4]);
-	y=*((int *)&head[6]);
-	if( (long)x*y*2+8!=smurf_struct->smurf_pic->file_len) return(M_INVALID);
-	
+	if (strncmp(head, "TRUP", 4) != 0)
+		return M_INVALID;
+
+	x = *((short *) &head[4]);
+	y = *((short *) &head[6]);
+	if ((long) x * y * 2 + 8 != smurf_struct->smurf_pic->file_len)
+		return M_INVALID;
+
 	strcpy(smurf_struct->smurf_pic->format_name, "Truepaint Format");
 
-	memcpy(smbuffer,smbuffer+8,(long)x*y*2);
-	_Mshrink(smbuffer,(long)x*y*2);
+	memcpy(smbuffer, smbuffer + 8, (long) x * y * 2);
+	_Mshrink(smbuffer, (long) x * y * 2);
 
-	smurf_struct->smurf_pic->pic_width=x;
-	smurf_struct->smurf_pic->pic_height=y;
-	smurf_struct->smurf_pic->depth=16;
-	smurf_struct->smurf_pic->col_format=RGB;
-	smurf_struct->smurf_pic->format_type=FORM_PIXELPAK;
-	smurf_struct->smurf_pic->pic_data=smbuffer;
+	smurf_struct->smurf_pic->pic_width = x;
+	smurf_struct->smurf_pic->pic_height = y;
+	smurf_struct->smurf_pic->depth = 16;
+	smurf_struct->smurf_pic->col_format = RGB;
+	smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	smurf_struct->smurf_pic->pic_data = smbuffer;
 
-	return(M_PICDONE);
+	return M_PICDONE;
 }
-
