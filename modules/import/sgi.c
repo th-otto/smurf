@@ -259,6 +259,7 @@ static void make_pal(uint8_t *buffer, uint8_t *palette, uint8_t BitsPerPixel, un
 				*pal++ = i;
 			}
 		} else if (ColorMap == 0x01)	/* Palette aus 3r3g2b Bits erstellen */
+		{
 			while (length--)
 			{
 				pixval = *buffer++;
@@ -267,6 +268,7 @@ static void make_pal(uint8_t *buffer, uint8_t *palette, uint8_t BitsPerPixel, un
 				*pal++ = (pixval & 0x07) << 5;
 				*pal++ = (pixval & 0x38) << 2;
 				*pal++ = pixval & 0xc0;
+			}
 		} else if (ColorMap == 0x03)	/* Palette aus extra File bertragen */
 			/* da ich das nicht kann, wird momentan eine Graustufenpalette erzeugt */
 		{
@@ -374,15 +376,15 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	if (Planes > 3)					/* sonst w„ren das ja Zust„nde */
 		Planes = 3;
 
+	BitsPerPixel = Planes * 8;
+
 	/* 0x00 - Normal pixel values: 1 Channel Greyscale, 3 Channels RGB */
 	/* 0x01 - Dithered Images: (8 BPP 3+3+2) */
 	/* 0x02 - single Channel Images */
 	/* 0x03 - color Map */
-	ColorMap = *(uint32_t *) (buffer + 0x6c);
-	if (ColorMap > 3)
+	ColorMap = *(uint32_t *) (buffer + 0x68);
+	if (BitsPerPixel == 8 && ColorMap > 3)
 		return M_UNKNOWN_TYPE;
-
-	BitsPerPixel = Planes * 8;
 
 
 	nulltospace(buffer + 0x18, 80);
