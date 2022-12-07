@@ -168,7 +168,7 @@ truepnt.sim    1.10    1.10     x
 vidtex.sim     0.50    0.50     x
 vivi_img.sim   0.20    0.20     x
 xbm.sim        0.30    0.30     x
-xga.sim        0.30    0.30
+xga.sim        0.30    0.30     x
 xwd.sim        0.10    0.10
 
 plugin:

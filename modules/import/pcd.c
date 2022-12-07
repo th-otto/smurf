@@ -318,7 +318,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	width = smurf_struct->smurf_pic->pic_width;
 	height = smurf_struct->smurf_pic->pic_height;
 
-	strncpy(smurf_struct->smurf_pic->format_name, "Photo CD .PCD", 21);
+	strcpy(smurf_struct->smurf_pic->format_name, "Photo CD .PCD");
 	smurf_struct->smurf_pic->depth = 24;
 
 	smurf_struct->services->reset_busybox(0, "Photo CD 24 Bit");

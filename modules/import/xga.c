@@ -47,39 +47,53 @@
 #include "import.h"
 #include "smurfine.h"
 
-char *fileext(char *filename);
-
 /* Infostruktur fÅr Hauptmodul */
-MOD_INFO module_info = {"XGA-Format",
-						0x0030,
-						"Christian Eyrich",
-						"XGA", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"XGA-Format",
+	0x0030,
+	"Christian Eyrich",
+	{ "XGA", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
+
+static char *fileext(const char *filename)
+{
+	char *extstart;
+
+	if ((extstart = strrchr(filename, '.')) != NULL)
+		extstart++;
+	else
+		extstart = strrchr(filename, '\0');
+
+	return extstart;
+}
+
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -89,73 +103,55 @@ MOD_INFO module_info = {"XGA-Format",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	signed char i;
+	int i;
 	char *fname;
-
-	unsigned int width, height;
-
+	unsigned short width, height;
 
 	fname = smurf_struct->smurf_pic->filename;
 
-/* Die komplette PrÅfung besteht darin im Filenamen nach dem letzten */
-/* Buchstaben zu suchen und die dahinterstehende Zahl als Breite zu */
-/* interpretieren. Die FilelÑnge (die HÑlfte zumindest, das Format ist */
-/* ja 16bitig) muû dann auch noch glatt durch die Breite teilbar sein. */
-	if(stricmp(fileext(fname), "XGA") != 0)
-		return(M_INVALID);
-	else
+	/* Die komplette PrÅfung besteht darin im Filenamen nach dem letzten */
+	/* Buchstaben zu suchen und die dahinterstehende Zahl als Breite zu */
+	/* interpretieren. Die FilelÑnge (die HÑlfte zumindest, das Format ist */
+	/* ja 16bitig) muû dann auch noch glatt durch die Breite teilbar sein. */
+	if (stricmp(fileext(fname), "XGA") != 0)
+		return M_INVALID;
+
+	if (smurf_struct->smurf_pic->file_len == 128000L)
 	{
-		if (smurf_struct->smurf_pic->file_len == 128000L)
-		{
-			width = 320;
-						  height = 200;
-		} else if (smurf_struct->smurf_pic->file_len == 153600L)
-		{
-			width = 320;
-						  height = 240;
-		} else if (smurf_struct->smurf_pic->file_len == 196608L)
-		{
-			width = 384;
-						  height = 256;
-		} else
-		{
-				i = strlen(fname) - 1 - 4;	/* - 4 um den Extender zu Åbergehen, hier */
-													/* kînnen wir ja sicher sein, daû es ".XGA" ist */
+		width = 320;
+		height = 200;
+	} else if (smurf_struct->smurf_pic->file_len == 153600L)
+	{
+		width = 320;
+		height = 240;
+	} else if (smurf_struct->smurf_pic->file_len == 196608L)
+	{
+		width = 384;
+		height = 256;
+	} else
+	{
+		i = (int)strlen(fname) - 1 - 4;	/* - 4 um den Extender zu Åbergehen, hier */
+		/* kînnen wir ja sicher sein, daû es ".XGA" ist */
 
-						if(fname[i] < '0' || fname[i] > '9')
-							return(M_PICERR);
+		if (fname[i] < '0' || fname[i] > '9')
+			return M_PICERR;
 
-						while(fname[i] >= '0' && fname[i] <= '9' && i >= 0)
-							i--;
-						i++;
+		while (fname[i] >= '0' && fname[i] <= '9' && i >= 0)
+			i--;
+		i++;
 
-						width = atoi(fname + i);
-						height = (unsigned int)((smurf_struct->smurf_pic->file_len >> 1) / width);
-		}
+		width = atoi(fname + i);
+		height = (unsigned int) ((smurf_struct->smurf_pic->file_len >> 1) / width);
+	}
 
-		strncpy(smurf_struct->smurf_pic->format_name, "XGA Image .XGA", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = 16;
+	strcpy(smurf_struct->smurf_pic->format_name, "XGA Image .XGA");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 16;
 
-		smurf_struct->services->reset_busybox(128, "XGiga 16 Bit");
+	smurf_struct->services->reset_busybox(128, "XGiga 16 Bit");
 
-		smurf_struct->smurf_pic->col_format = RGB;
-	} /* Erkennung */
+	smurf_struct->smurf_pic->col_format = RGB;
 
-	return(M_PICDONE);
+	return M_PICDONE;
 }
-
-
-char *fileext(char *filename)
-{
-	char *extstart;
-
-
-	if((extstart = strrchr(filename, '.')) != NULL)
-		extstart++;
-	else
-		extstart = strrchr(filename, '\0');
-	
-	return(extstart);
-} /* fileext */
