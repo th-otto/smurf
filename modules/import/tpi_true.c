@@ -53,40 +53,39 @@
 #include "import.h"
 #include "smurfine.h"
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Truepaint Image-Format",
-						0x0080,
-						"Christian Eyrich",
-						"TPI", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"Truepaint Image-Format",
+	0x0080,
+	"Christian Eyrich",
+	"TPI", "", "", "", "",
+	"", "", "", "", "",
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -96,154 +95,153 @@ MOD_INFO module_info = {"Truepaint Image-Format",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *pal, *plane_table,
-		 p, v, Planes, BitsPerPixel;
-	char table2bit[] = {0, 2, 3, 1};
-	char table3bit[] = {0, 2, 3, 6, 4, 7, 5, 1};
-	char table4bit[] = {0, 2, 3, 6, 4, 7, 5, 8, 9, 10, 11, 14, 12, 15, 13, 1};
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pal;
+	const uint8_t *plane_table;
+	uint8_t p;
+	uint8_t v;
+	uint8_t Planes;
+	uint8_t BitsPerPixel;
+	static uint8_t const table2bit[] = { 0, 2, 3, 1 };
+	static uint8_t const table3bit[] = { 0, 2, 3, 6, 4, 7, 5, 1 };
+	static uint8_t const table4bit[] = { 0, 2, 3, 6, 4, 7, 5, 8, 9, 10, 11, 14, 12, 15, 13, 1 };
+	char dummy[3];
+	char impmessag[21];
 
-
-	char dummy[3], impmessag[21];
-
-	unsigned int *buffer16, *ziel16, *ppal,
-				 i, j, x, y, w, memwidth, width, height,
-				 cols, DatenOffset;
-
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
+	uint16_t *buffer16;
+	uint16_t *ziel16;
+	uint16_t *ppal;
+	unsigned short i, j, x, y, w, memwidth, width, height;
+	unsigned short cols;
+	unsigned short DatenOffset;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 
-	if(*(unsigned long *)buffer != 'PNT\0')
-		return(M_INVALID);
-	else
+	if (*(uint32_t *) buffer != 0x504e5400L) /* 'PNT\0' */
+		return M_INVALID;
+
+	cols = *(uint16_t *) (buffer + 0x06);
+
+	width = *(uint16_t *) (buffer + 0x08);
+	height = *(uint16_t *) (buffer + 0x0a);
+
+	BitsPerPixel = *(uint16_t *) (buffer + 0x0c);
+	Planes = BitsPerPixel;
+
+	DatenOffset = 0x80 + *(uint16_t *) (buffer + 0x06) * 6;
+
+	strcpy(smurf_struct->smurf_pic->format_name, "Truepaint Image .TPI");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	strcpy(impmessag, "Truepaint ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	if (BitsPerPixel != 16)
 	{
-		cols = *(unsigned int *)(buffer + 0x06);
+		w = (width + 7) / 8;
+		memwidth = w * 8;
+		v = (width + 15) / 16;
+		v = v * 2 - w;
+	} else
+	{
+		w = (width + 15) / 16;
+		w = w * 16;
+		memwidth = width;
+		v = w - width;
+	}
 
-		width = *(unsigned int *)(buffer + 0x08); 
-		height = *(unsigned int *)(buffer + 0x0a);
+	if ((ziel = smurf_struct->services->SMalloc((((unsigned long) memwidth * height * BitsPerPixel) >> 3) + 1)) == 0)
+		return M_MEMORY;
 
-		BitsPerPixel = *(unsigned int *)(buffer + 0x0c);
-		Planes = BitsPerPixel;
+	obuffer = buffer;
+	oziel = ziel;
 
-		DatenOffset = 0x80 + *(unsigned int *)(buffer + 0x06) * 6;
+	buffer += DatenOffset;
 
-		strncpy(smurf_struct->smurf_pic->format_name, "Truepaint Image .TPI", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
+	if (BitsPerPixel != 16)
+	{
+		ziel16 = (uint16_t *) ziel;
 
-		strcpy(impmessag, "Truepaint ");
-		strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-		strcat(impmessag, " Bit");
-		smurf_struct->services->reset_busybox(128, impmessag);
-
-		if(BitsPerPixel != 16)
+		p = 0;
+		do
 		{
-			w = (width + 7) / 8;
-			memwidth = w * 8;
-			v = (width + 15) / 16;
-			v = v * 2 - w;
-		}
-		else
-		{
-			w = (width + 15) / 16;
-			w = w * 16;
-			memwidth = width;
-			v = w - width;
-		}
+			buffer16 = (uint16_t *) buffer + p;
 
-		if((ziel = SMalloc((((long)memwidth * (long)height * BitsPerPixel) >> 3) + 1)) == 0)
-			return(M_MEMORY);
-		else
-		{
-			obuffer = buffer;
-			oziel = ziel;
-
-			buffer += DatenOffset;
-
-			if(BitsPerPixel != 16)
+			y = 0;
+			do
 			{
-				ziel16 = (unsigned int *)ziel;
-
-				p = 0;
+				x = 0;
 				do
 				{
-					buffer16 = (unsigned int *)buffer + p;
+					*ziel16++ = *buffer16;
+					buffer16 += Planes;
+					x += 2;
+				} while (x < w);
 
-					y = 0;
-					do
-					{
-						x = 0;
-						do
-						{
-							*ziel16++ = *buffer16;
-							buffer16 += Planes;
-							x += 2;
-						} while(x < w);
+				ziel16 = (uint16_t *)((uint8_t *)ziel16 - v);
+			} while (++y < height);
+		} while (++p < Planes);
 
-						(char *)ziel16 -= v;
-					} while(++y < height);
-				} while(++p < Planes);
+		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	} else
+	{
+		ziel16 = (uint16_t *) ziel;
+		buffer16 = (uint16_t *) buffer;
 
-				smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-			}
+		y = 0;
+		do
+		{
+			x = 0;
+			do
+			{
+				*ziel16++ = *buffer16++;
+			} while (++x < width);
+
+			buffer16 += v;
+		} while (++y < height);
+
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+	}
+
+	buffer = obuffer;
+	ziel = oziel;
+
+	smurf_struct->smurf_pic->pic_data = ziel;
+
+	if (cols > 0)
+	{
+		ppal = (uint16_t *) (buffer + 0x80);
+		pal = smurf_struct->smurf_pic->palette;
+
+		if (cols == 4)
+			plane_table = table2bit;
+		else if (cols == 8)
+			plane_table = table3bit;
+		else
+			plane_table = table4bit;
+
+		for (i = 0; i < cols; i++)
+		{
+			if (cols < 256)
+				j = plane_table[i];
 			else
-			{			
-				ziel16 = (unsigned int *)ziel;
-				buffer16 = (unsigned int *)buffer;
+				j = i;
 
-				y = 0;
-				do
-				{
-					x = 0;
-					do
-					{
-						*ziel16++ = *buffer16++;
-					} while(++x < width);
+			pal[3 * i + 0] = (((unsigned long) ppal[3 * j + 0] * 255L) / 1000L);
+			pal[3 * i + 1] = (((unsigned long) ppal[3 * j + 1] * 255L) / 1000L);
+			pal[3 * i + 2] = (((unsigned long) ppal[3 * j + 2] * 255L) / 1000L);
+		}
+	}
 
-					buffer16 += v;
-				} while(++y < height);
+	smurf_struct->smurf_pic->col_format = RGB;
 
-				smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
-			}
-
-			buffer = obuffer;
-			ziel = oziel;
-	
-			smurf_struct->smurf_pic->pic_data = ziel;
-	
-			if(cols > 0)
-			{
-				ppal = (unsigned int *)(buffer + 0x80);
-				pal = smurf_struct->smurf_pic->palette;
-
-				if(cols == 4)
-					plane_table = table2bit;
-				else
-					if(cols == 8)
-						plane_table = table3bit;
-					else
-						plane_table = table4bit;
-
-				for(i = 0; i < cols; i++)
-				{
-					if(cols < 256)
-						j = plane_table[i];
-					else
-						j = i;
-
-					pal[i + i + i] = (char)(((long)ppal[j + j + j] * 255L) / 1000L);
-					pal[i + i + i + 1] = (char)(((long)ppal[j + j + j + 1] * 255L) / 1000L);
-					pal[i + i + i + 2] = (char)(((long)ppal[j + j + j + 2] * 255L) / 1000L);
-				}
-			}
-	
-			smurf_struct->smurf_pic->col_format = RGB;
-		} /* Malloc */
-	} /* Erkennung */
-
-	SMfree(buffer);
-	return(M_PICDONE);
+	smurf_struct->services->SMfree(buffer);
+	return M_PICDONE;
 }
