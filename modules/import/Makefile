@@ -68,6 +68,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/softimag.sim \
 	$(DISTDIR)/modules/import/spectrum.sim \
 	$(DISTDIR)/modules/import/stad.sim \
+	$(DISTDIR)/modules/import/tga.sim \
 	$(empty)
 
 #MODULES +=	$(DISTDIR)/modules/import/neonshp.sim
@@ -267,6 +268,9 @@ $(DISTDIR)/modules/import/spectrum.sim: impstart.o spectrum.o getpix.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/stad.sim: impstart.o stad.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/tga.sim: impstart.o tga.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 
