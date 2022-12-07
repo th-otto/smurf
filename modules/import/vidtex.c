@@ -34,36 +34,37 @@
 #define B_PIX       0
 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Compuserve Vidtex RLE",
-                        0x0050,
-                        "Dale Russell",
-                        "RLE", "", "", "", "",
-                        "", "", "", "", "",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0,0,0,0,
-                        0
-                        };
+MOD_INFO module_info = {
+	"Compuserve Vidtex RLE",
+	0x0050,
+	"Dale Russell",
+	{ "RLE", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -72,68 +73,91 @@ MOD_INFO module_info = {"Compuserve Vidtex RLE",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-char    *buffer=smurf_struct->smurf_pic->pic_data;
-int     mag1, mag2,mag3;
-int     width, height, xc, yc, c;
-char    WhitePair, BlackPair, WhiteRun, BlackRun;
-char    *get=buffer+3;
-char    *retbuf, *output;
-long    len;
-int     Mask[]={0,0x0080,0x0040, 0x0020, 0x0010, 0x0008,0x0004,0x0002,0x0001};
+	uint8_t *buffer = smurf_struct->smurf_pic->pic_data;
+	uint8_t mag1, mag2, mag3;
+	unsigned short width, height, xc, yc, c;
+	uint8_t WhitePair;
+	uint8_t BlackPair;
+	uint8_t WhiteRun;
+	uint8_t BlackRun;
+	uint8_t *get = buffer + 3;
+	uint8_t *retbuf;
+	uint8_t *output;
+	long len;
+	static uint8_t const Mask[] = { 0, 0x0080, 0x0040, 0x0020, 0x0010, 0x0008, 0x0004, 0x0002, 0x0001 };
 
 /*****************************************************/
 /*          MAGIC Code berprfen                    */
 /*****************************************************/
-mag1=*(buffer);
-mag2=*(buffer+1);
-mag3=*(buffer+2);
-if ( !((mag1==0x1b && mag2==0x47 && (mag3==0x48 || mag3==0x4d)) ))  
-            return(M_INVALID);
+	mag1 = *(buffer);
+	mag2 = *(buffer + 1);
+	mag3 = *(buffer + 2);
+	if (!((mag1 == 0x1b && mag2 == 0x47 && (mag3 == 0x48 || mag3 == 0x4d))))
+		return M_INVALID;
 
-smurf_struct->services->reset_busybox(128, "CI$ Vidtex 1 Bit");
+	smurf_struct->services->reset_busybox(128, "CI$ Vidtex 1 Bit");
 
-switch(mag3)
-{
-    case 0x4d:  width=128;
-                height=96; break;
-    case 0x48:  width=256;
-                height=192; break;
-}
+	switch (mag3)
+	{
+	case 0x4d:
+		width = 128;
+		height = 96;
+		break;
+	case 0x48:
+		width = 256;
+		height = 192;
+		break;
+	default:
+		return M_INVALID;
+	}
 
-len=(long)((width+7)/8) * (long)height;
-output=Malloc( len );
-if (!output) return(M_MEMORY);
-memset(output, 0, len);
-retbuf=output;
-yc=xc=0;
-c=0;                
-while (yc<height)
-{                           
-WhitePair=*(get++);
-BlackPair=*(get++);
-WhiteRun=WhitePair-0x20;
-BlackRun=BlackPair-0x20;
-xc+=(WhiteRun+BlackRun);
-if (xc>width) { xc-=width; yc++; }
+	len = (unsigned long) ((width + 7) / 8) * height;
+	output = (uint8_t *)Malloc(len);
+	if (output == NULL)
+		return M_MEMORY;
+	memset(output, 0, len);
+	retbuf = output;
+	yc = xc = 0;
+	c = 0;
+	while (yc < height)
+	{
+		WhitePair = *(get++);
+		BlackPair = *(get++);
+		WhiteRun = WhitePair - 0x20;
+		BlackRun = BlackPair - 0x20;
+		xc += (WhiteRun + BlackRun);
+		if (xc > width)
+		{
+			xc -= width;
+			yc++;
+		}
 
-    while(WhiteRun--)   
-    {
-        c++;
-        if (c > 8) { output++; c-=8; }
-        *(output)+=Mask[c];
-    }
-    while(BlackRun--)   
-    {
-        c++;
-        if ( c > 8) { output++; c-=8; }
-    }
-}
-Mfree(buffer);
-strncpy(smurf_struct->smurf_pic->format_name, "Compuserve VIDTEX  ", 21);
-smurf_struct->smurf_pic->format_type=FORM_STANDARD;
-smurf_struct->smurf_pic->pic_data=retbuf;
-smurf_struct->smurf_pic->depth=1;
-smurf_struct->smurf_pic->pic_width=width;
-smurf_struct->smurf_pic->pic_height=height;
-return(M_PICDONE);
+		while (WhiteRun--)
+		{
+			c++;
+			if (c > 8)
+			{
+				output++;
+				c -= 8;
+			}
+			*(output) += Mask[c];
+		}
+		while (BlackRun--)
+		{
+			c++;
+			if (c > 8)
+			{
+				output++;
+				c -= 8;
+			}
+		}
+	}
+	Mfree(buffer);
+	strcpy(smurf_struct->smurf_pic->format_name, "Compuserve VIDTEX");
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	smurf_struct->smurf_pic->pic_data = retbuf;
+	smurf_struct->smurf_pic->depth = 1;
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	return M_PICDONE;
 }
