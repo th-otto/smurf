@@ -72,6 +72,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/tny.sim \
 	$(DISTDIR)/modules/import/tpi_true.sim \
 	$(DISTDIR)/modules/import/tpi_turb.sim \
+	$(DISTDIR)/modules/import/trp_all.sim \
 	$(empty)
 
 #MODULES +=	$(DISTDIR)/modules/import/neonshp.sim
@@ -283,6 +284,9 @@ $(DISTDIR)/modules/import/tpi_true.sim: impstart.o tpi_true.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/tpi_turb.sim: impstart.o tpi_turb.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/trp_all.sim: impstart.o trp_all.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 

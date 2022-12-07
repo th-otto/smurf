@@ -95,7 +95,7 @@ typedef struct
 										   Bit 1: Animation enthalten
 										   Bit 2: Vektorgraphik enthalten  */
 	int32_t bitmap;						/* Offset auf Bildstruktur */
-	int32_t animation;						/* Offset auf Animationsstruktur */
+	int32_t animation;					/* Offset auf Animationsstruktur */
 	int32_t vector;						/* Offset auf Vektorstruktur */
 } trp_header;
 
