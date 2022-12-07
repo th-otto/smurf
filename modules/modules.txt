@@ -162,7 +162,7 @@ tga.sim        1.10    1.10     x
 tiff.sim       1.50    1.50     x
 tny.sim        0.10    0.10     x
 tpi_true.sim   0.80    0.80     x
-tpi_turb.sim   0.10    0.10
+tpi_turb.sim   0.10    0.10     x
 trp_all.sim    0.10    0.10
 truepnt.sim    1.10    1.10
 vidtex.sim     0.50    0.50

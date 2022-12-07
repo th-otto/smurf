@@ -109,9 +109,11 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	if (Mode == 0xaf)
 	{
 		BitsPerPixel = 8;
-		Mode = 0;
+		Mode = FORM_PIXELPAK;
 	} else
-		Mode = 1;
+	{
+		Mode = FORM_STANDARD;
+	}
 
 #if DEBUG>0
 	printf("\n  Width: %i", width);

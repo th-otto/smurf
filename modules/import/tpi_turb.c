@@ -34,44 +34,48 @@
 #include "import.h"
 #include "smurfine.h"
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
-unsigned int swap_word(unsigned int w)
-	0xE058;
-
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"Turbo Pascal Grafik Format",
-						0x0010,
-						"Christian Eyrich",
-						"TPI", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
+MOD_INFO module_info = {
+	"Turbo Pascal Grafik Format",
+	0x0010,
+	"Christian Eyrich",
+	{ "TPI", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+#ifdef __PUREC__
+/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
+static unsigned short swap_word(unsigned short w) 0xE058;
+#else
+static unsigned short swap_word(unsigned short w)
+{
+	return (w >> 8) | (w << 8);
+}
+#endif
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -81,110 +85,105 @@ MOD_INFO module_info = {"Turbo Pascal Grafik Format",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *ziel, *pal,
-		 i, p;
+	uint8_t *buffer;
+	uint8_t *ziel;
+	uint8_t *pal;
+	uint8_t i, p;
+	unsigned short x, y, width, height, DatenOffset;
+	unsigned long dst_pos;
+	unsigned long src_pos;
+	unsigned long pal_pos;
+	unsigned long w;
+	unsigned long pla, plh, plo;
 
-	unsigned int x, y, width, height, DatenOffset;
-
-	unsigned long dst_pos = 0, src_pos = 0, pal_pos = 0, w, pla, plh, plo;
-
-	struct pal
+	static struct pal
 	{
-		char r;
-		char g;
-		char b;
-	} stdpal[] = {
-				{0x00, 0x00, 0x00},
-				{0x00, 0x00, 0xa1},
-				{0x00, 0xa1, 0x00},
-				{0x00, 0xa1, 0xa1},
-				{0xa1, 0x00, 0x00},
-				{0xa1, 0x00, 0xa1},
-				{0xa1, 0x55, 0x00},
-				{0xa1, 0xa1, 0xa1},
-				{0x55, 0x55, 0x55},
-				{0x55, 0x55, 0xff},
-				{0x55, 0xff, 0x55},
-				{0x55, 0xff, 0xff},
-				{0xff, 0x55, 0x55},
-				{0xff, 0x55, 0xff},
-				{0xff, 0xff, 0x55},
-				{0xff, 0xff, 0xff},
-				 };
-	
-	struct pal *ppal;
+		uint8_t r;
+		uint8_t g;
+		uint8_t b;
+	} const stdpal[] = {
+		{ 0x00, 0x00, 0x00 },
+		{ 0x00, 0x00, 0xa1 },
+		{ 0x00, 0xa1, 0x00 },
+		{ 0x00, 0xa1, 0xa1 },
+		{ 0xa1, 0x00, 0x00 },
+		{ 0xa1, 0x00, 0xa1 },
+		{ 0xa1, 0x55, 0x00 },
+		{ 0xa1, 0xa1, 0xa1 },
+		{ 0x55, 0x55, 0x55 },
+		{ 0x55, 0x55, 0xff },
+		{ 0x55, 0xff, 0x55 },
+		{ 0x55, 0xff, 0xff },
+		{ 0xff, 0x55, 0x55 },
+		{ 0xff, 0x55, 0xff },
+		{ 0xff, 0xff, 0x55 },
+		{ 0xff, 0xff, 0xff },
+	};
 
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
+	const struct pal *ppal;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 
-	/* Header Check */  /* (((Word0 + 1) * (Word1 + 1)) / 2) + 6 */
-	if(smurf_struct->smurf_pic->file_len !=
-       ((swap_word(*(unsigned int *)buffer) + 1) / 2)
-	   *
-	   (swap_word(*(unsigned int *)(buffer + 2)) + 1) + 6)
-		return(M_INVALID);
-	else
+	/* Header Check *//* (((Word0 + 1) * (Word1 + 1)) / 2) + 6 */
+	if (smurf_struct->smurf_pic->file_len !=
+		((swap_word(*(uint16_t *) buffer) + 1) / 2) * (swap_word(*(uint16_t *) (buffer + 2)) + 1) + 6)
+		return M_INVALID;
+
+	width = swap_word(*(uint16_t *) buffer) + 1;
+	height = swap_word(*(uint16_t *) (buffer + 2)) + 1;
+
+	DatenOffset = 6;
+
+	strcpy(smurf_struct->smurf_pic->format_name, "Turbo Pascal Image .TPI");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = 4;
+
+	smurf_struct->services->reset_busybox(128, "Turbo Pascal 4 Bit");
+
+	if ((ziel = smurf_struct->services->SMalloc(((long) width * (long) height) >> 1)) == 0)
+		return M_MEMORY;
+
+	src_pos = DatenOffset;
+	w = (width + 7) / 8;
+	plh = (height * w);			/* H”he einer Plane in Byte */
+
+	y = 0;
+	do							/* height */
 	{
-		width = swap_word(*(unsigned int *)buffer) + 1;
-		height= swap_word(*(unsigned int *)(buffer + 2)) + 1;
-
-		DatenOffset = 6;
-
-		strncpy(smurf_struct->smurf_pic->format_name, "Turbo Pascal Image .TPI", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = 4;
-
-		smurf_struct->services->reset_busybox(128, "Turbo Pascal 4 Bit");
-
-		if((ziel = SMalloc(((long)width * (long)height) >> 1)) == 0)
-			return(M_MEMORY);
-		else
+		plo = (y * w);			/* Offset vom Planeanfang in Bytes */
+		for (p = 0; p < 4; p++)	/* 4 Planes */
 		{
-			src_pos = DatenOffset;
-			w = (width + 7) / 8;
-			plh = (height * w); /* H”he einer Plane in Byte*/
-	
-			y = 0;
-			do /* height */
+			pla = (plh * p);	/* Abstand dieser Plane vom Bildanfang */
+			dst_pos = (pla + plo);	/* Zieladresse der dekodierten Scanline */
+			x = 0;
+			do
 			{
-				plo = (y * w); /* Offset vom Planeanfang in Bytes */
-				for(p = 0; p < 4; p++) /* 4 Planes */
-				{
-					pla = (plh * p);	/* Abstand dieser Plane vom Bildanfang */
-					dst_pos = (pla + plo); /* Zieladresse der dekodierten Scanline */
-					x = 0;	
-					do
-					{
-						ziel[dst_pos++] = buffer[src_pos++];
-						x++;
-					} while(x < w); /* width */
-				} /* p */
-				y++;
-			} while (y < height); /* height */
-		
-			smurf_struct->smurf_pic->pic_data = ziel;
+				ziel[dst_pos++] = buffer[src_pos++];
+				x++;
+			} while (x < w);	/* width */
+		}						/* p */
+		y++;
+	} while (y < height);		/* height */
 
-			smurf_struct->smurf_pic->format_type = FORM_STANDARD;
+	smurf_struct->smurf_pic->pic_data = ziel;
 
-			pal = smurf_struct->smurf_pic->palette;
+	smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 
-			ppal = stdpal;
-			for(i = 0; i < 16; i++)
-			{
-				pal[pal_pos++] = ppal->r;
-				pal[pal_pos++] = ppal->g;
-				pal[pal_pos++] = ppal->b;
-				ppal++;
-			}
+	pal = smurf_struct->smurf_pic->palette;
 
-			smurf_struct->smurf_pic->col_format = RGB;
-	
-		} /* Malloc */
-	} /* Erkennung */
+	ppal = stdpal;
+	pal_pos = 0;
+	for (i = 0; i < 16; i++)
+	{
+		pal[pal_pos++] = ppal->r;
+		pal[pal_pos++] = ppal->g;
+		pal[pal_pos++] = ppal->b;
+		ppal++;
+	}
 
-	SMfree(buffer);
-	return(M_PICDONE);
+	smurf_struct->smurf_pic->col_format = RGB;
+
+	smurf_struct->services->SMfree(buffer);
+	return M_PICDONE;
 }
