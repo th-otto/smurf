@@ -69,6 +69,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/spectrum.sim \
 	$(DISTDIR)/modules/import/stad.sim \
 	$(DISTDIR)/modules/import/tga.sim \
+	$(DISTDIR)/modules/import/tny.sim \
 	$(empty)
 
 #MODULES +=	$(DISTDIR)/modules/import/neonshp.sim
@@ -271,6 +272,9 @@ $(DISTDIR)/modules/import/stad.sim: impstart.o stad.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/tga.sim: impstart.o tga.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/tny.sim: impstart.o tny.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 
