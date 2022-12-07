@@ -67,6 +67,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/smurf_mt.six \
 	$(DISTDIR)/modules/import/softimag.sim \
 	$(DISTDIR)/modules/import/spectrum.sim \
+	$(DISTDIR)/modules/import/stad.sim \
 	$(empty)
 
 #MODULES +=	$(DISTDIR)/modules/import/neonshp.sim
@@ -263,6 +264,9 @@ $(DISTDIR)/modules/import/softimag.sim: impstart.o softimag.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/spectrum.sim: impstart.o spectrum.o getpix.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/stad.sim: impstart.o stad.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 
