@@ -73,7 +73,7 @@ MODULES = \
 
 #MODULES +=	$(DISTDIR)/modules/import/neonshp.sim
 
-SUBDIRS = jpeg gif_ii mim
+SUBDIRS = jpeg gif_ii mim tiff
 
 all:: impstart.o $(MODULES)
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || { exit 1; }; done

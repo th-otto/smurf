@@ -159,7 +159,7 @@ softimag.sim   1.00    1.00     x
 spectrum.sim   0.30    0.30     x   version 0.30 was named spu_spc
 stad.sim       0.10    0.10     x
 tga.sim        1.10    1.10     x
-tiff.sim       1.50    1.50
+tiff.sim       1.50    1.50     x
 tny.sim        0.10    0.10
 tpi_true.sim   0.80    0.80
 tpi_turb.sim   0.10    0.10
