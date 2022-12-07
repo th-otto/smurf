@@ -100,7 +100,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	width = *(buffer + 0x67) + (*(buffer + 0x68) << 8);
 	height = *(buffer + 0x69) + (*(buffer + 0x70) << 8);
 
-	strncpy(smurf_struct->smurf_pic->format_name, "Edsun Labs .CEG", 21);
+	strcpy(smurf_struct->smurf_pic->format_name, "Edsun Labs .CEG");
 	strncpy(smurf_struct->smurf_pic->infotext, buffer + 0x15, 80);
 	smurf_struct->smurf_pic->pic_width = width;
 	smurf_struct->smurf_pic->pic_height = height;

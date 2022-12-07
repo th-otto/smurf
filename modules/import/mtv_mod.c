@@ -81,9 +81,9 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	int i;
 
 	filenam = smurf_struct->smurf_pic->filename;
-	strncpy(extend, filenam + (strlen(filenam) - 3), 3);
+	strcpy(extend, filenam + (strlen(filenam) - 3));
 	buffer = smurf_struct->smurf_pic->pic_data;
-	if (strncmp(extend, "MTV", 3))
+	if (stricmp(extend, "MTV") != 0)
 		return M_INVALID;
 
 	smurf_struct->services->reset_busybox(128, "MTV Raytracer 24 Bit");

@@ -214,7 +214,7 @@ short imp_module_main(GARGAMEL * smurf_struct)
 		Mfree(input);
 		smurf_struct->smurf_pic->pic_data = retbuf;
 	}
-	strncpy(smurf_struct->smurf_pic->format_name, "Therapy Graphix(TRP) ", 21);
+	strcpy(smurf_struct->smurf_pic->format_name, "Therapy Graphix(TRP)");
 	smurf_struct->smurf_pic->pic_width = (short) bitmap.width;
 	smurf_struct->smurf_pic->pic_height = (short) bitmap.height;
 	smurf_struct->smurf_pic->depth = bitmap.depth;

@@ -82,8 +82,8 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 /*********** ERKENNUNG .DOO *****************/
 	extend = smurf_struct->smurf_pic->filename;
-	strncpy(ext, extend + strlen(extend) - 3, 3);
-	if (strnicmp(ext, "DOO", 3) != 0)
+	strcpy(ext, extend + strlen(extend) - 3);
+	if (stricmp(ext, "DOO") != 0)
 		return M_INVALID;
 
 	smurf_struct->services->reset_busybox(128, "Doodle 1 Bit");

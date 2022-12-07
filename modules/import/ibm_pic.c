@@ -112,7 +112,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	DatenOffset = 0x80 + cols * 3;
 
-	strncpy(smurf_struct->smurf_pic->format_name, "IBM Picture Maker-File .PIC", 21);
+	strcpy(smurf_struct->smurf_pic->format_name, "IBM Picture Maker-File .PIC");
 	smurf_struct->smurf_pic->pic_width = width;
 	smurf_struct->smurf_pic->pic_height = height;
 	smurf_struct->smurf_pic->depth = BitsPerPixel;

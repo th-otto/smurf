@@ -78,6 +78,7 @@ MODULES = \
 	$(DISTDIR)/modules/import/vivi_img.sim \
 	$(DISTDIR)/modules/import/xbm.sim \
 	$(DISTDIR)/modules/import/xga.sim \
+	$(DISTDIR)/modules/import/xwd.sim \
 	$(empty)
 
 #MODULES +=	$(DISTDIR)/modules/import/neonshp.sim
@@ -307,6 +308,9 @@ $(DISTDIR)/modules/import/xbm.sim: impstart.o xbm.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(DISTDIR)/modules/import/xga.sim: impstart.o xga.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(DISTDIR)/modules/import/xwd.sim: impstart.o xwd.o setlines.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 

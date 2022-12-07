@@ -41,7 +41,7 @@
 #else
 #error "Keine Sprache!"
 #endif
- 
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -51,43 +51,55 @@
 #define LSB 0
 #define MSB 1
 
-static void *(*SMalloc)(long amount);
-static void (*SMfree)(void *ptr);
-
-char *fileext(char *filename);
- 
 /* Infostruktur fr Hauptmodul */
-MOD_INFO module_info = {"X Window Dump-Format",
-						0x0010,
-						"Christian Eyrich",
-						"XWD", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,128,
-						0,128,
-						0,128,
-						0,128,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0
-						};
- 
+MOD_INFO module_info = {
+	"X Window Dump-Format",
+	0x0010,
+	"Christian Eyrich",
+	{ "XWD", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
+
+
+static char *fileext(const char *filename)
+{
+	char *extstart;
+
+	if ((extstart = strrchr(filename, '.')) != NULL)
+		extstart++;
+	else
+		extstart = strrchr(filename, '\0');
+
+	return extstart;
+}
+
+
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 /*			X Window Dump-Format (XWD)				*/
@@ -96,263 +108,250 @@ MOD_INFO module_info = {"X Window Dump-Format",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	char *buffer, *obuffer, *ziel, *oziel, *pixbuf, *opixbuf, *pal, *ppal, *fname,
-		 BitsPerPixel, version, ByteOrder,
-		 BitOrder, colent, translate[256], PalentrySize,
-		 Palpad, val, map;
-	char dummy[3], impmessag[21];
+	uint8_t *buffer;
+	uint8_t *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *pixbuf;
+	uint8_t *opixbuf;
+	uint8_t *pal;
+	uint8_t *ppal;
+	char *fname;
+	uint8_t BitsPerPixel;
+	uint8_t version;
+	uint8_t ByteOrder;
+	uint8_t BitOrder;
+	uint8_t colent;
+	uint8_t translate[256];
+	uint8_t PalentrySize;
+	uint8_t Palpad;
+	uint8_t val;
+	uint8_t map;
+	char dummy[3];
+	char impmessag[21];
+	unsigned short i, x, y, width, height, cols;
 
-	unsigned int i, x, y, width, height, cols;
+	unsigned long w;
+	unsigned long memwidth;
+	unsigned long DatenOffset;
+	unsigned long pal_of;
+	unsigned long planelength;
 
-	unsigned long w, memwidth, DatenOffset, pal_of, planelength;
-
-
-	SMalloc = smurf_struct->services->SMalloc;
-	SMfree = smurf_struct->services->SMfree;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
- 
+
 	/* Header Check */
 	fname = smurf_struct->smurf_pic->filename;
-	if(stricmp(fileext(fname), "XWD") != 0 ||
+	if (stricmp(fileext(fname), "XWD") != 0 ||
 /* Kannste l”ten, die Headerl„nge ist nicht garantiert */
-/*	   (*(unsigned long *)buffer != 40 && *(unsigned long *)buffer != 100) || */
-	   (*(buffer + 0x07) != 6 && *(buffer + 0x07) != 7))
-		return(M_INVALID);
-	else
-	{
-		version = *(buffer + 0x04);
+/*	   (*(uint32_t *)buffer != 40 && *(uint32_t *)buffer != 100) || */
+		(*(buffer + 0x07) != 6 && *(buffer + 0x07) != 7))
+		return M_INVALID;
+
+	version = *(buffer + 0x04);
 
 	/* X10 */
-		if(version == 6)
-		{
-			BitsPerPixel = (char)*(unsigned long *)(buffer + 0x0c);
-			/* 0 = monochrom, 2 = pseudo color */
+	if (version == 6)
+	{
+		BitsPerPixel = *(uint32_t *) (buffer + 0x0c);
+		/* 0 = monochrom, 2 = pseudo color */
 #if 0
-			PixmapFormat = (char)*(unsigned long *)(buffer + 0x10);
+		PixmapFormat = *(uint32_t *) (buffer + 0x10);
 #endif
-			width = (unsigned int)*(unsigned long *)(buffer + 0x14);
-			height = (unsigned int)*(unsigned long *)(buffer + 0x18);
-			ByteOrder = 0;
-			BitOrder = 0;
+		width = (unsigned int) *(uint32_t *) (buffer + 0x14);
+		height = (unsigned int) *(uint32_t *) (buffer + 0x18);
+		ByteOrder = 0;
+		BitOrder = 0;
 #if 0
-			PadBytes = 0;
+		PadBytes = 0;
 #endif
-			colent = 8;
-			PalentrySize = 2;
-			Palpad = 0;
-		}
+		colent = 8;
+		PalentrySize = 2;
+		Palpad = 0;
+	}
 	/* X11 */
-		else
-		{
-			/* 0 = monochrom, 1 = single planes, 2 = pseudo color */
+	else
+	{
+		/* 0 = monochrom, 1 = single planes, 2 = pseudo color */
 #if 0
-			PixmapFormat = (char)*(unsigned long *)(buffer + 0x08);
+		PixmapFormat = *(uint32_t *) (buffer + 0x08);
 #endif
-			BitsPerPixel = (char)*(unsigned long *)(buffer + 0x0c);
-			width = (unsigned int)*(unsigned long *)(buffer + 0x10);
-			height = (unsigned int)*(unsigned long *)(buffer + 0x14);
+		BitsPerPixel = *(uint32_t *) (buffer + 0x0c);
+		width = (unsigned int) *(uint32_t *) (buffer + 0x10);
+		height = (unsigned int) *(uint32_t *) (buffer + 0x14);
 		/* 0 = LSB, 1 = MSB */
-			ByteOrder = (char)*(unsigned long *)(buffer + 0x1c);
+		ByteOrder = *(uint32_t *) (buffer + 0x1c);
 		/* 0 = LSB, 1 = MSB */
-			BitOrder = (char)*(unsigned long *)(buffer + 0x24);
+		BitOrder = *(uint32_t *) (buffer + 0x24);
 #if 0
-			PadBytes = ((char)*(unsigned long *)(buffer + 0x28)) >> 3;
+		PadBytes = (*(uint32_t *) (buffer + 0x28)) >> 3;
 #endif
-			colent = 12;
-			PalentrySize = 4;
-			Palpad = 2;
-		}
+		colent = 12;
+		PalentrySize = 4;
+		Palpad = 2;
+	}
 
-		if(ByteOrder == LSB || BitOrder == LSB)
-			form_alert(1, ERROR );
+	if (ByteOrder == LSB || BitOrder == LSB)
+		form_alert(1, ERROR);
 
-		if(ByteOrder == LSB)
-			map = 2;
+	if (ByteOrder == LSB)
+		map = 2;
 
-		i = 0;
-		do
-		{
+	i = 0;
+	do
+	{
 		/* Bitreihenfolge umdrehen ... */
-			if(BitOrder == LSB)
-			{
-				translate[i] = (char)((i & 0x01) << 7);
-				translate[i] |= (char)((i & 0x02) << 5);
-				translate[i] |= (char)((i & 0x04) << 3);
-				translate[i] |= (char)((i & 0x08) << 1);
-				translate[i] |= (char)((i & 0x10) >> 1);
-				translate[i] |= (char)((i & 0x20) >> 3);
-				translate[i] |= (char)((i & 0x40) >> 5);
-				translate[i] |= (char)((i & 0x80) >> 7);
-			}
+		if (BitOrder == LSB)
+		{
+			translate[i]  = ((i & 0x01) << 7);
+			translate[i] |= ((i & 0x02) << 5);
+			translate[i] |= ((i & 0x04) << 3);
+			translate[i] |= ((i & 0x08) << 1);
+			translate[i] |= ((i & 0x10) >> 1);
+			translate[i] |= ((i & 0x20) >> 3);
+			translate[i] |= ((i & 0x40) >> 5);
+			translate[i] |= ((i & 0x80) >> 7);
+		}
 		/* ... oder auch nicht */
-			else
-				translate[i] = (char)i;
-		} while(++i < 256);
-	 
-		pal_of = *(unsigned long *)buffer; 
-		if(version == 6)
-		{
-			if(BitsPerPixel <= 8)
-				cols = 1 << BitsPerPixel;
-		}
 		else
-			cols = (unsigned int)*(unsigned long *)(buffer + 0x4c);
-		DatenOffset = pal_of + (colent * cols);
+			translate[i] = i;
+	} while (++i < 256);
 
-		strncpy(smurf_struct->smurf_pic->format_name, "X Window Dump .XWD", 21);
-		smurf_struct->smurf_pic->pic_width = width;
-		smurf_struct->smurf_pic->pic_height = height;
-		smurf_struct->smurf_pic->depth = BitsPerPixel;
+	pal_of = *(uint32_t *) buffer;
+	if (version == 6)
+	{
+		if (BitsPerPixel <= 8)
+			cols = 1 << BitsPerPixel;
+	} else
+		cols = (unsigned int) *(uint32_t *) (buffer + 0x4c);
+	DatenOffset = pal_of + (colent * cols);
 
-		strcpy(impmessag, "X Window Dump ");
-		strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
-		strcat(impmessag, " Bit");
-		smurf_struct->services->reset_busybox(128, impmessag);
- 
-		if(BitsPerPixel == 24)
+	strcpy(smurf_struct->smurf_pic->format_name, "X Window Dump .XWD");
+	smurf_struct->smurf_pic->pic_width = width;
+	smurf_struct->smurf_pic->pic_height = height;
+	smurf_struct->smurf_pic->depth = BitsPerPixel;
+
+	strcpy(impmessag, "X Window Dump ");
+	strcat(impmessag, itoa(BitsPerPixel, dummy, 10));
+	strcat(impmessag, " Bit");
+	smurf_struct->services->reset_busybox(128, impmessag);
+
+	if (BitsPerPixel == 24)
+	{
+		w = width;
+		memwidth = width;
+	} else if (BitsPerPixel == 1)
+	{
+		w = ((width + 7) / 8);
+		memwidth = w * 8;
+	} else if (BitsPerPixel == 4)
+	{
+		w = (width + 1) / 2;
+		memwidth = ((width + 7) / 8) * 8;
+	} else
+	{
+		w = width;
+		memwidth = width;
+	}
+
+	if ((ziel = smurf_struct->services->SMalloc((memwidth * height * BitsPerPixel) >> 3)) == NULL)
+		return M_MEMORY;
+
+	oziel = ziel;
+	obuffer = buffer;
+	buffer += DatenOffset;
+
+	planelength = (unsigned long) ((width + 7) / 8) * height;
+
+	if (BitsPerPixel <= 8)
+	{
+		if (BitsPerPixel == 1 || BitsPerPixel == 8)
 		{
-			w = (unsigned long)width;
-			memwidth = (unsigned long)width;
-		}
-		else
-			if(BitsPerPixel == 1)
+			y = 0;
+			do
 			{
-				w = (unsigned long)((width + 7) / 8);
-				memwidth = w * 8;
-			}
-			else
-				if(BitsPerPixel == 4)
-				{
-					w = (unsigned long)(width + 1) / 2;
-					memwidth = (unsigned long)((width + 7) / 8) * 8;
-				}
-				else
-				{
-					w = (unsigned long)width;
-					memwidth = (unsigned long)width;
-				}
-
-		if((ziel = SMalloc((memwidth * (long)height * BitsPerPixel) >> 3)) == 0)
-			return(M_MEMORY);
-		else
-		{
-			oziel = ziel;
-			obuffer = buffer;
-			buffer += DatenOffset;
-
-			planelength = (unsigned long)((width + 7) / 8) * (unsigned long)height;
-
-			if(BitsPerPixel <= 8)
-			{
-				if(BitsPerPixel == 1 || BitsPerPixel == 8)
-				{
-					y = 0;
-					do
-					{
-						x = 0;
-						do
-						{
-							*ziel++ = translate[*buffer++];
-						} while(++x < w);
-					} while(++y < height);
-				}
-				else
-					if(BitsPerPixel == 4)
-					{
-						opixbuf = pixbuf = (char *)Malloc(width);
-
-						y = 0;
-						do
-						{
-							x = 0;
-							do
-							{
-								val = translate[*buffer++];
-								*pixbuf++ = val >> 4;
-								*pixbuf++ = val & 0x0f;
-							} while(++x < w);
-
-							pixbuf = opixbuf;
-							ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
-						} while(++y < height);
-
-						Mfree(pixbuf);
-					}
-			}
-			else
-			{
-				y = 0;
+				x = 0;
 				do
 				{
-					x = 0;
-					do
-					{
-						buffer++;
-						*(ziel++ + map) = translate[*buffer++];
-						*ziel++ = translate[*buffer++];
-						*(ziel++ - map) = translate[*buffer++];
-					} while(++x < w);
-				} while(++y < height);
-			}
+					*ziel++ = translate[*buffer++];
+				} while (++x < w);
+			} while (++y < height);
+		} else if (BitsPerPixel == 4)
+		{
+			opixbuf = pixbuf = (uint8_t *) Malloc(width);
 
-			ziel = oziel;
-			buffer = obuffer;
- 
-			smurf_struct->smurf_pic->pic_data = ziel;
-
-			if(BitsPerPixel < 8)
-				smurf_struct->smurf_pic->format_type = FORM_STANDARD;
-			else
-				smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
- 
-			if(BitsPerPixel <= 8)
+			y = 0;
+			do
 			{
-				pal = smurf_struct->smurf_pic->palette;
-				if(BitsPerPixel == 1)
+				x = 0;
+				do
 				{
-					pal[0] = 255;
-					pal[1] = 255;
-					pal[2] = 255;
-					pal[3] = 0;
-					pal[4] = 0;
-					pal[5] = 0;
-				}
-				else
-				{
-					ppal = buffer + pal_of;
-					for(i = 0; i < cols; i++)
-					{
-						ppal += PalentrySize;
-						*pal++ = *ppal;
-						ppal += 2;
-						*pal++ = *ppal;
-						ppal += 2;
-						*pal++ = *ppal;
-						ppal += 2;
-						ppal += Palpad;
-					}
-				}
-			}
-		
-		} /* Malloc */
-	} /* Erkennung */
+					val = translate[*buffer++];
+					*pixbuf++ = val >> 4;
+					*pixbuf++ = val & 0x0f;
+				} while (++x < w);
 
-	SMfree(buffer);
+				pixbuf = opixbuf;
+				ziel += setpix_std_line(pixbuf, ziel, 4, planelength, width);
+			} while (++y < height);
 
-	return(M_PICDONE);
-}
- 
- 
-char *fileext(char *filename)
-{
-	char *extstart;
+			Mfree(pixbuf);
+		}
+	} else
+	{
+		y = 0;
+		do
+		{
+			x = 0;
+			do
+			{
+				buffer++;
+				*(ziel++ + map) = translate[*buffer++];
+				*ziel++ = translate[*buffer++];
+				*(ziel++ - map) = translate[*buffer++];
+			} while (++x < w);
+		} while (++y < height);
+	}
 
+	ziel = oziel;
+	buffer = obuffer;
 
-	if((extstart = strrchr(filename, '.')) != NULL)
-		extstart++;
+	smurf_struct->smurf_pic->pic_data = ziel;
+
+	if (BitsPerPixel < 8)
+		smurf_struct->smurf_pic->format_type = FORM_STANDARD;
 	else
-		extstart = strrchr(filename, '\0');
-	
-	return(extstart);
-} /* fileext */
+		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
+
+	if (BitsPerPixel <= 8)
+	{
+		pal = smurf_struct->smurf_pic->palette;
+		if (BitsPerPixel == 1)
+		{
+			pal[0] = 255;
+			pal[1] = 255;
+			pal[2] = 255;
+			pal[3] = 0;
+			pal[4] = 0;
+			pal[5] = 0;
+		} else
+		{
+			ppal = buffer + pal_of;
+			for (i = 0; i < cols; i++)
+			{
+				ppal += PalentrySize;
+				*pal++ = *ppal;
+				ppal += 2;
+				*pal++ = *ppal;
+				ppal += 2;
+				*pal++ = *ppal;
+				ppal += 2;
+				ppal += Palpad;
+			}
+		}
+	}
+
+	smurf_struct->services->SMfree(buffer);
+
+	return M_PICDONE;
+}
