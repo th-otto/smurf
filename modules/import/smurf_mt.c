@@ -30,32 +30,38 @@
 #define Goto_pos(x,y)   ((void) Cconws("\33Y"),  Cconout(' ' + x), Cconout(' ' + y))
 
 /* Infostruktur fÅr Hauptmodul */
-MOD_INFO    module_info={"Speichertestmodul",
-                        0x0010,
-                        "Olaf Piesche",
-                        "","","","","",
-                        "","","","","",
-                        "Slider 1",
-                        "Slider 2",
-                        "Slider 3",
-                        "Slider 4",
-                        "Checkbox 1",
-                        "Checkbox 2",
-                        "Checkbox 3",
-                        "Checkbox 4",
-                        "Edit 1",
-                        "Edit 2",
-                        "Edit 3",
-                        "Edit 4",
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,128,
-                        0,10,
-                        0,10,
-                        0,10,
-                        0,10
-                        };
+MOD_INFO module_info = {
+	"Speichertestmodul",
+	0x0010,
+	"Olaf Piesche",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	"Slider 1",
+	"Slider 2",
+	"Slider 3",
+	"Slider 4",
+	"Checkbox 1",
+	"Checkbox 2",
+	"Checkbox 3",
+	"Checkbox 4",
+	"Edit 1",
+	"Edit 2",
+	"Edit 3",
+	"Edit 4",
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 128,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 10,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
+};
+
 #define DEBUG           0
 
 /* -------------------------------------------------*/
@@ -66,23 +72,23 @@ MOD_INFO    module_info={"Speichertestmodul",
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-char *buffer;
-long free_mem;
+	void *buffer;
+	long free_mem;
 
-(void)smurf_struct;
-Goto_pos(0,0);
-free_mem=(long)Mxalloc(-1, 2);
-printf("\n-   Mod gestartet: %li Bytes.", free_mem);
+	(void) smurf_struct;
+	Goto_pos(0, 0);
+	free_mem = (long) Mxalloc(-1, 2);
+	printf("\n-   Mod gestartet: %li Bytes.", free_mem);
 
-buffer=Malloc(100000l);
-free_mem=(long)Mxalloc(-1, 2);
-printf("\n-100K angefordert: %li Bytes.", free_mem);
+	buffer = (void *)Malloc(100000l);
+	free_mem = (long) Mxalloc(-1, 2);
+	printf("\n-100K angefordert: %li Bytes.", free_mem);
 
-Mfree(buffer);
-free_mem=(long)Mxalloc(-1, 2);
-printf("\n- und freigegeben: %li Bytes.", free_mem);
-puts("\n\n Taste...");
-(void) Cnecin();
+	Mfree(buffer);
+	free_mem = (long) Mxalloc(-1, 2);
+	printf("\n- und freigegeben: %li Bytes.", free_mem);
+	puts("\n\n Taste...");
+	(void) Cnecin();
 
-return(M_INVALID);
+	return M_INVALID;
 }
