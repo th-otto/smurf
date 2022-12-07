@@ -153,7 +153,7 @@ raw.sim        0.10    0.10     x
 rawmod.sim     0.10    0.10     x
 scodl.sim      0.10    0.10     x
 sef.sim        0.50    0.50     x
-sgi.sim        0.40    0.40
+sgi.sim        0.40    0.40     x
 smurf_mt.sim   0.10    0.10
 softimag.sim   1.00    1.00     x
 spectrum.sim   0.30    0.30     x   version 0.30 was named spu_spc
