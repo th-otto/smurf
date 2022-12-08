@@ -94,7 +94,7 @@ bool init_screens(bool doublebuffering, int modecode_rgb, int modecode_vga)
 	orig_logbase = Logbase();
 	orig_physbase = Physbase();
 	VsetScreen(screens[0], screens[0], 3, modecode);
-	VsetMode(modecode);
+	(void)VsetMode(modecode);
 	set_screen(0);
 	memset(screens[0], 0, screen_size);
 	if (doublebuffer)
@@ -107,7 +107,7 @@ bool init_screens(bool doublebuffering, int modecode_rgb, int modecode_vga)
 void exit_screens(void)
 {
 	VsetScreen(orig_logbase, orig_physbase, 3, orig_mode);
-	VsetMode(orig_mode);
+	(void)VsetMode(orig_mode);
 }
 
 

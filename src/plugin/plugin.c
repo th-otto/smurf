@@ -33,7 +33,7 @@
 	diese also mit 0xff undiert werden. Dies ist n”tig, um bei einem
 	Buttonevent an der ID in der Fensterstruktur ein Plugin erkennen
 	zu k”nnen.
-	Die IDs fr Exporter beginnen mit 0x100, demnach stehen bis zu 255
+	Die IDs fr Exporter beginnen mit MOD_EXPORT, demnach stehen bis zu 255
 	IDs fr Exporter zur Verfgung, was auch im sp„teren Multithreading-
 	Betrieb ausreichen sollte.	
 	Beim Initialisieren wird auerdem anhand der PLUGIN_INFO-Strukturen
@@ -226,7 +226,7 @@ void scan_plugins(void)
 									strcpy(newpath, oldpath);
 									dot_pos = strrchr(newpath, '.');
 									strcpy(dot_pos + 1, "plx");
-									Frename(0, oldpath, newpath);
+									(void) Frename(0, oldpath, newpath);
 								}
 
 								if (curr_info->plugin_version > info->plugin_version)	/* ist das jetzige neuer als das vorher angemeldete? */
@@ -329,7 +329,7 @@ short start_plugin(BASPAG *bp, short message, short plg_id, PLUGIN_DATA *data)
 
 	plugin_start = get_module_start(bp);		/* Textsegment-Startadresse holen */
 	mod_magic = get_modmagic(bp);		/* Zeiger auf Magic (mu 'PLGN' sein!) */
-	index = plg_id & 0xFF;
+	index = plg_id & MOD_ID_MASK;
 
 	if (mod_magic == MOD_MAGIC_PLUGIN)
 	{
@@ -443,7 +443,7 @@ void call_plugin(WORD menuentry)
 				msgbuf[1] = Sys_info.app_id;
 				msgbuf[3] = modconfs[plugin_number]->windhandle;
 				memcpy(plg_data[plugin_number]->event_par, msgbuf, 16);
-				start_plugin(plugin_bp[plugin_number], SMURF_AES_MESSAGE, plugin_number | 0x200, plg_data[plugin_number]);
+				start_plugin(plugin_bp[plugin_number], SMURF_AES_MESSAGE, plugin_number | MOD_PLUGIN, plg_data[plugin_number]);
 			}
 			return;
 		}
@@ -457,10 +457,10 @@ void call_plugin(WORD menuentry)
 				return;
 			plg_data[plugin_number] = malloc(sizeof(PLUGIN_DATA));
 			memset(plg_data[plugin_number], 0, sizeof(PLUGIN_DATA));
-			start_plugin(plugin_bp[plugin_number], MSTART, plugin_number | 0x200, plg_data[plugin_number]);
+			start_plugin(plugin_bp[plugin_number], MSTART, plugin_number | MOD_PLUGIN, plg_data[plugin_number]);
 		}
 
-		start_plugin(plugin_bp[plugin_number], PLGSELECTED, plugin_number | 0x200, plg_data[plugin_number]);
+		start_plugin(plugin_bp[plugin_number], PLGSELECTED, plugin_number | MOD_PLUGIN, plg_data[plugin_number]);
 
 		/* Plugin l„uft noch und kein M_WAITING? -> wieder weg damit. */
 		if (plg_data[plugin_number] != NULL && plg_data[plugin_number]->message != M_WAITING)
@@ -523,7 +523,7 @@ static void plugin_startup(short index, short *curr_plugin_entry, const char *pl
 	short message;
 	WORD menuentry;
 
-	start_plugin(plugin_bp[index], MSTART, index | 0x200, plg_data[index]);
+	start_plugin(plugin_bp[index], MSTART, index | MOD_PLUGIN, plg_data[index]);
 
 	message = plg_data[index]->message;
 

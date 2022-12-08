@@ -72,8 +72,8 @@ static int intersect_block(SMURF_PIC *picture)
 /******************************************************************	*/
 void block_freistellen(WINDOW *pwindow)
 {
-	char *dest_pic;
-	char *picdata;
+	uint8_t *dest_pic;
+	uint8_t *picdata;
 
 	SMURF_PIC *old_pic;
 
@@ -140,9 +140,9 @@ void block_freistellen(WINDOW *pwindow)
 /* ------------------------------------------------------------	*/
 int block2clip(SMURF_PIC *picture, int mode, const char *path)
 {
-	char *dest_pic;
-	char AND_byte1;
-	char AND_byte2;
+	uint8_t *dest_pic;
+	uint8_t AND_byte1;
+	uint8_t AND_byte2;
 	WORD bx, by, bh, bw;
 	WORD plane;
 	WORD y;
@@ -273,9 +273,9 @@ static int clear_scrap(void)
 /* ------------------------------------------------------------	*/
 void *copyblock(SMURF_PIC *old_pic)
 {
-	char *picdata;
-	char *dest_pic;
-	char format;
+	uint8_t *picdata;
+	uint8_t *dest_pic;
+	uint8_t format;
 	WORD bx, by, bh, bw;
 	WORD y;
 	WORD plane;
@@ -608,7 +608,7 @@ des Blocks inkl. Rauskopieren, evtl. Neudithern usw.
 */
 void block_dklick(WINDOW *picwindow)
 {
-	char *block_data;
+	uint8_t *block_data;
 	int back;
 	SMURF_PIC *picture;
 	SMURF_PIC *picblock;
@@ -719,7 +719,7 @@ Ist data = NULL wird das Clipboard selbst„nding ausgelesen, bei != NULL die ber
 Daten als Block genommen.
 ---------------------------------------------------------------------------------
 */
-void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my)
+void clip2block(SMURF_PIC *picture, uint8_t *data, WORD mx, WORD my)
 {
 	char clip_path[SM_PATH_MAX];
 	int pic_dithermode;
@@ -731,7 +731,7 @@ void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my)
 		strcpy(clip_path, Sys_info.scrp_path);	/* Clipboardpfad holen */
 		strcat(clip_path, "scrap.img");
 
-		data = fload(clip_path, 0);
+		data = (void *)fload(clip_path, 0);
 		if (data == NULL)
 			return;
 	} else
@@ -781,7 +781,7 @@ void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my)
 		{
 			pic_palmode = Display_Opt.syspal_8;
 			pic_dithermode = Display_Opt.dither_8;
-		} else if (picture->depth <= 4)
+		} else /* if (picture->depth <= 4) */
 		{
 			pic_palmode = Display_Opt.syspal_4;
 			pic_dithermode = Display_Opt.dither_4;
@@ -798,7 +798,7 @@ void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my)
 		{
 			myDisplay.syspal_8 = pic_palmode;
 			myDisplay.dither_8 = pic_dithermode;
-		} else if (picture->block->depth <= 4)
+		} else /* if (picture->block->depth <= 4) */
 		{
 			myDisplay.syspal_4 = pic_palmode;
 			myDisplay.dither_4 = pic_dithermode;
@@ -815,13 +815,14 @@ void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my)
 }
 
 
-static void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_replace(uint8_t *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	uint8_t *pic;
 	uint16_t *p16;
 	uint16_t *b16;
 	unsigned int x;
 	long or, og, ob;
+	uint8_t v;
 
 	pic = (uint8_t *) pdata2;
 	p16 = (uint16_t *) pdata2;
@@ -855,9 +856,12 @@ static void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned i
 			switch (depth)
 			{
 			case 24:
-				*pic++ = ((*pdata1++) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((*pdata1++) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((*pdata1++) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 
 			case 16:
@@ -872,7 +876,8 @@ static void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned i
 				break;
 
 			case 8:
-				*pic++ = ((*pdata1++) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 			}
 		}
@@ -880,7 +885,7 @@ static void insertline_replace(char *pdata1, void *pdata2, int depth, unsigned i
 }
 
 
-static void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_add(uint8_t *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	uint8_t *pic;
 	uint16_t *p16;
@@ -888,6 +893,7 @@ static void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int n
 	unsigned int x;
 	long or, og, ob;
 	long r, g, b;
+	uint8_t v;
 
 	pic = (uint8_t *) pdata2;
 	p16 = (uint16_t *) pdata2;
@@ -925,9 +931,12 @@ static void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int n
 			switch (depth)
 			{
 			case 24:
-				*pic++ = ((*pdata1++ + *pic) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((*pdata1++ + *pic) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((*pdata1++ + *pic) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ + v) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ + v) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ + v) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 
 			case 16:
@@ -942,7 +951,8 @@ static void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int n
 				break;
 
 			case 8:
-				*pic++ = ((*pdata1++ + *pic) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ + v) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 			}
 		}
@@ -950,7 +960,7 @@ static void insertline_add(char *pdata1, void *pdata2, int depth, unsigned int n
 }
 
 
-static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_clipadd(uint8_t *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	uint8_t *pic;
 	uint16_t *p16;
@@ -958,9 +968,10 @@ static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned i
 	unsigned int x;
 	long or, og, ob;
 	long r, g, b;
-	char clip24[513];
+	uint8_t clip24[513];
 	uint16_t clip16rb[65];
 	uint16_t clip16g[129];
+	uint8_t v;
 
 	pic = (uint8_t *) pdata2;
 	p16 = (uint16_t *) pdata2;
@@ -990,9 +1001,12 @@ static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned i
 			switch (depth)
 			{
 			case 24:
-				*pic++ = clip24[(*pic) + (*pdata1++)];
-				*pic++ = clip24[(*pic) + (*pdata1++)];
-				*pic++ = clip24[(*pic) + (*pdata1++)];
+				v = *pic;
+				*pic++ = clip24[v + (*pdata1++)];
+				v = *pic;
+				*pic++ = clip24[v + (*pdata1++)];
+				v = *pic;
+				*pic++ = clip24[v + (*pdata1++)];
 				break;
 
 			case 16:
@@ -1004,7 +1018,8 @@ static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned i
 				break;
 
 			case 8:
-				*pic++ = clip24[(*pic) + (*pdata1++)];
+				v = *pic;
+				*pic++ = clip24[v + (*pdata1++)];
 				break;
 			}
 		}
@@ -1015,9 +1030,12 @@ static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned i
 			switch (depth)
 			{
 			case 24:
-				*pic++ = ((clip24[*pdata1++ + *pic]) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((clip24[*pdata1++ + *pic]) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((clip24[*pdata1++ + *pic]) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((clip24[*pdata1++ + v]) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((clip24[*pdata1++ + v]) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((clip24[*pdata1++ + v]) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 
 			case 16:
@@ -1032,7 +1050,8 @@ static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned i
 				break;
 
 			case 8:
-				*pic++ = ((clip24[*pdata1++ + *pic]) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((clip24[*pdata1++ + v]) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 			}
 		}
@@ -1040,7 +1059,7 @@ static void insertline_clipadd(char *pdata1, void *pdata2, int depth, unsigned i
 }
 
 
-static void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_sub(uint8_t *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	uint8_t *pic;
 	uint16_t *p16;
@@ -1048,6 +1067,7 @@ static void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int n
 	unsigned int x;
 	long or, og, ob;
 	long r, g, b;
+	uint8_t v;
 
 	pic = (uint8_t *) pdata2;
 	p16 = (uint16_t *) pdata2;
@@ -1085,9 +1105,12 @@ static void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int n
 			switch (depth)
 			{
 			case 24:
-				*pic++ = ((*pdata1++ - *pic) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((*pdata1++ - *pic) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((*pdata1++ - *pic) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ - v) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ - v) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ - v) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 
 			case 16:
@@ -1102,7 +1125,8 @@ static void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int n
 				break;
 
 			case 8:
-				*pic++ = ((*pdata1++ - *pic) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ - v) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 			}
 		}
@@ -1110,7 +1134,7 @@ static void insertline_sub(char *pdata1, void *pdata2, int depth, unsigned int n
 }
 
 
-static void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_clipsub(uint8_t *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	uint8_t *pic;
 	uint16_t *p16;
@@ -1118,9 +1142,10 @@ static void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned i
 	unsigned int x;
 	long or, og, ob;
 	long r, g, b;
-	char clip24[513];
+	uint8_t clip24[513];
 	uint16_t clip16rb[65];
 	uint16_t clip16g[129];
+	uint8_t v;
 
 	pic = (uint8_t *) pdata2;
 	p16 = (uint16_t *) pdata2;
@@ -1150,9 +1175,12 @@ static void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned i
 			switch (depth)
 			{
 			case 24:
-				*pic++ = clip24[(*pic) - (*pdata1++) + 256];
-				*pic++ = clip24[(*pic) - (*pdata1++) + 256];
-				*pic++ = clip24[(*pic) - (*pdata1++) + 256];
+				v = *pic;
+				*pic++ = clip24[v - (*pdata1++) + 256];
+				v = *pic;
+				*pic++ = clip24[v - (*pdata1++) + 256];
+				v = *pic;
+				*pic++ = clip24[v - (*pdata1++) + 256];
 				break;
 
 			case 16:
@@ -1164,7 +1192,8 @@ static void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned i
 				break;
 
 			case 8:
-				*pic++ = clip24[(*pic) + (*pdata1++) + 256];
+				v = *pic;
+				*pic++ = clip24[v + (*pdata1++) + 256];
 				break;
 			}
 		}
@@ -1175,9 +1204,12 @@ static void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned i
 			switch (depth)
 			{
 			case 24:
-				*pic++ = ((clip24[*pdata1++ - *pic + 256]) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((clip24[*pdata1++ - *pic + 256]) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((clip24[*pdata1++ - *pic + 256]) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((clip24[*pdata1++ - v + 256]) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((clip24[*pdata1++ - v + 256]) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((clip24[*pdata1++ - v + 256]) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 
 			case 16:
@@ -1192,7 +1224,8 @@ static void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned i
 				break;
 
 			case 8:
-				*pic++ = ((clip24[*pdata1++ - *pic + 256]) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((clip24[*pdata1++ - v + 256]) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 			}
 		}
@@ -1200,7 +1233,7 @@ static void insertline_clipsub(char *pdata1, void *pdata2, int depth, unsigned i
 }
 
 
-static void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
+static void insertline_mult(uint8_t *pdata1, void *pdata2, int depth, unsigned int num, long opac1, long opac2)
 {
 	uint8_t *pic;
 	uint16_t *p16;
@@ -1208,6 +1241,7 @@ static void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int 
 	unsigned int x;
 	long or, og, ob;
 	long r, g, b;
+	uint8_t v;
 
 	pic = (uint8_t *) pdata2;
 	p16 = (uint16_t *) pdata2;
@@ -1220,9 +1254,12 @@ static void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int 
 			switch (depth)
 			{
 			case 24:
-				*pic++ = (*pic * (*pdata1++)) >> 8;
-				*pic++ = (*pic * (*pdata1++)) >> 8;
-				*pic++ = (*pic * (*pdata1++)) >> 8;
+				v = *pic;
+				*pic++ = (v * (*pdata1++)) >> 8;
+				v = *pic;
+				*pic++ = (v * (*pdata1++)) >> 8;
+				v = *pic;
+				*pic++ = (v * (*pdata1++)) >> 8;
 				break;
 
 			case 16:
@@ -1232,14 +1269,13 @@ static void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int 
 				r = ((*b16 & 0xf800) >> 11);
 				g = ((*b16 & 0x7e0) >> 6);
 				b = (*b16 & 0x1f);
-				*p16++ =
-					(uint16_t) (((or * r >> 8) << 11) | ((og * g >> 8) << 6) |
-									  (ob * b >> 8));
+				*p16++ = (uint16_t) (((or * r >> 8) << 11) | ((og * g >> 8) << 6) | (ob * b >> 8));
 				b16++;
 				break;
 
 			case 8:
-				*pic++ = *pic * (*pdata1++) >> 8;
+				v = *pic;
+				*pic++ = v * (*pdata1++) >> 8;
 				break;
 			}
 		}
@@ -1250,9 +1286,12 @@ static void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int 
 			switch (depth)
 			{
 			case 24:
-				*pic++ = ((*pdata1++ * *pic >> 8) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((*pdata1++ * *pic >> 8) * opac1 >> 8) + ((*pic) * opac2 >> 8);
-				*pic++ = ((*pdata1++ * *pic >> 8) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ * v >> 8) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ * v >> 8) * opac1 >> 8) + (v * opac2 >> 8);
+				v = *pic;
+				*pic++ = ((*pdata1++ * v >> 8) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 
 			case 16:
@@ -1267,7 +1306,8 @@ static void insertline_mult(char *pdata1, void *pdata2, int depth, unsigned int 
 				break;
 
 			case 8:
-				*pic++ = (((*pdata1++) * *pic >> 8) * opac1 >> 8) + ((*pic) * opac2 >> 8);
+				v = *pic;
+				*pic++ = (((*pdata1++) * v >> 8) * opac1 >> 8) + (v * opac2 >> 8);
 				break;
 			}
 		}
@@ -1304,8 +1344,8 @@ int insert_block(WINDOW *picwindow)
 	uint8_t *currpic;
 	uint8_t *currblock;
 	WORD bpp_pic, bpp_block;
-	char *buf;
-	char *buf_copy;
+	uint8_t *buf;
+	uint8_t *buf_copy;
 	long plen_block;
 	WORD dbits_left, dbits_right;
 	uint8_t copy_byte;
@@ -1314,7 +1354,7 @@ int insert_block(WINDOW *picwindow)
 	WORD st_piclinelen;
 	WORD st_blocklinelen;
 	long plen_pic;
-	char *linebuf;
+	uint8_t *linebuf;
 
 	/*
 	 * Strukturen auslesen
@@ -1360,7 +1400,7 @@ int insert_block(WINDOW *picwindow)
 	 */
 	if (block->col_format == GREY && pic->col_format == GREY)
 	{
-		if (blockdepth <= 8 && (picdepth < 8 || picdepth == 8 && pic->format_type == FORM_STANDARD))
+		if (blockdepth <= 8 && (picdepth < 8 || (picdepth == 8 && pic->format_type == FORM_STANDARD)))
 		{
 			if (!(Sys_info.profi_mode & OS_SELECTED))
 			{
@@ -1444,12 +1484,12 @@ int insert_block(WINDOW *picwindow)
 		plen_pic = (picwid + 7) / 8 * (long) pichgt;
 		st_piclinelen = ((picwid + 7) >> 3);
 		st_blocklinelen = ((blockwid + 7) >> 3);
-		picdata = (char *) (pic->pic_data);
+		picdata = pic->pic_data;
 		picdata += (long) ((pic->blockx) / 8) + (long) st_piclinelen * (long) pic->blocky;
 
 		blockdata = block->pic_data;
 
-		linebuf = (char *) SMalloc(st_blocklinelen + 5);
+		linebuf = (uint8_t *) SMalloc(st_blocklinelen + 5);
 
 		dbits_right = 8 - ((st_blocklinelen << 3) - blockwid);	/* Anzahl an Bits, die rechts noch fehlen */
 		right_byte >>= dbits_right;
@@ -1468,7 +1508,7 @@ int insert_block(WINDOW *picwindow)
 				currblock = blockdata + plane * plen_block;
 
 				/* Mitte... */
-				memset(linebuf, 0x0, st_blocklinelen + 5);
+				memset(linebuf, 0, st_blocklinelen + 5);
 				rearrange_line2(currblock, linebuf, st_blocklinelen + 1, 8 - dbits_left);
 
 				/* ...linker Rand... */
@@ -1494,7 +1534,7 @@ int insert_block(WINDOW *picwindow)
 		 */
 		bpp_pic = picdepth / 8;
 		bpp_block = blockdepth / 8;
-		picdata = (char *) (pic->pic_data);
+		picdata = pic->pic_data;
 		picdata += (long) pic->blockx * (long) bpp_pic + (long) picwid *(long) bpp_pic *(long) pic->blocky;
 
 		blockdata = block->pic_data;
@@ -1511,9 +1551,8 @@ int insert_block(WINDOW *picwindow)
 				Dialog.busy.draw((int) (((long) (y - begy) << 7) / (long) (endy - begy)));
 
 			if (block->format_type == FORM_PIXELPAK)
-				currblock =
-					blockdata + ((long) y * (long) blockwid * (long) bpp_block) + ((long) begx * (long) bpp_block);
-			else if (block->format_type == FORM_STANDARD)
+				currblock =	blockdata + ((long) y * (long) blockwid * (long) bpp_block) + ((long) begx * (long) bpp_block);
+			else /* if (block->format_type == FORM_STANDARD) */
 				currblock = blockdata + ((long) y * st_blocklinelen);
 
 			currpic = picdata + (y * (long) picwid * (long) bpp_pic) + ((long) begx * (long) bpp_pic);
@@ -1680,7 +1719,7 @@ void blockfunctions_off(void)
 
 int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 {
-	char *dest_pic;
+	uint8_t *dest_pic;
 	const MODULE_START *module_start;
 	char clipexp_path[SM_PATH_MAX];
 
@@ -1776,7 +1815,7 @@ path oder, wenn path==NULL, in den Clipboardpfad.
 */
 int save_block(EXPORT_PIC *pic_to_save, const char *path)
 {
-	char *dest_pic;
+	uint8_t *dest_pic;
 	char clipexp_path[SM_PATH_MAX];
 	WORD ap_buf[8];
 	int fhandle;
@@ -1785,7 +1824,7 @@ int save_block(EXPORT_PIC *pic_to_save, const char *path)
 	long len;
 	long dummy;
 
-	dest_pic = (char *) pic_to_save->pic_data;
+	dest_pic = pic_to_save->pic_data;
 	len = pic_to_save->f_len;
 
 	if (path == NULL)					/* aufs Clipboard? */

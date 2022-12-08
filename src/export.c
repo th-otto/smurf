@@ -96,7 +96,7 @@ void f_export_pic(void)
 	else
 		mod_index = f_listfield(&wind_s[WIND_EXPORT], 0, 0, &Dialog.expmodList.modList);
 
-	if (key_scancode && my_scancode != KEY_UP && my_scancode != KEY_DOWN || !openmode)
+	if ((key_scancode && my_scancode != KEY_UP && my_scancode != KEY_DOWN) || !openmode)
 		Window.windSet(wind_s[WIND_EXPORT].whandlem, WF_INFO, LONG2_2INT(Dialog.expmodList.modList.autolocator), 0, 0);
 
 	/*
@@ -114,18 +114,18 @@ void f_export_pic(void)
 		 * Options-Button enablen bzw. disablen
 		 */
 		mod_num = give_free_module();
-		mod_num |= 0x100;				/* als Exporter kennzeichnen */
-		module.smStruct[mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
-		memset(module.smStruct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
-		export_mabs = (const MOD_ABILITY *) module.comm.start_exp_module(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+		mod_num |= MOD_EXPORT;				/* als Exporter kennzeichnen */
+		module.smStruct[mod_num & MOD_ID_MASK] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
+		memset(module.smStruct[mod_num & MOD_ID_MASK], 0, sizeof(GARGAMEL));
+		export_mabs = (const MOD_ABILITY *) module.comm.start_exp_module(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & MOD_ID_MASK], module.smStruct[mod_num & MOD_ID_MASK], mod_num);
 
 		if (export_mabs->ext_flag & M_MORE)
 			change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_ENABLED, 1);
 		else
 			change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_DISABLED, 1);
 
-		module.smStruct[mod_num & 0xFF]->module_mode = M_EXIT;	/* Modulende "simulieren" */
-		check_and_terminate(MTERM, mod_num & 0xFF);
+		module.smStruct[mod_num & MOD_ID_MASK]->module_mode = M_EXIT;	/* Modulende "simulieren" */
+		check_and_terminate(MTERM, mod_num & MOD_ID_MASK);
 	}
 
 	/*
@@ -165,13 +165,13 @@ void f_export_pic(void)
 	else if (!info && button == EXPORT_OPTIONS)
 	{
 		mod_num = give_free_module();
-		mod_num |= 0x100;				/* als Exporter kennzeichnen */
-		module.smStruct[mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
-		memset(module.smStruct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
+		mod_num |= MOD_EXPORT;				/* als Exporter kennzeichnen */
+		module.smStruct[mod_num & MOD_ID_MASK] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
+		memset(module.smStruct[mod_num & MOD_ID_MASK], 0x0, sizeof(GARGAMEL));
 
-		module.comm.start_exp_module(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+		module.comm.start_exp_module(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & MOD_ID_MASK], module.smStruct[mod_num & MOD_ID_MASK], mod_num);
 
-		module_start = get_module_start(module.bp[exp_conf.export_mod_num & 0xFF]);
+		module_start = get_module_start(module.bp[exp_conf.export_mod_num & MOD_ID_MASK]);
 		modinfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 
 		if (export_cnfblock[mod_index] == NULL)
@@ -182,21 +182,22 @@ void f_export_pic(void)
 
 		if (export_cnfblock[mod_index] != NULL)
 		{
-			*((long *) module.smStruct[mod_num & 0xFF]->event_par) = (long) export_cnfblock[mod_index];
-			module.smStruct[mod_num & 0xFF]->event_par[2] = export_cnflen[mod_index];
+			void **pp = (void **)module.smStruct[mod_num & MOD_ID_MASK]->event_par;
+			*pp = export_cnfblock[mod_index];
+			module.smStruct[mod_num & MOD_ID_MASK]->event_par[2] = export_cnflen[mod_index];
 		}
 
 
 		export_path = export_modules[mod_index];
-		module.bp[mod_num & 0xFF] = (BASPAG *) module.comm.start_exp_module(export_path, MSTART, smurf_picture[active_pic], module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
-		module.comm.start_exp_module(export_path, MMORE, smurf_picture[active_pic], module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+		module.bp[mod_num & MOD_ID_MASK] = (BASPAG *) module.comm.start_exp_module(export_path, MSTART, smurf_picture[active_pic], module.bp[mod_num & MOD_ID_MASK], module.smStruct[mod_num & MOD_ID_MASK], mod_num);
+		module.comm.start_exp_module(export_path, MMORE, smurf_picture[active_pic], module.bp[mod_num & MOD_ID_MASK], module.smStruct[mod_num & MOD_ID_MASK], mod_num);
 
 		change_object(&wind_s[WIND_EXPORT], EXPORT_OPTIONS, OS_UNSEL, 1);
 	}
 	/*
 	 * Exporter starten
 	 */
-	else if (!info && button == START_EMOD || (klicks == 2 && button >= EMODULE1 && button <= EMODULE9)
+	else if ((!info && button == START_EMOD) || (klicks == 2 && button >= EMODULE1 && button <= EMODULE9)
 			 || my_scancode == SCAN_RETURN || my_scancode == SCAN_ENTER)
 	{
 		change_object(&wind_s[WIND_EXPORT], START_EMOD, OS_UNSEL, 1);
@@ -216,20 +217,20 @@ void f_export_pic(void)
 				return;
 			}
 
-			mod_num |= 0x100;			/* als Exporter kennzeichnen */
+			mod_num |= MOD_EXPORT;			/* als Exporter kennzeichnen */
 			exp_conf.export_mod_num = mod_num;
 
-			module.smStruct[exp_conf.export_mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
-			memset(module.smStruct[exp_conf.export_mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
+			module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
+			memset(module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK], 0x0, sizeof(GARGAMEL));
 
 			/*
 			 * Modul analysieren
 			 */
 			export_path = export_modules[mod_index];
-			export_mabs = (const MOD_ABILITY *) module.comm.start_exp_module(export_path, MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+			export_mabs = (const MOD_ABILITY *) module.comm.start_exp_module(export_path, MQUERY, NULL, module.bp[mod_num & MOD_ID_MASK], module.smStruct[mod_num & MOD_ID_MASK], mod_num);
 			memcpy(&expmabs, export_mabs, sizeof(MOD_ABILITY));
 
-			module_start = get_module_start(module.bp[exp_conf.export_mod_num & 0xFF]);
+			module_start = get_module_start(module.bp[exp_conf.export_mod_num & MOD_ID_MASK]);
 			modinfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 
 			export_depth[0] = expmabs.depth1;
@@ -252,14 +253,14 @@ void f_export_pic(void)
 
 			prepare_depthpopup();
 
-			check_and_terminate(MTERM, exp_conf.export_mod_num & 0xFF);	/* Modul wieder terminieren */
+			check_and_terminate(MTERM, exp_conf.export_mod_num & MOD_ID_MASK);	/* Modul wieder terminieren */
 
 			/* 
 			 * und einen MSTART schicken (nur beim ersten Aufruf des Exporters)
 			 * Dann kann sich das Modul initialisieren, z.B. Rsrc-fix u.„.
 			 */
-			module.smStruct[exp_conf.export_mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
-			memset(module.smStruct[exp_conf.export_mod_num & 0xFF], 0, sizeof(GARGAMEL));
+			module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
+			memset(module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK], 0, sizeof(GARGAMEL));
 
 			if (export_cnfblock[mod_index] == NULL)
 			{
@@ -269,12 +270,13 @@ void f_export_pic(void)
 
 			if (export_cnfblock[mod_index] != NULL)
 			{
-				*((char **) module.smStruct[exp_conf.export_mod_num & 0xFF]->event_par) = export_cnfblock[mod_index];
-				module.smStruct[exp_conf.export_mod_num & 0xFF]->event_par[2] = export_cnflen[mod_index];
+				void **pp = (void **) module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK]->event_par;
+				*pp = export_cnfblock[mod_index];
+				module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK]->event_par[2] = export_cnflen[mod_index];
 			}
 
-			module.bp[exp_conf.export_mod_num & 0xFF] = (BASPAG *) start_exp_module(export_path, MSTART, smurf_picture[active_pic],
-				module.bp[exp_conf.export_mod_num & 0xFF], module.smStruct[exp_conf.export_mod_num & 0xFF], exp_conf.export_mod_num);
+			module.bp[exp_conf.export_mod_num & MOD_ID_MASK] = (BASPAG *) start_exp_module(export_path, MSTART, smurf_picture[active_pic],
+				module.bp[exp_conf.export_mod_num & MOD_ID_MASK], module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK], exp_conf.export_mod_num);
 
 			openmode = 0;
 			obj = -1;
@@ -327,20 +329,20 @@ void save_file(void)
 			return;
 		}
 
-		mod_num |= 0x100;				/* als Exporter kennzeichnen */
+		mod_num |= MOD_EXPORT;				/* als Exporter kennzeichnen */
 		exp_conf.export_mod_num = mod_num;
 
-		module.smStruct[exp_conf.export_mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
-		memset(module.smStruct[exp_conf.export_mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
+		module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
+		memset(module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK], 0x0, sizeof(GARGAMEL));
 		export_path = export_modules[Sys_info.defaultExporter];
 
 		/*
 		 * Modul analysieren
 		 */
-		export_mabs = (MOD_ABILITY *) module.comm.start_exp_module(export_path, MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num);
+		export_mabs = (MOD_ABILITY *) module.comm.start_exp_module(export_path, MQUERY, NULL, module.bp[mod_num & MOD_ID_MASK], module.smStruct[mod_num & MOD_ID_MASK], mod_num);
 		memcpy(&expmabs, export_mabs, sizeof(MOD_ABILITY));
 
-		module_start = get_module_start(module.bp[exp_conf.export_mod_num & 0xFF]);
+		module_start = get_module_start(module.bp[exp_conf.export_mod_num & MOD_ID_MASK]);
 		modinfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 		strncpy(module_name, modinfo->mod_name, 30);
 
@@ -367,9 +369,9 @@ void save_file(void)
 			prepare_depthpopup();
 		}
 
-		check_and_terminate(MTERM, exp_conf.export_mod_num & 0xFF);	/* Modul wieder terminieren */
-		module.smStruct[exp_conf.export_mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
-		memset(module.smStruct[exp_conf.export_mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
+		check_and_terminate(MTERM, exp_conf.export_mod_num & MOD_ID_MASK);	/* Modul wieder terminieren */
+		module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
+		memset(module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK], 0x0, sizeof(GARGAMEL));
 
 		/*
 		 * Exporternummer suchen, um den Konfigurationsblock zu ermitteln
@@ -390,12 +392,13 @@ void save_file(void)
 
 		if (export_cnfblock[t] != NULL)
 		{
-			*((long *) module.smStruct[exp_conf.export_mod_num & 0xFF]->event_par) = (long) export_cnfblock[t];
-			module.smStruct[exp_conf.export_mod_num & 0xFF]->event_par[2] = export_cnflen[t];
+			void **pp = (void **)module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK]->event_par;
+			*pp = export_cnfblock[t];
+			module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK]->event_par[2] = export_cnflen[t];
 		}
 
-		module.bp[exp_conf.export_mod_num & 0xFF] = (BASPAG *) start_exp_module(export_path, MSTART, smurf_picture[active_pic],
-			module.bp[exp_conf.export_mod_num & 0xFF], module.smStruct[exp_conf.export_mod_num & 0xFF], exp_conf.export_mod_num);
+		module.bp[exp_conf.export_mod_num & MOD_ID_MASK] = (BASPAG *) start_exp_module(export_path, MSTART, smurf_picture[active_pic],
+			module.bp[exp_conf.export_mod_num & MOD_ID_MASK], module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK], exp_conf.export_mod_num);
 
 		obj = -1;
 		if (key_at_event & KEY_ALT)
@@ -445,8 +448,8 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	BASPAG *exp_bp;
 	WINDOW *saved_window;
 
-	exp_gstruct = module.smStruct[exp_conf.export_mod_num & 0xFF];
-	exp_bp = module.bp[exp_conf.export_mod_num & 0xFF];
+	exp_gstruct = module.smStruct[exp_conf.export_mod_num & MOD_ID_MASK];
+	exp_bp = module.bp[exp_conf.export_mod_num & MOD_ID_MASK];
 
 	/*
 	 * Maximale Farbtiefe des Exporters und zugeh”riges Datenformat ermitteln
@@ -526,7 +529,8 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 				start_exp_module(export_path, MCOLSYS, pic_to_export, exp_bp, exp_gstruct, exp_conf.export_mod_num);
 				if (exp_gstruct->module_mode == M_COLSYS)
 					dest_colsys = exp_gstruct->event_par[0];
-
+				else
+					dest_colsys = RGB;
 				pic_to_export->depth = old_picdepth;
 
 				if (max_expdepth == 8 && dest_colsys == GREY)
@@ -554,7 +558,9 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 				}
 			}
 		} else if (f_convert(converted_pic, export_mabs, 255, NEW, 0) != 0)
+		{
 			return -2;
+		}
 	}
 
 	/*  
@@ -676,7 +682,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	 * Exportformular zu, Modul terminieren und tschž
 	 */
 	Dialog.close(FORM_EXPORT);
-	check_and_terminate(MTERM, exp_conf.export_mod_num & 0xFF);
+	check_and_terminate(MTERM, exp_conf.export_mod_num & MOD_ID_MASK);
 	Dialog.busy.ok();
 
 	return 0;
@@ -694,7 +700,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 /********************************************************************/
 short dither_for_export(const MOD_ABILITY *mod_abs, short max_expdepth, short dest_format, SMURF_PIC *converted_pic)
 {
-	char *dest_pal;
+	uint8_t *dest_pal;
 	uint8_t dest_depth;
 	short dest_form;
 	short t;
@@ -745,9 +751,9 @@ short dither_for_export(const MOD_ABILITY *mod_abs, short max_expdepth, short de
 	dest_pal = converted_pic->palette;
 	for (t = 0; t < SM_PALETTE_MAX; t++)
 	{
-		*dest_pal++ = (char) converted_pic->red[t];
-		*dest_pal++ = (char) converted_pic->grn[t];
-		*dest_pal++ = (char) converted_pic->blu[t];
+		*dest_pal++ = converted_pic->red[t];
+		*dest_pal++ = converted_pic->grn[t];
+		*dest_pal++ = converted_pic->blu[t];
 	}
 
 	/*---------------- Und jetzt noch konvertieren, dann sind wir fertig. */
@@ -785,13 +791,13 @@ void init_exmod_info(short mod_index)
 
 
 	mod_num = give_free_module();
-	mod_num |= 0x100;					/* als Exporter kennzeichnen */
-	module.smStruct[mod_num & 0xFF] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
-	memset(module.smStruct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
-	if ((info_mabs = (const MOD_ABILITY *) module.comm.start_exp_module(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], mod_num)) == NULL)
+	mod_num |= MOD_EXPORT;					/* als Exporter kennzeichnen */
+	module.smStruct[mod_num & MOD_ID_MASK] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
+	memset(module.smStruct[mod_num & MOD_ID_MASK], 0x0, sizeof(GARGAMEL));
+	if ((info_mabs = (const MOD_ABILITY *) module.comm.start_exp_module(export_modules[mod_index], MQUERY, NULL, module.bp[mod_num & MOD_ID_MASK], module.smStruct[mod_num & MOD_ID_MASK], mod_num)) == NULL)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
 
-	module_start = get_module_start(module.bp[mod_num & 0xFF]);
+	module_start = get_module_start(module.bp[mod_num & MOD_ID_MASK]);
 	info_mi = module_start->info;
 
 	strncpy(Dialog.expmodList.infoTree[EI_MODNAME].TextCast, Dialog.expmodList.modNames[mod_index], 27);
@@ -848,15 +854,11 @@ void init_exmod_info(short mod_index)
 #if 0
 	/*---- Schlumpfine - Versionsnummer auslesen ----*/
 	version = (unsigned short)module_start->version;	/* Versionsnummer */
-	itoa(version >> 8, str, 16);		/* Hex-Basis (0x0100 = Version 01.00) */
-	strcpy(Dialog.expmodList.infoTree[EI_SMURFVER].TextCast, str);
-	strcat(Dialog.expmodList.infoTree[EI_SMURFVER].TextCast, ".");
-	itoa(version & 0xff, str, 16);
-	strcat(Dialog.expmodList.infoTree[EI_SMURFVER].TextCast, str);
+	BCD2string(version, Dialog.expmodList.infoTree[EI_SMURFVER].TextCast);
 #endif
 
-	module.smStruct[mod_num & 0xFF]->module_mode = M_EXIT;	/* Modulende "simulieren" */
-	check_and_terminate(MTERM, mod_num & 0xFF);
+	module.smStruct[mod_num & MOD_ID_MASK]->module_mode = M_EXIT;	/* Modulende "simulieren" */
+	check_and_terminate(MTERM, mod_num & MOD_ID_MASK);
 	wind_s[WIND_EXPORT].resource_form = Dialog.expmodList.infoTree;
 
 	Dialog.expmodList.infoTree[0].ob_x = wind_s[WIND_EXPORT].wx;

@@ -165,8 +165,8 @@ typedef struct
 	/*
 	*	Dateihandling mit Fileselector 
 	*/
-	BOOLEAN	(*file_save)(char *stext, uint8_t *buf, long length);
-	void	(*file_load)(char *ltext, char **dateien, short mode);
+	BOOLEAN	(*file_save)(const char *stext, uint8_t *buf, long length);
+	void	(*file_load)(const char *ltext, char **dateien, short mode);
 	BOOLEAN (*f_fsbox)(char *Path, const char *fbtext, uint8_t selectart);
 	char *	(*fload)(char *Path, short header);
 
@@ -337,6 +337,10 @@ typedef struct
 	/* 82 */ void /* struct moduleObj */ *module_object;
 	/* 86 */
 } PLUGIN_DATA;
+
+#define MOD_PLUGIN  0x200
+#define MOD_EXPORT  0x100
+#define MOD_ID_MASK 0x0ff
 
 
 

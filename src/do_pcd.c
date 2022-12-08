@@ -114,15 +114,16 @@ uint8_t *f_do_pcd(const char *Path)
 					PCDheight = 512;
 					break;
 				default:
-					break;
+					return NULL;
 				}
 
 				/* Die Bilddaten laden... */
 				len = (((long) PCDwidth * (long) PCDheight * 3L) >> 1L);
 				f_len = len;
 				if ((buffer = SMalloc(len + 1024L)) == 0)
+				{
 					Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NO_MEM].TextCast, NULL, NULL, NULL, 1);
-				else
+				} else
 				{
 					if ((file = (int) Fopen(Path, FO_READ)) < 0)
 					{
@@ -145,5 +146,5 @@ uint8_t *f_do_pcd(const char *Path)
 		}
 	}
 
-	return FALSE;
+	return NULL;
 }

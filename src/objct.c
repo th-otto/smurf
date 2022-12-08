@@ -79,7 +79,7 @@ void f_handle_editklicks(WINDOW *window, WORD object)
 WORD UDO_or_not(WINDOW *wind, WORD klickobj)
 {
 	static short mode;
-	WORD objct;
+	WORD objct = 0;
 	WORD timo;
 	WORD evback;
 	WORD type;
@@ -120,7 +120,7 @@ WORD UDO_or_not(WINDOW *wind, WORD klickobj)
 				{
 					change_object(wind, klickobj, OS_UNSEL, 1);
 					mode = 0;
-					return (-1);
+					return -1;
 				}
 			}
 		} else
@@ -161,7 +161,7 @@ WORD UDO_or_not(WINDOW *wind, WORD klickobj)
 		{
 			wind->picture = NULL;
 			Window.redraw(wind, NULL, klickobj, 0);
-			return (0);
+			return 0;
 		}
 
 		if (smurf_picture[active_pic]->block == NULL)
@@ -191,7 +191,7 @@ WORD UDO_or_not(WINDOW *wind, WORD klickobj)
 		Window.redraw(wind, NULL, klickobj, 0);
 	}
 
-	return (objct);
+	return objct;
 }
 
 

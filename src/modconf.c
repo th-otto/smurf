@@ -93,7 +93,7 @@ static short edit_cnflen[100];
 /* Schnelle Suchroutine nach Boyer-Moore */
 /* implementiert 24.5.95 - 10.6.95 von Christian Eyrich */
 /* sucht m in n */
-static long Idxtab(unsigned char *n, unsigned char *m, long len)
+static long Idxtab(unsigned char *n, const char *m, long len)
 {
 	unsigned char skiptab[256];
 	short t;
@@ -110,12 +110,12 @@ static long Idxtab(unsigned char *n, unsigned char *m, long len)
 		skiptab[i] = lenofm;			/* mit der L„nge des Suchstrings */
 
 	for (i = 0; i < lenofm; i++)
-		skiptab[m[i]] = lenofm - i - 1;
+		skiptab[(unsigned char)m[i]] = lenofm - i - 1;
 
 	/* die eigentliche Suchroutine */
 	for (i = j = lenofm2; j > 0; i--, j--)
 	{
-		while (n[i] != m[j] && i < lenofn)
+		while (n[i] != (unsigned char)m[j] && i < lenofn)
 		{
 			t = skiptab[n[i]];
 			i += (lenofm - j > t) ? lenofm - j : t;
@@ -137,7 +137,7 @@ static long Idxtab(unsigned char *n, unsigned char *m, long len)
 	-------------------------------------------------------------------------*/
 static long seekInFile(int filehandle, char *SeekString)
 {
-	char *seekbuffer;
+	unsigned char *seekbuffer;
 	long pos;
 	long filepos = 0;
 	long read_bytes;
@@ -361,7 +361,7 @@ static short open_modconf_popup(const MOD_INFO *modinfo)
 		objc_draw(modconf_popup, MCONF_UP, MAX_DEPTH, x, y, w, h);
 		objc_draw(modconf_popup, MCONF_DN, MAX_DEPTH, x, y, w, h);
 	} while (back == MCONF_UP || back == MCONF_DN ||
-			 modconf_popup[back].ob_state & OS_DISABLED || !IsSelectable(modconf_popup[back]) && back != -1);
+			 modconf_popup[back].ob_state & OS_DISABLED || (!IsSelectable(modconf_popup[back]) && back != -1));
 
 	form_dial(FMD_FINISH, x, y, w, h, x, y, w, h);
 	wind_update(END_MCTRL);
@@ -554,7 +554,7 @@ static short overwriteMCNF(const MOD_INFO *modinfo, char *confblock, long newlen
 {
 	char SeekString[37] = "MCNF";
 	char cnfpath[SM_PATH_MAX + 1];
-	char *mca;
+	uint8_t *mca;
 	int filehandle;
 	short num_confs;
 	long back;
@@ -640,7 +640,7 @@ static short nametest(const MOD_INFO *modinfo, const char *name)
 {
 	char cnfpath[SM_PATH_MAX + 1];
 	char SeekString[37] = "MCNF";
-	char *mca;
+	uint8_t *mca;
 	int filehandle;
 	long back;
 	long mca_len = 0;
@@ -770,7 +770,7 @@ void *load_from_modconf(const MOD_INFO *modinfo, char *name, short *num, long ty
 {
 	char SeekString[37] = "MCNF";
 	char cnfpath[SM_PATH_MAX + 1];
-	char *mca;
+	uint8_t *mca;
 	char *block;
 	int fhandle;
 	short num_confs;
@@ -826,7 +826,7 @@ void *load_from_modconf(const MOD_INFO *modinfo, char *name, short *num, long ty
 	if (back == -1)
 		return NULL;
 
-	strcpy(name, mca + back + 4);		/* Konfignamen lesen */
+	strcpy(name, (char *)mca + back + 4);		/* Konfignamen lesen */
 	if (type == MOD_MAGIC_EDIT)
 		len = *(int32_t *) (mca + back + 4 + 33);	/* und seine L„nge */
 	else
@@ -857,7 +857,8 @@ void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 	void *cnfblock;
 	short index;
 	const MOD_INFO *modinfo;
-
+	void **pp;
+	
 	/*
 	 * Erstmal muž der passende Index gefunden werden.
 	 * Dazu nehmen wir uns den Namen des Moduls und suchen
@@ -879,8 +880,8 @@ void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 	if (edit_cnfblock[index] != NULL)
 		free(edit_cnfblock[index]);
 
-
-	cnfblock = *((void **) &smurf_struct->event_par[0]);
+	pp = (void **) &smurf_struct->event_par[0];
+	cnfblock = *pp;
 	edit_cnflen[index] = smurf_struct->event_par[2];
 
 	edit_cnfblock[index] = malloc(edit_cnflen[index]);
@@ -903,6 +904,7 @@ void memorize_expmodConfig(BASPAG * modbase, GARGAMEL * smurf_struct, char save)
 	short index;
 	short length;
 	const MOD_INFO *modinfo;
+	void **pp;
 
 	/*
 	 * Erstmal muž der passende Index gefunden werden.
@@ -925,7 +927,8 @@ void memorize_expmodConfig(BASPAG * modbase, GARGAMEL * smurf_struct, char save)
 	if (export_cnfblock[index] != NULL)
 		free(export_cnfblock[index]);
 
-	cnfblock = *((char **) &smurf_struct->event_par[0]);
+	pp = (void **)&smurf_struct->event_par[0];
+	cnfblock = *pp;
 	length = smurf_struct->event_par[2];
 	if (!save)
 	{
@@ -976,7 +979,8 @@ void transmitConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 
 	if (edit_cnfblock[index])
 	{
-		*((void **) &smurf_struct->event_par[0]) = edit_cnfblock[index];
+		void **pp = (void **)&smurf_struct->event_par[0];
+		*pp = edit_cnfblock[index];
 		smurf_struct->event_par[2] = edit_cnflen[index];
 
 		module.comm.start_edit_module("", modbase, CONFIG_TRANSMIT, smurf_struct->module_number, smurf_struct);

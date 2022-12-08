@@ -566,7 +566,7 @@ short f_rslid(SLIDER *slider_struct)
 	WORD oldy;
 	WORD ypos;
 	WORD fhr_x, fhr_y;
-	WORD slidval;
+	WORD slidval = 0;
 	WORD klickobj;
 	WORD dummy;
 	WORD reg_x, reg_y;
@@ -1325,7 +1325,7 @@ void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call,
 	WORD cliparray[8];
 	WORD obj_xpos, obj_ypos;
 	WORD omx, omy;
-	BOOLEAN redraw;
+	BOOLEAN redraw = FALSE;
 
 	/* Mausposition speichern */
 	obx = mousex = mouse_xpos;

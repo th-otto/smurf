@@ -820,6 +820,8 @@ void insert_picwinzoom(WINDOW *window)
 	case 0:
 		zoomindex = ZOOM1;
 		break;
+	default:
+		return;
 	}
 
 	xrsrc_gaddr(R_TREE, ZOOM_POP, &zptree, resource_global);
@@ -1595,23 +1597,24 @@ void f_slide_window(WORD pos, WINDOW *wind, WORD mode)
 	case 0:
 		wind->yoffset = (WORD) (((long) pos * (long) (endh - picwind.g_h)) / 1000L);
 		if (wind->yoffset != oldy && picwind.g_h < endh)
+		{
 			if (Sys_info.realtime_dither)
 				imageWindow.scrollRT(wind, 0, wind->yoffset - oldy);
 			else
 				Window.redraw(wind, NULL, 0, DRAWNOTREE);
-
+		}
 		imageWindow.setSliders(wind);
-
 		break;
 
 	case 1:
 		wind->xoffset = (WORD) (((long) pos * (long) (endw - picwind.g_w)) / 1000L);
 		if (wind->xoffset != oldx && picwind.g_w < endw)
+		{
 			if (Sys_info.realtime_dither)
 				imageWindow.scrollRT(wind, wind->xoffset - oldx, 0);
 			else
 				Window.redraw(wind, NULL, 0, DRAWNOTREE);
-
+		}
 		imageWindow.setSliders(wind);
 		break;
 	}
@@ -1992,10 +1995,10 @@ void close_window(WORD handle)
 /* brk abzus„gen. maxlen gibt die Maximall„nge an. */
 static short alerttok(char *s, short maxlen)
 {
-	char *brk = " ,;.:-?!";				/* als Trenner fungierende Zeichen */
+	static char const brk[] = " ,;.:-?!";				/* als Trenner fungierende Zeichen */
 	char *jep;
 
-	if (strlen(s) < maxlen)
+	if ((short)strlen(s) < maxlen)
 		return maxlen;
 
 	strrev(s);							/* String umdrehen */
@@ -2171,6 +2174,7 @@ WORD f_alert(char *alertstring, char *b1, char *b2, char *b3, WORD defbt)
 
 				msg = messagebuf[0];
 
+				obj = defbt;
 				if (back == MU_BUTTON)
 				{
 					windhandle = wind_find(mouse_xpos, mouse_ypos);

@@ -74,7 +74,7 @@ static short best_depth(short desired_depth)
 			break;
 	}
 
-	if (export_depth[t] == 0)
+	if (t >= 8 || export_depth[t] == 0)
 		t--;
 
 	return export_depth[t];
@@ -210,7 +210,7 @@ void f_export_formular(void)
 			bdepth = EXP_D4;
 		else if (bestdepth == 2)
 			bdepth = EXP_D2;
-		else if (bestdepth == 1)
+		else /* if (bestdepth == 1) */
 			bdepth = EXP_D1;
 
 		popups[POPUP_EXP_DEPTH].item = bdepth;

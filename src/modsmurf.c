@@ -171,7 +171,7 @@ WINDOW picture_windows[MAX_PIC];
 
 POP_UP popups[25];
 SLIDER sliders[15];
-char module_pics[MAX_MODS][7];
+unsigned char module_pics[MAX_MODS][7];
 
 WORD Radio = RADIO;
 WORD SelectedRadio = RADIO_SEL;
@@ -1007,7 +1007,7 @@ void f_newpic(WORD scancode)
 /*----------------------------------------------------------------------*/
 SMURF_PIC *f_generate_newpic(WORD wid, WORD hgt, WORD depth)
 {
-	char *palette;
+	uint8_t *palette;
 	short pic_to_make = 1;
 	short tt, index;
 	short aligned_width;
@@ -1062,13 +1062,15 @@ SMURF_PIC *f_generate_newpic(WORD wid, WORD hgt, WORD depth)
 			palette[0] = palette[1] = palette[2] = 255;
 			palette[3] = palette[4] = palette[5] = 0;
 		} else
+		{
 			for (tt = 0; tt <= Sys_info.Max_col; tt++)
 			{
 				index = planetable[tt];
-				*(palette + 0 + index * 3) = (WORD) ((long) (orig_red[tt] * 255L) / 1000L);
-				*(palette + 1 + index * 3) = (WORD) ((long) (orig_green[tt] * 255L) / 1000L);
-				*(palette + 2 + index * 3) = (WORD) ((long) (orig_blue[tt] * 255L) / 1000L);
+				*(palette + 0 + index * 3) = (orig_red[tt] * 255L) / 1000L;
+				*(palette + 1 + index * 3) = (orig_green[tt] * 255L) / 1000L;
+				*(palette + 2 + index * 3) = (orig_blue[tt] * 255L) / 1000L;
 			}
+		}
 
 		if (!Sys_info.realtime_dither)
 			f_dither(smurf_picture[pic_to_make], &Sys_info, 0, NULL, &Display_Opt);
@@ -1196,11 +1198,11 @@ void make_pic_window(short pic_to_make, WORD wid, WORD hgt, char *name)
 /* ------------------------------------------------------------------------	*/
 static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 {
-	char *picture;
+	uint8_t *picture;
 	long mod_magic;
 	WORD back;
 	WORD oldtop = 0;
-	short hm_pix;
+	short how_many_pix;
 	short picnum;
 	short mod_index;
 	long len;
@@ -1209,12 +1211,12 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 	const MOD_INFO *mod_info;
 	const MOD_ABILITY *mod_abs;
 
-	mod_index = module_number & 0xFF;
+	mod_index = module_number & MOD_ID_MASK;
 
 	/*
 	 * Modulanalyse
 	 */
-	if (!(module_number & 0x200))		/* kein Plugin? */
+	if (!(module_number & MOD_PLUGIN))		/* kein Plugin? */
 	{
 		const MODULE_START *module_start;
 
@@ -1222,7 +1224,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 		mod_magic = get_modmagic(module.bp[mod_index]);
 		mod_info = module_start->info;
 		mod_abs = module_start->ability;
-		hm_pix = mod_info->how_many_pix;
+		how_many_pix = mod_info->how_many_pix;
 
 		module.smStruct[mod_index]->smurf_pic = smurf_picture[active_pic];
 
@@ -1234,6 +1236,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 		mod_magic = get_modmagic(plugin_bp[mod_index]);
 		mod_info = NULL;
 		mod_abs = NULL;
+		how_many_pix = 0;
 	}
 
 
@@ -1254,8 +1257,8 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 			if (module.smStruct[mod_index]->module_mode == M_CONFIG)
 				memorize_emodConfig(module.bp[mod_index], module.smStruct[mod_index]);
 
-			module.smStruct[mod_index]->event_par[0] = position_markers[module_number & 0xFF].xpos[0];
-			module.smStruct[mod_index]->event_par[1] = position_markers[module_number & 0xFF].ypos[0];
+			module.smStruct[mod_index]->event_par[0] = position_markers[module_number & MOD_ID_MASK].xpos[0];
+			module.smStruct[mod_index]->event_par[1] = position_markers[module_number & MOD_ID_MASK].ypos[0];
 			module.comm.start_edit_module("", module.bp[mod_index], MCH_COORDS, mod_index, module.smStruct[mod_index]);
 
 			back = 0;
@@ -1292,7 +1295,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 			module.smStruct[mod_index]->module_mode == M_PICDONE)
 		{
 
-			picture = (char *) pic_to_save->pic_data;
+			picture = pic_to_save->pic_data;
 			len = pic_to_save->f_len;
 			file_save("Bild Speichern", picture, len); /* FIXME: translate */
 			SMfree(pic_to_save);
@@ -1324,7 +1327,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 
 		plg_data[mod_index]->event_par[3] = key_at_event;
 
-		return start_plugin(plugin_bp[mod_index], mode, mod_index | 0x200, plg_data[mod_index]);
+		return start_plugin(plugin_bp[mod_index], mode, mod_index | MOD_PLUGIN, plg_data[mod_index]);
 	}
 
 	if ((mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT) && module.smStruct[mod_index])
@@ -1342,7 +1345,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 		/*
 		 * wenn mehrere Bilder Åbergeben wurden, welches wurde bearbeitet?
 		 */
-		if (hm_pix > 1)
+		if (how_many_pix > 1)
 		{
 			picnum = module.smStruct[mod_index]->event_par[0];
 			picnum = module_pics[mod_index][picnum];
@@ -1413,13 +1416,13 @@ void f_event(void)
 	BOOLEAN itsok;
 	WORD bb_icon;
 	WORD back;
-	WORD message_back;
+	WORD message_back = 0;
 	WORD newedit;
 	WORD topwin;
 	short windownum;
 	WORD klickobj = 0;
 	short windnum = 0;
-	WORD windh;
+	WORD windh = 0;
 	WORD topw_num;
 	WORD ev_flags;
 	WORD old_mx = -1;
@@ -1446,7 +1449,7 @@ void f_event(void)
 	KINFO ki;
 	OBJECT *ob;
 	WINDOW *picwin;
-	WINDOW *mod_win;
+	WINDOW *mod_win = NULL;
 	static WINDOW *oldpicwin;
 	static short oldwindnum;
 	short mod_desire;
@@ -1589,18 +1592,19 @@ void f_event(void)
 					for (tt = 0; tt < 10; tt++)
 					{
 						mod_desire = modconfs[t]->notify_types[tt];
-						mod_index = modconfs[t]->id & 0xff;
+						mod_index = modconfs[t]->id & MOD_ID_MASK;
 
-						if (modconfs[t]->id & 0x200 && plugin_bp[mod_index] != NULL)	/* Plugin? */
+						if ((modconfs[t]->id & MOD_PLUGIN) && plugin_bp[mod_index] != NULL)	/* Plugin? */
 						{
-							if (back & MU_MESAG && (mod_desire == ALL_MSGS || mod_desire == messagebuf[0]))
+							if ((back & MU_MESAG) && (mod_desire == ALL_MSGS || mod_desire == messagebuf[0]))
 							{
 								memcpy(plg_data[mod_index]->event_par, messagebuf, 16);
 								start_plugin(plugin_bp[mod_index], SMURF_AES_MESSAGE, 0, plg_data[mod_index]);
-							} else if (back & MU_BUTTON && mod_desire == MBEVT && modconfs[t]->windhandle == windh)
+							} else if ((back & MU_BUTTON) && mod_desire == MBEVT && modconfs[t]->windhandle == windh)
 							{
+								/* FIXME: windh only set on MU_TIMER event */
 								back = do_MBEVT(modconfs[t]->id, NULL, MBEVT);
-							} else if (back & MU_KEYBD && mod_desire == MKEVT && modconfs[t]->windhandle == topwin)
+							} else if ((back & MU_KEYBD) && mod_desire == MKEVT && modconfs[t]->windhandle == topwin)
 							{
 								back = do_MBEVT(modconfs[t]->id, NULL, MKEVT);
 							}
@@ -1654,8 +1658,8 @@ void f_event(void)
 					mod_win = Window.myModuleWindow(topwin);
 
 					/* Control gedrÅckt? */
-					if ((key_at_event & KEY_CTRL) || (key_at_event & KEY_ALT) && (key_scancode >> 8) != SCAN_RETURN &&
-						(key_scancode >> 8) != SCAN_ENTER)
+					if ((key_at_event & KEY_CTRL) ||
+						((key_at_event & KEY_ALT) && (key_scancode >> 8) != SCAN_RETURN && (key_scancode >> 8) != SCAN_ENTER))
 					{
 						ki.ascii_code = key_ascii;
 						ki.scan_code = key_scancode;
@@ -1671,15 +1675,16 @@ void f_event(void)
 							if (back == -1)
 								message_back = PRG_CLOSED;
 						} else
+						{
 							Comm.sendAESMsg(Sys_info.ENV_avserver, AV_SENDKEY, key_at_event, key_scancode);
-
+						}
 						key_at_event = obj = key_scancode = 0;
 					} else
 						itsok = 0;
 
 					/* Dialogfenster oder Modulfenster */
 					if (itsok == 0 &&
-						((topw_num > 0 && wind_s[topw_num].shaded == 0) || (mod_win != 0 && mod_win->shaded == 0)))
+						((topw_num > 0 && wind_s[topw_num].shaded == 0) || (mod_win != NULL && mod_win->shaded == 0)))
 					{
 						if (wind_s[topw_num].whandlem != -1 && topw_num > 0)	/* Dialog */
 						{
@@ -1691,7 +1696,7 @@ void f_event(void)
 								obj = key_object;
 
 							CallDialog(topwin);
-						} else if (mod_win > 0)	/* Modulfenster */
+						} else if (mod_win != NULL)	/* Modulfenster */
 						{
 							keyboard_back = handle_keyboardevent(mod_win, key_scancode, &key_object);
 							obj = key_object;
@@ -1705,6 +1710,7 @@ void f_event(void)
 					else if (topw_num < 0)
 					{
 						keyboard_back = 0;
+						picwin = &picture_windows[-topw_num];
 						picwin_keyboard(key_scancode, key_at_event, picwin);
 					}
 				}
@@ -1752,8 +1758,8 @@ void f_event(void)
 						} else
 						{
 							/*------- Fenster toppen? --------*/
-							if (klickobj == 0 || ob[klickobj].ob_type == G_FTEXT || IsDisabled(ob[klickobj])	/* ||
-																												   !IsSelectable(ob[klickobj]) && (ob[klickobj].ob_type&0xff00) == 0 */ )
+							if (klickobj == 0 || ob[klickobj].ob_type == G_FTEXT || IsDisabled(ob[klickobj])
+								/* || !IsSelectable(ob[klickobj]) && (ob[klickobj].ob_type & 0xff00) == 0 */ )
 							{
 								Window.top(wind_s[windnum].whandlem);
 								back = 0;
@@ -1789,7 +1795,7 @@ void f_event(void)
 					/*
 					 * Modulfenster ----------------------------------
 					 */
-					else if (!windnum && mod_win != 0)
+					else if (!windnum && mod_win != NULL)
 					{
 						/* Das Modul muû den angeklickten Button evtl. wieder deselektieren!    */
 						/* -> change_object in die GARGAMEL!!!                                  */
@@ -1800,7 +1806,7 @@ void f_event(void)
 							mod_win->resource_form[klickobj].ob_type != (CYCLEBUTTON | G_USERDEF))
 						{
 							Comm.bubbleGem(klickhandle, mouse_xpos, mouse_ypos, 1);
-						} else if (mod_win != 0 && mod_win->shaded == 0)
+						} else if (mod_win != NULL && mod_win->shaded == 0)
 						{
 							module_number = mod_win->module;
 							klickobj = handle_modevent(MU_BUTTON, mod_win);
@@ -1838,8 +1844,8 @@ void f_event(void)
 									/* Erste Frage muû sein da das Module ggf. bei do_MBEVT terminiert */
 									/* bzw. sein Fenster geschlossen werden kann, mod_win aber weil schon */
 									/* oben geholt noch auf den nun ungÅltigen Speicher zeigt. */
-									if (module.smStruct[module_number & 0xFF] &&
-										module.smStruct[module_number & 0xFF]->wind_struct &&
+									if (module.smStruct[module_number & MOD_ID_MASK] &&
+										module.smStruct[module_number & MOD_ID_MASK]->wind_struct &&
 										(mod_win->resource_form[klickobj].ob_type & 0x00ff) != G_USERDEF &&
 										!(mod_win->resource_form[klickobj].ob_flags & OF_RBUTTON) &&
 										(mod_win->resource_form[klickobj].ob_type >> 8) != UDO &&
@@ -2096,7 +2102,7 @@ void check_windclose(short windnum)
 		 * Exportformular
 		 */
 	case FORM_EXPORT:
-		module_number = exp_conf.export_mod_num & 0xff;
+		module_number = exp_conf.export_mod_num & MOD_ID_MASK;
 
 		window_to_handle = module.smStruct[module_number]->wind_struct;
 
@@ -2112,7 +2118,7 @@ void check_windclose(short windnum)
 		}
 
 		/* Export-Modul terminieren */
-		check_and_terminate(MTERM, exp_conf.export_mod_num & 0xff);
+		check_and_terminate(MTERM, exp_conf.export_mod_num & MOD_ID_MASK);
 
 		/* damit an der exp_conf festgestellt werden kann, ob Åberhaupt ein 
 		 * Exporter im Exportdialog lÑuft. Wenn nicht, werden z.B. bei der
@@ -2161,7 +2167,7 @@ void check_windclose(short windnum)
 /* -------		 			Bild laden						---- */
 /* ------------------------------------------------------------- */
 /* ------------------------------------------------------------- */
-short f_loadpic(char *pic, char *picpath)
+short f_loadpic(uint8_t *pic, char *picpath)
 {
 	char PCDmodpath[SM_PATH_MAX + 1];
 	char *namename;
@@ -2306,7 +2312,7 @@ short f_formhandle(short picture_to_load, short module_ret, char *namename)
 {
 	char times[20];
 	char stats[21];
-	char *palette;
+	uint8_t *palette;
 	short tt;
 	int dec;
 	int sign;
@@ -2904,7 +2910,7 @@ uint8_t *f_init_table(void)
 		monopal_nct[0] = monopal_nct[1] = monopal_nct[2] = 31;
 		monopal_nct[3] = monopal_nct[4] = monopal_nct[5] = 0;
 
-		mononct = (char *) SMalloc((2 * 6) + SM_PALETTE_MAX + 32768L);
+		mononct = (unsigned char *) SMalloc((2 * 6) + SM_PALETTE_MAX + 32768L);
 
 		palette = (WORD *) mononct;
 		for (t = 0; t < 6; t++)			/* Palette */
@@ -2950,7 +2956,7 @@ uint8_t *f_init_table(void)
 	/* mit einem Trick testen, ob die Datei vorhanden ist */
 	if (Fattrib(tablename, 0, 0) >= 0)
 	{
-		if ((palbuf = fload(tablename, 0)) == NULL)
+		if ((palbuf = (uint8_t *)fload(tablename, 0)) == NULL)
 			return NULL;
 
 		access_table = palbuf + maxc * 6 + SM_PALETTE_MAX;
@@ -2998,8 +3004,8 @@ uint8_t *f_init_table(void)
 		/* Tabelle muû neu generiert werden! */
 		Window.open(&wind_s[WIND_BUSY]);
 
-		access_table = (char *) SMalloc(32768L);
-		palbuf = (char *) SMalloc(maxc * 6 + SM_PALETTE_MAX);
+		access_table = (uint8_t *) SMalloc(32768L);
+		palbuf = (uint8_t *) SMalloc(maxc * 6 + SM_PALETTE_MAX);
 
 		Dialog.busy.reset(0, "NCT erzeugen");
 
@@ -3303,7 +3309,7 @@ static short copy_smurfpic(SMURF_PIC *picture, SMURF_PIC **new_pic)
 
 	if (picture->local_nct)
 	{
-		if (((*new_pic)->local_nct = (char *) SMalloc(32768L)) == NULL)
+		if (((*new_pic)->local_nct = (uint8_t *) SMalloc(32768L)) == NULL)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[NOMEM_NEWPIC].TextCast, NULL, NULL, NULL, 1);
 			return -1;

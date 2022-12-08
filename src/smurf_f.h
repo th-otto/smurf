@@ -40,8 +40,8 @@
 /* **********************************************************************/
 
 /* Dateihandling mit Fileselector */
-void file_load(char *ltext, char **dateien, short mode);
-BOOLEAN file_save(char *stext, uint8_t *buf, long length);
+void file_load(const char *ltext, char **dateien, short mode);
+BOOLEAN file_save(const char *stext, uint8_t *buf, long length);
 BOOLEAN f_fsbox(char *Path, const char *fbtext, uint8_t selectart);
 
 /*  File laden */
@@ -362,7 +362,7 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save);
 int save_block(EXPORT_PIC *pic_to_save, const char *path);
 
 int block2clip(SMURF_PIC *picture, int mode, const char *path);
-void clip2block(SMURF_PIC *picture, char *data, WORD mx, WORD my);
+void clip2block(SMURF_PIC *picture, uint8_t *data, WORD mx, WORD my);
 
 SMURF_PIC *previewBlock(SMURF_PIC *picture, GRECT *blockpart);
 void *copyblock(SMURF_PIC *old_pic);
@@ -443,7 +443,7 @@ extern WINDOW wind_s[25];
 extern WINDOW picture_windows[MAX_PIC];
 extern POP_UP popups[25];
 extern SLIDER sliders[15];
-extern char module_pics[MAX_MODS][7];
+extern unsigned char module_pics[MAX_MODS][7];
 
 extern WORD Radio, SelectedRadio;
 extern WORD Check, SelectedCheck;
@@ -487,7 +487,7 @@ void make_smurf_pic(short pic_to_make, WORD wid, WORD hgt, WORD depth, char *pic
 void make_pic_window(short pic_to_make, WORD wid, WORD hgt, char *name);
 BOOLEAN CallDialog(WORD topwin);     /* Dialogdispatcher */
 void f_info(void);
-short f_loadpic(char *pic, char *picpath);
+short f_loadpic(uint8_t *pic, char *picpath);
 short f_formhandle(short picture_to_load, short module_ret, char *namename);
 WORD init_dialog(short DialogNumber, WORD DialogOK);
 void close_dialog(short windnum);

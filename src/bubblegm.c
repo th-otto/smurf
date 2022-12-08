@@ -277,10 +277,10 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 			 */
 			char *modpath;
 
-			mod_index = window->module & 0xff;
+			mod_index = window->module & MOD_ID_MASK;
 			strcpy(helpname, "\\");
 
-			if (window->module & 0x200)
+			if (window->module & MOD_PLUGIN)
 				mod_magic = get_modmagic(plugin_bp[mod_index]);
 			else
 				mod_magic = get_modmagic(module.bp[mod_index]);
@@ -525,9 +525,9 @@ void call_stguide(WORD topwin_handle)
 
 		strcpy(hypname, "*:\\");
 
-		mod_index = (window->module) & 0xFF;
+		mod_index = (window->module) & MOD_ID_MASK;
 
-		if (window->module & 0x200)
+		if (window->module & MOD_PLUGIN)
 			mod_magic = get_modmagic(plugin_bp[mod_index]);
 		else
 			mod_magic = get_modmagic(module.bp[mod_index]);

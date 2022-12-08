@@ -91,7 +91,7 @@ void f_edit_pop(void)
 	else
 		mod_index = f_listfield(&wind_s[WIND_MODULES], 0, 0, &Dialog.emodList.modList);
 
-	if (key_scancode && my_scancode != KEY_UP && my_scancode != KEY_DOWN || !openmode)
+	if ((key_scancode && my_scancode != KEY_UP && my_scancode != KEY_DOWN) || !openmode)
 		Window.windSet(wind_s[WIND_MODULES].whandlem, WF_INFO, LONG2_2INT(Dialog.emodList.modList.autolocator), 0, 0);
 
 	/*
@@ -151,6 +151,10 @@ void f_edit_pop(void)
 
 					oldwid = picture_to_handle->pic_width;
 					oldhgt = picture_to_handle->pic_height;
+				} else
+				{
+					picture_to_handle = NULL;
+					oldwid = oldhgt = 0;
 				}
 
 				garg_st = module.smStruct[mod_num];

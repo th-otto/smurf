@@ -202,13 +202,13 @@ WORD scan_2_ascii(UWORD scan, WORD state)
 	if (scan >= 'a')
 	{
 		if (scan <= 'z')
-			scan -= 32;
-		else if (scan == '„')
-			scan = 'Ž';
-		else if (scan == '”')
-			scan = '™';
-		else if (scan == '')
-			scan = 'š';
+			scan -= 'a' - 'A';
+		else if (scan == 0x84) /* ae */
+			scan = 0x8e; /* Ae */
+		else if (scan == 0x94) /* oe */
+			scan = 0x99; /* Oe */
+		else if (scan == 0x81) /* ue */
+			scan = 0x9a; /* Ue */
 	}
 	return scan;
 }

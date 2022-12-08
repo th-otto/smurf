@@ -298,7 +298,7 @@ void f_picman(void)
 	/*
 	 * Thumbnail erzeugen/Bild aktivieren
 	 */
-	else if (picture_num != -1 && new_sel != old_sel || openmode == 0)
+	else if ((picture_num != -1 && new_sel != old_sel) || openmode == 0)
 	{
 		if (Sys_info.immed_prevs == OS_SELECTED)
 			Dialog.picMan.makeThumbnail(picture_num);

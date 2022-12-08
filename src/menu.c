@@ -154,6 +154,7 @@ WORD f_handle_menuevent(WORD *message)
 	case DISP_NEXTWIN:
 		/*---- Dialogfenster cyclen -------*/
 		Window.windGet(0, WF_TOP, &wh, &dummy, &dummy, &dummy);
+		nexthandle = 256;
 		wnum = Window.myWindow(wh);
 		if (wnum > 0)
 		{
@@ -169,7 +170,6 @@ WORD f_handle_menuevent(WORD *message)
 				nexthandle = Dialog.topDialog;
 			} else
 			{
-				nexthandle = 256;
 				for (t = 0; t < MAX_PIC; t++)
 				{
 					if (wind_s[t].whandlem != -1 && wind_s[t].whandlem < nexthandle)
@@ -188,6 +188,7 @@ WORD f_handle_menuevent(WORD *message)
 	case DISP_NEXTPIC:
 		/*---- Bildfenster cyclen ---*/
 		Window.windGet(0, WF_TOP, &wh, &dummy, &dummy, &dummy);
+		nexthandle = 256;
 		wnum = Window.myWindow(wh);
 		if (wnum < 0)
 		{
@@ -203,7 +204,6 @@ WORD f_handle_menuevent(WORD *message)
 				nexthandle = imageWindow.topPicwin;
 			} else
 			{
-				nexthandle = 256;
 				for (t = 0; t < MAX_PIC; t++)
 				{
 					if (picture_windows[t].whandlem != -1 && picture_windows[t].whandlem < nexthandle)

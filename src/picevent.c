@@ -249,6 +249,7 @@ static void move_crosshair(WINDOW *window)
 
 		/*--------------------- ggfs. Bild scrollen ------*/
 		window_redraw = 0;
+		scroll = 0;
 		if (move_x > windx2)
 		{
 			scroll = move_x - windx2;
@@ -689,11 +690,15 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 			xoff = picture->blockwidth + picture->blockx;
 		else if (hmode == RIGHT)
 			xoff = windx + picture->blockx;
+		else
+			xoff = 0;
 
 		if (vmode == TOP)
 			yoff = picture->blockheight + picture->blocky;
 		else if (vmode == BOTTOM)
 			yoff = windy + picture->blocky;
+		else
+			yoff = 0;
 
 		if (hmode == 0 && vmode == 0)
 			hmode = vmode = MOVE;
@@ -883,7 +888,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 				temp = xoff;
 				xoff = newx;
 				newx = temp;
-				newwid = abs(newwid);
+				newwid = -newwid;
 			}
 		} else if (hmode == RIGHT)
 		{
@@ -896,7 +901,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 				temp = xoff;
 				xoff = newx;
 				newx = temp;
-				newwid = abs(newwid);
+				newwid = -newwid;
 			}
 		}
 
@@ -911,7 +916,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 				temp = yoff;
 				yoff = newy;
 				newy = temp;
-				newhgt = abs(newhgt);
+				newhgt = -newhgt;
 			}
 		} else if (vmode == BOTTOM)
 		{
@@ -924,7 +929,7 @@ static void do_block_box(WINDOW *picwindow, WORD mx, WORD my)
 				temp = yoff;
 				yoff = newy;
 				newy = temp;
-				newhgt = abs(newhgt);
+				newhgt = -newhgt;
 			}
 		}
 
@@ -1176,7 +1181,6 @@ void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 
 	static WORD oldwindnum;
 	static WORD outpos;
-	static WORD mouse_type;
 	static WINDOW *oldwindow;
 
 	picture = picwindow->picture;
@@ -1199,7 +1203,7 @@ void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 	{
 		if (event_type == MU_TIMER)
 		{
-			if (windnum == oldwindnum && picwindow->picture->own_pal && syspalset || windnum != oldwindnum)
+			if ((windnum == oldwindnum && picwindow->picture->own_pal && syspalset) || windnum != oldwindnum)
 			{
 				if (Display_Opt.palette_mode == PAL_MOUSE)
 				{
@@ -1221,7 +1225,6 @@ void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 				if (out_block)
 				{
 					graf_mouse(OUTLN_CROSS, NULL);
-					mouse_type = OUTLN_CROSS;
 				} else
 				{
 					if (hmode && !vmode)
@@ -1236,7 +1239,6 @@ void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 			} else
 			{
 				graf_mouse(THIN_CROSS, NULL);
-				mouse_type = THIN_CROSS;
 			}
 		} else if (event_type == MU_BUTTON)
 		{
@@ -1581,6 +1583,8 @@ void f_display_coords(WINDOW *pic_window, WORD mx, WORD my, BOOLEAN blockflag)
 					green = *(pal + picval + 1);
 					blue = *(pal + picval + 2);
 					break;
+				default:
+					return;
 				}
 			} else
 			{
@@ -1601,6 +1605,8 @@ void f_display_coords(WINDOW *pic_window, WORD mx, WORD my, BOOLEAN blockflag)
 		{
 			xcoo = mx;
 			ycoo = my;
+			depth = 0;
+			red = green = blue = 0;
 		}
 
 		pic_formular = pic_window->resource_form;
@@ -1900,7 +1906,7 @@ void f_activate_pic(short windnum)
 	-----------------------------------------------------------------------------*/
 void picwin_keyboard(WORD key_scancode, WORD key_at_event, WINDOW *picwin)
 {
-	WORD keyboard_back;
+	WORD keyboard_back = 0;
 	WORD dummy;
 	WORD evback;
 	WORD amount;
@@ -1921,9 +1927,12 @@ void picwin_keyboard(WORD key_scancode, WORD key_at_event, WINDOW *picwin)
 
 		amount *= 8;
 	} else
+	{
 		amount = 8;
+	}
 
 	if (key_at_event == 0x001 || key_at_event == 0x002)	/* mit Shift */
+	{
 		switch (key_scancode >> 8)
 		{
 		case 72:
@@ -1943,7 +1952,9 @@ void picwin_keyboard(WORD key_scancode, WORD key_at_event, WINDOW *picwin)
 			picwin->xoffset = picwin->picture->pic_width - innerwid;
 			picwin->yoffset = picwin->picture->pic_height - (innerhgt - TOOLBAR_HEIGHT);
 			break;
+		}
 	} else
+	{
 		switch (key_scancode >> 8)
 		{
 		case 72:
@@ -1963,16 +1974,22 @@ void picwin_keyboard(WORD key_scancode, WORD key_at_event, WINDOW *picwin)
 			picwin->yoffset = 0;
 			break;
 		}
+	}
 
-	if ((key_scancode >> 8) == 72 || (key_scancode >> 8) == 75 || (key_scancode >> 8) == 77
-		|| (key_scancode >> 8) == 80)
+	if ((key_scancode >> 8) == 72 ||
+		(key_scancode >> 8) == 75 ||
+		(key_scancode >> 8) == 77 ||
+		(key_scancode >> 8) == 80)
 		imageWindow.arrowWindow(keyboard_back, picwin, amount);
 
 	/*
 	 * Tastaturbuffer gegen nachlaufen l”schen
 	 */
 	if (Sys_info.keyevents == KBEV_DELETE)
-		*((long *) &(((IOREC *) Iorec(1))->ibufhd)) = 0;
-
+	{
+		IOREC *iorec = Iorec(1);
+		iorec->ibufhd = 0;
+		iorec->ibuftl = 0;
+	}
 	Window.redraw(Dialog.picMan.window, NULL, PM_PREVBOX, 0);
 }

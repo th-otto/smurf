@@ -256,7 +256,7 @@ static void analyze_module(MOD_ABILITY *expmabs, char *export_path, short mod_nu
 		services->f_alert(smurf_vars->alerts[MOD_LOAD_ERR].TextCast, 0, 0, 0, 1);
 		return;
 	}
-	mod_num |= 0x100;					/* als Exporter kennzeichnen */
+	mod_num |= MOD_EXPORT;					/* als Exporter kennzeichnen */
 
 	smurf_struct[mod_num & 0xFF] = malloc(sizeof(GARGAMEL));
 	memset(smurf_struct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
@@ -351,7 +351,7 @@ static void init_exporter(void)
 		services->f_alert(smurf_vars->alerts[MOD_LOAD_ERR].TextCast, 0, 0, 0, 1);
 		return;
 	}
-	mod_num |= 0x100;					/* als Exporter kennzeichnen */
+	mod_num |= MOD_EXPORT;					/* als Exporter kennzeichnen */
 
 	smurf_struct[mod_num & 0xFF] = malloc(sizeof(GARGAMEL));
 	memset(smurf_struct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));

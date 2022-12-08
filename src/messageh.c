@@ -626,12 +626,12 @@ WORD f_handle_message(void)
 					module_num = window_to_handle->module;
 
 					/*---- Plugin? -----*/
-					if (module_num & 0x200)
+					if (module_num & MOD_PLUGIN)
 					{
-						start_plugin(plugin_bp[module_num & 0xFF], MWINDCLOSED, module_num & 0xFF, plg_data[module_num & 0xFF]);
+						start_plugin(plugin_bp[module_num & MOD_ID_MASK], MWINDCLOSED, module_num & MOD_ID_MASK, plg_data[module_num & MOD_ID_MASK]);
 
-						if (plg_info[module_num & 0xFF]->resident == 0)	/* nichtresident? ->terminieren! */
-							terminate_plugin(module_num & 0xFF);
+						if (plg_info[module_num & MOD_ID_MASK]->resident == 0)	/* nichtresident? ->terminieren! */
+							terminate_plugin(module_num & MOD_ID_MASK);
 					}
 
 					/* Exporter? 
@@ -644,12 +644,12 @@ WORD f_handle_message(void)
 					 * direkt aus dem Listfeld heraus aufgerufen und beim Schliežen des Dialogs
 					 * wird der Exporter nicht l„nger ben”tigt.
 					 */
-					else if (module_num & 0x100)
+					else if (module_num & MOD_EXPORT)
 					{
 						/*
 						 * Exporternummer suchen
 						 */
-						module_start = get_module_start(module.bp[module_num & 0xFF]);
+						module_start = get_module_start(module.bp[module_num & MOD_ID_MASK]);
 						modinfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 						strncpy(module_name, modinfo->mod_name, 30);
 						for (t = 0; t < Dialog.expmodList.anzahl; t++)
@@ -658,16 +658,16 @@ WORD f_handle_message(void)
 								break;
 						}
 
-						*((char **) module.smStruct[module_num & 0xFF]->event_par) = export_cnfblock[t];
-						module.smStruct[module_num & 0xFF]->event_par[2] = export_cnflen[t];
-						module.comm.start_exp_module("", MMORECANC, smurf_picture[active_pic], module.bp[module_num & 0xFF], module.smStruct[module_num & 0xFF], module_num);
+						*((char **) module.smStruct[module_num & MOD_ID_MASK]->event_par) = export_cnfblock[t];
+						module.smStruct[module_num & MOD_ID_MASK]->event_par[2] = export_cnflen[t];
+						module.comm.start_exp_module("", MMORECANC, smurf_picture[active_pic], module.bp[module_num & MOD_ID_MASK], module.smStruct[module_num & MOD_ID_MASK], module_num);
 						window_to_handle->module = 0;
 
 						/*
 						 * jetzt das Modul ggfs. terminieren.
 						 */
 						if (exp_conf.export_mod_num == 0 || exp_conf.export_mod_num != module_num)
-							check_and_terminate(MTERM, module_num & 0xFF);
+							check_and_terminate(MTERM, module_num & MOD_ID_MASK);
 
 						Dialog.busy.dispRAM();
 					}

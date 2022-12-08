@@ -613,11 +613,11 @@ static void xfix_cicon(UWORD *col_data, LONG len, WORD old_planes, WORD new_plan
 		return;
 	}
 
+	old_len = old_planes * len;
+	rest_len = new_planes * len - old_len;
+
 	if (new_planes <= 8)
 	{
-		old_len = old_planes * len;
-		rest_len = new_planes * len - old_len;
-
 		if (s != NULL)
 		{
 			new_data = &((UWORD *) s->fd_addr)[old_len];
@@ -1362,7 +1362,7 @@ static WORD fill_cicon_liste(LONG *cicon_liste, ULONG header, RSXHDR *rsxhdr)
 		cblk->monoblk.ib_pmask = (WORD *) p;
 		p += iclen;
 		p2 = (LONG) cblk->monoblk.ib_ptext;
-		if (!p2 || header + p2 == (LONG) p || p2 < rsxhdr->rsh_string || p2 > rsxhdr->rsh_rssize)
+		if (!p2 || header + p2 == (ULONG) p || p2 < (LONG)rsxhdr->rsh_string || p2 > (LONG)rsxhdr->rsh_rssize)
 			cblk->monoblk.ib_ptext = (char *) p;
 		else
 			cblk->monoblk.ib_ptext = (char *)header + (LONG) cblk->monoblk.ib_ptext;
@@ -1401,7 +1401,7 @@ static WORD fill_cicon_liste(LONG *cicon_liste, ULONG header, RSXHDR *rsxhdr)
 	{
 		pobject = (OBJECT *) (header + rsxhdr->rsh_object);
 
-		for (ob = 0; ob < rsxhdr->rsh_nobs; ob++)
+		for (ob = 0; ob < (LONG)rsxhdr->rsh_nobs; ob++)
 			if ((pobject[ob].ob_type & 0xff) == G_CICON)
 			{
 				pobject[ob].ob_spec.index = cicon_liste[pobject[ob].ob_spec.index];
@@ -1421,14 +1421,14 @@ static WORD fill_cicon_liste(LONG *cicon_liste, ULONG header, RSXHDR *rsxhdr)
 /* Farbicons fr aktuelle Aufl”sung initialisieren                           */
 /*****************************************************************************/
 
-static void do_ciconfix(ULONG header, RSXHDR *rsxhdr, LONG rs_len)
+static void do_ciconfix(LONG header, RSXHDR *rsxhdr, LONG rs_len)
 {
 	LONG *cicon_liste;
 	WORD i;
 	OBJECT *obj;
 
 	cicon_liste = (LONG *) (*(LONG *) (rsxhdr->rsh_rssize + (rsxhdr->rsh_rssize & 1L) + header + sizeof(LONG)) + header);
-	if ((LONG) cicon_liste - header > rsxhdr->rsh_rssize && (LONG) cicon_liste - header < rs_len)
+	if ((LONG) cicon_liste - header > (LONG)rsxhdr->rsh_rssize && (LONG) cicon_liste - header < rs_len)
 	{
 		if (fill_cicon_liste(cicon_liste, header, rsxhdr) != -1)
 		{
@@ -1456,7 +1456,7 @@ static void do_ciconfix(ULONG header, RSXHDR *rsxhdr, LONG rs_len)
 
 				xfill_farbtbl();
 
-				for (i = 0; i < rsxhdr->rsh_nobs; i++)
+				for (i = 0; i < (WORD)rsxhdr->rsh_nobs; i++)
 				{
 					obj = &((OBJECT *) (rsxhdr->rsh_object + header))[i];
 					if ((obj->ob_type & 0xff) == G_CICON)
@@ -1472,7 +1472,7 @@ static void do_ciconfix(ULONG header, RSXHDR *rsxhdr, LONG rs_len)
 			} else
 #endif
 			{
-				for (i = 0; i < rsxhdr->rsh_nobs; i++)
+				for (i = 0; i < (WORD)rsxhdr->rsh_nobs; i++)
 				{
 					obj = &((OBJECT *) (rsxhdr->rsh_object + header))[i];
 					if ((obj->ob_type & 0xff) == G_CICON)
@@ -1517,7 +1517,7 @@ static WORD rs_read(WORD *global, const char *fname)
 		size = 0;
 	Fsetdta(old_dta);
 
-	if (size > sizeof(RSHDR) && (fh = Fopen(tmpnam, 0)) > 0)
+	if (size > (LONG)sizeof(RSHDR) && (fh = Fopen(tmpnam, 0)) > 0)
 	{
 		if ((hdr_buf = (RSXHDR *) malloc(size + sizeof(RSXHDR))) != NULL)
 		{
@@ -1531,13 +1531,13 @@ static WORD rs_read(WORD *global, const char *fname)
 				} else
 				{
 					/* convert the RSHDR to RSXHDR */
-					for (i = 0; i < sizeof(RSXHDR) / sizeof(LONG); i++)
+					for (i = 0; i < (WORD)(sizeof(RSXHDR) / sizeof(LONG)); i++)
 						((ULONG *) hdr_buf)[i] = ((UWORD *) rs_hdr)[i];
 				}
 
 				do_rsfix(hdr_buf->rsh_rssize);
 
-				if (size > hdr_buf->rsh_rssize + 72L)	/* Farbicons in der Resource? */
+				if (size > (LONG)hdr_buf->rsh_rssize + 72L)	/* Farbicons in der Resource? */
 					do_ciconfix((ULONG) rs_hdr, hdr_buf, size);
 			} else
 				ret = FALSE;

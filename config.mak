@@ -5,7 +5,7 @@ AS = $(CC)
 AR = $(CROSS)ar
 
 OPT = -O2 -fomit-frame-pointer -Wstrict-prototypes -Wmissing-prototypes
-WARN = -Werror
+WARN = -Wall -W -Werror
 DEFS =
 INCLUDES = -I. -I$(top_srcdir)/include
 CFLAGS = $(OPT) $(WARN) $(DEFS) $(INCLUDES)

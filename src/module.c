@@ -54,14 +54,14 @@ static char stdpal1bit[] = {
 	0x00, 0x00, 0x00
 };
 
-static char stdpal2bit[] = {
+static unsigned char stdpal2bit[] = {
 	0xff, 0xff, 0xff,
 	0xff, 0x00, 0x00,
 	0x00, 0xff, 0x00,
 	0x00, 0x00, 0x00
 };
 #endif
-static char stdpal4bit[] = {
+static unsigned char stdpal4bit[] = {
 	0xff, 0xff, 0xff,
 	0xff, 0x00, 0x00,
 	0x00, 0xff, 0x00,
@@ -182,7 +182,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 		}
 	}
 
-	if (edit_basepage > 0)
+	if (edit_basepage != NULL)
 	{
 		module_start = get_module_start(edit_basepage);
 		if (module_start == NULL || module_start->magic != MOD_MAGIC_EDIT)
@@ -232,7 +232,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 
 		if (mode == MQUERY)
 		{
-			module.bp[mod_id & 0xFF] = edit_basepage;
+			module.bp[mod_id & MOD_ID_MASK] = edit_basepage;
 			mod_abs = module_start->ability;	/* Module Abilities */
 			return (BASPAG *) mod_abs;
 		}
@@ -251,7 +251,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 	long temp;
 	long mod_magic;
 	const MOD_ABILITY *mod_abs;
-	EXPORT_PIC *encoded_pic;
+	EXPORT_PIC *encoded_pic = NULL;
 	EXPORT_PIC *(*export_module_main)(GARGAMEL *smurf_struct);
 
 	/*
@@ -260,7 +260,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 	if (export_basepage == NULL)
 	{
 		temp = Pexec(3, modpath, "", NULL);
-		if (temp < 0)
+		if (temp <= 0)
 		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 			sm_struct->module_mode = M_MODERR;
@@ -281,7 +281,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 		}
 	}
 
-	if (export_basepage > 0)
+	if (export_basepage != NULL)
 	{
 		module_start = get_module_start(export_basepage);	/* Textsegment-Startadresse holen */
 
@@ -322,7 +322,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 
 		if (message == MQUERY || message == MEXTEND)
 		{
-			module.bp[module_number & 0xFF] = export_basepage;
+			module.bp[module_number & MOD_ID_MASK] = export_basepage;
 			mod_abs = module_start->ability;	/* Module Abilities */
 			return (EXPORT_PIC *) mod_abs;
 		}
@@ -349,8 +349,8 @@ short handle_modevent(short event_type, WINDOW *mod_window)
 		which_object = objc_find(mod_resource, 0, MAX_DEPTH, mouse_xpos, mouse_ypos);
 
 		/*------- Hintergrundobjekt angeklickt */
-		if (which_object == 0 || mod_resource[which_object].ob_type == G_FTEXT || IsDisabled(mod_resource[which_object])	/* || !IsSelectable(mod_resource[which_object]) &&
-																															   (mod_resource[which_object].ob_type&0xff00) == 0 */ )
+		if (which_object == 0 || mod_resource[which_object].ob_type == G_FTEXT || IsDisabled(mod_resource[which_object])
+			/* || !IsSelectable(mod_resource[which_object]) && (mod_resource[which_object].ob_type & 0xff00) == 0 */ )
 		{
 			Window.top(mod_window->whandlem);
 
@@ -390,7 +390,7 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 	const MODULE_START *module_start;
 	short message;
 	short back;
-	short mod_num;
+	short mod_num, mod_index;
 	WINDOW *window_to_handle;
 	DISPLAY_MODES thisDisplay;
 	BASPAG *bsp;
@@ -398,6 +398,7 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 
 	message = smurf_struct->module_mode;
 	mod_num = smurf_struct->module_number;
+	mod_index = mod_num & MOD_ID_MASK;
 
 	switch (message)
 	{
@@ -422,7 +423,7 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 			Dialog.winAlert.openAlert("Fehler beim Dithern des Previews!", NULL, NULL, NULL, 1); /* FIXME: translate */
 
 		/* jetzt dem Modul sagen, daž fertig gedietert ist. */
-		module.comm.start_edit_module("", module.bp[mod_num], MDITHER_READY, 0, smurf_struct);
+		module.comm.start_edit_module("", module.bp[mod_index], MDITHER_READY, 0, smurf_struct);
 
 		/* Dialog.busy.reset(128, smurf_struct->wind_struct->wtitle); */
 		break;
@@ -430,7 +431,7 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 
 	case M_MOREOK:
 		if (smurf_struct->event_par[0] != 0)
-			memorize_expmodConfig(module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], 0);
+			memorize_expmodConfig(module.bp[mod_index], module.smStruct[mod_index], 0);
 
 		window_to_handle = smurf_struct->wind_struct;
 		Window.close(window_to_handle->whandlem);
@@ -441,34 +442,33 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 		 */
 	case M_CONFSAVE:
 		if (smurf_struct->event_par[0] != 0)
-			memorize_expmodConfig(module.bp[mod_num & 0xFF], module.smStruct[mod_num & 0xFF], 1);
-
+			memorize_expmodConfig(module.bp[mod_index], module.smStruct[mod_index], 1);
 		break;
 
 		/*
 		 * Modul fordert Runtime ein Fadenkreuz an
 		 */
 	case M_CROSSHAIR:
-		bsp = module.bp[mod_num & 0xFF];
+		bsp = module.bp[mod_index];
 		module_start = get_module_start(bsp);
 		modinfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 
-		position_markers[mod_num & 0xFF].anzahl = smurf_struct->event_par[0];
-		position_markers[mod_num & 0xFF].mod_pic[0] = smurf_struct->event_par[1];
+		position_markers[mod_index].anzahl = smurf_struct->event_par[0];
+		position_markers[mod_index].mod_pic[0] = smurf_struct->event_par[1];
 
 		/* Defaultkoordinaten erfragen */
-		module.comm.start_edit_module("", module.bp[mod_num & 0xFF], MCH_DEFCOO, mod_num, smurf_struct);
+		module.comm.start_edit_module("", module.bp[mod_index], MCH_DEFCOO, mod_num, smurf_struct);
 		if (smurf_struct->module_mode == M_CHDEFCOO)
 		{
-			position_markers[mod_num & 0xFF].xpos[0] = smurf_struct->event_par[0];
-			position_markers[mod_num & 0xFF].ypos[0] = smurf_struct->event_par[1];
+			position_markers[mod_index].xpos[0] = smurf_struct->event_par[0];
+			position_markers[mod_index].ypos[0] = smurf_struct->event_par[1];
 		}
 
-		if (modinfo->how_many_pix == 1 && position_markers[mod_num & 0xFF].anzahl >= 1)
+		if (modinfo->how_many_pix == 1 && position_markers[mod_index].anzahl >= 1)
 		{
-			position_markers[mod_num & 0xFF].mod_pic[0] = -2;	/* aktives Bild */
-			position_markers[mod_num & 0xFF].smurfpic[0] = active_pic;	/* aktives Bild */
-			module_pics[mod_num & 0xFF][0] = active_pic;
+			position_markers[mod_index].mod_pic[0] = -2;	/* aktives Bild */
+			position_markers[mod_index].smurfpic[0] = active_pic;	/* aktives Bild */
+			module_pics[mod_index][0] = active_pic;
 			imageWindow.drawCrosshair(&picture_windows[active_pic]);
 		}
 		break;
@@ -477,8 +477,8 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 		 * Modul will ein Fadenkreuz wieder ausschalten
 		 */
 	case M_CH_OFF:
-		back = position_markers[mod_num & 0xFF].smurfpic[0];
-		position_markers[mod_num & 0xFF].smurfpic[0] = -1;
+		back = position_markers[mod_index].smurfpic[0];
+		position_markers[mod_index].smurfpic[0] = -1;
 		Window.redraw(&picture_windows[back], NULL, 0, 0);
 		break;
 	}
@@ -718,7 +718,7 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA *ditherdata)
 {
 	const DITHER_START *dither_start;
 	short (*module_main)(DITHER_DATA *smurf_struct);
-	BASPAG *dither_basepage;
+	BASPAG *dither_basepage = NULL;
 
 	if (mod_id < 0 || mod_id >= MAX_MODS)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[SMURF_ID_ERR].TextCast, NULL, NULL, NULL, 1);
@@ -939,7 +939,7 @@ void convert_icon(OBJECT *tree, WORD index)
 			{
 				imgdata = (WORD *) SMalloc(icon_planelength * icon_bitplanes);
 
-				smpic.pic_data = (char *) *img_data[t];
+				smpic.pic_data = (uint8_t *) *img_data[t];
 				smpic.pic_width = icon_w;
 				smpic.pic_height = icon_h;
 				smpic.depth = ciconblk->mainlist->num_planes;
@@ -948,7 +948,7 @@ void convert_icon(OBJECT *tree, WORD index)
 				smpic.zoom = 0;
 
 				bplanes = icon_bitplanes;
-				direct2screen(&smpic, (char *) imgdata, NULL);
+				direct2screen(&smpic, (uint8_t *)imgdata, NULL);
 				bplanes = Sys_info.bitplanes;
 				Dialog.busy.ok();
 
@@ -1268,7 +1268,7 @@ void make_modpreview(WINDOW *wind)
 	DISPLAY_MODES thisDisplay;
 
 	mod_num = wind->module;
-	mod_index = mod_num & 0xFF;
+	mod_index = mod_num & MOD_ID_MASK;
 
 	module_start = get_module_start(module.bp[mod_index]);
 	mod_abs = module_start->ability;
