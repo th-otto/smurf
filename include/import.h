@@ -44,8 +44,8 @@
 #define d_fname dta_name
 #define cdecl
 #include <support.h>
-#define itoa(val, str, base) _itoa(val, str, base, 0)
-#define ltoa(val, str, base) _itoa(val, str, base, 0)
+#define itoa(val, str, base) _ltoa(val, str, base)
+#define ltoa(val, str, base) _ltoa(val, str, base)
 #define ftoa(val, str, ndig, format, decpnt, sign) strcpy(str, (format == 0 ? ecvt : fcvt)(*(val), ndig, decpnt, sign))
 #endif
 
