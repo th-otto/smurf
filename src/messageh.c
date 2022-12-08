@@ -64,7 +64,7 @@ typedef struct
 WORD f_handle_message(void)
 {
 	char module_name[30];
-	char *textseg;
+	const MODULE_START *module_start;
 	char *ext_com_ptr;
 	short wind_num = 0;
 	short wn = 0;
@@ -83,7 +83,7 @@ WORD f_handle_message(void)
 	WORD innerwid;
 	WORD innerhgt;
 	long argback;
-	MOD_INFO *modinfo;
+	const MOD_INFO *modinfo;
 	GRECT aes_red;
 	WINDOW *window_to_handle;
 	WINDOW *picwindow;
@@ -649,8 +649,8 @@ WORD f_handle_message(void)
 						/*
 						 * Exporternummer suchen
 						 */
-						textseg = module.bp[module_num & 0xFF]->p_tbase;
-						modinfo = *((MOD_INFO **) (textseg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+						module_start = get_module_start(module.bp[module_num & 0xFF]);
+						modinfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 						strncpy(module_name, modinfo->mod_name, 30);
 						for (t = 0; t < Dialog.expmodList.anzahl; t++)
 						{

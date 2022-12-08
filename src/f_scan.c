@@ -49,6 +49,8 @@
 #include "ext_obs.h"
 #include "ext_rsc.h"
 #include "debug.h"
+#include "plugin.h"
+#include "smplugin.h"
 
 static short files_read;
 
@@ -65,7 +67,7 @@ void f_scan_edit(void)
 	char *edit_path;					/* voller Modulpfad, editable */
 	char *swapstr;
 	char alert[128];
-	char *textseg_begin;
+	const MODULE_START *module_start;
 	char edstring[64];
 	char strn[4];
 	long mod_magic;
@@ -76,7 +78,7 @@ void f_scan_edit(void)
 	long entrlen;
 	long temp;
 	BASPAG *edit_baspag;
-	MOD_INFO *module_info;
+	const MOD_INFO *module_info;
 	struct DIRENTRY *filelist;
 	struct DIRENTRY *actual;
 
@@ -135,9 +137,9 @@ void f_scan_edit(void)
 				 */
 				start_module(edit_baspag);
 
-				textseg_begin = edit_baspag->p_tbase;	/* Textsegment-Startadresse holen */
+				module_start = get_module_start(edit_baspag);	/* Textsegment-Startadresse holen */
 
-				module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+				module_info = module_start->info;
 
 				/*
 				 * Modul eintragen
@@ -211,7 +213,7 @@ void f_scan_edit(void)
 /* ----------------------------------------------------------------	*/
 /*		Extensionen eines Importers in Import_list speichern		*/
 /* ----------------------------------------------------------------	*/
-static void save_extensions(MOD_INFO *module_info)
+static void save_extensions(const MOD_INFO *module_info)
 {
 	int t;
 
@@ -326,7 +328,7 @@ void f_scan_import(void)
 {
 	char *importpath;					/* voller Modulpfad, Original */
 	char *import_path;					/* voller Modulpfad, editable */
-	char *textseg_begin;
+	const MODULE_START *module_start;
 	char alert[128];
 	long mod_magic;
 	short pathlen;
@@ -337,7 +339,7 @@ void f_scan_import(void)
 	short tt;
 	long temp;
 	BASPAG *import_baspag;
-	MOD_INFO *module_info;
+	const MOD_INFO *module_info;
 	struct DIRENTRY *filelist;
 	struct DIRENTRY *actual;
 
@@ -401,9 +403,9 @@ void f_scan_import(void)
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				start_module(import_baspag);
 
-				textseg_begin = import_baspag->p_tbase;	/* Textsegment-Startadresse holen */
+				module_start = get_module_start(import_baspag);	/* Textsegment-Startadresse holen */
 
-				module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+				module_info = module_start->info;
 
 				/*---- Modul eintragen */
 				Import_list.imp_mod_list[anzahl_importmods] = malloc(strlen(actual->modname) + 1);
@@ -598,7 +600,7 @@ void f_scan_export(void)
 	char *ex_path;						/* voller Modulpfad, editable */
 	char *swapstr;
 	char alert[128];
-	char *textseg_begin;
+	const MODULE_START *module_start;
 	char edstring[64];
 	char strn[4];
 	long mod_magic;
@@ -609,7 +611,7 @@ void f_scan_export(void)
 	long entrlen;
 	long temp;
 	BASPAG *export_baspag;
-	MOD_INFO *module_info;
+	const MOD_INFO *module_info;
 	struct DIRENTRY *filelist;
 	struct DIRENTRY *actual;
 
@@ -657,9 +659,9 @@ void f_scan_export(void)
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				start_module(export_baspag);
 
-				textseg_begin = export_baspag->p_tbase;	/* Textsegment-Startadresse holen */
+				module_start = get_module_start(export_baspag);	/* Textsegment-Startadresse holen */
 
-				module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+				module_info = module_start->info;
 
 				/*---- Modul eintragen */
 				export_modules[Dialog.expmodList.anzahl] = malloc(pathlen + 1);	/* keine variable L„nge wegen Sortierung! */
@@ -740,7 +742,7 @@ void f_scan_dither(void)
 	char *dit_path;
 	char alert[128];
 	char string[20] = "";
-	char *textseg_begin;
+	const DITHER_START *dither_start;
 	long mod_magic;
 	short pathlen;
 	long temp;
@@ -795,16 +797,16 @@ void f_scan_dither(void)
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				start_module(dit_baspag);
 
-				textseg_begin = dit_baspag->p_tbase;	/* Textsegment-Startadresse holen */
+				dither_start = get_module_start(dit_baspag);	/* Textsegment-Startadresse holen */
 
-				ditmod_info[anzahl_dithermods] = *((DITHER_MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+				ditmod_info[anzahl_dithermods] = dither_start->info;
 				Dithermod_Basepage[anzahl_dithermods] = dit_baspag;
 				strncpy(string, ditmod_info[anzahl_dithermods]->algo_name, 15);
-				ditmod_info[anzahl_dithermods]->algo_name[15] = '\0';
+				string[15] = '\0';
 				set_startupdial(string);
 
 				/* Algorithmus ins Popup eintragen und Button einschalten */
-				col_pop[anzahl_dithermods + 1].TextCast = ditmod_info[anzahl_dithermods]->algo_name;
+				strcpy(col_pop[anzahl_dithermods + 1].TextCast, string);
 				col_pop[anzahl_dithermods + 1].ob_state &= ~OS_DISABLED;
 
 				anzahl_dithermods++;

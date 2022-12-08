@@ -33,7 +33,8 @@
 /* ------------------------------------------------------------ */
 /* ------------------------------------------------------------ */
 
-#define SMURF_VERSION   0x0106
+#define SMURF_VERSION       0x0106
+#define INTERFACE_VERSION   0x0101
 
 #define LONG2_2INT(val) (int)((long)(val)>>16),(int)(long)(val)
 
@@ -192,11 +193,6 @@
 #define FIRST_PIC       20
 #define LAST_PIC        120
 
-
-#define MAIN_FUNCTION_OFFSET    4   /* war garnicht */
-#define MAGIC_OFFSET    8           /* war 4 */
-#define MOD_INFO_OFFSET 12          /* war 8 */
-#define MOD_ABS_OFFSET  16          /* war 12 */
 
 #define FILESELECT_ERROR ( (void*) -1L )
 

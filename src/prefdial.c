@@ -32,6 +32,8 @@
 #include "popdefin.h"
 #include "smurf_st.h"
 #include "smurf_f.h"
+#include "plugin.h"
+#include "smplugin.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"
@@ -574,15 +576,15 @@ static void f_make_preview(short redraw_flag)
 	WORD w, h;
 	short picnum;
 	short piccol;
-	MOD_ABILITY *mod_abs;
+	const MOD_ABILITY *mod_abs;
 	MOD_ABILITY new_mod;
-	MOD_INFO *mod_inf;
-	char *textbeg;
+	const MOD_INFO *mod_inf;
+	const MODULE_START *module_start;
 	DISPLAY_MODES thisDisplay;
 
-	textbeg = module.bp[edit_mod_num]->p_tbase;
-	mod_abs = *((MOD_ABILITY **)(textbeg + MOD_ABS_OFFSET));
-	mod_inf = *((MOD_INFO **) (textbeg + MOD_INFO_OFFSET));
+	module_start = get_module_start(module.bp[edit_mod_num]);
+	mod_abs = module_start->ability;
+	mod_inf = module_start->info;
 
 
 	/*
@@ -777,7 +779,7 @@ void f_mpref_change(void)
 {
 	char str[10];
 	char confname[33] = "";
-	char *textbeg;
+	const MODULE_START *module_start;
 	WORD button;
 	WORD back;
 	short picnum;
@@ -799,8 +801,8 @@ void f_mpref_change(void)
 	OBJECT *modtree;
 	SMURF_PIC *edit_picture;
 	SMURF_PIC *pic;
-	MOD_ABILITY *mod_abs;
-	MOD_INFO *mod_inf;
+	const MOD_ABILITY *mod_abs;
+	const MOD_INFO *mod_inf;
 
 
 	modtree = wind_s[WIND_MODFORM].resource_form;
@@ -809,10 +811,10 @@ void f_mpref_change(void)
 
 	if ((key_scancode >> 8) == KEY_UP || (key_scancode >> 8) == KEY_DOWN)
 	{
-		textbeg = module.bp[edit_mod_num]->p_tbase;
+		module_start = get_module_start(module.bp[edit_mod_num]);
 
-		mod_inf = *((MOD_INFO **) (textbeg + MOD_INFO_OFFSET));
-		mod_abs = *((MOD_ABILITY **) (textbeg + MOD_ABS_OFFSET));
+		mod_inf = module_start->info;
+		mod_abs = module_start->ability;
 
 		editval1 = atol(modtree[ED1].TextCast);
 		if (editval1 < mod_inf->emin1)
@@ -976,8 +978,8 @@ void f_mpref_change(void)
 		break;
 
 	case MCONF_STDSAVE:
-		textbeg = module.bp[edit_mod_num]->p_tbase;
-		mod_inf = *((MOD_INFO **) (textbeg + MOD_INFO_OFFSET));
+		module_start = get_module_start(module.bp[edit_mod_num]);
+		mod_inf = module_start->info;
 		cnfblock[0] = sy1;
 		cnfblock[1] = sy2;
 		cnfblock[2] = sy3;
@@ -995,8 +997,8 @@ void f_mpref_change(void)
 		break;
 
 	case MCONF_STDLOAD:
-		textbeg = module.bp[edit_mod_num]->p_tbase;
-		mod_inf = *((MOD_INFO **) (textbeg + MOD_INFO_OFFSET));
+		module_start = get_module_start(module.bp[edit_mod_num]);
+		mod_inf = module_start->info;
 		loadcnf = (long *) mconfLoad(mod_inf, edit_mod_num, confname);
 		if (loadcnf != NULL)
 		{
@@ -1015,8 +1017,8 @@ void f_mpref_change(void)
 	case START_MOD:
 		change_object(&wind_s[WIND_MODFORM], START_MOD, OS_UNSEL, 1);
 
-		textbeg = module.bp[edit_mod_num]->p_tbase;
-		mod_inf = *((MOD_INFO **) (textbeg + MOD_INFO_OFFSET));
+		module_start = get_module_start(module.bp[edit_mod_num]);
+		mod_inf = module_start->info;
 
 		/*
 		 * Editfeld-Werte erneut clippen, da diese vor dem Modulstart
@@ -1078,9 +1080,9 @@ void f_mpref_change(void)
 		 * Gargamel-Struktur fllen
 		 */
 		Window.topNow(&wind_s[WIND_BUSY]);
-		textbeg = module.bp[edit_mod_num]->p_tbase;
-		mod_inf = *((MOD_INFO **) (textbeg + MOD_INFO_OFFSET));
-		mod_abs = *((MOD_ABILITY **) (textbeg + MOD_ABS_OFFSET));
+		module_start = get_module_start(module.bp[edit_mod_num]);
+		mod_inf = module_start->info;
+		mod_abs = module_start->ability;
 
 		pic = smurf_picture[active_pic];
 

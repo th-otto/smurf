@@ -176,8 +176,6 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 
 	char mod_name_string[30];
 	char *cmp_string;
-	char *textseg_begin;
-	MOD_INFO *mod_info;
 	short mod_index;
 	WORD t;
 	long mod_magic;
@@ -289,8 +287,11 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 
 			if (mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT)
 			{
-				textseg_begin = module.bp[mod_index]->p_tbase;
-				mod_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+				const MODULE_START *module_start;
+				const MOD_INFO *mod_info;
+
+				module_start = get_module_start(module.bp[mod_index]);
+				mod_info = module_start->info;
 
 				/*---- Modulname kopieren und mit Leerzeichen auffllen */
 				memset(mod_name_string, ' ', 30);
@@ -310,8 +311,6 @@ void bubble_gem(WORD windownum, WORD xpos, WORD ypos, BOOLEAN modulemode)
 				modpath = edit_modules[t];
 			} else if (mod_magic == MOD_MAGIC_PLUGIN)
 			{
-				textseg_begin = plugin_bp[mod_index]->p_tbase;
-
 				modpath = plugin_paths[mod_index];
 			} else
 			{
@@ -480,10 +479,8 @@ void call_stguide(WORD topwin_handle)
 	short t;
 	short mod_index;
 	WINDOW *window;
-	MOD_INFO *mod_info;
 	char *wtitle;
 	char *modpath;
-	char *textseg_begin;
 	char *cmp_string;
 	char hypname[128] = "*:\\smurf.hyp ";
 	char mod_name_string[30];
@@ -538,8 +535,11 @@ void call_stguide(WORD topwin_handle)
 
 		if (mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT)
 		{
-			textseg_begin = module.bp[mod_index]->p_tbase;
-			mod_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+			const MODULE_START *module_start;
+			const MOD_INFO *mod_info;
+
+			module_start = get_module_start(module.bp[mod_index]);
+			mod_info = module_start->info;
 
 			/*---- Modulname kopieren und mit Leerzeichen auffllen */
 			memset(mod_name_string, ' ', 30);
@@ -560,8 +560,6 @@ void call_stguide(WORD topwin_handle)
 			modpath = edit_modules[t];
 		} else if (mod_magic == MOD_MAGIC_PLUGIN)
 		{
-			textseg_begin = plugin_bp[mod_index]->p_tbase;
-
 			modpath = plugin_paths[mod_index];
 		}
 

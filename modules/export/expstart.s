@@ -49,7 +49,7 @@
 	.globl module_ability				/* Modulf„higkeiten-Struktur */
 	.dc.l module_ability				/* Zeiger auf Modability-Struktur (TEXT + 16 Bytes) */
 
-	.dc.l 0x0101						/* Versionsnummer */
+	.dc.l 0x0101						/* INTERFACE_VERSION */
 
 	.data
 

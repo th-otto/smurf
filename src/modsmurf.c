@@ -189,7 +189,7 @@ SMURF_PIC *smurf_picture[MAX_PIC];
 short active_pic;
 
 BASPAG *Dithermod_Basepage[10];			/* Basepages fr Dithermodule */
-DITHER_MOD_INFO *ditmod_info[10];		/* Ditherinfostrukturen fr Dithermodule */
+const DITHER_MOD_INFO *ditmod_info[10];		/* Ditherinfostrukturen fr Dithermodule */
 
 /*--------------	Slidergrenzen fr Modulformular */
 long sx1, sx2, sx3, sx4;				/* Maxima */
@@ -1196,7 +1196,6 @@ void make_pic_window(short pic_to_make, WORD wid, WORD hgt, char *name)
 /* ------------------------------------------------------------------------	*/
 static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 {
-	char *textseg_begin;
 	char *picture;
 	long mod_magic;
 	WORD back;
@@ -1205,10 +1204,10 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 	short picnum;
 	short mod_index;
 	long len;
-	MOD_INFO *mod_info;
-	MOD_ABILITY *mod_abs;
 	EXPORT_PIC *pic_to_save;
 	SMURF_PIC *edited_pic;
+	const MOD_INFO *mod_info;
+	const MOD_ABILITY *mod_abs;
 
 	mod_index = module_number & 0xFF;
 
@@ -1217,10 +1216,12 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 	 */
 	if (!(module_number & 0x200))		/* kein Plugin? */
 	{
-		textseg_begin = module.bp[mod_index]->p_tbase;
+		const MODULE_START *module_start;
+
+		module_start = get_module_start(module.bp[mod_index]);
 		mod_magic = get_modmagic(module.bp[mod_index]);
-		mod_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
-		mod_abs = *((MOD_ABILITY * *)(textseg_begin + MOD_ABS_OFFSET));
+		mod_info = module_start->info;
+		mod_abs = module_start->ability;
 		hm_pix = mod_info->how_many_pix;
 
 		module.smStruct[mod_index]->smurf_pic = smurf_picture[active_pic];
@@ -1230,8 +1231,9 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 				module.smStruct[mod_index]->smurf_pic = smurf_picture[active_pic]->block;
 	} else
 	{
-		textseg_begin = plugin_bp[mod_index]->p_tbase;
-		mod_magic = MOD_MAGIC_PLUGIN;
+		mod_magic = get_modmagic(plugin_bp[mod_index]);
+		mod_info = NULL;
+		mod_abs = NULL;
 	}
 
 

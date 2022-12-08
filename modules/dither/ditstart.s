@@ -44,7 +44,7 @@
     .globl dith_module_info            /* Modulinformationsstruktur */
     .dc.l dith_module_info             /* Zeiger auf Modulinfo-Struktur (TEXT + 12 Bytes) */
 
-    .dc.l 0x0101                       /* Versionsnummer */
+    .dc.l 0x0101                       /* INTERFACE_VERSION */
 
 	.data
 

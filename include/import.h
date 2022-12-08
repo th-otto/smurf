@@ -282,8 +282,8 @@ typedef struct
     /*  78 */ BOOLEAN (*f_fsbox)(char *Path, const char *fbtext, uint8_t selectart);
     /*  82 */ float (*convert_units)(short oldunit, short newunit, float dpi);
 
-    /*  86 */ void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
-    /*  90 */ void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
+    /*  86 */ void *(*mconfLoad)(const MOD_INFO *modinfo, short mod_id, char *name);
+    /*  90 */ void (*mconfSave)(const MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
     /* 100 */ 
 } SERVICE_FUNCTIONS;
 

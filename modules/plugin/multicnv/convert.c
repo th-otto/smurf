@@ -417,13 +417,13 @@ static uint8_t *f_do_pcd(char *Path)
 /*  tionen frs Exportieren mit dem Modul export_mabs.              */
 /*  Zu exportierendes Bild ist immer smurf_picture[active_pic]      */
 /*----------------------------------------------------------------- */
-static short f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
+static short f_save_pic(const MOD_ABILITY *export_mabs, SMURF_PIC *pic)
 {
 	char savepath[257];
 	char *save_ext;
 	char *expext;
 	char module_name[31];
-	char *txtbeg;
+	const MODULE_START *module_start;
 	uint8_t *picture;
 
 	short max_expdepth;
@@ -439,7 +439,7 @@ static short f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
 	EXPORT_PIC *pic_to_save;
 	SMURF_PIC *pic_to_export;
 	SMURF_PIC *converted_pic;
-	MOD_INFO *modinfo;
+	const MOD_INFO *modinfo;
 	GARGAMEL *exp_gstruct;
 	BASPAG *exp_bp;
 	short old_export_mod_num;
@@ -567,8 +567,8 @@ static short f_save_pic(MOD_ABILITY *export_mabs, SMURF_PIC *pic)
 	 * Extension ermitteln, Exporter aufrufen 
 	 */
 	smurf_functions->start_exp_module(export_path, MEXTEND, converted_pic, exp_bp, exp_gstruct, mod_num);
-	txtbeg = exp_bp->p_tbase;
-	modinfo = *((MOD_INFO **) (txtbeg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+	module_start = smurf_functions->get_module_start(exp_bp);
+	modinfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 
 	if (exp_gstruct->module_mode == M_EXTEND)
 		ext_number = exp_gstruct->event_par[0] - 1;

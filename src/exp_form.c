@@ -42,6 +42,8 @@
 #include "smurf_f.h"
 #include "popdefin.h"
 #include "popdefin.h"
+#include "plugin.h"
+#include "smplugin.h"
 
 #include "globdefs.h"
 
@@ -173,9 +175,9 @@ void f_export_formular(void)
 	WORD ed_pop;
 	short bdepth, bestdepth;
 	short old_picdepth;
-	MOD_INFO *export_modinfo;
-	MOD_ABILITY *embs;
-	char *textseg_begin;
+	const MOD_INFO *export_modinfo;
+	const MOD_ABILITY *embs;
+	const MODULE_START *module_start;
 	static char export_filepal_name[32] = "feste Palette"; /* FIXME: translate */
 	short exp_index;
 	char *pal_loadpath;
@@ -235,9 +237,9 @@ void f_export_formular(void)
 		/*
 		 * Formulartitel setzen
 		 */
-		textseg_begin = module.bp[exp_index]->p_tbase;	/* Textsegment-Startadresse holen */
-		export_modinfo = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
-		embs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));
+		module_start = get_module_start(module.bp[exp_index]);	/* Textsegment-Startadresse holen */
+		export_modinfo = module_start->info;
+		embs = module_start->ability;
 		strcpy(wind_s[FORM_EXPORT].wtitle, export_modinfo->mod_name);
 
 		Window.windSet(wind_s[FORM_EXPORT].whandlem, WF_NAME, LONG2_2INT(wind_s[FORM_EXPORT].wtitle), 0, 0);

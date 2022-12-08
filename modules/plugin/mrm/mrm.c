@@ -151,6 +151,7 @@ static char const result_names[M_WAITING - M_CONFSAVE + 1][16] = {
 
 static FILE *logfile = NULL;
 static SERVICE_FUNCTIONS *services;
+static PLUGIN_FUNCTIONS *smurf_functions;
 static CLASS_MODULE *module_ptr;
 static CLASS_MODULE module;
 static SMURF_VARIABLES *smurf_vars;
@@ -288,8 +289,7 @@ static void init_windstruct(void)
 
 short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 {
-	char *textseg_begin;
-	long mod_magic;
+	const MODULE_START *module_start;
 	short (*module_main)(GARGAMEL *smurf_struct);
 	short module_return;
 	short back;
@@ -298,12 +298,12 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	long lback;
 	char alstring[80];
 	BASPAG *mod_basepage;
-	MOD_INFO *module_info;
+	const MOD_INFO *module_info;
 	GARGAMEL sm_struct;
 
 	/* Modul als Overlay laden und Basepage ermitteln */
 	temp = Pexec(3, modpath, "", NULL);
-	if (temp < 0)
+	if (temp <= 0)
 	{
 		strcpy(alstring, AL_LOAD_MODULE);
 		strcat(alstring, strrchr(modpath, '\\') + 1);
@@ -313,13 +313,9 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	{
 		mod_basepage = (BASPAG *) temp;
 
-#if 0
-		mod_magic = get_modmagic(mod_basepage);	/* Zeiger auf Magic (muss MOD_MAGIC_IMPORT sein!) */
-#else
-		textseg_begin = mod_basepage->p_tbase;
-		mod_magic = *((long *) (textseg_begin + MAGIC_OFFSET));
-#endif
-		if (mod_magic != MOD_MAGIC_IMPORT)
+		module_start = smurf_functions->get_module_start(mod_basepage);
+		/* Zeiger auf Magic (muss MOD_MAGIC_IMPORT sein!) */
+		if (module_start == NULL || module_start->magic != MOD_MAGIC_IMPORT)
 			return M_MODERR;
 
 		/* Laenge des gesamten Tochterprozesses ermitteln */
@@ -334,15 +330,19 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 		if (lback != 0)
 			services->f_alert(AL_START_MODULE, NULL, NULL, NULL, 1);
 
-		module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+		module_info = module_start->info;	/* Zeiger auf Modulinfostruktur */
 		sm_struct.smurf_pic = imp_pic;
 		sm_struct.services = services;
+		/*
+		 * only valid mode for export modules,
+		 * but set it nevertheless in case some module queries it.
+		 */
 		sm_struct.module_mode = MEXEC;
-		
+
 		/* BUG: module_number not initialized */
 		log_line(sm_struct.module_mode, sm_struct.module_number, module_info->mod_name);
 		
-		module_main = (short (*)(GARGAMEL *)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+		module_main = (short (*)(GARGAMEL *)) (module_start->entry);
 		module_return = module_main(&sm_struct);
 		log_line(sm_struct.module_mode, -1, module_info->mod_name);
 
@@ -360,14 +360,13 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, short mod_id, GARGAMEL *sm_struct)
 {
 	void (*module_main)(GARGAMEL *smurf_struct);
-	char *textseg_begin;
+	const MODULE_START *module_start;
 	short back;
 	long ProcLen;
 	long temp;
 	long lback;
-	long mod_magic;
-	MOD_ABILITY *mod_abs;
-	MOD_INFO *module_info;
+	const MOD_ABILITY *mod_abs;
+	const MOD_INFO *module_info;
 
 	if (mod_id < 0 || mod_id > MAX_MODS - 1)
 		services->f_alert(AL_MODULE_ID, NULL, NULL, NULL, 1);
@@ -394,18 +393,18 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 				services->f_alert(AL_ADJUST_TPA, NULL, NULL, NULL, 1);
 
 			edit_basepage->p_hitpa = (void *) ((char *)edit_basepage + ProcLen);
+
+			lback = Pexec(4, NULL, (char *) edit_basepage, NULL);
+			if (lback != 0)
+				services->f_alert(AL_START_MODULE, NULL, NULL, NULL, 1);
 		}
 	}
 
 	if (edit_basepage != NULL)
 	{
-#if 0
-		mod_magic = get_modmagic(edit_basepage);	/* Zeiger auf Magic (muss MOD_MAGIC_EDIT sein!) */
-#else
-		textseg_begin = edit_basepage->p_tbase;
-		mod_magic = *((long *) (textseg_begin + MAGIC_OFFSET));
-#endif
-		if (mod_magic != MOD_MAGIC_EDIT)
+		/* Zeiger auf Magic (muss MOD_MAGIC_EDIT sein!) */
+		module_start = smurf_functions->get_module_start(edit_basepage);
+		if (module_start == NULL || module_start->magic != MOD_MAGIC_EDIT)
 		{
 			services->f_alert(AL_LOAD_MODULE, NULL, NULL, NULL, 1);
 			return NULL;
@@ -438,15 +437,14 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 			}
 		}
 
-		textseg_begin = (char *) (edit_basepage->p_tbase);
-		module_main = (void (*)(GARGAMEL *smurf_struct)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+		module_main = (void (*)(GARGAMEL *smurf_struct)) (module_start->entry);
 
 		if (mode != MQUERY)
 		{
 			if (mode == MEXEC)
 				graf_mouse(BUSYBEE, NULL);
 
-			module_info = *((MOD_INFO **)(textseg_begin + MOD_INFO_OFFSET));
+			module_info = module_start->info;
 			log_line(sm_struct->module_mode, sm_struct->module_number, module_info->mod_name);
 
 			lback = Pexec(4, NULL, (char *) edit_basepage, NULL);
@@ -464,7 +462,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 		{
 			module.bp[mod_id & 0xFF] = edit_basepage;
 			smurf_vars->edit_bp[mod_id & 0xFF] = edit_basepage;
-			mod_abs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
+			mod_abs = module_start->ability;	/* Module Abilities */
 			return (BASPAG *) mod_abs;
 		}
 	}
@@ -478,6 +476,7 @@ void plugin_main(PLUGIN_DATA *data)
 	time_t t;
 
 	services = data->services;
+	smurf_functions = data->smurf_functions;
 	redraw_window = services->redraw_window;
 	
 	switch (data->message)

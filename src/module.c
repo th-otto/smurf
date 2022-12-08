@@ -86,14 +86,13 @@ static char stdpal4bit[] = {
 /*-----------------------------------------------------------------	*/
 short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 {
-	char *textseg_begin;
-	long mod_magic;
+	const MODULE_START *module_start;
 	short (*module_main)(GARGAMEL *smurf_struct);
 	short module_return;
 	long temp;
 	char alstring[80];
 	BASPAG *mod_basepage;
-	MOD_INFO *module_info;
+	const MOD_INFO *module_info;
 	GARGAMEL sm_struct;
 
 	/* Modul als Overlay laden und Basepage ermitteln */
@@ -108,28 +107,27 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 	{
 		mod_basepage = (BASPAG *) temp;
 
-		mod_magic = get_modmagic(mod_basepage);	/* Zeiger auf Magic (muss MOD_MAGIC_IMPORT sein!) */
-		if (mod_magic != MOD_MAGIC_IMPORT)
+		module_start = get_module_start(mod_basepage);	/* Textsegment-Startadresse holen */
+		/* Zeiger auf Magic (muss MOD_MAGIC_IMPORT sein!) */
+		if (module_start == NULL || module_start->magic != MOD_MAGIC_IMPORT)
 			return M_MODERR;
 
 		/* Laenge des gesamten Tochterprozesses ermitteln */
 		start_module(mod_basepage);
 
-		textseg_begin = mod_basepage->p_tbase;	/* Textsegment-Startadresse holen */
-
-		module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+		module_info = module_start->info;	/* Zeiger auf Modulinfostruktur */
 		memset(modname, 0, sizeof(modname));
 		strncpy(modname, module_info->mod_name, sizeof(modname) - 1);
 
 		sm_struct.smurf_pic = imp_pic;
 		sm_struct.services = &global_services;
 		/*
-		 * only valid mode for import modules,
+		 * only valid mode for export modules,
 		 * but set it nevertheless in case some module queries it.
 		 */
 		sm_struct.module_mode = MEXEC;
 
-		module_main = (short (*)(GARGAMEL *)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+		module_main = (short (*)(GARGAMEL *)) (module_start->entry);
 		module_return = module_main(&sm_struct);
 
 #if 0
@@ -149,10 +147,10 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, short mod_id, GARGAMEL *sm_struct)
 {
 	void (*module_main)(GARGAMEL *smurf_struct);
-	char *textseg_begin;
+	const MODULE_START *module_start;
 	long temp;
 	long mod_magic;
-	MOD_ABILITY *mod_abs;
+	const MOD_ABILITY *mod_abs;
 
 	if (mod_id < 0 || mod_id >= MAX_MODS)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[SMURF_ID_ERR].TextCast, NULL, NULL, NULL, 1);
@@ -186,7 +184,12 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 
 	if (edit_basepage > 0)
 	{
-		textseg_begin = (char *) (edit_basepage->p_tbase);
+		module_start = get_module_start(edit_basepage);
+		if (module_start == NULL || module_start->magic != MOD_MAGIC_EDIT)
+		{
+			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
+			return NULL;
+		}
 
 		/* Modulkennung (als wievieltes Modul gestartet?) */
 		if (mode == MSTART)
@@ -221,7 +224,7 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 			if (mode == MEXEC)
 				graf_mouse(BUSYBEE, NULL);
 
-			module_main = (void (*)(GARGAMEL *smurf_struct)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+			module_main = (void (*)(GARGAMEL *smurf_struct)) (module_start->entry);
 			module_main(sm_struct);
 
 			graf_mouse(ARROW, NULL);
@@ -230,8 +233,8 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 		if (mode == MQUERY)
 		{
 			module.bp[mod_id & 0xFF] = edit_basepage;
-			mod_abs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
-			return ((BASPAG *) mod_abs);
+			mod_abs = module_start->ability;	/* Module Abilities */
+			return (BASPAG *) mod_abs;
 		}
 	}
 
@@ -244,10 +247,10 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 /*-----------------------------------------------------------------	*/
 EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_export, BASPAG *export_basepage, GARGAMEL *sm_struct, short module_number)
 {
-	char *textseg_begin;
+	const MODULE_START *module_start;
 	long temp;
 	long mod_magic;
-	MOD_ABILITY *mod_abs;
+	const MOD_ABILITY *mod_abs;
 	EXPORT_PIC *encoded_pic;
 	EXPORT_PIC *(*export_module_main)(GARGAMEL *smurf_struct);
 
@@ -280,7 +283,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 
 	if (export_basepage > 0)
 	{
-		textseg_begin = export_basepage->p_tbase;	/* Textsegment-Startadresse holen */
+		module_start = get_module_start(export_basepage);	/* Textsegment-Startadresse holen */
 
 		sm_struct->services = &global_services;
 		sm_struct->smurf_pic = pic_to_export;
@@ -311,7 +314,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 			if (message == MEXEC)
 				graf_mouse(BUSYBEE, NULL);
 
-			export_module_main = (EXPORT_PIC *(*)(GARGAMEL *))(textseg_begin + MAIN_FUNCTION_OFFSET);	/* Main-Funktion holen...   */
+			export_module_main = (EXPORT_PIC *(*)(GARGAMEL *))(module_start->entry);	/* Main-Funktion holen...   */
 			encoded_pic = export_module_main(sm_struct);	/* ...und aufrufen  */
 
 			graf_mouse(ARROW, NULL);
@@ -320,7 +323,7 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 		if (message == MQUERY || message == MEXTEND)
 		{
 			module.bp[module_number & 0xFF] = export_basepage;
-			mod_abs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));	/* Module Abilities */
+			mod_abs = module_start->ability;	/* Module Abilities */
 			return (EXPORT_PIC *) mod_abs;
 		}
 	}
@@ -384,14 +387,14 @@ short handle_modevent(short event_type, WINDOW *mod_window)
 /*	-----------------------------------------------------------	*/
 void f_handle_modmessage(GARGAMEL *smurf_struct)
 {
-	char *textseg_begin;
+	const MODULE_START *module_start;
 	short message;
 	short back;
 	short mod_num;
 	WINDOW *window_to_handle;
 	DISPLAY_MODES thisDisplay;
 	BASPAG *bsp;
-	MOD_INFO *modinfo;
+	const MOD_INFO *modinfo;
 
 	message = smurf_struct->module_mode;
 	mod_num = smurf_struct->module_number;
@@ -447,8 +450,8 @@ void f_handle_modmessage(GARGAMEL *smurf_struct)
 		 */
 	case M_CROSSHAIR:
 		bsp = module.bp[mod_num & 0xFF];
-		textseg_begin = bsp->p_tbase;
-		modinfo = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+		module_start = get_module_start(bsp);
+		modinfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 
 		position_markers[mod_num & 0xFF].anzahl = smurf_struct->event_par[0];
 		position_markers[mod_num & 0xFF].mod_pic[0] = smurf_struct->event_par[1];
@@ -713,12 +716,9 @@ void check_and_terminate(short mode, short module_number)
 /*-----------------------------------------------------------------	*/
 BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA *ditherdata)
 {
-	char *textseg_begin;
-
+	const DITHER_START *dither_start;
 	short (*module_main)(DITHER_DATA *smurf_struct);
-
 	BASPAG *dither_basepage;
-
 
 	if (mod_id < 0 || mod_id >= MAX_MODS)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[SMURF_ID_ERR].TextCast, NULL, NULL, NULL, 1);
@@ -726,7 +726,7 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA *ditherdata)
 	if (mod_id >= 0)
 	{
 		dither_basepage = Dithermod_Basepage[mod_id];
-		textseg_begin = dither_basepage->p_tbase;	/* Textsegment-Startadresse holen */
+		dither_start = get_module_start(dither_basepage);	/* Textsegment-Startadresse holen */
 
 		/* Message von Smurf */
 		ditherdata->message = mode;		/* 0=dithers mir, -1 = Beenden, 2=Config */
@@ -734,7 +734,7 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA *ditherdata)
 		/* Funktionen einh„ngen */
 		ditherdata->services = &global_services;
 
-		module_main = (short (*)(DITHER_DATA *)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+		module_main = (short (*)(DITHER_DATA *)) (dither_start->entry);
 		if (mode != MQUERY)
 			module_main(ditherdata);
 
@@ -1022,7 +1022,7 @@ SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short
 /*	best„tigen. In event_par[0] wird die lfd. Nummer des bergebenen Bildes	*/
 /*	abgelegt, beginnend mit 0.												*/
 /* ------------------------------------------------------------------------	*/
-short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number)
+short f_give_pics(const MOD_INFO *mod_info, const MOD_ABILITY *mod_abs, short module_number)
 {
 	char alertstr[SM_PATH_MAX + 1];
 	short t;
@@ -1157,19 +1157,37 @@ void start_module(BASPAG *basepage)
 }
 
 
+const void *get_module_start(BASPAG *basepage)
+{
+	unsigned long *exec_longs;
+	
+	exec_longs = (unsigned long *)basepage->p_tbase;
+	/* Test for new program format */
+	if (
+	     /* Original binutils */
+	     (exec_longs[0] == 0x283a001aL && exec_longs[1] == 0x4efb48faL)
+	     /* binutils >= 2.18-mint-20080209 */
+	     || (exec_longs[0] == 0x203a001aL && exec_longs[1] == 0x4efb08faL)
+	   )
+		exec_longs += (228 / sizeof(*exec_longs));
+
+	return (void *)exec_longs;
+}
+
+
 /* get_modmagic -------------------------------------------------
 	Ermittelt das Magic eines Moduls (4 Bytes) und gibt dieses zurck.
 	----------------------------------------------------------------*/
 long get_modmagic(BASPAG *basepage)
 {
-	char *textseg_begin;
+	const MODULE_START *start;
 
 	if (basepage == NULL)
 		return 0;
-
-	textseg_begin = basepage->p_tbase;
-	return (*((long *) (textseg_begin + MAGIC_OFFSET)));
+	start = get_module_start(basepage);
+	return start->magic;
 }
+
 
 
 /* AESmsg_to_module -------------------------------------------------
@@ -1233,7 +1251,7 @@ void AESmsg_to_modules(WORD *msgbuf)
 /* ------------------------------------------------------------------------	*/
 void make_modpreview(WINDOW *wind)
 {
-	char *textbeg;
+	const MODULE_START *module_start;
 	short mod_num;
 	short t;
 	WORD w, h;
@@ -1244,17 +1262,17 @@ void make_modpreview(WINDOW *wind)
 	long Awidth;
 	SMURF_PIC *source_pic;
 	SMURF_PIC *add_pix[7];
-	MOD_ABILITY *mod_abs;
+	const MOD_ABILITY *mod_abs;
 	MOD_ABILITY new_mod;
-	MOD_INFO *mod_inf;
+	const MOD_INFO *mod_inf;
 	DISPLAY_MODES thisDisplay;
 
 	mod_num = wind->module;
 	mod_index = mod_num & 0xFF;
 
-	textbeg = module.bp[mod_index]->p_tbase;
-	mod_abs = *((MOD_ABILITY **) (textbeg + MOD_ABS_OFFSET));
-	mod_inf = *((MOD_INFO **) (textbeg + MOD_INFO_OFFSET));
+	module_start = get_module_start(module.bp[mod_index]);
+	mod_abs = module_start->ability;
+	mod_inf = module_start->info;
 
 #if 0
 	for (t = 0; t < mod_inf->how_many_pix; t++)

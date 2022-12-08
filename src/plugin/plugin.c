@@ -99,13 +99,13 @@ void scan_plugins(void)
 	char newpath[SM_PATH_MAX];
 	char *oldpath;
 	char *dot_pos;
-	char *textseg_begin;
+	const PLUGIN_START *plugin_start;
 	short pathlen;
 	short t;
 	BOOLEAN install_flag;
 	short install_index;
 	short curr_plugin_entry;
-	PLUGIN_INFO *curr_info;
+	const PLUGIN_INFO *curr_info;
 	PLUGIN_INFO *info;
 	PLUGIN_INFO installed_infos[MAX_PLUGINS];
 	long mod_magic;
@@ -180,12 +180,12 @@ void scan_plugins(void)
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
 				start_module(plugin_bp[anzahl_plugins]);
 
-				textseg_begin = plugin_bp[anzahl_plugins]->p_tbase;	/* Textsegment-Startadresse holen */
+				plugin_start = get_module_start(plugin_bp[anzahl_plugins]);	/* Textsegment-Startadresse holen */
 
 				install_index = anzahl_plugins;
 				install_flag = TRUE;
 
-				curr_info = *((PLUGIN_INFO **) (textseg_begin + PLG_INFO_OFFSET));
+				curr_info = plugin_start->info;
 
 				if (curr_info->for_smurf_version != SMURF_VERSION)
 				{
@@ -320,14 +320,14 @@ void scan_plugins(void)
 	---------------------------------------------------------------------------*/
 short start_plugin(BASPAG *bp, short message, short plg_id, PLUGIN_DATA *data)
 {
-	void (*plg_main)(PLUGIN_DATA * data);
-	char *textseg_begin;
+	void (*plg_main)(PLUGIN_DATA *data);
+	const PLUGIN_START *plugin_start;
 	short out_msg;
 	short index;
 	short curr_notify_index;
 	long mod_magic;
 
-	textseg_begin = bp->p_tbase;		/* Textsegment-Startadresse holen */
+	plugin_start = get_module_start(bp);		/* Textsegment-Startadresse holen */
 	mod_magic = get_modmagic(bp);		/* Zeiger auf Magic (muž 'PLGN' sein!) */
 	index = plg_id & 0xFF;
 
@@ -345,7 +345,7 @@ short start_plugin(BASPAG *bp, short message, short plg_id, PLUGIN_DATA *data)
 		if (message == MSTART)
 			data->id = plg_id;			/* ID eintragen (nur beim Hochfahren) */
 
-		plg_main = (void (*)(PLUGIN_DATA * data)) (textseg_begin + MAIN_FUNCTION_OFFSET);
+		plg_main = (void (*)(PLUGIN_DATA *data)) (plugin_start->entry);
 		if (plg_main != NULL)
 			plg_main(data);
 
@@ -617,6 +617,7 @@ static void init_structs(void)
 	global_functions.start_edit_module = start_edit_module;
 	global_functions.start_dither_module = start_dither_module;
 	global_functions.check_and_terminate = check_and_terminate;
+	global_functions.get_module_start = get_module_start;
 
 	global_functions.f_event = f_event;
 	global_functions.f_handle_message = f_handle_message;

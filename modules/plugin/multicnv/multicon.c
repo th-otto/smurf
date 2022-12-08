@@ -340,10 +340,10 @@ static void ready_depth_popup(MOD_ABILITY *expmabs)
     ----------------------------------------------------------------------*/
 static void init_exporter(void)
 {
-	char *txtbeg;
+	const MODULE_START *module_start;
 	char module_name[33] = "";
 	short t;
-	MOD_INFO *modinfo;
+	const MOD_INFO *modinfo;
 
 	mod_num = give_free_module();
 	if (mod_num == -1)
@@ -356,13 +356,11 @@ static void init_exporter(void)
 	smurf_struct[mod_num & 0xFF] = malloc(sizeof(GARGAMEL));
 	memset(smurf_struct[mod_num & 0xFF], 0x0, sizeof(GARGAMEL));
 
-	edit_bp[mod_num & 0xFF] =
-		(BASPAG *) smurf_functions->start_exp_module(export_path, MSTART, NULL, edit_bp[mod_num & 0xFF],
-													 smurf_struct[mod_num & 0xFF], mod_num);
+	edit_bp[mod_num & 0xFF] = (BASPAG *) smurf_functions->start_exp_module(export_path, MSTART, NULL, edit_bp[mod_num & 0xFF], smurf_struct[mod_num & 0xFF], mod_num);
 	smurf_struct[mod_num & 0xFF]->wind_struct = NULL;
 
-	txtbeg = edit_bp[mod_num & 0xFF]->p_tbase;
-	modinfo = *((MOD_INFO **) (txtbeg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+	module_start = smurf_functions->get_module_start(edit_bp[mod_num & 0xFF]);
+	modinfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 
 	strncpy(module_name, modinfo->mod_name, 30);
 
@@ -531,8 +529,8 @@ static void handle_dialog(PLUGIN_DATA *data)
 	WORD exp_index;
 	short t;
 	char module_name[33] = "";
-	char *textseg;
-	MOD_INFO *minfo;
+	const MODULE_START *module_start;
+	const MOD_INFO *minfo;
 	char pal_loadpath[256];
 
 	if (data->message == MBEVT)
@@ -625,8 +623,8 @@ static void handle_dialog(PLUGIN_DATA *data)
 				{
 					options_open = 0;
 
-					textseg = edit_bp[mod_num & 0xFF]->p_tbase;
-					minfo = *((MOD_INFO **) (textseg + MOD_INFO_OFFSET));	/* Zeiger auf Modulinfostruktur */
+					module_start = smurf_functions->get_module_start(edit_bp[mod_num & 0xFF]);
+					minfo = module_start->info;	/* Zeiger auf Modulinfostruktur */
 					strncpy(module_name, minfo->mod_name, 30);
 
 					for (t = 0; t < smurf_vars->anzahl_exporter; t++)

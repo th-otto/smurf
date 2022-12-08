@@ -32,6 +32,8 @@
 #include "smurf_st.h"
 #include "smurf_f.h"
 #include "destruct.h"
+#include "plugin.h"
+#include "smplugin.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"
@@ -44,7 +46,7 @@ void f_edit_pop(void)
 {
 	char alert[128];
 	char *mpath;
-	char *textseg_begin;
+	const MODULE_START *module_start;
 	WORD button = 0;
 	WORD back = 0;
 	short mod_num = 0;
@@ -56,9 +58,8 @@ void f_edit_pop(void)
 	short pic_needed;
 	WORD my_scancode;
 	WORD message;
-	MOD_INFO *module_info;
-	MOD_INFO *mod_info;
-	MOD_ABILITY *mod_abs;
+	const MOD_INFO *mod_info;
+	const MOD_ABILITY *mod_abs;
 	GARGAMEL *garg_st;
 	SMURF_PIC *picture_to_handle;
 
@@ -116,12 +117,14 @@ void f_edit_pop(void)
 		 */
 		module.smStruct[20] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
 		memset(module.smStruct[20], 0x0, sizeof(GARGAMEL));
-		if ((mod_abs =
-			 (MOD_ABILITY *) module.comm.start_edit_module(mpath, module.bp[20], MQUERY, 20, module.smStruct[20])) == NULL)
+		if ((mod_abs = (MOD_ABILITY *) module.comm.start_edit_module(mpath, module.bp[20], MQUERY, 20, module.smStruct[20])) == NULL)
+		{
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
+			return;
+		}
 
-		textseg_begin = module.bp[20]->p_tbase;
-		mod_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+		module_start = get_module_start(module.bp[20]);
+		mod_info = module_start->info;
 
 		pic_needed = mod_info->how_many_pix;
 		module.smStruct[20]->module_mode = M_EXIT;
@@ -172,7 +175,7 @@ void f_edit_pop(void)
 				if (module.smStruct[mod_num]->module_mode == M_STARTED)
 				{
 					/* Sicherheitsabfrage */
-					if (Sys_info.profi_mode != OS_SELECTED)
+					if (!(Sys_info.profi_mode & OS_SELECTED))
 					{
 						strcpy(alert, "[2][");
 						strcat(alert, Dialog.emodList.modNames[mod_index]);
@@ -193,9 +196,9 @@ void f_edit_pop(void)
 					/*
 					 * Textsegment-Startadresse holen
 					 */
-					textseg_begin = module.bp[mod_num]->p_tbase;
-					mod_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
-					mod_abs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));
+					module_start = get_module_start(module.bp[mod_num]);
+					mod_info = module_start->info;
+					mod_abs = module_start->ability;
 
 					back = 0;
 
@@ -245,24 +248,25 @@ void f_edit_pop(void)
 							Window.redraw(&picture_windows[active_pic], NULL, 0, DRAWNOTREE | DRAWNOBLOCK | BLOCK_ONLY);
 							Window.redraw(&picture_windows[active_pic], NULL, 0, BLOCK_ONLY);
 						} else
+						{
 							Window.redraw(&picture_windows[active_pic], NULL, 0, 0);
-
+						}
 						f_pic_changed(&picture_windows[active_pic], 1);
 					} else if (module.bp[mod_num] != NULL && module.smStruct[mod_num]->module_mode == M_WAITING)
 					{
 						/*
 						 * Modul wartet - Infostruktur auslesen
 						 */
-						textseg_begin = (char *) module.bp[mod_num]->p_tbase;	/* Zeiger auf Modulinfostruktur */
-						module_info = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
-						sn1 = module_info->smin1;
-						sx1 = module_info->smax1;
-						sn2 = module_info->smin2;
-						sx2 = module_info->smax2;
-						sn3 = module_info->smin3;
-						sx3 = module_info->smax3;
-						sn4 = module_info->smin4;
-						sx4 = module_info->smax4;
+						module_start = get_module_start(module.bp[mod_num]);	/* Zeiger auf Modulinfostruktur */
+						mod_info = module_start->info;
+						sn1 = mod_info->smin1;
+						sx1 = mod_info->smax1;
+						sn2 = mod_info->smin2;
+						sx2 = mod_info->smax2;
+						sn3 = mod_info->smin3;
+						sx3 = mod_info->smax3;
+						sn4 = mod_info->smin4;
+						sx4 = mod_info->smax4;
 					}
 
 					Dialog.busy.ok();
@@ -287,7 +291,7 @@ void f_edit_pop(void)
 							position_markers[mod_num].ypos[0] = module.smStruct[mod_num]->event_par[1];
 						}
 
-						if (mod_info->how_many_pix == 1 && position_markers[mod_num].anzahl >= 1)
+						if (pic_needed == 1 && position_markers[mod_num].anzahl >= 1)
 						{
 							position_markers[mod_num].mod_pic[0] = -2;	/* aktives Bild */
 							position_markers[mod_num].smurfpic[0] = active_pic;	/* aktives Bild */
@@ -323,17 +327,17 @@ void emod_info_on(short mod_index)
 {
 	char str[10];
 	char *filename;
-	char *textseg_begin;
-	MOD_INFO *info_mi;
-	MOD_ABILITY *info_mabs;
+	const MODULE_START *module_start;
+	const MOD_INFO *info_mi;
+	const MOD_ABILITY *info_mabs;
 
 	module.smStruct[20] = (GARGAMEL *) malloc(sizeof(GARGAMEL));
-	memset(module.smStruct[20], 0x0, sizeof(GARGAMEL));
+	memset(module.smStruct[20], 0, sizeof(GARGAMEL));
 	if ((info_mabs = (MOD_ABILITY *) module.comm.start_edit_module(edit_modules[mod_index], module.bp[20], MQUERY, 20, module.smStruct[20])) == NULL)
 		Dialog.winAlert.openAlert(Dialog.winAlert.alerts[EMOD_START_ERR].TextCast, NULL, NULL, NULL, 1);
 
-	textseg_begin = module.bp[20]->p_tbase;
-	info_mi = *((MOD_INFO **) (textseg_begin + MOD_INFO_OFFSET));
+	module_start = get_module_start(module.bp[20]);
+	info_mi = module_start->info;
 
 	strncpy(Dialog.emodList.infoTree[I_MODNAME].TextCast, Dialog.emodList.modNames[mod_index], 27);
 

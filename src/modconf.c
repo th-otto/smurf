@@ -70,6 +70,8 @@
 #include "smurf_st.h"
 #include "smurf_f.h"
 #include "smurfine.h"
+#include "plugin.h"
+#include "smplugin.h"
 
 #include "smurfobs.h"
 #include "ext_obs.h"
@@ -181,7 +183,7 @@ static long seekInFile(int filehandle, char *SeekString)
 	den Dateipointer auf das 'MCAB'.
 	Zurckgegeben wird die neue Position relativ zur alten vor dem Aufruf.
 	-------------------------------------------------------------*/
-static long seek_modconf(int filehandle, MOD_INFO *modinfo)
+static long seek_modconf(int filehandle, const MOD_INFO *modinfo)
 {
 	char SeekString[128] = "MCAB";
 	long filepos;
@@ -206,7 +208,7 @@ static long seek_modconf(int filehandle, MOD_INFO *modinfo)
 	Eintrag zurck.
 	Scrolling im Popup muž noch gemacht werden!
 	----------------------------------------------------------------------*/
-static short open_modconf_popup(MOD_INFO * modinfo)
+static short open_modconf_popup(const MOD_INFO *modinfo)
 {
 	char cnfpath[SM_PATH_MAX + 1];
 	char *omca;
@@ -380,7 +382,7 @@ static short open_modconf_popup(MOD_INFO * modinfo)
 	™ffnet das Pseudopopup und l„dt eine Konfiguration. Diese wird
 	an das Modul zurckgegeben.
 	------------------------------------------------------*/
-void *mconfLoad(MOD_INFO *modinfo, short mod_id, char *name)
+void *mconfLoad(const MOD_INFO *modinfo, short mod_id, char *name)
 {
 	char cnfname[33];
 	short back;
@@ -444,7 +446,7 @@ static void expandFile(int handle, long len)
 	der L„nge len unter dem Namen name in der MODCONF.CNF. 
 	Wird von mconfSave() aufgerufen!
 	-------------------------------------------------------------------------*/
-static void save_to_modconf(MOD_INFO * modinfo, void *confblock, long len, char *name, long type)
+static void save_to_modconf(const MOD_INFO *modinfo, void *confblock, long len, char *name, long type)
 {
 	char cnfpath[SM_PATH_MAX + 1];
 	int filehandle;
@@ -548,7 +550,7 @@ static void save_to_modconf(MOD_INFO * modinfo, void *confblock, long len, char 
 	šberschreibt eine Modulkonfiguration mit dem Index num in der Datei
 	mit dem neuen Block confblock der L„nge newlen.
 	-------------------------------------------------------------------*/
-static short overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, char *name, short num, long type)
+static short overwriteMCNF(const MOD_INFO *modinfo, char *confblock, long newlen, char *name, short num, long type)
 {
 	char SeekString[37] = "MCNF";
 	char cnfpath[SM_PATH_MAX + 1];
@@ -634,7 +636,7 @@ static short overwriteMCNF(MOD_INFO * modinfo, char *confblock, long newlen, cha
 
 /* Testet ob der Konfigname schon vergeben fr dieses Modul */
 /* Rckgabe 0: alles ist klar, 1: schon vergeben */
-static short nametest(MOD_INFO * modinfo, char *name)
+static short nametest(const MOD_INFO *modinfo, const char *name)
 {
 	char cnfpath[SM_PATH_MAX + 1];
 	char SeekString[37] = "MCNF";
@@ -688,7 +690,7 @@ static short nametest(MOD_INFO * modinfo, char *name)
 	in die MONDCONF.CNF gespeichert. Zurckgegeben wird ein Zeiger
 	auf den vom User eingegebenen Namen (max. 32 Zeichen).
 	------------------------------------------------------*/
-void mconfSave(MOD_INFO * modinfo, short mod_id, void *confblock, long len, char *name)
+void mconfSave(const MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name)
 {
 	char cnfname[33];
 	short back;
@@ -764,7 +766,7 @@ void mconfSave(MOD_INFO * modinfo, short mod_id, void *confblock, long len, char
 	Ein Zeiger auf den geladenen Konfigurationsblock (SMalloc) wird zurckgegeben
 	und in num kommt die L„nge zurck.
 	-------------------------------------------------------------------------------*/
-void *load_from_modconf(MOD_INFO * modinfo, char *name, short *num, long type)
+void *load_from_modconf(const MOD_INFO *modinfo, char *name, short *num, long type)
 {
 	char SeekString[37] = "MCNF";
 	char cnfpath[SM_PATH_MAX + 1];
@@ -851,18 +853,18 @@ void *load_from_modconf(MOD_INFO * modinfo, char *name, short *num, long type)
 void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 {
 	char cmp_modname[30];
-	char *textseg;
+	const MODULE_START *module_start;
 	void *cnfblock;
 	short index;
-	MOD_INFO *modinfo;
+	const MOD_INFO *modinfo;
 
 	/*
 	 * Erstmal muž der passende Index gefunden werden.
 	 * Dazu nehmen wir uns den Namen des Moduls und suchen
 	 * ihn unter den eingetragenen Editmodulen
 	 */
-	textseg = (char *) (modbase->p_tbase);
-	modinfo = *((MOD_INFO **) (textseg + MOD_INFO_OFFSET));
+	module_start = get_module_start(modbase);
+	modinfo = module_start->info;
 
 	strcpy(cmp_modname, modinfo->mod_name);
 	if (strlen(cmp_modname) < 28)
@@ -896,19 +898,19 @@ void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 void memorize_expmodConfig(BASPAG * modbase, GARGAMEL * smurf_struct, char save)
 {
 	char cmp_modname[30];
-	char *textseg;
+	const MODULE_START *module_start;
 	char *cnfblock;
 	short index;
 	short length;
-	MOD_INFO *modinfo;
+	const MOD_INFO *modinfo;
 
 	/*
 	 * Erstmal muž der passende Index gefunden werden.
 	 * Dazu nehmen wir uns den Namen des Moduls und suchen
 	 * ihn unter den eingetragenen Exportmodulen
 	 */
-	textseg = (char *) (modbase->p_tbase);
-	modinfo = *((MOD_INFO **) (textseg + MOD_INFO_OFFSET));
+	module_start = get_module_start(modbase);
+	modinfo = module_start->info;
 
 	strcpy(cmp_modname, modinfo->mod_name);
 	if (strlen(cmp_modname) < 28)
@@ -949,18 +951,18 @@ void memorize_expmodConfig(BASPAG * modbase, GARGAMEL * smurf_struct, char save)
 	---------------------------------------------------------------------*/
 void transmitConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
 {
-	char *textseg;
+	const MODULE_START *module_start;
 	char cmp_modname[30];
 	short index;
-	MOD_INFO *modinfo;
+	const MOD_INFO *modinfo;
 
 	/*
 	 * Erstmal muž der passende Index gefunden werden.
 	 * Dazu nehmen wir uns den Namen des Moduls und suchen
 	 * ihn unter den eingetragenen Editmodulen
 	 */
-	textseg = (char *) (modbase->p_tbase);
-	modinfo = *((MOD_INFO **) (textseg + MOD_INFO_OFFSET));
+	module_start = get_module_start(modbase);
+	modinfo = module_start->info;
 
 	strcpy(cmp_modname, modinfo->mod_name);
 	if (strlen(cmp_modname) < 28)

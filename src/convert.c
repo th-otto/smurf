@@ -80,7 +80,7 @@ static void bgrtorgb(uint8_t *pic, long pixels)
 }
 
 
-short f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, uint8_t modcolform, uint8_t mode, uint8_t automatic)
+short f_convert(SMURF_PIC *picture, const MOD_ABILITY *mod_abs, uint8_t modcolform, uint8_t mode, uint8_t automatic)
 {
 	uint8_t picdepth, dstdepth, srcmode, dstmode, t;
 	uint8_t moddepth[8];

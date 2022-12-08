@@ -32,6 +32,8 @@
 #include "smurfine.h"
 #include "smurf_f.h"
 #include "popdefin.h"
+#include "plugin.h"
+#include "smplugin.h"
 
 #include "globdefs.h"
 #include "vaproto.h"
@@ -79,7 +81,7 @@ void f_picman(void)
 	SMURF_PIC *pic;
 	WINDOW *mod_wind = 0;
 	WINDOW *mwindow = 0;
-	MOD_INFO *minf;
+	const MOD_INFO *minf;
 
 
 	my_scancode = (key_scancode & 0xff00) >> 8;
@@ -447,21 +449,21 @@ void f_resort_piclist(void)
 /*		und gibt dessen MOD_INFO zurck.							*/
 /* ----------------------------------------------------------------	*/
 
-MOD_INFO *ready_modpics_popup(WINDOW *mwindow)
+const MOD_INFO *ready_modpics_popup(WINDOW *mwindow)
 {
-	char *textbase;
+	const MODULE_START *module_start;
 	char *dest_str;
 	char *src_str;
 	char *miptr[8];
 	char *src_str2;
 	char *dest_str2;
 	short t;
-	MOD_INFO *minf;
+	const MOD_INFO *minf;
 	BASPAG *modbp;
 
 	modbp = module.bp[mwindow->module];
-	textbase = modbp->p_tbase;
-	minf = *((MOD_INFO **) (textbase + MOD_INFO_OFFSET));
+	module_start = get_module_start(modbp);
+	minf = module_start->info;
 
 	miptr[0] = minf->pic_descr1;
 	miptr[1] = minf->pic_descr2;

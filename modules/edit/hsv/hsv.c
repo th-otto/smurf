@@ -95,12 +95,7 @@ typedef struct
 	char setbright;
 } CONFIG;
 
-static short (*busybox)(short pos);
-static void (*SMfree)(void *ptr);
-static void (*redraw_window)(WINDOW *window, GRECT *mwind, WORD startob, WORD flags);
-static void *(*mconfLoad)(MOD_INFO *modinfo, short mod_id, char *name);
-static void (*mconfSave)(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
-static SERVICE_FUNCTIONS *service;
+static SERVICE_FUNCTIONS *services;
 
 MOD_INFO module_info = {
 	"HSV's mir",
@@ -250,21 +245,21 @@ static void apply_setting(CONFIG *myConfig)
 	make_sliders();
 
 	rs_object[CHECK_H].ob_spec.obspec.character = setcol;
-	redraw_window(&window, NULL, CHECK_H, 0);
-	service->set_slider(&colsl, slidcol);
+	services->redraw_window(&window, NULL, CHECK_H, 0);
+	services->set_slider(&colsl, slidcol);
 
 	rs_object[CHECK_S].ob_spec.obspec.character = setsat;
-	redraw_window(&window, NULL, CHECK_S, 0);
-	service->set_slider(&satsl, slidsat);
+	services->redraw_window(&window, NULL, CHECK_S, 0);
+	services->set_slider(&satsl, slidsat);
 
 	rs_object[CHECK_V].ob_spec.obspec.character = setbright;
-	redraw_window(&window, NULL, CHECK_V, 0);
-	service->set_slider(&brsl, slidbright);
+	services->redraw_window(&window, NULL, CHECK_V, 0);
+	services->set_slider(&brsl, slidbright);
 
 	win_form[_HSV].ob_state &= ~OS_SELECTED;
 	win_form[_HLS].ob_state &= ~OS_SELECTED;
 	win_form[mode].ob_state |= OS_SELECTED;
-	redraw_window(&window, NULL, SYSTEM_BOX, 0);
+	services->redraw_window(&window, NULL, SYSTEM_BOX, 0);
 }
 
 
@@ -273,10 +268,10 @@ static void load_setting(void)
 	char name[33];
 	CONFIG *myConfig;
 
-	if ((myConfig = mconfLoad(&module_info, module_id, name)) != NULL)
+	if ((myConfig = services->mconfLoad(&module_info, module_id, name)) != NULL)
 	{
 		apply_setting(myConfig);
-		SMfree(myConfig);
+		services->SMfree(myConfig);
 	}
 }
 
@@ -304,7 +299,7 @@ static void save_setting(void)
 
 	write_setting(&myConfig);
 
-	mconfSave(&module_info, module_id, &myConfig, sizeof(CONFIG), name);
+	services->mconfSave(&module_info, module_id, &myConfig, sizeof(CONFIG), name);
 }
 
 
@@ -320,13 +315,13 @@ static short handle_bevt(short Button)
 		break;
 
 	case S4_S:
-		slidcol = service->slider(&colsl);
+		slidcol = services->slider(&colsl);
 		break;
 	case S5_S:
-		slidsat = service->slider(&satsl);
+		slidsat = services->slider(&satsl);
 		break;
 	case S6_S:
-		slidbright = service->slider(&brsl);
+		slidbright = services->slider(&brsl);
 		break;
 
 	case CHECK_H:
@@ -337,9 +332,9 @@ static short handle_bevt(short Button)
 		else
 			setcol = ' ';
 		rs_object[CHECK_H].ob_spec.obspec.character = setcol;
-		redraw_window(&window, NULL, CHECK_H, 0);
+		services->redraw_window(&window, NULL, CHECK_H, 0);
 		make_sliders();
-		service->set_slider(&colsl, slidcol);
+		services->set_slider(&colsl, slidcol);
 		break;
 
 	case CHECK_S:						/* printf("slidsat: %lu\n", slidsat); */
@@ -357,9 +352,9 @@ static short handle_bevt(short Button)
 			slidsat = (slidsat * 200 + 127) / 255 - 100;
 
 		rs_object[CHECK_S].ob_spec.obspec.character = setsat;
-		redraw_window(&window, NULL, CHECK_S, 0);
+		services->redraw_window(&window, NULL, CHECK_S, 0);
 		make_sliders();
-		service->set_slider(&satsl, slidsat);
+		services->set_slider(&satsl, slidsat);
 		break;
 
 	case CHECK_V:						/* printf("slidbright: %lu\n", slidbright); */
@@ -377,9 +372,9 @@ static short handle_bevt(short Button)
 			slidbright = (slidbright * 200 + 127) / 255 - 100;
 
 		rs_object[CHECK_V].ob_spec.obspec.character = setbright;
-		redraw_window(&window, NULL, CHECK_V, 0);
+		services->redraw_window(&window, NULL, CHECK_V, 0);
 		make_sliders();
-		service->set_slider(&brsl, slidbright);
+		services->set_slider(&brsl, slidbright);
 		break;
 
 	case _HSV:
@@ -398,8 +393,8 @@ static short handle_bevt(short Button)
 				strcpy(rs_object[COMPONENT3].ob_spec.tedinfo->te_ptext, "S");
 			}
 
-			redraw_window(&window, NULL, COMPONENT2, 0);
-			redraw_window(&window, NULL, COMPONENT3, 0);
+			services->redraw_window(&window, NULL, COMPONENT2, 0);
+			services->redraw_window(&window, NULL, COMPONENT3, 0);
 
 			temp = (short) slidsat;
 			slidsat = slidbright;
@@ -412,11 +407,11 @@ static short handle_bevt(short Button)
 			make_sliders();
 
 			rs_object[CHECK_S].ob_spec.obspec.character = setsat;
-			redraw_window(&window, NULL, CHECK_S, 0);
+			services->redraw_window(&window, NULL, CHECK_S, 0);
 			rs_object[CHECK_V].ob_spec.obspec.character = setbright;
-			redraw_window(&window, NULL, CHECK_V, 0);
-			service->set_slider(&satsl, slidsat);
-			service->set_slider(&brsl, slidbright);
+			services->redraw_window(&window, NULL, CHECK_V, 0);
+			services->set_slider(&satsl, slidsat);
+			services->set_slider(&brsl, slidbright);
 		}
 		break;
 	case MCONF_LOAD:
@@ -457,7 +452,7 @@ static void do_HSV(uint8_t *data, unsigned short width, unsigned short height, u
 	{
 		if (!(i % bh))
 		{
-			busybox(bl);
+			services->busybox(bl);
 			bl += 12;
 		}
 
@@ -646,7 +641,7 @@ static void do_HLS(uint8_t *data, unsigned short width, unsigned short height, u
 	{
 		if (!(i % bh))
 		{
-			busybox(bl);
+			services->busybox(bl);
 			bl += 12;
 		}
 
@@ -846,7 +841,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	unsigned long brightval = 0;
 	CONFIG *config;
 
-	service = smurf_struct->services;
+	services = smurf_struct->services;
 
 	/* Wenn das Modul zum ersten Mal gestartet wurde */
 	switch (smurf_struct->module_mode)
@@ -859,10 +854,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			rsrc_obfix(rs_object, t);
 
 		module_id = smurf_struct->module_number;
-		SMfree = smurf_struct->services->SMfree;
-		redraw_window = service->redraw_window;
-		mconfLoad = service->mconfLoad;
-		mconfSave = service->mconfSave;
 
 		window.whandlem = 0;			/* evtl. Handle l”schen */
 		window.module = smurf_struct->module_number;	/* ID in die Fensterstruktur eintragen  */
@@ -913,8 +904,6 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		/* wie schnell sind wir? */
 		init_timer();
 #endif
-		busybox = smurf_struct->services->busybox;
-
 		colval = (unsigned short) slidcol;	/* Absolutwert */
 
 		if (mode == _HSV)

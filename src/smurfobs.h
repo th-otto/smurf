@@ -60,7 +60,7 @@ typedef struct modComm
     void (*handleMessage)(GARGAMEL *smurf_struct);
 
     SMURF_PIC *(*getPic)(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short form, short col);
-    short (*givePics)(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number);
+    short (*givePics)(const MOD_INFO *mod_info, const MOD_ABILITY *mod_abs, short module_number);
 
     short (*inform)(short message, SMURF_PIC *picture);
     void (*transmitAESmsg)(WORD *msgbuf);

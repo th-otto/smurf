@@ -117,7 +117,7 @@ void makeNCT(long *par, long maxcol) ASM_NAME("_makeNCT");
 
 
 /*--------------------- Transformers -----------------------*/
-short f_convert(SMURF_PIC *picture, MOD_ABILITY *mod_abs, uint8_t modcolform, uint8_t mode, uint8_t automatic);
+short f_convert(SMURF_PIC *picture, const MOD_ABILITY *mod_abs, uint8_t modcolform, uint8_t mode, uint8_t automatic);
 short tfm_std_to_std(SMURF_PIC *smurf_pic, uint8_t dst_depth, uint8_t mode);
 short tfm_std_to_pp(SMURF_PIC *picture, uint8_t dst_depth, uint8_t mode);
 short tfm_pp_to_std8(SMURF_PIC *picture, uint8_t mode);
@@ -259,10 +259,11 @@ void walk_module_tree(WINDOW *wind, WORD start);
 void init_modtree(OBJECT *tree, WORD index);
 void convert_icon(OBJECT *tree, WORD index);
 SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short form, short col);
-short f_give_pics(MOD_INFO *mod_info, MOD_ABILITY *mod_abs, short module_number);       /* mehrere Bilder ans Modul Åbergeben */
+short f_give_pics(const MOD_INFO *mod_info, const MOD_ABILITY *mod_abs, short module_number);       /* mehrere Bilder ans Modul Åbergeben */
 short inform_modules(short message, SMURF_PIC *picture);    /* Informiert alle Module und Plugins Åber message */
 void start_module(BASPAG *baspag);
 long get_modmagic(BASPAG *basepage);
+const void *get_module_start(BASPAG *basepage);
 void AESmsg_to_modules(WORD *msgbuf);
 void make_modpreview(WINDOW *wind);
 
@@ -286,9 +287,9 @@ extern void *edit_cnfblock[100];
 extern OBJECT *confsave_dialog;
 extern OBJECT *modconf_popup;
 
-void *mconfLoad(MOD_INFO *modinfo, short mod_id, char *name);
-void mconfSave(MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
-void *load_from_modconf(MOD_INFO *modinfo, char *name, short *num, long type);
+void *mconfLoad(const MOD_INFO *modinfo, short mod_id, char *name);
+void mconfSave(const MOD_INFO *modinfo, short mod_id, void *confblock, long len, char *name);
+void *load_from_modconf(const MOD_INFO *modinfo, char *name, short *num, long type);
 void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct);
 void memorize_expmodConfig(BASPAG *modbase, GARGAMEL *smurf_struct, char save);
 void transmitConfig(BASPAG *modbase, GARGAMEL *smurf_struct);
@@ -517,7 +518,7 @@ extern EXPORT_CONFIG exp_conf;
 void f_export_pic(void);                                 /* Bild exportieren */
 int f_save_pic(MOD_ABILITY *export_mabs);
 void save_file(void);
-short dither_for_export(MOD_ABILITY *mod_abs, short max_expdepth, short dest_format, SMURF_PIC *converted_pic);
+short dither_for_export(const MOD_ABILITY *mod_abs, short max_expdepth, short dest_format, SMURF_PIC *converted_pic);
 void init_exmod_info(short mod_index);
 void exmod_info_off(void);
 short loadNCT(short loadplanes, SYSTEM_INFO *sysinfo);
@@ -571,7 +572,7 @@ void insert_to_picman(short pic_to_insert);
 void show_picman_wh(SMURF_PIC *pic);
 BOOLEAN pm_autoscroll(WORD mx, WORD my);
 void f_resort_piclist(void);
-MOD_INFO *ready_modpics_popup(WINDOW *mwindow);     /* Modul-Bildreihenfolge-Popup vorbereiten */
+const MOD_INFO *ready_modpics_popup(WINDOW *mwindow);     /* Modul-Bildreihenfolge-Popup vorbereiten */
 void make_picman_thumbnail(short picture_num);
 void picman_windowmove(void);
 WORD compute_zoom(SMURF_PIC *picture, WORD twid, WORD thgt);

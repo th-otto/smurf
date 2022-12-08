@@ -69,9 +69,6 @@
 /*	mÅûte ;-)														*/
 /*-----------------------------------------------------------------	*/
 
-#define PLG_INFO_OFFSET 12		/* Abstand der Plugin-Infostruktur vom Textsegementanfang */
-
-
 /*----- Messages fÅr Plugins von Smurf*/
 #define	MWINDCLOSED	257				/* Beim Fensterschlieûen kann nicht MTERM geschickt werden,
 										weil das Plugin ja trotzdem weiterlaufen soll.	*/
@@ -102,6 +99,7 @@ typedef struct
 	BASPAG*		(*start_edit_module)(char *modpath, BASPAG *edit_basepage, short mode, short mod_anz, GARGAMEL *smurf_struct);
 	BASPAG*		(*start_dither_module)(short mode, short mod_id, DITHER_DATA *ditherdata);
 	void 		(*check_and_terminate)(short mode, short module_number);
+	const void *(*get_module_start)(BASPAG *basepage);
 
 	/*
 	 *	Transformers und Ditherroutinen
@@ -117,9 +115,9 @@ typedef struct
 	short	(*tfm_cmy_to_rgb)(SMURF_PIC *picture, uint8_t mode);
 	short	(*tfm_rgb_to_grey)(SMURF_PIC *picture, uint8_t mode);
 
-	short	(*dither_for_export)(MOD_ABILITY *mod_abs, short max_expdepth, short dest_format, SMURF_PIC *converted_pic);
+	short	(*dither_for_export)(const MOD_ABILITY *mod_abs, short max_expdepth, short dest_format, SMURF_PIC *converted_pic);
 /*	short	(*dither)(SMURF_PIC *dest, SYSTEM_INFO *sys_info, short pic_changed); */
-	short 	(*f_convert)(SMURF_PIC *picture, MOD_ABILITY *mod_abs, uint8_t modcolform, uint8_t mode, uint8_t automatic);
+	short 	(*f_convert)(SMURF_PIC *picture, const MOD_ABILITY *mod_abs, uint8_t modcolform, uint8_t mode, uint8_t automatic);
 
 
 	/*
@@ -268,7 +266,7 @@ typedef struct
 	/* 176 */ LIST_FIELD *picture_list;
 	/* 180 */ POP_UP *pop_ups;
 
-	/* 184 */ DITHER_MOD_INFO **ditmod_info;
+	/* 184 */ const DITHER_MOD_INFO **ditmod_info;
 
 	/* 188 */ EXPORT_CONFIG *exp_conf;
 	/* 192 */ short anzahl_importmods;
@@ -363,6 +361,35 @@ typedef struct plginfo
 	uint8_t resident;			/* Resident halten oder nicht? */
 } PLUGIN_INFO;
 
+
+/*
+ * structures at start of text segments of plugins/modules
+ */
+
+typedef struct {
+	unsigned short trap[2];  /* Pterm(0) */
+	unsigned short entry[2]; /* bra.w plugin_main */
+	unsigned long magic;
+	const PLUGIN_INFO *info;
+	unsigned long interface_version;
+} PLUGIN_START;
+
+typedef struct {
+	unsigned short trap[2];  /* Pterm(0) */
+	unsigned short entry[2]; /* bra.w dither_module_main */
+	unsigned long magic;
+	const DITHER_MOD_INFO *info;
+	unsigned long interface_version;
+} DITHER_START;
+
+typedef struct {
+	unsigned short trap[2];  /* Pterm(0) */
+	unsigned short entry[2]; /* bra.w edit_module_main/imp_module_main/exp_module_main */
+	unsigned long magic;
+	const MOD_INFO *info;
+	const MOD_ABILITY *ability;
+	unsigned long interface_version;
+} MODULE_START;
 
 extern PLUGIN_INFO plugin_info ASM_NAME("plugin_info");
 

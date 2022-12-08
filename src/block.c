@@ -36,6 +36,8 @@
 #include "destruct.h"
 #include "vaproto.h"
 #include "smurfobs.h"
+#include "plugin.h"
+#include "smplugin.h"
 #include "ext_obs.h"
 #include "ext_rsc.h"
 #include "demolib.h"
@@ -1679,14 +1681,14 @@ void blockfunctions_off(void)
 int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 {
 	char *dest_pic;
-	char *textseg_begin;
+	const MODULE_START *module_start;
 	char clipexp_path[SM_PATH_MAX];
 
 	int back = 0;
 
 	BASPAG *clx_bp;
 	GARGAMEL clx_struct;
-	MOD_ABILITY *clipexp_mabs;
+	const MOD_ABILITY *clipexp_mabs;
 	SMURF_PIC *new_pic;
 
 	/*
@@ -1724,8 +1726,8 @@ int encode_block(SMURF_PIC *picture, EXPORT_PIC **pic_to_save)
 		back = -1;
 	} else
 	{
-		textseg_begin = (char *) (clx_bp->p_tbase);
-		clipexp_mabs = *((MOD_ABILITY **) (textseg_begin + MOD_ABS_OFFSET));
+		module_start = get_module_start(clx_bp);
+		clipexp_mabs = module_start->ability;
 		f_convert(new_pic, clipexp_mabs, RGB, SAME, 0);
 	
 		/*------------------- Bild speichern --------------------------------------------*/
