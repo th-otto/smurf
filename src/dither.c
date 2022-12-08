@@ -76,9 +76,9 @@ static uint16_t w;
 int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *part, DISPLAY_MODES *displayOpt)
 {
 	MFDB *screenpic;
-	MFDB *standard_image;
+	MFDB *standard_image = NULL;
 	uint8_t *paddr;
-	uint8_t *sc_picture;
+	uint8_t *sc_picture = NULL;
 	uint8_t *z;
 	WORD display_depth, handle, t;
 	WORD endwid, endhgt, pic_pal_index;
@@ -124,7 +124,7 @@ int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *par
 	if (bplanes <= 8 || src_depth == 1)
 	{
 		standard_image = (MFDB *)malloc(sizeof(MFDB));	/* Standardformat - MFDB */
-		memset(standard_image, 0x0, sizeof(MFDB));
+		memset(standard_image, 0, sizeof(MFDB));
 	}
 
 	/***************************************************/
@@ -191,7 +191,7 @@ int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *par
 			return -1;
 		}
 
-		memset(sc_picture, 0x0, mem);
+		memset(sc_picture, 0, mem);
 	}
 
 	graf_mouse(BUSYBEE, NULL);
@@ -285,6 +285,8 @@ int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *par
 					 */
 					if (dest->changed != 255 && dest->local_nct == NULL)
 						tmp_nct = fix_palette(dest, sys_info);	/* Palette anpassen */
+					else
+						tmp_nct = dest->local_nct;
 					f_dither_24_1(sys_info, dest, paddr, SCALEPAL | PLANTAB | LNCT, tmp_nct, part);
 				}
 			}
@@ -324,6 +326,8 @@ int f_dither(SMURF_PIC *dest, SYSTEM_INFO *sys_info, int pic_changed, GRECT *par
 					{
 						if (dest->changed != 255 && dest->local_nct == NULL)
 							tmp_nct = fix_palette(dest, sys_info);	/* Palette anpassen */
+						else
+							tmp_nct = dest->local_nct;
 						f_dither_24_1(sys_info, dest, paddr, SCALEPAL | PLANTAB | LNCT, tmp_nct, part);
 					}
 
@@ -742,9 +746,9 @@ int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MOD
 			for (t = 0; t <= sys_info->Max_col; t++)
 			{
 				pic_pal_index = sys_info->plane_table[t];
-				dest->red[pic_pal_index] = (char)((255L * (long)(sys_info->pal_red[t])) / 1000L);
-				dest->grn[pic_pal_index] = (char)((255L * (long)(sys_info->pal_green[t])) / 1000L);
-				dest->blu[pic_pal_index] = (char)((255L * (long)(sys_info->pal_blue[t])) / 1000L);
+				dest->red[pic_pal_index] = (uint8_t)((255L * (long)(sys_info->pal_red[t])) / 1000L);
+				dest->grn[pic_pal_index] = (uint8_t)((255L * (long)(sys_info->pal_green[t])) / 1000L);
+				dest->blu[pic_pal_index] = (uint8_t)((255L * (long)(sys_info->pal_blue[t])) / 1000L);
 			}
 		} else if (pic_dmode == CR_FILEPAL)	/* FilePal */
 		{
@@ -783,9 +787,9 @@ int export_dither_dispatcher(SMURF_PIC *dest, SYSTEM_INFO *sys_info, DISPLAY_MOD
 				for (t = 0; t <= sys_info->Max_col; t++)
 				{
 					pic_pal_index = sys_info->plane_table[t];
-					dest->red[pic_pal_index] = (char)((long)sys_info->pal_red[t] * 255L / 1000L);
-					dest->grn[pic_pal_index] = (char)((long)sys_info->pal_green[t] * 255L / 1000L);
-					dest->blu[pic_pal_index] = (char)((long)sys_info->pal_blue[t] * 255L / 1000L);
+					dest->red[pic_pal_index] = (uint8_t)((long)sys_info->pal_red[t] * 255L / 1000L);
+					dest->grn[pic_pal_index] = (uint8_t)((long)sys_info->pal_green[t] * 255L / 1000L);
+					dest->blu[pic_pal_index] = (uint8_t)((long)sys_info->pal_blue[t] * 255L / 1000L);
 				}
 			}
 

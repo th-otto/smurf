@@ -28,7 +28,7 @@ typedef struct
 {
     short dst_depth;                /* Farbtiefe, auf die gedithert werden soll */
     WORD *red, *blue, *green;       /* Palette, auf die Gedithert werden soll (15 Bit!) */
-    char *nc_tab;                   /* Nearest-Color-Table */
+    uint8_t *nc_tab;                /* Nearest-Color-Table */
     uint8_t *planetable;            /* Plane-Table fÅr VDI-Indizes */
     
     SMURF_PIC *picture;             /* das zu dithernde Bild */
@@ -56,7 +56,7 @@ typedef struct
                                 aneinander liegen.
                                 */
     short zoom;
-    char        *dest_mem;          /* Zielspeicher, in den gedithert werden soll */
+    uint8_t     *dest_mem;       /* Zielspeicher, in den gedithert werden soll */
 
     short message;                    /* Median CUT (1/3) oder Syspal (0/2) */
 

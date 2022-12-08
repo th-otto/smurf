@@ -1147,7 +1147,7 @@ void make_pic_window(short pic_to_make, WORD wid, WORD hgt, char *name)
 
 	whlen = (short) strlen(picture_windows[pic_to_make].wtitle);
 	strncat(picture_windows[pic_to_make].wtitle, "            ", 12 - whlen);
-	strcat(picture_windows[pic_to_make].wtitle, shorten_name(name, 41 - (char) strlen(picture_windows[pic_to_make].wtitle)));
+	strcat(picture_windows[pic_to_make].wtitle, shorten_name(name, 41 - (short) strlen(picture_windows[pic_to_make].wtitle)));
 #if 0
 	strncat(picture_windows[pic_to_make].wtitle, name, 40);
 #endif
@@ -1273,7 +1273,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 				 * Bilder bergeben, -> karierte Flagge frs Modul
 				 */
 				Window.windGet(0, WF_TOP, &oldtop, 0, 0, 0);
-				Window.topNow(&wind_s[WIND_BUSY]);
+				Window.top_window_now(&wind_s[WIND_BUSY]);
 				Window.redraw(&wind_s[WIND_BUSY], NULL, 0, 0);
 				Dialog.busy.reset(0, mod_win->wtitle);
 				module.smStruct[mod_index]->event_par[0] = 0;
@@ -1369,7 +1369,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 			edited_pic = edited_pic->block;
 		}
 
-		Window.topNow(&wind_s[WIND_BUSY]);
+		Window.top_window_now(&wind_s[WIND_BUSY]);
 		Window.redraw(&wind_s[WIND_BUSY], NULL, 0, 0);
 
 		imageWindow.clipPicwin(&picture_windows[picnum]);
@@ -1397,7 +1397,7 @@ static WORD do_MBEVT(short module_number, WINDOW *mod_win, int mode)
 	if ((mod_magic == MOD_MAGIC_EDIT || mod_magic == MOD_MAGIC_EXPORT) && module.smStruct[mod_index])
 		check_and_terminate(module.smStruct[mod_index]->module_mode, mod_index);
 
-	Window.topHandle(oldtop);
+	Window.top_windowhandle(oldtop);
 	Dialog.busy.dispRAM();
 	return 0;
 }
@@ -1761,7 +1761,7 @@ void f_event(void)
 							if (klickobj == 0 || ob[klickobj].ob_type == G_FTEXT || IsDisabled(ob[klickobj])
 								/* || !IsSelectable(ob[klickobj]) && (ob[klickobj].ob_type & 0xff00) == 0 */ )
 							{
-								Window.top(wind_s[windnum].whandlem);
+								Window.top_window(wind_s[windnum].whandlem);
 								back = 0;
 							} else
 								if (klickobj != -1 && IsSelectable(ob[klickobj]) &&
@@ -1828,7 +1828,7 @@ void f_event(void)
 									/* Radiobutton - noch keine Extrawurst */
 									if (mod_win->resource_form[klickobj].ob_flags & OF_RBUTTON)
 									{
-										Window.topNow(mod_win);
+										Window.top_window_now(mod_win);
 										form_button(mod_win->resource_form, klickobj, klicks, &newedit);
 									}
 

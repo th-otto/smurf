@@ -138,7 +138,7 @@ void init_roto(void)
 	rotoimage.screen_pic->fd_stand = 0;
 	rotoimage.screen_pic->fd_nplanes = Sys_info.bitplanes;
 
-	memset(rotowork_in, 0x0, 40);
+	memset(rotowork_in, 0, sizeof(rotowork_in));
 	rotowork_in[11] = rotoimage.screen_pic->fd_w - 1;
 	rotowork_in[12] = rotoimage.screen_pic->fd_h - 1;
 	v_opnbm(rotowork_in, rotoimage.screen_pic, &offscreenHandle, rotowork_out);
@@ -167,7 +167,7 @@ void roto(void)
 {
 	short pos;
 	short t;
-	WORD pxy[5];
+	WORD pxy[8];
 	short normvek;
 	long mySin, myCos;
 	short xrot[100], yrot[100], zrot[100];

@@ -194,7 +194,7 @@ void f_edit_pop(void)
 					}
 
 					Window.windGet(0, WF_TOP, &oldtop, 0, 0, 0);
-					Window.topNow(&wind_s[WIND_BUSY]);
+					Window.top_window_now(&wind_s[WIND_BUSY]);
 					Window.redraw(&wind_s[WIND_BUSY], NULL, 0, 0);
 
 					/*
@@ -274,7 +274,7 @@ void f_edit_pop(void)
 					}
 
 					Dialog.busy.ok();
-					Window.topHandle(oldtop);
+					Window.top_windowhandle(oldtop);
 				} else if (module.smStruct[mod_num]->module_mode == M_WAITING)
 				{
 					/*

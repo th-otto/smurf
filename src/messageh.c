@@ -85,7 +85,7 @@ WORD f_handle_message(void)
 	long argback;
 	const MOD_INFO *modinfo;
 	GRECT aes_red;
-	WINDOW *window_to_handle;
+	WINDOW *window_to_handle = NULL;
 	WINDOW *picwindow;
 	WORD topwin;
 	OBJECT *ob;
@@ -108,7 +108,7 @@ WORD f_handle_message(void)
 		} else if (wind_num < 0)
 		{
 			window_to_handle = &picture_windows[-wind_num];
-		} else if (wind_num == 0)
+		} else
 		{
 			window_to_handle = Window.myModuleWindow(messagebuf[3]);
 			ismodule = TRUE;
@@ -501,7 +501,7 @@ WORD f_handle_message(void)
 				Window.cursorOff(window_to_handle);
 				wind_close(window_to_handle->whandlem);
 				wind_delete(window_to_handle->whandlem);
-				Window.removeWindow(window_to_handle);	/* aus der Liste entfernen */
+				Window.remove_window(window_to_handle);	/* aus der Liste entfernen */
 			}
 
 			window_to_handle->shaded = 0;
@@ -646,6 +646,8 @@ WORD f_handle_message(void)
 					 */
 					else if (module_num & MOD_EXPORT)
 					{
+						void **pp;
+						
 						/*
 						 * Exporternummer suchen
 						 */
@@ -658,7 +660,8 @@ WORD f_handle_message(void)
 								break;
 						}
 
-						*((char **) module.smStruct[module_num & MOD_ID_MASK]->event_par) = export_cnfblock[t];
+						pp = (void **)module.smStruct[module_num & MOD_ID_MASK]->event_par;
+						*pp = export_cnfblock[t];
 						module.smStruct[module_num & MOD_ID_MASK]->event_par[2] = export_cnflen[t];
 						module.comm.start_exp_module("", MMORECANC, smurf_picture[active_pic], module.bp[module_num & MOD_ID_MASK], module.smStruct[module_num & MOD_ID_MASK], module_num);
 						window_to_handle->module = 0;
@@ -800,7 +803,10 @@ WORD f_handle_message(void)
 		} else if (messagebuf[4] == VA_OB_FOLDER || messagebuf[4] == VA_OB_DRIVE)
 		{
 			if (Comm.avComm.type == AV_BLOCK && smurf_picture[-picnum]->block != NULL)
-				block2clip(smurf_picture[-picnum], 0, (char *) *((long *) (&messagebuf[5])));
+			{
+				char **pp = (char **)&messagebuf[5];
+				block2clip(smurf_picture[-picnum], 0, *pp);
+			}
 		} else
 		{
 #if 0
@@ -831,20 +837,26 @@ WORD f_handle_message(void)
 		 * BubbleGEM-Acknowledge -> Bubblehelp-String freigeben
 		 */
 	case BUBBLEGEM_ACK:
-		ext_com_ptr = *(char **) &messagebuf[5];
-		if (messagebuf[5] != 0 && messagebuf[6] != 0)
-			SMfree(ext_com_ptr);		/* entspricht helpstring aus bubble_gem() */
+		{
+			void **pp = (void **)&messagebuf[5];
+			ext_com_ptr = *pp;
+			if (ext_com_ptr)
+				SMfree(ext_com_ptr);		/* entspricht helpstring aus bubble_gem() */
+		}
 		break;
 
 		/*
 		 * Document History - Acknowledge
 		 */
 	case DHST_ACK:
-		ext_com_ptr = *(char **) &messagebuf[3];
-		if (messagebuf[3] != 0 && messagebuf[4] != 0)
 		{
-			SMfree(((DHSTINFO *) ext_com_ptr)->appname);	/* entspricht string aus update_dhst() */
-			SMfree(ext_com_ptr);		/* entspricht history aus update_dhst() */
+			void **pp = (void **)&messagebuf[3];
+			ext_com_ptr = *pp;
+			if (ext_com_ptr)
+			{
+				SMfree(((DHSTINFO *) ext_com_ptr)->appname);	/* entspricht string aus update_dhst() */
+				SMfree(ext_com_ptr);		/* entspricht history aus update_dhst() */
+			}
 		}
 		break;
 
@@ -887,12 +899,16 @@ WORD f_handle_message(void)
 		 * OLGA_ACK: Update- oder Renamemessage ist angekommen - Dateinamen freigeben
 		 */
 	case OLGA_ACK:
-		ext_com_ptr = *(char **) &messagebuf[3];
-		if (messagebuf[3] != 0 && messagebuf[4] != 0)
-			SMfree(ext_com_ptr);		/* entspricht old_filename oder new_filename aus bubble_gem() */
-		ext_com_ptr = *(char **) &messagebuf[5];
-		if (messagebuf[5] != 0 && messagebuf[6] != 0)
-			SMfree(ext_com_ptr);		/* entspricht new_filename aus bubble_gem() */
+		{
+			void **pp = (void **)&messagebuf[3];
+			ext_com_ptr = *pp;
+			if (ext_com_ptr)
+				SMfree(ext_com_ptr);		/* entspricht old_filename oder new_filename aus bubble_gem() */
+			pp = (void **)&messagebuf[5];
+			ext_com_ptr = *pp;
+			if (ext_com_ptr)
+				SMfree(ext_com_ptr);		/* entspricht new_filename aus bubble_gem() */
+		}
 		break;
 	}
 

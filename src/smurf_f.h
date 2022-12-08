@@ -601,7 +601,7 @@ void BCD2string(char *string, uint16_t bcd);
 char *strrpbrk(char *s1beg, char *s1, char *s2);
 void make_singular_display(DISPLAY_MODES *old, short Dither, short Pal);
 void restore_display(DISPLAY_MODES *old);
-char *shorten_name(char *string, char newlen);
+char *shorten_name(char *string, short newlen);
 BOOLEAN get_path(char *path, char drive);
 BOOLEAN set_path(char *path);
 void f_drag_object(WINDOW *wind, WORD objct, WORD *dex, WORD *dey, BOOLEAN call, BOOLEAN (*call_me)(WORD mx, WORD my));

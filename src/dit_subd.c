@@ -178,6 +178,9 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, 
 	if (mode & LNCT)
 	{
 		ditherdata.nc_tab = picture->local_nct;
+	}
+	if (mode & SCALEPAL)
+	{
 		ditherdata.red = c_red;
 		ditherdata.green = c_grn;
 		ditherdata.blue = c_blu;

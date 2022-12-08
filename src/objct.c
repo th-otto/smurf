@@ -46,7 +46,7 @@ void f_handle_radios(OBJECT *tree, WORD klickobj, short windnum)
 
 	if (tree[klickobj].ob_flags & OF_RBUTTON && !(tree[klickobj].ob_state & OS_DISABLED))
 	{
-		Window.topNow(&wind_s[windnum]);
+		Window.top_window_now(&wind_s[windnum]);
 		form_button(wind_s[windnum].resource_form, klickobj, klicks, &newedit);
 	}
 }

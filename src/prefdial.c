@@ -1079,7 +1079,7 @@ void f_mpref_change(void)
 		/*
 		 * Gargamel-Struktur fllen
 		 */
-		Window.topNow(&wind_s[WIND_BUSY]);
+		Window.top_window_now(&wind_s[WIND_BUSY]);
 		module_start = get_module_start(module.bp[edit_mod_num]);
 		mod_inf = module_start->info;
 		mod_abs = module_start->ability;
@@ -1116,7 +1116,7 @@ void f_mpref_change(void)
 			 * Modul starten... 
 			 */
 			Window.windGet(0, WF_TOP, &oldtop, 0, 0, 0);
-			Window.topNow(&wind_s[WIND_BUSY]);
+			Window.top_window_now(&wind_s[WIND_BUSY]);
 			Window.redraw(&wind_s[WIND_BUSY], NULL, 0, 0);
 
 			module.smStruct[edit_mod_num]->event_par[0] = position_markers[edit_mod_num & 0xFF].xpos[0];
@@ -1181,7 +1181,7 @@ void f_mpref_change(void)
 				Dialog.busy.ok();
 			}							/* picdone */
 
-			Window.topHandle(oldtop);
+			Window.top_windowhandle(oldtop);
 		}								/* genug Speicher */
 
 		if (close_me)

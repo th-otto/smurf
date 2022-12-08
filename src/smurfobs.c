@@ -81,11 +81,11 @@ void init_GuiObs(void)
 	Window.rcIntersect = f_rc_intersect;
 	Window.myWindow = my_window;
 	Window.myModuleWindow = my_module_window;
-	Window.windowToList = window_to_list;
-	Window.removeWindow = remove_window;
-	Window.top = top_window;
-	Window.topNow = top_window_now;
-	Window.topHandle = top_windowhandle;
+	Window.window_to_list = window_to_list;
+	Window.remove_window = remove_window;
+	Window.top_window = top_window;
+	Window.top_window_now = top_window_now;
+	Window.top_windowhandle = top_windowhandle;
 	Window.close = close_window;
 
 	Window.cursorOn = cursor_on;

@@ -181,7 +181,7 @@ WORD f_handle_menuevent(WORD *message)
 		if (nexthandle != 256)
 		{
 			Dialog.topDialog = nexthandle;
-			Window.top(nexthandle);
+			Window.top_window(nexthandle);
 		}
 		break;
 
@@ -221,10 +221,12 @@ WORD f_handle_menuevent(WORD *message)
 			wnum = Window.myWindow(nexthandle);
 			if (wnum < 0)
 			{
-				Window.topNow(&picture_windows[-wnum]);
+				Window.top_window_now(&picture_windows[-wnum]);
 				f_activate_pic(-wnum);
 			} else
-				Window.topNow(&picture_windows[-wnum]);
+			{
+				Window.top_window_now(&picture_windows[-wnum]);
+			}
 		}
 		break;
 

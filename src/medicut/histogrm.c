@@ -81,7 +81,7 @@ static unsigned long colnum;
 /*	Ermittelt das Histogramm des Bildes in *picture und gibt es	*/
 /*	als   long *3darray[32][32][32]   zurck.					*/
 /*--------------------------------------------------------------*/
-long *make_histogram(SMURF_PIC * picture)
+long *make_histogram(SMURF_PIC *picture)
 {
 	long *histogram;
 	char *pdata;
@@ -91,7 +91,7 @@ long *make_histogram(SMURF_PIC * picture)
 	unsigned long x;
 	unsigned long xc;
 	unsigned long yc;
-	int16_t width, height;
+	uint16_t width, height;
 	unsigned long index3d;
 	uint8_t red, green, blue;
 	uint8_t index8;
@@ -115,8 +115,9 @@ long *make_histogram(SMURF_PIC * picture)
 	if (picture->format_type == FORM_PIXELPAK)
 	{
 		if (picture->depth == 24)
+		{
 			colnum = histogram_24bit(histogram, pdata, pixlen);
-		else if (picture->depth == 16)
+		} else if (picture->depth == 16)
 		{
 			while (t--)
 			{
@@ -155,7 +156,7 @@ long *make_histogram(SMURF_PIC * picture)
 		for (yc = 0; yc < height; yc++)
 		{
 			if (!(yc & 63))
-				Dialog.busy.draw((short) ((long) yc * 20L / (long) height));
+				Dialog.busy.draw((short) (yc * 20L / height));
 			pdata = (char *) (picture->pic_data) + (yc * x);
 			for (xc = 0; xc < x; xc++)
 			{
@@ -320,7 +321,7 @@ static int16_t find_cutpos(int16_t box_to_cut, int16_t edge, long *histogram)
 #else
 		sum_plane = sum_xzplane;
 #endif
-	} else if (edge == ZEDGE)
+	} else /* if (edge == ZEDGE) */
 	{
 		left_position = boxes[box_to_cut]->zbox;
 		right_position = boxes[box_to_cut]->zbox + boxes[box_to_cut]->boxdepth - 1;
@@ -457,7 +458,7 @@ static int16_t find_edge(int16_t *edge, int16_t num_of_boxes)
 {
 	int16_t t;
 	int16_t w, h, d;
-	int16_t boxreturn;
+	int16_t boxreturn = 0;
 	int16_t edgereturn = 0;
 	int16_t curedge = 0;
 	int16_t maxlen = 0;
@@ -612,7 +613,7 @@ static void shrink_box(int16_t num_of_box, long *histogram)
 /*										MEDIAN CUT										*/
 /*	Farbquantisierung nach Heckbert aus dem Histogramm *histogram des Bildes *picture	*/
 /*-------------------------------------------------------------------------------------	*/
-void median_cut(long *histogram, SMURF_PIC * picture, SYSTEM_INFO * sysinfo)
+void median_cut(long *histogram, SMURF_PIC *picture, SYSTEM_INFO *sysinfo)
 {
 	int16_t currentbox = 0;
 	int16_t edge;
@@ -637,7 +638,7 @@ void median_cut(long *histogram, SMURF_PIC * picture, SYSTEM_INFO * sysinfo)
 	 * die Anzahl, die im Bild berhaupt vorhanden ist.
 	 */
 	dest_colors = sysinfo->Max_col + 1;
-	if (colnum < dest_colors)
+	if ((int16_t) colnum < dest_colors)
 		dest_colors = (int16_t) colnum;
 
 	for (t = 0; t < dest_colors + 1; t++)

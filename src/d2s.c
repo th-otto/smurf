@@ -104,7 +104,7 @@ void direct2screen(SMURF_PIC *picture, uint8_t *where_to, GRECT *part)
 	char bits;
 	uint16_t width, height, endwid, endhgt;
 	unsigned long offset;
-	WORD work_out[272];
+	WORD work_out[273];
 	short (*func)(short);
 	SERVICE service;
 
@@ -150,26 +150,28 @@ void direct2screen(SMURF_PIC *picture, uint8_t *where_to, GRECT *part)
 				service.rs = 1;		/* wird hier miûbraucht und unten als xfirst benutzt */
 				service.gs = 1;		/* wird hier miûbraucht und unten als jump benutzt */
 			}
+			service.gm = 0xf8;
 			break;
 			/* VGA 15 Bit Intel */
 		case 2:
 			service.Intel = TRUE;
 			service.rs = 7;
-			service.gm = 0xf8;
 			service.gs = 2;
+			service.gm = 0xf8;
 			break;
 			/* VGA 16 Bit Intel */
 		case 3:
 			service.Intel = TRUE;
 			service.rs = 8;
-			service.gm = 0xfc;
 			service.gs = 3;
+			service.gm = 0xfc;
 			break;
 			/* VGA 32 Bit Intel bgrx */
 		case 8:
 			service.Intel = TRUE;
 			service.rs = 0;			/* wird hier miûbraucht und unten als xfirst benutzt */
 			service.gs = 1;			/* wird hier miûbraucht und unten als jump benutzt */
+			service.gm = 0xfc;
 			break;
 			/* VGA 15 Bit Motorola */
 		case 10:
@@ -184,15 +186,15 @@ void direct2screen(SMURF_PIC *picture, uint8_t *where_to, GRECT *part)
 			{
 				/* Falcon */
 				service.rs = 8;
-				service.gm = 0xf8;
 				service.gs = 3;
+				service.gm = 0xf8;
 			} else
 			{
 				/* VGA 16 Bit Motorola */
 				/* Wird zwar gefÅllt, aber eigentlich nie gebraucht */
 				service.rs = 8;
-				service.gm = 0xfc;
 				service.gs = 3;
+				service.gm = 0xfc;
 			}
 			break;
 			/* VGA 24 Bit Motorola oder */
@@ -208,16 +210,25 @@ void direct2screen(SMURF_PIC *picture, uint8_t *where_to, GRECT *part)
 				service.rs = 1;		/* wird hier miûbraucht und unten als xfirst benutzt */
 				service.gs = 1;		/* wird hier miûbraucht und unten als jump benutzt */
 			}
+			service.gm = 0xf8;
 			break;
 			/* VGA 32 Bit Motorola rgbx */
 		case 24:
 			service.Intel = FALSE;
 			service.rs = 0;			/* wird hier miûbraucht und unten als xfirst benutzt */
 			service.gs = 1;			/* wird hier miûbraucht und unten als jump benutzt */
+			service.gm = 0xf8;
 			break;
 		default:
-			break;
+			return;
 		}
+	} else
+	{
+		/* Falcon */
+		service.Intel = FALSE;
+		service.rs = 8;
+		service.gs = 3;
+		service.gm = 0xf8;
 	}
 
 	if (depth == 24)
@@ -359,14 +370,14 @@ static void dstd_to_16(uint8_t *buffer, uint16_t *ziel, uint16_t width, uint16_t
 
 	/* Vorberechnung */
 	x = 0;
+	pal = palette;
 	do
 	{
-		pal = palette + x + x + x;
-
 		if (Intel)
-			*convtab++ = swap_word(((*pal++ & 0xf8) << rs) | ((*pal++ & gm) << gs) | (*pal >> 3));
+			*convtab++ = swap_word(((pal[0] & 0xf8) << rs) | ((pal[1] & gm) << gs) | (pal[2] >> 3));
 		else
-			*convtab++ = ((*pal++ & 0xf8) << rs) | ((*pal++ & gm) << gs) | (*pal >> 3);
+			*convtab++ = ((pal[0] & 0xf8) << rs) | ((pal[1] & gm) << gs) | (pal[2] >> 3);
+		pal += 3;
 	} while (++x < count);
 
 	convtab = oconvtab;
@@ -500,14 +511,14 @@ static void d8pp_to_16(uint8_t *buffer, uint16_t *ziel, uint16_t width, uint16_t
 
 	/* Vorberechnung */
 	x = 0;
+	pal = palette;
 	do
 	{
-		pal = palette + 3 * x;
-
 		if (Intel)
-			*convtab++ = swap_word(((*pal++ & 0xf8) << rs) | ((*pal++ & gm) << gs) | (*pal++ >> 3));
+			*convtab++ = swap_word(((pal[0] & 0xf8) << rs) | ((pal[1] & gm) << gs) | (pal[2] >> 3));
 		else
-			*convtab++ = ((*pal++ & 0xf8) << rs) | ((*pal++ & gm) << gs) | (*pal++ >> 3);
+			*convtab++ = ((pal[0] & 0xf8) << rs) | ((pal[1] & gm) << gs) | (pal[2] >> 3);
+		pal += 3;
 	} while (++x < SM_PALETTE_MAX);
 
 	convtab = oconvtab;
@@ -726,9 +737,9 @@ static void d24_to_16(uint8_t *buffer, uint16_t *ziel, uint16_t width, uint16_t 
 		do
 		{
 			if (Intel)
-				*ziel++ = swap_word(((*buffer++ & 0xf8) << rs) | ((*buffer++ & gm) << gs) | (*buffer++ >> 3));
+				*ziel++ = swap_word(((buffer[0] & 0xf8) << rs) | ((buffer[1] & gm) << gs) | (buffer[2]>> 3));
 			else
-				*ziel++ = ((*buffer++ & 0xf8) << rs) | ((*buffer++ & gm) << gs) | (*buffer++ >> 3);
+				*ziel++ = ((buffer[0] & 0xf8) << rs) | ((buffer[1] & gm) << gs) | (buffer[2] >> 3);
 
 			buffer += skiph;
 		} while (++x < width);

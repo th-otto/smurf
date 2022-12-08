@@ -314,7 +314,7 @@ static void pic_popup(WINDOW *picwindow)
 		graf_mkstate(&dummy, &dummy, &dummy, &kstate);
 		if (!(kstate & KEY_SHIFT))
 		{
-			Window.topNow(&wind_s[WIND_BUSY]);
+			Window.top_window_now(&wind_s[WIND_BUSY]);
 
 			if (picture->local_nct)
 			{
@@ -335,7 +335,7 @@ static void pic_popup(WINDOW *picwindow)
 				f_dither(picture->block, &Sys_info, 1, NULL, &Display_Opt);
 			}
 
-			Window.topNow(picwindow);
+			Window.top_window_now(picwindow);
 			Window.redraw(picwindow, NULL, 0, 0);
 			Dialog.busy.ok();
 		} else
@@ -1260,7 +1260,7 @@ void f_pic_event(WINDOW *picwindow, short event_type, short windnum)
 							obj = 0;
 							Dialog.picMan.handlePicman();
 #endif
-							Window.top(picwindow->whandlem);
+							Window.top_window(picwindow->whandlem);
 						}
 					} else
 					{

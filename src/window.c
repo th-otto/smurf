@@ -166,7 +166,7 @@ short f_open_window(WINDOW *window)
 		wind_open(window->whandlem, m_wind_x, m_wind_y, m_wind_w, m_wind_h);
 
 		if (window->resource_form != alert_form)
-			Window.windowToList(window);
+			Window.window_to_list(window);
 
 		window->fullx = -1;
 		window->shaded = 0;
@@ -175,7 +175,9 @@ short f_open_window(WINDOW *window)
 			f_set_picpal(window->picture);
 
 	} else
-		Window.top(window->whandlem);
+	{
+		Window.top_window(window->whandlem);
+	}
 
 	if (window->pflag == 0)
 		Dialog.topDialog = window->whandlem;
@@ -1957,8 +1959,8 @@ void top_windowhandle(WORD handle)
 		if (wnum == 0)
 			window = Window.myModuleWindow(handle);
 		else if (wnum < 0)
-			window = &picture_windows[wnum];
-		else if (wnum > 0)
+			window = &picture_windows[-wnum];
+		else
 			window = &wind_s[wnum];
 
 		if (window == NULL)

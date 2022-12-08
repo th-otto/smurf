@@ -1856,11 +1856,13 @@ int save_block(EXPORT_PIC *pic_to_save, const char *path)
 			if ((Sys_info.OSFeatures & GETINFO) && appl_getinfo(10, &ok, &dummy2, &dummy2, &dummy2) == 1 &&
 				((ok & 0x00ff) >= SHW_BROADCAST))
 			{
+				int32_t *pp;
 				ap_buf[0] = SC_CHANGED;
 				ap_buf[1] = Sys_info.app_id;
 				ap_buf[2] = 0;
 				ap_buf[3] = 0x0008;
-				*((int32_t *) &ap_buf[4]) = 0x2e494d57L; /* '.IMG' */
+				pp = (int32_t *)&ap_buf[4];
+				*pp = 0x2e494d57L; /* '.IMG' */
 				ap_buf[6] = 0;
 				ap_buf[7] = 0;
 

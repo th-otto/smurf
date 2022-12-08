@@ -352,7 +352,7 @@ short handle_modevent(short event_type, WINDOW *mod_window)
 		if (which_object == 0 || mod_resource[which_object].ob_type == G_FTEXT || IsDisabled(mod_resource[which_object])
 			/* || !IsSelectable(mod_resource[which_object]) && (mod_resource[which_object].ob_type & 0xff00) == 0 */ )
 		{
-			Window.top(mod_window->whandlem);
+			Window.top_window(mod_window->whandlem);
 
 			if (mod_resource[which_object].ob_type != G_FTEXT)
 				which_object = -1;
@@ -372,7 +372,7 @@ short handle_modevent(short event_type, WINDOW *mod_window)
 
 	  /*------- Radiobutton angeklickt (Window toppen) */
 		if (which_object != -1 && mod_resource[which_object].ob_flags & OF_RBUTTON)
-			Window.topNow(mod_window);
+			Window.top_window_now(mod_window);
 
 		return which_object;
 	}
@@ -642,10 +642,10 @@ short f_open_module_window(WINDOW *module_window)
 
 		wind_open(module_window->whandlem, m_wind_x, m_wind_y, m_wind_w, m_wind_h);
 
-		Window.windowToList(module_window);
+		Window.window_to_list(module_window);
 	} else
 	{
-		Window.top(m_whandle);
+		Window.top_window(m_whandle);
 	}
 
 	/* aus Bruttokoordinaten wieder Nettokoordinaten machen */

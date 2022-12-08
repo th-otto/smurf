@@ -107,11 +107,11 @@ typedef struct generalWindow
     short (*myWindow)(WORD handle);
     WINDOW *(*myModuleWindow)(WORD handle);
     
-    void (*windowToList)(WINDOW *window);
-    void (*removeWindow)(WINDOW *window);
-    void (*top)(WORD handle);
-    void (*topNow)(WINDOW *window);
-    void (*topHandle)(WORD handle);
+    void (*window_to_list)(WINDOW *window);
+    void (*remove_window)(WINDOW *window);
+    void (*top_window)(WORD handle);
+    void (*top_window_now)(WINDOW *window);
+    void (*top_windowhandle)(WORD handle);
     void (*close)(WORD handle);
 
     void (*cursorOn)(WINDOW *window);

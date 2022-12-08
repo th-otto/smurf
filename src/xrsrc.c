@@ -625,7 +625,9 @@ static void xfix_cicon(UWORD *col_data, LONG len, WORD old_planes, WORD new_plan
 			memcpy(s->fd_addr, col_data, old_len * 2);
 			col_data = s->fd_addr;
 		} else
+		{
 			new_data = (UWORD *) & col_data[old_len];
+		}
 
 		for (x = 0; x < len; x++)
 		{
@@ -660,6 +662,7 @@ static void xfix_cicon(UWORD *col_data, LONG len, WORD old_planes, WORD new_plan
 			for (i = 0; i < new_planes; i++)
 				mul[i] = i * len;
 
+			maxcol = 0;
 			if (old_planes < 8)
 			{
 				maxcol = (1 << old_planes) - 1;

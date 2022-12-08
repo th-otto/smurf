@@ -436,7 +436,7 @@ void call_plugin(WORD menuentry)
 		{
 			if (plg_data[plugin_number]->wind_struct != NULL && plg_data[plugin_number]->wind_struct->whandlem != -1)
 			{
-				Window.top(plg_data[plugin_number]->wind_struct->whandlem);
+				Window.top_window(plg_data[plugin_number]->wind_struct->whandlem);
 			} else if (modconfs[plugin_number]->windhandle != 0)
 			{
 				msgbuf[0] = WM_TOPPED;

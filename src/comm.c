@@ -64,7 +64,7 @@ short get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf)
 {
 	char pipe_name[] = "U:\\PIPE\\DRAGDROP.AA";
 	char *namename;
-	char *data;
+	uint8_t *data;
 	char *data_tag;
 
 	char dd_ok = DD_OK;
@@ -150,7 +150,7 @@ short get_dragdrop(WINDOW *window_to_handle, WORD *messagebuf)
 		if (dd_header.data_type == 0x41524753L)	/* 'ARGS' */
 		{
 							/*----------------- Kommandozeile wurde geschickt ----*/
-			data_tag = data;
+			data_tag = (char *)data;
 			/* Eigenart von MagiXDesk und Jeenie Åbergehen, als */
 			/* erstes Zeichen ein Nullzeichen zu schicken. */
 			if (*data_tag == '\0')
@@ -297,7 +297,7 @@ short dd_getheader(DD_HEADER *dd_header, WORD pipe_handle)
 		while (header_read_bytes < dd_header->header_length)
 		{
 			overread = dd_header->header_length - header_read_bytes;
-			if (overread > sizeof(buf))
+			if (overread > (int)sizeof(buf))
 				overread = (int) sizeof(buf);
 
 			Fread(pipe_handle, overread, buf);
@@ -321,7 +321,7 @@ short send_dragdrop(SMURF_PIC *picture, WORD dest_whandle, WORD mx, WORD my)
 	char *file_name;
 	char dest_path[129] = "";
 	char dd_akt;
-	char i;
+	short i;
 	WORD pipe_handle;
 	WORD recv_id;
 	WORD wi_gw2, wi_gw3, wi_gw4;
@@ -634,6 +634,8 @@ void init_AVPROTO(void)
 
 	if (Sys_info.ENV_avserver != -1)
 	{
+		char **pp;
+		
 		ap_buf[0] = AV_PROTOKOLL;
 		ap_buf[1] = Sys_info.app_id;
 		ap_buf[2] = 0;
@@ -641,7 +643,8 @@ void init_AVPROTO(void)
 		ap_buf[4] = 0;
 		ap_buf[5] = 0;
 
-		*((char **) &ap_buf[6]) = send_smurfid;
+		pp = (char **)&ap_buf[6];
+		*pp = send_smurfid;
 		appl_write(Sys_info.ENV_avserver, 16, ap_buf);
 	}
 }

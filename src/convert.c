@@ -201,7 +201,7 @@ short f_convert(SMURF_PIC *picture, const MOD_ABILITY *mod_abs, uint8_t modcolfo
 	 * Farbtiefendispatcher
 	 */
 	if (piccolform != modcolform ||			/* Ganz verschieden ... */
-		picdepth == 24 && dstdepth == 8)	/* ... oder auch gleich aber 24 Bit->8 Bit */
+		(picdepth == 24 && dstdepth == 8))	/* ... oder auch gleich aber 24 Bit->8 Bit */
 	{
 		if (modcolform == GREY)
 		{
@@ -693,7 +693,8 @@ short tfm_24_to_16(SMURF_PIC *picture, uint8_t mode)
 		x = 0;
 		do
 		{
-			*ziel++ = ((*buffer++ & 0xf8) << 8) | ((*buffer++ & 0xf8) << 3) | (*buffer++ >> 3);
+			*ziel++ = ((buffer[0] & 0xf8) << 8) | ((buffer[1] & 0xf8) << 3) | (buffer[2] >> 3);
+			buffer += 3;
 		} while (++x < width);
 	} while (++y < height);
 
@@ -853,9 +854,13 @@ short tfm_cmy_to_rgb(SMURF_PIC *picture, uint8_t mode)
 		length = SM_PALETTE_MAX;
 		do
 		{
-			*pal++ = ~*pal;
-			*pal++ = ~*pal;
-			*pal++ = ~*pal;
+			uint8_t v;
+			v = ~*pal;
+			*pal++ = v;
+			v = ~*pal;
+			*pal++ = v;
+			v = ~*pal;
+			*pal++ = v;
 		} while (--length);
 		break;
 	}

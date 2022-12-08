@@ -365,7 +365,7 @@ void exported_SMfree(void *ptr)
 /*-----------------------------------------------------------------	*/
 float convert_units(short oldunit, short newunit, float dpi)
 {
-	float conv_factor;
+	float conv_factor = 0;
 
 	if (newunit == UNIT_PIXELS)
 	{
@@ -569,12 +569,12 @@ void restore_display(DISPLAY_MODES *old)
 /* entfernen von Text in der Mitte und ersetzen durch "...". */
 /* Aus "Dies ist ein zu langer Filename.img" wÅrde bei KÅrzung */
 /* auf 27 Zeichen "Dies ist ein...Filename.img" */
-char *shorten_name(char *string, char newlen)
+char *shorten_name(char *string, short newlen)
 {
 	static char temp[SM_PATH_MAX + 1];
 
 	/* nichts tun wenn String sowieso passend */
-	if (strlen(string) <= newlen)
+	if ((short)strlen(string) <= newlen)
 		return string;
 
 	memset(temp, 0, sizeof(temp));

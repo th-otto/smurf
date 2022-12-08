@@ -126,7 +126,7 @@ void f_picman(void)
 			/* Doppelklick / Return? */
 			if (klicks == 2 || key_ascii == KEY_RETURN)
 			{
-				Window.top(picture_windows[picture_num].whandlem);
+				Window.top_window(picture_windows[picture_num].whandlem);
 
 				/* mit Alternate (Verzeichnisfenster ”ffnen)? */
 				if (key_at_event == KEY_ALT)

@@ -140,12 +140,14 @@ void bubble_init(void)
 		if (err >= 0)					/* šber shared library versuchen        */
 		{
 			BGHI_Cookie = (BGH_Cookie *) (*slbexec) (slb, 0L, 0);
-			if (BGHI_Cookie >= 0)
+			if ((long)BGHI_Cookie > 0)
 				BGHI_Slb = TRUE;
 			else
 				BGHI_Exist = FALSE;
 		} else
+		{
 			BGHI_Exist = FALSE;
+		}
 	}
 }
 
@@ -561,6 +563,9 @@ void call_stguide(WORD topwin_handle)
 		} else if (mod_magic == MOD_MAGIC_PLUGIN)
 		{
 			modpath = plugin_paths[mod_index];
+		} else
+		{
+			return;
 		}
 
 		/*---- Modulpfad kopieren, Name isolieren und .HYP dranh„ngen. */

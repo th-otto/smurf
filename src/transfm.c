@@ -315,6 +315,9 @@ static short autoreduce_image(void)
 				G = *(convpic->palette + idx * 3 + 1);
 				B = *(convpic->palette + idx * 3 + 2);
 				break;
+			
+			default:
+				return 0; /* should not happen */
 			}
 
 			/*----------- Farbe in der Tabelle suchen */
@@ -391,7 +394,7 @@ void transform_pic(void)
 
 	resource = wind_s[WIND_TRANSFORM].resource_form;
 
-	if (!openmode || openmode == 2)
+	if (openmode == 0 || openmode == 2)
 	{
 		conv_depth = smurf_picture[active_pic]->depth;
 		switch (conv_depth)
@@ -429,6 +432,8 @@ void transform_pic(void)
 		case 24:
 			dbutton = DEPTH24;
 			break;
+		default:
+			return;
 		}
 
 		popups[POPUP_CONVDEPTH].item = dbutton;
