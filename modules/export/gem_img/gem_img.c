@@ -183,7 +183,7 @@ static unsigned long write_RGB(uint8_t *buffer, uint8_t *ziel, unsigned long w, 
 			v3[2] = *buffer++;
 			x += 3;
 
-			while (x + 3 <= w && count < 255)
+			while (x + 3u <= w && count < 255)
 			{
 				if (*buffer != v3[0] || *(buffer + 1) != v3[1] || *(buffer + 2) != v3[2])
 					break;
@@ -210,8 +210,10 @@ static unsigned long write_RGB(uint8_t *buffer, uint8_t *ziel, unsigned long w, 
 				count = 3;
 				while (x < w && count < 253)
 				{
-					if (x + 6 > w || *buffer != *(buffer + 3) || *(buffer + 1) != *(buffer + 4)
-						|| *(buffer + 2) != *(buffer + 5))
+					if (x + 6u > w ||
+						*buffer != *(buffer + 3) ||
+						*(buffer + 1) != *(buffer + 4) ||
+						*(buffer + 2) != *(buffer + 5))
 					{
 						*ziel++ = *buffer++;
 						*ziel++ = *buffer++;
@@ -346,7 +348,7 @@ static unsigned long write_Plane(uint8_t *buffer, uint8_t *ziel, unsigned long w
 					mode = SOLID0;
 				else if (v1 == 0xff)
 					mode = SOLID1;
-				else if (x + 1 < w && *buffer == v1 && *(buffer + 1) == v1)
+				else if (x + 1u < w && *buffer == v1 && *(buffer + 1) == v1)
 					mode = PATRUN;
 				else
 					mode = BITSTR;
@@ -391,10 +393,11 @@ static unsigned long write_Plane(uint8_t *buffer, uint8_t *ziel, unsigned long w
 					*ziel++ = v1;
 					while (x < w && count < 255)
 					{
-						if (x + 3 > w ||
-							!(*buffer == 0x0 && *(buffer + 1) == 0x0 && *(buffer + 2) == 0x0) &&
-							!(*buffer == 0xff && *(buffer + 1) == 0xff && *(buffer + 2) == 0xff) &&
-							!(*buffer == *(buffer + 1) || *buffer == *(buffer + 2)))
+						if (x + 3u > w ||
+							((!(*buffer == 0x0 && *(buffer + 1) == 0x0 && *(buffer + 2) == 0x0) &&
+							  !(*buffer == 0xff && *(buffer + 1) == 0xff && *(buffer + 2) == 0xff) &&
+							  !(*buffer == *(buffer + 1))) ||
+							*buffer == *(buffer + 2)))
 						{
 							*ziel++ = *buffer++;
 							x++;
@@ -505,6 +508,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		uint8_t mode;					/* GVW oder Pixart */
 	} CONFIG;
 
+	CONFIG **pp;
+
 	IMG_HEAD *img_header;
 	XIMG_HEAD *ximg_header;
 	static CONFIG config;
@@ -514,9 +519,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	{
 	case MSTART:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
 		{
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+			config = **pp;
 		} else
 		{
 			config.format = XIMG;
@@ -575,9 +581,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		/* Closer geklickt, Default wieder her */
 	case MMORECANC:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
 		{
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+			memcpy(&config, *pp, sizeof(CONFIG));
 		} else
 		{
 			config.format = XIMG;
@@ -593,13 +600,15 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		{
 		case OK:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 			smurf_struct->module_mode = M_MOREOK;
 			break;
 		case SAVE:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 			smurf_struct->module_mode = M_CONFSAVE;
 			break;

@@ -561,6 +561,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	WORD Button;
 	WORD mousey;
 	BOOLEAN changed;
+	CONFIG **pp;
 
 	f_module_window = smurf_struct->services->f_module_window;
 	slider = smurf_struct->services->slider;
@@ -674,7 +675,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	case MBEVT:
 		Button = smurf_struct->event_par[0];
 		mousey = smurf_struct->mousey;
-		
+
+		changed = FALSE;
 		switch (Button)
 		{
 		case M_RED_SLIDE:
@@ -795,13 +797,15 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			config->datapoint_blue[i] = datapoint_blue[i];
 			config->datapoint_pos[i] = datapoint_pos[i];
 		}
-		*((CONFIG **)&smurf_struct->event_par[0]) = config;
+		pp = (CONFIG **)&smurf_struct->event_par[0];
+		*pp = config;
 		smurf_struct->event_par[2] = (WORD)sizeof(*config);
 		smurf_struct->module_mode = M_CONFIG;
 		break;
 
 	case CONFIG_TRANSMIT:
-		config = *((CONFIG **)&smurf_struct->event_par[0]);
+		pp = (CONFIG **)&smurf_struct->event_par[0];
+		config = *pp;
 		num_datapoints = config->num_datapoints;
 		colrun_type = config->colrun_type;
 		colrun_direction = config->colrun_direction;

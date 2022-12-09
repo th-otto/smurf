@@ -96,7 +96,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	while (c < filelen && test != TRUE)
 	{
-		if (strncmp((buffer + c), "image", 5) == 0)
+		if (strncmp(((char *)buffer + c), "image", 5) == 0)
 			test = TRUE;
 		c++;
 	}
@@ -106,7 +106,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	test = FALSE;
 	while (c < filelen && test != TRUE)
 	{
-		if (strncmp((buffer + c), "translate", 9) == 0)
+		if (strncmp(((char *)buffer + c), "translate", 9) == 0)
 			test = TRUE;
 		c++;
 	}

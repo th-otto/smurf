@@ -740,7 +740,7 @@ static void d24_to_16(uint8_t *buffer, uint16_t *ziel, uint16_t width, uint16_t 
 				*ziel++ = swap_word(((buffer[0] & 0xf8) << rs) | ((buffer[1] & gm) << gs) | (buffer[2]>> 3));
 			else
 				*ziel++ = ((buffer[0] & 0xf8) << rs) | ((buffer[1] & gm) << gs) | (buffer[2] >> 3);
-
+			buffer += 3;
 			buffer += skiph;
 		} while (++x < width);
 

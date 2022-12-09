@@ -274,7 +274,7 @@ static short switch_orient(uint8_t *buffer, unsigned short width, unsigned short
 
 
 /* SGI-Headerstruktur schreiben */
-static void write_header(uint8_t *ziel, uint8_t *comment, unsigned short width, unsigned short height, uint8_t comp, uint8_t ColorMap, uint8_t Planes, uint8_t Dim)
+static void write_header(uint8_t *ziel, char *comment, unsigned short width, unsigned short height, uint8_t comp, uint8_t ColorMap, uint8_t Planes, uint8_t Dim)
 {
 	*((uint16_t *) ziel) = 0x01da;	/* Magic */
 	ziel += 2;
@@ -305,7 +305,7 @@ static void write_header(uint8_t *ziel, uint8_t *comment, unsigned short width, 
 	*((uint32_t *) ziel) = 0;		/* Dummy */
 	ziel += 4;
 
-	strncpy(ziel, comment, 79);			/* Image Name */
+	strncpy((char *)ziel, comment, 79);			/* Image Name */
 	ziel[79] = '\0';
 	ziel += 80;
 
@@ -341,7 +341,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	typedef struct {
 		uint8_t comp;
 	} CONFIG;
-
+	CONFIG **pp;
+	
 	static WINDOW window;
 	static OBJECT *win_form;
 	static CONFIG config;
@@ -350,8 +351,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	{
 	case MSTART:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+		pp = (CONFIG  **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
+			config = **pp;
 		else
 			config.comp = TRUE;
 
@@ -402,8 +404,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	/* Closer geklickt, Default wieder her */
 	case MMORECANC:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(config));
+		pp = (CONFIG  **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
+			config = **pp;
 		else
 			config.comp = TRUE;
 		smurf_struct->module_mode = M_WAITING;
@@ -415,13 +418,15 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		{
 		case OK:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG  **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_MOREOK;
 			break;
 		case SAVE:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG  **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_CONFSAVE;
 			break;
@@ -445,7 +450,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		{
 		case OK:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG  **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_MOREOK;
 			break;

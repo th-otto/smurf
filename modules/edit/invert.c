@@ -137,6 +137,8 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 		if (BitsPerPixel != 16)
 		{
+			uint8_t v;
+			
 			if (BitsPerPixel == 24 || BitsPerPixel == 1)
 			{
 				data = smurf_struct->smurf_pic->pic_data;
@@ -153,7 +155,10 @@ void edit_module_main(GARGAMEL * smurf_struct)
 				length = (unsigned long) ((width + 7) / 8) * (unsigned long) height;
 
 				while (length--)
-					*data++ = ~*data;
+				{
+					v = ~*data;
+					*data++ = v;
+				}
 			} else
 			{
 				if (BitsPerPixel == 24)
@@ -163,13 +168,18 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 				while (length--)
 				{
-					*data++ = ~*data;
-					*data++ = ~*data;
-					*data++ = ~*data;
+					v = ~*data;
+					*data++ = v;
+					v = ~*data;
+					*data++ = v;
+					v = ~*data;
+					*data++ = v;
 				}
 			}
 		} else if (BitsPerPixel == 16)
 		{
+			uint16_t v;
+			
 			data16 = smurf_struct->smurf_pic->pic_data;
 
 			width = smurf_struct->smurf_pic->pic_width;
@@ -178,7 +188,10 @@ void edit_module_main(GARGAMEL * smurf_struct)
 			length = (unsigned long) width * (unsigned long) height;
 
 			while (length--)
-				*data16++ = ~*data16;
+			{
+				v = ~*data16;
+				*data16++ = v;
+			}
 		}
 #if TIMER
 		/* wie schnell waren wir? */

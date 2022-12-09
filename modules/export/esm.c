@@ -242,8 +242,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		return exp_pic;
 	
 	case MTERM:
-		SMfree(exp_pic->pic_data); /* BUG: uninitialized */
-		SMfree(exp_pic);
+		/* exp_pic wird von smurf freigegeben */
 		smurf_struct->module_mode = M_EXIT;
 		break;
 

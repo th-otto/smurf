@@ -140,6 +140,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 	unsigned long planelength;
 	unsigned long w;
+	uint8_t v;
 
 	switch (smurf_struct->module_mode)
 	{
@@ -181,6 +182,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			case 4:
 				plane_table = table4_to_vdi;
 				break;
+			default:
+				smurf_struct->module_mode = M_INVALID;
+				return;
 			}
 		} else
 		{
@@ -195,6 +199,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			case 4:
 				plane_table = table4_to_hard;
 				break;
+			default:
+				smurf_struct->module_mode = M_INVALID;
+				return;
 			}
 		}
 		pixbuf = (uint8_t *) Malloc(width + 7);
@@ -217,7 +224,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				x = 0;
 				do
 				{
-					*data++ = plane_table[*data];
+					v = plane_table[*data];
+					*data++ = v;
 				} while (++x < width);
 			} while (++y < height);
 		} else
@@ -241,7 +249,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				x = 0;
 				do
 				{
-					*line++ = plane_table[*line];
+					v = plane_table[*line];
+					*line++ = v;
 				} while (++x < width);
 				setpix_std_line(pixbuf, data, BitsPerPixel, planelength, width);
 				data += w;

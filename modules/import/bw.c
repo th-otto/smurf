@@ -78,7 +78,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	if (smurf_struct->smurf_pic->file_len <= 10)
 		return M_INVALID;
 	smbuffer = smurf_struct->smurf_pic->pic_data;
-	if (strncmp(smbuffer, "B&W256", 6))
+	if (strncmp((char *)smbuffer, "B&W256", 6))
 		return M_INVALID;
 
 	x = *((uint16_t *) &smbuffer[6]);

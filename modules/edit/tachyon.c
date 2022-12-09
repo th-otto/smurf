@@ -257,7 +257,10 @@ void edit_module_main(GARGAMEL * smurf_struct)
 				length = (unsigned long) ((width + 7) / 8) * (unsigned long) height;
 
 				while (length--)
-					*data++ = ~*data;
+				{
+					uint8_t v = ~*data;
+					*data++ = v;
+				}
 			} else
 			{
 				if (BitsPerPixel != 24)

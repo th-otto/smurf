@@ -173,9 +173,13 @@ void edit_module_main(GARGAMEL * smurf_struct)
 					x = 0;
 					do
 					{
-						*data++ = transtab[*data];
-						*data++ = transtab[*data];
-						*data++ = transtab[*data];
+						uint8_t v;
+						v = transtab[*data];
+						*data++ = v;
+						v = transtab[*data];
+						*data++ = v;
+						v = transtab[*data];
+						*data++ = v;
 					} while (++x < width);
 				} else
 				{

@@ -69,8 +69,7 @@ MOD_INFO module_info = {
 	"Dr. Halo Import-Modul",
 	0x0040,
 	"Christian Eyrich",
-	"CUT", "PAL", "", "", "",
-	"", "", "", "", "",
+	{ "CUT", "PAL", "", "", "", "", "", "", "", "" },
 	"Slider 1",
 	"Slider 2",
 	"Slider 3",
@@ -94,7 +93,8 @@ MOD_INFO module_info = {
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	0, 0, 0, 0,
-	0
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 #ifdef __PUREC__
@@ -272,9 +272,10 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			if (512 - i * 6 < 6)
 				ppal += 512 - i * 6;
 #endif
-			*pal++ = ((*ppal++ + (*ppal++ << 8)) * 255) / maxr;
-			*pal++ = ((*ppal++ + (*ppal++ << 8)) * 255) / maxg;
-			*pal++ = ((*ppal++ + (*ppal++ << 8)) * 255) / maxb;
+			*pal++ = ((ppal[0] + (ppal[1] << 8)) * 255) / maxr;
+			*pal++ = ((ppal[2] + (ppal[3] << 8)) * 255) / maxg;
+			*pal++ = ((ppal[4] + (ppal[5] << 8)) * 255) / maxb;
+			ppal += 6;
 		}
 	}
 

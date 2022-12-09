@@ -402,7 +402,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 				smurf_struct->module_mode = M_MEMORY;
 				return;
 			}
-			memset(ziel, 0x0, ((unsigned long) newwidth * (unsigned long) height * BitsPerPixel) >> 3);
+			memset(ziel, 0, ((unsigned long) newwidth * (unsigned long) height * BitsPerPixel) >> 3);
 
 			if (antialias)
 				xshear_antialias(buffer, ziel, width, height, newwidth, xangle, xshearfac);
@@ -415,6 +415,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 			buffer = ziel;				/* damit y-shear gleiche Bedingungen vorfindet, */
 			width = newwidth;			/* egal ob x-shear ausgefhrt wurde, oder nicht */
+			smurf_struct->smurf_pic->pic_data = ziel;
 		}
 
 
@@ -433,7 +434,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 				smurf_struct->module_mode = M_MEMORY;
 				return;
 			}
-			memset(ziel, 0x0, ((unsigned long) width * (unsigned long) newheight * BitsPerPixel) >> 3);
+			memset(ziel, 0, ((unsigned long) width * (unsigned long) newheight * BitsPerPixel) >> 3);
 
 			if (antialias)
 				yshear_antialias(buffer, ziel, width, height, yangle, yshearfac);
@@ -443,10 +444,8 @@ void edit_module_main(GARGAMEL * smurf_struct)
 			SMfree(buffer);
 
 			smurf_struct->smurf_pic->pic_height = newheight;
+			smurf_struct->smurf_pic->pic_data = ziel;
 		}
-
-		smurf_struct->smurf_pic->pic_data = ziel;
-
 
 #if TIMER
 		/* wie schnell waren wir? */

@@ -206,9 +206,13 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 			do
 			{
-				*data++ = transr[*data];
-				*data++ = transg[*data];
-				*data++ = transb[*data];
+				uint8_t v;
+				v = transr[*data];
+				*data++ = v;
+				v = transr[*data];
+				*data++ = v;
+				v = transr[*data];
+				*data++ = v;
 			} while (--length);
 		} else
 		{

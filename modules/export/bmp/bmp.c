@@ -618,6 +618,8 @@ static long encodeBMPdata(uint8_t *ziel, uint8_t *buffer, unsigned short width, 
 	case 24:
 		w = width * 3L;
 		break;
+	default:
+		return 0;
 	}
 
 	oziel = ziel;
@@ -904,7 +906,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	unsigned short Button;
 	unsigned short pallen;
 	WORD t;
-
+	CONFIG **pp;
+	
 	unsigned long f_len;
 	unsigned long w;
 	unsigned long memwidth;
@@ -919,9 +922,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	{
 	case MSTART:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
 		{
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+			config = **pp;
 		} else
 		{
 			config.format = WIN3;
@@ -999,9 +1003,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		/* Closer geklickt, Default wieder her */
 	case MMORECANC:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
 		{
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+			config = **pp;
 		} else
 		{
 			config.format = WIN3;
@@ -1019,14 +1024,16 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		if (Button == OK)
 		{
 			/* Konfig bergeben */
-			*(long *) &smurf_struct->event_par[0] = (long) &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 
 			smurf_struct->module_mode = M_MOREOK;
 		} else if (Button == SAVE)
 		{
 			/* Konfig bergeben */
-			*(long *) &smurf_struct->event_par[0] = (long) &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 
 			smurf_struct->module_mode = M_CONFSAVE;
@@ -1067,13 +1074,15 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		if (Button == OK)
 		{
 			/* Konfig bergeben */
-			*(long *) &smurf_struct->event_par[0] = (long) &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 
 			smurf_struct->module_mode = M_MOREOK;
 		} else
+		{
 			smurf_struct->module_mode = M_WAITING;
-
+		}
 		break;
 
 		/* Farbsystem wird vom Smurf erfragt */
@@ -1125,6 +1134,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		case OS2_2T2:
 			headsize = 14 + 14 + 40;	/* OS/2 2.x Variante 2 */
 			break;
+		default:
+			return NULL;
 		}
 
 		if (BitsPerPixel <= 8)
@@ -1146,6 +1157,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		case 24:
 			w = width * 3L;
 			break;
+		default:
+			return NULL;
 		}
 
 		memwidth = ((w + 3) / 4) * 4;

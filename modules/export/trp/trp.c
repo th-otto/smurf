@@ -409,20 +409,21 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	EXPORT_PIC *exp_pic;
 	trp_header header;
 	bitmap_struct bitmap;
-	char *expdata;						/* Output Arrays */
+	uint8_t *expdata;						/* Output Arrays */
 	long org_length;
 	long datalength;					/* LÑnge der RÅckgabedaten in Bytes */
-	int quality;
+	static short quality;
 	WORD t;
 
 	main_form = rs_trindex[THERAPY_GFX];
 
-	for (t = 0; t < NUM_OBS; t++)
-		rsrc_obfix(rs_object, t);
-
 	switch (smurf_struct->module_mode)
 	{
 	case MSTART:
+		/* Resource umbauen */
+		for (t = 0; t < NUM_OBS; t++)
+			rsrc_obfix(rs_object, t);
+
 		/* WINDOW-Struktur vorbereiten */
 		my_window.whandlem = 0;
 		my_window.module = smurf_struct->module_number;
@@ -448,9 +449,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		quality_slider.max_val = 30;
 
 		smurf_struct->services->f_module_window(&my_window);
-		smurf_struct->services->set_slider(&quality_slider, 0);
+		smurf_struct->services->set_slider(&quality_slider, quality);
 		smurf_struct->module_mode = M_WAITING;
-		return NULL;
+		break;
 
 	case MBEVT:
 		switch (smurf_struct->event_par[0])

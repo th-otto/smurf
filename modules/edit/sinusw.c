@@ -302,6 +302,7 @@ static uint8_t *sinus_vertikal(uint8_t *buffer, long *sinustab, unsigned short w
 }
 
 
+#if 0 /* unused */
 /* Generiert die Sinuswelle in X-Richtung unter Beibehaltung der Bildgr”že */
 static uint8_t *sinus_vertikal2(uint8_t *buffer, long *sinustab, unsigned short width, unsigned short height, uint8_t BitsPerPixel)
 {
@@ -368,6 +369,7 @@ static uint8_t *sinus_vertikal2(uint8_t *buffer, long *sinustab, unsigned short 
 
 	return oziel;
 }
+#endif
 
 
 /* Generiert die Sinuswelle in X-Richtung unter Beibehaltung der Bildgr”že */

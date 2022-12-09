@@ -903,12 +903,14 @@ static void SwitchOrient(uint8_t *buffer, uint16_t width, uint16_t height, uint8
 static void invert_1Bit(uint8_t *data, uint16_t width, uint16_t height)
 {
 	long length;
-
+	uint8_t v;
+	
 	length = (unsigned long) ((width + 7) >> 3) * (unsigned long) height;
 
 	do
 	{
-		*data++ = ~*data;
+		v = ~*data;
+		*data++ = v;
 	} while (--length);
 }
 
@@ -924,7 +926,7 @@ static void invert_1Bit(uint8_t *data, uint16_t width, uint16_t height)
 /* -------------------------------------------------*/
 short imp_module_main(GARGAMEL *smurf_struct)
 {
-	uint8_t *ziel;
+	uint8_t *ziel = 0;
 	uint8_t *buffer;
 	uint8_t *pal;
 	const uint8_t *palbuf;
@@ -1271,6 +1273,8 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		smurf_struct->smurf_pic->col_format = BGR;
 		smurf_struct->smurf_pic->format_type = FORM_PIXELPAK;
 		break;
+	default:
+		return M_INVALID;
 	}
 
 	/* der Fileheader fehlt bei includeten BMPs leider und der Abstand */

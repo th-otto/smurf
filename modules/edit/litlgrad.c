@@ -137,7 +137,7 @@ MOD_ABILITY module_ability = {
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *data;
 	uint8_t BitsPerPixel;
@@ -228,6 +228,8 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 		if (BitsPerPixel != 16)
 		{
+			uint8_t v;
+
 			if (BitsPerPixel == 24)
 			{
 				width = smurf_struct->smurf_pic->pic_width;
@@ -245,26 +247,41 @@ void edit_module_main(GARGAMEL * smurf_struct)
 			{
 				do
 				{
-					*data++ = transtab[*data];
-					*data++ = transtab[*data];
-					*data++ = transtab[*data];
+					v = transtab[*data];
+					*data++ = v;
+					v = transtab[*data];
+					*data++ = v;
+					v = transtab[*data];
+					*data++ = v;
 				} while (--length);
 			} else
 			{
 				do
 				{
 					if (rc == 1)
-						*data++ = transtab[*data];
-					else
+					{
+						v = transtab[*data];
+						*data++ = v;
+					} else
+					{
 						data++;
+					}
 					if (gc == 1)
-						*data++ = transtab[*data];
-					else
+					{
+						v = transtab[*data];
+						*data++ = v;
+					} else
+					{
 						data++;
+					}
 					if (bc == 1)
-						*data++ = transtab[*data];
-					else
+					{
+						v = transtab[*data];
+						*data++ = v;
+					} else
+					{
 						data++;
+					}
 				} while (--length);
 			}
 		} else

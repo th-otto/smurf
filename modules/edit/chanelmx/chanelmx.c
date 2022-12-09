@@ -212,7 +212,7 @@ static void make_sliders(void)
 /*		24 Bit										*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	static uint8_t *buffer;
 	static uint8_t *ziel;
@@ -225,7 +225,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 	static unsigned short swidth, sheight, dwidth, dheight;
 
 	CONFIG *config;
-
+	CONFIG **pp;
 	services = smurf_struct->services;
 
 /* Wenn das Modul zum ersten Mal gestartet wurde */
@@ -460,14 +460,15 @@ void edit_module_main(GARGAMEL * smurf_struct)
 	case GETCONFIG:
 		config = smurf_struct->services->SMalloc(sizeof(CONFIG));
 		write_setting(config);
-
-		*((CONFIG **)&smurf_struct->event_par[0]) = config;
+		pp = (CONFIG **)&smurf_struct->event_par[0];
+		*pp = config;
 		smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 		smurf_struct->module_mode = M_CONFIG;
 		break;
 
 	case CONFIG_TRANSMIT:
-		config = *((CONFIG **)&smurf_struct->event_par[0]);
+		pp = (CONFIG **)&smurf_struct->event_par[0];
+		config = *pp;
 		smurf_struct->module_mode = M_WAITING;
 		break;
 

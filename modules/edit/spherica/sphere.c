@@ -126,7 +126,6 @@ static SLIDER agsl;
 static SLIDER absl;
 static SLIDER rough;
 static SLIDER bumpsl;
-static SLIDER text;
 static SLIDER transp;
 
 
@@ -146,14 +145,19 @@ static void compute_sphere(short wid, short hgt, uint8_t *addr, short crhx, shor
 	short rk, bk, gk;
 	short x, y;
 	long bmp_xoff, bmp_yoff;
-	long bmp_width, bmp_height;
-	long bmpxmin, bmpymin, bmpxmax, bmpymax;
-	float bxs, bys;
-	float bump_fak;
+	long bmp_width = 0;
+	long bmp_height = 0;
+	long bmpxmin = 0;
+	long bmpymin = 0;
+	long bmpxmax = 0;
+	long bmpymax = 0;
+	float bxs = 0;
+	float bys = 0;
+	float bump_fak = 0;
 	float radq;
 	float zq, xq, yq;
 	float pointx, pointy;
-	uint8_t *bumpmap;
+	uint8_t *bumpmap = 0;
 
 	long xoff, yoff;
 	long linelen;

@@ -77,7 +77,7 @@ MOD_INFO module_info = {
 	0, 1, 0, 0,
 	640, 480, 0, 0,
 	1,
-	"Image"
+	"Image", NULL, NULL, NULL, NULL, NULL
 };
 
 

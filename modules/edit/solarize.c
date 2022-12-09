@@ -111,7 +111,7 @@ MOD_ABILITY module_ability = {
 /*		2-8, 16 und 24 Bit 							*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *data;
 	uint8_t r, g, b;
@@ -185,7 +185,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 			width = smurf_struct->smurf_pic->pic_width;
 			height = smurf_struct->smurf_pic->pic_height;
 
-			length = (unsigned long) width *(unsigned long) height;
+			length = (unsigned long) width * (unsigned long) height;
 
 			while (length--)
 			{
@@ -193,23 +193,17 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 				r = (val16 & 0xf800) >> 8;
 				if (r > schwelle)
-					*data++ = ~r;
-				else
-					data++;
+					r = ~r;
 
 				g = (val16 & 0x7e0) >> 3;
 				if (g > schwelle)
-					*data++ = ~g;
-				else
-					data++;
+					g = ~g;
 
 				b = (val16 & 0x1f) << 3;
 				if (b > schwelle)
-					*data++ = ~b;
-				else
-					data++;
+					b = ~b;
 
-				*data16++ = ((r & 0x00f8) << 8) | ((g & 0x00fc) << 3) | (b >> 3);
+				*data16++ = ((r & 0x00f8) << 8) | ((g & 0x00fc) << 3) | ((b & 0xf8) >> 3);
 			}
 		}
 #if TIMER

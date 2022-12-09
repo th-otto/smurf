@@ -109,7 +109,8 @@ static void normalpixel(uint8_t *data, unsigned short width, unsigned short heig
 	uint8_t byte, pix, pix2r;
 	unsigned short x, y, pix2;
 	unsigned long realwidth;
-
+	uint8_t v;
+	
 	pix2 = width / (xpix + 1);
 	pix2r = width % (xpix + 1);
 	/* -1 damit bei einem Pixel nicht auf Block gemacht wird */
@@ -129,12 +130,17 @@ static void normalpixel(uint8_t *data, unsigned short width, unsigned short heig
 			pix = xpix;					/* ... aber nur ganze Bl”cke */
 			while (pix--)				/* pix */
 			{
-				*(data++ + byte) = *data;
+				v = *data;
+				*(data++ + byte) = v;
 				if (byte > 1)			/* Kaskade, damit 8, 16 und 24 Bit */
 				{						/* zusammen abgearbeitet werden k”nnen */
-					*(data++ + byte) = *data;
+					v = *data;
+					*(data++ + byte) = v;
 					if (byte > 2)
-						*(data++ + byte) = *data;
+					{
+						v = *data;
+						*(data++ + byte) = v;
+					}
 				}
 			}
 
@@ -147,12 +153,17 @@ static void normalpixel(uint8_t *data, unsigned short width, unsigned short heig
 			pix = pix2r;
 			while (pix--)				/* ... und am Zeilenende nur teilweisen Block */
 			{
-				*(data++ + byte) = *data;
+				v = *data;
+				*(data++ + byte) = v;
 				if (byte > 1)
 				{
-					*(data++ + byte) = *data;
+					v = *data;
+					*(data++ + byte) = v;
 					if (byte > 2)
-						*(data++ + byte) = *data;
+					{
+						v = *data;
+						*(data++ + byte) = v;
+					}
 				}
 			}
 

@@ -229,7 +229,8 @@ static long writeTIFFdata_pal4(uint8_t *ziel, uint8_t *buffer, unsigned short wi
 	unsigned long planelength;
 	unsigned long w;
 	unsigned long realwidth;
-
+	uint8_t v;
+	
 	oziel = ziel;
 
 	realwidth = (width + 7) / 8;
@@ -250,7 +251,9 @@ static long writeTIFFdata_pal4(uint8_t *ziel, uint8_t *buffer, unsigned short wi
 		x = 0;
 		do
 		{
-			*ziel++ = (*line++ << 4) | *line++;
+			v = *line++ << 4;
+			v |= *line++;
+			*ziel++ = v;
 		} while (++x < w);
 	} while (++y < height);
 
@@ -469,7 +472,7 @@ static unsigned short write_header(uint8_t *ziel, SMURF_PIC *smurf_pic, CONFIG *
 		comp = 2;
 	else if (config->comp == LZW)
 		comp = 5;
-	else if (config->comp == RLE)
+	else /* if (config->comp == RLE) */
 		comp = 32773U;
 
 	cols = 1 << BitsPerPixel;
@@ -489,7 +492,7 @@ static unsigned short write_header(uint8_t *ziel, SMURF_PIC *smurf_pic, CONFIG *
 
 		*(uint32_t *) (ziel + 4) = longborder(28);
 
-		strcpy(ziel + 8, "Smurf TIFF-Exporter");
+		strcpy((char *)ziel + 8, "Smurf TIFF-Exporter");
 	}
 
 	dcount = 30;
@@ -617,8 +620,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
 	uint8_t *buffer;
-	uint8_t *actziel;
-	uint8_t *zielbuf;
+	uint8_t *actziel = 0;
+	uint8_t *zielbuf = 0;
 	uint8_t *ziel;
 	uint8_t *oziel;
 	uint8_t BitsPerPixel;
@@ -629,7 +632,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 	unsigned long w;
 	unsigned long ws;
 	unsigned long datalen;
-
+	CONFIG **pp;
+	
 	static WINDOW window;
 	static OBJECT *win_form;
 	static CONFIG config;
@@ -639,9 +643,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 	{
 	case MSTART:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
 		{
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(config));
+			config = **pp;
 		} else
 		{
 			config.comp = KEINE;
@@ -694,9 +699,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 		/* Closer geklickt, Default wieder her */
 	case MMORECANC:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
 		{
-			memcpy(&config, *((void ***) &smurf_struct->event_par[0]), sizeof(config));
+			config = **pp;
 		} else
 		{
 			config.comp = KEINE;
@@ -723,13 +729,15 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 			break;
 		case OK:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short) sizeof(config);
 			smurf_struct->module_mode = M_MOREOK;
 			break;
 		case SAVE:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 			smurf_struct->module_mode = M_CONFSAVE;
 			break;
@@ -742,7 +750,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 		{
 		case OK:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_MOREOK;
 			break;
@@ -804,6 +813,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 		case 24:
 			ws = w = width * 3L;
 			break;
+		default:
+			return NULL;
 		}
 
 		if (BitsPerPixel == 1)
@@ -824,7 +835,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 		else if (config.comp == LZW && BitsPerPixel > 1)
 			f_len = f_len;				/* sparen geht nicht, dafr ist die Effizienz nicht hoch genug */
 
-		if ((ziel = (char *) SMalloc(headsize + f_len)) == 0)
+		if ((ziel = (uint8_t *) SMalloc(headsize + f_len)) == 0)
 		{
 			SMfree(exp_pic);
 			smurf_struct->module_mode = M_MEMORY;

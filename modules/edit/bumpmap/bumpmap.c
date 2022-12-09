@@ -366,10 +366,12 @@ static short do_it(GARGAMEL *smurf_struct)
 	SMURF_PIC *picture;
 	SMURF_PIC *texture;
 	short width, height;
-	short twidth, theight;
-	short tex_x, tex_y;
+	short twidth = 0;
+	short theight = 0;
+	short tex_x = 0;
+	short tex_y = 0;
 	uint8_t *mainpic;
-	uint8_t *texpic;
+	uint8_t *texpic = 0;
 	uint8_t *greypic;
 	uint8_t *coltab;
 	uint8_t *glanztab;
@@ -378,7 +380,7 @@ static short do_it(GARGAMEL *smurf_struct)
 	uint8_t *noffset;
 	uint8_t *y_goffset;
 	uint8_t *g_offset;
-	uint8_t *t_offset;
+	uint8_t *t_offset = 0;
 	short grey;
 	short x, y;
 	uint8_t red2, green2, blue2;
@@ -389,7 +391,7 @@ static short do_it(GARGAMEL *smurf_struct)
 	long t;
 	long bpl;
 	long gbpl;
-	long tbpl;
+	long tbpl = 0;
 
 	long col_size;
 	long coltab_size;
@@ -685,7 +687,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	short t;
 	BUMP_CONFIG *Default;
 	WORD object;
-
+	BUMP_CONFIG **pp;
+	
 	services = smurf_struct->services;
 
 	main_form = rs_trindex[BUMPMAIN];
@@ -852,13 +855,15 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	case GETCONFIG:
 		Default = smurf_struct->services->SMalloc(sizeof(BUMP_CONFIG));
 		write_setting(Default);
-		*((BUMP_CONFIG **)&smurf_struct->event_par[0]) = Default;
+		pp = (BUMP_CONFIG **)&smurf_struct->event_par[0];
+		*pp = Default;
 		smurf_struct->event_par[2] = (short) sizeof(BUMP_CONFIG);
 		smurf_struct->module_mode = M_CONFIG;
 		break;
 
 	case CONFIG_TRANSMIT:
-		Default = *((BUMP_CONFIG **)&smurf_struct->event_par[0]);
+		pp = (BUMP_CONFIG **)&smurf_struct->event_par[0];
+		Default = *pp;
 		apply_setting(Default);
 		smurf_struct->module_mode = M_WAITING;
 		break;

@@ -165,6 +165,11 @@ static short do_it(GARGAMEL *smurf_struct)
 				*(offset++) = div;
 			}
 		}
+	} else
+	{
+#ifdef __GNUC__
+		div_tab = 0;
+#endif
 	}
 
 

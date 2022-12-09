@@ -139,9 +139,9 @@ short *lacetab;
 static uint8_t *write_header(uint8_t *file, uint8_t typ)
 {
 	if (typ == GIF87A)
-		strncpy(file, "GIF87a", 6);
+		strncpy((char *)file, "GIF87a", 6);
 	else
-		strncpy(file, "GIF89a", 6);
+		strncpy((char *)file, "GIF89a", 6);
 
 	return file + 6;
 }
@@ -214,14 +214,14 @@ static uint8_t *write_graphctrl_ext(uint8_t *file, CONFIG *config, short delay)
 /*-------------------------------------------------------------	*/
 /*			Comment Extension Block schreiben  [optional]		*/
 /*-------------------------------------------------------------	*/
-static uint8_t *write_comment_ext(uint8_t *file, CONFIG *config, uint8_t *comment)
+static uint8_t *write_comment_ext(uint8_t *file, CONFIG *config, char *comment)
 {
 	if (strlen(comment) && config->typ == GIF89A)	/* Comment Extension */
 	{
 		file[0] = 0x21;					/* Extension Introducer */
 		file[1] = 0xfe;				/* Comment Label */
 		file[2] = strlen(comment) + 1;	/* Kommentarl„nge */
-		strcpy(file + 3, comment);		/* Kommentar (nullterminiert) */
+		strcpy((char *)file + 3, comment);		/* Kommentar (nullterminiert) */
 		file[3 + file[2]] = 0;	/* Block Terminator */
 
 		return file + 3 + file[2] + 1;
@@ -316,7 +316,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	EXPORT_PIC *exp_pic;
 	uint8_t *buffer;
 	uint8_t *ziel;
-	uint8_t *comment;
+	char *comment;
 	uint8_t *file;
 	uint8_t *current_file;
 	uint8_t BitsPerPixel;
@@ -330,16 +330,18 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	static WINDOW window;
 	static OBJECT *win_form;
 	static CONFIG config;
-
+	CONFIG **pp;
+	
 	services = smurf_struct->services;
 
 	switch (smurf_struct->module_mode)
 	{
 	case MSTART:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
 		{
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+			config = **pp;
 		} else
 		{
 			config.typ = GIF87A;
@@ -416,9 +418,10 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 /* Closer geklickt, Default wieder her */
 	case MMORECANC:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
 		{
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+			config = **pp;
 		} else
 		{
 			config.typ = GIF87A;
@@ -444,7 +447,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			} else
 			{
 				/* Konfig bergeben */
-				*((void **) &smurf_struct->event_par[0]) = &config;
+				pp = (CONFIG **) &smurf_struct->event_par[0];
+				*pp = &config;
 				smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 	
 				smurf_struct->module_mode = M_MOREOK;
@@ -455,7 +459,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			config.transparent = atoi(win_form[TINDEX].ob_spec.tedinfo->te_ptext);
 
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 
 			smurf_struct->module_mode = M_CONFSAVE;
@@ -515,7 +520,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			} else
 			{
 				/* Konfig bergeben */
-				*((void **) &smurf_struct->event_par[0]) = &config;
+				pp = (CONFIG **) &smurf_struct->event_par[0];
+				*pp = &config;
 				smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 	
 				smurf_struct->module_mode = M_MOREOK;

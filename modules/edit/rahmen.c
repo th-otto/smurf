@@ -552,7 +552,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				ziel16 += width + offset;
 				buffer16 += width;
 			} while (++y < height);
-		}								/* BitsPerPixel == 16? */
+		} else
+		{
+			smurf_struct->module_mode = M_INVALID;
+			return;
+		}
 
 		buffer = obuffer;
 		ziel = oziel;

@@ -455,6 +455,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	typedef struct {
 		uint8_t comp_vert;
 	} CONFIG;
+	CONFIG **pp;
 	static WINDOW window;
 	static OBJECT *win_form;
 	static CONFIG config;
@@ -463,8 +464,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	{
 	case MSTART:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
+			config = **pp;
 		else
 			config.comp_vert = TRUE;
 
@@ -516,8 +518,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 /* Closer geklickt, Default wieder her */
 	case MMORECANC:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(config));
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
+			config = **pp;
 		else
 			config.comp_vert = TRUE;
 		smurf_struct->module_mode = M_WAITING;
@@ -529,13 +532,15 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		{
 		case OK:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_MOREOK;
 			break;
 		case SAVE:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_CONFSAVE;
 			break;
@@ -559,7 +564,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		{
 		case OK:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_MOREOK;
 			break;
@@ -617,6 +623,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 			/* seltenstes und h„ufigestes Byte herausfinden */
 			lowest = 0;
+			highest = 0;
 			highestcount = 0;
 			lowestcount = len;
 			x = 0;
@@ -645,7 +652,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 				if (histo[x] <= lowestcount && x != ID_Byte)
 				{
 					lowest = x;
-					lowestcount = histo[t];
+					lowestcount = histo[x];
 				}
 			} while (++x < 256);
 

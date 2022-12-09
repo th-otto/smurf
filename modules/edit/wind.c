@@ -126,6 +126,7 @@ static void wind_left(uint8_t *data, unsigned short width, unsigned short height
 	uint8_t init_pix, this_pix;
 	short intens;
 	unsigned short x, y, daempfung;
+	uint8_t v;
 
 	y = height;
 	while (y--)
@@ -147,9 +148,12 @@ static void wind_left(uint8_t *data, unsigned short width, unsigned short height
 		{
 			while (init_pix > this_pix && intens > 0 && x)
 			{
-				*data++ = ((r * intens + *data * (128 - intens)) >> 7);
-				*data++ = ((g * intens + *data * (128 - intens)) >> 7);
-				*data++ = ((b * intens + *data * (128 - intens)) >> 7);
+				v = ((r * intens + *data * (128 - intens)) >> 7);
+				*data++ = v;
+				v = ((g * intens + *data * (128 - intens)) >> 7);
+				*data++ = v;
+				v = ((b * intens + *data * (128 - intens)) >> 7);
+				*data++ = v;
 				x--;
 
 				intens -= daempfung;
@@ -189,6 +193,7 @@ static void wind_right(uint8_t *data, unsigned short width, unsigned short heigh
 	uint8_t init_pix, this_pix;
 	short intens;
 	unsigned short x, y, daempfung;
+	uint8_t v;
 
 	/* auf Blaukomponente des letzten Bildpixels setzen */
 	data += (long) width * (long) height * 3L - 1;
@@ -215,9 +220,12 @@ static void wind_right(uint8_t *data, unsigned short width, unsigned short heigh
 
 			while (init_pix > this_pix && intens > 0 && x)
 			{
-				*data-- = ((b * intens + *data * (128 - intens)) >> 7);
-				*data-- = ((g * intens + *data * (128 - intens)) >> 7);
-				*data-- = ((r * intens + *data * (128 - intens)) >> 7);
+				v = ((b * intens + *data * (128 - intens)) >> 7);
+				*data-- = v;
+				v = ((g * intens + *data * (128 - intens)) >> 7);
+				*data-- = v;
+				v = ((r * intens + *data * (128 - intens)) >> 7);
+				*data-- = v;
 				x--;
 
 				intens -= daempfung;
@@ -257,6 +265,7 @@ static void storm_left(uint8_t *data, unsigned short width, unsigned short heigh
 	uint8_t init_pix, this_pix;
 	short intens, intens2;
 	unsigned short x, y, daempfung;
+	uint8_t v;
 
 	y = height;
 	while (y--)
@@ -278,9 +287,12 @@ static void storm_left(uint8_t *data, unsigned short width, unsigned short heigh
 		{
 			while (init_pix > this_pix && intens > 0 && x)
 			{
-				*data++ = ((r * intens2 + *data * (128 - intens2)) >> 7);
-				*data++ = ((g * intens2 + *data * (128 - intens2)) >> 7);
-				*data++ = ((b * intens2 + *data * (128 - intens2)) >> 7);
+				v = ((r * intens2 + *data * (128 - intens2)) >> 7);
+				*data++ = v;
+				v = ((g * intens2 + *data * (128 - intens2)) >> 7);
+				*data++ = v;
+				v = ((b * intens2 + *data * (128 - intens2)) >> 7);
+				*data++ = v;
 				x--;
 
 				intens -= daempfung;
@@ -320,6 +332,7 @@ static void storm_right(uint8_t *data, unsigned short width, unsigned short heig
 	uint8_t init_pix, this_pix;
 	short intens, intens2;
 	unsigned short x, y, daempfung;
+	uint8_t v;
 
 	/* auf Blaukomponente des letzten Bildpixels setzen */
 	data += (long) width * (long) height * 3L - 1;
@@ -346,9 +359,12 @@ static void storm_right(uint8_t *data, unsigned short width, unsigned short heig
 
 			while (init_pix > this_pix && intens > 0 && x)
 			{
-				*data-- = ((b * intens2 + *data * (128 - intens2)) >> 7);
-				*data-- = ((g * intens2 + *data * (128 - intens2)) >> 7);
-				*data-- = ((r * intens2 + *data * (128 - intens2)) >> 7);
+				v = ((b * intens2 + *data * (128 - intens2)) >> 7);
+				*data-- = v;
+				v = ((g * intens2 + *data * (128 - intens2)) >> 7);
+				*data-- = v;
+				v = ((r * intens2 + *data * (128 - intens2)) >> 7);
+				*data-- = v;
 				x--;
 
 				intens -= daempfung;

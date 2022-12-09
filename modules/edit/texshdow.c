@@ -172,6 +172,7 @@ static short do_it(GARGAMEL *smurf_struct)
 	short mw, mh;
 	long shadowfak, shadowcount;
 	uint8_t grey, mred, mgreen, mblue;
+	uint8_t v;
 
 	short radius;
 	short x_quad, y_quad;
@@ -256,14 +257,14 @@ static short do_it(GARGAMEL *smurf_struct)
 	{
 		for (x = 0; x < width; x++)
 		{
-
-			if ((*(offset++) != mred) | (*(offset++) != mgreen) | (*(offset++) != mblue))
+			if (offset[0] != mred || offset[1] != mgreen || offset[2] != mblue)
 			{
 				*(moffset++) = strengh;
 			} else
 			{
 				*(moffset++) = 0;
 			}
+			offset += 3;
 		}
 	}
 
@@ -363,9 +364,12 @@ static short do_it(GARGAMEL *smurf_struct)
 
 				tcoffset = tcyoffset + x * 3L;
 
-				*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-				*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-				*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
+				v = ((*(tcoffset) * grey) >> 8);
+				*(tcoffset++) = v;
+				v = ((*(tcoffset) * grey) >> 8);
+				*(tcoffset++) = v;
+				v = ((*(tcoffset) * grey) >> 8);
+				*(tcoffset++) = v;
 
 			}
 		}
@@ -401,9 +405,12 @@ static short do_it(GARGAMEL *smurf_struct)
 
 				tcoffset = tcyoffset + x * 3L;
 
-				*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-				*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-				*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
+				v = ((*(tcoffset) * grey) >> 8);
+				*(tcoffset++) = v;
+				v = ((*(tcoffset) * grey) >> 8);
+				*(tcoffset++) = v;
+				v = ((*(tcoffset) * grey) >> 8);
+				*(tcoffset++) = v;
 
 			}
 		}
@@ -439,9 +446,12 @@ static short do_it(GARGAMEL *smurf_struct)
 
 				tcoffset = tcyoffset + x * 3L;
 
-				*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-				*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-				*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
+				v = ((*(tcoffset) * grey) >> 8);
+				*(tcoffset++) = v;
+				v = ((*(tcoffset) * grey) >> 8);
+				*(tcoffset++) = v;
+				v = ((*(tcoffset) * grey) >> 8);
+				*(tcoffset++) = v;
 
 			}
 		}
@@ -496,9 +506,12 @@ static short do_it(GARGAMEL *smurf_struct)
 
 					tcoffset = tcyoffset + x * 3L;
 
-					*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-					*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-					*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
+					v = ((*(tcoffset) * grey) >> 8);
+					*(tcoffset++) = v;
+					v = ((*(tcoffset) * grey) >> 8);
+					*(tcoffset++) = v;
+					v = ((*(tcoffset) * grey) >> 8);
+					*(tcoffset++) = v;
 
 				}
 			}
@@ -556,9 +569,12 @@ static short do_it(GARGAMEL *smurf_struct)
 
 					tcoffset = tcyoffset + x * 3L;
 
-					*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-					*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
-					*(tcoffset++) = ((*(tcoffset) * grey) >> 8);
+					v = ((*(tcoffset) * grey) >> 8);
+					*(tcoffset++) = v;
+					v = ((*(tcoffset) * grey) >> 8);
+					*(tcoffset++) = v;
+					v = ((*(tcoffset) * grey) >> 8);
+					*(tcoffset++) = v;
 
 				}
 			}

@@ -75,9 +75,6 @@ static float fpar1;
 static short inter_startup = 1;
 
 /*-------------------- Strukturen --------------------------------*/
-static SLIDER red_slider;
-static SLIDER green_slider;
-static SLIDER blue_slider;
 static SLIDER xscale_slider;
 static SLIDER yscale_slider;
 static SLIDER turb_slider;
@@ -374,11 +371,12 @@ static void start_texture(GARGAMEL *smurf_struct)
 	uint8_t *pic_data;
 	uint8_t *mapcopy;
 	long xoffset, yoffset;
-	short stx;
+	short stx = 0;
 	short nx = 0;
 	short xdist;
 	short greyd;
-	uint8_t pix1, pix2;
+	uint8_t pix1 = 0;
+	uint8_t pix2;
 
 	width = smurf_struct->smurf_pic->pic_width;
 	height = smurf_struct->smurf_pic->pic_height;

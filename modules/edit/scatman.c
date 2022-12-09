@@ -239,9 +239,13 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				Scatadubbelidau = scatland[random(512)];
 				if (Scatadubbelidau < lengthtorun && Scatadubbelidau > (lengthtorun - length))
 				{
-					*ziel++ = (*(buffer + 0 + Scatadubbelidau) + *ziel) >> 1;
-					*ziel++ = (*(buffer + 1 + Scatadubbelidau) + *ziel) >> 1;
-					*ziel++ = (*(buffer + 2 + Scatadubbelidau) + *ziel) >> 1;
+					uint8_t v;
+					v = *ziel;
+					*ziel++ = (*(buffer + 0 + Scatadubbelidau) + v) >> 1;
+					v = *ziel;
+					*ziel++ = (*(buffer + 1 + Scatadubbelidau) + v) >> 1;
+					v = *ziel;
+					*ziel++ = (*(buffer + 2 + Scatadubbelidau) + v) >> 1;
 				} else
 				{
 					ziel += pixlen;

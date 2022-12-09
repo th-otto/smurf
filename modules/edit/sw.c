@@ -180,29 +180,31 @@ static short do_mode1(SMURF_PIC *smurf_pic, unsigned long grenze)
 				src = data;
 				data += width;
 			}
+			ppal = pal;
 			do
 			{
 				pixval = *src++;
-				ppal = pal + pixval + pixval + pixval;
-				if (((unsigned long) *ppal++ * 872L + (unsigned long) *ppal++ * 2930L + (unsigned long) *ppal * 296L) < grenze)
+				if (((unsigned long) ppal[0] * 872L + (unsigned long) ppal[1] * 2930L + (unsigned long) ppal[2] * 296L) < grenze)
 					*dest |= bit;
 				if ((bit >>= 1) == 0)
 				{
 					bit = 0x80;
 					dest++;
 				}
+				ppal += 3;
 			} while (++i < width);
 		} else if (depth == 24)
 		{
 			do
 			{
-				if (((unsigned long) *data++ * 872L + (unsigned long) *data++ * 2930L + (unsigned long) *data++ * 296L) < grenze)
+				if (((unsigned long) data[0] * 872L + (unsigned long) data[1]* 2930L + (unsigned long) data[2] * 296L) < grenze)
 					*dest |= bit;
 				if ((bit >>= 1) == 0)
 				{
 					bit = 0x80;
 					dest++;
 				}
+				data += 3;
 			} while (++i < width);
 			
 		} else

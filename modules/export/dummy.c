@@ -96,5 +96,6 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic = NULL;
 
+	(void)smurf_struct;
 	return exp_pic;					/* Hier macht Smurf nix. */
 }

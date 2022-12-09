@@ -120,6 +120,11 @@ void f_dither_24_1(SYSTEM_INFO *sysinfo, SMURF_PIC *picture, uint8_t *where_to, 
 			c_grn[t] = ((unsigned char)picture->grn[t]) >> 3;
 			c_blu[t] = ((unsigned char)picture->blu[t]) >> 3;
 		}
+	} else
+	{
+#ifdef __GNUC__
+		c_red = c_grn = c_blu = 0;
+#endif
 	}
 
 

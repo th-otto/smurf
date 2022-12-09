@@ -147,7 +147,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		else
 			pallen = 0;
 
-		if ((ziel = (char *) smurf_struct->services->SMalloc(pallen + f_len)) == 0)
+		if ((ziel = (uint8_t *) smurf_struct->services->SMalloc(pallen + f_len)) == 0)
 		{
 			smurf_struct->services->SMfree(exp_pic);
 			smurf_struct->module_mode = M_MEMORY;

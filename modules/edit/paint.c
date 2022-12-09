@@ -129,6 +129,7 @@ static void paint_8Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, uns
 		{
 			/* die h„ufigste Farbe ermitteln */
 			count = 0;
+			frequent = 0;
 			memset(histogram, 0x0, 512L);
 
 			for (i = 0; i < radius; i++)
@@ -143,8 +144,7 @@ static void paint_8Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, uns
 					/* obere Zeilen */
 					pixval = *tempupper;
 					ppal = pal + pixval + pixval + pixval;
-					k = (char) ((((long) *ppal * 872L)
-								 + ((long) *(ppal + 1) * 2930L) + ((long) *(ppal + 2) * 296L)) >> 12);
+					k = (uint8_t) ((((long) *ppal * 872L) + ((long) *(ppal + 1) * 2930L) + ((long) *(ppal + 2) * 296L)) >> 12);
 					histogram[k]++;
 					if (histogram[k] > count)
 					{
@@ -157,8 +157,7 @@ static void paint_8Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, uns
 					/* untere Zeilen */
 					pixval = *templower;
 					ppal = pal + pixval + pixval + pixval;
-					k = (char) ((((long) *templower * 872L)
-								 + ((long) *(templower + 1) * 2930L) + ((long) *(templower + 2) * 296L)) >> 12);
+					k = (uint8_t) ((((long) *templower * 872L) + ((long) *(templower + 1) * 2930L) + ((long) *(templower + 2) * 296L)) >> 12);
 					histogram[k]++;
 					if (histogram[k] > count)
 						if (k < count)
@@ -180,7 +179,7 @@ static void paint_8Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, uns
 			{
 				pixval = *temp;
 				ppal = pal + pixval + pixval + pixval;
-				k = (char) ((((long) *ppal * 872L) + ((long) *(ppal + 1) * 2930L) + ((long) *(ppal + 2) * 296L)) >> 12);
+				k = (uint8_t) ((((long) *ppal * 872L) + ((long) *(ppal + 1) * 2930L) + ((long) *(ppal + 2) * 296L)) >> 12);
 				histogram[k]++;
 				if (histogram[k] > count)
 					if (k < count)
@@ -236,7 +235,8 @@ static void paint_24Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, un
 		{
 			/* die h„ufigste Farbe ermitteln */
 			count = 0;
-			memset(histogram, 0, 512L);
+			frequent = 0;
+			memset(histogram, 0, 256 * sizeof(*histogram));
 
 			for (i = 0; i < radius; i++)
 			{
@@ -248,8 +248,7 @@ static void paint_24Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, un
 				for (j = 0; j < paintwidth; j++)
 				{
 					/* obere Zeilen */
-					k = (char) ((((long) *tempupper * 871L)
-								 + ((long) *(tempupper + 1) * 2929L) + ((long) *(tempupper + 2) * 295L)) >> 12);
+					k = (uint8_t) ((((long) *tempupper * 871L) + ((long) *(tempupper + 1) * 2929L) + ((long) *(tempupper + 2) * 295L)) >> 12);
 					histogram[k]++;
 					if (histogram[k] > count)
 					{
@@ -260,8 +259,7 @@ static void paint_24Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, un
 					tempupper += 3;
 
 					/* untere Zeilen */
-					k = (char) ((((long) *templower * 871L)
-								 + ((long) *(templower + 1) * 2929L) + ((long) *(templower + 2) * 295L)) >> 12);
+					k = (uint8_t) ((((long) *templower * 871L) + ((long) *(templower + 1) * 2929L) + ((long) *(templower + 2) * 295L)) >> 12);
 					histogram[k]++;
 					if (histogram[k] > count)
 						if (k < count)
@@ -281,7 +279,7 @@ static void paint_24Bit(uint8_t *ziel, uint8_t *buffer, unsigned short width, un
 
 			for (j = 0; j < paintwidth; j++)
 			{
-				k = (char) ((((long) *temp * 871L) + ((long) *(temp + 1) * 2929L) + ((long) *(temp + 2) * 295L)) >> 12);
+				k = (uint8_t) ((((long) *temp * 871L) + ((long) *(temp + 1) * 2929L) + ((long) *(temp + 2) * 295L)) >> 12);
 				histogram[k]++;
 				if (histogram[k] > count)
 					if (k < count)
@@ -365,7 +363,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 			realwidth = width * BytesPerPixel;
 
-			if ((ziel = (char *) SMalloc((long) realwidth * (long) height)) == 0)
+			if ((ziel = (uint8_t *) SMalloc((long) realwidth * (long) height)) == 0)
 			{
 				smurf_struct->module_mode = M_MEMORY;
 				return;

@@ -54,6 +54,7 @@ static WORD call_magic_fsl(WORD handle, FONT_INFO *fontinfo)
 
 	/* Workaround weil das bescheuerte MagiC die Attribute */
 	/* der bergebenen Workstation verstellt ... */
+	dummy_handle = 0;
 	v_opnvwk(work_in, &dummy_handle, work_out);
 	fnt_dialog = fnts_create(dummy_handle, 0, 0xf, FNTS_3D, "The quick blue Smurf ...", 0L);
 
@@ -133,7 +134,7 @@ WORD call_fontsel(WORD handle, FONT_INFO *fontinfo)
 	{
 		back = call_xfsl(handle, fontinfo, fontsel_struct);
 	} else if ((_AESversion >= 0x400 || appl_find("?AGI") >= 0) &&
-			 appl_getinfo(7, &back, &idummy, &idummy, &idummy) && back & 0x04)
+			 appl_getinfo(7, &back, &idummy, &idummy, &idummy) && (back & 0x04))
 	{
 		back = call_magic_fsl(handle, fontinfo);
 	} else

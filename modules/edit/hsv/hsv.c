@@ -840,6 +840,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	unsigned long satval = 0;
 	unsigned long brightval = 0;
 	CONFIG *config;
+	CONFIG **pp;
 
 	services = smurf_struct->services;
 
@@ -968,13 +969,15 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	case GETCONFIG:
 		config = smurf_struct->services->SMalloc(sizeof(CONFIG));
 		write_setting(config);
-		*((CONFIG **)&smurf_struct->event_par[0]) = config;
+		pp = (CONFIG **)&smurf_struct->event_par[0];
+		*pp = config;
 		smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 		smurf_struct->module_mode = M_CONFIG;
 		break;
 
 	case CONFIG_TRANSMIT:
-		config = *((CONFIG **)&smurf_struct->event_par[0]);
+		pp = (CONFIG **)&smurf_struct->event_par[0];
+		config = *pp;
 		apply_setting(config);
 		smurf_struct->module_mode = M_WAITING;
 		break;

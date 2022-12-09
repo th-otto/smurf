@@ -177,7 +177,7 @@ static void save_setting(void)
 /* und B eines Bildes verteilen wie er will.		*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *data;
 	uint8_t t;
@@ -188,6 +188,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 	unsigned short width, height;
 	unsigned long length;
 	CONFIG *config;
+	CONFIG **pp;
 
 	services = smurf_struct->services;
 
@@ -278,7 +279,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 			{
 				data = smurf_struct->smurf_pic->pic_data;
 
-				length = (unsigned long) width *(unsigned long) height;
+				length = (unsigned long) width * (unsigned long) height;
 			} else
 			{
 				data = smurf_struct->smurf_pic->palette;
@@ -292,45 +293,48 @@ void edit_module_main(GARGAMEL * smurf_struct)
 				do
 				{
 					data++;
-					pixval = *data;
-					*data++ = *(data + 1);
-					*data++ = pixval;
+					pixval = data[0];
+					data[0] = data[1];
+					data[1] = pixval;
+					data += 2;
 				} while (--length);
 				break;
 			case _GRB:
 				do
 				{
-					pixval = *data;
-					*data++ = *(data + 1);
-					*data++ = pixval;
-					data++;
+					pixval = data[0];
+					data[0] = data[1];
+					data[1] = pixval;
+					data += 3;
 				} while (--length);
 				break;
 			case _GBR:
 				do
 				{
-					pixval = *data;
-					*data++ = *(data + 1);
-					*data++ = *(data + 1);
-					*data++ = pixval;
+					pixval = data[0];
+					data[0] = data[1];
+					data[1] = data[2];
+					data[2] = pixval;
+					data += 3;
 				} while (--length);
 				break;
 			case _BRG:
 				do
 				{
-					pixval = *data;
-					*data++ = *(data + 2);
-					*(data++ + 1) = *data;
-					*(data++ - 1) = pixval;
+					pixval = data[0];
+					data[0] = data[2];
+					data[2] = data[1];
+					data[1] = pixval;
+					data += 3;
 				} while (--length);
 				break;
 			case _BGR:
 				do
 				{
-					pixval = *data;
-					*data++ = *(data + 2);
-					data++;
-					*data++ = pixval;
+					pixval = data[0];
+					data[0] = data[2];
+					data[2] = pixval;
+					data += 3;
 				} while (--length);
 				break;
 			default:
@@ -396,13 +400,15 @@ void edit_module_main(GARGAMEL * smurf_struct)
 	case GETCONFIG:
 		config = smurf_struct->services->SMalloc(sizeof(CONFIG));
 		write_setting(config);
-		*((CONFIG **)&smurf_struct->event_par[0]) = config;
+		pp = (CONFIG **)&smurf_struct->event_par[0];
+		*pp = config;
 		smurf_struct->event_par[2] = (short) sizeof(CONFIG);
 		smurf_struct->module_mode = M_CONFIG;
 		break;
 
 	case CONFIG_TRANSMIT:
-		config = *((CONFIG **)&smurf_struct->event_par[0]);
+		pp = (CONFIG **)&smurf_struct->event_par[0];
+		config = *pp;
 		apply_setting(config);
 		smurf_struct->module_mode = M_WAITING;
 		break;

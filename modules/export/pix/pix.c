@@ -160,6 +160,7 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	typedef struct {
 		uint8_t comp;
 	} CONFIG;
+	CONFIG **pp;
 
 	head *pix_header;
 
@@ -172,8 +173,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 	{
 	case MSTART:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(CONFIG));
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
+			config = **pp;
 		else
 			config.comp = FALSE;
 
@@ -223,8 +225,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 /* Closer geklickt, Default wieder her */
 	case MMORECANC:
 		/* falls bergeben, Konfig bernehmen */
-		if (*((void **) &smurf_struct->event_par[0]) != 0)
-			memcpy(&config, *((void **) &smurf_struct->event_par[0]), sizeof(config));
+		pp = (CONFIG **) &smurf_struct->event_par[0];
+		if (*pp != NULL)
+			config = **pp;
 		else
 			config.comp = TRUE;
 
@@ -237,13 +240,15 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		{
 		case OK:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_MOREOK;
 			break;
 		case SAVE:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_CONFSAVE;
 			break;
@@ -267,7 +272,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 		{
 		case OK:
 			/* Konfig bergeben */
-			*((void **) &smurf_struct->event_par[0]) = &config;
+			pp = (CONFIG **) &smurf_struct->event_par[0];
+			*pp = &config;
 			smurf_struct->event_par[2] = (short)sizeof(config);
 			smurf_struct->module_mode = M_MOREOK;
 			break;
@@ -344,6 +350,8 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 			res = 0;
 			break;
 		default:
+			smurf_struct->module_mode = M_INVALID;
+			smurf_struct->services->SMfree(exp_pic);
 			return NULL;
 		}
 
@@ -351,126 +359,126 @@ EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 
 		if ((ziel = smurf_struct->services->SMalloc(sizeof(head) + f_len)) == 0)
 		{
-			smurf_struct->services->SMfree(exp_pic);
 			smurf_struct->module_mode = M_MEMORY;
+			smurf_struct->services->SMfree(exp_pic);
 			return NULL;
-		} else
+		}
+
+		oziel = ziel;
+
+		pix_header = (head *) ziel;
+
+		if (config.comp == FALSE)
+			pix_header->comp = 0x0;
+		else
+			pix_header->comp = 0x80;
+
+		pix_header->res = res;
+
+		strcpy(expmessag, "Degas ");
+		if (config.comp == FALSE)
+			strcat(expmessag, "PI?");
+		else
+			strcat(expmessag, "PC?");
+		strcpy(smurf_struct->smurf_pic->format_name, expmessag);
+
+		ziel += sizeof(head);
+
+		if (config.comp == FALSE)			/* unkomprimiert */
 		{
-			oziel = ziel;
-
-			pix_header = (head *) ziel;
-
-			if (config.comp == FALSE)
-				pix_header->comp = 0x0;
+			w = (smurf_struct->smurf_pic->pic_width + 7) / 8;
+			if (w > width / 8)
+				w = width / 8;
+			/* wieviel Bildrest berspringen? */
+			if (smurf_struct->smurf_pic->pic_width > width)
+				bv = (smurf_struct->smurf_pic->pic_width + 7) / 8 - width / 8;
 			else
-				pix_header->comp = 0x80;
-
-			pix_header->res = res;
-
-			strcpy(expmessag, "Degas ");
-			if (config.comp == FALSE)
-				strcat(expmessag, "PI?");
+				bv = 0;
+			/* wieviel Zielrest berspringen? */
+			if (width > smurf_struct->smurf_pic->pic_width)
+				zv = width / 8 - (smurf_struct->smurf_pic->pic_width + 7) / 8;
 			else
-				strcat(expmessag, "PC?");
-			strcpy(smurf_struct->smurf_pic->format_name, expmessag);
+				zv = 0;
 
-			ziel += sizeof(head);
+			runheight = smurf_struct->smurf_pic->pic_height;
+			if (runheight > height)
+				runheight = height;
 
-			if (config.comp == FALSE)			/* unkomprimiert */
+			p = 0;
+			do						/* Planes */
 			{
-				w = (smurf_struct->smurf_pic->pic_width + 7) / 8;
-				if (w > width / 8)
-					w = width / 8;
-				/* wieviel Bildrest berspringen? */
-				if (smurf_struct->smurf_pic->pic_width > width)
-					bv = (smurf_struct->smurf_pic->pic_width + 7) / 8 - width / 8;
-				else
-					bv = 0;
-				/* wieviel Zielrest berspringen? */
-				if (width > smurf_struct->smurf_pic->pic_width)
-					zv = width / 8 - (smurf_struct->smurf_pic->pic_width + 7) / 8;
-				else
-					zv = 0;
+				ziel = oziel + sizeof(head) + (p << 1);	/* Zieladresse der kodierten Scanline */
 
-				runheight = smurf_struct->smurf_pic->pic_height;
-				if (runheight > height)
-					runheight = height;
-
-				p = 0;
-				do						/* Planes */
+				y = 0;
+				do					/* height */
 				{
-					ziel = oziel + sizeof(head) + (p << 1);	/* Zieladresse der kodierten Scanline */
-
-					y = 0;
-					do					/* height */
+					x = 0;
+					do				/* width */
 					{
-						x = 0;
-						do				/* width */
+						*ziel++ = *buffer++;
+						x++;
+						if (x < w)
 						{
 							*ziel++ = *buffer++;
 							x++;
-							if (x < w)
-							{
-								*ziel++ = *buffer++;
-								x++;
-							}
-							ziel += (Planes - 1) << 1;	/* Zieladresse der kodierten Scanline */
-						} while (x < w);	/* x */
-						buffer += bv;	/* Bild berspringen */
-						ziel += zv * Planes;	/* Ziel berspringen */
-					} while (++y < runheight);	/* y */
-				} while (++p < Planes);	/* p */
-			} else						/* komprimiert */
-			{
-				plh = w * height;		/* H”he einer Plane */
-				dst_pos = p;			/* Zieladresse der dekodierten Scanline */
+						}
+						ziel += (Planes - 1) << 1;	/* Zieladresse der kodierten Scanline */
+					} while (x < w);	/* x */
+					buffer += bv;	/* Bild berspringen */
+					ziel += zv * Planes;	/* Ziel berspringen */
+				} while (++y < runheight);	/* y */
+			} while (++p < Planes);	/* p */
+		} else						/* komprimiert */
+		{
+			w = (smurf_struct->smurf_pic->pic_width + 7) / 8;
+			plh = w * height;		/* H”he einer Plane */
+			dst_pos = 0;			/* Zieladresse der dekodierten Scanline */
 
-				y = 0;
-				do						/* height */
+			y = 0;
+			do						/* height */
+			{
+				plo = y * w;		/* Offset vom Planeanfang in Bytes */
+
+				p = 0;
+				do					/* Plane */
 				{
-					plo = y * w;		/* Offset vom Planeanfang in Bytes */
-
-					p = 0;
-					do					/* Plane */
+					src_pos = p * plh + plo;
+					x = 0;
+					do				/* width */
 					{
-						src_pos = p * plh + plo;
-						x = 0;
-						do				/* width */
+						v1 = buffer[src_pos++];
+						if ((v1 & 0x80) == 0x80)
 						{
-							v1 = buffer[src_pos++];
-							if ((v1 & 0x80) == 0x80)
-							{
-								n = (0x101 - v1);
-								v2 = buffer[src_pos++];
-								for (i = 0; i < n; i++)
-									ziel[dst_pos++] = v2;
-								x += n;
-							} else
-							{
-								for (i = 0; i < v1 + 1; i++)
-									ziel[dst_pos++] = buffer[src_pos++];
-								x += (v1 + 1);
-							}
-						} while (x < w);	/* x */
-					} while (++p < Planes);	/* p */
-				} while (++y < height);	/* y */
-			}							/* comp? */
+							n = (0x101 - v1);
+							v2 = buffer[src_pos++];
+							for (i = 0; i < n; i++)
+								ziel[dst_pos++] = v2;
+							x += n;
+						} else
+						{
+							for (i = 0; i < v1 + 1; i++)
+								ziel[dst_pos++] = buffer[src_pos++];
+							x += (v1 + 1);
+						}
+					} while (x < w);	/* x */
+				} while (++p < Planes);	/* p */
+			} while (++y < height);	/* y */
+		}							/* comp? */
 
-			buffer = obuffer;
-			ziel = oziel;
+		buffer = obuffer;
+		ziel = oziel;
 
-			exp_pic->pic_data = ziel;
-			exp_pic->f_len = sizeof(head) + f_len;
+		exp_pic->pic_data = ziel;
+		exp_pic->f_len = sizeof(head) + f_len;
 
-			pal = pix_header->pal;
-			ppal = smurf_struct->smurf_pic->palette;
+		pal = pix_header->pal;
+		ppal = smurf_struct->smurf_pic->palette;
 
-			for (i = 16; i > 0; i--)
-			{
-				*pal = (*ppal++ >> 5) << 8;
-				*pal |= (*ppal++ >> 5) << 4;
-				*pal++ |= *ppal++ >> 5;
-			}
+		for (i = 16; i > 0; i--)
+		{
+			*pal = (*ppal++ >> 5) << 8;
+			*pal |= (*ppal++ >> 5) << 4;
+			*pal++ |= *ppal++ >> 5;
 		}
 
 #if TIMER
