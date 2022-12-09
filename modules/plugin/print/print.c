@@ -220,7 +220,7 @@ static void init_driver_popup(void)
 /*----------------------------------------------------------------- */
 static float convert_units_from(WORD unit, WORD mode)
 {
-	float val;
+	float val = 0;
 
 	switch (mode)
 	{
@@ -308,7 +308,7 @@ static float convert_units_from(WORD unit, WORD mode)
 /*----------------------------------------------------------------- */
 static WORD convert_units_to(WORD unit, WORD mode)
 {
-	float val;
+	float val = 0;
 
 	switch (mode)
 	{
@@ -1001,7 +1001,7 @@ static short handle_aesmsg(WORD *msgbuf)
 static char *shorten_name(char *string, short newlen, char *temp)
 {
 	/* nichts tun wenn String sowieso passend */
-	if (strlen(string) <= newlen)
+	if ((short)strlen(string) <= newlen)
 		return string;
 
 	strncpy(temp, string, newlen / 2 - 1);	/* auf die H„lfte und eines weniger */

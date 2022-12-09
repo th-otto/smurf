@@ -285,12 +285,11 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	
 	/* Kennung prÅfen */
 	type = 0;
-	if (memcmp(picdata, "\0\0\0\0\0\0\0\0\0\0", 10) == 0 &&
-		strnicmp(ext, "SPU", 3) == 0)
+	if (memcmp(picdata, "\0\0\0\0\0\0\0\0\0\0", 10) == 0 && strnicmp(ext, "SPU", 3) == 0)
 		type = SPU;
 	else if (memcmp(picdata, "SP\0\0", 4) == 0)
 		type = SPC;
-	else if (strnicmp(picdata, "SPX", 3) == 0)
+	else if (strncmp((char *)picdata, "SPX", 3) == 0)
 		type = SPX;
 	if (type != SPU && type != SPC && type != SPX)
 		return M_INVALID;				/* Kenn ich nicht */

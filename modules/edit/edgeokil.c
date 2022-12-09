@@ -104,7 +104,7 @@ MOD_ABILITY module_ability = {
 
 
 /*--------------- SCALING ----------------------------*/
-static short do_it(GARGAMEL * smurf_struct)
+static short do_it(GARGAMEL *smurf_struct)
 {
 	SMURF_PIC *picture;
 	short x_fak, y_fak;
@@ -260,7 +260,7 @@ static short do_it(GARGAMEL * smurf_struct)
 
 
 /*-----------------------  FUNCTION MAIN --------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	switch (smurf_struct->module_mode)
 	{

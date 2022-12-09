@@ -330,8 +330,15 @@ static short b_length[] = {
 /* 2560 */ 0x0C,
 };
 
-extern long PhysX,
- PhysY;
+#ifdef __PUREC__
+/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
+static unsigned short swap_word(unsigned short w) 0xE058;
+#else
+static unsigned short swap_word(unsigned short w)
+{
+	return (w >> 8) | (w << 8);
+}
+#endif
 
 /******************************/
 /*	---- 24 Bit Planes ----   */
@@ -672,6 +679,7 @@ short tiffCCITT3_depack(GARGAMEL *smurf_struct, uint8_t *source, uint8_t *dest, 
 static void decode_difference(uint8_t *data, long width, long height, uint8_t BitsPerPixel)
 {
 	unsigned short x, y;
+	uint8_t v;
 
 	if (BitsPerPixel == 8)
 	{
@@ -683,7 +691,8 @@ static void decode_difference(uint8_t *data, long width, long height, uint8_t Bi
 			x = 1;
 			do
 			{
-				*data++ = (*data + *(data - 1));
+				v = (*data + *(data - 1));
+				*data++ = v;
 			} while (++x < width);
 		} while (++y < height);
 	} else if (BitsPerPixel == 24)
@@ -696,9 +705,13 @@ static void decode_difference(uint8_t *data, long width, long height, uint8_t Bi
 			x = 1;
 			do
 			{
-				*data++ = (*data + *(data - 3));
-				*data++ = (*data + *(data - 3));
-				*data++ = (*data + *(data - 3));
+				uint8_t v;
+				v = (*data + *(data - 3));
+				*data++ = v;
+				v = (*data + *(data - 3));
+				*data++ = v;
+				v = (*data + *(data - 3));
+				*data++ = v;
 			} while (++x < width);
 		} while (++y < height);
 	} else if (BitsPerPixel == 32)
@@ -711,10 +724,14 @@ static void decode_difference(uint8_t *data, long width, long height, uint8_t Bi
 			x = 1;
 			do
 			{
-				*data++ = (*data + *(data - 4));
-				*data++ = (*data + *(data - 4));
-				*data++ = (*data + *(data - 4));
-				*data++ = (*data + *(data - 4));
+				v = (*data + *(data - 4));
+				*data++ = v;
+				v = (*data + *(data - 4));
+				*data++ = v;
+				v = (*data + *(data - 4));
+				*data++ = v;
+				v = (*data + *(data - 4));
+				*data++ = v;
 			} while (++x < width);
 		} while (++y < height);
 	}
@@ -745,7 +762,7 @@ short tiffLZW_depack(GARGAMEL *smurf_struct, uint8_t *source, uint8_t *dest, lon
 	short merk_LCC;
 	short ftable;
 	short merk_ftable;
-	short oldcode;
+	short oldcode = 0;
 	unsigned long pCurrent;
 	unsigned short bh, bl;
 	long l;
@@ -780,6 +797,8 @@ short tiffLZW_depack(GARGAMEL *smurf_struct, uint8_t *source, uint8_t *dest, lon
 	case 32:
 		RealWidth = Width * 4L;
 		break;
+	default:
+		return 0;
 	}
 
 	MaxBytes = RealWidth * Height;
@@ -1026,6 +1045,8 @@ short tiff32773_depack(GARGAMEL *smurf_struct, uint8_t *buffer, uint8_t *ziel, l
 	case 32:
 		w = width * 4L;
 		break;
+	default:
+		return 0;
 	}
 
 	if ((bh = (unsigned short) (height / 10)) == 0)	/* busy-height */
@@ -1167,8 +1188,10 @@ void tiff24_min_is_white(uint8_t *dest, short Depth)
 
 void invert_1Bit(uint8_t *data, long length)
 {
+	uint8_t v;
 	do
 	{
-		*data++ = ~*data;
+		v = ~*data;
+		*data++ = v;
 	} while (--length);
 }

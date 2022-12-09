@@ -198,7 +198,9 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	short is_WORD;
 #endif
 	short is_LONG, Depth, meth, maxR, W1, W2;
-	short DirEntrys, TagId, TagFormat, PaletteColors, errcode, Difference;
+	short DirEntrys, TagId, TagFormat;
+	short PaletteColors = 0;
+	short errcode, Difference;
 	long HeaderOffset;
 	long MapOffset;
 	long DataOffset;
@@ -207,7 +209,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	long TagCount;
 	long PlanarConfig;
 	long BitsPerSample;
-	long Photo;
+	long Photo = 0;
 	long SamplePerPixel;
 	long Width;
 	long Height;
@@ -797,8 +799,9 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			Depth = 8;
 			PlanarConfig = 1;
 			PaletteColors = 2;
-			if (Depth == 24 && PlanarConfig == 1 && Photo == 2 ||
-				Depth == 8 && PlanarConfig == 1 || Depth == 1 && PlanarConfig == 1)
+			if ((Depth == 24 && PlanarConfig == 1 && Photo == 2) ||
+				(Depth == 8 && PlanarConfig == 1) ||
+				(Depth == 1 && PlanarConfig == 1))
 				break;
 			else
 			{
@@ -809,11 +812,10 @@ short imp_module_main(GARGAMEL *smurf_struct)
 				break;
 			}
 		case 0x04:
-			errcode =
-				tiffLZW_depack(smurf_struct, buffer, NewBuf, Width, Height, Depth, DataCount, DataArray, RowsPerStrip,
-							   Difference);
-			if (Depth == 24 && PlanarConfig == 1 && Photo == 2 || Depth == 8 && PlanarConfig == 1 || Depth == 1
-				&& PlanarConfig == 1)
+			errcode = tiffLZW_depack(smurf_struct, buffer, NewBuf, Width, Height, Depth, DataCount, DataArray, RowsPerStrip, Difference);
+			if ((Depth == 24 && PlanarConfig == 1 && Photo == 2) ||
+				(Depth == 8 && PlanarConfig == 1) ||
+				(Depth == 1 && PlanarConfig == 1))
 				break;
 			else
 			{
@@ -825,8 +827,9 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			}
 		case 0x06:
 			errcode = tiff32773_depack(smurf_struct, buffer, NewBuf, Width, Height, Depth, RowsPerStrip, DataArray);
-			if (Depth == 24 && PlanarConfig == 1 && Photo == 2 ||
-				Depth == 8 && PlanarConfig == 1 || Depth == 1 && PlanarConfig == 1)
+			if ((Depth == 24 && PlanarConfig == 1 && Photo == 2) ||
+				(Depth == 8 && PlanarConfig == 1) ||
+				(Depth == 1 && PlanarConfig == 1))
 				break;
 			else
 			{

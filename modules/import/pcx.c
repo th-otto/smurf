@@ -424,7 +424,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	v0 = *buffer;
 	v1 = *(buffer + 0x01);
-	if (v0 != 0x0a && v0 != 0xcd || (v1 != 0 && v1 != 2 && v1 != 3 && v1 != 5) || (*(buffer + 2) >= 2))
+	if ((v0 != 0x0a && v0 != 0xcd) || (v1 != 0 && v1 != 2 && v1 != 3 && v1 != 5) || (*(buffer + 2) >= 2))
 		return M_INVALID;
 
 #if 0

@@ -71,12 +71,14 @@ static WORD call_magic_fsl(WORD handle, FONT_INFO *fontinfo)
 		fnts_delete(fnt_dialog, 0);
 	} else
 	{
-/*		form_alert(1, "[1][Fehler beim Aufruf des|MagiC-Fontselectors!][ Hoppla ]"); */
-/* 1.06 Style */
 #if 0
-		services->f_alert(alerts[ERROR_MAGIC_FSEL].TextCast, NULL, NULL, NULL, 1);
-		services->f_alert(alerts[ERROR_MAGIC_FSEL].TextCast);
+		form_alert(1, "[1][Fehler beim Aufruf des|MagiC-Fontselectors!][ Hoppla ]");
 #endif
+#if 0
+/* 1.06 Style */
+		services->f_alert(alerts[ERROR_MAGIC_FSEL].TextCast, NULL, NULL, NULL, 1);
+#endif
+		back = -1;
 	}
 
 	v_clsvwk(dummy_handle);

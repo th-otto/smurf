@@ -114,7 +114,7 @@ MOD_ABILITY module_ability = {
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
 
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *data;
 	uint8_t BitsPerPixel;

@@ -1,16 +1,6 @@
 extern void *(*SMalloc)(long amount);
 extern void (*SMfree)(void *ptr);
 
-#ifdef __PUREC__
-/* Dies bastelt direct ein rol.w #8,d0 inline ein. */
-static unsigned short swap_word(unsigned short w) 0xE058;
-#else
-static unsigned short swap_word(unsigned short w)
-{
-	return (w >> 8) | (w << 8);
-}
-#endif
-
 #define MOTOROLA 1
 #define INTEL 2
 

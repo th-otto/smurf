@@ -439,7 +439,7 @@ static void compute_sphere(short wid, short hgt, uint8_t *addr, short crhx, shor
 }
 
 
-static short open_window(GARGAMEL * smurf_struct)
+static short open_window(GARGAMEL *smurf_struct)
 {
 	WORD t;
 	short back;
@@ -471,7 +471,7 @@ static short open_window(GARGAMEL * smurf_struct)
 }
 
 
-static short compute_preview(GARGAMEL * smurf_struct)
+static short compute_preview(GARGAMEL *smurf_struct)
 {
 	prev_pic.pic_width = maintree[PREV_BOX].ob_width;
 	prev_pic.pic_height = maintree[PREV_BOX].ob_height;

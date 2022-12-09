@@ -616,7 +616,7 @@ static unsigned short write_header(uint8_t *ziel, SMURF_PIC *smurf_pic, CONFIG *
 /*		unkomprimiert, RLE, Huffman und LZW			*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
+EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
 	uint8_t *buffer;

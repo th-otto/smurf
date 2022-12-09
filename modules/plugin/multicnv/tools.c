@@ -55,7 +55,7 @@ void change_object(WINDOW *window, WORD object, WORD status, BOOLEAN redraw)
 /* -------------------------- File laden --------------------------------*/
 uint8_t *fload(char *Path, short header)
 {
-	uint8_t *buf;
+	uint8_t *buf = NULL;
 	int fh;
 	short attrib = 0;
 	long dummy;
@@ -72,6 +72,7 @@ uint8_t *fload(char *Path, short header)
 
 			if ((buf = (uint8_t *)Malloc(f_len)) == NULL)
 			{
+				/* FIXME: translate */
 				form_alert(1, "[3][Nicht genÅgend Speicher zum|Laden der Datei!][ Oh! ]");
 			} else
 			{
@@ -79,6 +80,7 @@ uint8_t *fload(char *Path, short header)
 
 				if (dummy < f_len)
 				{
+					/* FIXME: translate */
 					form_alert(1, "[3][Lesefehler beim Laden|der Datei!][ Oh! ]");
 					Mfree(buf);
 					buf = NULL;
@@ -86,8 +88,7 @@ uint8_t *fload(char *Path, short header)
 			}
 			Fclose(fh);
 		}
-	} else
-		buf = NULL;
+	}
 
 	return buf;
 }

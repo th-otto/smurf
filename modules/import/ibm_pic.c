@@ -143,10 +143,13 @@ short imp_module_main(GARGAMEL *smurf_struct)
 				if (v1 > 0x7f)
 				{
 					if (v1 == 0xff)
-						n = *buffer++ + (*buffer++ << 8);
-					else
+					{
+						n = *buffer++;
+						n |= (*buffer++ << 8);
+					} else
+					{
 						n = v1 - 0x80;
-
+					}
 					v2 = *buffer++;
 
 					x += n;

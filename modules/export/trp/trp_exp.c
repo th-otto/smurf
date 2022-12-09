@@ -37,7 +37,7 @@
 #define BINARY  2
 #define LZW     4
 
-int open_window(GARGAMEL * smurf_struct);
+int open_window(GARGAMEL *smurf_struct);
 
 
 
@@ -45,8 +45,7 @@ int open_window(GARGAMEL * smurf_struct);
 MOD_INFO module_info = { "TRP - Therapy Gfx File",
 	0x0010,
 	"Dodger",
-	"DAT", "", "", "", "",
-	"", "", "", "", "",
+	{ "DAT", "", "", "", "", "", "", "", "", "" },
 	"Slider 1",
 	"Slider 2",
 	"Slider 3",
@@ -69,7 +68,9 @@ MOD_INFO module_info = { "TRP - Therapy Gfx File",
 	0, 10,
 	0, 0, 0, 0,
 	0, 0, 0, 0,
-	0, 0, 0, 0
+	0, 0, 0, 0,
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -159,7 +160,7 @@ OBJECT *main;
 /*              16 Bit TRP-Format                   */
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
+EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
 	char *buffer;
@@ -281,10 +282,9 @@ EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
 
 
 
-int open_window(GARGAMEL * smurf_struct)
+int open_window(GARGAMEL *smurf_struct)
 {
-	int t,
-	 back;
+	int t, back;
 
 
 	/* Resource Umbauen */

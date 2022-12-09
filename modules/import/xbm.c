@@ -224,7 +224,9 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			break;
 		if (version == 6)
 			helpstr += 2;
-		*ziel++ = translate[(hexTable[(unsigned char)*helpstr++] << 4) + hexTable[(unsigned char)*helpstr++]];
+		i = hexTable[(unsigned char)*helpstr++] << 4;
+		i |= hexTable[(unsigned char)*helpstr++];
+		*ziel++ = translate[i];
 	}
 
 	buffer = obuffer;

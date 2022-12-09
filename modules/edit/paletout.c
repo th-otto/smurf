@@ -128,7 +128,7 @@ static void writeline(short fp, char *wert1, char *wert2, char *wert3)
 /*	(Extender .BIN) unter dem anzugebenden Namen aus*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *data;
 	char path[SM_PATH_MAX];

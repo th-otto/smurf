@@ -93,7 +93,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	long width, height;
 	short depth;
 	short pictype;
-	long *lpic;
+	uint32_t *lpic;
 	uint8_t *smurf_palette;
 	long dcount = 0;
 	long PicLen;
@@ -101,13 +101,13 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	picture = smurf_struct->smurf_pic;
 	pic_data = picture->pic_data;
-	lpic = (long *) pic_data;
+	lpic = (uint32_t *) pic_data;
 	cpic = (uint8_t *) pic_data;
 
 	smurf_palette = picture->palette;
 
-/* Dateikennung prÅfen */
-	if (*(lpic) == 0xc8c4d940L)
+	/* Dateikennung prÅfen */
+	if (*lpic == 0xc8c4d940L)
 		pictype = GARS;
 	else if (*(lpic + 0xd0) == 0xf5415720L)
 		pictype = MCIDAS;

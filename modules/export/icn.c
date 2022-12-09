@@ -89,7 +89,7 @@ MOD_ABILITY module_ability = {
 /*		1, 2, 4, 8 Bit, unkomprimiert				*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-EXPORT_PIC *exp_module_main(GARGAMEL * smurf_struct)
+EXPORT_PIC *exp_module_main(GARGAMEL *smurf_struct)
 {
 	EXPORT_PIC *exp_pic;
 	uint8_t *buffer;

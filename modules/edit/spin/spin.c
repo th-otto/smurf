@@ -101,7 +101,7 @@ static WORD (*popup) (POP_UP *popup_struct, WORD mouseflag, WORD button, OBJECT 
 /*	aufgehen wird.									*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *data1;
 	uint8_t *data2;

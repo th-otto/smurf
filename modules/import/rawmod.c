@@ -78,7 +78,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	short colors;
 
 	buffer = smurf_struct->smurf_pic->pic_data;
-	if (strncmp(buffer, "mhwanh", 6) != 0)
+	if (strncmp((char *)buffer, "mhwanh", 6) != 0)
 		return M_INVALID;
 
 	width = (*(buffer + 8) << 8) + *(buffer + 9);

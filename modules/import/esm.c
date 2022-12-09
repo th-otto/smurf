@@ -96,7 +96,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 
-	if (strncmp(buffer, "TMS", 3) != 0)
+	if (strncmp((char *)buffer, "TMS", 3) != 0)
 	{
 		return M_INVALID;
 	} else
@@ -170,7 +170,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			return M_UNKNOWN_TYPE;
 		}
 
-		if (len + DataOffset > smurf_struct->smurf_pic->file_len)
+		if (len + DataOffset > (unsigned long)smurf_struct->smurf_pic->file_len)
 			return M_INVALID;
 		memmove(ziel, buffer + DataOffset, len);
 

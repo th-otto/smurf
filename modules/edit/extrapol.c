@@ -90,7 +90,7 @@ MOD_ABILITY module_ability = {
 
 
 /*---------------------------  FUNCTION MAIN -----------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	SMURF_PIC *picture;
 	short width, height;

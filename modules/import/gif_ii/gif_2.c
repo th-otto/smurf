@@ -134,14 +134,14 @@ static uint8_t *dest;
 /*-------------------------------------------------------------	*/
 static uint8_t *check_header(uint8_t *file, short *version)
 {
-	if (strncmp(file, "GIF", 3) != 0)
+	if (strncmp((char *)file, "GIF", 3) != 0)
 		return NULL;
 
-	if (strncmp(file + 3, "87a", 3) == 0)
+	if (strncmp((char *)file + 3, "87a", 3) == 0)
 	{
 		strcpy(sm_pic->format_name, "GIF 87a");
 		*version = 87;
-	} else if (strncmp(file + 3, "89a", 3) == 0)
+	} else if (strncmp((char *)file + 3, "89a", 3) == 0)
 	{
 		strcpy(sm_pic->format_name, "GIF 89a");
 		*version = 89;
@@ -372,8 +372,8 @@ static void deinterlace(uint8_t *buffer, unsigned short width, unsigned short he
 	{
 		Planes = BitsPerPixel;
 		realwidth = (width + 7) / 8;
-		planelength = realwidth * height;
 	}
+	planelength = realwidth * height;
 
 	lacebuf = (uint8_t *) Malloc(realwidth * sizeof(*lacebuf) + height * sizeof(*lacetabf) * 2);
 	lacetabf = (short *) (lacebuf + realwidth);
@@ -495,7 +495,8 @@ static void invert_gif(uint8_t *buffer, unsigned short width, unsigned short hei
 		x = 0;
 		do
 		{
-			*buffer++ = ~*buffer;
+			uint8_t v = ~*buffer;
+			*buffer++ = v;
 		} while (++x < realwidth);
 	} while (++y < height);
 

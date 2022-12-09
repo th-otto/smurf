@@ -78,11 +78,11 @@ static unsigned short swap_word(unsigned short w)
 #endif
 
 /* Infostruktur fÅr Hauptmodul */
-MOD_INFO module_info = { "Pictor PC Paint",
+MOD_INFO module_info = {
+	"Pictor PC Paint",
 	0x0020,
 	"Christian Eyrich",
-	"PIC", "", "", "", "",
-	"", "", "", "", "",
+	{ "PIC", "", "", "", "", "", "", "", "", "" },
 	"Slider 1",
 	"Slider 2",
 	"Slider 3",
@@ -106,7 +106,8 @@ MOD_INFO module_info = { "Pictor PC Paint",
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	0, 0, 0, 0,
-	0
+	0,
+	NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -323,6 +324,8 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	if (palflag != 0xff)			/* Version < 2.0 */
 	{
 		Offset = 0x0c;
+		PalSize = 0;
+		PalType = 0;
 	} else							/* Version >= 2.0 */
 	{
 		Offset = 0x11;

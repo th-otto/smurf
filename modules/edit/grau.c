@@ -148,7 +148,7 @@ MOD_ABILITY module_ability = {
 /*		1-8, 16 und 24 Bit							*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *data;
 	uint8_t *pal;

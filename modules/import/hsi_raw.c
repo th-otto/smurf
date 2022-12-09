@@ -89,7 +89,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	buffer = smurf_struct->smurf_pic->pic_data;
 
-	if (strncmp(buffer, "mhwanh", 6) != 0)
+	if (strncmp((char *)buffer, "mhwanh", 6) != 0)
 		return M_INVALID;
 
 	if (*(uint16_t *) (buffer + 0x0c) > 256 || *(uint16_t *) (buffer + 0x0c) == 0)

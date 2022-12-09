@@ -337,7 +337,7 @@ static uint8_t *f_do_pcd(char *Path)
 			}
 
 			/* isseseins? */
-			if (strcmp(buffer + 2048, "PCD_IPI") != 0)
+			if (strcmp((char *)buffer + 2048, "PCD_IPI") != 0)
 			{
 				Mfree(buffer);
 				return NULL;			/* N”! */
@@ -530,8 +530,9 @@ static short f_save_pic(const MOD_ABILITY *export_mabs, SMURF_PIC *pic)
 		if (pic_to_export->depth >= max_expdepth)
 		{
 			if (pic_to_export->depth == 24 && max_expdepth == 16)
+			{
 				smurf_functions->tfm_24_to_16(converted_pic, NEW);
-			else
+			} else
 			{
 				/*
 				 * Farbsystem holen
@@ -542,7 +543,8 @@ static short f_save_pic(const MOD_ABILITY *export_mabs, SMURF_PIC *pic)
 				smurf_functions->start_exp_module(export_path, MCOLSYS, pic_to_export, exp_bp, exp_gstruct, mod_num);
 				if (exp_gstruct->module_mode == M_COLSYS)
 					dest_colsys = exp_gstruct->event_par[0];
-
+				else
+					dest_colsys = RGB;
 				pic_to_export->depth = old_picdepth;
 
 
@@ -691,7 +693,7 @@ void start_conversion(void)
 	char wildcard_string[256];
 	char num[8];
 	char import_path[256];
-	struct DIRENTRY *first_file;
+	struct DIRENTRY *first_file = NULL;
 	struct DIRENTRY *file;
 	char *extension;
 	short wcard;
@@ -782,6 +784,7 @@ void start_conversion(void)
 		while (file != NULL)
 		{
 			PCD = 0;
+			loaded_file = NULL;
 			strcpy(import_path, source_path);
 			strcat(import_path, file->modname);
 
@@ -794,7 +797,7 @@ void start_conversion(void)
 				if (extension != NULL && strnicmp(extension, "PCD", 3) == 0)
 				{
 					loaded_file = f_do_pcd(import_path);
-					if (loaded_file != FALSE)
+					if (loaded_file != NULL)
 						PCD = 1;
 				}
 
@@ -817,9 +820,9 @@ void start_conversion(void)
 							else
 								services->f_alert(alerts[NO_LOADMEM], NULL, NULL, NULL, 1);
 						}
+						Fclose(filehandle);
 					}
 
-					Fclose(filehandle);
 					if (loaded_file == NULL)
 					{
 						file = file->next;

@@ -43,7 +43,7 @@ typedef struct
 /*--------- Comment Extension -------*/
 typedef struct 
 {
-	short commentlength;
+	uint8_t commentlength;
 	char *comment;
 } COM_EXTENSION;
 

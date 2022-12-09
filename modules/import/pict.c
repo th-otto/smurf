@@ -1270,7 +1270,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		{
 			/* just a reserved opcode */
 			nop();
-		} else if (opcode >= 0x8100 && (unsigned long) opcode <= 0xffff)
+		} else if (opcode >= 0x8100 /* && opcode <= 0xffff */)
 		{
 			skip((unsigned short) read_long());
 		} else

@@ -334,7 +334,7 @@ static void yshear_antialias(uint8_t *buffer, uint8_t *ziel, unsigned short widt
 /*		24 Bit										*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *buffer;
 	uint8_t *ziel;

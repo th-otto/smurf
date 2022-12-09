@@ -106,7 +106,6 @@ SMURF_VARIABLES *smurf_vars;
 
 static LIST_FIELD exporter_list;
 static POP_UP depth_popup;
-static POP_UP colsys_popup;
 static POP_UP dither_popup;
 static POP_UP palette_popup;
 
@@ -201,10 +200,12 @@ static void init_windstruct(void)
 /* actualize_dialog ----------------------------------------------
     Aktualisiert den Dialog
     ------------------------------------------------------------*/
+#if 0 /* unused */
 static void actualize_dialog(void)
 {
 	services->redraw_window(&window, NULL, 0, 0);
 }
+#endif
 
 
 
@@ -344,7 +345,8 @@ static void init_exporter(void)
 	char module_name[33] = "";
 	short t;
 	const MOD_INFO *modinfo;
-
+	void **pp;
+	
 	mod_num = give_free_module();
 	if (mod_num == -1)
 	{
@@ -369,7 +371,8 @@ static void init_exporter(void)
 		if (strncmp(module_name, smurf_vars->export_module_names[t], strlen(module_name)) == 0)
 			break;
 	}
-	*((long *) smurf_struct[mod_num & 0xFF]->event_par) = (long) smurf_vars->export_cnfblock[t];
+	pp = (void **)smurf_struct[mod_num & 0xFF]->event_par;
+	*pp = smurf_vars->export_cnfblock[t];
 	smurf_struct[mod_num & 0xFF]->event_par[2] = smurf_vars->export_cnflen[t];
 }
 
@@ -532,6 +535,7 @@ static void handle_dialog(PLUGIN_DATA *data)
 	const MODULE_START *module_start;
 	const MOD_INFO *minfo;
 	char pal_loadpath[256];
+	void **pp;
 
 	if (data->message == MBEVT)
 	{
@@ -607,7 +611,7 @@ static void handle_dialog(PLUGIN_DATA *data)
 		/*
 		 * Hat sich der gew„hlte Exporter ge„ndert? -> Farbtiefenpopup neu initialisieren
 		 */
-		if (button >= EXPLIST_1 && button <= EXPLIST_9 ||
+		if ((button >= EXPLIST_1 && button <= EXPLIST_9) ||
 			button == EXPLIST_UP || button == EXPLIST_DN || button == EXPLIST_SL || button == EXPLIST_SB)
 		{
 			/*
@@ -633,7 +637,8 @@ static void handle_dialog(PLUGIN_DATA *data)
 							break;
 					}
 
-					*((long *) smurf_struct[mod_num & 0xFF]->event_par) = (long) smurf_vars->export_cnfblock[t];
+					pp = (void **)smurf_struct[mod_num & 0xFF]->event_par;
+					*pp = smurf_vars->export_cnfblock[t];
 					smurf_struct[mod_num & 0xFF]->event_par[2] = smurf_vars->export_cnflen[t];
 
 					smurf_functions->start_exp_module(export_path, MMORECANC, NULL, edit_bp[mod_num & 0xFF],

@@ -279,7 +279,7 @@ static short do_it(GARGAMEL *smurf_struct)
 
 
 /*-----------------------  FUNCTION MAIN --------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	switch (smurf_struct->module_mode)
 	{

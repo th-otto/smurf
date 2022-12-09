@@ -320,7 +320,7 @@ static void evaluate_color(SMURF_PIC *smurf_pic, PIXEL *dst, PIXEL *src, unsigne
 /*		1-8, 16 und 24 Bit 							*/
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
-void edit_module_main(GARGAMEL * smurf_struct)
+void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t t;
 	uint8_t BitsPerPixel;

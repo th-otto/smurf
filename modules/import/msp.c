@@ -109,9 +109,9 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	buffer = smurf_struct->smurf_pic->pic_data;
 	obuffer = buffer;
 
-	if (strncmp(buffer, "DanM", 4) == 0)
+	if (strncmp((char *)buffer, "DanM", 4) == 0)
 		version = 1;
-	else if (strncmp(buffer, "LinS", 4) == 0)
+	else if (strncmp((char *)buffer, "LinS", 4) == 0)
 		version = 2;
 	else
 		return M_INVALID;

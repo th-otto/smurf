@@ -168,7 +168,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	c = 14;
 	while (c < 12 && *(buffer + c) != ' ')	/* 14 = Erkennungsstring + crlf */
 		c++;
-	strncpy(bf, buffer + c, 12);
+	strncpy(bf, (char *)buffer + c, 12);
 	width = atoi(strtok(bf, " "));
 	height = atoi(strtok(NULL, " "));
 

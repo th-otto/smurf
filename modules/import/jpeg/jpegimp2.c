@@ -134,7 +134,7 @@ char *getenv(const char *name)
 static uint8_t *read_JPEG_file(uint8_t *inpic, unsigned long f_len)
 {
 	uint8_t *outpic;
-	uint8_t *ooutpic = NULL;
+	uint8_t *volatile ooutpic = NULL;
 	char impmessag[21];
 	char dummy[3];
 

@@ -99,8 +99,7 @@ MOD_INFO module_info = {
 	"TGA Bitmap Importer",
 	0x0110,
 	"Christian Eyrich",
-	"TGA", "", "", "", "",
-	"", "", "", "", "",
+	{ "TGA", "", "", "", "", "", "", "", "", "" },
 	"Slider 1",
 	"Slider 2",
 	"Slider 3",
@@ -529,7 +528,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 
 	IDLength = *buffer;
 	if (IDLength > 0)
-		strncpy(smurf_struct->smurf_pic->infotext, buffer + 0x12, min(IDLength, sizeof(smurf_struct->smurf_pic->infotext)) - 1);
+		strncpy(smurf_struct->smurf_pic->infotext, (char *)buffer + 0x12, min(IDLength, sizeof(smurf_struct->smurf_pic->infotext)) - 1);
 
 	/* 0 = keine Bilddaten im File */
 	/* 1 = Palettenbild, unkomprimiert */
@@ -575,10 +574,11 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		return M_PICERR;
 	}
 
-	if (ImageType == 1 && BitsPerPixel != 8 ||
-		ImageType == 2 && BitsPerPixel < 16 ||
-		ImageType == 3 && (BitsPerPixel != 1 && BitsPerPixel != 8) ||
-		(!CMapStart && !CMapLength) && ImageType == 1 || (CMapStart || CMapLength) && ImageType != 1)
+	if ((ImageType == 1 && BitsPerPixel != 8) ||
+		(ImageType == 2 && BitsPerPixel < 16) ||
+		(ImageType == 3 && BitsPerPixel != 1 && BitsPerPixel != 8) ||
+		(!CMapStart && !CMapLength && ImageType == 1) ||
+		((CMapStart || CMapLength) && ImageType != 1))
 	{
 		if (form_alert(1, ERROR2) == 1)
 			return M_PICERR;

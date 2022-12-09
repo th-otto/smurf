@@ -896,7 +896,7 @@ void memorize_emodConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 	cnfblock (wird bei M_EXIT mitgeschickt) mit der L„nge length in den
 	Feldern export_cnfblock[] und export_cnflen[].
 	-------------------------------------------------------------------------*/
-void memorize_expmodConfig(BASPAG * modbase, GARGAMEL * smurf_struct, char save)
+void memorize_expmodConfig(BASPAG *modbase, GARGAMEL *smurf_struct, char save)
 {
 	char cmp_modname[30];
 	const MODULE_START *module_start;
@@ -952,7 +952,7 @@ void memorize_expmodConfig(BASPAG * modbase, GARGAMEL * smurf_struct, char save)
 	und entsprechend reagieren (Dialogupdate). Antwort vom Modul soll entweder
 	M_WAITING oder M_MODPIC sein (wobei letzteres momentan noch nicht funkt!).
 	---------------------------------------------------------------------*/
-void transmitConfig(BASPAG * modbase, GARGAMEL * smurf_struct)
+void transmitConfig(BASPAG *modbase, GARGAMEL *smurf_struct)
 {
 	const MODULE_START *module_start;
 	char cmp_modname[30];

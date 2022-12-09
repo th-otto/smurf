@@ -222,8 +222,12 @@ short imp_module_main(GARGAMEL *smurf_struct)
 	{
 		if (BitsPerPixel <= 8)
 			cols = 1 << BitsPerPixel;
+		else
+			cols = 0;
 	} else
+	{
 		cols = (unsigned int) *(uint32_t *) (buffer + 0x4c);
+	}
 	DatenOffset = pal_of + (colent * cols);
 
 	strcpy(smurf_struct->smurf_pic->format_name, "X Window Dump .XWD");

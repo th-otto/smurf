@@ -65,7 +65,9 @@ short decode_lzw_normal(uint8_t *buffer, uint8_t *ziel, short width, short heigh
 	uint8_t *pixbuf;
 	uint8_t data_size;
 
-	short code, oldcode, clear, end_of_information, entries, available;
+	short code;
+	short oldcode = 0;
+	short clear, end_of_information, entries, available;
 	short x, l, c, k, finished, out_count, width2, v, d;
 
 	uint8_t *pData;

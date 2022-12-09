@@ -74,6 +74,7 @@ MOD_INFO module_info = {
 
 
 
+#if 0 /* unused */
 /* --- STRSRCHR --- */
 /* Diese Funktion sucht von hinten her nach dem ersten Vorkommen des */
 /* Åbergebenen Zeichen und gibt die Position oder -1 zurÅck */
@@ -87,8 +88,10 @@ static int strsrchr(char *s, char c)
 
 	return i;
 }
+#endif
 
 
+#if 0 /* unused */
 /* --- STRSRCHL --- */
 /* Diese Funktion sucht von vorne her nach dem ersten Vorkommen des */
 /* Åbergebenen Zeichen und gibt die Position oder -1 zurÅck */
@@ -106,6 +109,7 @@ static int strsrchl(char *s, char c)
 		i = -1;
 	return i;
 }
+#endif
 
 
 static const char *fileext(const char *filename)
@@ -204,7 +208,7 @@ short imp_module_main(GARGAMEL *smurf_struct)
 			return M_PICERR;
 		*strvalue++ = '\0';
 
-		help = strrchr(name_and_type, '_');
+		help = (uint8_t *)strrchr(name_and_type, '_');
 		if (help != NULL && *(help + 1) != '\0')
 			dimension = *(help + 1);
 		else if (i == 0)			/* erster define */
@@ -265,7 +269,10 @@ short imp_module_main(GARGAMEL *smurf_struct)
 		if (*helpstr++ == end)
 			break;
 
-		*ziel++ = (hexTable[(unsigned char)*helpstr++] << 12) + (hexTable[(unsigned char)*helpstr++] << 8) + (hexTable[(unsigned char)*helpstr++] << 4) + hexTable[(unsigned char)*helpstr++];
+		*ziel = (hexTable[(unsigned char)*helpstr++] << 12);
+		*ziel |= (hexTable[(unsigned char)*helpstr++] << 8);
+		*ziel |= (hexTable[(unsigned char)*helpstr++] << 4);
+		*ziel++ |= hexTable[(unsigned char)*helpstr++];
 	}
 
 	buffer = obuffer;

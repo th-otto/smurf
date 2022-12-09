@@ -176,6 +176,7 @@ static long jpg_write(JPGD_STRUCT *jpgd)
 	/* fetch the JPGD_STRUCT pointer from a0 */
 	JPGD_STRUCT *jpgd;
 	
+	(void)_jpgd;
 	__asm__ __volatile__(
 		"\tmove.l %%a0,%0\n"
 		: "=r"(jpgd)
