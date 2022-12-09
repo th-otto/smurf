@@ -175,6 +175,7 @@ short floyd_steinberg68000(SMURF_PIC *picture, DITHER_DATA *dither, uint8_t *out
 
 	planelen = dither->dest_planelength;
 
+	bpp = 1;
 	if (picture->depth >= 8)
 		bpp = picture->depth >> 3;
 

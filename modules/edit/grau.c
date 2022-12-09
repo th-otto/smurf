@@ -264,9 +264,8 @@ void edit_module_main(GARGAMEL * smurf_struct)
 						do
 						{
 							val = *data;
-							pal = palette + val + val + val;
-							*data++ = grenzen[(((long) *pal++ * 872L)
-											   + ((long) *pal++ * 2930L) + ((long) *pal * 296L)) >> 12];
+							pal = palette + val * 3;
+							*data++ = grenzen[(((long) pal[0] * 872L) + ((long) pal[1] * 2930L) + ((long) pal[2] * 296L)) >> 12];
 						} while (--length);
 					} else
 					{
@@ -285,9 +284,8 @@ void edit_module_main(GARGAMEL * smurf_struct)
 							do
 							{
 								val = *line;
-								pal = palette + val + val + val;
-								*line++ = grenzen[(((long) *pal++ * 872L)
-												   + ((long) *pal++ * 2930L) + ((long) *pal * 296L)) >> 12];
+								pal = palette + val * 3;
+								*line++ = grenzen[(((long) pal[0] * 872L) + ((long) pal[1] * 2930L) + ((long) pal[2] * 296L)) >> 12];
 							} while (++x < width);
 
 							data += setpix_std_line(pixbuf, data, BitsPerPixel, planelength, width);
@@ -308,8 +306,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 				{
 					do
 					{
-						val = grenzen[(((long) *data * 872L)
-									   + ((long) *(data + 1) * 2930L) + ((long) *(data + 2) * 296L)) >> 12];
+						val = grenzen[(((long) *data * 872L) + ((long) *(data + 1) * 2930L) + ((long) *(data + 2) * 296L)) >> 12];
 
 						*data++ = val;
 						*data++ = val;
@@ -317,15 +314,17 @@ void edit_module_main(GARGAMEL * smurf_struct)
 					} while (--length);
 				}
 			} else
+			{
 				do
 				{
-					val = grenzen[(((long) *data * 872L)
-								   + ((long) *(data + 1) * 2930L) + ((long) *(data + 2) * 296L)) >> 12];
+					val = grenzen[(((long) *data * 872L) + ((long) *(data + 1) * 2930L) + ((long) *(data + 2) * 296L)) >> 12];
 
-					*data++ = ((val * intens + *data * (64 - intens)) >> 6);
-					*data++ = ((val * intens + *data * (64 - intens)) >> 6);
-					*data++ = ((val * intens + *data * (64 - intens)) >> 6);
+					data[0] = ((val * intens + data[0] * (64 - intens)) >> 6);
+					data[1] = ((val * intens + data[1] * (64 - intens)) >> 6);
+					data[2] = ((val * intens + data[2] * (64 - intens)) >> 6);
+					data += 3;
 				} while (--length);
+			}
 		} else
 		{
 			data16 = (uint16_t *) smurf_struct->smurf_pic->pic_data;

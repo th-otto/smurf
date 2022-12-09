@@ -104,7 +104,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 {
 	uint8_t *data;
 	uint8_t *odata;
-	uint8_t *palette;
+	uint8_t *palette = 0;
 	uint8_t *pal;
 	uint8_t *normalize_map;
 	uint8_t *pixbuf;
@@ -125,6 +125,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	unsigned long threshold_intensity;
 	unsigned long w;
 	unsigned long planelength;
+	uint8_t v;
 
 	/* Wenn das Modul zum ersten Mal gestartet wurde */
 	switch (smurf_struct->module_mode)
@@ -187,8 +188,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					x = 0;
 					do
 					{
-						greyval = ((((long) *data++ * 871L) + ((long) *data++ * 2929L) + ((long) *data++ * 295L)) >> 12);
-
+						greyval = ((((long) data[0] * 871L) + ((long) data[1] * 2929L) + ((long) data[2] * 295L)) >> 12);
+						data += 3;
 						histogram[greyval]++;
 					} while (++x < width);
 				} while (++y < height);
@@ -219,9 +220,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 						do
 						{
 							pixval = *line++;
-							pal = palette + pixval + pixval + pixval;
+							pal = palette + pixval * 3;
 
-							greyval = ((((long) *pal++ * 871L) + ((long) *pal++ * 2929L) + ((long) *pal * 295L)) >> 12);
+							greyval = ((((long) pal[0] * 871L) + ((long) pal[1] * 2929L) + ((long) pal[2] * 295L)) >> 12);
 
 							histogram[greyval]++;
 						} while (++x < width);
@@ -331,9 +332,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					x = 0;
 					do
 					{
-						*data++ = normalize_map[*data];
-						*data++ = normalize_map[*data];
-						*data++ = normalize_map[*data];
+						v = *data;
+						*data++ = normalize_map[v];
+						v = *data;
+						*data++ = normalize_map[v];
+						v = *data;
+						*data++ = normalize_map[v];
 					} while (++x < width);
 				} while (++y < height);
 			} else
@@ -342,9 +346,12 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				length = 256;
 				while (length--)
 				{
-					*pal++ = normalize_map[*pal];
-					*pal++ = normalize_map[*pal];
-					*pal++ = normalize_map[*pal];
+					v = *pal;
+					*pal++ = normalize_map[v];
+					v = *pal;
+					*pal++ = normalize_map[v];
+					v = *pal;
+					*pal++ = normalize_map[v];
 				}
 			}
 		}

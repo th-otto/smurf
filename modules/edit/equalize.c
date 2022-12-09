@@ -115,7 +115,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 	unsigned long length;
 	unsigned long i, j;
 	unsigned long scale_factor;
-
+	uint8_t v;
 
 /* Wenn das Modul zum ersten Mal gestartet wurde */
 	switch (smurf_struct->module_mode)
@@ -180,7 +180,8 @@ void edit_module_main(GARGAMEL * smurf_struct)
 					x = 0;
 					do
 					{
-						greyval = ((((long) *data++ * 871L) + ((long) *data++ * 2929L) + ((long) *data++ * 295L)) >> 12);
+						greyval = ((((long) data[0] * 871L) + ((long) data[1] * 2929L) + ((long) data[2] * 295L)) >> 12);
+						data += 3;
 
 						histogram[greyval]++;
 					} while (++x < width);
@@ -190,7 +191,8 @@ void edit_module_main(GARGAMEL * smurf_struct)
 				i = 0;
 				while (i++ < length)
 				{
-					greyval = ((((long) *data++ * 871L) + ((long) *data++ * 2929L) + ((long) *data++ * 295L)) >> 12);
+					greyval = ((((long) data[0] * 871L) + ((long) data[1] * 2929L) + ((long) data[2] * 295L)) >> 12);
+					data += 3;
 
 					histogram[greyval]++;
 				}
@@ -241,18 +243,24 @@ void edit_module_main(GARGAMEL * smurf_struct)
 					x = 0;
 					do
 					{
-						*data++ = equalize_map[*data];
-						*data++ = equalize_map[*data];
-						*data++ = equalize_map[*data];
+						v = *data;
+						*data++ = equalize_map[v];
+						v = *data;
+						*data++ = equalize_map[v];
+						v = *data;
+						*data++ = equalize_map[v];
 					} while (++x < width);
 				} while (++y < height);
 			} else
 			{
 				while (length--)
 				{
-					*data++ = equalize_map[*data];
-					*data++ = equalize_map[*data];
-					*data++ = equalize_map[*data];
+					v = *data;
+					*data++ = equalize_map[v];
+					v = *data;
+					*data++ = equalize_map[v];
+					v = *data;
+					*data++ = equalize_map[v];
 				}
 			}
 		}

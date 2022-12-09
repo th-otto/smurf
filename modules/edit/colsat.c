@@ -73,7 +73,7 @@ MOD_INFO module_info = {
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	1,
-	"Bild 1"
+	"Bild 1", NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -106,7 +106,7 @@ static short do_it(GARGAMEL *smurf_struct)
 	short width, height;
 	short colsat;
 	uint8_t *pic;
-	uint8_t *cs_tab;
+	uint8_t *cs_tab = 0;
 	uint8_t *offset;
 	uint8_t *cs_offset;
 	short *div_tab;
@@ -224,7 +224,6 @@ static short do_it(GARGAMEL *smurf_struct)
 				*(offset++) = *(cs_offset + red);
 				*(offset++) = *(cs_offset + green);
 				*(offset++) = *(cs_offset + blue);
-
 			}
 		}
 	} else

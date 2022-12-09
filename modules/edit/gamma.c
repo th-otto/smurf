@@ -117,7 +117,7 @@ void edit_module_main(GARGAMEL * smurf_struct)
 	unsigned short blugammamap[256];
 	unsigned long length;
 	double gammared, gammagrn, gammablu;
-
+	uint8_t v;
 
 	switch (smurf_struct->module_mode)
 	{
@@ -167,9 +167,12 @@ void edit_module_main(GARGAMEL * smurf_struct)
 
 			while (length--)
 			{
-				*data++ = redgammamap[*data];
-				*data++ = grngammamap[*data];
-				*data++ = blugammamap[*data];
+				v = *data;
+				*data++ = redgammamap[v];
+				v = *data;
+				*data++ = grngammamap[v];
+				v = *data;
+				*data++ = blugammamap[v];
 			}
 		} else
 		{

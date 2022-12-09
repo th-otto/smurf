@@ -264,13 +264,14 @@ static short do_it(GARGAMEL *smurf_struct)
 	{
 		for (x = 0; x < width; x++)
 		{
-			if ((*(offset++) != mred) | (*(offset++) != mgreen) | (*(offset++) != mblue))
+			if (offset[0] != mred || offset[1] != mgreen || offset[2] != mblue)
 			{
 				*(moffset++) = 1;
 			} else
 			{
 				*(moffset++) = 0;
 			}
+			offset += 3;
 		}
 	}
 

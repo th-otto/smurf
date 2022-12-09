@@ -49,7 +49,7 @@ MOD_INFO module_info = {
 	"Edge-O-Kill",						/* Name des Moduls */
 	0x0110,
 	"Jîrg Dittmer",						/* Autor */
-	"", "", "", "", "", "", "", "", "", "",	/* 10 Extensionen fÅr Importer */
+	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fÅr Importer */
 /* 4 SliderÅberschriften: max 8 */
 	"X-Blend %",
 	"Y-Blend %",

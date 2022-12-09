@@ -182,7 +182,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 						if (*data <= slidvals)
 							*data++ = 0;
 						else
-							*data++ = shadowtab[*data];
+							*data = shadowtab[*data], data++;
 					}
 
 					/* Grn */
@@ -195,19 +195,20 @@ void edit_module_main(GARGAMEL *smurf_struct)
 						if (*data <= slidvals)
 							*data++ = 0;
 						else
-							*data++ = shadowtab[*data];
+							*data = shadowtab[*data], data++;
 					}
 
 					/* Blau */
 					if (*data >= slidvalh)
+					{
 						*data++ = 255;
-					else
+					} else
 					{
 						*data = highlighttab[*data];
 						if (*data <= slidvals)
 							*data++ = 0;
 						else
-							*data++ = shadowtab[*data];
+							*data = shadowtab[*data], data++;
 					}
 				} while (--length);
 			} else
@@ -217,43 +218,49 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					if (slidvalh < 255)
 					{
 						/* Rot */
-						if (*data >= slidvalh)
+						r = *data;
+						if (r >= slidvalh)
 							*data++ = 255;
 						else
-							*data++ = highlighttab[*data];
+							*data++ = highlighttab[r];
 
 						/* Grn */
-						if (*data >= slidvalh)
+						g = *data;
+						if (g >= slidvalh)
 							*data++ = 255;
 						else
-							*data++ = highlighttab[*data];
+							*data++ = highlighttab[g];
 
 						/* Blau */
-						if (*data >= slidvalh)
+						b = *data;
+						if (b >= slidvalh)
 							*data++ = 255;
 						else
-							*data++ = highlighttab[*data];
+							*data++ = highlighttab[b];
 					}
 
 					if (slidvals > 0)
 					{
 						/* Rot */
-						if (*data <= slidvals)
+						r = *data;
+						if (r <= slidvals)
 							*data++ = 0;
 						else
-							*data++ = shadowtab[*data];
+							*data++ = shadowtab[r];
 
 						/* Grn */
-						if (*data <= slidvals)
+						g = *data;
+						if (g <= slidvals)
 							*data++ = 0;
 						else
-							*data++ = shadowtab[*data];
+							*data++ = shadowtab[g];
 
 						/* Blau */
-						if (*data <= slidvals)
+						b = *data;
+						if (b <= slidvals)
 							*data++ = 0;
 						else
-							*data++ = shadowtab[*data];
+							*data++ = shadowtab[b];
 					}
 				} while (--length);
 			}
@@ -264,6 +271,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			data16 = (uint16_t *) smurf_struct->smurf_pic->pic_data;
 
 			length = (unsigned long) width * (unsigned long) height;
+			r = g = b = 0;
 
 			do
 			{
@@ -273,19 +281,19 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					if (r >= slidvalh)
 						r = 255;
 					else
-						r = highlighttab[*data];
+						r = highlighttab[r];
 
 					g = ((*data16 & 0x7e0) >> 3);
 					if (g >= slidvalh)
 						g = 255;
 					else
-						g = highlighttab[*data];
+						g = highlighttab[g];
 
 					b = ((*data16 & 0x1f) << 3);
 					if (b >= slidvalh)
 						b = 255;
 					else
-						b = highlighttab[*data];
+						b = highlighttab[b];
 				}
 
 				if (slidvals > 0)
@@ -294,19 +302,19 @@ void edit_module_main(GARGAMEL *smurf_struct)
 					if (r <= slidvals)
 						r = 0;
 					else
-						r = shadowtab[*data];
+						r = shadowtab[r];
 
 					g = ((*data16 & 0x7e0) >> 3);
 					if (g <= slidvals)
 						g = 0;
 					else
-						g = shadowtab[*data];
+						g = shadowtab[g];
 
 					b = ((*data16 & 0x1f) << 3);
 					if (b <= slidvals)
 						b = 0;
 					else
-						b = shadowtab[*data];
+						b = shadowtab[b];
 				}
 
 				*data16++ = ((r & 0x00f8) << 8) | ((g & 0x00fc) << 3) | (b >> 3);
