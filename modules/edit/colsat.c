@@ -44,34 +44,19 @@ MOD_INFO module_info = {
 	"J”rg Dittmer",						/* Autor */
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fr Importer */
 /* 4 Sliderberschriften: max 8 */
-	"F-S„t %",
-	"",
-	"",
-	"",
+	{ "F-S„t %", "", "", "" },
 /* 4 Checkboxberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 Edit-Objekt-šberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* min/max-Werte fr Slider */
-	0, 200,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 200 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* min/max fr Editobjekte */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	100, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 100, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ "Bild 1", NULL, NULL, NULL, NULL, NULL }
 };
@@ -118,7 +103,7 @@ static short do_it(GARGAMEL *smurf_struct)
 
 	/*--- Slider auslesen ---------------------- */
 
-	colsat = (short) smurf_struct->slide1;
+	colsat = (short) smurf_struct->slide[0];
 	if (colsat == 100 || smurf_struct->smurf_pic->col_format == GREY)
 		return M_PICDONE;													  /*--- Keine Žnderung --> BEENDEN --------*/
 

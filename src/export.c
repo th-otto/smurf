@@ -425,7 +425,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	char savepathback[SM_PATH_MAX];
 	char *name;
 	char *save_ext;
-	char *expext;
+	const char *expext;
 	char module_name[30];
 	const MODULE_START *module_start;
 	char titleString[64];
@@ -583,15 +583,18 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 	strncpy(module_name, modinfo->mod_name, 28);
 	strcpy(savepathback, savepath);		/* Backup vom Savepath */
 	strcpy(strrchr(savepath, '\\') + 1, strrchr(smurf_picture[active_pic]->filename, '\\') + 1);
-	strlwr(expext);
 
 	if ((save_ext = strrchr(savepath, '.')) != NULL && save_ext > strrchr(savepath, '\\'))
-		strcpy(save_ext + 1, expext);	/* Extender gegen neuen ersetzen */
-	else
+	{
+		save_ext++;
+		strcpy(save_ext, expext);	/* Extender gegen neuen ersetzen */
+	} else
 	{
 		strcat(savepath, ".");			/* Punkt und */
-		strncat(savepath, expext, 4);	/* neuen Extender an Filenamen ohne Extender h„ngen */
+		save_ext = savepath + strlen(savepath);
+		strcpy(save_ext, expext);	/* neuen Extender an Filenamen ohne Extender h„ngen */
 	}
+	strlwr(save_ext);
 
 	/* FIXME: translate */
 	Dialog.busy.reset(0, "codiere Bild...");
@@ -613,6 +616,7 @@ int f_save_pic(MOD_ABILITY *export_mabs)
 		picture = pic_to_save->pic_data;
 		len = pic_to_save->f_len;
 		f_set_syspal();
+		/* FIXME: translate */
 		Dialog.busy.reset(0, "speichere Bild...");
 
 		strcpy(titleString, expext);

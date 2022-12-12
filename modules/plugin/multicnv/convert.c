@@ -249,7 +249,7 @@ static struct DIRENTRY *make_filelist(char *path, char *wildcard)
 /* ------------------------------------------------------------- */
 static short f_loadpic(uint8_t *pic, char *picpath)
 {
-	char PCDmodpath[257];
+	char PCDmodpath[SM_PATH_MAX];
 	char *namename;
 	char *nameext;
 	char ext[5] = "";
@@ -281,7 +281,9 @@ static short f_loadpic(uint8_t *pic, char *picpath)
 			module_ret = M_MODERR;
 			services->reset_busybox(128, "Error!");
 		} else
+		{
 			services->reset_busybox(128, "OK");
+		}
 	} else
 	{
 		if ((nameext = strrchr(namename, '.')) != NULL && nameext > namename)	/* Extender abtrennen */
@@ -421,7 +423,7 @@ static short f_save_pic(const MOD_ABILITY *export_mabs, SMURF_PIC *pic)
 {
 	char savepath[257];
 	char *save_ext;
-	char *expext;
+	const char *expext;
 	char module_name[31];
 	const MODULE_START *module_start;
 	uint8_t *picture;
@@ -590,16 +592,19 @@ static short f_save_pic(const MOD_ABILITY *export_mabs, SMURF_PIC *pic)
 	strcpy(savepath, dest_path);
 	strcat(savepath, pic->filename);
 
-	strlwr(expext);
-
 	if ((save_ext = strrchr(savepath, '.')) != NULL && save_ext > strrchr(savepath, '\\'))
-		strcpy(save_ext + 1, expext);	/* Extender gegen neuen ersetzen */
-	else
+	{
+		save_ext++;
+		strcpy(save_ext, expext);	/* Extender gegen neuen ersetzen */
+	} else
 	{
 		strcat(savepath, ".");			/* Punkt und */
-		strncat(savepath, expext, 4);	/* neuen Extender an Filenamen ohne Extender h„ngen */
+		save_ext = savepath + strlen(savepath);
+		strcpy(save_ext, expext);	/* neuen Extender an Filenamen ohne Extender h„ngen */
 	}
+	strlwr(save_ext);
 
+	/* FIXME: translate */
 	services->reset_busybox(0, "codiere Bild...");
 
 /*  printf("\n image encoding");*/

@@ -61,25 +61,19 @@ MOD_INFO module_info = {
 	"Olaf Piesche",
 	{ "", "", "", "", "", "", "", "", "", "" },
 /* 4 Sliderueberschriften: max 8 */
-	TEXT2, TEXT3, "", "",
+	{ TEXT2, TEXT3, "", "" },
 /* 4 Checkboxueberschriften: */
-	"", "", "", "",
+	{ "", "", "", "" },
 /* 4 Edit-Objekt-Ueberschriften: */
-	"", "", "", "",
+	{ "", "", "", "" },
 /* min/max-Werte fr Slider */
-	1, 100,
-	0, 360,
-	0, 128,
-	0, 128,
+	{ { 1, 100 }, { 0, 360 }, { 0, 128 }, { 0, 128 } },
 /* min/max fr Editobjekte */
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	20, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 20, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 /* Anzahl der Bilder */
 	1,
 /* Bezeichnung fuer Bilder */
@@ -159,8 +153,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		/*------------------------------------- Modul soll loslegen */
 		picture = smurf_struct->smurf_pic;	/* Bild         */
 		pd = picdata = picture->pic_data;
-		sliderval = smurf_struct->slide1;	/* Sliderwert auslesen */
-		angle = (short) smurf_struct->slide2;	/* Sliderwert auslesen */
+		sliderval = smurf_struct->slide[0];	/* Sliderwert auslesen */
+		angle = (short) smurf_struct->slide[1];	/* Sliderwert auslesen */
 
 		width = picture->pic_width;		/* Bildabmessungen */
 		height = picture->pic_height;

@@ -58,34 +58,19 @@ MOD_INFO module_info = {
 	"Olaf Piesche",		/* Author */
 	{ "", "", "", "", "", "", "", "", "", "" },
 /* 4 Sliderueberschriften: max 8 */
-	TEXT3,
-	"",
-	"",
-	"",
+	{ TEXT3, "", "", "" },
 /* 4 Checkboxueberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 Edit-Objekt-Ueberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* min/max-Werte fr Slider */
-	1, 15,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 1, 15 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* min/max fr Editobjekte */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	3, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 3, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 /* Anzahl der Bilder */
 	1,
 /* Bezeichnung fuer Bilder */
@@ -180,7 +165,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		
 		/*-------------------- Offset-Table vorbereiten --------------  */
 		/*--------------------- Delta-Table (schnell!)  --------------- */
-		matw = (short) smurf_struct->slide1;
+		matw = (short) smurf_struct->slide[0];
 		math = matw;
 
 		counter = ((long) matw * 2 + 1) * ((long) math * 2 + 1);

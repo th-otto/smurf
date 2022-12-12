@@ -46,29 +46,14 @@ MOD_INFO module_info = {
 	0x0020,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"Highlight",
-	"Shadow",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	0, 100,
-	0, 100,
-	0, 64,
-	0, 64,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	100, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ "Highlight", "Shadow", "", "" },
+	{ "", "", "", "" },
+	{ "", "", "", "" },
+	{ { 0, 100 }, { 0, 100 }, { 0, 64 }, { 0, 64 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 100, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -131,8 +116,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		/* wie schnell sind wir? */
 		init_timer();
 #endif
-		slidvalh = smurf_struct->slide1 * 255 / 100;
-		slidvals = smurf_struct->slide2 * 255 / 100;
+		slidvalh = smurf_struct->slide[0] * 255 / 100;
+		slidvals = smurf_struct->slide[1] * 255 / 100;
 		BitsPerPixel = smurf_struct->smurf_pic->depth;
 
 		bereich = 255 - slidvals;

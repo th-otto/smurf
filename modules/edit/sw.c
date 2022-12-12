@@ -60,25 +60,19 @@ MOD_INFO module_info = {
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", ""},
 /* 4 Sliderueberschriften: max 8 */
-	TEXT2, "", "", "",
+	{ TEXT2, "", "", "" },
 /* 4 Checkboxueberschriften: */
-	TEXT3, "", "", "",
+	{ TEXT3, "", "", "" },
 /* 4 Edit-Objekt-Ueberschriften: */
-	"", "", "", "",
+	{ "", "", "", "" },
 /* min/max-Werte fr Slider */
-	0, 255,
-	0, 64,
-	0, 64,
-	0, 64,
+	{ { 0, 255 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
 /* min/max fr Editobjekte */
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	128, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 128, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 /* Anzahl der Bilder */
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
@@ -324,9 +318,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		init_timer();
 #endif
 
-		grenze = smurf_struct->slide1 << 12;
+		grenze = smurf_struct->slide[0] << 12;
 
-		if (smurf_struct->check1)
+		if (smurf_struct->check[0])
 			smurf_struct->module_mode = do_mode1(smurf_struct->smurf_pic, grenze);
 		else
 			smurf_struct->module_mode = do_mode2(smurf_struct->smurf_pic, grenze);

@@ -456,9 +456,9 @@ extern SMURF_PIC *smurf_picture[25];
 extern short active_pic;
 extern BASPAG *Dithermod_Basepage[10];			/* Basepages fÅr Dithermodule */
 
-extern long sx1, sx2, sx3, sx4;			/* Maxima */
-extern long sn1, sn2, sn3, sn4;			/* Minima */
-extern short sy1, sy2, sy3, sy4;				/* eingestellte Sliderwerte */
+extern long smax[4];			/* Maxima */
+extern long smin[4];			/* Minima */
+extern short sval[4];				/* eingestellte Sliderwerte */
 extern short edit_mod_num;				/* Modul-ID des Moduls, das das Einstellformular benutzt */
 extern char *export_path;					/* Pfad des Export-Modules	*/
 extern short export_depth[8];

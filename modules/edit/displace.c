@@ -62,23 +62,23 @@ MOD_INFO module_info = {
 	0x0100,									/* version */
 	"Olaf Piesche",							/* author */
 	/* 10 Extensionen fr Importer */
-	{ " ", " ", " ", " ", " ", " ", " ", " ", " ", " " },
+	{ "", "", "", "", "", "", "", "", "", "" },
 	/* 4 Slider titles: max length 8 */
-	TEXT2, TEXT3, "", "",
+	{ TEXT2, TEXT3, "", "" },
 	/* 4 checkbox titles */
-	"", "", "", "",
+	{ "", "", "", "" },
 	/* 4 edit object titles */
-	"", "",	"", "",
+	{ "", "",	"", "" },
 	/* min/max values for slider */
-	1,100, 1,100, 0,0, 0,0,
+	{ { 1,100 }, { 1,100 }, { 0,0 }, { 0,0 } },
 	/* min/max values for edit objects */
-	0,0, 0,0, 0,0, 0,0,
+	{ { 0,0 }, { 0,0 }, { 0,0 }, { 0,0 } },
 	/* default values for slider */
-	10, 10, 0, 0,
+	{ 10, 10, 0, 0 },
 	/* default values for checkboxes */
-	0, 0, 0, 0,
+	{ 0, 0, 0, 0 },
 	/* default values for editobjects */
-	0, 0, 0, 0,
+	{ 0, 0, 0, 0 },
 	/* how many pics? */
 	2,
 	/* description for pictures */
@@ -127,8 +127,8 @@ static short doit(GARGAMEL *smurf_struct)
 	bump_width = bump_pic->pic_width;
 	bump_height = bump_pic->pic_height;
 	bumpdata = bump_pic->pic_data;
-	smurf_struct->slide1 = ((long)(short)smurf_struct->slide1 << 8) / 100;
-	smurf_struct->slide2 = ((long)(short)smurf_struct->slide2 << 8) / 100;
+	smurf_struct->slide[0] = ((long)(short)smurf_struct->slide[0] << 8) / 100;
+	smurf_struct->slide[1] = ((long)(short)smurf_struct->slide[1] << 8) / 100;
 	buffer = smurf_struct->services->SMalloc(width * height * 3);
 	if (buffer == NULL)
 		return M_MEMORY;
@@ -152,8 +152,8 @@ static short doit(GARGAMEL *smurf_struct)
 			if ((bump_width - 1) < x)
 				dx = (WORD)(x % (bump_width - 1));
 			pixel = *(bumpdata + dx + src_offset) - 128;
-			xscale = ((pixel * smurf_struct->slide1) >> 8) + x;
-			yscale = ((pixel * smurf_struct->slide2) >> 8) + y;
+			xscale = ((pixel * smurf_struct->slide[0]) >> 8) + x;
+			yscale = ((pixel * smurf_struct->slide[1]) >> 8) + y;
 			if (xscale < 0)
 				xscale = (xscale % width) + width;
 			else if (xscale > width) /* FIXME: should be >= */

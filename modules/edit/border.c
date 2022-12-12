@@ -46,34 +46,19 @@ MOD_INFO module_info = {
 	"J”rg Dittmer",						/* Autor */
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fr Importer */
 /* 4 Sliderberschriften: max 8 */
-	"Red",
-	"Green",
-	"Blue",
-	"",
+	{ "Red", "Green", "Blue", "" },
 /* 4 Checkboxberschriften: */
-	"Center",
-	"Use Color",
-	"",
-	"",
+	{ "Center", "Use Color", "", "" },
 /* 4 Edit-Objekt-šberschriften: */
-	"left",
-	"right",
-	"up",
-	"down",
+	{ "left", "right", "up", "down" },
 /* min/max-Werte fr Slider */
-	0, 255,
-	0, 255,
-	0, 255,
-	0, 0,
+	{ { 0, 255 }, { 0, 255 }, { 0, 255 }, { 0, 0 } },
 /* min/max fr Editobjekte */
-	0, 32768L,
-	0, 32768L,
-	0, 32768L,
-	0, 32768L,
+	{ { 0, 32768L }, { 0, 32768L }, { 0, 32768L }, { 0, 32768L } },
 /* Defaultwerte fr Slider, Check und Edit */
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ "Bild 1", NULL, NULL, NULL, NULL, NULL }
 };
@@ -118,10 +103,10 @@ static short do_it(GARGAMEL *smurf_struct)
 
 	/*--- Slider auslesen ---------------------- */
 
-	bd_left = (short) smurf_struct->edit1;
-	bd_right = (short) smurf_struct->edit2;
-	bd_up = (short) smurf_struct->edit3;
-	bd_down = (short) smurf_struct->edit4;
+	bd_left = (short) smurf_struct->edit[0];
+	bd_right = (short) smurf_struct->edit[1];
+	bd_up = (short) smurf_struct->edit[2];
+	bd_down = (short) smurf_struct->edit[3];
 
 	/*--- Bilddaten auslesen --------------------*/
 
@@ -144,7 +129,7 @@ static short do_it(GARGAMEL *smurf_struct)
 		return M_MEMORY;
 
 
-	if (smurf_struct->check1)			/* Zentriert */
+	if (smurf_struct->check[0])			/* Zentriert */
 	{
 		x_pos = (n_width - width) / 2;
 		y_pos = (n_height - height) / 2;
@@ -154,11 +139,11 @@ static short do_it(GARGAMEL *smurf_struct)
 		y_pos = bd_up;
 	}
 
-	if (smurf_struct->check2)
+	if (smurf_struct->check[1])
 	{
-		bkgrd_r = smurf_struct->slide1;
-		bkgrd_g = smurf_struct->slide2;
-		bkgrd_b = smurf_struct->slide3;
+		bkgrd_r = smurf_struct->slide[0];
+		bkgrd_g = smurf_struct->slide[1];
+		bkgrd_b = smurf_struct->slide[2];
 	} else
 	{
 		bkgrd_r = pic[0];

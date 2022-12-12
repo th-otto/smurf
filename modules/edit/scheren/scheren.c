@@ -80,29 +80,14 @@ MOD_INFO module_info = { "Scheren",
 	0x0040,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"",
-	"",
-	"",
-	"",
-	"interpolierend",
-	"",
-	"",
-	"",
-	"X-Winkel",
-	"Y-Winkel",
-	"",
-	"",
-	0, 64,
-	0, 64,
-	0, 64,
-	0, 64,
-	-90, 90,
-	-90, 90,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	1, 0, 0, 0,
-	0, 0, 0, 0,
+	{ "", "", "", "" },
+	{ "interpolierend", "", "", "" },
+	{ "X-Winkel", "Y-Winkel", "", "" },
+	{ { 0, 64 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
+	{ { -90, 90 }, { -90, 90 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -366,9 +351,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		init_timer();
 #endif
 
-		antialias = smurf_struct->check1;
-		xangle = (float) smurf_struct->edit1;
-		yangle = (float) smurf_struct->edit2;
+		antialias = smurf_struct->check[0];
+		xangle = (float) smurf_struct->edit[0];
+		yangle = (float) smurf_struct->edit[1];
 
 		if (!xangle && !yangle)
 		{

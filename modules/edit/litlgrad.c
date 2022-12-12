@@ -89,29 +89,14 @@ MOD_INFO module_info = {
 	0x0020,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	TEXT2,
-	TEXT3,
-	"",
-	"",
-	TEXT4,
-	TEXT5,
-	TEXT6,
-	"",
-	"",
-	"",
-	"",
-	"",
-	-255, 255,
-	-128, 127,
-	0, 64,
-	0, 64,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	1, 1, 1, 0,
-	0, 0, 0, 0,
+	{ TEXT2, TEXT3, "", "" },
+	{ TEXT4, TEXT5, TEXT6, "" },
+	{ "", "", "", "" },
+	{ { -255, 255 }, { -128, 127 }, { 0, 64 }, { 0, 64 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 1, 1, 1, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -175,11 +160,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		init_timer();
 #endif
 
-		slidvalb = (short) smurf_struct->slide1;
-		slidvalk = (short) smurf_struct->slide2;
-		rc = smurf_struct->check1;
-		gc = smurf_struct->check2;
-		bc = smurf_struct->check3;
+		slidvalb = (short) smurf_struct->slide[0];
+		slidvalk = (short) smurf_struct->slide[1];
+		rc = smurf_struct->check[0];
+		gc = smurf_struct->check[1];
+		bc = smurf_struct->check[2];
 		BitsPerPixel = smurf_struct->smurf_pic->depth;
 
 		if (rc != 1 && gc != 1 && bc != 1)

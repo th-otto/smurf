@@ -82,29 +82,14 @@ MOD_INFO module_info = {
 	0x0020,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	TEXT2,
-	TEXT3,
-	"",
-	"",
-	TEXT4,
-	TEXT5,
-	TEXT6,
-	"",
-	"",
-	"",
-	"",
-	"",
-	0, 255,
-	0, 255,
-	0, 100,
-	0, 100,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	16, 40, 20, 20,
-	3, 4, 0, 0,
-	0, 0, 0, 0,
+	{ TEXT2, TEXT3, "", "" },
+	{ TEXT4, TEXT5, TEXT6, "" },
+	{ "", "", "", "" },
+	{ { 0, 255 }, { 0, 255 }, { 0, 100 }, { 0, 100 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 16, 40, 20, 20 },
+	{ 3, 4, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -487,15 +472,15 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 		busybox = smurf_struct->services->busybox;
 
-		if (smurf_struct->check1 > smurf_struct->check2)
+		if (smurf_struct->check[0] > smurf_struct->check[1])
 			direction = HORIZONTAL;
 		else
 			direction = VERTIKAL;
 
-		mode = smurf_struct->check3;
+		mode = smurf_struct->check[2];
 
-		sinheight = (short) smurf_struct->slide1;
-		wide = (short) smurf_struct->slide2;
+		sinheight = (short) smurf_struct->slide[0];
+		wide = (short) smurf_struct->slide[1];
 		widemul = 180 / wide;
 
 		BitsPerPixel = smurf_struct->smurf_pic->depth;

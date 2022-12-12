@@ -46,27 +46,27 @@ MOD_INFO module_info = {
 /* Objekttitel */
 
 #if COUNTRY==1
-	"St„rke", "", "", "",
-	"radial", "tangential", "negativ", "",
+	{ "St„rke", "", "", "" },
+	{ "radial", "tangential", "negativ", "" },
 #elif COUNTRY==0
-	"Strength", "", "", "",
-	"radial", "tangential", "negativ", "",
+	{ "Strength", "", "", "" },
+	{ "radial", "tangential", "negativ", "" },
 #elif COUNTRY==2
-	"Strength", "", "", "",
-	"radial", "tangential", "negativ", "",
+	{ "Strength", "", "", "" },
+	{ "radial", "tangential", "negativ", "" },
 #else
 #error "keine Sprache!"
 #endif
 
-	"", "", "", "",
+	{ "", "", "", "" },
 /* Min/Max Slider */
-	1, 100, 0, 128, 0, 128, 0, 128,
+	{ { 1, 100 }, { 0, 128 }, { 0, 128 }, { 0, 128 } },
 /* Min/Max Editfelder */
-	1, 100, 0, 10, 0, 10, 0, 10,
+	{ { 1, 100 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
 /* Slider-Defaultwerte */
-	10, 0, 0, 0,
-	2, 3, 3, 0,
-	0, 0, 0, 0,
+	{ 10, 0, 0, 0 },
+	{ 2, 3, 3, 0 },
+	{ 0, 0, 0, 0 },
 /* Anzahl Bilder */
 	1,
 /* Bildbeschreibung */
@@ -431,9 +431,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 	case MEXEC:
 		smurf_struct->services->reset_busybox(0, "Zoo...ooM");
-		if (smurf_struct->check1 & 1)
+		if (smurf_struct->check[0] & 1)
 		{
-			if (warp_rad_int(smurf_struct->smurf_pic, (short) smurf_struct->slide1, crhx, crhy) == 0)
+			if (warp_rad_int(smurf_struct->smurf_pic, (short) smurf_struct->slide[0], crhx, crhy) == 0)
 			{
 				smurf_struct->module_mode = M_MEMORY;
 			} else
@@ -441,9 +441,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				smurf_struct->module_mode = M_PICDONE;
 			}
 		}
-		if (smurf_struct->check2 & 1)
+		if (smurf_struct->check[1] & 1)
 		{
-			if (warp_tan_int(smurf_struct->smurf_pic, (short) smurf_struct->slide1, crhx, crhy) == 0)
+			if (warp_tan_int(smurf_struct->smurf_pic, (short) smurf_struct->slide[0], crhx, crhy) == 0)
 			{
 				smurf_struct->module_mode = M_MEMORY;
 			} else
@@ -451,9 +451,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				smurf_struct->module_mode = M_PICDONE;
 			}
 		}
-		if (smurf_struct->check3 & 1)
+		if (smurf_struct->check[2] & 1)
 		{
-			if (warp_neg_int(smurf_struct->smurf_pic, (short) smurf_struct->slide1, crhx, crhy) == 0)
+			if (warp_neg_int(smurf_struct->smurf_pic, (short) smurf_struct->slide[0], crhx, crhy) == 0)
 			{
 				smurf_struct->module_mode = M_MEMORY;
 			} else

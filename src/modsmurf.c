@@ -191,11 +191,6 @@ short active_pic;
 BASPAG *Dithermod_Basepage[10];			/* Basepages fÅr Dithermodule */
 const DITHER_MOD_INFO *ditmod_info[10];		/* Ditherinfostrukturen fÅr Dithermodule */
 
-/*--------------	Slidergrenzen fÅr Modulformular */
-long sx1, sx2, sx3, sx4;				/* Maxima */
-long sn1, sn2, sn3, sn4;				/* Minima */
-short sy1, sy2, sy3, sy4;					/* eingestellte Sliderwerte */
-short edit_mod_num = -1;					/* Modul-ID des Moduls, das das Einstellformular benutzt */
 char *export_path;						/* Pfad des Export-Modules  */
 short export_depth[8];
 short export_format[8];

@@ -67,38 +67,14 @@ MOD_INFO module_info = {
 	"Bj\224rn Spruck",
 	/* Extensionen */
 	{ "JPG", "JPEG", "JFIF", "", "", "", "", "", "", "" },
-	/* Slider */
-	"",
-	"",
-	"",
-	"",
-	/* Checkboxen */
-	"",
-	"",
-	"",
-	"",
-	/* Editfelder */
-	"",
-	"",
-	"",
-	"",
-
-	/* Minima + Maxima */
-	/* Slider */
-	0, 128,
-	0, 128,
-	0, 128,
-	0, 128,
-	/* Edits */
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	/* Defaults */
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	/* how many pics? */
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	0,
 	/* description for pictures */
 	{ NULL, NULL, NULL, NULL, NULL, NULL }

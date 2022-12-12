@@ -51,34 +51,19 @@ MOD_INFO module_info = {
 	"J”rg Dittmer",						/* Autor */
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fr Importer */
 /* 4 Sliderberschriften: max 8 */
-	"X-Blend %",
-	"Y-Blend %",
-	"",
-	"",
+	{ "X-Blend %", "Y-Blend %", "", "" },
 /* 4 Checkboxberschriften: */
-	"Use-Res",
-	"",
-	"",
-	"",
+	{ "Use-Res", "", "", "" },
 /* 4 Edit-Objekt-šberschriften: */
-	"X-Pixel",
-	"Y-Pixel",
-	"",
-	"",
+	{ "X-Pixel", "Y-Pixel", "", "" },
 /* min/max-Werte fr Slider */
-	0, 100,
-	0, 100,
-	0, 0,
-	0, 0,
+	{ { 0, 100 }, { 0, 100 }, { 0, 0 }, { 0, 0 } },
 /* min/max fr Editobjekte */
-	0, 32768L,
-	0, 32768L,
-	0, 0,
-	0, 0,
+	{ { 0, 32768L }, { 0, 32768L }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ "Bild 1", NULL, NULL, NULL, NULL, NULL }
 };
@@ -123,10 +108,10 @@ static short do_it(GARGAMEL *smurf_struct)
 
 	/*--- Slider auslesen ---------------------- */
 
-	x_fak = (int) smurf_struct->slide1;
-	y_fak = (int) smurf_struct->slide2;
-	x_res = (int) smurf_struct->edit1;
-	y_res = (int) smurf_struct->edit2;
+	x_fak = (int) smurf_struct->slide[0];
+	y_fak = (int) smurf_struct->slide[1];
+	x_res = (int) smurf_struct->edit[0];
+	y_res = (int) smurf_struct->edit[1];
 
 	/*--- Bilddaten auslesen --------------------*/
 
@@ -138,7 +123,7 @@ static short do_it(GARGAMEL *smurf_struct)
 	bpl = (long) width *3L;
 
 	/*--- šberblendbereich festlegen ----------------*/
-	if (smurf_struct->check1 != 0)
+	if (smurf_struct->check[0] != 0)
 	{
 		blend_x = x_res;
 		blend_y = y_res;

@@ -51,30 +51,14 @@ MOD_INFO module_info = {
 	"Olaf Piesche, Christian Eyrich",
 	/* Extensionen */
 	{ "SPU", "SPC", "", "", "", "", "", "", "", "" },
-
-	/* Slider */
-	"Slider 1", "Slider 2", "Slider 3", "Slider 4",
-	/* Checkboxen */
-	"Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4",
-	/* Editfelder */
-	"Edit 1", "Edit 2", "Edit 3", "Edit 4",
-
-	/* Minima + Maxima */
-	/* Slider */
-	0, 128,
-	0, 128,
-	0, 128,
-	0, 128,
-	/* Edits */
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	/* Defaults */
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	/* how many pics? */
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	0,
 	/* description for pictures */
 	{ NULL, NULL, NULL, NULL, NULL, NULL }

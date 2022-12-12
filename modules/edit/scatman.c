@@ -74,29 +74,14 @@ MOD_INFO module_info = {
 	0x0030,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"",
-	"",
-	"",
-	"",
-	"Clean",
-	"",
-	"",
-	"",
-	TEXT1,
-	TEXT2,
-	"",
-	"",
-	0, 64,
-	0, 64,
-	0, 64,
-	0, 64,
-	2, 16,
-	2, 16,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	1, 0, 0, 0,
-	3, 3, 0, 0,
+	{ "", "", "", "" },
+	{ "Clean", "", "", "" },
+	{ TEXT1, TEXT2, "", "" },
+	{ { 0, 64 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
+	{ { 2, 16 }, { 2, 16 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
+	{ 3, 3, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -179,10 +164,10 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		/* Zufallsgenerator zuf„llig initialisieren */
 		srand((unsigned int) Random());
 
-		clean = smurf_struct->check1;
-		randwidth = (short) smurf_struct->edit1;
+		clean = smurf_struct->check[0];
+		randwidth = (short) smurf_struct->edit[0];
 		randwidth2 = randwidth / 2;
-		randheight = (short) smurf_struct->edit2;
+		randheight = (short) smurf_struct->edit[1];
 		randheight2 = randheight / 2;
 
 		BitsPerPixel = smurf_struct->smurf_pic->depth;

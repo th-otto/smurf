@@ -49,34 +49,19 @@ MOD_INFO module_info = {
 /* 10 Extensionen fr Importer */
 	{ "", "", "", "", "", "", "", "", "", "" },
 /* 4 Sliderberschriften: max 8 */
-	"St„rke in %",
-	"",
-	"",
-	"",
+	{ "St„rke in %", "", "", "" },
 /* 4 Checkboxberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 Edit-Objekt-šberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* min/max-Werte fr Slider */
-	0, 100,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 100 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* min/max fr Editobjekte */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	50, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 50, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ "Bild 1", NULL, NULL, NULL, NULL, NULL }
 };
@@ -126,7 +111,7 @@ static short do_it(GARGAMEL *smurf_struct)
 
 	/*--- Slider auslesen ---------------------- */
 
-	strength = (short) smurf_struct->slide1;
+	strength = (short) smurf_struct->slide[0];
 	faktor_1 = (long *)Malloc(256 * sizeof(*faktor_1));
 	faktor_2 = (long *)Malloc(256 * sizeof(*faktor_2));
 	mul5 = (long *)Malloc(256 * sizeof(*mul5));

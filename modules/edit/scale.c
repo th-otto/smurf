@@ -48,34 +48,19 @@ MOD_INFO module_info = {
 	"J. Dittmer/O. Piesche",			/* Autor */
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fr Importer */
 /* 4 Sliderberschriften: max 8 */
-	"X %",
-	"Y %",
-	"",
-	"",
+	{ "X %", "Y %", "", "" },
 /* 4 Checkboxberschriften: */
-	"use res",
-	"Interpolate",
-	"",
-	"",
+	{ "use res", "Interpolate", "", "" },
 /* 4 Edit-Objekt-šberschriften: */
-	"X res",
-	"Y res",
-	"",
-	"",
+	{ "X res", "Y res", "", "" },
 /* min/max-Werte fr Slider */
-	50, 200,
-	50, 200,
-	0, 0,
-	0, 0,
+	{ { 50, 200 }, { 50, 200 }, { 0, 0 }, { 0, 0 } },
 /* min/max fr Editobjekte */
-	1, 32768L,
-	1, 32768L,
-	0, 0,
-	0, 0,
+	{ { 1, 32768L }, { 1, 32768L }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	100, 100, 0, 0,
-	0, 1, 0, 0,
-	640, 480, 0, 0,
+	{ 100, 100, 0, 0 },
+	{ 0, 1, 0, 0 },
+	{ 640, 480, 0, 0 },
 	1,
 	{ "Image", NULL, NULL, NULL, NULL, NULL }
 };
@@ -449,10 +434,10 @@ static short do_interpolate(GARGAMEL *smurf_struct)
 
 	/*--- Slider auslesen ---------------------- */
 
-	x_fak = (short) smurf_struct->slide1;
-	y_fak = (short) smurf_struct->slide2;
-	x_res = (short) smurf_struct->edit1;
-	y_res = (short) smurf_struct->edit2;
+	x_fak = (short) smurf_struct->slide[0];
+	y_fak = (short) smurf_struct->slide[1];
+	x_res = (short) smurf_struct->edit[0];
+	y_res = (short) smurf_struct->edit[1];
 
 	/*--- Bilddaten auslesen --------------------*/
 
@@ -463,7 +448,7 @@ static short do_interpolate(GARGAMEL *smurf_struct)
 
 	/*--- Faktor bestimmen -----------------------------*/
 
-	if (smurf_struct->check1 != 0)
+	if (smurf_struct->check[0] != 0)
 	{
 		n_width = x_res;
 		n_height = y_res;
@@ -594,10 +579,10 @@ static short do_it(GARGAMEL *smurf_struct)
 	
 	/*--- Slider auslesen ---------------------- */
 
-	x_fak = (short) smurf_struct->slide1;
-	y_fak = (short) smurf_struct->slide2;
-	x_res = (short) smurf_struct->edit1;
-	y_res = (short) smurf_struct->edit2;
+	x_fak = (short) smurf_struct->slide[0];
+	y_fak = (short) smurf_struct->slide[1];
+	x_res = (short) smurf_struct->edit[0];
+	y_res = (short) smurf_struct->edit[1];
 
 	/*--- Bilddaten auslesen --------------------*/
 
@@ -608,7 +593,7 @@ static short do_it(GARGAMEL *smurf_struct)
 
 	/*--- Faktor bestimmen -----------------------------*/
 
-	if (smurf_struct->check1 != 0)
+	if (smurf_struct->check[0] != 0)
 	{
 		n_width = x_res;
 		n_height = y_res;
@@ -701,7 +686,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 	case MEXEC:
 		/* Wenn das Modul gestartet wurde */
-		if (smurf_struct->check2)
+		if (smurf_struct->check[1])
 			smurf_struct->module_mode = do_interpolate(smurf_struct);
 		else
 			smurf_struct->module_mode = do_it(smurf_struct);

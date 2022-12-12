@@ -56,37 +56,21 @@ MOD_INFO module_info = {
 	0x0040,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"",
-	"",
-	"",
-	"",
-	"interpolierend (24 Bit)",
-	"",
-	"",
-	"",
-	"Breite",
-	"H”he",
-	"",
-	"",
-	0, 64,
-	0, 64,
-	0, 64,
-	0, 64,
-	2, 16,
-	2, 16,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	1, 0, 0, 0,
-	3, 3, 0, 0,
+	{ "", "", "", "" },
+	{ "interpolierend (24 Bit)", "", "", "" },
+	{ "Breite", "H”he", "", "" },
+	{ { 0, 64 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
+	{ { 2, 16 }, { 2, 16 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
+	{ 3, 3, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 
 MOD_ABILITY module_ability = {
-	8, 16, 24, 0, 0,
-	0, 0, 0,
+	8, 16, 24, 0, 0, 0, 0, 0,
 	FORM_PIXELPAK,
 	FORM_PIXELPAK,
 	FORM_PIXELPAK,
@@ -389,9 +373,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		init_timer();
 #endif
 
-		interpol = smurf_struct->check1;
-		xpix = (uint8_t) smurf_struct->edit1;
-		ypix = (uint8_t) smurf_struct->edit2;
+		interpol = smurf_struct->check[0];
+		xpix = (uint8_t) smurf_struct->edit[0];
+		ypix = (uint8_t) smurf_struct->edit[1];
 
 		BitsPerPixel = smurf_struct->smurf_pic->depth;
 

@@ -49,29 +49,14 @@ MOD_INFO module_info = {
 	0x0020,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"Radius",
-	"",
-	"",
-	"",
-	0, 64,
-	0, 64,
-	0, 64,
-	0, 64,
-	2, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	3, 0, 0, 0,
+	{ "", "", "", "" },
+	{ "", "", "", "" },
+	{ "Radius", "", "", "" },
+	{ { 0, 64 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
+	{ { 2, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 3, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -343,7 +328,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 		busybox = smurf_struct->services->busybox;
 
-		radius = smurf_struct->edit1;
+		radius = smurf_struct->edit[0];
 
 		BitsPerPixel = smurf_struct->smurf_pic->depth;
 

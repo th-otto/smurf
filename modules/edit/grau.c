@@ -101,29 +101,14 @@ MOD_INFO module_info = {
 	0x0120,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	TEXT2,
-	"",
-	"",
-	"",
-	TEXT3,
-	"",
-	"",
-	"",
-	TEXT4,
-	"",
-	"",
-	"",
-	1, 100,
-	0, 64,
-	0, 64,
-	0, 64,
-	2, 256,
-	0, 10,
-	0, 10,
-	0, 10,
-	100, 0, 0, 0,
-	1, 0, 0, 0,
-	2, 0, 0, 0,
+	{ TEXT2, "", "", "" },
+	{ TEXT3, "", "", "" },
+	{ TEXT4, "", "", "" },
+	{ { 1, 100 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
+	{ { 2, 256 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 100, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
+	{ 2, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -197,9 +182,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			return;
 		}
 
-		intens = ((short) smurf_struct->slide1 * 64) / 100;
-		stufen = (unsigned short) smurf_struct->edit1;
-		if (smurf_struct->check1 || stufen == 256)
+		intens = ((short) smurf_struct->slide[0] * 64) / 100;
+		stufen = (unsigned short) smurf_struct->edit[0];
+		if (smurf_struct->check[0] || stufen == 256)
 			smooth = 1;
 
 		BitsPerPixel = smurf_struct->smurf_pic->depth;

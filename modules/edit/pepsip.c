@@ -43,34 +43,19 @@ MOD_INFO module_info = {
 	"Jîrg Dittmer",
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fÅr Importer */
 /* 4 SliderÅberschriften: max 8 */
-	"Tiefe",
-	"T-offset",
-	"Auge",
-	"Extrapol",
+	{ "Tiefe", "T-offset", "Auge", "Extrapol" },
 /* 4 CheckboxÅberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 Edit-Objekt-öberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* min/max-Werte fÅr Slider */
-	1, 1000,
-	1, 200,
-	1, 50,
-	1, 32,
+	{ { 1, 1000 }, { 1, 200 }, { 1, 50 }, { 1, 32 } },
 /* min/max fÅr Editobjekte */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 	/* Defaultwerte fÅr Slider, Check und Edit */
-	100, 100, 30, 1,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 100, 100, 30, 1 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 /* Anzahl der Bilder */
 	2,
 /* Bezeichnung fÅr Bilder */

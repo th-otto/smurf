@@ -66,20 +66,14 @@ MOD_INFO module_info = {
 	0x0100,
 	"Olaf Piesche",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	TEXT2, "", "", "",
-	TEXT3, TEXT4, "", "",
-	"", "", "", "",
-	0, 360,
-	0, 128,
-	0, 128,
-	0, 128,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	90, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ TEXT2, "", "", "" },
+	{ TEXT3, TEXT4, "", "" },
+	{ "", "", "", "" },
+	{ { 0, 360 }, { 0, 128 }, { 0, 128 }, { 0, 128 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 90, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -157,14 +151,14 @@ void edit_module_main(GARGAMEL *smurf_struct)
 	case MEXEC:
 		picture = smurf_struct->smurf_pic;	/* Bild         */
 		picdata = picture->pic_data;
-		sliderval = smurf_struct->slide1;	/* Sliderwert auslesen */
+		sliderval = smurf_struct->slide[0];	/* Sliderwert auslesen */
 
-		umgekehrt = smurf_struct->check1;	/* Checkboxen auslesen */
-		tunnel = smurf_struct->check2;
+		umgekehrt = smurf_struct->check[0];	/* Checkboxen auslesen */
+		tunnel = smurf_struct->check[1];
 
 		width = picture->pic_width;		/* Bildabmessungen */
 		height = picture->pic_height;
-		bytewidth = (long) width *3L;
+		bytewidth = (long) width * 3L;
 
 		xmax = width - 1;
 		ymax = height - 1;

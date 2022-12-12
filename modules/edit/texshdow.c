@@ -94,34 +94,19 @@ MOD_INFO module_info = {
 	"J”rg Dittmer",						/* Autor */
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fr Importer */
 /* 4 Sliderberschriften: max 8 */
-	STR_STRENGTH,
-	STR_SOFT,
-	STR_XDIST,
-	STR_YDIST,
+	{ STR_STRENGTH, STR_SOFT, STR_XDIST, STR_YDIST },
 /* 4 Checkboxberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 Edit-Objekt-šberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* min/max-Werte fr Slider */
-	1, 255,
-	1, 20,
-	-30, 30,
-	-30, 30,
+	{ { 1, 255 }, { 1, 20 }, { -30, 30 }, { -30, 30 } },
 /* min/max fr Editobjekte */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	128, 5, 10, 10,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 128, 5, 10, 10 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	2,
 	{ p1string, p2string, NULL, NULL, NULL, NULL }
 };
@@ -184,14 +169,14 @@ static short do_it(GARGAMEL *smurf_struct)
 
 	/*--- Slider auslesen ---------------------- */
 
-	strengh = (short) smurf_struct->slide1;
+	strengh = (short) smurf_struct->slide[0];
 	if (strengh == 0)
 		return M_PICDONE;				   /*--- Keine nderung --> BEENDEN --------*/
 
-	softness = (short) smurf_struct->slide2;
+	softness = (short) smurf_struct->slide[1];
 
-	x_o = (short) smurf_struct->slide3;
-	y_o = (short) smurf_struct->slide4;
+	x_o = (short) smurf_struct->slide[2];
+	y_o = (short) smurf_struct->slide[3];
 
 	mw = mh = softness * 2 + 1;
 

@@ -60,29 +60,14 @@ MOD_INFO module_info = {
 	0x0030,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"",
-	"",
-	"",
-	"",
-	"interpolierend",
-	"",
-	"",
-	"",
-	"Winkel",
-	"",
-	"",
-	"",
-	0, 64,
-	0, 64,
-	0, 64,
-	0, 64,
-	-45, 45,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	1, 0, 0, 0,
-	0, 0, 0, 0,
+	{ "", "", "", "" },
+	{ "interpolierend", "", "", "" },
+	{ "Winkel", "", "", "" },
+	{ { 0, 64 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
+	{ { -45, 45 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -561,8 +546,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		init_timer();
 #endif
 
-		antialias = smurf_struct->check1;
-		angle = (float) smurf_struct->edit1;
+		antialias = smurf_struct->check[0];
+		angle = (float) smurf_struct->edit[0];
 
 		BitsPerPixel = smurf_struct->smurf_pic->depth;
 		width = smurf_struct->smurf_pic->pic_width;

@@ -48,21 +48,21 @@ MOD_INFO module_info = {
 	/* 10 Extensionen fÅr Importer */
 	{ "ICN", "", "", "", "", "", "", "", "", "" },
 	/* 4 Slider titles: max length 8 */
-	"Slider 1", "Slider 2", "Slider 3", "Slider 4",
+	{ "Slider 1", "Slider 2", "Slider 3", "Slider 4" },
 	/* 4 checkbox titles */
-	"Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4",
+	{ "Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4" },
 	/* 4 edit object titles */
-	"Edit 1", "Edit 2", "Edit 3", "Edit 4",
+	{ "Edit 1", "Edit 2", "Edit 3", "Edit 4" },
 	/* min/max values for slider */
-	0,128, 0,128, 0,128, 0,128,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 	/* min/max values for edit objects */
-	0,10, 0,10, 0,10, 0,10,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 	/* default values for slider */
-	0, 0, 0, 0,
+	{ 0, 0, 0, 0 },
 	/* default values for checkboxes */
-	0, 0, 0, 0,
+	{ 0, 0, 0, 0 },
 	/* default values for edit objects */
-	0, 0, 0, 0,
+	{ 0, 0, 0, 0 },
 	/* how many pics? */
 	0,
 	/* description for pictures */

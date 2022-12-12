@@ -44,29 +44,14 @@ MOD_INFO module_info = {
 	"Olaf Piesche",
 /* Extensionen */
 	{ "SHP", "", "", "", "", "", "", "", "", "" },
-
-/* Slider */
-	"", "", "", "",
-/* Editfelder */
-	"", "", "", "",
-/* Checkboxen */
-	"", "", "", "",
-
-/* Minima + Maxima */
-/* Slider */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
-/* Edits */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
-/* Defaults */
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	0,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };

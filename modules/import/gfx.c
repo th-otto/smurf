@@ -39,17 +39,14 @@ MOD_INFO module_info = {
 	0x0110,
 	"Bj”rn Spruck",
 	{ "GFX", "", "", "", "", "", "", "", "", "" },
-/* Objekttitel */
-	"", "", "", "",
-	"", "", "", "",
-	"", "", "", "",
-/* Objektgrenzwerte */
-	0, 128, 0, 128, 0, 128, 0, 128,
-	0, 10, 0, 10, 0, 10, 0, 10,
-/* Slider-Defaultwerte */
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	0,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };

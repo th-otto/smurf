@@ -39,23 +39,14 @@ MOD_INFO module_info = {
 	"Dodger",				/* author */
 	/* 10 Extensionen fuer Importer */
 	{ "GOD", "", "", "", "", "", "", "", "", "" },
-	/* 4 Slider titles: max length 8 */
-	"Slider 1", "Slider 2", "Slider 3", "Slider 4",
-	/* 4 checkbox titles */
-	"Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4",
-	/* 4 edit object titles */
-	"Edit 1", "Edit 2", "Edit 3", "Edit 4",
-	/* min/max values for slider */
-	0,128, 0,128, 0,128, 0,128,
-	/* min/max values for slider */
-	0,10, 0,10, 0,10, 0,10,
-	/* default values for edit objects */
-	0, 0, 0, 0,
-	/* default values for checkboxes */
-	0, 0, 0, 0,
-	/* default values for edit objects */
-	0, 0, 0, 0,
-	/* how many pics? */
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	0,
 	/* description for pictures */
 	{ NULL, NULL, NULL, NULL, NULL, NULL }

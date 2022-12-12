@@ -35,52 +35,35 @@
 #include "smurfine.h"
 #include "demolib.h"
 
-MOD_INFO module_info = {"Dummy",
-						0x0010,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,64,
-						0,64,
-						0,64,
-						0,64,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						2,
-						{ "Zielbild", "Quellbild", NULL, NULL, NULL, NULL }
-						};
+MOD_INFO module_info = { "Dummy",
+	0x0010,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	{ "Slider 1", "Slider 2", "Slider 3", "Slider 4" },
+	{ "Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4" },
+	{ "Edit 1", "Edit 2", "Edit 3", "Edit 4" },
+	{ { 0, 64 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
+	{ 0, 10, 0, 10, 0, 10, 0, 10 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	2,
+	{"Zielbild", "Quellbild", NULL, NULL, NULL, NULL}
+};
 
 
 MOD_ABILITY module_ability = {
-						8, 0, 0, 0, 0,
-						0, 0, 0,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0,
-						};
+	8, 0, 0, 0, 0, 0, 0, 0,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0,
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -91,34 +74,34 @@ void edit_module_main(GARGAMEL *smurf_struct)
 {
 	int module_id;
 
-
 	module_id = smurf_struct->module_number;
 
-	switch(smurf_struct->module_mode)
+	switch (smurf_struct->module_mode)
 	{
-		case MSTART:	smurf_struct->services->f_module_prefs(&module_info, module_id);
-						smurf_struct->module_mode = M_WAITING;
-						break;
-		case MPICS:		if(smurf_struct->event_par[0] == 0)
-						{
-							smurf_struct->event_par[0] = smurf_struct->smurf_pic->depth;
-							smurf_struct->event_par[1] = smurf_struct->smurf_pic->format_type;
-							smurf_struct->event_par[2] = smurf_struct->smurf_pic->col_format;
-						}
-						else
-						{
-							smurf_struct->event_par[0] = 8;
-							smurf_struct->event_par[1] = FORM_PIXELPAK;
-							smurf_struct->event_par[2] = GREY;
-						}
-						smurf_struct->module_mode = M_PICTURE;
-						break;
-		case MEXEC:		smurf_struct->event_par[0] = 0;
-						smurf_struct->module_mode = M_PICDONE;
-						break;
-		case MTERM:		smurf_struct->module_mode = M_EXIT;
-						break;
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, module_id);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	case MPICS:
+		if (smurf_struct->event_par[0] == 0)
+		{
+			smurf_struct->event_par[0] = smurf_struct->smurf_pic->depth;
+			smurf_struct->event_par[1] = smurf_struct->smurf_pic->format_type;
+			smurf_struct->event_par[2] = smurf_struct->smurf_pic->col_format;
+		} else
+		{
+			smurf_struct->event_par[0] = 8;
+			smurf_struct->event_par[1] = FORM_PIXELPAK;
+			smurf_struct->event_par[2] = GREY;
+		}
+		smurf_struct->module_mode = M_PICTURE;
+		break;
+	case MEXEC:
+		smurf_struct->event_par[0] = 0;
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
 	}
-
-	return;
 }

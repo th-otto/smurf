@@ -69,18 +69,18 @@ MOD_INFO module_info = { TEXT1,
 	0x0080, "Bj”rn Spruck",
 	{ "", "", "", "", "", "", "", "", "", "" },
 	/* Objekttitel */
-	"", "", "", "",
-	TEXT2, TEXT3, "", "",
-	TEXT4, TEXT5, "", "",
+	{ "", "", "", "" },
+	{ TEXT2, TEXT3, "", "" },
+	{ TEXT4, TEXT5, "", "" },
 
 	/* Min/Max Slider */
-	0, 128, 0, 128, 0, 128, 0, 128,
+	{ { 0, 128 }, { 0, 128 }, { 0, 128 }, { 0, 128 }},
 	/* Min/Max Editfelder */
-	-100, 100, 10, 10000, 0, 10, 0, 10,
+	{ { -100, 100 }, { 10, 10000 }, { 0, 10 }, { 0, 10 } },
 	/* Slider-Defaultwerte */
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	15, 150, 0, 0,
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 15, 150, 0, 0 },
 	/* Anzahl Bilder */
 	1,
 	/* Bildbeschreibung */
@@ -149,13 +149,13 @@ void edit_module_main(GARGAMEL *smurf_struct)
 			short hoehe, radius, rands;
 			short back;
 			
-			hoehe = (short) smurf_struct->edit1;
-			radius = (short) smurf_struct->edit2;
-			rands = smurf_struct->check2;
+			hoehe = (short) smurf_struct->edit[0];
+			radius = (short) smurf_struct->edit[1];
+			rands = smurf_struct->check[1];
 			smurf_struct->services->reset_busybox(0, TEXT6);
 			if (smurf_struct->services->CPU_type & FPU)
 			{
-				if (smurf_struct->check1)
+				if (smurf_struct->check[0])
 				{						/* Interpolieren */
 					back = bang_inter_FPU(smurf_struct->smurf_pic, mx, my, hoehe, radius, rands);
 				} else
@@ -164,7 +164,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 				}
 			} else
 			{
-				if (smurf_struct->check1)
+				if (smurf_struct->check[0])
 				{						/* Interpolieren */
 					back = bang_inter(smurf_struct->smurf_pic, mx, my, hoehe, radius, rands);
 				} else

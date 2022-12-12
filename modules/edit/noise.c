@@ -89,29 +89,14 @@ MOD_INFO module_info = {
 	0x0040,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	TEXT2,
-	TEXT3,
-	TEXT4,
-	TEXT5,
-	TEXT6,
-	TEXT7,
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	0, 100,
-	0, 100,
-	0, 100,
-	0, 100,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	20, 20, 20, 20,
-	4, 3, 3, 3,
-	0, 0, 0, 0,
+	{ TEXT2, TEXT3, TEXT4, TEXT5 },
+	{ TEXT6, TEXT7, "", "" },
+	{ "", "", "", "" },
+	{ { 0, 100 }, { 0, 100 }, { 0, 100 }, { 0, 100 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 20, 20, 20, 20 },
+	{ 4, 3, 3, 3 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -295,16 +280,16 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 		busybox = smurf_struct->services->busybox;
 
-		if (smurf_struct->check1 > smurf_struct->check2)
+		if (smurf_struct->check[0] > smurf_struct->check[1])
 			mode = 0;
 		else
 			mode = 1;
 		/* mit den Shiftings 5 Bit hoch und 6 Bit herunter */
 		/* ergibt sich somit eine Skalierung von 100 auf 250 */
-		amountgrey = ((short) smurf_struct->slide1 * 5);
-		amountr = ((short) smurf_struct->slide2 * 5);
-		amountg = ((short) smurf_struct->slide3 * 5);
-		amountb = ((short) smurf_struct->slide4 * 5);
+		amountgrey = ((short) smurf_struct->slide[0] * 5);
+		amountr = ((short) smurf_struct->slide[1] * 5);
+		amountg = ((short) smurf_struct->slide[2] * 5);
+		amountb = ((short) smurf_struct->slide[3] * 5);
 
 		/* Zufallsgenerator zuf„llig initialisieren */
 		srand((unsigned int)Random());

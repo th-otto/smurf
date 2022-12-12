@@ -41,34 +41,19 @@ MOD_INFO module_info = {
 	"Jîrg Dittmer",						/* Autor */
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fÅr Importer */
 /* 4 SliderÅberschriften: max 8 */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 CheckboxÅberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 Edit-Objekt-öberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* min/max-Werte fÅr Slider */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* min/max fÅr Editobjekte */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fÅr Slider, Check und Edit */
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	0,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };

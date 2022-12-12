@@ -64,30 +64,22 @@ MOD_INFO module_info = { "Text",
 	0x0105,
 	"Olaf Piesche",
 	{"", "", "", "", "", "", "", "", "", "" },
-	"Slider 1",
-	"Slider 2",
-	"Slider 3",
-	"Slider 4",
-	"Checkbox 1",
-	"Checkbox 2",
-	"Checkbox 3",
-	"Checkbox 4",
-	"Edit 1",
-	"Edit 2",
-	"Edit 3",
-	"Edit 4",
-	0, 128,
-	0, 128,
-	0, 128,
-	0, 128,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	1,									/* Bildanzahl */
+/* 4 Sliderueberschriften: max 8 */
+	{ NULL, NULL, NULL, NULL },
+/* 4 Checkboxueberschriften: */
+	{ NULL, NULL, NULL, NULL },
+/* 4 Edit-Objekt-öberschriften: */
+	{ NULL, NULL, NULL, NULL },
+/* min/max-Werte fuer Slider */
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+/* min/max fÅr Editobjekte */
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+/* Defaultwerte fuer Slider, Check und Edit */
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+/* Anzahl der Bilder */
+	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 

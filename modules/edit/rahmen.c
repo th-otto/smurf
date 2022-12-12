@@ -109,29 +109,14 @@ MOD_INFO module_info = {
 	0x0070,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	TEXT2,
-	TEXT3,
-	TEXT4,
-	"",
-	TEXT5,
-	TEXT6,
-	"",
-	"",
-	TEXT7,
-	TEXT8,
-	TEXT9,
-	TEXT10,
-	0, 255,
-	0, 255,
-	0, 255,
-	0, 64,
-	0, 32767,
-	0, 32767,
-	0, 32767,
-	0, 10,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ TEXT2, TEXT3, TEXT4, "" },
+	{ TEXT5, TEXT6, "", "" },
+	{ TEXT7, TEXT8, TEXT9, TEXT10 },
+	{ { 0, 255 }, { 0, 255 }, { 0, 255 }, { 0, 64 } },
+	{ { 0, 32767 }, { 0, 32767 }, { 0, 32767 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -346,15 +331,15 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		init_timer();
 #endif
 
-		red = smurf_struct->slide1;
-		green = smurf_struct->slide2;
-		blue = smurf_struct->slide3;
-		center = smurf_struct->check1;
-		usecolor = smurf_struct->check2;
-		leftborder = smurf_struct->edit1;
-		rightborder = smurf_struct->edit2;
-		upperborder = smurf_struct->edit3;
-		lowerborder = smurf_struct->edit4;
+		red = smurf_struct->slide[0];
+		green = smurf_struct->slide[1];
+		blue = smurf_struct->slide[2];
+		center = smurf_struct->check[0];
+		usecolor = smurf_struct->check[1];
+		leftborder = smurf_struct->edit[0];
+		rightborder = smurf_struct->edit[1];
+		upperborder = smurf_struct->edit[2];
+		lowerborder = smurf_struct->edit[3];
 
 		/* nichts zu tun */
 		if ((center && upperborder == 0 && leftborder == 0) ||

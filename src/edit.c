@@ -258,19 +258,18 @@ void f_edit_pop(void)
 						f_pic_changed(&picture_windows[active_pic], 1);
 					} else if (module.bp[mod_num] != NULL && module.smStruct[mod_num]->module_mode == M_WAITING)
 					{
+						short t;
+
 						/*
 						 * Modul wartet - Infostruktur auslesen
 						 */
 						module_start = get_module_start(module.bp[mod_num]);	/* Zeiger auf Modulinfostruktur */
 						mod_info = module_start->info;
-						sn1 = mod_info->smin1;
-						sx1 = mod_info->smax1;
-						sn2 = mod_info->smin2;
-						sx2 = mod_info->smax2;
-						sn3 = mod_info->smin3;
-						sx3 = mod_info->smax3;
-						sn4 = mod_info->smin4;
-						sx4 = mod_info->smax4;
+						for (t = 0; t < 4; t++)
+						{
+							smin[t] = mod_info->srange[t].min;
+							smax[t] = mod_info->srange[t].max;
+						}
 					}
 
 					Dialog.busy.ok();

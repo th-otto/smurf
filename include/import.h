@@ -207,33 +207,22 @@ typedef struct
 /* 225 Bytes */
 typedef struct
 {
-    char *mod_name;                 /* erweiterter Modulname    */
+    const char *mod_name;           /* erweiterter Modulname    */
     short version;                  /* Modulversion alc BCD     */ 
-    char *autor;                    /* Autor des Moduls         */
-    char *ext[10];                  /* bis zu 10 Extensionen, deren Formate das Modul unterstÅtzt */
-    char *slide1;                   /* Funktion Slider 1        */
-    char *slide2;                   /* Funktion Slider 2        */
-    char *slide3;                   /* Funktion Slider 3        */
-    char *slide4;                   /* Funktion Slider 4        */
-    char *check1;                   /* Funktion Checkbox 1      */
-    char *check2;                   /* Funktion Checkbox 2      */
-    char *check3;                   /* Funktion Checkbox 3      */
-    char *check4;                   /* Funktion Checkbox 4      */
-    char *edit1;                    /* Funktion Ftext 1         */
-    char *edit2;                    /* Funktion Ftext 2         */
-    char *edit3;                    /* Funktion Ftext 3         */
-    char *edit4;                    /* Funktion Ftext 4         */
-    long smin1, smax1;              /* min/max-Werte Slider 1   */
-    long smin2, smax2;              /* min/max-Werte Slider 2   */
-    long smin3, smax3;              /* min/max-Werte Slider 3   */
-    long smin4, smax4;              /* min/max-Werte Slider 4   */
-    long emin1, emax1;              /* min/max-Werte Ftext 1    */
-    long emin2, emax2;              /* min/max-Werte Ftext 2    */
-    long emin3, emax3;              /* min/max-Werte Ftext 3    */
-    long emin4, emax4;              /* min/max-Werte Ftext 4    */
-    long sdef1,sdef2,sdef3,sdef4;   /* Defaultwerte fÅr Slider */
-    uint8_t cdef1,cdef2,cdef3,cdef4;   /* Defaultwerte fÅr Checkboxes */
-    long edef1,edef2,edef3,edef4;   /* Defaultwerte fÅr Edit-Obs */
+    const char *autor;              /* Autor des Moduls         */
+    const char *ext[10];            /* bis zu 10 Extensionen, deren Formate das Modul unterstÅtzt */
+    const char *slide[4];           /* Funktion Slider          */
+    const char *check[4];           /* Funktion Checkbox        */
+    const char *edit[4];            /* Funktion Ftext           */
+    struct {
+    	long min, max;
+    } srange[4];                    /* min/max-Werte Slider 1   */
+    struct {
+    	long min, max;
+    } erange[4];                    /* min/max-Werte Ftext 1    */
+    long sdef[4];                   /* Defaultwerte fÅr Slider */
+    uint8_t cdef[4];                /* Defaultwerte fÅr Checkboxes */
+    long edef[4];                   /* Defaultwerte fÅr Edit-Obs */
 
     uint8_t how_many_pix;           /* Wieviele Bilder braucht das EDITModul? */
     const char *pic_descr[6];       /* Bildbeschreibungen fÅr die einzelnen Bilder */
@@ -288,9 +277,9 @@ typedef struct
 {
     /*  0 */ SMURF_PIC *smurf_pic;                          /* Zeiger auf Bildstruktur, in die das Bild gelegt werden soll - Smurf                          */
     /*  4 */ WINDOW *wind_struct;                           /* Zeiger auf Bildstruktur, in die das Bild gelegt werden soll - Smurf                          */
-    /*  8 */ long slide1, slide2, slide3, slide4;           /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
-    /* 24 */ uint8_t check1, check2, check3, check4;        /* öbergabewerte aus Einstellformular  (0 oder 1) - Smurf   */
-    /* 28 */ long edit1, edit2, edit3, edit4;               /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
+    /*  8 */ long slide[4];                                 /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
+    /* 24 */ uint8_t check[4];                              /* öbergabewerte aus Einstellformular  (0 oder 1) - Smurf   */
+    /* 28 */ long edit[4];                                  /* öbergabewerte aus Einstellformular  (nach min/maxwerten aus MOD_INFO-Struktur  -  Smurf      */
     /* 44 */ short module_mode;                             /* Message */
 
     /* 46 */ WORD event_par[10];                            /* Beim Event betroffenes Objekt */

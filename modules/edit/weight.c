@@ -74,20 +74,14 @@ MOD_INFO module_info = {
 	0x0040,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	TEXT2, TEXT3, TEXT4, "",
-	"", "", "", "",
-	"", "", "",	"",
-	-255, 255,
-	-255, 255,
-	-255, 255,
-	0, 64,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ TEXT2, TEXT3, TEXT4, "" },
+	{ "", "", "", "" },
+	{ "", "", "",	"" },
+	{ { -255, 255 }, { -255, 255 }, { -255, 255 }, { 0, 64 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -144,9 +138,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		/* wie schnell sind wir? */
 		init_timer();
 #endif
-		rweight = (short) smurf_struct->slide1;
-		gweight = (short) smurf_struct->slide2;
-		bweight = (short) smurf_struct->slide3;
+		rweight = (short) smurf_struct->slide[0];
+		gweight = (short) smurf_struct->slide[1];
+		bweight = (short) smurf_struct->slide[2];
 
 		BitsPerPixel = smurf_struct->smurf_pic->depth;
 

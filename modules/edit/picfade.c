@@ -43,20 +43,14 @@ MOD_INFO module_info = {
 	0x0050,
 	"Olaf Piesche",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"St„rke", "", "", "",
-	"", "", "", "",
-	"", "", "", "",
-	0, 100,
-	0, 128,
-	0, 128,
-	0, 128,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ "St„rke", "", "", "" },
+	{ "", "", "", "" },
+	{ "", "", "", "" },
+	{ { 0, 100 }, { 0, 128 }, { 0, 128 }, { 0, 128 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	2,
 	{ p1string, p2string, NULL, NULL, NULL, NULL }
 };
@@ -106,7 +100,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 
 	case MEXEC:
 		/*--------- MEXEC-Message (Los gehts!) */
-		slidval = smurf_struct->slide1;	/* Slider holen */
+		slidval = smurf_struct->slide[0];	/* Slider holen */
 		(void) slidval;
 		break;
 

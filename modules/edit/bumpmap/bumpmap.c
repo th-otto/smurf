@@ -50,34 +50,19 @@ MOD_INFO module_info = {
 	"J. Dittmer/O. Piesche",			/* Autor */
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fÅr Importer */
 /* 4 SliderÅberschriften: max 8 */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 CheckboxÅberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 Edit-Objekt-öberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* min/max-Werte fÅr Slider */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* min/max fÅr Editobjekte */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fÅr Slider, Check und Edit */
-	255, 255, 255, 100,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 255, 255, 255, 100 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 /* Anzahl der Bilder */
 	2,
 /* Bezeichnung fÅr Bilder */

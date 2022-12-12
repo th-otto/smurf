@@ -40,13 +40,29 @@
 
 #define	ABS(i)	(i>0? i : -i)
 
+/*--------------	Slidergrenzen fÅr Modulformular */
+long smax[4];				/* Maxima */
+long smin[4];				/* Minima */
+short sval[4];					/* eingestellte Sliderwerte */
+short edit_mod_num = -1;					/* Modul-ID des Moduls, das das Einstellformular benutzt */
+
 int prev_zoom = 1;
 SMURF_PIC move_prev;
 static SMURF_PIC *module_preview = NULL;
 static SMURF_PIC *oldpic;
 static WORD oldxoff, oldyoff;
 
+static WORD const check[4] = { CHECK1, CHECK2, CHECK3, CHECK4 };
+static WORD const ed[4] = { ED1, ED2, ED3, ED4 };
+static WORD const pdslider[4] = { PDSLIDER1, PDSLIDER2, PDSLIDER3, PDSLIDER4 };
+static WORD const s_tit[4] = { S1_TIT, S2_TIT, S3_TIT, S4_TIT };
+static WORD const ed_tit[4] = { ED1_TIT, ED2_TIT, ED3_TIT, ED4_TIT };
+static WORD const check_text[4] = { CHECK1_TEXT, CHECK2_TEXT, CHECK3_TEXT, CHECK4_TEXT };
+static WORD const s_f[4] = { S1_F, S2_F, S3_F, S4_F };
+static WORD const s_a[4] = { S1_A, S2_A, S3_A, S4_A };
+static WORD const s_r[4] = { S1_R, S2_R, S3_R, S4_R };
 
+	
 /* ------------------------------------------------------------------------	*/
 /*	En-/Disablen der Preview-Zoom-Buttons nach PrÅfung der Grîûen			*/
 /* ------------------------------------------------------------------------	*/
@@ -82,21 +98,16 @@ static void check_prevzoom(void)
 static void applyConfig(long *loadcnf)
 {
 	OBJECT *modtree;
-
+	short t;
+	
 	modtree = wind_s[WIND_MODFORM].resource_form;
 
-	sy1 = (WORD) loadcnf[0];
-	sy2 = (WORD) loadcnf[1];
-	sy3 = (WORD) loadcnf[2];
-	sy4 = (WORD) loadcnf[3];
-	modtree[CHECK1].ob_state = (WORD) loadcnf[4];
-	modtree[CHECK2].ob_state = (WORD) loadcnf[5];
-	modtree[CHECK3].ob_state = (WORD) loadcnf[6];
-	modtree[CHECK4].ob_state = (WORD) loadcnf[7];
-	ltoa(loadcnf[8], modtree[ED1].TextCast, 10);
-	ltoa(loadcnf[9], modtree[ED2].TextCast, 10);
-	ltoa(loadcnf[10], modtree[ED3].TextCast, 10);
-	ltoa(loadcnf[11], modtree[ED4].TextCast, 10);
+	for (t = 0; t < 4; t++)
+	{
+		sval[t] = (WORD) loadcnf[t];
+		modtree[check[t]].ob_state = (WORD) loadcnf[t + 4];
+		ltoa(loadcnf[t + 8], modtree[ed[t]].TextCast, 10);
+	}
 }
 
 
@@ -108,15 +119,14 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 {
 	char edd[6];
 	char cmp_modname[30];
-	WORD sd1, sd2, sd3, sd4;
-	WORD min_val, max_val;
+	WORD sd[4];
 	BOOLEAN redraw_me = FALSE;
 	WORD back;
-	short t;
+	short t, o;
 	WORD endwidth, endheight;
 	WORD zoom;
 	WORD index;
-	long editval1, editval2, editval3, editval4;
+	long editval[4];
 	long *cnfblock;
 	OBJECT *pref_form;
 
@@ -157,113 +167,77 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 	if (wind_s[WIND_MODFORM].whandlem > 0)
 		Window.windSet(wind_s[WIND_MODFORM].whandlem, WF_NAME, LONG2_2INT(wind_s[WIND_MODFORM].wtitle), 0, 0);
 
-	/*
-	 * unbenutzte Elemente verstecken
-	 */
-	if (infostruct->slide1 == NULL || infostruct->slide1[0] == '\0')
+	for (t = 0; t < 4; t++)
 	{
-		pref_form[S1_F].ob_flags |= OF_HIDETREE;
-		pref_form[S1_A].ob_flags |= OF_HIDETREE;
-		pref_form[S1_R].ob_flags |= OF_HIDETREE;
-	} else
-	{
-		pref_form[S1_F].ob_flags &= ~OF_HIDETREE;
-		pref_form[S1_A].ob_flags &= ~OF_HIDETREE;
-		pref_form[S1_R].ob_flags &= ~OF_HIDETREE;
-	}
-
-	if (infostruct->slide2 == NULL || infostruct->slide2[0] == '\0')
-	{
-		pref_form[S2_F].ob_flags |= OF_HIDETREE;
-		pref_form[S2_A].ob_flags |= OF_HIDETREE;
-		pref_form[S2_R].ob_flags |= OF_HIDETREE;
-	} else
-	{
-		pref_form[S2_F].ob_flags &= ~OF_HIDETREE;
-		pref_form[S2_A].ob_flags &= ~OF_HIDETREE;
-		pref_form[S2_R].ob_flags &= ~OF_HIDETREE;
-	}
-
-	if (infostruct->slide3 == NULL || infostruct->slide3[0] == '\0')
-	{
-		pref_form[S3_F].ob_flags |= OF_HIDETREE;
-		pref_form[S3_A].ob_flags |= OF_HIDETREE;
-		pref_form[S3_R].ob_flags |= OF_HIDETREE;
-	} else
-	{
-		pref_form[S3_F].ob_flags &= ~OF_HIDETREE;
-		pref_form[S3_A].ob_flags &= ~OF_HIDETREE;
-		pref_form[S3_R].ob_flags &= ~OF_HIDETREE;
-	}
-
-	if (infostruct->slide4 == NULL || infostruct->slide4[0] == '\0')
-	{
-		pref_form[S4_F].ob_flags |= OF_HIDETREE;
-		pref_form[S4_A].ob_flags |= OF_HIDETREE;
-		pref_form[S4_R].ob_flags |= OF_HIDETREE;
-	} else
-	{
-		pref_form[S4_F].ob_flags &= ~OF_HIDETREE;
-		pref_form[S4_A].ob_flags &= ~OF_HIDETREE;
-		pref_form[S4_R].ob_flags &= ~OF_HIDETREE;
-	}
-
-	if (infostruct->check1 == NULL || infostruct->check1[0] == '\0')
-		pref_form[CHECK1].ob_flags |= OF_HIDETREE;
-	else
-		pref_form[CHECK1].ob_flags &= ~OF_HIDETREE;
-
-	if (infostruct->check2 == NULL || infostruct->check2[0] == '\0')
-		pref_form[CHECK2].ob_flags |= OF_HIDETREE;
-	else
-		pref_form[CHECK2].ob_flags &= ~OF_HIDETREE;
-
-	if (infostruct->check3 == NULL || infostruct->check3[0] == '\0')
-		pref_form[CHECK3].ob_flags |= OF_HIDETREE;
-	else
-		pref_form[CHECK3].ob_flags &= ~OF_HIDETREE;
-
-	if (infostruct->check4 == NULL || infostruct->check4[0] == '\0')
-		pref_form[CHECK4].ob_flags |= OF_HIDETREE;
-	else
-		pref_form[CHECK4].ob_flags &= ~OF_HIDETREE;
-
-	if (infostruct->edit1 == NULL || infostruct->edit1[0] == '\0')
-		pref_form[ED1].ob_flags |= OF_HIDETREE;
-	else
-		pref_form[ED1].ob_flags &= ~OF_HIDETREE;
-
-	if (infostruct->edit2 == NULL || infostruct->edit2[0] == '\0')
-		pref_form[ED2].ob_flags |= OF_HIDETREE;
-	else
-		pref_form[ED2].ob_flags &= ~OF_HIDETREE;
-
-	if (infostruct->edit3 == NULL || infostruct->edit3[0] == '\0')
-		pref_form[ED3].ob_flags |= OF_HIDETREE;
-	else
-		pref_form[ED3].ob_flags &= ~OF_HIDETREE;
-
-	if (infostruct->edit4 == NULL || infostruct->edit4[0] == '\0')
-		pref_form[ED4].ob_flags |= OF_HIDETREE;
-	else
-		pref_form[ED4].ob_flags &= ~OF_HIDETREE;
-
-	if (infostruct->how_many_pix > 1)
-		pref_form[PICS_INFO].ob_flags &= ~OF_HIDETREE;
-	else
-		pref_form[PICS_INFO].ob_flags |= OF_HIDETREE;
-
-	/*
-	 * und jetzt alle abgeschalteten Objekte disablen 
-	 */
-	for (t = pref_form[0].ob_head; t < pref_form[0].ob_tail; t++)
-	{
-		if (pref_form[t].ob_flags & OF_HIDETREE)
-			pref_form[t].ob_state |= OS_DISABLED;
+		/*
+		 * unbenutzte Elemente verstecken
+		 */
+		if (infostruct->slide[t] == NULL || infostruct->slide[t][0] == '\0')
+		{
+			pref_form[s_f[t]].ob_flags |= OF_HIDETREE;
+			pref_form[s_a[t]].ob_flags |= OF_HIDETREE;
+			pref_form[s_r[t]].ob_flags |= OF_HIDETREE;
+		} else
+		{
+			pref_form[s_f[t]].ob_flags &= ~OF_HIDETREE;
+			pref_form[s_a[t]].ob_flags &= ~OF_HIDETREE;
+			pref_form[s_r[t]].ob_flags &= ~OF_HIDETREE;
+		}
+		
+		if (infostruct->check[t] == NULL || infostruct->check[t][0] == '\0')
+			pref_form[check[t]].ob_flags |= OF_HIDETREE;
 		else
-			pref_form[t].ob_state &= ~OS_DISABLED;
+			pref_form[check[t]].ob_flags &= ~OF_HIDETREE;
+		
+		if (infostruct->edit[t] == NULL || infostruct->edit[t][0] == '\0')
+			pref_form[ed[t]].ob_flags |= OF_HIDETREE;
+		else
+			pref_form[ed[t]].ob_flags &= ~OF_HIDETREE;
+		
+		if (infostruct->how_many_pix > 1)
+			pref_form[PICS_INFO].ob_flags &= ~OF_HIDETREE;
+		else
+			pref_form[PICS_INFO].ob_flags |= OF_HIDETREE;
+		
+		/*----------------------------- neue Formulartexte eintragen */
+		strcpy(pref_form[s_tit[t]].TextCast, infostruct->slide[t] ? infostruct->slide[t] : "");
+		strcpy(pref_form[ed_tit[t]].TextCast, infostruct->edit[t] ? infostruct->edit[t] : "");
+		strcpy(pref_form[check_text[t]].TextCast, infostruct->check[t] ? infostruct->check[t] : "");
+		
+		/*------------------------------ Slider-Mins / Maxs auslesen */
+		sliders[pdslider[t]].max_val = (WORD) infostruct->srange[t].max;
+		sliders[pdslider[t]].min_val = (WORD) infostruct->srange[t].min;
+		
+		/*------------------------------- Slider-Defaults auslesen */
+		sval[t] = sd[t] = (WORD) infostruct->sdef[t];
+		
+		/*--------------------------------- Edit-Defaults setzen */
+		editval[t] = infostruct->edef[t];
+		if (editval[t] < infostruct->erange[t].min)
+			editval[t] = infostruct->erange[t].min;
+		else if (editval[t] > infostruct->erange[t].max)
+			editval[t] = infostruct->erange[t].max;
+		
+		ltoa(editval[t], edd, 10);
+		strncpy(pref_form[ed[t]].TextCast, edd, 5);
+		
+		/*---------------------------- Check-Defaults setzen */
+		/* Radiobutton oder Checkbox? */
+		pref_form[check[t]].ob_type &= ~0xFF00;
+		
+		if (infostruct->cdef[t] >= 2)
+		{
+			pref_form[check[t]].ob_type &= ~(CHECKBOX << 8);
+			pref_form[check[t]].ob_type |= RADIOBUTTON << 8;
+			pref_form[check[t]].ob_flags |= OF_RBUTTON;
+		} else
+		{
+			pref_form[check[t]].ob_type &= ~(RADIOBUTTON << 8);
+			pref_form[check[t]].ob_type |= CHECKBOX << 8;
+			pref_form[check[t]].ob_flags &= ~OF_RBUTTON;
+		}
 	}
-
+		
 	/* 
 	 * Muû der Cursor komplett ausgeschaltet werden (kein Editobjekt da)?
 	 */
@@ -274,166 +248,27 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 		wind_s[WIND_MODFORM].editob = 0;
 	else
 		wind_s[WIND_MODFORM].editob = ED1;
-#if 0
-	/*------------------------------------ Formulartexte lîschen */
-	memset(pref_form[S1_TIT].TextCast, 0x0, 8);
-	memset(pref_form[S2_TIT].TextCast, 0x0, 8);
-	memset(pref_form[S3_TIT].TextCast, 0x0, 8);
-	memset(pref_form[S4_TIT].TextCast, 0x0, 8);
-	memset(pref_form[CHECK1_TEXT].TextCast, 0x0, 15);
-	memset(pref_form[CHECK1_TEXT].TextCast, 0x0, 15);
-	memset(pref_form[CHECK1_TEXT].TextCast, 0x0, 15);
-	memset(pref_form[CHECK1_TEXT].TextCast, 0x0, 15);
-	memset(pref_form[ED1_TIT].TextCast, 0x0, 10);
-	memset(pref_form[ED2_TIT].TextCast, 0x0, 10);
-	memset(pref_form[ED3_TIT].TextCast, 0x0, 10);
-	memset(pref_form[ED4_TIT].TextCast, 0x0, 10);
-#endif
-	/*----------------------------- neue Formulartexte eintragen */
-	strcpy(pref_form[S1_TIT].TextCast, infostruct->slide1 ? infostruct->slide1 : "");
-	strcpy(pref_form[S2_TIT].TextCast, infostruct->slide2 ? infostruct->slide2 : "");
-	strcpy(pref_form[S3_TIT].TextCast, infostruct->slide3 ? infostruct->slide3 : "");
-	strcpy(pref_form[S4_TIT].TextCast, infostruct->slide4 ? infostruct->slide4 : "");
-	strcpy(pref_form[ED1_TIT].TextCast, infostruct->edit1 ? infostruct->edit1 : "");
-	strcpy(pref_form[ED2_TIT].TextCast, infostruct->edit2 ? infostruct->edit2 : "");
-	strcpy(pref_form[ED3_TIT].TextCast, infostruct->edit3 ? infostruct->edit3 : "");
-	strcpy(pref_form[ED4_TIT].TextCast, infostruct->edit4 ? infostruct->edit4 : "");
-	strcpy(pref_form[CHECK1_TEXT].TextCast, infostruct->check1 ? infostruct->check1 : "");
-	strcpy(pref_form[CHECK2_TEXT].TextCast, infostruct->check2 ? infostruct->check2 : "");
-	strcpy(pref_form[CHECK3_TEXT].TextCast, infostruct->check3 ? infostruct->check3 : "");
-	strcpy(pref_form[CHECK4_TEXT].TextCast, infostruct->check4 ? infostruct->check4 : "");
 
-	/*------------------------------ Slider-Mins / Maxs auslesen */
-	max_val = (WORD) infostruct->smax1;
-	min_val = (WORD) infostruct->smin1;
-	sliders[PDSLIDER1].max_val = max_val;
-	sliders[PDSLIDER1].min_val = min_val;
-	max_val = (WORD) infostruct->smax2;
-	min_val = (WORD) infostruct->smin2;
-	sliders[PDSLIDER2].max_val = max_val;
-	sliders[PDSLIDER2].min_val = min_val;
-	max_val = (WORD) infostruct->smax3;
-	min_val = (WORD) infostruct->smin3;
-	sliders[PDSLIDER3].max_val = max_val;
-	sliders[PDSLIDER3].min_val = min_val;
-	max_val = (WORD) infostruct->smax4;
-	min_val = (WORD) infostruct->smin4;
-	sliders[PDSLIDER4].max_val = max_val;
-	sliders[PDSLIDER4].min_val = min_val;
-
-	/*------------------------------- Slider-Defaults auslesen */
-	sy1 = sd1 = (WORD) infostruct->sdef1;
-	sy2 = sd2 = (WORD) infostruct->sdef2;
-	sy3 = sd3 = (WORD) infostruct->sdef3;
-	sy4 = sd4 = (WORD) infostruct->sdef4;
-
-	/*--------------------------------- Edit-Defaults setzen */
-	editval1 = infostruct->edef1;
-	if (editval1 < infostruct->emin1)
-		editval1 = infostruct->emin1;
-	else if (editval1 > infostruct->emax1)
-		editval1 = infostruct->emax1;
-
-	editval2 = infostruct->edef2;
-	if (editval2 < infostruct->emin2)
-		editval2 = infostruct->emin2;
-	else if (editval2 > infostruct->emax2)
-		editval2 = infostruct->emax2;
-
-	editval3 = infostruct->edef3;
-	if (editval3 < infostruct->emin3)
-		editval3 = infostruct->emin3;
-	else if (editval3 > infostruct->emax3)
-		editval3 = infostruct->emax3;
-
-	editval4 = infostruct->edef4;
-	if (editval4 < infostruct->emin4)
-		editval4 = infostruct->emin4;
-	else if (editval4 > infostruct->emax4)
-		editval4 = infostruct->emax4;
-
-	ltoa(editval1, edd, 10);
-	strncpy(pref_form[ED1].TextCast, edd, 5);
-	ltoa(editval2, edd, 10);
-	strncpy(pref_form[ED2].TextCast, edd, 5);
-	ltoa(editval3, edd, 10);
-	strncpy(pref_form[ED3].TextCast, edd, 5);
-	ltoa(editval4, edd, 10);
-	strncpy(pref_form[ED4].TextCast, edd, 5);
-
-	/*---------------------------- Check-Defaults setzen */
-	/* Radiobutton oder Checkbox? */
-	pref_form[CHECK1].ob_type &= ~0xFF00;
-	pref_form[CHECK2].ob_type &= ~0xFF00;
-	pref_form[CHECK3].ob_type &= ~0xFF00;
-	pref_form[CHECK4].ob_type &= ~0xFF00;
-
-	if (infostruct->cdef1 >= 2)
+	/*
+	 * und jetzt alle abgeschalteten Objekte disablen 
+	 */
+	for (o = pref_form[0].ob_head; o <= pref_form[0].ob_tail; o++)
 	{
-		pref_form[CHECK1].ob_type &= ~(CHECKBOX << 8);
-		pref_form[CHECK1].ob_type |= RADIOBUTTON << 8;
-		pref_form[CHECK1].ob_flags |= OF_RBUTTON;
-	} else
-	{
-		pref_form[CHECK1].ob_type &= ~(RADIOBUTTON << 8);
-		pref_form[CHECK1].ob_type |= CHECKBOX << 8;
-		pref_form[CHECK1].ob_flags &= ~OF_RBUTTON;
+		if (pref_form[o].ob_flags & OF_HIDETREE)
+			pref_form[o].ob_state |= OS_DISABLED;
+		else
+			pref_form[o].ob_state &= ~OS_DISABLED;
 	}
-
-	if (infostruct->cdef2 >= 2)
-	{
-		pref_form[CHECK2].ob_type &= ~(CHECKBOX << 8);
-		pref_form[CHECK2].ob_type |= RADIOBUTTON << 8;
-		pref_form[CHECK2].ob_flags |= OF_RBUTTON;
-	} else
-	{
-		pref_form[CHECK2].ob_type &= ~(RADIOBUTTON << 8);
-		pref_form[CHECK2].ob_type |= CHECKBOX << 8;
-		pref_form[CHECK2].ob_flags &= ~OF_RBUTTON;
-	}
-
-	if (infostruct->cdef3 >= 2)
-	{
-		pref_form[CHECK3].ob_type &= ~(CHECKBOX << 8);
-		pref_form[CHECK3].ob_type |= RADIOBUTTON << 8;
-		pref_form[CHECK3].ob_flags |= OF_RBUTTON;
-	} else
-	{
-		pref_form[CHECK3].ob_type &= ~(RADIOBUTTON << 8);
-		pref_form[CHECK3].ob_type |= CHECKBOX << 8;
-		pref_form[CHECK3].ob_flags &= ~OF_RBUTTON;
-	}
-
-	if (infostruct->cdef4 >= 2)
-	{
-		pref_form[CHECK4].ob_type &= ~(CHECKBOX << 8);
-		pref_form[CHECK4].ob_type |= RADIOBUTTON << 8;
-		pref_form[CHECK4].ob_flags |= OF_RBUTTON;
-	} else
-	{
-		pref_form[CHECK4].ob_type &= ~(RADIOBUTTON << 8);
-		pref_form[CHECK4].ob_type |= CHECKBOX << 8;
-		pref_form[CHECK4].ob_flags &= ~OF_RBUTTON;
-	}
-
+		
 	f_treewalk(pref_form);
 
-	if (infostruct->cdef1 != 0 && infostruct->cdef1 != 3)
-		pref_form[CHECK1].ob_state |= OS_SELECTED;
-	else
-		pref_form[CHECK1].ob_state &= ~OS_SELECTED;
-	if (infostruct->cdef2 != 0 && infostruct->cdef2 != 3)
-		pref_form[CHECK2].ob_state |= OS_SELECTED;
-	else
-		pref_form[CHECK2].ob_state &= ~OS_SELECTED;
-	if (infostruct->cdef3 != 0 && infostruct->cdef3 != 3)
-		pref_form[CHECK3].ob_state |= OS_SELECTED;
-	else
-		pref_form[CHECK3].ob_state &= ~OS_SELECTED;
-	if (infostruct->cdef4 != 0 && infostruct->cdef4 != 3)
-		pref_form[CHECK4].ob_state |= OS_SELECTED;
-	else
-		pref_form[CHECK4].ob_state &= ~OS_SELECTED;
+	for (t = 0; t < 4; t++)
+	{
+		if (infostruct->cdef[t] != 0 && infostruct->cdef[t] != 3)
+			pref_form[check[t]].ob_state |= OS_SELECTED;
+		else
+			pref_form[check[t]].ob_state &= ~OS_SELECTED;
+	}
 
 
 	/*
@@ -452,10 +287,10 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 	{
 		cnfblock = (long *) edit_cnfblock[index];
 		applyConfig(cnfblock);
-		sd1 = (WORD) cnfblock[0];
-		sd2 = (WORD) cnfblock[1];
-		sd3 = (WORD) cnfblock[2];
-		sd4 = (WORD) cnfblock[3];
+		sd[0] = (WORD) cnfblock[0];
+		sd[1] = (WORD) cnfblock[1];
+		sd[2] = (WORD) cnfblock[2];
+		sd[3] = (WORD) cnfblock[3];
 	}
 
 	/*
@@ -517,10 +352,8 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 			Window.redraw(&wind_s[WIND_MODFORM], NULL, 0, 0);
 
 		/* Slider drauf setzen */
-		setslider(&sliders[PDSLIDER1], sd1);
-		setslider(&sliders[PDSLIDER2], sd2);
-		setslider(&sliders[PDSLIDER3], sd3);
-		setslider(&sliders[PDSLIDER4], sd4);
+		for (t = 0; t < 4; t++)
+			setslider(&sliders[pdslider[t]], sd[t]);
 	}
 
 	module.smStruct[edit_mod_num]->wind_struct = &wind_s[WIND_MODFORM];
@@ -535,7 +368,7 @@ void f_module_prefs(MOD_INFO *infostruct, short mod_id)
 static void f_insert_prefs(GARGAMEL *smurf_st, SMURF_PIC *picture)
 {
 	OBJECT *modtree;
-
+	short t;
 
 	modtree = wind_s[WIND_MODFORM].resource_form;
 
@@ -544,18 +377,12 @@ static void f_insert_prefs(GARGAMEL *smurf_st, SMURF_PIC *picture)
 	smurf_st->picwind_y = picture_windows[active_pic].wy;
 	smurf_st->picwind_w = picture_windows[active_pic].ww;
 	smurf_st->picwind_h = picture_windows[active_pic].wh;
-	smurf_st->slide1 = (long) sy1;
-	smurf_st->slide2 = (long) sy2;
-	smurf_st->slide3 = (long) sy3;
-	smurf_st->slide4 = (long) sy4;
-	smurf_st->edit1 = atol(modtree[ED1].TextCast);
-	smurf_st->edit2 = atol(modtree[ED2].TextCast);
-	smurf_st->edit3 = atol(modtree[ED3].TextCast);
-	smurf_st->edit4 = atol(modtree[ED4].TextCast);
-	smurf_st->check1 = modtree[CHECK1].ob_state & OS_SELECTED;
-	smurf_st->check2 = modtree[CHECK2].ob_state & OS_SELECTED;
-	smurf_st->check3 = modtree[CHECK3].ob_state & OS_SELECTED;
-	smurf_st->check4 = modtree[CHECK4].ob_state & OS_SELECTED;
+	for (t = 0; t < 4; t++)
+	{
+		smurf_st->slide[t] = sval[t];
+		smurf_st->edit[t] = atol(modtree[ed[t]].TextCast);
+		smurf_st->check[t] = modtree[check[t]].ob_state & OS_SELECTED;
+	}
 }
 
 
@@ -786,17 +613,17 @@ void f_mpref_change(void)
 	WORD oldtop;
 	WORD oldw, oldh;
 	WORD newwid, newhgt;
-	short clip = 0;
+	short clip;
 	BOOLEAN close_me = FALSE;
 	BOOLEAN mem = FALSE;
 	WORD dummy;
 	WORD staste;
-	uint16_t w2;
-	long editval1, editval2, editval3, editval4;
+	long editval[4];
 	long cnfblock[12];
 	long *loadcnf;
 	long *cnf_save;
-	unsigned long w1;
+	long **pp;
+	short t;
 
 	OBJECT *modtree;
 	SMURF_PIC *edit_picture;
@@ -816,70 +643,25 @@ void f_mpref_change(void)
 		mod_inf = module_start->info;
 		mod_abs = module_start->ability;
 
-		editval1 = atol(modtree[ED1].TextCast);
-		if (editval1 < mod_inf->emin1)
+		for (t = 0; t < 4; t++)
 		{
-			editval1 = mod_inf->emin1;
-			clip = 1;
-		} else if (editval1 > mod_inf->emax1)
-		{
-			editval1 = mod_inf->emax1;
-			clip = 1;
-		}
-
-		editval2 = atol(modtree[ED2].TextCast);
-		if (editval2 < mod_inf->emin2)
-		{
-			editval2 = mod_inf->emin2;
-			clip = 2;
-		} else if (editval2 > mod_inf->emax2)
-		{
-			editval2 = mod_inf->emax2;
-			clip = 2;
-		}
-
-		editval3 = atol(modtree[ED3].TextCast);
-		if (editval3 < mod_inf->emin3)
-		{
-			editval3 = mod_inf->emin3;
-			clip = 3;
-		} else if (editval3 > mod_inf->emax3)
-		{
-			editval3 = mod_inf->emax3;
-			clip = 3;
-		}
-
-		editval4 = atol(modtree[ED4].TextCast);
-		if (editval4 < mod_inf->emin4)
-		{
-			editval4 = mod_inf->emin4;
-			clip = 4;
-		} else if (editval4 > mod_inf->emax4)
-		{
-			editval4 = mod_inf->emax4;
-			clip = 4;
-		}
-
-		if (clip == 1)
-		{
-			ltoa(editval1, str, 10);
-			strncpy(modtree[ED1].TextCast, str, 6);
-			Window.redraw(&wind_s[WIND_MODFORM], NULL, ED1, DRAWNOPICTURE);
-		} else if (clip == 2)
-		{
-			ltoa(editval2, str, 10);
-			strncpy(modtree[ED2].TextCast, str, 6);
-			Window.redraw(&wind_s[WIND_MODFORM], NULL, ED2, DRAWNOPICTURE);
-		} else if (clip == 3)
-		{
-			ltoa(editval3, str, 10);
-			strncpy(modtree[ED3].TextCast, str, 6);
-			Window.redraw(&wind_s[WIND_MODFORM], NULL, ED3, DRAWNOPICTURE);
-		} else if (clip == 4)
-		{
-			ltoa(editval4, str, 10);
-			strncpy(modtree[ED4].TextCast, str, 6);
-			Window.redraw(&wind_s[WIND_MODFORM], NULL, ED4, DRAWNOPICTURE);
+			clip = FALSE;
+			editval[t] = atol(modtree[ed[t]].TextCast);
+			if (editval[t] < mod_inf->erange[t].min)
+			{
+				editval[t] = mod_inf->erange[t].min;
+				clip = TRUE;
+			} else if (editval[t] > mod_inf->erange[t].max)
+			{
+				editval[t] = mod_inf->erange[t].max;
+				clip = TRUE;
+			}
+			if (clip)
+			{
+				ltoa(editval[t], str, 10);
+				strncpy(modtree[ed[t]].TextCast, str, 5);
+				Window.redraw(&wind_s[WIND_MODFORM], NULL, ed[t], DRAWNOPICTURE);
+			}
 		}
 	}
 
@@ -911,52 +693,52 @@ void f_mpref_change(void)
 		/*---- Schiebereglerbedienung: ----*/
 	case S1_F:
 	case S1_R:
-		sy1 = f_rslid(&sliders[PDSLIDER1]);
+		sval[0] = f_rslid(&sliders[PDSLIDER1]);
 		break;
 	case S2_F:
 	case S2_R:
-		sy2 = f_rslid(&sliders[PDSLIDER2]);
+		sval[1] = f_rslid(&sliders[PDSLIDER2]);
 		break;
 	case S3_F:
 	case S3_R:
-		sy3 = f_rslid(&sliders[PDSLIDER3]);
+		sval[2] = f_rslid(&sliders[PDSLIDER3]);
 		break;
 	case S4_F:
 	case S4_R:
-		sy4 = f_rslid(&sliders[PDSLIDER4]);
+		sval[3] = f_rslid(&sliders[PDSLIDER4]);
 		break;
 
 	case S1_A:
-		sy1 = f_numedit(S1_A, modtree, sy1);
-		if (sy1 > sliders[PDSLIDER1].max_val)
-			sy1 = (WORD) sliders[PDSLIDER1].max_val;
-		else if (sy1 < sliders[PDSLIDER1].min_val)
-			sy1 = (WORD) sliders[PDSLIDER1].min_val;
-		setslider(&sliders[PDSLIDER1], sy1);
+		sval[0] = f_numedit(S1_A, modtree, sval[0]);
+		if (sval[0] > sliders[PDSLIDER1].max_val)
+			sval[0] = (WORD) sliders[PDSLIDER1].max_val;
+		else if (sval[0] < sliders[PDSLIDER1].min_val)
+			sval[0] = (WORD) sliders[PDSLIDER1].min_val;
+		setslider(&sliders[PDSLIDER1], sval[0]);
 		break;
 	case S2_A:
-		sy2 = f_numedit(S2_A, modtree, sy2);
-		if (sy2 > sliders[PDSLIDER2].max_val)
-			sy2 = (WORD) sliders[PDSLIDER2].max_val;
-		else if (sy2 < sliders[PDSLIDER2].min_val)
-			sy2 = (WORD) sliders[PDSLIDER2].min_val;
-		setslider(&sliders[PDSLIDER2], sy2);
+		sval[1] = f_numedit(S2_A, modtree, sval[1]);
+		if (sval[1] > sliders[PDSLIDER2].max_val)
+			sval[1] = (WORD) sliders[PDSLIDER2].max_val;
+		else if (sval[1] < sliders[PDSLIDER2].min_val)
+			sval[1] = (WORD) sliders[PDSLIDER2].min_val;
+		setslider(&sliders[PDSLIDER2], sval[1]);
 		break;
 	case S3_A:
-		sy3 = f_numedit(S3_A, modtree, sy3);
-		if (sy3 > sliders[PDSLIDER3].max_val)
-			sy3 = (WORD) sliders[PDSLIDER3].max_val;
-		else if (sy3 < sliders[PDSLIDER3].min_val)
-			sy3 = (WORD) sliders[PDSLIDER3].min_val;
-		setslider(&sliders[PDSLIDER3], sy3);
+		sval[2] = f_numedit(S3_A, modtree, sval[2]);
+		if (sval[2] > sliders[PDSLIDER3].max_val)
+			sval[2] = (WORD) sliders[PDSLIDER3].max_val;
+		else if (sval[2] < sliders[PDSLIDER3].min_val)
+			sval[2] = (WORD) sliders[PDSLIDER3].min_val;
+		setslider(&sliders[PDSLIDER3], sval[2]);
 		break;
 	case S4_A:
-		sy4 = f_numedit(S4_A, modtree, sy4);
-		if (sy4 > sliders[PDSLIDER4].max_val)
-			sy4 = (WORD) sliders[PDSLIDER4].max_val;
-		else if (sy4 < sliders[PDSLIDER4].min_val)
-			sy4 = (WORD) sliders[PDSLIDER4].min_val;
-		setslider(&sliders[PDSLIDER4], sy4);
+		sval[3] = f_numedit(S4_A, modtree, sval[3]);
+		if (sval[3] > sliders[PDSLIDER4].max_val)
+			sval[3] = (WORD) sliders[PDSLIDER4].max_val;
+		else if (sval[3] < sliders[PDSLIDER4].min_val)
+			sval[3] = (WORD) sliders[PDSLIDER4].min_val;
+		setslider(&sliders[PDSLIDER4], sval[3]);
 		break;
 
 		/* Preview-Icon angeklickt! */
@@ -980,18 +762,12 @@ void f_mpref_change(void)
 	case MCONF_STDSAVE:
 		module_start = get_module_start(module.bp[edit_mod_num]);
 		mod_inf = module_start->info;
-		cnfblock[0] = sy1;
-		cnfblock[1] = sy2;
-		cnfblock[2] = sy3;
-		cnfblock[3] = sy4;
-		cnfblock[4] = modtree[CHECK1].ob_state;
-		cnfblock[5] = modtree[CHECK2].ob_state;
-		cnfblock[6] = modtree[CHECK3].ob_state;
-		cnfblock[7] = modtree[CHECK4].ob_state;
-		cnfblock[8] = atol(modtree[ED1].TextCast);
-		cnfblock[9] = atol(modtree[ED2].TextCast);
-		cnfblock[10] = atol(modtree[ED3].TextCast);
-		cnfblock[11] = atol(modtree[ED4].TextCast);
+		for (t = 0; t < 4; t++)
+		{
+			cnfblock[t] = sval[t];
+			cnfblock[t + 4] = modtree[check[t]].ob_state;
+			cnfblock[t + 8] = atol(modtree[ed[t]].TextCast);
+		}
 		mconfSave(mod_inf, edit_mod_num, cnfblock, 12 * 4, confname);
 		change_object(&wind_s[WIND_MODFORM], MCONF_STDSAVE, OS_UNSEL, 1);
 		break;
@@ -1005,10 +781,8 @@ void f_mpref_change(void)
 			applyConfig(loadcnf);
 			SMfree(loadcnf);
 			Window.redraw(&wind_s[WIND_MODFORM], NULL, 0, 0);
-			setslider(&sliders[PDSLIDER1], sy1);
-			setslider(&sliders[PDSLIDER2], sy2);
-			setslider(&sliders[PDSLIDER3], sy3);
-			setslider(&sliders[PDSLIDER4], sy4);
+			for (t = 0; t < 4; t++)
+				setslider(&sliders[pdslider[t]], sval[t]);
 		}
 		change_object(&wind_s[WIND_MODFORM], MCONF_STDLOAD, OS_UNSEL, 1);
 		break;
@@ -1024,53 +798,36 @@ void f_mpref_change(void)
 		 * Editfeld-Werte erneut clippen, da diese vor dem Modulstart
 		 * noch geÑndert werden kînnen
 		 */
-		editval1 = atol(modtree[ED1].TextCast);
-		editval2 = atol(modtree[ED2].TextCast);
-		editval3 = atol(modtree[ED3].TextCast);
-		editval4 = atol(modtree[ED4].TextCast);
-		if (editval1 < mod_inf->emin1)
-			editval1 = mod_inf->emin1;
-		else if (editval1 > mod_inf->emax1)
-			editval1 = mod_inf->emax1;
-		if (editval2 < mod_inf->emin2)
-			editval2 = mod_inf->emin2;
-		else if (editval2 > mod_inf->emax2)
-			editval2 = mod_inf->emax2;
-		if (editval3 < mod_inf->emin3)
-			editval3 = mod_inf->emin3;
-		else if (editval3 > mod_inf->emax3)
-			editval3 = mod_inf->emax3;
-		if (editval4 < mod_inf->emin4)
-			editval4 = mod_inf->emin4;
-		else if (editval4 > mod_inf->emax4)
-			editval4 = mod_inf->emax4;
-		ltoa(editval1, modtree[ED1].TextCast, 10);
-		ltoa(editval2, modtree[ED2].TextCast, 10);
-		ltoa(editval3, modtree[ED3].TextCast, 10);
-		ltoa(editval4, modtree[ED4].TextCast, 10);
-
+		for (t = 0; t < 4; t++)
+		{
+			editval[t] = atol(modtree[ed[t]].TextCast);
+			if (editval[t] < mod_inf->erange[t].min)
+				editval[t] = mod_inf->erange[t].min;
+			else if (editval[t] > mod_inf->erange[t].max)
+				editval[t] = mod_inf->erange[t].max;
+			ltoa(editval[t], modtree[ed[t]].TextCast, 10);
+		}
 
 		/*
 		 * Default-Konfigurationsblock anfordern
 		 */
 		cnf_save = SMalloc(50);
-		cnf_save[0] = sy1;
-		cnf_save[1] = sy2;
-		cnf_save[2] = sy3;
-		cnf_save[3] = sy4;
+		cnf_save[0] = sval[0];
+		cnf_save[1] = sval[1];
+		cnf_save[2] = sval[2];
+		cnf_save[3] = sval[3];
 		cnf_save[4] = modtree[CHECK1].ob_state;
 		cnf_save[5] = modtree[CHECK2].ob_state;
 		cnf_save[6] = modtree[CHECK3].ob_state;
 		cnf_save[7] = modtree[CHECK4].ob_state;
-		cnf_save[8] = editval1;
-		cnf_save[9] = editval2;
-		cnf_save[10] = editval3;
-		cnf_save[11] = editval4;
-		w1 = (long) cnf_save >> 16;
-		w2 = (short) (long) cnf_save;
-		module.smStruct[edit_mod_num]->event_par[0] = (WORD) w1;
-		module.smStruct[edit_mod_num]->event_par[1] = w2;
-		module.smStruct[edit_mod_num]->event_par[2] = 12 * 4;
+		cnf_save[8] = editval[0];
+		cnf_save[9] = editval[1];
+		cnf_save[10] = editval[2];
+		cnf_save[11] = editval[3];
+		
+		pp = (long **)&module.smStruct[edit_mod_num]->event_par[0];
+		*pp = cnf_save;
+		module.smStruct[edit_mod_num]->event_par[2] = 12 * (short)sizeof(*cnf_save);
 		memorize_emodConfig(module.bp[edit_mod_num], module.smStruct[edit_mod_num]);
 
 		if (!picthere)

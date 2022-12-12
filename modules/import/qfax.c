@@ -30,6 +30,27 @@
 #include "demolib.h"
 
 
+/* info structure for main module */
+MOD_INFO module_info = {
+	"QFax",
+	0x0020,
+	"Christian Eyrich",
+	/* Extensionen */
+	{ "F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08", "F09", "F10" },
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	0,
+	/* description for pictures */
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
+};
+
+
 static unsigned short const bitmask[9] = {
 	0x0000,
 	0x0001,
@@ -295,42 +316,6 @@ static struct proto const blackEncodeTable3[] = {
 	{ 0x001e, 12, 0x09c0 },
 	{ 0x001f, 12, 0x0a00 }
 #endif
-};
-
-/* info structure for main module */
-MOD_INFO module_info = {
-	"QFax",
-	0x0020,
-	"Christian Eyrich",
-	/* Extensionen */
-	{ "F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08", "F09", "F10" },
-
-	/* Slider */
-	"Slider 1", "Slider 2", "Slider 3", "Slider 4",
-	/* Checkboxen */
-	"Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4",
-	/* Editfelder */
-	"Edit 1", "Edit 2", "Edit 3", "Edit 4",
-
-	/* Minima + Maxima */
-	/* Slider */
-	0, 128,
-	0, 128,
-	0, 128,
-	0, 128,
-	/* Edits */
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	/* Defaults */
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	/* how many pics? */
-	0,
-	/* description for pictures */
-	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 static uint8_t bitsRead = 0;

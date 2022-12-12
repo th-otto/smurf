@@ -74,34 +74,19 @@ MOD_INFO module_info = {
 	"J\224rg Dittmer",						/* Autor */
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fr Importer */
 /* 4 Sliderberschriften: max 8 */
-	STR_STRENGTH,
-	STR_SOFT,
-	STR_SIZE,
-	"",
+	{ STR_STRENGTH, STR_SOFT, STR_SIZE, "" },
 /* 4 Checkboxberschriften: */
-	STR_ROUNDED,
-	"",
-	"",
-	"",
+	{ STR_ROUNDED, "", "", "" },
 /* 4 Edit-Objekt-šberschriften: */
-	STR_XDIST,
-	STR_YDIST,
-	"",
-	"",
+	{ STR_XDIST, STR_YDIST, "", "" },
 /* min/max-Werte fr Slider */
-	1, 255,
-	1, 20,
-	-64, 64,
-	0, 0,
+	{ { 1, 255 }, { 1, 20 }, { -64, 64 }, { 0, 0 } },
 /* min/max fr Editobjekte */
-	-4096, 4096,
-	-4096, 4096,
-	0, 0,
-	0, 0,
+	{ { -4096, 4096 }, { -4096, 4096 }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	128, 3, 0, 0,
-	0, 0, 0, 0,
-	5, 5, 0, 0,
+	{ 128, 3, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 5, 5, 0, 0 },
 	1,
 	{ "", NULL, NULL, NULL, NULL, NULL }
 };
@@ -188,19 +173,19 @@ static short do_it(GARGAMEL *smurf_struct)
 
 	/*--- Slider auslesen ---------------------- */
 
-	strength = (short) smurf_struct->slide1;
+	strength = (short) smurf_struct->slide[0];
 	if (strength == 0)
 		return M_PICDONE;				   /*--- Keine nderung --> BEENDEN --------*/
 
-	softness = (short) smurf_struct->slide2;
+	softness = (short) smurf_struct->slide[1];
 
-	size = (short) smurf_struct->slide3;
-	x_o = (short) smurf_struct->edit1;
-	y_o = (short) smurf_struct->edit2;
+	size = (short) smurf_struct->slide[2];
+	x_o = (short) smurf_struct->edit[0];
+	y_o = (short) smurf_struct->edit[1];
 
 	mw = mh = softness * 2 + 1;
 
-	if (smurf_struct->check1)
+	if (smurf_struct->check[0])
 	{
 		/* rounded */
 		/*--- Radius-Maske generieren ------------------------*/

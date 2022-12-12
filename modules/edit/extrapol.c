@@ -40,34 +40,19 @@ MOD_INFO module_info = {
 	"J”rg Dittmer",						/* Autor */
 	{ "", "", "", "", "", "", "", "", "", "" },	/* 10 Extensionen fr Importer */
 /* 4 Sliderberschriften: max 8 */
-	"X-Fk 1/x",
-	"Y-Fk 1/x",
-	"",
-	"",
+	{ "X-Fk 1/x", "Y-Fk 1/x", "", "" },
 /* 4 Checkboxberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* 4 Edit-Objekt-šberschriften: */
-	"",
-	"",
-	"",
-	"",
+	{ "", "", "", "" },
 /* min/max-Werte fr Slider */
-	1, 16,
-	1, 16,
-	0, 0,
-	0, 0,
+	{ { 1, 16 }, { 1, 16 }, { 0, 0 }, { 0, 0 } },
 /* min/max fr Editobjekte */
-	0, 0,
-	0, 0,
-	0, 0,
-	0, 0,
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
 /* Defaultwerte fr Slider, Check und Edit */
-	1, 0, 0, 0,
-	1, 0, 0, 0,
-	0, 0, 0, 0,
+	{ 1, 0, 0, 0 },
+	{ 1, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ "Bild 1", NULL, NULL, NULL, NULL, NULL }
 };
@@ -123,8 +108,8 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		width = picture->pic_width;
 		height = picture->pic_height;
 
-		x_fak = (short) smurf_struct->slide1;
-		y_fak = (short) smurf_struct->slide2;
+		x_fak = (short) smurf_struct->slide[0];
+		y_fak = (short) smurf_struct->slide[1];
 
 		if (x_fak == 1 && y_fak == 1)	/* Keine Scalierung (->beenden) */
 		{

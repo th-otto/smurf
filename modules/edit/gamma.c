@@ -57,29 +57,14 @@ MOD_INFO module_info = {
 	0x0020,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"Gamma R",
-	"Gamma G",
-	"Gamma B",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	1, 40,
-	1, 40,
-	1, 40,
-	0, 64,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	10, 10, 10, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
+	{ "Gamma R", "Gamma G", "Gamma B", "" },
+	{ "", "", "", "" },
+	{ "", "", "", "" },
+	{ { 1, 40 }, { 1, 40 }, { 1, 40 }, { 0, 64 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 10, 10, 10, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -135,9 +120,9 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		init_timer();
 #endif
 
-		gammared = smurf_struct->slide1 / 10.0;
-		gammagrn = smurf_struct->slide2 / 10.0;
-		gammablu = smurf_struct->slide3 / 10.0;
+		gammared = smurf_struct->slide[0] / 10.0;
+		gammagrn = smurf_struct->slide[1] / 10.0;
+		gammablu = smurf_struct->slide[2] / 10.0;
 
 		BitsPerPixel = smurf_struct->smurf_pic->depth;
 

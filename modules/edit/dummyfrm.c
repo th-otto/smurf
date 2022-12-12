@@ -38,52 +38,34 @@
 static void *(*SMalloc)(long amount);
 static void (*SMfree)(void *ptr);
 
-MOD_INFO module_info = {"Dummy mit Formular",
-						0x0010,
-						"Christian Eyrich",
-						"", "", "", "", "",
-						"", "", "", "", "",
-						"Slider 1",
-						"Slider 2",
-						"Slider 3",
-						"Slider 4",
-						"Checkbox 1",
-						"Checkbox 2",
-						"Checkbox 3",
-						"Checkbox 4",
-						"Edit 1",
-						"Edit 2",
-						"Edit 3",
-						"Edit 4",
-						0,64,
-						0,64,
-						0,64,
-						0,64,
-						0,10,
-						0,10,
-						0,10,
-						0,10,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						0, 0, 0, 0,
-						1
-						{ "Zielbild", NULL, NULL, NULL, NULL, NULL }
-						};
+MOD_INFO module_info = { "Dummy mit Formular",
+	0x0010,
+	"Christian Eyrich",
+	{ "", "", "", "", "", "", "", "", "", "" },
+	{ "Slider 1", "Slider 2", "Slider 3", "Slider 4" },
+	{ "Checkbox 1", "Checkbox 2", "Checkbox 3", "Checkbox 4" },
+	{ "Edit 1", "Edit 2", "Edit 3", "Edit 4" },
+	{ { 0, 64 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	{ 0, 0, 0, 0 },
+	1 {"Zielbild", NULL, NULL, NULL, NULL, NULL}
+};
 
 
 MOD_ABILITY module_ability = {
-						24, 0, 0, 0, 0,
-						0, 0, 0,
-						FORM_PIXELPAK,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						FORM_BOTH,
-						0,
-						};
+	24, 0, 0, 0, 0, 0, 0, 0,
+	FORM_PIXELPAK,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	FORM_BOTH,
+	0,
+};
 
 /* -------------------------------------------------*/
 /* -------------------------------------------------*/
@@ -92,60 +74,63 @@ MOD_ABILITY module_ability = {
 /* -------------------------------------------------*/
 void edit_module_main(GARGAMEL *smurf_struct)
 {
-	char *ziel, *oziel, *buffer, *obuffer;
+	uint8_t *ziel;
+	uint8_t *oziel;
+	uint8_t *buffer;
+	uint8_t obuffer;
 
-	int module_id;
-	unsigned int x, y, width, height, nwidth, nheight;
+	unsigned short x, y;
+	unsigned short width, height;
+	unsigned short nwidth, nheight;
 
 	long v;
 
 
-	module_id = smurf_struct->module_number;
-
-	switch(smurf_struct->module_mode)
+	switch (smurf_struct->module_mode)
 	{
-		case MSTART:	smurf_struct->services->f_module_prefs(&module_info, module_id);
-						smurf_struct->module_mode = M_WAITING;
-						break;
-		case MEXEC:		SMalloc = smurf_struct->services->SMalloc;
-						SMfree = smurf_struct->services->SMfree;
+	case MSTART:
+		smurf_struct->services->f_module_prefs(&module_info, smurf_struct->module_number);
+		smurf_struct->module_mode = M_WAITING;
+		break;
+	case MEXEC:
+		SMalloc = smurf_struct->services->SMalloc;
+		SMfree = smurf_struct->services->SMfree;
 
-						width = smurf_struct->smurf_pic->pic_width;
-						height = smurf_struct->smurf_pic->pic_height;
-						obuffer = buffer = smurf_struct->smurf_pic->pic_data;
+		width = smurf_struct->smurf_pic->pic_width;
+		height = smurf_struct->smurf_pic->pic_height;
+		obuffer = buffer = smurf_struct->smurf_pic->pic_data;
 
-						nwidth = width * 2;
-						nheight = height * 2;
+		nwidth = width * 2;
+		nheight = height * 2;
 
-						oziel = ziel = (char *)SMalloc((long)nwidth * (long)nheight * 3L);
+		oziel = ziel = (char *) SMalloc((long) nwidth * (long) nheight * 3L);
 
-						v = (long)(nwidth - width) * 3L;
+		v = (long) (nwidth - width) * 3L;
 
-						y = 0;
-						do
-						{
-							x = 0;
-							do
-							{
-								*ziel++ = *buffer++;
-								*ziel++ = *buffer++;
-								*ziel++ = *buffer++;
-							} while(++x < width);
+		y = 0;
+		do
+		{
+			x = 0;
+			do
+			{
+				*ziel++ = *buffer++;
+				*ziel++ = *buffer++;
+				*ziel++ = *buffer++;
+			} while (++x < width);
 
-							ziel += v;
-						} while(++y < height);
+			ziel += v;
+		} while (++y < height);
 
-						SMfree(obuffer);
-						smurf_struct->smurf_pic->pic_data = oziel;
+		SMfree(obuffer);
+		smurf_struct->smurf_pic->pic_data = oziel;
 
-						smurf_struct->smurf_pic->pic_width = nwidth;
-						smurf_struct->smurf_pic->pic_height = nheight;
+		smurf_struct->smurf_pic->pic_width = nwidth;
+		smurf_struct->smurf_pic->pic_height = nheight;
 
-						smurf_struct->module_mode = M_PICDONE;
-						break;
-		case MTERM:		smurf_struct->module_mode = M_EXIT;
-						break;
+		smurf_struct->module_mode = M_PICDONE;
+		break;
+	case MTERM:
+		smurf_struct->module_mode = M_EXIT;
+		break;
 	}
-
-	return;
 }

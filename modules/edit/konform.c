@@ -67,29 +67,21 @@ MOD_INFO module_info = {
 	0x0020,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"",
-	"",
-	"",
-	"",
-	TEXT2,
-	TEXT3,
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	0, 64,
-	0, 64,
-	0, 64,
-	0, 64,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	2, 3, 0, 0,
-	0, 0, 0, 0,
+/* 4 Sliderueberschriften: max 8 */
+	{ "", "", "", "" },
+/* 4 Checkboxueberschriften: */
+	{ TEXT2, TEXT3, "", "" },
+/* 4 Edit-Objekt-šberschriften: */
+	{ NULL, NULL, NULL, NULL },
+/* min/max-Werte fuer Slider */
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+/* min/max fr Editobjekte */
+	{ { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+/* Defaultwerte fuer Slider, Check und Edit */
+	{ 0, 0, 0, 0 },
+	{ 2, 3, 0, 0 },
+	{ 0, 0, 0, 0 },
+/* Anzahl der Bilder */
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -156,7 +148,7 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		init_timer();
 #endif
 	
-		if (smurf_struct->check1 > smurf_struct->check2)
+		if (smurf_struct->check[0] > smurf_struct->check[1])
 			mode = VDI;
 		else
 			mode = HARD;

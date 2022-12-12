@@ -75,29 +75,14 @@ MOD_INFO module_info = {
 	0x0020,
 	"Christian Eyrich",
 	{ "", "", "", "", "", "", "", "", "", "" },
-	"",
-	"",
-	"",
-	"",
-	TEXT1,
-	TEXT2,
-	TEXT3,
-	TEXT4,
-	"",
-	"",
-	"",
-	"",
-	0, 64,
-	0, 64,
-	0, 64,
-	0, 64,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 10,
-	0, 0, 0, 0,
-	2, 3, 3, 3,
-	0, 0, 0, 0,
+	{ "", "", "", "" },
+	{ TEXT1, TEXT2, TEXT3, TEXT4 },
+	{ "", "", "", "" },
+	{ { 0, 64 }, { 0, 64 }, { 0, 64 }, { 0, 64 } },
+	{ { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } },
+	{ 0, 0, 0, 0 },
+	{ 2, 3, 3, 3 },
+	{ 0, 0, 0, 0 },
 	1,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
@@ -433,11 +418,11 @@ void edit_module_main(GARGAMEL *smurf_struct)
 		/* Zufallsgenerator zuf„llig initialisieren */
 		srand((unsigned int) Random());
 
-		if (smurf_struct->check1)
+		if (smurf_struct->check[0])
 			wind_left(data, width, height);
-		else if (smurf_struct->check2)
+		else if (smurf_struct->check[1])
 			wind_right(data, width, height);
-		else if (smurf_struct->check3)
+		else if (smurf_struct->check[2])
 			storm_left(data, width, height);
 		else
 			storm_right(data, width, height);
