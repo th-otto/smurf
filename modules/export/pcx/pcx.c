@@ -85,7 +85,7 @@ MOD_INFO module_info = { "PCX Paintbrush",
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	0,
-	NULL, NULL, NULL, NULL, NULL, NULL
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 

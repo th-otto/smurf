@@ -82,7 +82,7 @@ MOD_INFO module_info = {
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	0,
-	NULL, NULL, NULL, NULL, NULL, NULL
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 static uint8_t suf[256];

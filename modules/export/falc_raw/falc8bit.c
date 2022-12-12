@@ -62,7 +62,7 @@ MOD_INFO module_info = { "8Bit PP Raw",
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	0,
-	NULL, NULL, NULL, NULL, NULL, NULL
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 

@@ -236,12 +236,7 @@ typedef struct
     long edef1,edef2,edef3,edef4;   /* Defaultwerte fÅr Edit-Obs */
 
     uint8_t how_many_pix;           /* Wieviele Bilder braucht das EDITModul? */
-    char *pic_descr1,               /* Bildbeschreibungen fÅr die einzelnen Bilder */
-         *pic_descr2,
-         *pic_descr3,
-         *pic_descr4,
-         *pic_descr5,
-         *pic_descr6;
+    const char *pic_descr[6];       /* Bildbeschreibungen fÅr die einzelnen Bilder */
 } MOD_INFO;
 
 

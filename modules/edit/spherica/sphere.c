@@ -95,7 +95,7 @@ MOD_INFO module_info = {
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	2,
-	"Zielbild", "Bumpmap", NULL, NULL, NULL, NULL
+	{ "Zielbild", "Bumpmap", NULL, NULL, NULL, NULL }
 };
 
 MOD_ABILITY module_ability = {

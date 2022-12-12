@@ -67,6 +67,7 @@ MOD_INFO module_info = {"Dummy mit Formular",
 						0, 0, 0, 0,
 						0, 0, 0, 0,
 						1
+						{ "Zielbild", NULL, NULL, NULL, NULL, NULL }
 						};
 
 

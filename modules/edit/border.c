@@ -75,7 +75,7 @@ MOD_INFO module_info = {
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	1,
-	"Bild 1", NULL, NULL, NULL, NULL, NULL
+	{ "Bild 1", NULL, NULL, NULL, NULL, NULL }
 };
 
 

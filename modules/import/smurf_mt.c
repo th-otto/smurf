@@ -59,7 +59,7 @@ MOD_INFO module_info = {
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	0,
-	NULL, NULL, NULL, NULL, NULL, NULL
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 #define DEBUG           0

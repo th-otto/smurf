@@ -330,7 +330,7 @@ MOD_INFO module_info = {
 	/* how many pics? */
 	0,
 	/* description for pictures */
-	NULL, NULL, NULL, NULL, NULL, NULL
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 static uint8_t bitsRead = 0;

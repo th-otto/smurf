@@ -92,7 +92,7 @@ MOD_INFO module_info = {
 /* how many pics? */
 	1,
 /* description for pictures */
-	"Bild 1", NULL, NULL, NULL, NULL, NULL
+	{ "Bild 1", NULL, NULL, NULL, NULL, NULL }
 };
 
 /*--------------------- Was kann ich ? ----------------------*/

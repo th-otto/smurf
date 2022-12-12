@@ -982,18 +982,10 @@ SMURF_PIC *get_pic(WORD num, short mod_id, MOD_INFO *mod_info, WORD depth, short
 
 	if (current_pic == NULL)
 	{
-		if (num == 0)
-			strcpy(alertstr, mod_info->pic_descr1);
-		else if (num == 1)
-			strcpy(alertstr, mod_info->pic_descr2);
-		else if (num == 2)
-			strcpy(alertstr, mod_info->pic_descr3);
-		else if (num == 3)
-			strcpy(alertstr, mod_info->pic_descr4);
-		else if (num == 4)
-			strcpy(alertstr, mod_info->pic_descr5);
-		else if (num == 5)
-			strcpy(alertstr, mod_info->pic_descr6);
+		const char *name = mod_info->pic_descr[num];
+		if (name == NULL)
+			name = "";
+		strcpy(alertstr, name);
 
 		strcat(alertstr, " wird noch benîtigt!"); /* FIXME: translate */
 		Dialog.winAlert.openAlert(alertstr, NULL, NULL, NULL, 1);
@@ -1046,18 +1038,10 @@ short f_give_pics(const MOD_INFO *mod_info, const MOD_ABILITY *mod_abs, short mo
 		{
 			if (current_pic == NULL)
 			{
-				if (t == 0)
-					strcpy(alertstr, mod_info->pic_descr1);
-				else if (t == 1)
-					strcpy(alertstr, mod_info->pic_descr2);
-				else if (t == 2)
-					strcpy(alertstr, mod_info->pic_descr3);
-				else if (t == 3)
-					strcpy(alertstr, mod_info->pic_descr4);
-				else if (t == 4)
-					strcpy(alertstr, mod_info->pic_descr5);
-				else if (t == 5)
-					strcpy(alertstr, mod_info->pic_descr6);
+				const char *name = mod_info->pic_descr[t];
+				if (name == NULL)
+					name = "";
+				strcpy(alertstr, name);
 
 				/* FIXME: translate */
 				strcat(alertstr, " muû noch zugewiesen werden! Ziehen Sie das gewÅnschte Bild aus dem Bildmanager auf das Modul");

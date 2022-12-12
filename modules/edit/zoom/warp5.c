@@ -70,7 +70,7 @@ MOD_INFO module_info = {
 /* Anzahl Bilder */
 	1,
 /* Bildbeschreibung */
-	NULL, NULL, NULL, NULL, NULL, NULL,
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 MOD_ABILITY module_ability = {

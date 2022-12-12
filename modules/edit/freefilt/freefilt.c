@@ -114,7 +114,7 @@ MOD_INFO module_info = {
 /* Anzahl der Bilder */
 	1,
 /* Bezeichnung fÅr Bilder */
-	p1string, NULL, NULL, NULL, NULL, NULL
+	{ p1string, NULL, NULL, NULL, NULL, NULL }
 };
 
 

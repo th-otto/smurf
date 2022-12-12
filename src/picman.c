@@ -453,8 +453,7 @@ const MOD_INFO *ready_modpics_popup(WINDOW *mwindow)
 {
 	const MODULE_START *module_start;
 	char *dest_str;
-	char *src_str;
-	char *miptr[8];
+	const char *src_str;
 	char *src_str2;
 	char *dest_str2;
 	short t;
@@ -465,13 +464,6 @@ const MOD_INFO *ready_modpics_popup(WINDOW *mwindow)
 	module_start = get_module_start(modbp);
 	minf = module_start->info;
 
-	miptr[0] = minf->pic_descr1;
-	miptr[1] = minf->pic_descr2;
-	miptr[2] = minf->pic_descr3;
-	miptr[3] = minf->pic_descr4;
-	miptr[4] = minf->pic_descr5;
-	miptr[5] = minf->pic_descr6;
-
 	/*------- Wenn mehrere Bilder ben”tigt werden, den Kram reinkopieren ----*/
 	if (minf->how_many_pix > 1)
 	{
@@ -481,7 +473,7 @@ const MOD_INFO *ready_modpics_popup(WINDOW *mwindow)
 		for (t = 0; t < minf->how_many_pix; t++)
 		{
 			dest_str = picorder_popup[PDES1 + t].TextCast;
-			src_str = miptr[t];
+			src_str = minf->pic_descr[t];
 
 			picorder_popup[P1 + t].ob_state &= ~OS_DISABLED;
 

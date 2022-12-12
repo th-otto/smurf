@@ -88,7 +88,7 @@ MOD_INFO module_info = { "Text",
 	0, 0, 0, 0,
 	0, 0, 0, 0,
 	1,									/* Bildanzahl */
-	NULL, NULL, NULL, NULL, NULL, NULL
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 

@@ -91,7 +91,7 @@ MOD_INFO module_info = {
 	2, 3, 0, 0,
 	3, 0, 0, 0,
 	1,
-	NULL, NULL, NULL, NULL, NULL, NULL
+	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
 

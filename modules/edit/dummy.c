@@ -64,8 +64,7 @@ MOD_INFO module_info = {"Dummy",
 						0, 0, 0, 0,
 						0, 0, 0, 0,
 						2,
-						"Zielbild",
-						"Quellbild"
+						{ "Zielbild", "Quellbild", NULL, NULL, NULL, NULL }
 						};
 
 
