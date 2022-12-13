@@ -98,6 +98,7 @@ MOD_INFO module_info = {
 	{ 0, 0, 0, 0 },
 /* Anzahl der Bilder */
 	1,
+	COMPILER_ID,
 /* Bezeichnung fuer Bilder */
 	{ p1string, NULL, NULL, NULL, NULL, NULL }
 };

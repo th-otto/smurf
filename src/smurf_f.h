@@ -394,6 +394,7 @@ extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
 extern SERVICE_FUNCTIONS global_services;
 
 extern WORD resource_global[100];
+extern char **smurf_frstr;
 extern BOOLEAN nullcoordset;
 extern BOOLEAN syspalset;
 extern WORD gl_hchar, gl_wchar, gl_hbox, gl_wbox;

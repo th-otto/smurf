@@ -84,6 +84,7 @@ MOD_INFO module_info = {
 	{ 2, 3, 3, 3 },
 	{ 0, 0, 0, 0 },
 	1,
+	COMPILER_ID,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 

@@ -78,6 +78,7 @@ SERVICE_FUNCTIONS global_services;
 static unsigned char *mononct;			/* monochrome NCT (32KByte) */
 
 WORD resource_global[100];
+char **smurf_frstr;
 BOOLEAN nullcoordset;
 BOOLEAN syspalset;
 WORD gl_hchar, gl_wchar, gl_hbox, gl_wbox;

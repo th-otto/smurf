@@ -76,6 +76,7 @@ typedef struct
 
     long smurf_version;         /* Schlumpfine-Version */
     char conf_able;             /* Konfigurierbar? */
+    uint8_t compiler_id;
     short pal_mode;             /* Palettenmodus (MCUT|SYSPAL || FIXPAL) */
 } DITHER_MOD_INFO;
 

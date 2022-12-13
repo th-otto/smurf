@@ -277,7 +277,7 @@ static BOOLEAN get_cookie(unsigned long cookie, unsigned long *value)
 		return FALSE;
 
 	/* Keksdose nach cookie durchsuchen */
-	while (*cookiejar++ != 0)
+	while (*cookiejar != 0)
 	{
 		if (*cookiejar++ == cookie)
 		{

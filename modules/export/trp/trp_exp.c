@@ -55,6 +55,7 @@ MOD_INFO module_info = { "TRP - Therapy Gfx File",
 	{ 0, 0, 0, 0 },
 	{ 0, 0, 0, 0 },
 	0,
+	COMPILER_ID,
 	{ NULL, NULL, NULL, NULL, NULL, NULL }
 };
 

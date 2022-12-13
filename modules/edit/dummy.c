@@ -48,6 +48,7 @@ MOD_INFO module_info = { "Dummy",
 	{ 0, 0, 0, 0 },
 	{ 0, 0, 0, 0 },
 	2,
+	COMPILER_ID,
 	{"Zielbild", "Quellbild", NULL, NULL, NULL, NULL}
 };
 

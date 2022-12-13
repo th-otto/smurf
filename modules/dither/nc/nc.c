@@ -58,6 +58,7 @@ DITHER_MOD_INFO dith_module_info = {
 	"Olaf Piesche",
 	0x0100,								/* Schlumpfine-Version */
 	0,									/* Konfigurierbar? */
+	COMPILER_ID,
 	ALLPAL								/* Palettenmodi */
 };
 

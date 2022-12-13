@@ -273,51 +273,30 @@ void get_tmp_dir(char *tmpdir)
 /* Erweitert um Ssystem(GETCOOKIE) am 2.5.99 */
 BOOLEAN get_cookie(unsigned long cookie, unsigned long *value)
 {
-	long r;
-	long val;
 	unsigned long *cookiejar;
 
-	/* Erst den neuen Weg probieren */
-	if ((r = Ssystem(GETCOOKIE, cookie, (long) &val)) != EINVFN)
-	{
-		if (r != -1)
-		{
-			*value = val;
-			return TRUE;
-		} else
-		{
-			*value = 0L;
-			return FALSE;
-		}
-	} else
-	{
-		/* Zeiger auf Cookie Jar holen */
-		cookiejar = (unsigned long *) Setexc(0x5a0 / 4, (void (*)()) -1);
 
-		/* Cookie Jar installiert? */
-		if (cookiejar)
-		{
-			/* Keksdose nach cookie durchsuchen */
-			while (*cookiejar && *cookiejar != cookie)
-				cookiejar += 2;
+	/* ansonsten value auf 0L */
+	*value = 0;
 
-			/* wenn cookie gefunden wurde, value auf Cookiewert setzen, */
-			/* ansonsten value auf 0L */
-			if (*cookiejar == cookie)
+	/* Zeiger auf Cookie Jar holen */
+	cookiejar = (unsigned long *) Setexc(0x5a0 / 4, (void (*)()) -1);
+	/* Cookie Jar installiert? */
+	if (cookiejar)
+	{
+		/* Keksdose nach cookie durchsuchen */
+		while (*cookiejar)
+		{
+			if (*cookiejar++ == cookie)
 			{
-				*value = *(cookiejar + 1);
+				/* wenn cookie gefunden wurde, value auf Cookiewert setzen, */
+				*value = *cookiejar;
 				return TRUE;
-			} else
-			{
-				*value = 0;
-				return FALSE;
 			}
-		} else
-		{
-			*value = 0;
-			return FALSE;
+			cookiejar++;
 		}
 	}
+	return FALSE;
 }
 
 

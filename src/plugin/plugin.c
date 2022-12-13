@@ -108,7 +108,7 @@ void scan_plugins(void)
 	const PLUGIN_INFO *curr_info;
 	PLUGIN_INFO *info;
 	PLUGIN_INFO installed_infos[MAX_PLUGINS];
-	long mod_magic;
+	BASPAG *plugin_baspag;
 	long temp;
 	struct DIRENTRY *actual;
 	struct DIRENTRY *filelist;
@@ -150,50 +150,41 @@ void scan_plugins(void)
 		if (temp <= 0)
 		{
 			/* FIXME: translate */
-			strcpy(alert, "[1][Fehler in File|");
-			strcat(alert, actual->modname);
-			strcat(alert, "|im Ordner|");
-			strcat(alert, "\\modules\\plugin\\!]");
-			strcat(alert, "[ OK ]");
+			sprintf(alert, "[1][Fehler in File|%s|im Ordner|\\modules\\plugin\\!][ OK ]", actual->modname);
 			form_alert(1, alert);
 		} else
 		{
-			plugin_bp[anzahl_plugins] = (BASPAG *) temp;
+			plugin_baspag = (BASPAG *) temp;
 
-			mod_magic = get_modmagic(plugin_bp[anzahl_plugins]);	/* Zeiger auf Magic (muž 'PLGN' sein!) */
-			if (mod_magic != MOD_MAGIC_PLUGIN)
+			plugin_start = get_module_start(plugin_baspag);	/* Textsegment-Startadresse holen */
+			curr_info = plugin_start->info;
+
+			/* Zeiger auf Magic (muž 'PLGN' sein!) */
+			if (plugin_start->magic != MOD_MAGIC_PLUGIN)
 			{
-				/* FIXME: translate */
-				strcpy(alert, "[1][ File ");
-				strcat(alert, actual->modname);
-				strcat(alert, " | im Ordner |");
-				strcat(alert, " \\modules\\plugin\\ |");
-				strcat(alert, " ist kein Smurf-Plugin! ][ OK ]");
+				sprintf(alert, smurf_frstr[AL_WRONG_MODULE], actual->modname, "plugin", "Smurf-Plugin");
 				form_alert(1, alert);
-			}
-
-			/*
-			 * Plugin zur Initialisierung aufrufen 
-			 */
-			else
+			} else if (plugin_start->info->compiler_id != COMPILER_ID)
 			{
+				sprintf(alert, smurf_frstr[AL_WRONG_COMPILER], actual->modname, "plugin");
+				form_alert(1, alert);
+			} else
+			{
+				/*
+				 * Plugin zur Initialisierung aufrufen 
+				 */
 				/*---- L„nge des gesamten Tochterprozesses ermitteln */
-				start_module(plugin_bp[anzahl_plugins]);
-
-				plugin_start = get_module_start(plugin_bp[anzahl_plugins]);	/* Textsegment-Startadresse holen */
+				plugin_bp[anzahl_plugins] = plugin_baspag;
+				start_module(plugin_baspag);
 
 				install_index = anzahl_plugins;
 				install_flag = TRUE;
 
-				curr_info = plugin_start->info;
-
 				if (curr_info->for_smurf_version != SMURF_VERSION)
 				{
 					/* FIXME: translate */
-					strcpy(alert, "[2][Das Plugin \"");
-					strcat(alert, curr_info->name);
-					strcat(alert, "\"|ist nicht fr diese Smurf-Version|gedacht! Da das zu ");
-					strcat(alert, "Problemen|fhren kann, wird das Plugin terminiert.][ OK ]");
+					sprintf(alert, "[2][Das Plugin \"%s\"|ist nicht fr diese Smurf-Version|gedacht! Da das zu "
+						"Problemen|fhren kann, wird das Plugin terminiert.][ OK ]", curr_info->name);
 					form_alert(1, alert);
 					install_flag = FALSE;
 				} else

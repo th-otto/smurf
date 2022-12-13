@@ -363,6 +363,7 @@ typedef struct plginfo
 	int16_t	plugin_version;
 	int16_t for_smurf_version;
 	uint8_t resident;			/* Resident halten oder nicht? */
+    uint8_t compiler_id;
 } PLUGIN_INFO;
 
 

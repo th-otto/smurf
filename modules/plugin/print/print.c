@@ -70,7 +70,8 @@ PLUGIN_INFO plugin_info = {
 	name_string,
 	0x0103,								/* Plugin-Version 1.03 */
 	SMURF_VERSION,						/* fÅr Smurf-Version 1.06 */
-	0									/* und nicht resident. */
+	0,									/* und nicht resident. */
+    COMPILER_ID
 };
 
 static short my_id;

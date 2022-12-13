@@ -65,6 +65,7 @@ MOD_INFO module_info = {
 	{ 0, 0, 0, 0 },
 /* Anzahl der Bilder */
 	2,
+	COMPILER_ID,
 /* Bezeichnung fÅr Bilder */
 	{ "Bumpmap", "Texture", NULL, NULL, NULL, NULL }
 };

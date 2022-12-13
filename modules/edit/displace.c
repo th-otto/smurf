@@ -81,6 +81,7 @@ MOD_INFO module_info = {
 	{ 0, 0, 0, 0 },
 	/* how many pics? */
 	2,
+	COMPILER_ID,
 	/* description for pictures */
 	{ TEXT4, TEXT5, NULL, NULL, NULL, NULL }
 };

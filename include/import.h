@@ -49,6 +49,11 @@
 #define ftoa(val, str, ndig, format, decpnt, sign) strcpy(str, (format == 0 ? ecvt : fcvt)(*(val), ndig, decpnt, sign))
 #endif
 
+#if defined(__COLDFIRE__) && !defined(__mcoldfire__)
+#  define __mcoldfire__ 1
+#endif
+
+
 typedef struct _window WINDOW;
 
 #include "sym_gem.h"
@@ -57,6 +62,14 @@ typedef struct _window WINDOW;
 #  define ASM_NAME(x) __asm__(x)
 #else
 #  define ASM_NAME(x)
+#endif
+
+/* compiler defines */
+#if defined(__PUREC__) || defined(__AHCC__)
+#  define COMPILER_ID 0
+#endif
+#if defined(__GNUC__)
+#  define COMPILER_ID 1
 #endif
 
 /*  OS-defines  */
@@ -85,6 +98,8 @@ typedef struct _window WINDOW;
 #define MC68040 8
 #define FPU     16
 #define MC68060 32
+#define MCOLDFIRE 64
+
 
 
 #define SM_PATH_MAX 256
@@ -225,6 +240,7 @@ typedef struct
     long edef[4];                   /* Defaultwerte fÅr Edit-Obs */
 
     uint8_t how_many_pix;           /* Wieviele Bilder braucht das EDITModul? */
+    uint8_t compiler_id;
     const char *pic_descr[6];       /* Bildbeschreibungen fÅr die einzelnen Bilder */
 } MOD_INFO;
 

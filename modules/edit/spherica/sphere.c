@@ -89,6 +89,7 @@ MOD_INFO module_info = {
 	{ 0, 0, 0, 0 },
 	{ 0, 0, 0, 0 },
 	2,
+	COMPILER_ID,
 	{ "Zielbild", "Bumpmap", NULL, NULL, NULL, NULL }
 };
 

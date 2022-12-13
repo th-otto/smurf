@@ -116,6 +116,8 @@ short start_imp_module(char *modpath, SMURF_PIC *imp_pic)
 		start_module(mod_basepage);
 
 		module_info = module_start->info;	/* Zeiger auf Modulinfostruktur */
+		if (module_info->compiler_id != COMPILER_ID)
+			return M_MODERR;
 		memset(modname, 0, sizeof(modname));
 		strncpy(modname, module_info->mod_name, sizeof(modname) - 1);
 
@@ -190,6 +192,8 @@ BASPAG *start_edit_module(char *modpath, BASPAG *edit_basepage, short mode, shor
 			Dialog.winAlert.openAlert(Dialog.winAlert.alerts[MOD_LOAD_ERR].TextCast, NULL, NULL, NULL, 1);
 			return NULL;
 		}
+		if (module_start->info->compiler_id != COMPILER_ID)
+			return NULL;
 
 		/* Modulkennung (als wievieltes Modul gestartet?) */
 		if (mode == MSTART)
@@ -284,6 +288,8 @@ EXPORT_PIC *start_exp_module(char *modpath, short message, SMURF_PIC *pic_to_exp
 	if (export_basepage != NULL)
 	{
 		module_start = get_module_start(export_basepage);	/* Textsegment-Startadresse holen */
+		if (module_start->info->compiler_id != COMPILER_ID)
+			return NULL;
 
 		sm_struct->services = &global_services;
 		sm_struct->smurf_pic = pic_to_export;
@@ -727,6 +733,8 @@ BASPAG *start_dither_module(short mode, short mod_id, DITHER_DATA *ditherdata)
 	{
 		dither_basepage = Dithermod_Basepage[mod_id];
 		dither_start = get_module_start(dither_basepage);	/* Textsegment-Startadresse holen */
+		if (dither_start->info->compiler_id != COMPILER_ID)
+			return NULL;
 
 		/* Message von Smurf */
 		ditherdata->message = mode;		/* 0=dithers mir, -1 = Beenden, 2=Config */

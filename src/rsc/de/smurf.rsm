@@ -1,5 +1,5 @@
 ResourceMaster v3.65 (ORCS 2.18)
-#C 36@0@3@3@
+#C 36@2@3@3@
 #R 0@0@1@1@1@1@
 #M 20210100@0@7728@500@
 #T 0@2@DEPTH_POPUP@@7@@
@@ -566,6 +566,8 @@ ResourceMaster v3.65 (ORCS 2.18)
 #O 13@21@WT_TRANSFORM@@
 #O 14@21@WT_BTYPEIN@@
 #O 15@21@WT_BLOCKMODE@@
+#S 0@4@AL_WRONG_MODULE@@-1@@
+#S 1@4@AL_WRONG_COMPILER@@-1@@
 #I 0@6@LRARROW@@-1@@
 #I 1@6@UDARROW@@-1@@
 #I 2@6@LRUDARROW@@-1@@
@@ -601,4 +603,4 @@ ResourceMaster v3.65 (ORCS 2.18)
 #BE10@20@'x' und 'y' zeigen die Mausposition an, 'w' und 'h' die Breite und H”he des Blockes im aktiven Bild.@
 #BE11@21@Hier wird die Breite des Blocks im Bild angezeigt sofern einer aufgezogen ist.@
 #BE12@22@Hier wird die H”he des Blocks im Bild angezeigt sofern einer aufgezogen ist.@
-#c 14795@
+#c 26111@

@@ -280,6 +280,7 @@ void init_smurfrsc(const char *rscpath)
 	xrsrc_gaddr(R_TREE, MODCONF_POPUP, &modconf_popup, resource_global);	/* Modulkonfiguration aufpopen */
 
 	xrsrc_gaddr(R_TREE, BUTTONS, &u_tree, resource_global);	/* Userdefs */
+	xrsrc_gaddr(R_FRSTR, 0, &smurf_frstr, resource_global);	/* Strings */
 
 	f_treewalk(form_pop);
 	f_treewalk(edit_pop);

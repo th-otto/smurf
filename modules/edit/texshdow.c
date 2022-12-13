@@ -108,6 +108,7 @@ MOD_INFO module_info = {
 	{ 0, 0, 0, 0 },
 	{ 0, 0, 0, 0 },
 	2,
+	COMPILER_ID,
 	{ p1string, p2string, NULL, NULL, NULL, NULL }
 };
 

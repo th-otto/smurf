@@ -5,30 +5,26 @@
  */
 
 /*
- * Number of Strings:        1381
+ * Number of Strings:        1383
  * Number of Bitblks:        5
  * Number of Iconblks:       1
  * Number of Color Iconblks: 42
  * Number of Color Icons:    42
  * Number of Tedinfos:       409
- * Number of Free Strings:   0
+ * Number of Free Strings:   2
  * Number of Free Images:    3
  * Number of Objects:        749
  * Number of Trees:          36
  * Number of Userblks:       0
  * Number of Images:         7
- * Total file size:          81618
+ * Total file size:          81844
  */
 
-#ifdef RSC_NAME
 #undef RSC_NAME
-#endif
 #ifndef __ALCYON__
 #define RSC_NAME "smurf"
 #endif
-#ifdef RSC_ID
 #undef RSC_ID
-#endif
 #ifdef smurf
 #define RSC_ID smurf
 #else
@@ -39,8 +35,8 @@
 # define RSC_STATIC_FILE 0
 #endif
 #if !RSC_STATIC_FILE
-#define NUM_STRINGS 1381
-#define NUM_FRSTR 0
+#define NUM_STRINGS 1383
+#define NUM_FRSTR 2
 #define NUM_UD 0
 #define NUM_IMAGES 7
 #define NUM_BB 5
@@ -647,6 +643,10 @@
 #define WT_TRANSFORM                      13 /* TEXT in tree WINDOW_TITLES */
 #define WT_BTYPEIN                        14 /* TEXT in tree WINDOW_TITLES */
 #define WT_BLOCKMODE                      15 /* TEXT in tree WINDOW_TITLES */
+
+#define AL_WRONG_MODULE                    0 /* Alert string */
+
+#define AL_WRONG_COMPILER                  1 /* Alert string */
 
 #define LRARROW                            0 /* Mouse cursor */
 

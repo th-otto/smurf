@@ -55,6 +55,7 @@ DITHER_MOD_INFO dith_module_info = {
 	"Christian Eyrich",
 	0x0100,								/* Schlumpfine-Version */
 	0,									/* konfigurierbar? */
+	COMPILER_ID,
 	FIXPAL								/* Palettenmodus */
 };
 

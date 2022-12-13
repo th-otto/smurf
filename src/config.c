@@ -163,7 +163,7 @@ void f_analyze_system(void)
 {
 	char gi = 0;
 	WORD out1, out2, out3, out4, ok;
-	long value;
+	unsigned long value;
 	unsigned long dummy;
 
 	Sys_info.OS = 0;
@@ -280,7 +280,7 @@ void f_analyze_system(void)
 
 
 	/* CPU-Typ ermitteln */
-	get_cookie(0x5F435055L, (unsigned long *) &value);	/* '_CPU' */
+	get_cookie(0x5F435055L, &value);	/* '_CPU' */
 	if (value == 0 || value == 10)
 		global_services.CPU_type = MC68000;
 	else if (value == 20)
@@ -292,9 +292,12 @@ void f_analyze_system(void)
 	else if (value == 60)
 		global_services.CPU_type = MC68060;
 
-	get_cookie(0x5F465055L, (unsigned long *) &value);	/* '_FPU' */
+	get_cookie(0x5F465055L, &value);	/* '_FPU' */
 	if ((value >> 16) != 0)
 		global_services.CPU_type |= FPU;
+
+	if (get_cookie(0x5f43465fL, &value))
+		global_services.CPU_type |= MCOLDFIRE | FPU;
 
 	DEBUG_MSG(("--> Systeminfos\n"));
 	DEBUG_MSG(("    OS         : %#x\n", Sys_info.OS));

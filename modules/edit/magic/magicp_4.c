@@ -91,6 +91,7 @@ MOD_INFO module_info = {
 	{ 200, 0, 0, 0 },
 	/* Anzahl Bilder */
 	3,
+	COMPILER_ID,
 	/* Bildbeschreibung */
 	{ zielbild_str, textur_str, hoehen_str, NULL, NULL, NULL }
 };
