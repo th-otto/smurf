@@ -151,8 +151,8 @@ WORD orig_blue[SM_PALETTE_MAX];
 
 uint8_t planetable[SM_PALETTE_MAX];
 
-char *edit_modules[100];				/* Pfade fÅr bis zu 100 Edit-Module */
-char *export_modules[100];				/* Pfade fÅr bis zu 100 Export-Module */
+char *edit_modules[MAX_EDIT_MODS];				/* Pfade fÅr bis zu 100 Edit-Module */
+char *export_modules[MAX_EXPORT_MODS];			/* Pfade fÅr bis zu 100 Export-Module */
 
 char *export_cnfblock[50];				/* Konfigurationsblîcke fÅr die Exporter */
 short export_cnflen[50];				/* LÑnge des jeweiligen Blockes */
@@ -189,8 +189,8 @@ WORD appl_id, menu_id;
 SMURF_PIC *smurf_picture[MAX_PIC];
 short active_pic;
 
-BASPAG *Dithermod_Basepage[10];			/* Basepages fÅr Dithermodule */
-const DITHER_MOD_INFO *ditmod_info[10];		/* Ditherinfostrukturen fÅr Dithermodule */
+BASPAG *Dithermod_Basepage[MAX_DITHER_MODS];			/* Basepages fÅr Dithermodule */
+const DITHER_MOD_INFO *ditmod_info[MAX_DITHER_MODS];		/* Ditherinfostrukturen fÅr Dithermodule */
 
 char *export_path;						/* Pfad des Export-Modules  */
 short export_depth[8];

@@ -22,6 +22,9 @@
  * ***** END LICENSE BLOCK *****
  */
 
+/* max. number of import modules */
+#define MAX_IMPORT_MODS 200
+
 /*---------------- Strukturen -----------------*/
 
 /* Wird spÑter mit Dpathconf() fÅr den Modulpfad selbst bestimmt und Runtime festgelegt. */
@@ -48,8 +51,8 @@ typedef struct
 /* Die Namen und Extensions aller Importmodule */
 typedef struct
 {
-    char *imp_mod_list[200];
-    char *mod_exts[11][201];
+    char *imp_mod_list[MAX_IMPORT_MODS];
+    char *mod_exts[10][MAX_IMPORT_MODS];
 } IMPORT_LIST;
 
 

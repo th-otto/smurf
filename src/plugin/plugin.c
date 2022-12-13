@@ -256,9 +256,7 @@ void scan_plugins(void)
 					plg_info[install_index]->name = name;
 					memcpy(&installed_infos[install_index], plg_info[install_index], sizeof(PLUGIN_INFO));
 
-					plugin_paths[install_index] = malloc(strlen(edit_path) + 1);
-					memset(plugin_paths[install_index], 0, strlen(edit_path) + 1);
-					strcpy(plugin_paths[install_index], edit_path);
+					plugin_paths[install_index] = strdup(edit_path);
 
 					plg_data[install_index] = malloc(sizeof(PLUGIN_DATA));
 					memset(plg_data[install_index], 0, sizeof(PLUGIN_DATA));
@@ -277,11 +275,7 @@ void scan_plugins(void)
 					/* und nicht nur ausgetauscht wurde */
 					if (!(install_index == t && install_index != anzahl_plugins))
 						anzahl_plugins++;
-				}
-				/*
-				 *
-				 */
-				else
+				} else
 				{
 #if 0
 					Pexec(102, NULL, plugin_bp[anzahl_plugins], NULL);

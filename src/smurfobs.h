@@ -228,7 +228,7 @@ typedef struct editmodList
     void (*infoOff)(void);
     void (*infoOn)(short mod_index);
 
-    char *modNames[100];            /* Namen fÅr bis zu 100 Edit-Module */
+    char *modNames[MAX_EDIT_MODS];            /* Namen fÅr bis zu 100 Edit-Module */
     LIST_FIELD  modList;
     OBJECT *tree;
     OBJECT *infoTree;
@@ -245,7 +245,7 @@ typedef struct exportList
     void (*infoOn)(short mod_index);
     void (*infoOff)(void);
 
-    char *modNames[100];            /* Namen fÅr bis zu 100 Edit-Module */
+    char *modNames[MAX_EXPORT_MODS];            /* Namen fÅr bis zu 100 Edit-Module */
     LIST_FIELD  modList;
     OBJECT *tree;
     OBJECT *infoTree;

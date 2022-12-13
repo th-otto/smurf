@@ -143,7 +143,7 @@ void f_scan_edit(void)
 				 */
 				start_module(edit_baspag);
 
-				if (Dialog.emodList.anzahl < 100)
+				if (Dialog.emodList.anzahl < MAX_EDIT_MODS)
 				{
 					/*
 					 * Modul eintragen
@@ -225,8 +225,7 @@ static void save_extensions(const MOD_INFO *module_info)
 	t = 0;
 	do
 	{
-		Import_list.mod_exts[t][anzahl_importmods] = malloc(strlen(module_info->ext[t]) + 1);
-		strcpy(Import_list.mod_exts[t][anzahl_importmods], module_info->ext[t]);
+		Import_list.mod_exts[t][anzahl_importmods] = strdup(module_info->ext[t]);
 		strupr(Import_list.mod_exts[t][anzahl_importmods]);
 	} while (++t < 10);
 }
@@ -415,10 +414,9 @@ void f_scan_import(void)
 				start_module(import_baspag);
 
 				/*---- Modul eintragen */
-				if (anzahl_importmods < 200)
+				if (anzahl_importmods < MAX_IMPORT_MODS)
 				{
-					Import_list.imp_mod_list[anzahl_importmods] = malloc(strlen(actual->modname) + 1);
-					strcpy(Import_list.imp_mod_list[anzahl_importmods], actual->modname);
+					Import_list.imp_mod_list[anzahl_importmods] = strdup(actual->modname);
 	
 					/*---- Extensionen merken */
 					save_extensions(module_info);
@@ -675,7 +673,7 @@ void f_scan_export(void)
 				/*---- LÑnge des gesamten Tochterprozesses ermitteln */
 				start_module(export_baspag);
 
-				if (Dialog.expmodList.anzahl < 100)
+				if (Dialog.expmodList.anzahl < MAX_EXPORT_MODS)
 				{
 					/*---- Modul eintragen */
 					export_modules[Dialog.expmodList.anzahl] = malloc(pathlen + 1);	/* keine variable LÑnge wegen Sortierung! */
@@ -753,12 +751,11 @@ void f_scan_export(void)
 /* ----------------------------------------------------------------	*/
 void f_scan_dither(void)
 {
-	char *ditpath;
-	char *dit_path;
+	char ditpath[SM_PATH_MAX];
+	char *dit_path_end;
 	char alert[128];
-	char string[20] = "";
+	char string[20];
 	const DITHER_START *dither_start;
-	short pathlen;
 	long temp;
 	BASPAG *dit_baspag;
 	struct DIRENTRY *filelist;
@@ -767,15 +764,11 @@ void f_scan_dither(void)
 	DEBUG_MSG(("Lade Dither-Module\n"));
 
 	/*---- Pfade vorbereiten ----*/
-	ditpath = calloc(1, strlen(Sys_info.standard_path) + strlen("\\modules\\dither\\") + 1);
 	strcpy(ditpath, Sys_info.standard_path);
 	strcat(ditpath, "\\modules\\dither\\");
+	dit_path_end = ditpath + strlen(ditpath);
 
-	Name_Max = get_maxnamelen(ditpath);
-	pathlen = (short) (strlen(ditpath) + Name_Max);
-	dit_path = (char *) calloc(1, pathlen + 1);
-
-	filelist = build_up_filelist(ditpath, "sdm", pathlen);
+	filelist = build_up_filelist(ditpath, "sdm", SM_PATH_MAX);
 
 	anzahl_dithermods = 0;
 
@@ -783,14 +776,13 @@ void f_scan_dither(void)
 	while (actual != NULL)
 	{
 		/*---- Modul als Overlay laden und Basepage ermitteln */
-		strcpy(dit_path, ditpath);
-		strcat(dit_path, actual->modname);
+		strcpy(dit_path_end, actual->modname);
 
 		DEBUG_MSG(("  anzahl_dithermods:  %i\n", anzahl_dithermods));
 		DEBUG_MSG(("  dit_path:  %s\n", dit_path));
 		DEBUG_MSG(("  Speicher %li\n", Malloc(-1)));
 
-		temp = Pexec(3, dit_path, "", NULL);
+		temp = Pexec(3, ditpath, "", NULL);
 
 		if (temp <= 0)
 		{
@@ -808,16 +800,20 @@ void f_scan_dither(void)
 			{
 				sprintf(alert, smurf_frstr[AL_WRONG_MODULE], actual->modname, "dither", "Dithermodul");
 				form_alert(1, alert);
+				SMfree(dit_baspag->p_env);
+				SMfree(dit_baspag);
 			} else if (dither_start->info->compiler_id != COMPILER_ID)
 			{
 				sprintf(alert, smurf_frstr[AL_WRONG_COMPILER], actual->modname, "dither");
 				form_alert(1, alert);
+				SMfree(dit_baspag->p_env);
+				SMfree(dit_baspag);
 			} else
 			{
 				/*---- LÑnge des gesamten Tochterprozesses ermitteln */
 				start_module(dit_baspag);
 
-				if (anzahl_dithermods < 10)
+				if (anzahl_dithermods < MAX_DITHER_MODS)
 				{
 					ditmod_info[anzahl_dithermods] = dither_start->info;
 					Dithermod_Basepage[anzahl_dithermods] = dit_baspag;
@@ -842,9 +838,6 @@ void f_scan_dither(void)
 	}
 
 	destroy_filelist(filelist);
-
-	free(dit_path);
-	free(ditpath);
 }
 
 
@@ -855,7 +848,7 @@ void f_scan_dither(void)
 /* Die Extensions werden jetzt auch bei Fsfirst()/Fsnext() manuell getestet! */
 struct DIRENTRY *build_up_filelist(char *path, char *ext, short pathlen)
 {
-	char *mod_path;
+	char mod_path[SM_PATH_MAX];
 	char *buf;
 	char *_buf;
 	char *temp;
@@ -868,10 +861,11 @@ struct DIRENTRY *build_up_filelist(char *path, char *ext, short pathlen)
 	struct DIRENTRY *actual;
 	struct DIRENTRY Element;
 
+	Element.next = NULL;			/* Initial auf "keine Dateien enthalten" setzen */
+	actual = &Element;
+
 	if ((back = Dopendir(path, 0)) != EINVFN)	/* Verzeichnis im Normalmodus îffnen */
 	{									/* und Test ob Dopendir() existiert */
-		Element.next = NULL;			/* Initial auf "keine Dateien enthalten" setzen */
-
 		if ((back & 0xff000000L) != 0xff000000L)	/* Directory gefunden? */
 		{								/* negativer Backval ist _nicht_ automatisch Fehler! */
 			dirhandle = back;			/* Dopendir-RÅckgabe an die richtige Variable geben */
@@ -879,7 +873,6 @@ struct DIRENTRY *build_up_filelist(char *path, char *ext, short pathlen)
 			buflen = 4 + pathlen + 1;
 			buf = (char *) calloc(1, buflen);
 
-			actual = &Element;
 			do
 			{
 				/* ok MagicPC is giving me -49 not -47 at the end
@@ -910,16 +903,12 @@ struct DIRENTRY *build_up_filelist(char *path, char *ext, short pathlen)
 		Fsetdta(&new_dta);				/* neue DTA setzen */
 
 		/*---- Pfade vorbereiten ----*/
-		mod_path = (char *) calloc(1, strlen(path) + 14);	/* path + Extender */
 		strcpy(mod_path, path);
 		strcat(mod_path, "*.*");
-
-		Element.next = NULL;			/* Initial auf "keine Dateien enthalten" setzen */
 
 		/*---- erstes File ermitteln ----*/
 		if (Fsfirst(mod_path, 0) == 0)
 		{
-			actual = &Element;
 			do
 			{
 				if ((temp = strrchr(new_dta.d_fname, '.')) != NULL)
@@ -928,10 +917,6 @@ struct DIRENTRY *build_up_filelist(char *path, char *ext, short pathlen)
 						actual = insert_entry(actual, new_dta.d_fname);	/* neuen Eintrag einhÑngen */
 						files_read++;
 					}
-
-							  /*---- nÑchsten Modulpfad ermitteln */
-				strcpy(mod_path, path);
-				strcat(mod_path, new_dta.d_fname);
 			} while (Fsnext() == 0);	/* und das fÅr alle Module */
 		}
 

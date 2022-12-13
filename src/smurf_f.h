@@ -28,7 +28,16 @@
 #include "portab.h"
 
 #define MAX_PIC 25
+/* max. number of concurrently active modules */
 #define MAX_MODS 21
+/* max. number of edit modules */
+#define MAX_EDIT_MODS   100
+/* max. number of export modules */
+#define MAX_EXPORT_MODS 100
+/* max. number of import modules */
+#define MAX_IMPORT_MODS 200
+/* max. number of dither modules */
+#define MAX_DITHER_MODS 10
 
 #if !defined(__GNUC__) && !defined(__attribute__)
 #  define __attribute__(x)
@@ -390,7 +399,7 @@ void fulldisable_busybox(void);
 
 /*----- Smurf-Systemspezifisches ----*/
 extern DISPLAY_MODES Display_Opt;
-extern char *edit_modules[100];			/* Pfade fÅr bis zu 100 Edit-Module */
+extern char *edit_modules[MAX_EDIT_MODS];		/* Pfade fÅr bis zu 100 Edit-Module */
 extern SERVICE_FUNCTIONS global_services;
 
 extern WORD resource_global[100];
@@ -427,7 +436,7 @@ extern WORD orig_blue[SM_PALETTE_MAX];
 extern uint8_t planetable[SM_PALETTE_MAX];
 
 /*--------- Exporterspezifisches ------*/
-extern char *export_modules[100];		/* Pfade fÅr bis zu 100 Export-Module */
+extern char *export_modules[MAX_EXPORT_MODS];		/* Pfade fÅr bis zu 100 Export-Module */
 extern char *export_cnfblock[50];		/* Konfigurationsblîcke fÅr die Exporter */
 extern short export_cnflen[50];			/* LÑnge des jeweiligen Blockes */
 
@@ -455,7 +464,7 @@ extern GRECT screen;					/* globales Screen-GRECT */
 extern WORD appl_id, menu_id;
 extern SMURF_PIC *smurf_picture[25];
 extern short active_pic;
-extern BASPAG *Dithermod_Basepage[10];			/* Basepages fÅr Dithermodule */
+extern BASPAG *Dithermod_Basepage[MAX_DITHER_MODS];			/* Basepages fÅr Dithermodule */
 
 extern long smax[4];			/* Maxima */
 extern long smin[4];			/* Minima */
